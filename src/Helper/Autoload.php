@@ -1,16 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Autoload
- * @brief Helper to autoload class using php namespace
- *
- * Based on PSR-4 Autoloader
- * https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-4-autoloader.md
- *
- * A root prefix and base directory can be added to all ns
- * to work with non full standardized project.
- *
  * @package Dotclear
- * @subpackage Utils
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,6 +9,19 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper;
 
+/**
+ * Helper to autoload class using php namespace.
+ *
+ * \Dotclear\Helper\Autoload
+ *
+ * Based on PSR-4 Autoloader
+ * https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-4-autoloader.md
+ *
+ * A root prefix and base directory can be added to all ns
+ * to work with non full standardized project.
+ *
+ * @ingroup  Helper Autoload Stack
+ */
 class Autoload
 {
     /** Directory separator */
@@ -37,14 +40,14 @@ class Autoload
     protected $prefixes = [];
 
     /** @var array Keep track of loaded files */
-    private static $loaded_files = [];
+    private static $loaded_files  = [];
     private static $request_count = 0;
 
     /**
      * Register loader with SPL autoloader stack.
      *
-     * @param string    $root_prefix    Common ns prefix
-     * @param string    $root_base_dir  Common dir prefix
+     * @param string $root_prefix   Common ns prefix
+     * @param string $root_base_dir Common dir prefix
      */
     public function __construct(string $root_prefix = '', string $root_base_dir = '', bool $prepend = false)
     {
@@ -55,12 +58,12 @@ class Autoload
             $this->root_base_dir = $this->normalizeBaseDir($root_base_dir);
         }
 
-        /** @phpstan-ignore-next-line */
+        // @phpstan-ignore-next-line
         spl_autoload_register([$this, 'loadClass'], true, $prepend);
     }
 
     /**
-     * Get root prefix
+     * Get root prefix.
      *
      * @return string Root prefix
      */
@@ -70,7 +73,7 @@ class Autoload
     }
 
     /**
-     * Get root base directory
+     * Get root base directory.
      *
      * @return string Root base directory
      */
@@ -80,9 +83,9 @@ class Autoload
     }
 
     /**
-     * Normalize namespace prefix
+     * Normalize namespace prefix.
      *
-     * @param string    $prefix     Ns prefix
+     * @param string $prefix Ns prefix
      *
      * @return string Prefix with only right namesapce separator
      */
@@ -92,9 +95,9 @@ class Autoload
     }
 
     /**
-     * Normalize base directory
+     * Normalize base directory.
      *
-     * @param string    $base_dir     Dir prefix
+     * @param string $base_dir Dir prefix
      *
      * @return string Base dir with right directory separator
      */
@@ -104,11 +107,11 @@ class Autoload
     }
 
     /**
-     * Clean up a string into namespace part
+     * Clean up a string into namespace part.
      *
-     * @param string    $str    string to clean
+     * @param string $str string to clean
      *
-     * @return string|null   Cleaned string or null if empty
+     * @return null|string Cleaned string or null if empty
      */
     public function qualifyNamespace(string $str): ?string
     {
@@ -130,20 +133,18 @@ class Autoload
     /**
      * Adds a base directory for a namespace prefix.
      *
-     * @param string $prefix The namespace prefix.
-     * @param string $base_dir A base directory for class files in the namespace.
-     * @param bool $prepend If true, prepend the base directory to the stack
-     * instead of appending it; this causes it to be searched first rather
-     * than last.
-     *
-     * @return void
+     * @param string $prefix   the namespace prefix
+     * @param string $base_dir a base directory for class files in the namespace
+     * @param bool   $prepend  if true, prepend the base directory to the stack
+     *                         instead of appending it; this causes it to be searched first rather
+     *                         than last
      */
     public function addNamespace(string $prefix, string $base_dir, bool $prepend = false): void
     {
         $prefix   = $this->root_prefix . $this->normalizePrefix($prefix);
         $base_dir = $this->root_base_dir . $this->normalizeBaseDir($base_dir);
 
-        if (isset($this->prefixes[$prefix]) === false) {
+        if (false === isset($this->prefixes[$prefix])) {
             $this->prefixes[$prefix] = [];
         }
 
@@ -155,7 +156,7 @@ class Autoload
     }
 
     /**
-     * Get list of registered namespace
+     * Get list of registered namespace.
      *
      * @return array List of namesapce prefix / base dir
      */
@@ -167,18 +168,18 @@ class Autoload
     /**
      * Loads the class file for a given class name.
      *
-     * @param string $class The fully-qualified class name.
+     * @param string $class the fully-qualified class name
      *
-     * @return string|null The mapped file name on success, or null on failure.
+     * @return null|string the mapped file name on success, or null on failure
      */
     public function loadClass(string $class): ?string
     {
-        self::$request_count++;
+        ++self::$request_count;
         $prefix = $class;
 
         while (false !== $pos = strrpos($prefix, self::NS_SEP)) {
             $prefix         = substr($class, 0, $pos + 1);
-            $relative_class = substr($class, $pos + 1);
+            $relative_class = substr($class, $pos    + 1);
 
             $mapped_file = $this->loadMappedFile($prefix, $relative_class);
             if ($mapped_file) {
@@ -194,15 +195,15 @@ class Autoload
     /**
      * Load the mapped file for a namespace prefix and relative class.
      *
-     * @param string $prefix The namespace prefix.
-     * @param string $relative_class The relative class name.
+     * @param string $prefix         the namespace prefix
+     * @param string $relative_class the relative class name
      *
-     * @return string|null Null if no mapped file can be loaded, or the
-     * name of the mapped file that was loaded.
+     * @return null|string null if no mapped file can be loaded, or the
+     *                     name of the mapped file that was loaded
      */
     protected function loadMappedFile(string $prefix, string $relative_class): ?string
     {
-        if (isset($this->prefixes[$prefix]) === false) {
+        if (false === isset($this->prefixes[$prefix])) {
             return null;
         }
 
@@ -222,14 +223,15 @@ class Autoload
     /**
      * If a file exists, require it from the file system.
      *
-     * @param string $file The file to require.
+     * @param string $file the file to require
      *
-     * @return bool True if the file exists, false if not.
+     * @return bool true if the file exists, false if not
      */
     protected function requireFile(string $file): bool
     {
         if (file_exists($file)) {
             self::$loaded_files[$file] = 1;
+
             require $file;
 
             return true;
@@ -239,7 +241,7 @@ class Autoload
     }
 
     /**
-     * Get list of all loaded files from this autoloader
+     * Get list of all loaded files from this autoloader.
      *
      * @return array Loaded files list
      */
@@ -249,9 +251,9 @@ class Autoload
     }
 
     /**
-     * Get number of requests on this autoloader
+     * Get number of requests on this autoloader.
      *
-     * @return  int     Number of requests
+     * @return int Number of requests
      */
     public function getRequestsCount(): int
     {

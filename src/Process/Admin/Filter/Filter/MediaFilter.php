@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Filter\Filter\MediaFilter
+ * @note Dotclear\Process\Admin\Filter\Filter\MediaFilter
  * @brief class for admin media list filters form
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @since 2.20
  *
@@ -17,7 +16,6 @@ namespace Dotclear\Process\Admin\Filter\Filter;
 
 use ArrayObject;
 use Dotclear\Process\Admin\Filter\Filter;
-use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 use Dotclear\Helper\Html\Html;
 
 class MediaFilter extends Filter
@@ -39,10 +37,10 @@ class MediaFilter extends Filter
             $this->getPluginIdFilter(),
             $this->getLinkTypeFilter(),
             $this->getPopupFilter(),
-            $this->getMediaSelectFilter()
+            $this->getMediaSelectFilter(),
         ]);
 
-        # --BEHAVIOR-- adminBlogFilter
+        // --BEHAVIOR-- adminBlogFilter
         dotclear()->behavior()->call('adminMediaFilter', $filters);
 
         $filters = $filters->getArrayCopy();
@@ -53,7 +51,7 @@ class MediaFilter extends Filter
     }
 
     /**
-     * Cope with old behavior
+     * Cope with old behavior.
      */
     protected function legacyBehavior(): void
     {
@@ -99,7 +97,7 @@ class MediaFilter extends Filter
     protected function getDirFilter(): DefaultFilter
     {
         $get = $_REQUEST['d'] ?? null;
-        if ($get === null && isset($_SESSION['media_manager_dir'])) {
+        if (null === $get && isset($_SESSION['media_manager_dir'])) {
             // We get session information
             $get = $_SESSION['media_manager_dir'];
         }
@@ -115,7 +113,7 @@ class MediaFilter extends Filter
     protected function getFileModeFilter(): DefaultFilter
     {
         if (!empty($_GET['file_mode'])) {
-            $_SESSION['media_file_mode'] = $_GET['file_mode'] == 'grid' ? 'grid' : 'list';
+            $_SESSION['media_file_mode'] = 'grid' == $_GET['file_mode'] ? 'grid' : 'list';
         }
         $get = !empty($_SESSION['media_file_mode']) ? $_SESSION['media_file_mode'] : 'grid';
 

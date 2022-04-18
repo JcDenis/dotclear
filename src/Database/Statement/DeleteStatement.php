@@ -1,12 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Dotclear\Database\Statement;
 
-use Dotclear\Database\Statement\SqlStatement;
-
 /**
- * Delete Statement : small utility to build delete queries
+ * Delete Statement : small utility to build delete queries.
  */
 class DeleteStatement extends SqlStatement
 {
@@ -16,13 +15,13 @@ class DeleteStatement extends SqlStatement
     }
 
     /**
-     * Returns the delete statement
+     * Returns the delete statement.
      *
      * @return string the statement
      */
     public function statement(): string
     {
-        # --BEHAVIOR-- coreBeforeDeleteStatement
+        // --BEHAVIOR-- coreBeforeDeleteStatement
         dotclear()->behavior()->call('coreBeforeDeleteStatement', $this);
 
         // Check if source given
@@ -56,16 +55,14 @@ class DeleteStatement extends SqlStatement
 
         $query = trim($query);
 
-        # --BEHAVIOR-- coreAfertDeleteStatement
+        // --BEHAVIOR-- coreAfertDeleteStatement
         dotclear()->behavior()->call('coreAfterDeleteStatement', $this, $query);
 
         return $query;
     }
 
     /**
-     * Run the SQL select query and return result
-     *
-     * @return     bool
+     * Run the SQL select query and return result.
      */
     public function delete(): bool
     {
@@ -77,9 +74,7 @@ class DeleteStatement extends SqlStatement
     }
 
     /**
-     * delete() alias
-     *
-     * @return     bool
+     * delete() alias.
      */
     public function run(): bool
     {

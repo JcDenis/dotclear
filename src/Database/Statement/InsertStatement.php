@@ -1,21 +1,20 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Dotclear\Database\Statement;
 
-use Dotclear\Database\Statement\SqlStatement;
-
 /**
- * Insert Statement : small utility to build insert queries
+ * Insert Statement : small utility to build insert queries.
  */
 class InsertStatement extends SqlStatement
 {
     protected $lines;
 
     /**
-     * Class constructor
+     * Class constructor.
      *
-     * @param mixed     $ctx    optional context
+     * @param mixed $ctx optional context
      */
     public function __construct($ctx = null)
     {
@@ -30,10 +29,10 @@ class InsertStatement extends SqlStatement
     }
 
     /**
-     * from() alias
+     * from() alias.
      *
-     * @param mixed     $c      the into clause(s)
-     * @param boolean   $reset  reset previous into first
+     * @param mixed $c     the into clause(s)
+     * @param bool  $reset reset previous into first
      *
      * @return self instance, enabling to chain calls
      */
@@ -45,10 +44,10 @@ class InsertStatement extends SqlStatement
     }
 
     /**
-     * Adds update value(s)
+     * Adds update value(s).
      *
-     * @param mixed     $c      the insert values(s)
-     * @param boolean   $reset  reset previous insert value(s) first
+     * @param mixed $c     the insert values(s)
+     * @param bool  $reset reset previous insert value(s) first
      *
      * @return self instance, enabling to chain calls
      */
@@ -67,10 +66,10 @@ class InsertStatement extends SqlStatement
     }
 
     /**
-     * line() alias
+     * line() alias.
      *
-     * @param      mixed    $c      the insert value(s)
-     * @param      boolean  $reset  reset previous insert value(s) first
+     * @param mixed $c     the insert value(s)
+     * @param bool  $reset reset previous insert value(s) first
      *
      * @return self instance, enabling to chain calls
      */
@@ -80,13 +79,13 @@ class InsertStatement extends SqlStatement
     }
 
     /**
-     * Returns the insert statement
+     * Returns the insert statement.
      *
      * @return string the statement
      */
     public function statement(): string
     {
-        # --BEHAVIOR-- coreBeforeInsertStatement
+        // --BEHAVIOR-- coreBeforeInsertStatement
         dotclear()->behavior()->call('coreBeforeInsertStatement', $this);
 
         // Check if source given
@@ -121,16 +120,16 @@ class InsertStatement extends SqlStatement
 
         $query = trim($query);
 
-        # --BEHAVIOR-- coreAfertInsertStatement
+        // --BEHAVIOR-- coreAfertInsertStatement
         dotclear()->behavior()->call('coreAfterInsertStatement', $this, $query);
 
         return $query;
     }
 
     /**
-     * Run the SQL select query and return result
+     * Run the SQL select query and return result.
      *
-     * @return     bool  true
+     * @return bool true
      */
     public function insert(): bool
     {
@@ -142,9 +141,7 @@ class InsertStatement extends SqlStatement
     }
 
     /**
-     * insert() alias
-     *
-     * @return     bool
+     * insert() alias.
      */
     public function run(): bool
     {

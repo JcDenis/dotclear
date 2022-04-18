@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Core\Log\Log
+ * @note Dotclear\Core\Log\Log
  * @brief Dotclear utils log class
  *
- * @package Dotclear
- * @subpackage Instance
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -22,18 +21,19 @@ use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
 use Dotclear\Exception\CoreException;
 use Dotclear\Helper\Network\Http;
+use Exception;
 
 class Log
 {
-    /** @var    string  Log table name */
+    /** @var string Log table name */
     protected $log_table = 'log';
 
-    /** @var    string  User table name */
+    /** @var string User table name */
     protected $user_table = 'user';
 
     /**
      * Retrieves logs. <b>$params</b> is an array taking the following
-     * optionnal parameters:
+     * optionnal parameters:.
      *
      * - blog_id: Get logs belonging to given blog ID
      * - user_id: Get logs belonging to given user ID
@@ -43,15 +43,16 @@ class Log
      * - order: Order of results (default "ORDER BY log_dt DESC")
      * - limit: Limit parameter
      *
-     * @param   array   $params         The parameters
-     * @param   bool    $count_only     Count only resultats
+     * @param array $params     The parameters
+     * @param bool  $count_only Count only resultats
      *
-     * @return  Record                  The logs.
+     * @return Record the logs
      */
     public function get(array $params = [], bool $count_only = false): Record
     {
         $sql = SelectStatement::init(__METHOD__)
-            ->from(dotclear()->prefix . $this->log_table . ' L');
+            ->from(dotclear()->prefix . $this->log_table . ' L')
+        ;
 
         if ($count_only) {
             $sql->column($sql->count('log_id'));
@@ -100,7 +101,8 @@ class Log
         }
 
         if (!$count_only) {
-            $sql->order(empty($params['order']) ?
+            $sql->order(
+                empty($params['order']) ?
                 'log_dt DESC' :
                 $sql->escape($params['order'])
             );
@@ -119,16 +121,14 @@ class Log
     /**
      * Creates a new log. Takes a cursor as input and returns the new log ID.
      *
-     * @param   Cursor  $cur    The current
-     *
-     * @return  int
+     * @param Cursor $cur The current
      */
     public function add(Cursor $cur): int
     {
         dotclear()->con()->writeLock(dotclear()->prefix . $this->log_table);
 
         try {
-            # Get ID
+            // Get ID
             $id = SelectStatement::init(__METHOD__)
                 ->column('MAX(log_id)')
                 ->from(dotclear()->prefix . $this->log_table)
@@ -140,18 +140,18 @@ class Log
 
             $this->cursor($cur, $cur->getField('log_id'));
 
-            # --BEHAVIOR-- coreBeforeLogCreate, Dotclear\Core\Log, Dotclear\Database\Cursor
+            // --BEHAVIOR-- coreBeforeLogCreate, Dotclear\Core\Log, Dotclear\Database\Cursor
             dotclear()->behavior()->call('coreBeforeLogCreate', $this, $cur);
 
             $cur->insert();
             dotclear()->con()->unlock();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             dotclear()->con()->unlock();
 
             throw $e;
         }
 
-        # --BEHAVIOR-- coreAfterLogCreate, Dotclear\Core\Log, Dotclear\Database\Cursor
+        // --BEHAVIOR-- coreAfterLogCreate, Dotclear\Core\Log, Dotclear\Database\Cursor
         dotclear()->behavior()->call('coreAfterLogCreate', $this, $cur);
 
         return $cur->getField('log_id');
@@ -160,8 +160,8 @@ class Log
     /**
      * Deletes a log.
      *
-     * @param   int|array   $id     The identifier
-     * @param   bool        $all    Remove all logs
+     * @param array|int $id  The identifier
+     * @param bool      $all Remove all logs
      */
     public function delete(int|array $id, bool $all = false): void
     {
@@ -174,16 +174,17 @@ class Log
 
         $sql
             ->from(dotclear()->prefix . $this->log_table)
-            ->run();
+            ->run()
+        ;
     }
 
     /**
      * Gets the log cursor.
      *
-     * @param   Cursor      $cur        The current
-     * @param   int|null    $log_id     The log identifier
+     * @param Cursor   $cur    The current
+     * @param null|int $log_id The log identifier
      *
-     * @throws  CoreException
+     * @throws CoreException
      */
     private function cursor(Cursor $cur, ?int $log_id = null)
     {

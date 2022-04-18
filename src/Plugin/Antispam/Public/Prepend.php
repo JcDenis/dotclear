@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Antispam\Public\Prepend
+ * @note Dotclear\Plugin\Antispam\Public\Prepend
  * @brief Dotclear Plugin class
  *
- * @package Dotclear
- * @subpackage PluginAntispam
+ * @ingroup  PluginAntispam
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only

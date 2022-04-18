@@ -1,10 +1,6 @@
 <?php
 /**
- * @class Dotclear\Exception\PrependException
- * @brief Dotclear startup exception
- *
  * @package Dotclear
- * @subpackage Exception
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,10 +9,20 @@ declare(strict_types=1);
 
 namespace Dotclear\Exception;
 
-class PrependException extends \Exception
+use Exception;
+use Throwable;
+
+/**
+ * Prepend exception.
+ *
+ * \Dotclear\Exception\PrependException
+ *
+ * @ingroup  Core Admin Public Install Distrib Exception
+ */
+class PrependException extends Exception
 {
     /**
-     * Constructor
+     * Constructor.
      *
      * Except in CLI mode, it always displays an html error page.
      * Its construction differ from Exception
@@ -24,11 +30,11 @@ class PrependException extends \Exception
      *
      * @uses    dotclear_error()
      *
-     * @param   string  $message The message
-     * @param   string  $detail  The detail
-     * @param   int     $code    The code
+     * @param string $message The message
+     * @param string $detail  The detail
+     * @param int    $code    The code
      */
-    public function __construct(string $message = 'Unknow Exception', string $detail = '', int $code = 0, bool $trace = false, \Throwable $e = null)
+    public function __construct(string $message = 'Unknow Exception', string $detail = '', int $code = 0, bool $trace = false, Throwable $e = null)
     {
         parent::__construct($message, $code, $e);
 

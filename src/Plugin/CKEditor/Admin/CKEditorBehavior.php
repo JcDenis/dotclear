@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\CKEditor\Admin\CKEditorBehavior
+ * @note Dotclear\Plugin\CKEditor\Admin\CKEditorBehavior
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginCKEditor
+ * @ingroup  PluginCKEditor
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,7 +13,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\CKEditor\Admin;
 
 use ArrayObject;
-
 use Dotclear\Helper\Html\Html;
 
 class CKEditorBehavior
@@ -30,14 +28,12 @@ class CKEditorBehavior
     }
 
     /**
-     * adminPostEditor add javascript to the DOM to load ckeditor depending on context
+     * adminPostEditor add javascript to the DOM to load ckeditor depending on context.
      *
-     * @param      string  $editor   The wanted editor
-     * @param      string  $context  The page context (post,page,comment,event,...)
-     * @param      array   $tags     The array of ids to inject editor
-     * @param      string  $syntax   The wanted syntax (wiki,markdown,...)
-     *
-     * @return     string
+     * @param string $editor  The wanted editor
+     * @param string $context The page context (post,page,comment,event,...)
+     * @param array  $tags    The array of ids to inject editor
+     * @param string $syntax  The wanted syntax (wiki,markdown,...)
      */
     public function adminPostEditor(string $editor = '', string $context = '', array $tags = [], string $syntax = 'xhtml'): string
     {
@@ -50,17 +46,16 @@ class CKEditorBehavior
             $config_js .= '&context=' . $context;
         }
 
-        $res =
-        dotclear()->resource()->json('ck_editor_ctx', [
+        return dotclear()->resource()->json('ck_editor_ctx', [
             'ckeditor_context'      => $context,
             'ckeditor_tags_context' => [$context => $tags],
             'admin_base_url'        => dotclear()->adminurl()->root(),
             'base_url'              => dotclear()->blog()->host,
-            'dcckeditor_plugin_url' => dotclear()->adminurl()->root() .'?df=Plugin/CKEditor/Admin/resources', //!
+            'dcckeditor_plugin_url' => dotclear()->adminurl()->root() . '?df=Plugin/CKEditor/Admin/resources', // !
             'user_language'         => dotclear()->user()->getInfo('user_lang'),
         ]) .
         dotclear()->resource()->json('ck_editor_var', [
-            'CKEDITOR_BASEPATH' => dotclear()->adminurl()->root() .'?df=Plugin/CKEditor/Admin/resources/js/ckeditor/', //!
+            'CKEDITOR_BASEPATH' => dotclear()->adminurl()->root() . '?df=Plugin/CKEditor/Admin/resources/js/ckeditor/', // !
         ]) .
         dotclear()->resource()->json('ck_editor_msg', [
             'img_select_title'     => __('Media chooser'),
@@ -75,8 +70,6 @@ class CKEditorBehavior
         dotclear()->resource()->load('ckeditor/ckeditor.js', 'Plugin', 'CKEditor') .
         dotclear()->resource()->load('ckeditor/adapters/jquery.js', 'Plugin', 'CKEditor') .
         dotclear()->resource()->js($config_js);
-
-        return $res;
     }
 
     public function adminPopupMedia(string $editor = ''): string

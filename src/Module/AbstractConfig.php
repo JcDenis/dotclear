@@ -1,13 +1,12 @@
 <?php
 /**
- * @class Dotclear\Module\AbstractConfig
+ * @note Dotclear\Module\AbstractConfig
  * @brief Dotclear Module abstract Config
  *
  * If exists, Module Config class must extends this class.
  * It provides a simple way to add an admin form to configure module.
  *
- * @package Dotclear
- * @subpackage Module
+ * @ingroup  Module
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -21,16 +20,16 @@ use Dotclear\Helper\Network\Http;
 abstract class AbstractConfig
 {
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param   string  $redirection  Page redirection on validation
+     * @param string $redirection Page redirection on validation
      */
     public function __construct(private string $redirection = '')
     {
     }
 
     /**
-     * Redirect on success
+     * Redirect on success.
      */
     protected function redirect(): void
     {
@@ -38,12 +37,12 @@ abstract class AbstractConfig
     }
 
     /**
-     * Get module configuration permissions
+     * Get module configuration permissions.
      *
      * Returns null for super admin,
      * or comma separated list of permissions.
      *
-     * @return  string|null     The permissions to configure module
+     * @return null|string The permissions to configure module
      */
     public function getPermissions(): ?string
     {
@@ -51,20 +50,20 @@ abstract class AbstractConfig
     }
 
     /**
-     * Save configuration
+     * Save configuration.
      *
      * Chek and save configuration form fields.
      *
-     * @param   array   $post   Http _POST fieds
+     * @param array $post Http _POST fieds
      */
     abstract public function setConfiguration(array $post): void;
 
     /**
-     * Get configuration form
+     * Get configuration form.
      *
      * This methods should echo Html form (only fields) content.
      */
     abstract public function getConfiguration(): void;
 
-    //! todo: add contextual help
+    // ! todo: add contextual help
 }

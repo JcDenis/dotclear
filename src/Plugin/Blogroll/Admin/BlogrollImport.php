@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Blogroll\Admin\BlogrollImport
+ * @note Dotclear\Plugin\Blogroll\Admin\BlogrollImport
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginBlogroll
+ * @ingroup  PluginBlogroll
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,7 +17,7 @@ use Dotclear\Exception\ModuleException;
 
 class BlogrollImport
 {
-    /** @var    array<int, string>     $entries    Imported entries */
+    /** @var array<int, string>        Imported entries */
     protected $entries = [];
 
     public static function loadFile(string $file): array

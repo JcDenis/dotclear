@@ -1,9 +1,8 @@
 <?php
 /**
- * @class Dotclear\Module\Plugin\Public\ModulesPlugin
+ * @note Dotclear\Module\Plugin\Public\ModulesPlugin
  *
- * @package Dotclear
- * @subpackage Module
+ * @ingroup  Module
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,5 +17,6 @@ use Dotclear\Module\Plugin\TraitModulesPlugin;
 
 class ModulesPlugin extends AbstractModules
 {
-    use TraitModulesPublic, TraitModulesPlugin;
+    use TraitModulesPublic;
+    use TraitModulesPlugin;
 }

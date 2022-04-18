@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Theme\Ductile\Public\DuctileTemplate
+ * @note Dotclear\Theme\Ductile\Public\DuctileTemplate
  * @brief Dotclear Theme class
  *
- * @package Dotclear
- * @subpackage ThemeDuctile
+ * @ingroup  ThemeDuctile
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -39,7 +38,7 @@ class DuctileTemplate
         $nb_other = $nb_first = 0;
 
         $s = dotclear()->blog()->settings()->get('themes')->get(dotclear()->blog()->settings()->get('system')->get('theme') . '_entries_counts');
-        if ($s !== null) {
+        if (null !== $s) {
             $s = @unserialize($s);
             if (is_array($s)) {
                 switch (dotclear()->url()->type) {
@@ -53,6 +52,7 @@ class DuctileTemplate
                         }
 
                         break;
+
                     default:
                         if (isset($s[dotclear()->url()->type])) {
                             // Nb de billets par page défini par la config du thème
@@ -64,17 +64,17 @@ class DuctileTemplate
             }
         }
 
-        if ($nb_other == 0) {
+        if (0 == $nb_other) {
             if ($nb) {
                 // Nb de billets par page défini par défaut dans le template
                 $nb_other = $nb_first = $nb;
             }
         }
 
-        if ($nb_other > 0) {
+        if (0 < $nb_other) {
             dotclear()->context()->set('nb_entry_per_page', $nb_other);
         }
-        if ($nb_first > 0) {
+        if (0 < $nb_first) {
             dotclear()->context()->set('nb_entry_first_page', $nb_first);
         }
     }
@@ -143,13 +143,11 @@ class DuctileTemplate
     public static function ductileEntriesListHelper(string $default): string
     {
         $s = dotclear()->blog()->settings()->get('themes')->get(dotclear()->blog()->settings()->get('system')->get('theme') . '_entries_lists');
-        if ($s !== null) {
+        if (null !== $s) {
             $s = @unserialize($s);
             if (is_array($s)) {
                 if (isset($s[dotclear()->url()->type])) {
-                    $model = $s[dotclear()->url()->type];
-
-                    return $model;
+                    return $s[dotclear()->url()->type];
                 }
             }
         }
@@ -167,7 +165,7 @@ class DuctileTemplate
         $img_url = dotclear()->blog()->getURLFor('resources', 'img/logo.png');
 
         $s = dotclear()->blog()->settings()->get('themes')->get(dotclear()->blog()->settings()->get('system')->get('theme') . '_style');
-        if ($s === null) {
+        if (null === $s) {
             // no settings yet, return default logo
             return $img_url;
         }
@@ -178,8 +176,8 @@ class DuctileTemplate
         }
 
         if (isset($s['logo_src'])) {
-            if ($s['logo_src'] !== null) {
-                if ($s['logo_src'] != '') {
+            if (null !== $s['logo_src']) {
+                if ('' != $s['logo_src']) {
                     if ((substr($s['logo_src'], 0, 1) == '/') || (parse_url($s['logo_src'], PHP_URL_SCHEME) != '')) {
                         // absolute URL
                         $img_url = $s['logo_src'];
@@ -197,7 +195,7 @@ class DuctileTemplate
     public function IfPreviewIsNotMandatory(ArrayObject $attr, string $content): string
     {
         $s = dotclear()->blog()->settings()->get('themes')->get(dotclear()->blog()->settings()->get('system')->get('theme') . '_style');
-        if ($s !== null) {
+        if (null !== $s) {
             $s = @unserialize($s);
             if (is_array($s)) {
                 if (isset($s['preview_not_mandatory'])) {

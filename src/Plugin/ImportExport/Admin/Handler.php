@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\ImportExport\Admin\Handler
+ * @note Dotclear\Plugin\ImportExport\Admin\Handler
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginMaintenance
+ * @ingroup  PluginImportExport
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,13 +13,12 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\ImportExport\Admin;
 
 use ArrayObject;
-
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
+use Exception;
 
 class Handler extends AbstractPage
 {
-
     protected function getPermissions(): string|null|false
     {
         return 'admin';
@@ -28,10 +26,9 @@ class Handler extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-
         $modules = new ArrayObject(['import' => [], 'export' => []]);
 
-        # --BEHAVIOR-- importExportModules
+        // --BEHAVIOR-- importExportModules
         dotclear()->behavior()->call('importExportModules', $modules);
 
         $type = null;
@@ -47,15 +44,15 @@ class Handler extends AbstractPage
             }
         }
 
-        if ($type && $module !== null && !empty($_REQUEST['do'])) {
+        if ($type && null !== $module && !empty($_REQUEST['do'])) {
             try {
                 $module->process($_REQUEST['do']);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Page setup
+        // Page setup
         $this
             ->setPageTitle(__('Import/Export'))
             ->setPageHelp('import')
@@ -66,15 +63,14 @@ class Handler extends AbstractPage
             )
         ;
 
-
-        if ($type && $module !== null) {
+        if ($type && null !== $module) {
             $this->setPageBreadcrumb([
                 __('Plugins')                   => '',
                 __('Import/Export')             => dotclear()->adminurl()->get('admin.plugin.ImportExport'),
                 html::escapeHTML($module->name) => '',
             ]);
 
-            # Keep old module style that echo gui
+            // Keep old module style that echo gui
             ob_start();
             $module->gui();
             $content = ob_get_contents();
@@ -103,7 +99,7 @@ class Handler extends AbstractPage
         return true;
     }
 
-    //protected function getPageContent(): void { }
+    // protected function getPageContent(): void { }
 
     private function listImportExportModules($modules)
     {

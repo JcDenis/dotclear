@@ -1,17 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Network\Socket\Socket\Iterator
- * @brief Network socket iterator
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
- * This class offers an iterator for network operations made with
- * {@link Dotclear\Helper\Network\Socket\Socket}.
- *
- * @see Dotclear\Helper\Network\Socket\Socket::write()
- *
  * @package Dotclear
- * @subpackage Network
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -21,16 +10,31 @@ declare(strict_types=1);
 namespace Dotclear\Helper\Network\Socket;
 
 use Dotclear\Exception\NetworkException;
+use ReturnTypeWillChange;
 
+/**
+ * Network socket iterator.
+ *
+ * \Dotclear\Helper\Network\Socket\Socket\Iterator
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * This class offers an iterator for network operations made with
+ * {@link Dotclear\Helper\Network\Socket\Socket}.
+ *
+ * @see Dotclear\Helper\Network\Socket\Socket::write()
+ *
+ * @ingroup  Helper Network
+ */
 class Iterator implements \Iterator
 {
-    protected $_handle; ///< resource: Socket resource handler
-    protected $_index;  ///< integer: Current index position
+    protected $_handle; // /< resource: Socket resource handler
+    protected $_index;  // /< integer: Current index position
 
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param resource    $handle        Socket resource handler
+     * @param resource $handle Socket resource handler
      */
     public function __construct(&$handle)
     {
@@ -44,51 +48,51 @@ class Iterator implements \Iterator
     /* Iterator methods
     --------------------------------------------------- */
     /**
-     * Rewind
+     * Rewind.
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function rewind()
     {
-        # Nothing
+        // Nothing
     }
 
     /**
-     * Valid
+     * Valid.
      *
-     * @return boolean    True if EOF of handler
+     * @return bool True if EOF of handler
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function valid()
     {
         return !feof($this->_handle);
     }
 
     /**
-     * Move index forward
+     * Move index forward.
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function next()
     {
-        $this->_index++;
+        ++$this->_index;
     }
 
     /**
-     * Current index
+     * Current index.
      *
-     * @return integer    Current index
+     * @return int Current index
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function key()
     {
         return $this->_index;
     }
 
     /**
-     * Current value
+     * Current value.
      *
-     * @return string    Current socket response line
+     * @return string Current socket response line
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function current()
     {
         return fgets($this->_handle, 4096);

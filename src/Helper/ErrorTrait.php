@@ -1,10 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\ErrorTrait
- * @brief Dotclear trait error
- *
  * @package Dotclear
- * @subpackage Instance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,17 +9,22 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper;
 
-use Dotclear\Helper\Error;
-
+/**
+ * Error stack trait.
+ *
+ * \Dotclear\Helper\ErrorTrait
+ *
+ * @ingroup  Helper Error
+ */
 trait ErrorTrait
 {
-    /** @var    Error   Error instance */
+    /** @var Error Error instance */
     private $error;
 
     /**
-     * Get instance
+     * Get instance.
      *
-     * @return  Error   Error instance
+     * @return Error Error instance
      */
     public function error(): Error
     {

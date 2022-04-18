@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Core\Blog\Comments\Comments
+ * @note Dotclear\Core\Blog\Comments\Comments
  * @brief Dotclear core blog Comments class
  *
- * @package Dotclear
- * @subpackage Instance
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -22,16 +21,16 @@ use Dotclear\Database\Statement\JoinStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Exception\CoreException;
-use Dotclear\Exception\DeprecatedException;
 use Dotclear\Helper\Dt;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Text;
+use Exception;
 
 class Comments
 {
     /**
      * Retrieves comments. <b>$params</b> is an array taking the following
-     * optionnal parameters:
+     * optionnal parameters:.
      *
      * - no_content: Don't retrieve comment content
      * - post_type: Get only entries with given type (default no type, array for many types)
@@ -51,11 +50,11 @@ class Comments
      * - limit: Limit parameter
      * - sql_only : return the sql request instead of results. Only ids are selected
      *
-     * @param   array                   $params         Parameters
-     * @param   bool                    $count_only     Only counts results
-     * @param   SelectStatement|null    $sql            previous sql statement
+     * @param array                $params     Parameters
+     * @param bool                 $count_only Only counts results
+     * @param null|SelectStatement $sql        previous sql statement
      *
-     * @return   string|Record                          A record with some more capabilities (or sql statement)
+     * @return Record|string A record with some more capabilities (or sql statement)
      */
     public function getComments(array $params = [], bool $count_only = false, ?SelectStatement $sql = null): string|Record
     {
@@ -122,7 +121,8 @@ class Comments
                     ->from(dotclear()->prefix . 'user U')
                     ->on('P.user_id = U.user_id')
                     ->statement()
-            );
+            )
+        ;
 
         if (!empty($params['from'])) {
             $sql->from($params['from']);
@@ -168,7 +168,11 @@ class Comments
 
         if (isset($params['comment_id']) && '' !== $params['comment_id']) {
             if (is_array($params['comment_id'])) {
-                array_walk($params['comment_id'], function (&$v, $k) { if (null !== $v) {$v = (int) $v;}});
+                array_walk($params['comment_id'], function (&$v, $k) {
+                    if (null !== $v) {
+                        $v = (int) $v;
+                    }
+                });
             } else {
                 $params['comment_id'] = [(int) $params['comment_id']];
             }
@@ -211,7 +215,7 @@ class Comments
             $words = text::splitWords($params['search']);
 
             if (!empty($words)) {
-                # --BEHAVIOR coreCommentSearch
+                // --BEHAVIOR coreCommentSearch
                 if (dotclear()->behavior()->has('coreCommentSearch')) {
                     dotclear()->behavior()->call('coreCommentSearch', [&$words, &$sql, &$params]);
                 }
@@ -246,7 +250,7 @@ class Comments
         $rs = $sql->select();
         $rs->extend(new RsExtComment());
 
-        # --BEHAVIOR-- coreBlogGetComments, Dotclear\Database\Record
+        // --BEHAVIOR-- coreBlogGetComments, Dotclear\Database\Record
         dotclear()->behavior()->call('coreBlogGetComments', $rs);
 
         return $rs;
@@ -255,22 +259,21 @@ class Comments
     /**
      * Creates a new comment. Takes a cursor as input and returns the new comment ID.
      *
-     * @param   Cursor  $cur    The comment cursor
-     *
-     * @return  int
+     * @param Cursor $cur The comment cursor
      */
     public function addComment(Cursor $cur): int
     {
         dotclear()->con()->writeLock(dotclear()->prefix . 'comment');
 
         try {
-            # Get ID
+            // Get ID
             $sql = new SelectStatement(__METHOD__);
-            $id = $sql
+            $id  = $sql
                 ->column($sql->max('comment_id'))
                 ->from(dotclear()->prefix . 'comment')
                 ->select()
-                ->fInt();
+                ->fInt()
+            ;
 
             $cur->setField('comment_id', $id + 1);
             $cur->setField('comment_upddt', date('Y-m-d H:i:s'));
@@ -285,18 +288,18 @@ class Comments
                 $cur->setField('comment_ip', Http::realIP());
             }
 
-            # --BEHAVIOR-- coreBeforeCommentCreate, Dotclear\Core\Blog, Dotclear\Database\Record
+            // --BEHAVIOR-- coreBeforeCommentCreate, Dotclear\Core\Blog, Dotclear\Database\Record
             dotclear()->behavior()->call('coreBeforeCommentCreate', $this, $cur);
 
             $cur->insert();
             dotclear()->con()->unlock();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             dotclear()->con()->unlock();
 
             throw $e;
         }
 
-        # --BEHAVIOR-- coreAfterCommentCreate, Dotclear\Core\Blog, Dotclear\Database\Record
+        // --BEHAVIOR-- coreAfterCommentCreate, Dotclear\Core\Blog, Dotclear\Database\Record
         dotclear()->behavior()->call('coreAfterCommentCreate', $this, $cur);
 
         dotclear()->blog()->triggerComment($cur->getField('comment_id'));
@@ -310,10 +313,10 @@ class Comments
     /**
      * Updates an existing comment.
      *
-     * @param   int     $id     The comment identifier
-     * @param   Cursor  $cur    The comment cursor
+     * @param int    $id  The comment identifier
+     * @param Cursor $cur The comment cursor
      *
-     * @throws  CoreException
+     * @throws CoreException
      */
     public function updComment(int $id, Cursor $cur): void
     {
@@ -331,7 +334,7 @@ class Comments
             throw new CoreException(__('No such comment ID'));
         }
 
-        #If user is only usage, we need to check the post's owner
+        // If user is only usage, we need to check the post's owner
         if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
             if ($rs->f('user_id') != dotclear()->user()->userID()) {
                 throw new CoreException(__('You are not allowed to update this comment'));
@@ -346,12 +349,12 @@ class Comments
             $cur->unsetField('comment_status');
         }
 
-        # --BEHAVIOR-- coreBeforeCommentUpdate, Dotclear\Database\Cursor, Dotclear\Database\Record
+        // --BEHAVIOR-- coreBeforeCommentUpdate, Dotclear\Database\Cursor, Dotclear\Database\Record
         dotclear()->behavior()->call('coreBeforeCommentUpdate', $cur, $rs);
 
         $cur->update('WHERE comment_id = ' . $id . ' ');
 
-        # --BEHAVIOR-- coreAfterCommentUpdate, Dotclear\Database\Cursor, Dotclear\Database\Record
+        // --BEHAVIOR-- coreAfterCommentUpdate, Dotclear\Database\Cursor, Dotclear\Database\Record
         dotclear()->behavior()->call('coreAfterCommentUpdate', $cur, $rs);
 
         dotclear()->blog()->triggerComment($id);
@@ -361,8 +364,8 @@ class Comments
     /**
      * Updates comment status.
      *
-     * @param   int     $id         The comment identifier
-     * @param   int     $status     The comment status
+     * @param int $id     The comment identifier
+     * @param int $status The comment status
      */
     public function updCommentStatus(int $id, int $status): void
     {
@@ -372,10 +375,10 @@ class Comments
     /**
      * Updates comments status.
      *
-     * @param   array|ArrayObject   $ids        The identifiers
-     * @param   int                 $status     The status
+     * @param array|ArrayObject $ids    The identifiers
+     * @param int               $status The status
      *
-     * @throws  CoreException
+     * @throws CoreException
      */
     public function updCommentsStatus(array|ArrayObject $ids, int $status): void
     {
@@ -391,7 +394,8 @@ class Comments
             ->where('comment_id' . $sql->in($co_ids))
             ->and('post_id IN (' . $this->getPostOwnerStatement() . ')')
             ->from(dotclear()->prefix . 'comment')
-            ->update();
+            ->update()
+        ;
 
         dotclear()->blog()->triggerComments($co_ids);
         dotclear()->blog()->triggerBlog();
@@ -400,7 +404,7 @@ class Comments
     /**
      * Delete a comment.
      *
-     * @param   int     $id     The comment identifier
+     * @param int $id The comment identifier
      */
     public function delComment(int $id): void
     {
@@ -410,9 +414,9 @@ class Comments
     /**
      * Delete comments.
      *
-     * @param   array|ArrayObject   $ids    The comments identifiers
+     * @param array|ArrayObject $ids The comments identifiers
      *
-     * @throws  CoreException
+     * @throws CoreException
      */
     public function delComments(array|ArrayObject $ids): void
     {
@@ -426,15 +430,16 @@ class Comments
             throw new CoreException(__('No such comment ID'));
         }
 
-        # Retrieve posts affected by comments edition
+        // Retrieve posts affected by comments edition
         $affected_posts = [];
-        $sql = new SelectStatement(__METHOD__);
-        $rs = $sql
+        $sql            = new SelectStatement(__METHOD__);
+        $rs             = $sql
             ->column('post_id')
             ->where('comment_id' . $sql->in($co_ids))
             ->group('post_id')
             ->from(dotclear()->prefix . 'comment')
-            ->select();
+            ->select()
+        ;
 
         while ($rs->fetch()) {
             $affected_posts[] = $rs->fInt('post_id');
@@ -445,18 +450,19 @@ class Comments
             ->where('comment_id' . $sql->in($co_ids))
             ->and('post_id ' . $this->getPostOwnerStatement())
             ->from(dotclear()->prefix . 'comment')
-            ->delete();
+            ->delete()
+        ;
 
         dotclear()->blog()->triggerComments($co_ids, true, $affected_posts);
         dotclear()->blog()->triggerBlog();
     }
 
     /**
-     * Delete Junk comments
+     * Delete Junk comments.
      *
-     * @throws  CoreException  (description)
+     * @throws CoreException (description)
      */
-    public function delJunkComments():void
+    public function delJunkComments(): void
     {
         if (!dotclear()->user()->check('delete,contentadmin', dotclear()->blog()->id)) {
             throw new CoreException(__('You are not allowed to delete comments'));
@@ -467,7 +473,8 @@ class Comments
             ->where('comment_status = -2')
             ->and('post_id ' . $this->getPostOwnerStatement())
             ->from(dotclear()->prefix . 'comment')
-            ->delete();
+            ->delete()
+        ;
 
         dotclear()->blog()->triggerBlog();
     }
@@ -478,9 +485,10 @@ class Comments
         $sql
             ->column('tp.post_id')
             ->where('tp.blog_id = ' . $sql->quote(dotclear()->blog()->id))
-            ->from(dotclear()->prefix . 'post tp');
+            ->from(dotclear()->prefix . 'post tp')
+        ;
 
-        #If user can only delete, we need to check the post's owner
+        // If user can only delete, we need to check the post's owner
         if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
             $sql->and('tp.user_id = ' . $sql->quote(dotclear()->user()->userID()));
         }
@@ -491,9 +499,9 @@ class Comments
     /**
      * Gets the comment cursor.
      *
-     * @param   Cursor  $cur    The comment cursor
+     * @param Cursor $cur The comment cursor
      *
-     * @throws  CoreException
+     * @throws CoreException
      */
     private function getCommentCursor(Cursor $cur): void
     {
@@ -521,7 +529,7 @@ class Comments
             $cur->setField('comment_status', (int) dotclear()->blog()->settings()->get('system')->get('comments_pub'));
         }
 
-        # Words list
+        // Words list
         if (null !== $cur->getField('comment_content')) {
             $cur->setField('comment_words', implode(' ', Text::splitWords($cur->getField('comment_content'))));
         }

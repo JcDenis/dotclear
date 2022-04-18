@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\SimpleMenu\Admin\Prepend
+ * @note Dotclear\Plugin\SimpleMenu\Admin\Prepend
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginWidgets
+ * @ingroup  PluginSimpleMenu
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -27,7 +26,7 @@ class Prepend extends AbstractPrepend
         $this->addStandardMenu('Blog');
         $this->addStandardFavorites();
 
-        # Widgets
+        // Widgets
         if (dotclear()->adminurl()->is('admin.plugin.Widgets')) {
             new SimpleMenuWidgets();
         }
@@ -35,11 +34,11 @@ class Prepend extends AbstractPrepend
 
     public function installModule(): ?bool
     {
-        # Menu par défaut
+        // Menu par défaut
         $blog_url     = Html::stripHostURL(dotclear()->blog()->url);
         $menu_default = [
             ['label' => 'Home', 'descr' => 'Recent posts', 'url' => $blog_url, 'targetBlank' => false],
-            ['label' => 'Archives', 'descr' => '', 'url' => $blog_url . dotclear()->url()->getURLFor('archive'), 'targetBlank' => false]
+            ['label' => 'Archives', 'descr' => '', 'url' => $blog_url . dotclear()->url()->getURLFor('archive'), 'targetBlank' => false],
         ];
         dotclear()->blog()->settings()->get('system')->put('simpleMenu', $menu_default, 'array', 'simpleMenu default menu', false, true);
         dotclear()->blog()->settings()->get('system')->put('simpleMenu_active', true, 'boolean', 'Active', false, true);

@@ -1,12 +1,11 @@
 <?php
 /**
- * @class Dotclear\Database\Driver\Pgsql\Connection
+ * @note Dotclear\Database\Driver\Pgsql\Connection
  * @brief Pgsql connection driver
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
- * @package Dotclear
- * @subpackage Database
+ * @ingroup  Database
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -21,9 +20,9 @@ use Dotclear\Exception\DatabaseException;
 
 class Connection extends AbstractConnection
 {
-    protected $__driver        = 'pgsql';
-    protected $__syntax        = 'postgresql';
-    protected $utf8_unicode_ci = null;
+    protected $__driver = 'pgsql';
+    protected $__syntax = 'postgresql';
+    protected $utf8_unicode_ci;
 
     private function get_connection_string($host, $user, $password, $database)
     {
@@ -63,7 +62,7 @@ class Connection extends AbstractConnection
 
         $str = $this->get_connection_string($host, $user, $password, $database);
 
-        if (($link = @pg_connect($str)) === false) {
+        if (false === ($link = @pg_connect($str))) {
             throw new DatabaseException('Unable to connect to database');
         }
 
@@ -80,7 +79,7 @@ class Connection extends AbstractConnection
 
         $str = $this->get_connection_string($host, $user, $password, $database);
 
-        if (($link = @pg_pconnect($str)) === false) {
+        if (false === ($link = @pg_pconnect($str))) {
             throw new DatabaseException('Unable to connect to database');
         }
 
@@ -122,7 +121,7 @@ class Connection extends AbstractConnection
     {
         if (is_resource($handle) || $handle instanceof \PgSql\Connection) {
             $res = @pg_query($handle, $query);
-            if ($res === false) {
+            if (false === $res) {
                 $e = new DatabaseException($this->db_last_error($handle));
 
                 throw $e;
@@ -214,7 +213,7 @@ class Connection extends AbstractConnection
     public function db_escape_string(?string $str, mixed $handle = null): string
     {
         if ($handle instanceof \PgSql\Connection) {
-            /** @phpstan-ignore-next-line */
+            // @phpstan-ignore-next-line
             return pg_escape_string($handle, (string) $str);
         }
 
@@ -245,7 +244,7 @@ class Connection extends AbstractConnection
             '%M' => 'MI',
             '%m' => 'MM',
             '%S' => 'SS',
-            '%Y' => 'YYYY'
+            '%Y' => 'YYYY',
         ];
 
         $pattern = str_replace(array_keys($rep), array_values($rep), $pattern);
@@ -257,7 +256,7 @@ class Connection extends AbstractConnection
     {
         $default = [
             'order'   => '',
-            'collate' => false
+            'collate' => false,
         ];
         foreach (func_get_args() as $v) {
             if (is_string($v)) {
@@ -295,15 +294,14 @@ class Connection extends AbstractConnection
     }
 
     /**
-     * Function call
+     * Function call.
      *
      * Calls a PostgreSQL function an returns the result as a {@link record}.
      * After <var>$name</var>, you can add any parameters you want to append
      * them to the PostgreSQL function. You don't need to escape string in
      * arguments.
      *
-     * @param   string    $name    Function name
-     * @return  Record
+     * @param string $name Function name
      */
     public function callFunction($name): Record
     {

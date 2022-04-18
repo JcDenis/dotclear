@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Pages\Public\Prepend
+ * @note Dotclear\Plugin\Pages\Public\Prepend
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginPages
+ * @ingroup  PluginPages
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -25,11 +24,11 @@ class Prepend extends AbstractPrepend
 
     public function loadModule(): void
     {
-        # Localized string we find in template
+        // Localized string we find in template
         __('Published on');
         __('This page\'s comments feed');
 
-        # Add post type to queries
+        // Add post type to queries
         dotclear()->behavior()->add('coreBlogBeforeGetPosts', function (ArrayObject $params): void {
             if ('search' == dotclear()->url()->type) {
                 // Add page post type for searching

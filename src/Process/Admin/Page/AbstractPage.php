@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Page\Page
- * @brief Dotclear admin page helper class
+ * @note Dotclear\Process\Admin\Page\AbstractPage
+ * @brief abstract admin page helper.
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -24,114 +23,115 @@ use Dotclear\Helper\Statistic;
 use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Filter\Filter;
 use Dotclear\Process\Admin\Inventory\Inventory;
+use Exception;
 
-abstract class Page
+abstract class AbstractPage
 {
-    /** @var string|null    Page type */
-    private $page_type = null;
+    /** @var null|string Page type */
+    private $page_type;
 
-    /** @var string         Page title */
+    /** @var string Page title */
     private $page_title = '';
 
-    /** @var string         Page head */
+    /** @var string Page head */
     private $page_head = '';
 
-    /** @var string         Page content */
+    /** @var string Page content */
     private $page_content = '';
 
-    /** @var array<int, string|ArrayObject>     Help blocks names */
+    /** @var array<int, ArrayObject|string>     Help blocks names */
     private $page_help = [];
 
-    /** @var array          Page breadcrumb (brut)) */
+    /** @var array Page breadcrumb (brut)) */
     private $page_breadcrumb = ['elements' => null, 'options' => []];
 
-    /** @var bool           Load once xframe */
+    /** @var bool Load once xframe */
     private $page_xframe_loaded = false;
 
-    /** @var    object  Action instance */
+    /** @var object Action instance */
     protected $action;
 
-    /** @var    object  Filter instance */
+    /** @var object Filter instance */
     protected $filter;
 
-    /** @var    object  Inventory instance */
+    /** @var object Inventory instance */
     protected $inventory;
 
-    /** @var array          Misc options for page content */
+    /** @var array Misc options for page content */
     protected $options = [];
 
     /**
-     * Constructor
-     * 
+     * Constructor.
+     *
      * Check user permissions to load this page
-     * 
-     * @param   string  $handler    Used handler name
+     *
+     * @param string $handler Used handler name
      */
     public function __construct(protected string $handler = 'admin.home')
     {
-        # No permissions required
+        // No permissions required
         if (false === ($permissions = $this->getPermissions())) {
             return;
         }
 
-        # Super Admin
+        // Super Admin
         if (dotclear()->user()->isSuperAdmin()) {
             return;
         }
 
-        # Has required permissions
+        // Has required permissions
         if (is_string($permissions) && dotclear()->blog() && dotclear()->user()->check($this->getPermissions(), dotclear()->blog()->id)) {
             return;
         }
 
-        # Check if dashboard is not the current page and if it is granted for the user
+        // Check if dashboard is not the current page and if it is granted for the user
         if ('admin.home' != $this->handler && dotclear()->blog() && dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id)) {
-            # Go back to the dashboard
+            // Go back to the dashboard
             dotclear()->adminurl()->redirect('admin.home');
         }
 
-        # Not enought permissions
+        // Not enought permissions
         if (session_id()) {
             dotclear()->session()->destroy();
         }
-        # Go to auth page
+        // Go to auth page
         dotclear()->adminurl()->redirect('admin.auth');
     }
 
     /**
-     * Process page display
+     * Process page display.
      *
      * Split process into readable methods
      */
     final public function pageProcess(): void
     {
-        # Load into page usefull class instance, type is verified by abstract class type hint.
+        // Load into page usefull class instance, type is verified by abstract class type hint.
         try {
-            # Load and process page Action
+            // Load and process page Action
             if (null !== ($action_class = $this->getActionInstance())) {
                 $this->action = $action_class;
                 $this->action->pageProcess();
             }
 
-            # Load list Filter
+            // Load list Filter
             if (null !== ($filter_class = $this->getFilterInstance())) {
                 $this->filter = $filter_class;
             }
 
-            # Load list Inventory
+            // Load list Inventory
             if (null !== ($inventory_class = $this->getInventoryInstance())) {
                 $this->inventory = $inventory_class;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             dotclear()->error()->add($e->getMessage());
         }
 
-        # Get page Prepend actions (stop process loop on null)
+        // Get page Prepend actions (stop process loop on null)
         if (null === ($action = $this->getPagePrepend())) {
             return;
         }
 
-        # Open specific type of page
+        // Open specific type of page
         match ($this->page_type) {
             null, 'full' => $this->pageOpen(),
             'plugin'     => $this->pageOpenPlugin(),
@@ -142,21 +142,21 @@ abstract class Page
 
         $this->pageBreadcrumb();
 
-        # Get notices
+        // Get notices
         echo dotclear()->notice()->getNotices();
 
-        # Get page content
+        // Get page content
         $this->getPageContent();
 
-        # Get page help
+        // Get page help
         $this->pageHelp();
 
-        # Close specific type of page
+        // Close specific type of page
         match ($this->page_type) {
             null, 'full', 'plugin' => $this->pageClose(),
-            'popup'                => $this->pageClosePopup(),
-            'standalone'           => '',
-            default                => $this->getPageEnd(),
+            'popup'      => $this->pageClosePopup(),
+            'standalone' => '',
+            default      => $this->getPageEnd(),
         };
 
         if (null !== $action) {
@@ -164,17 +164,16 @@ abstract class Page
         }
     }
 
-    /// @name Page internal methods
-    //@{
-
+    // / @name Page internal methods
+    // @{
     /**
      * The top of a popup.
      */
     public function pageOpen(): void
     {
-        $js   = [];
+        $js = [];
 
-        # List of user's blogs
+        // List of user's blogs
         if (1 == dotclear()->user()->getBlogCount() || 20 < dotclear()->user()->getBlogCount()) {
             $blog_box = '<p>' . __('Blog:') . ' <strong title="' . Html::escapeHTML(dotclear()->blog()->url) . '">' .
             Html::escapeHTML(dotclear()->blog()->name) . '</strong>';
@@ -195,23 +194,23 @@ abstract class Page
             '<input type="submit" value="' . __('ok') . '" class="hidden-if-js" /></p>';
         }
 
-        # Display
+        // Display
         $headers = new ArrayObject();
 
-        # Content-Type
+        // Content-Type
         $headers['content-type'] = 'Content-Type: text/html; charset=UTF-8';
 
-        # Referrer Policy for admin pages
+        // Referrer Policy for admin pages
         $headers['referrer'] = 'Referrer-Policy: strict-origin';
 
-        # Prevents Clickjacking as far as possible
+        // Prevents Clickjacking as far as possible
         if (isset($this->options['x-frame-allow'])) {
             $this->setXFrameOptions($headers, $this->options['x-frame-allow']);
         } else {
             $this->setXFrameOptions($headers);
         }
 
-        # Content-Security-Policy (only if safe mode if not active, it may help)
+        // Content-Security-Policy (only if safe mode if not active, it may help)
         if (!dotclear()->rescue() && dotclear()->blog()->settings()->get('system')->get('csp_admin_on')) {
             // Get directives from settings if exist, else set defaults
             $csp = new ArrayObject();
@@ -230,23 +229,23 @@ abstract class Page
             $csp['img-src'] = dotclear()->blog()->settings()->get('system')->get('csp_admin_img') ?:
             $csp_prefix . "'self' data: https://media.dotaddict.org blob:";
 
-            # Cope with blog post preview (via public URL in iframe)
+            // Cope with blog post preview (via public URL in iframe)
             if (!is_null(dotclear()->blog()->host)) {
                 $csp['default-src'] .= ' ' . parse_url(dotclear()->blog()->host, PHP_URL_HOST);
                 $csp['script-src']  .= ' ' . parse_url(dotclear()->blog()->host, PHP_URL_HOST);
                 $csp['style-src']   .= ' ' . parse_url(dotclear()->blog()->host, PHP_URL_HOST);
             }
-            # Cope with media display in media manager (via public URL)
+            // Cope with media display in media manager (via public URL)
             if (dotclear()->media()) {
                 $csp['img-src'] .= ' ' . parse_url(dotclear()->media()->root_url, PHP_URL_HOST);
             } elseif (!is_null(dotclear()->blog()->host)) {
                 // Let's try with the blog URL
                 $csp['img-src'] .= ' ' . parse_url(dotclear()->blog()->host, PHP_URL_HOST);
             }
-            # Allow everything in iframe (used by editors to preview public content)
+            // Allow everything in iframe (used by editors to preview public content)
             $csp['frame-src'] = '*';
 
-            # --BEHAVIOR-- adminPageHTTPHeaderCSP, ArrayObject
+            // --BEHAVIOR-- adminPageHTTPHeaderCSP, ArrayObject
             dotclear()->behavior()->call('adminPageHTTPHeaderCSP', $csp);
 
             // Construct CSP header
@@ -263,7 +262,7 @@ abstract class Page
             }
         }
 
-        # --BEHAVIOR-- adminPageHTTPHeaders, ArrayObject
+        // --BEHAVIOR-- adminPageHTTPHeaders, ArrayObject
         dotclear()->behavior()->call('adminPageHTTPHeaders', $headers);
 
         foreach ($headers as $key => $value) {
@@ -272,8 +271,7 @@ abstract class Page
 
         $data_theme = dotclear()->user()->preference()->get('interface')->get('theme');
 
-        echo
-        '<!DOCTYPE html>' .
+        echo '<!DOCTYPE html>' .
         '<html lang="' . dotclear()->user()->getInfo('user_lang') . '" data-theme="' . $data_theme . '">' . "\n" .
         "<head>\n" .
         '  <meta charset="UTF-8" />' . "\n" .
@@ -281,11 +279,11 @@ abstract class Page
         '  <meta name="GOOGLEBOT" content="NOSNIPPET" />' . "\n" .
         '  <meta name="viewport" content="width=device-width, initial-scale=1.0" />' . "\n" .
         '  <title>' . Html::escapeHTML(
-                $this->page_title . ' - ' . 
-                dotclear()->blog()->name . ' - ' . 
-                dotclear()->config()->get('vendor_name') . ' - ' . 
+            $this->page_title . ' - ' .
+                dotclear()->blog()->name . ' - ' .
+                dotclear()->config()->get('vendor_name') . ' - ' .
                 dotclear()->config()->get('core_version')
-            ) . '</title>' . "\n";
+        ) . '</title>' . "\n";
 
         echo dotclear()->resource()->preload('default.css') . dotclear()->resource()->load('default.css');
 
@@ -294,8 +292,7 @@ abstract class Page
         }
 
         if (!dotclear()->user()->preference()->get('interface')->get('hide_std_favicon')) {
-            echo
-                '<link rel="icon" type="image/png" href="?df=images/favicon96-login.png" />' . "\n" .
+            echo '<link rel="icon" type="image/png" href="?df=images/favicon96-login.png" />' . "\n" .
                 '<link rel="shortcut icon" href="?df=images/favicon.ico" type="image/x-icon" />' . "\n";
         }
         if (dotclear()->user()->preference()->get('interface')->get('htmlfontsize')) {
@@ -308,17 +305,15 @@ abstract class Page
         $js['showIp']         = dotclear()->blog() && dotclear()->blog()->id ? dotclear()->user()->check('contentadmin', dotclear()->blog()->id) : false;
 
         // Set some JSON data
-        echo
-        dotclear()->resource()->json('dotclear_init', $js) .
+        echo dotclear()->resource()->json('dotclear_init', $js) .
         dotclear()->resource()->common() .
         dotclear()->resource()->toggles() .
         $this->page_head;
 
-        # --BEHAVIOR-- adminPageHTMLHead, string, string
+        // --BEHAVIOR-- adminPageHTMLHead, string, string
         dotclear()->behavior()->call('adminPageHTMLHead', $this->handler, $this->page_type);
 
-        echo
-        "</head>\n" .
+        echo "</head>\n" .
         '<body id="dotclear-admin" class="no-js' .
         (dotclear()->rescue() ? ' safe-mode' : '') .
         (dotclear()->production() ? '' : ' debug-mode') .
@@ -332,8 +327,7 @@ abstract class Page
         '<header id="header" role="banner">' .
         '<h1><a href="' . dotclear()->adminurl()->get('admin.home') . '"><span class="hidden">' . dotclear()->config()->get('vendor_name') . '</span></a></h1>' . "\n";
 
-        echo
-        '<form action="' . dotclear()->adminurl()->get('admin.home') . '" method="post" id="top-info-blog">' .
+        echo '<form action="' . dotclear()->adminurl()->get('admin.home') . '" method="post" id="top-info-blog">' .
         $blog_box .
         '<p><a href="' . dotclear()->blog()->url . '" class="outgoing" title="' . __('Go to site') .
         '">' . __('Go to site') . '<img src="?df=images/outgoing-link.svg" alt="" /></a>' .
@@ -347,8 +341,7 @@ abstract class Page
             '</ul>' .
             '</header>'; // end header
 
-        echo
-        '<div id="wrapper" class="clearfix">' . "\n" .
+        echo '<div id="wrapper" class="clearfix">' . "\n" .
         '<div class="hidden-if-no-js collapser-box"><button type="button" id="collapser" class="void-btn">' .
         '<img class="collapse-mm visually-hidden" src="?df=images/collapser-hide.png" alt="' . __('Hide main menu') . '" />' .
         '<img class="expand-mm visually-hidden" src="?df=images/collapser-show.png" alt="' . __('Show main menu') . '" />' .
@@ -356,10 +349,9 @@ abstract class Page
             '<main id="main" role="main">' . "\n" .
             '<div id="content" class="clearfix">' . "\n";
 
-        # Safe mode
+        // Safe mode
         if (dotclear()->rescue()) {
-            echo
-            '<div class="warning" role="alert"><h3>' . __('Safe mode') . '</h3>' .
+            echo '<div class="warning" role="alert"><h3>' . __('Safe mode') . '</h3>' .
             '<p>' . __('You are in safe mode. All plugins have been temporarily disabled. Remind to log out then log in again normally to get back all functionalities') . '</p>' .
                 '</div>';
         }
@@ -367,8 +359,7 @@ abstract class Page
 
     private function pageOpenPlugin(): void
     {
-        echo
-            '<html><head><title>' . $this->page_title . '</title>' .
+        echo '<html><head><title>' . $this->page_title . '</title>' .
             $this->page_head .
             '</script></head><body>';
     }
@@ -378,21 +369,20 @@ abstract class Page
      */
     public function pageOpenPopup(): void
     {
-        $js   = [];
+        $js = [];
 
-        # Display
+        // Display
         header('Content-Type: text/html; charset=UTF-8');
 
-        # Referrer Policy for admin pages
+        // Referrer Policy for admin pages
         header('Referrer-Policy: strict-origin');
 
-        # Prevents Clickjacking as far as possible
+        // Prevents Clickjacking as far as possible
         header('X-Frame-Options: SAMEORIGIN'); // FF 3.6.9+ Chrome 4.1+ IE 8+ Safari 4+ Opera 10.5+
 
         $data_theme = dotclear()->user()->preference()->get('interface')->get('theme');
 
-        echo
-        '<!DOCTYPE html>' .
+        echo '<!DOCTYPE html>' .
         '<html lang="' . dotclear()->user()->getInfo('user_lang') . '" data-theme="' . $data_theme . '">' . "\n" .
         "<head>\n" .
         '  <meta charset="UTF-8" />' . "\n" .
@@ -416,17 +406,15 @@ abstract class Page
         $js['debug']          = !dotclear()->production();
 
         // Set JSON data
-        echo
-        dotclear()->resource()->json('dotclear_init', $js) .
+        echo dotclear()->resource()->json('dotclear_init', $js) .
         dotclear()->resource()->common() .
         dotclear()->resource()->toggles() .
         $this->page_head;
 
-        # --BEHAVIOR-- adminPageHTMLHead, string, string
+        // --BEHAVIOR-- adminPageHTMLHead, string, string
         dotclear()->behavior()->call('adminPageHTMLHead', $this->handler, $this->page_type);
 
-        echo
-            "</head>\n" .
+        echo "</head>\n" .
             '<body id="dotclear-admin" class="popup' .
             (dotclear()->rescue() ? ' safe-mode' : '') .
             (dotclear()->production() ? '' : ' debug-mode') .
@@ -434,8 +422,7 @@ abstract class Page
 
             '<h1>' . dotclear()->config()->get('vendor_name') . '</h1>' . "\n";
 
-        echo
-            '<div id="wrapper">' . "\n" .
+        echo '<div id="wrapper">' . "\n" .
             '<main id="main" role="main">' . "\n" .
             '<div id="content">' . "\n";
     }
@@ -470,7 +457,7 @@ abstract class Page
             }
             $res .= ($with_home_link ? (1 == $index ? ' : ' : ' &rsaquo; ') : (0 == $index ? ' ' : ' &rsaquo; ')) .
                 ($url ? '<a href="' . $url . '">' : '') . $element . ($url ? '</a>' : '');
-            $index++;
+            ++$index;
         }
         $res .= '</h2>';
 
@@ -478,7 +465,7 @@ abstract class Page
     }
 
     /**
-     * Display Help block
+     * Display Help block.
      */
     private function pageHelp(): void
     {
@@ -491,12 +478,12 @@ abstract class Page
 
         $args = new ArrayObject($this->page_help);
 
-        # --BEHAVIOR-- adminPageHelpBlock, ArrayObject
+        // --BEHAVIOR-- adminPageHelpBlock, ArrayObject
         dotclear()->behavior()->call('adminPageHelpBlock', $args);
 
         if (!count($args)) {
             return;
-        };
+        }
 
         $content = '';
         foreach ($args as $v) {
@@ -531,8 +518,7 @@ abstract class Page
         // Set contextual help global flag
         dotclear()->help()->flag(true);
 
-        echo
-        '<div id="help"><hr /><div class="help-content clear"><h3>' . __('Help about this page') . '</h3>' .
+        echo '<div id="help"><hr /><div class="help-content clear"><h3>' . __('Help about this page') . '</h3>' .
         $content .
         '</div>' .
         '<div id="helplink"><hr />' .
@@ -548,12 +534,11 @@ abstract class Page
             echo sprintf(
                 '<p id="help-button"><a href="%1$s" class="outgoing" title="%2$s">%2$s</a></p>',
                 dotclear()->adminurl()->get('admin.help'),
-                 __('Global help')
+                __('Global help')
             );
         }
 
-        echo
-        "</div>\n" .  // End of #content
+        echo "</div>\n" .  // End of #content
         "</main>\n" . // End of #main
 
         '<nav id="main-menu" role="navigation">' . "\n" .
@@ -569,27 +554,25 @@ abstract class Page
 
         $text = sprintf(__('Thank you for using %s.'), 'Dotclear ' . dotclear()->config()->get('core_version'));
 
-        # --BEHAVIOR-- adminPageFooter, string
+        // --BEHAVIOR-- adminPageFooter, string
         $textAlt = dotclear()->behavior()->call('adminPageFooter', $text);
-        if ($textAlt != '') {
+        if ('' != $textAlt) {
             $text = $textAlt;
         }
         $text = Html::escapeHTML($text);
 
-        echo
-        '</nav>' . "\n" . // End of #main-menu
+        echo '</nav>' . "\n" . // End of #main-menu
         "</div>\n";       // End of #wrapper
 
         echo '<p id="gototop"><a href="#wrapper">' . __('Page top') . '</a></p>' . "\n";
 
-        $figure = <<<EOT
+        $figure = '
 
                 (╯°□°)╯︵ ┻━┻
 
-            EOT;
+            ';
 
-        echo
-            '<footer id="footer" role="contentinfo">' .
+        echo '<footer id="footer" role="contentinfo">' .
             '<a href="https://dotclear.org/" title="' . $text . '">' .
             '<img src="?df=css/dc_logos/w-dotclear90.png" alt="' . $text . '" /></a></footer>' . "\n" .
             '<!-- ' . "\n" .
@@ -600,14 +583,11 @@ abstract class Page
             echo $this->pageDebugInfo();
         }
 
-        echo
-            '</body></html>';
+        echo '</body></html>';
     }
 
     /**
-     * Get HTML code of debug information
-     *
-     * @return     string
+     * Get HTML code of debug information.
      */
     private function pageDebugInfo(): string
     {
@@ -629,24 +609,25 @@ abstract class Page
                 $res      .= '<p><a href="' . Html::escapeURL($prof_url) . '">Trigger profiler</a></p>';
             }
 
-            /* xdebug configuration:
-        zend_extension = /.../xdebug.so
-        xdebug.auto_trace = On
-        xdebug.trace_format = 0
-        xdebug.trace_options = 1
-        xdebug.show_mem_delta = On
-        xdebug.profiler_enable = 0
-        xdebug.profiler_enable_trigger = 1
-        xdebug.profiler_output_dir = /tmp
-        xdebug.profiler_append = 0
-        xdebug.profiler_output_name = timestamp
-         */
+            /*
+            xdebug configuration:
+            zend_extension = /.../xdebug.so
+            xdebug.auto_trace = On
+            xdebug.trace_format = 0
+            xdebug.trace_options = 1
+            xdebug.show_mem_delta = On
+            xdebug.profiler_enable = 0
+            xdebug.profiler_enable_trigger = 1
+            xdebug.profiler_output_dir = /tmp
+            xdebug.profiler_append = 0
+            xdebug.profiler_output_name = timestamp
+             */
         }
-        $res.= '<p>Core elapsed time: ' . Statistic::time() . ' | Core consumed memory: ' . Statistic::memory() . '</p>';
+        $res .= '<p>Core elapsed time: ' . Statistic::time() . ' | Core consumed memory: ' . Statistic::memory() . '</p>';
 
         $loaded_files = dotclear()->autoload()->getLoadedFiles();
         $res .= '<p>Autoloader provided files : ' . count($loaded_files) . ' (' . dotclear()->autoload()->getRequestsCount() . ' requests)</p>';
-        //$res .= '<ul><li>' . implode('</li><li>', $loaded_files) . '</li></lu>';
+        // $res .= '<ul><li>' . implode('</li><li>', $loaded_files) . '</li></lu>';
 
         $res .= '<p>Global vars: ' . $global_vars . '</p>' .
             '</div></div>';
@@ -664,15 +645,15 @@ abstract class Page
             '<p id="gototop"><a href="#wrapper">' . __('Page top') . '</a></p>',
 
             '<footer id="footer" role="contentinfo"><p>&nbsp;</p></footer>',
-            '</body></html>'
+            '</body></html>',
         ]);
     }
 
     /**
      * Sets the x frame options.
      *
-     * @param      array|ArrayObject    $headers  The headers
-     * @param      string|null          $origin   The origin
+     * @param array|ArrayObject $headers The headers
+     * @param null|string       $origin  The origin
      */
     public function setXFrameOptions(array|ArrayObject $headers, ?string $origin = null): void
     {
@@ -690,12 +671,12 @@ abstract class Page
         }
         $this->page_xframe_loaded = true;
     }
-    //@}
+    // @}
 
-    /// @name Page child class methods
-    //@{
+    // / @name Page child class methods
+    // @{
     /**
-     * Set page type
+     * Set page type.
      *
      * This must be set before page opening
      *
@@ -704,9 +685,9 @@ abstract class Page
      * - 'popup',
      * - ...
      *
-     * @param   string  $page_type  The page type
+     * @param string $page_type The page type
      */
-    final public function setPageType(string $page_type = null): Page
+    final public function setPageType(string $page_type = null): AbstractPage
     {
         $this->page_type = is_string($page_type) ? $page_type : 'full';
 
@@ -714,13 +695,13 @@ abstract class Page
     }
 
     /**
-     * Set page title
+     * Set page title.
      *
      * This must be set before page opening
      *
-     * @param   string|null  $page_title     The page title
+     * @param null|string $page_title The page title
      */
-    final public function setPageTitle(?string $page_title): Page
+    final public function setPageTitle(?string $page_title): AbstractPage
     {
         $this->page_title = is_string($page_title) ? $page_title : '';
 
@@ -728,13 +709,13 @@ abstract class Page
     }
 
     /**
-     * Set page HTML head content
+     * Set page HTML head content.
      *
      * This must be set before page opening
      *
-     * @param   string|null     $page_head  The HTML code for head
+     * @param null|string $page_head The HTML code for head
      */
-    final public function setPageHead(?string $page_head): Page
+    final public function setPageHead(?string $page_head): AbstractPage
     {
         if (is_string($page_head)) {
             $this->page_head .= $page_head;
@@ -744,14 +725,14 @@ abstract class Page
     }
 
     /**
-     * Set page breadcrumb
+     * Set page breadcrumb.
      *
      * This must be set before page opening
      *
-     * @param   array|null  $elements   The elements
-     * @param   array       $options    The options
+     * @param null|array $elements The elements
+     * @param array      $options  The options
      */
-    final public function setPageBreadcrumb(?array $elements = null, array $options = []): Page
+    final public function setPageBreadcrumb(?array $elements = null, array $options = []): AbstractPage
     {
         $this->page_breadcrumb = ['elements' => $elements, 'options' => $options];
 
@@ -759,13 +740,13 @@ abstract class Page
     }
 
     /**
-     * Set page HTML body content
+     * Set page HTML body content.
      *
      * This must be set before page opening
      *
-     * @param   string|null     $page_content   The HTML body
+     * @param null|string $page_content The HTML body
      */
-    final public function setPageContent(?string $page_content): Page
+    final public function setPageContent(?string $page_content): AbstractPage
     {
         if (is_string($page_content)) {
             $this->page_content .= $page_content;
@@ -775,13 +756,13 @@ abstract class Page
     }
 
     /**
-     * Set Help block names
+     * Set Help block names.
      *
      * This must be set before page opening
      *
-     * @param   string|ArrayObject  ...$page_help   The help blocks names
+     * @param ArrayObject|string ...$page_help The help blocks names
      */
-    final public function setPageHelp(string|ArrayObject ...$page_help): Page
+    final public function setPageHelp(string|ArrayObject ...$page_help): AbstractPage
     {
         $this->page_help = $page_help;
 
@@ -789,26 +770,26 @@ abstract class Page
     }
 
     /**
-     * Get required permissions to load page
+     * Get required permissions to load page.
      *
      * Permissions must be :
      * a comma separated list of permission 'admin,media',
      * or null for superAdmin,
      * or false for no permissions
      *
-     * @return string|null|false The permissions
+     * @return null|false|string The permissions
      */
     abstract protected function getPermissions(): string|null|false;
 
     /**
-     * Do something after contruct
+     * Do something after contruct.
      *
      * Note that page Action use this method to process actions.
      * This method returns :
      * - Null if nothing done, current process stop, if extists parent process goes on.
      * - Bool else, process goes on and stop, if exists parent process is not executed.
      *
-     * @return  bool|null   Prepend result
+     * @return null|bool Prepend result
      */
     protected function getPagePrepend(): ?bool
     {
@@ -816,7 +797,7 @@ abstract class Page
     }
 
     /**
-     * Get Action instance
+     * Get Action instance.
      *
      * If page contains Action, load instance from here.
      * It wil be accessible from $this->action
@@ -827,7 +808,7 @@ abstract class Page
     }
 
     /**
-     * Get Filter instance
+     * Get Filter instance.
      *
      * If page contains list Filter, load instance from here.
      * It wil be accessible from $this->filter
@@ -838,7 +819,7 @@ abstract class Page
     }
 
     /**
-     * Get Inventory instance
+     * Get Inventory instance.
      *
      * If page contains list Inventory, load instance from here.
      * It wil be accessible from $this->inventory
@@ -849,11 +830,10 @@ abstract class Page
     }
 
     /**
-     * Get page opening for non standard type
+     * Get page opening for non standard type.
      *
      * This method must echo what there is to display.
-     *
-     * This method will be called if @var $page_type is unknow.
+     * This method will be called if @var is $page_type unknow.
      * Usefull for custom page.
      */
     protected function getPageBegin(): void
@@ -862,7 +842,7 @@ abstract class Page
     }
 
     /**
-     * Get page content
+     * Get page content.
      *
      * This method must echo what there is to display.
      */
@@ -872,16 +852,15 @@ abstract class Page
     }
 
     /**
-     * Get page closure for non standard type
+     * Get page closure for non standard type.
      *
      * This method must echo what there is to display.
-     *
-     * This method will be called if @var $page_type is unknow.
+     * This method will be called if @var is $page_type unknow.
      * Usefull for custom page.
      */
     protected function getPageEnd(): void
     {
         throw new AdminException('Unknow page type');
     }
-    //@}
+    // @}
 }

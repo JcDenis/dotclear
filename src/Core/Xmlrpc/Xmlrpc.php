@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Core\Xmlrpc\Xmlrpc
+ * @note Dotclear\Core\Xmlrpc\Xmlrpc
  * @brief Xmlrpc server
  *
- * @package Dotclear
- * @subpackage Core
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,7 +13,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\Xmlrpc;
 
 use ArrayObject;
-use Dotclear\Container\UserContainer;
+use Dotclear\Core\User\UserContainer;
 use Dotclear\Core\Trackback\Trackback;
 use Dotclear\Exception\CoreException;
 use Dotclear\Helper\File\Files;
@@ -24,6 +23,7 @@ use Dotclear\Helper\Text;
 use Dotclear\Helper\Dt;
 use Dotclear\Helper\Network\Xmlrpc\IntrospectionServer as XmlrpcIntrospectionServer;
 use Dotclear\Helper\Network\Xmlrpc\Date as XmlrpcDate;
+use Exception;
 
 class Xmlrpc extends XmlrpcIntrospectionServer
 {
@@ -37,196 +37,339 @@ class Xmlrpc extends XmlrpcIntrospectionServer
     {
         parent::__construct();
 
-        # Blogger methods
-        $this->addCallback('blogger.newPost', [$this, 'blogger_newPost'],
+        // Blogger methods
+        $this->addCallback(
+            'blogger.newPost',
+            [$this, 'blogger_newPost'],
             ['string', 'string', 'string', 'string', 'string', 'string', 'integer'],
-            'New post');
+            'New post'
+        );
 
-        $this->addCallback('blogger.editPost', [$this, 'blogger_editPost'],
+        $this->addCallback(
+            'blogger.editPost',
+            [$this, 'blogger_editPost'],
             ['boolean', 'string', 'string', 'string', 'string', 'string', 'integer'],
-            'Edit a post');
+            'Edit a post'
+        );
 
-        $this->addCallback('blogger.getPost', [$this, 'blogger_getPost'],
+        $this->addCallback(
+            'blogger.getPost',
+            [$this, 'blogger_getPost'],
             ['struct', 'string', 'integer', 'string', 'string'],
-            'Return a posts by ID');
+            'Return a posts by ID'
+        );
 
-        $this->addCallback('blogger.deletePost', [$this, 'blogger_deletePost'],
+        $this->addCallback(
+            'blogger.deletePost',
+            [$this, 'blogger_deletePost'],
             ['string', 'string', 'string', 'string', 'string', 'integer'],
-            'Delete a post');
+            'Delete a post'
+        );
 
-        $this->addCallback('blogger.getRecentPosts', [$this, 'blogger_getRecentPosts'],
+        $this->addCallback(
+            'blogger.getRecentPosts',
+            [$this, 'blogger_getRecentPosts'],
             ['array', 'string', 'string', 'string', 'string', 'integer'],
-            'Return a list of recent posts');
+            'Return a list of recent posts'
+        );
 
-        $this->addCallback('blogger.getUsersBlogs', [$this, 'blogger_getUserBlogs'],
+        $this->addCallback(
+            'blogger.getUsersBlogs',
+            [$this, 'blogger_getUserBlogs'],
             ['struct', 'string', 'string', 'string'],
-            "Return user's blog");
+            "Return user's blog"
+        );
 
-        $this->addCallback('blogger.getUserInfo', [$this, 'blogger_getUserInfo'],
+        $this->addCallback(
+            'blogger.getUserInfo',
+            [$this, 'blogger_getUserInfo'],
             ['struct', 'string', 'string', 'string'],
-            'Return User Info');
+            'Return User Info'
+        );
 
-        # Metaweblog methods
-        $this->addCallback('metaWeblog.newPost', [$this, 'mw_newPost'],
+        // Metaweblog methods
+        $this->addCallback(
+            'metaWeblog.newPost',
+            [$this, 'mw_newPost'],
             ['string', 'string', 'string', 'string', 'struct', 'boolean'],
-            'Creates a new post, and optionnaly publishes it.');
+            'Creates a new post, and optionnaly publishes it.'
+        );
 
-        $this->addCallback('metaWeblog.editPost', [$this, 'mw_editPost'],
+        $this->addCallback(
+            'metaWeblog.editPost',
+            [$this, 'mw_editPost'],
             ['boolean', 'string', 'string', 'string', 'struct', 'boolean'],
-            'Updates information about an existing entry');
+            'Updates information about an existing entry'
+        );
 
-        $this->addCallback('metaWeblog.getPost', [$this, 'mw_getPost'],
+        $this->addCallback(
+            'metaWeblog.getPost',
+            [$this, 'mw_getPost'],
             ['struct', 'string', 'string', 'string'],
-            'Returns information about a specific post');
+            'Returns information about a specific post'
+        );
 
-        $this->addCallback('metaWeblog.getRecentPosts', [$this, 'mw_getRecentPosts'],
+        $this->addCallback(
+            'metaWeblog.getRecentPosts',
+            [$this, 'mw_getRecentPosts'],
             ['array', 'string', 'string', 'string', 'integer'],
-            'List of most recent posts in the system');
+            'List of most recent posts in the system'
+        );
 
-        $this->addCallback('metaWeblog.getCategories', [$this, 'mw_getCategories'],
+        $this->addCallback(
+            'metaWeblog.getCategories',
+            [$this, 'mw_getCategories'],
             ['array', 'string', 'string', 'string'],
-            'List of all categories defined in the weblog');
+            'List of all categories defined in the weblog'
+        );
 
-        $this->addCallback('metaWeblog.newMediaObject', [$this, 'mw_newMediaObject'],
+        $this->addCallback(
+            'metaWeblog.newMediaObject',
+            [$this, 'mw_newMediaObject'],
             ['struct', 'string', 'string', 'string', 'struct'],
-            'Upload a file on the web server');
+            'Upload a file on the web server'
+        );
 
-        # MovableType methods
-        $this->addCallback('mt.getRecentPostTitles', [$this, 'mt_getRecentPostTitles'],
+        // MovableType methods
+        $this->addCallback(
+            'mt.getRecentPostTitles',
+            [$this, 'mt_getRecentPostTitles'],
             ['array', 'string', 'string', 'string', 'integer'],
-            'List of most recent posts in the system');
+            'List of most recent posts in the system'
+        );
 
-        $this->addCallback('mt.getCategoryList', [$this, 'mt_getCategoryList'],
+        $this->addCallback(
+            'mt.getCategoryList',
+            [$this, 'mt_getCategoryList'],
             ['array', 'string', 'string', 'string'],
-            'List of all categories defined in the weblog');
+            'List of all categories defined in the weblog'
+        );
 
-        $this->addCallback('mt.getPostCategories', [$this, 'mt_getPostCategories'],
+        $this->addCallback(
+            'mt.getPostCategories',
+            [$this, 'mt_getPostCategories'],
             ['array', 'string', 'string', 'string'],
-            'List of all categories to which the post is assigned');
+            'List of all categories to which the post is assigned'
+        );
 
-        $this->addCallback('mt.setPostCategories', [$this, 'mt_setPostCategories'],
+        $this->addCallback(
+            'mt.setPostCategories',
+            [$this, 'mt_setPostCategories'],
             ['boolean', 'string', 'string', 'string', 'array'],
-            'Sets the categories for a post');
+            'Sets the categories for a post'
+        );
 
-        $this->addCallback('mt.publishPost', [$this, 'mt_publishPost'],
+        $this->addCallback(
+            'mt.publishPost',
+            [$this, 'mt_publishPost'],
             ['boolean', 'string', 'string', 'string'],
-            'Retrieve pings list for a post');
+            'Retrieve pings list for a post'
+        );
 
-        $this->addCallback('mt.supportedMethods', [$this, 'listMethods'],
-            [], 'Retrieve information about the XML-RPC methods supported by the server.');
+        $this->addCallback(
+            'mt.supportedMethods',
+            [$this, 'listMethods'],
+            [],
+            'Retrieve information about the XML-RPC methods supported by the server.'
+        );
 
-        $this->addCallback('mt.supportedTextFilters', [$this, 'mt_supportedTextFilters'],
-            [], 'Retrieve information about supported text filters.');
+        $this->addCallback(
+            'mt.supportedTextFilters',
+            [$this, 'mt_supportedTextFilters'],
+            [],
+            'Retrieve information about supported text filters.'
+        );
 
-        # WordPress methods
-        $this->addCallback('wp.getUsersBlogs', [$this, 'wp_getUsersBlogs'],
+        // WordPress methods
+        $this->addCallback(
+            'wp.getUsersBlogs',
+            [$this, 'wp_getUsersBlogs'],
             ['array', 'string', 'string'],
-            'Retrieve the blogs of the user.');
+            'Retrieve the blogs of the user.'
+        );
 
-        $this->addCallback('wp.getPage', [$this, 'wp_getPage'],
+        $this->addCallback(
+            'wp.getPage',
+            [$this, 'wp_getPage'],
             ['struct', 'integer', 'integer', 'string', 'string'],
-            'Get the page identified by the page ID.');
+            'Get the page identified by the page ID.'
+        );
 
-        $this->addCallback('wp.getPages', [$this, 'wp_getPages'],
+        $this->addCallback(
+            'wp.getPages',
+            [$this, 'wp_getPages'],
             ['array', 'integer', 'string', 'string', 'integer'],
-            'Get an array of all the pages on a blog.');
+            'Get an array of all the pages on a blog.'
+        );
 
-        $this->addCallback('wp.newPage', [$this, 'wp_newPage'],
+        $this->addCallback(
+            'wp.newPage',
+            [$this, 'wp_newPage'],
             ['integer', 'integer', 'string', 'string', 'struct', 'boolean'],
-            'Create a new page.');
+            'Create a new page.'
+        );
 
-        $this->addCallback('wp.deletePage', [$this, 'wp_deletePage'],
+        $this->addCallback(
+            'wp.deletePage',
+            [$this, 'wp_deletePage'],
             ['boolean', 'integer', 'string', 'string', 'integer'],
-            'Removes a page from the blog.');
+            'Removes a page from the blog.'
+        );
 
-        $this->addCallback('wp.editPage', [$this, 'wp_editPage'],
+        $this->addCallback(
+            'wp.editPage',
+            [$this, 'wp_editPage'],
             ['boolean', 'integer', 'integer', 'string', 'string', 'struct', 'boolean'],
-            'Make changes to a blog page.');
+            'Make changes to a blog page.'
+        );
 
-        $this->addCallback('wp.getPageList', [$this, 'wp_getPageList'],
+        $this->addCallback(
+            'wp.getPageList',
+            [$this, 'wp_getPageList'],
             ['array', 'integer', 'string', 'string'],
-            'Get an array of all the pages on a blog. Just the minimum details, lighter than wp.getPages.');
+            'Get an array of all the pages on a blog. Just the minimum details, lighter than wp.getPages.'
+        );
 
-        $this->addCallback('wp.getAuthors', [$this, 'wp_getAuthors'],
+        $this->addCallback(
+            'wp.getAuthors',
+            [$this, 'wp_getAuthors'],
             ['array', 'integer', 'string', 'string'],
-            'Get an array of users for the blog.');
+            'Get an array of users for the blog.'
+        );
 
-        $this->addCallback('wp.getCategories', [$this, 'wp_getCategories'],
+        $this->addCallback(
+            'wp.getCategories',
+            [$this, 'wp_getCategories'],
             ['array', 'integer', 'string', 'string'],
-            'Get an array of available categories on a blog.');
+            'Get an array of available categories on a blog.'
+        );
 
-        $this->addCallback('wp.getTags', [$this, 'wp_getTags'],
+        $this->addCallback(
+            'wp.getTags',
+            [$this, 'wp_getTags'],
             ['array', 'integer', 'string', 'string'],
-            'Get list of all tags for the blog.');
+            'Get list of all tags for the blog.'
+        );
 
-        $this->addCallback('wp.newCategory', [$this, 'wp_newCategory'],
+        $this->addCallback(
+            'wp.newCategory',
+            [$this, 'wp_newCategory'],
             ['integer', 'integer', 'string', 'string', 'struct'],
-            'Create a new category.');
+            'Create a new category.'
+        );
 
-        $this->addCallback('wp.deleteCategory', [$this, 'wp_deleteCategory'],
+        $this->addCallback(
+            'wp.deleteCategory',
+            [$this, 'wp_deleteCategory'],
             ['boolean', 'integer', 'string', 'string', 'integer'],
-            'Delete a category with a given ID.');
+            'Delete a category with a given ID.'
+        );
 
-        $this->addCallback('wp.suggestCategories', [$this, 'wp_suggestCategories'],
+        $this->addCallback(
+            'wp.suggestCategories',
+            [$this, 'wp_suggestCategories'],
             ['array', 'integer', 'string', 'string', 'string', 'integer'],
-            'Get an array of categories that start with a given string.');
+            'Get an array of categories that start with a given string.'
+        );
 
-        $this->addCallback('wp.uploadFile', [$this, 'wp_uploadFile'],
+        $this->addCallback(
+            'wp.uploadFile',
+            [$this, 'wp_uploadFile'],
             ['struct', 'integer', 'string', 'string', 'struct'],
-            'Upload a file');
+            'Upload a file'
+        );
 
-        $this->addCallback('wp.getPostStatusList', [$this, 'wp_getPostStatusList'],
+        $this->addCallback(
+            'wp.getPostStatusList',
+            [$this, 'wp_getPostStatusList'],
             ['array', 'integer', 'string', 'string'],
-            'Retrieve all of the post statuses.');
+            'Retrieve all of the post statuses.'
+        );
 
-        $this->addCallback('wp.getPageStatusList', [$this, 'wp_getPageStatusList'],
+        $this->addCallback(
+            'wp.getPageStatusList',
+            [$this, 'wp_getPageStatusList'],
             ['array', 'integer', 'string', 'string'],
-            'Retrieve all of the pages statuses.');
+            'Retrieve all of the pages statuses.'
+        );
 
-        $this->addCallback('wp.getPageTemplates', [$this, 'wp_getPageTemplates'],
+        $this->addCallback(
+            'wp.getPageTemplates',
+            [$this, 'wp_getPageTemplates'],
             ['struct', 'integer', 'string', 'string'],
-            'Retrieve page templates.');
+            'Retrieve page templates.'
+        );
 
-        $this->addCallback('wp.getOptions', [$this, 'wp_getOptions'],
+        $this->addCallback(
+            'wp.getOptions',
+            [$this, 'wp_getOptions'],
             ['struct', 'integer', 'string', 'string', 'array'],
-            'Retrieve blog options');
+            'Retrieve blog options'
+        );
 
-        $this->addCallback('wp.setOptions', [$this, 'wp_setOptions'],
+        $this->addCallback(
+            'wp.setOptions',
+            [$this, 'wp_setOptions'],
             ['struct', 'integer', 'string', 'string', 'struct'],
-            'Update blog options');
+            'Update blog options'
+        );
 
-        $this->addCallback('wp.getComment', [$this, 'wp_getComment'],
+        $this->addCallback(
+            'wp.getComment',
+            [$this, 'wp_getComment'],
             ['struct', 'integer', 'string', 'string', 'integer'],
-            "Gets a comment, given it's comment ID.");
+            "Gets a comment, given it's comment ID."
+        );
 
-        $this->addCallback('wp.getCommentCount', [$this, 'wp_getCommentCount'],
+        $this->addCallback(
+            'wp.getCommentCount',
+            [$this, 'wp_getCommentCount'],
             ['array', 'integer', 'string', 'string', 'integer'],
-            'Retrieve comment count.');
+            'Retrieve comment count.'
+        );
 
-        $this->addCallback('wp.getComments', [$this, 'wp_getComments'],
+        $this->addCallback(
+            'wp.getComments',
+            [$this, 'wp_getComments'],
             ['array', 'integer', 'string', 'string', 'struct'],
-            'Gets a set of comments for a given post.');
+            'Gets a set of comments for a given post.'
+        );
 
-        $this->addCallback('wp.deleteComment', [$this, 'wp_deleteComment'],
+        $this->addCallback(
+            'wp.deleteComment',
+            [$this, 'wp_deleteComment'],
             ['boolean', 'integer', 'string', 'string', 'integer'],
-            'Delete a comment with given ID.');
+            'Delete a comment with given ID.'
+        );
 
-        $this->addCallback('wp.editComment', [$this, 'wp_editComment'],
+        $this->addCallback(
+            'wp.editComment',
+            [$this, 'wp_editComment'],
             ['boolean', 'integer', 'string', 'string', 'integer', 'struct'],
-            'Edit a comment with given ID.');
+            'Edit a comment with given ID.'
+        );
 
-        $this->addCallback('wp.newComment', [$this, 'wp_newComment'],
+        $this->addCallback(
+            'wp.newComment',
+            [$this, 'wp_newComment'],
             ['integer', 'integer', 'string', 'string', 'integer', 'struct'],
-            'Create a new comment for a given post ID.');
+            'Create a new comment for a given post ID.'
+        );
 
-        $this->addCallback('wp.getCommentStatusList', [$this, 'wp_getCommentStatusList'],
+        $this->addCallback(
+            'wp.getCommentStatusList',
+            [$this, 'wp_getCommentStatusList'],
             ['array', 'integer', 'string', 'string'],
-            'Retrieve all of the comment statuses.');
+            'Retrieve all of the comment statuses.'
+        );
 
-        # Pingback support
-        $this->addCallback('pingback.ping', [$this, 'pingback_ping'],
+        // Pingback support
+        $this->addCallback(
+            'pingback.ping',
+            [$this, 'pingback_ping'],
             ['string', 'string', 'string'],
-            'Notify a link to a post.');
+            'Notify a link to a post.'
+        );
     }
 
     public function serve(mixed $data = false): void
@@ -241,7 +384,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             $this->debugTrace($methodname, $args, $rsp);
 
             return $rsp;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->debugTrace($methodname, $args, [$e->getMessage(), $e->getCode()]);
 
             throw $e;
@@ -320,7 +463,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $this->setBlog();
         $rs = dotclear()->blog()->posts()->getPosts([
             'post_id'   => (int) $post_id,
-            'post_type' => $post_type
+            'post_type' => $post_type,
         ]);
 
         if ($rs->isEmpty()) {
@@ -351,7 +494,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $open_comment = $struct['mt_allow_comments'] ?? 1;
         $open_tb      = $struct['mt_allow_pings']    ?? 1;
 
-        if ($description !== null) {
+        if (null !== $description) {
             $content = $description;
         }
 
@@ -375,8 +518,8 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $cur->setField('post_excerpt', $excerpt);
         $cur->setField('post_content_xhtml', $content_xhtml);
         $cur->setField('post_excerpt_xhtml', $excerpt_xhtml);
-        $cur->setField('post_open_comment', (int) ($open_comment == 1));
-        $cur->setField('post_open_tb', (int) ($open_tb == 1));
+        $cur->setField('post_open_comment', (int) (1 == $open_comment));
+        $cur->setField('post_open_tb', (int) (1      == $open_tb));
         $cur->setField('post_status', (int) $publish);
         $cur->setField('post_format', 'xhtml');
 
@@ -388,7 +531,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             }
         }
 
-        # Categories in an array
+        // Categories in an array
         if (isset($struct['categories']) && is_array($struct['categories'])) {
             $categories = $struct['categories'];
             $cat_id     = !empty($categories[0]) ? $categories[0] : null;
@@ -410,12 +553,12 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         }
 
         if ('post' == $cur->getField('post_type')) {
-            # --BEHAVIOR-- xmlrpcBeforeNewPost, Xmlrpc, Cursor, string, array, int
+            // --BEHAVIOR-- xmlrpcBeforeNewPost, Xmlrpc, Cursor, string, array, int
             dotclear()->behavior()->call('xmlrpcBeforeNewPost', $this, $cur, $content, $struct, $publish);
 
             $post_id = dotclear()->blog()->posts()->addPost($cur);
 
-            # --BEHAVIOR-- xmlrpcAfterNewPost, Xmlrpc, int, Cursor, string, array, int
+            // --BEHAVIOR-- xmlrpcAfterNewPost, Xmlrpc, int, Cursor, string, array, int
             dotclear()->behavior()->call('xmlrpcAfterNewPost', $this, $post_id, $cur, $content, $struct, $publish);
         } elseif ('page' == $cur->getField('post_type')) {
             if (isset($struct['wp_page_order'])) {
@@ -450,7 +593,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $open_comment = (isset($struct['mt_allow_comments'])) ? $struct['mt_allow_comments'] : 1;
         $open_tb      = (isset($struct['mt_allow_pings'])) ? $struct['mt_allow_pings'] : 1;
 
-        if ($description !== null) {
+        if (null !== $description) {
             $content = $description;
         }
 
@@ -473,8 +616,8 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $cur->setField('post_excerpt', $excerpt);
         $cur->setField('post_content_xhtml', $content_xhtml);
         $cur->setField('post_excerpt_xhtml', $excerpt_xhtml);
-        $cur->setField('post_open_comment', (int) ($open_comment == 1));
-        $cur->setField('post_open_tb', (int) ($open_tb == 1));
+        $cur->setField('post_open_comment', (int) (1 == $open_comment));
+        $cur->setField('post_open_tb', (int) (1      == $open_tb));
         $cur->setField('post_status', (int) $publish);
         $cur->setField('post_format', 'xhtml');
         $cur->setField('post_url', $post->f('post_url'));
@@ -489,7 +632,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             $cur->setField('post_dt', $post->post_dt);
         }
 
-        # Categories in an array
+        // Categories in an array
         if (isset($struct['categories']) && is_array($struct['categories'])) {
             $categories = $struct['categories'];
             $cat_id     = !empty($categories[0]) ? $categories[0] : null;
@@ -506,12 +649,12 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         }
 
         if ('post' == $cur->getField('post_type')) {
-            # --BEHAVIOR-- xmlrpcBeforeEditPost
+            // --BEHAVIOR-- xmlrpcBeforeEditPost
             dotclear()->behavior()->call('xmlrpcBeforeEditPost', $this, $post_id, $cur, $content, $struct, $publish);
 
             dotclear()->blog()->posts()->updPost($post_id, $cur);
 
-            # --BEHAVIOR-- xmlrpcAfterEditPost
+            // --BEHAVIOR-- xmlrpcAfterEditPost
             dotclear()->behavior()->call('xmlrpcAfterEditPost', $this, $post_id, $cur, $content, $struct, $publish);
         } elseif ('page' == $cur->getField('post_type')) {
             if (isset($struct['wp_page_order'])) {
@@ -563,7 +706,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             $res['mt_keywords']       = '';
         }
 
-        # --BEHAVIOR-- xmlrpcGetPostInfo
+        // --BEHAVIOR-- xmlrpcGetPostInfo
         dotclear()->behavior()->call('xmlrpcGetPostInfo', $this, $type, [&$res]);
 
         return $res;
@@ -586,7 +729,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
 
         $nb_post = (int) $nb_post;
 
-        if ($nb_post > 50) {
+        if (50 < $nb_post) {
             throw new CoreException('Cannot retrieve more than 50 entries');
         }
 
@@ -626,7 +769,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
                 $tres['mt_keywords']       = '';
             }
 
-            # --BEHAVIOR-- xmlrpcGetPostInfo
+            // --BEHAVIOR-- xmlrpcGetPostInfo
             dotclear()->behavior()->call('xmlrpcGetPostInfo', $this, $type, [&$tres]);
 
             $res[] = $tres;
@@ -643,7 +786,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         return [[
             'url'      => dotclear()->blog()->url,
             'blogid'   => '1',
-            'blogName' => dotclear()->blog()->name
+            'blogName' => dotclear()->blog()->name,
         ]];
     }
 
@@ -657,7 +800,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             'lastname'  => dotclear()->user()->getInfo('user_name'),
             'nickname'  => dotclear()->user()->getInfo('user_displayname'),
             'email'     => dotclear()->user()->getInfo('user_email'),
-            'url'       => dotclear()->user()->getInfo('user_url')
+            'url'       => dotclear()->user()->getInfo('user_url'),
         ];
     }
 
@@ -675,14 +818,14 @@ class Xmlrpc extends XmlrpcIntrospectionServer
 
         while ($rs->fetch()) {
             $d = $rs->fInt('level') - $l;
-            if ($d == 0) {
+            if (0 == $d) {
                 array_pop($stack);
                 $parent = end($stack);
-            } elseif ($d > 0) {
+            } elseif (0 < $d) {
                 $parent = end($stack);
-            } elseif ($d < 0) {
+            } elseif (0 > $d) {
                 $D = abs($d);
-                for ($i = 0; $i <= $D; $i++) {
+                for ($i = 0; $i <= $D; ++$i) {
                     array_pop($stack);
                 }
                 $parent = end($stack);
@@ -694,7 +837,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
                 'description'  => $rs->f('cat_title'),
                 'categoryName' => $rs->f('cat_url'),
                 'htmlUrl'      => dotclear()->blog()->getURLFor('category', $rs->f('cat_url')),
-                'rssUrl'       => dotclear()->blog()->getURLFor('feed', 'category/' . $rs->f('cat_url') . '/rss2')
+                'rssUrl'       => dotclear()->blog()->getURLFor('feed', 'category/' . $rs->f('cat_url') . '/rss2'),
             ];
 
             $stack[] = $rs->f('cat_url');
@@ -714,8 +857,8 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             [
                 'categoryName' => $post->f('cat_url'),
                 'categoryId'   => (string) $post->f('cat_url'),
-                'isPrimary'    => true
-            ]
+                'isPrimary'    => true,
+            ],
         ];
     }
 
@@ -735,8 +878,8 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             }
         }
 
-        # w.bloggar sends -1 for no category.
-        if ($cat_id == -1) {
+        // w.bloggar sends -1 for no category.
+        if (-1 == $cat_id) {
             $cat_id = null;
         }
 
@@ -755,12 +898,12 @@ class Xmlrpc extends XmlrpcIntrospectionServer
 
         $this->getPostRS($post_id, $user, $pwd);
 
-        # --BEHAVIOR-- xmlrpcBeforePublishPost
+        // --BEHAVIOR-- xmlrpcBeforePublishPost
         dotclear()->behavior()->call('xmlrpcBeforePublishPost', $this, $post_id);
 
         dotclear()->blog()->posts()->updPostStatus($post_id, 1);
 
-        # --BEHAVIOR-- xmlrpcAfterPublishPost
+        // --BEHAVIOR-- xmlrpcAfterPublishPost
         dotclear()->behavior()->call('xmlrpcAfterPublishPost', $this, $post_id);
 
         return true;
@@ -789,7 +932,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $dir_name  = Path::clean(dirname($file_name));
         $file_name = basename($file_name);
         $dir_name  = preg_replace('!^/!', '', $dir_name);
-        if ($dir_name != '') {
+        if ('' != $dir_name) {
             $dir = explode('/', $dir_name);
             $cwd = './';
             foreach ($dir as $v) {
@@ -807,7 +950,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         return [
             'file' => $file_name,
             'url'  => $f->file_url,
-            'type' => Files::getMimeType($file_name)
+            'type' => Files::getMimeType($file_name),
         ];
     }
 
@@ -818,7 +961,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             'pending'   => -2,
             'private'   => 0,
             'publish'   => 1,
-            'scheduled' => -1
+            'scheduled' => -1,
         ];
 
         if (is_int($s)) {
@@ -835,7 +978,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $status = [
             'hold'    => -1,
             'approve' => 0,
-            'spam'    => -2
+            'spam'    => -2,
         ];
 
         if (is_int($s)) {
@@ -858,43 +1001,43 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             'software_name' => [
                 'desc'     => 'Software Name',
                 'readonly' => true,
-                'value'    => 'Dotclear'
+                'value'    => 'Dotclear',
             ],
             'software_version' => [
                 'desc'     => 'Software Version',
                 'readonly' => true,
-                'value'    => dotclear()->config()->get('core_version')
+                'value'    => dotclear()->config()->get('core_version'),
             ],
             'blog_url' => [
                 'desc'     => 'Blog URL',
                 'readonly' => true,
-                'value'    => dotclear()->blog()->url
+                'value'    => dotclear()->blog()->url,
             ],
             'time_zone' => [
                 'desc'     => 'Time Zone',
                 'readonly' => true,
-                'value'    => (string) $timezone
+                'value'    => (string) $timezone,
             ],
             'blog_title' => [
                 'desc'     => 'Blog Title',
                 'readonly' => false,
-                'value'    => dotclear()->blog()->name
+                'value'    => dotclear()->blog()->name,
             ],
             'blog_tagline' => [
                 'desc'     => 'Blog Tagline',
                 'readonly' => false,
-                'value'    => dotclear()->blog()->desc
+                'value'    => dotclear()->blog()->desc,
             ],
             'date_format' => [
                 'desc'     => 'Date Format',
                 'readonly' => false,
-                'value'    => dotclear()->blog()->settings()->get('system')->get('date_format')
+                'value'    => dotclear()->blog()->settings()->get('system')->get('date_format'),
             ],
             'time_format' => [
                 'desc'     => 'Time Format',
                 'readonly' => false,
-                'value'    => dotclear()->blog()->settings()->get('system')->get('time_format')
-            ]
+                'value'    => dotclear()->blog()->settings()->get('system')->get('time_format'),
+            ],
         ];
 
         if (!empty($options)) {
@@ -921,7 +1064,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             'pending'   => 'Pending Review',
             'private'   => 'Private',
             'publish'   => 'Published',
-            'scheduled' => 'Scheduled'
+            'scheduled' => 'Scheduled',
         ];
     }
 
@@ -935,7 +1078,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             'draft'     => 'Draft',
             'private'   => 'Private',
             'published' => 'Published',
-            'scheduled' => 'Scheduled'
+            'scheduled' => 'Scheduled',
         ];
     }
 
@@ -958,7 +1101,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
 
         $params = [
             'post_type' => 'page',
-            'order'     => 'post_position ASC, post_title ASC'
+            'order'     => 'post_position ASC, post_title ASC',
         ];
 
         if ($id) {
@@ -996,10 +1139,10 @@ class Xmlrpc extends XmlrpcIntrospectionServer
                 'wp_author_display_name' => $posts->getAuthorCN(),
                 'date_created_gmt'       => new xmlrpcDate(Dt::iso8601($posts->getTS(), $posts->f('post_tz'))),
                 'custom_fields'          => [],
-                'wp_page_template'       => 'default'
+                'wp_page_template'       => 'default',
             ];
 
-            # --BEHAVIOR-- xmlrpcGetPageInfo
+            // --BEHAVIOR-- xmlrpcGetPageInfo
             dotclear()->behavior()->call('xmlrpcGetPageInfo', $this, [&$tres]);
 
             $res[] = $tres;
@@ -1056,7 +1199,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             $res[] = [
                 'user_id'      => $k,
                 'user_login'   => $k,
-                'display_name' => UserContainer::getUserCN($k, $v['name'], $v['firstname'], $v['displayname'])
+                'display_name' => UserContainer::getUserCN($k, $v['name'], $v['firstname'], $v['displayname']),
             ];
         }
 
@@ -1080,7 +1223,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
                 'count'    => $tags->f('count'),
                 'slug'     => $tags->f('meta_id'),
                 'html_url' => sprintf(dotclear()->blog()->getURLFor('tag', '%s'), $tags->f('meta_id')),
-                'rss_url'  => sprintf(dotclear()->blog()->getURLFor('tag_feed', '%s'), $tags->f('meta_id'))
+                'rss_url'  => sprintf(dotclear()->blog()->getURLFor('tag_feed', '%s'), $tags->f('meta_id')),
             ];
         }
 
@@ -1143,7 +1286,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         'FROM ' . dotclear()->prefix . 'category ' .
         "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
         "AND LOWER(cat_title) LIKE LOWER('%" . dotclear()->con()->escape($category) . "%') " .
-            ($limit > 0 ? dotclear()->con()->limit($limit) : '');
+            (0 < $limit ? dotclear()->con()->limit($limit) : '');
 
         $rs = dotclear()->con()->select($strReq);
 
@@ -1151,7 +1294,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         while ($rs->fetch()) {
             $res[] = [
                 'category_id'   => $rs->f('cat_url'),
-                'category_name' => $rs->f('cat_url')
+                'category_name' => $rs->f('cat_url'),
             ];
         }
 
@@ -1167,18 +1310,18 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             'approved'            => 0,
             'awaiting_moderation' => 0,
             'spam'                => 0,
-            'total'               => 0
+            'total'               => 0,
         ];
         $rs = dotclear()->blog()->comments()->getComments(['post_id' => $post_id]);
 
         while ($rs->fetch()) {
-            $res['total']++;
+            ++$res['total'];
             if ($rs->fInt('comment_status') == 1) {
-                $res['approved']++;
+                ++$res['approved'];
             } elseif ($rs->fInt('comment_status') == -2) {
-                $res['spam']++;
+                ++$res['spam'];
             } else {
-                $res['awaiting_moderation']++;
+                ++$res['awaiting_moderation'];
             }
         }
 
@@ -1224,7 +1367,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
                 'author'           => $rs->f('comment_author'),
                 'author_url'       => $rs->f('comment_site'),
                 'author_email'     => $rs->f('comment_email'),
-                'author_ip'        => $rs->f('comment_ip')
+                'author_ip'        => $rs->f('comment_ip'),
             ];
         }
 
@@ -1259,9 +1402,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $cur->setField('comment_content', $struct['content']);
         $cur->setField('post_id', (int) $post_id);
 
-        $id = dotclear()->blog()->comments()->addComment($cur);
-
-        return $id;
+        return dotclear()->blog()->comments()->addComment($cur);
     }
 
     private function updComment($user, $pwd, $comment_id, $struct)
@@ -1464,7 +1605,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
                 'page_title'       => $v['title'],
                 'page_parent_id'   => $v['wp_page_parent_id'],
                 'dateCreated'      => $v['dateCreated'],
-                'date_created_gmt' => $v['date_created_gmt']
+                'date_created_gmt' => $v['date_created_gmt'],
             ];
         }
 
@@ -1551,22 +1692,25 @@ class Xmlrpc extends XmlrpcIntrospectionServer
 
             switch ($name) {
                 case 'blog_title':
-                    $blog_changes   = true;
+                    $blog_changes = true;
                     $cur->setField('blog_name', $value);
-                    $done[]         = $name;
+                    $done[] = $name;
 
                     break;
+
                 case 'blog_tagline':
-                    $blog_changes   = true;
+                    $blog_changes = true;
                     $cur->setField('blog_desc', $value);
-                    $done[]         = $name;
+                    $done[] = $name;
 
                     break;
+
                 case 'date_format':
                     dotclear()->blog()->settings()->get('system')->put('date_format', $value);
                     $done[] = $name;
 
                     break;
+
                 case 'time_format':
                     dotclear()->blog()->settings()->get('system')->put('time_format', $value);
                     $done[] = $name;
@@ -1627,7 +1771,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         return [
             'hold'    => 'Unapproved',
             'approve' => 'Approved',
-            'spam'    => 'Spam'
+            'spam'    => 'Spam',
         ];
     }
 
@@ -1640,10 +1784,10 @@ class Xmlrpc extends XmlrpcIntrospectionServer
 
         $args = ['type' => 'pingback', 'from_url' => $from_url, 'to_url' => $to_url];
 
-        # Time to get things done...
+        // Time to get things done...
         $this->setBlog(true);
 
-        # --BEHAVIOR-- publicBeforeReceiveTrackback
+        // --BEHAVIOR-- publicBeforeReceiveTrackback
         dotclear()->behavior()->call('publicBeforeReceiveTrackback', $args);
 
         return $trackback->receivePingback($from_url, $to_url);

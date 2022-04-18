@@ -1,12 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\File\Files
- * @brief Basic files handling tool
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
  * @package Dotclear
- * @subpackage Utils
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,15 +11,24 @@ namespace Dotclear\Helper\File;
 
 use Dotclear\Exception\FileException;
 use Dotclear\Helper\Text;
-use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Network\Http;
+use Exception;
 
+/**
+ * Basic files handling tool.
+ *
+ * \Dotclear\Helper\File\Files
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Helper File
+ */
 class Files
 {
-    /** @var int|null    Default directory mode */
-    public static $dir_mode = null;
+    /** @var null|int Default directory mode */
+    public static $dir_mode;
 
-    /** @var array  Defined file mime types */
+    /** @var array Defined file mime types */
     public static $mimeType =
     [
         'odt' => 'application/vnd.oasis.opendocument.text',
@@ -116,7 +119,7 @@ class Files
         'webm' => 'video/webm',
     ];
 
-    /** @var array  Allowed files extensions to serve  */
+    /** @var array Allowed files extensions to serve */
     public static $allowed_served_extensions = [
         'ico',
         'png',
@@ -142,29 +145,29 @@ class Files
     ];
 
     /**
-     * Directory scanning
+     * Directory scanning.
      *
      * Returns a directory child files and directories.
      *
-     * @throws  FileException  On failed to open dir
+     * @param string $d      Path to scan
+     * @param bool   $order  Order results
+     * @param bool   $strict Thrown error if not exists
      *
-     * @param   string  $d      Path to scan
-     * @param   bool    $order  Order results
-     * @param   bool    $strict Thrown error if not exists
+     * @throws FileException On failed to open dir
      *
-     * @return  array           List of dirs and files
+     * @return array List of dirs and files
      */
     public static function scandir(string $d, bool $order = true, bool $strict = true): array
     {
         $res = [];
         $dh  = @opendir($d);
 
-        if ($dh === false) {
+        if (false === $dh) {
             if ($strict) {
                 throw new FileException(__('Unable to open directory.'));
             }
         } else {
-            while (($f = readdir($dh)) !== false) {
+            while (false !== ($f = readdir($dh))) {
                 $res[] = $f;
             }
             closedir($dh);
@@ -178,13 +181,13 @@ class Files
     }
 
     /**
-     * File extension
+     * File extension.
      *
      * Returns a file extension.
      *
-     * @param   string  $f  File name
+     * @param string $f File name
      *
-     * @return  string      The file extension
+     * @return string The file extension
      */
     public static function getExtension(string $f): string
     {
@@ -200,13 +203,13 @@ class Files
     }
 
     /**
-     * MIME type
+     * MIME type.
      *
      * Returns a file MIME type, based on static var {@link $mimeType}
      *
-     * @param   string  $f  File name
+     * @param string $f File name
      *
-     * @return  string      The file MIME type
+     * @return string The file MIME type
      */
     public static function getMimeType(string $f): string
     {
@@ -221,11 +224,11 @@ class Files
     }
 
     /**
-     * MIME types
+     * MIME types.
      *
      * Returns all defined MIME types.
      *
-     * @return  array   List of defined MIME types
+     * @return array List of defined MIME types
      */
     public static function mimeTypes(): array
     {
@@ -233,11 +236,11 @@ class Files
     }
 
     /**
-     * New MIME types
+     * New MIME types.
      *
      * Append new MIME types to defined MIME types.
      *
-     * @param   array   $tab    New MIME types.
+     * @param array $tab new MIME types
      */
     public static function registerMimeTypes(array $tab): void
     {
@@ -249,38 +252,40 @@ class Files
      *
      * Returns true if $f is a file or directory and is deletable.
      *
-     * @param   string  $f  File or directory
-     * @return  bool        True if is deletable
+     * @param string $f File or directory
+     *
+     * @return bool True if is deletable
      */
     public static function isDeletable(string $f): bool
     {
         if (is_file($f)) {
             return is_writable(dirname($f));
-        } elseif (is_dir($f)) {
-            return (is_writable(dirname($f)) && count(Files::scandir($f)) <= 2);
+        }
+        if (is_dir($f)) {
+            return is_writable(dirname($f)) && count(Files::scandir($f)) <= 2;
         }
 
         return false;
     }
 
     /**
-     * Recursive removal
+     * Recursive removal.
      *
      * Remove recursively a directory.
      *
-     * @param   string  $dir    Directory patch
+     * @param string $dir Directory patch
      *
-     * @return  bool            True on success
+     * @return bool True on success
      */
     public static function deltree(string $dir): bool
     {
         $current_dir = opendir($dir);
         while ($entryname = readdir($current_dir)) {
-            if (is_dir($dir . '/' . $entryname) and ($entryname != '.' and $entryname != '..')) {
+            if (is_dir($dir . '/' . $entryname) and ('.' != $entryname and '..' != $entryname)) {
                 if (!Files::deltree($dir . '/' . $entryname)) {
                     return false;
                 }
-            } elseif ($entryname != '.' and $entryname != '..') {
+            } elseif ('.' != $entryname and '..' != $entryname) {
                 if (!@unlink($dir . '/' . $entryname)) {
                     return false;
                 }
@@ -292,11 +297,11 @@ class Files
     }
 
     /**
-     * Touch file
+     * Touch file.
      *
      * Set file modification time to now.
      *
-     * @param   string  $f  File to change
+     * @param string $f File to change
      */
     public static function touch(string $f): void
     {
@@ -304,7 +309,7 @@ class Files
             if (function_exists('touch')) {
                 @touch($f);
             } else {
-                # Very bad hack
+                // Very bad hack
                 @file_put_contents($f, file_get_contents($f));
             }
         }
@@ -316,10 +321,10 @@ class Files
      * Creates directory $f. If $r is true, attempts to create needed parents
      * directories.
      *
-     * @throws  FileException  If failed to create dir
+     * @param string $f Directory to create
+     * @param bool   $r Create parent directories
      *
-     * @param   string  $f      Directory to create
-     * @param   bool    $r      Create parent directories
+     * @throws FileException If failed to create dir
      */
     public static function makeDir(string $f, bool $r = false): void
     {
@@ -346,12 +351,12 @@ class Files
 
             foreach ($dirs as $d) {
                 $dir .= DIRECTORY_SEPARATOR . $d;
-                if ($d != '' && !is_dir($dir)) {
+                if ('' != $d && !is_dir($dir)) {
                     self::makeDir($dir);
                 }
             }
         } else {
-            if (@mkdir($f) === false) {
+            if (false === @mkdir($f)) {
                 throw new FileException(__('Unable to create directory.'));
             }
             self::inheritChmod($f);
@@ -359,11 +364,11 @@ class Files
     }
 
     /**
-     * Mode inheritage
+     * Mode inheritage.
      *
      * Sets file or directory mode according to its parent.
      *
-     * @param string    $file        File to change
+     * @param string $file File to change
      */
     public static function inheritChmod(string $file): bool
     {
@@ -371,7 +376,7 @@ class Files
             return false;
         }
 
-        if (self::$dir_mode != null) {
+        if (null != self::$dir_mode) {
             return @chmod($file, self::$dir_mode);
         }
 
@@ -383,12 +388,12 @@ class Files
      *
      * Writes $f_content into $f file.
      *
-     * @throws  FileException      If failed to write file
+     * @param string $f         File to edit
+     * @param string $f_content Content to write
      *
-     * @param   string  $f          File to edit
-     * @param   string  $f_content  Content to write
+     * @throws FileException If failed to write file
      *
-     * @return  bool                True if file is writed
+     * @return bool True if file is writed
      */
     public static function putContent(string $f, string $f_content): bool
     {
@@ -398,7 +403,7 @@ class Files
 
         $fp = @fopen($f, 'w');
 
-        if ($fp === false) {
+        if (false === $fp) {
             throw new FileException(__('Unable to open file.'));
         }
 
@@ -411,9 +416,9 @@ class Files
     /**
      * Human readable file size.
      *
-     * @param   int     $size   Bytes
+     * @param int $size Bytes
      *
-     * @return  string          Size
+     * @return string Size
      */
     public static function size(int $size): string
     {
@@ -424,11 +429,14 @@ class Files
 
         if ($size < $kb) {
             return $size . ' B';
-        } elseif ($size < $mb) {
+        }
+        if ($size < $mb) {
             return round($size / $kb, 2) . ' KB';
-        } elseif ($size < $gb) {
+        }
+        if ($size < $gb) {
             return round($size / $mb, 2) . ' MB';
-        } elseif ($size < $tb) {
+        }
+        if ($size < $tb) {
             return round($size / $gb, 2) . ' GB';
         }
 
@@ -438,20 +446,23 @@ class Files
     /**
      * Converts a human readable file size to bytes.
      *
-     * @param   string  $v  Size
+     * @param string $v Size
      *
-     * @return  float       Size converted
+     * @return float Size converted
      */
     public static function str2bytes(string $v): float
     {
         $v    = trim($v);
         $last = strtolower(substr($v, -1, 1));
         $v    = (float) substr($v, 0, -1);
+
         switch ($last) {
             case 'g':
                 $v *= 1024;
+                // no break
             case 'm':
                 $v *= 1024;
+                // no break
             case 'k':
                 $v *= 1024;
         }
@@ -460,14 +471,15 @@ class Files
     }
 
     /**
-     * Upload status
+     * Upload status.
      *
      * Returns true if upload status is ok, throws an FileException instead.
      *
-     * @throws  FileException  On upload error
+     * @param array $file File array as found in $_FILES
      *
-     * @param   array   $file   File array as found in $_FILES
-     * @return  bool            True on success
+     * @throws FileException On upload error
+     *
+     * @return bool True on success
      */
     public static function uploadStatus(array $file): bool
     {
@@ -478,27 +490,27 @@ class Files
         return match ($file['error']) {
             UPLOAD_ERR_OK => true,
             UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE => throw new FileException(__('The uploaded file exceeds the maximum file size allowed.')),
-            UPLOAD_ERR_PARTIAL => throw new FileException(__('The uploaded file was only partially uploaded.')),
-            UPLOAD_ERR_NO_FILE => throw new FileException(__('No file was uploaded.')),
+            UPLOAD_ERR_PARTIAL    => throw new FileException(__('The uploaded file was only partially uploaded.')),
+            UPLOAD_ERR_NO_FILE    => throw new FileException(__('No file was uploaded.')),
             UPLOAD_ERR_NO_TMP_DIR => throw new FileException(__('Missing a temporary folder.')),
             UPLOAD_ERR_CANT_WRITE => throw new FileException(__('Failed to write file to disk.')),
-            UPLOAD_ERR_EXTENSION => throw new FileException(__('A PHP extension stopped the file upload.')),
-            default => true,
+            UPLOAD_ERR_EXTENSION  => throw new FileException(__('A PHP extension stopped the file upload.')),
+            default               => true,
         };
     }
 
     /**
-     * Recursive directory scanning
+     * Recursive directory scanning.
      *
      * Returns an array of a given directory's content. The array contains
      * two arrays: dirs and files. Directory's content is fetched recursively.
      *
-     * @throws  FileException      On scan dir fail
+     * @param string $dirName  Directory name
+     * @param array  $contents Contents array. Leave it empty
      *
-     * @param   string  $dirName    Directory name
-     * @param   array   $contents   Contents array. Leave it empty
+     * @throws FileException On scan dir fail
      *
-     * @return  array               Dir list
+     * @return array Dir list
      */
     public static function getDirList(string $dirName, array &$contents = null): array
     {
@@ -516,7 +528,7 @@ class Files
         $contents['dirs'][] = $dirName;
 
         $d = @dir($dirName);
-        if ($d === false) {
+        if (false === $d) {
             throw new FileException(__('Unable to open directory.'));
         }
 
@@ -535,13 +547,13 @@ class Files
     }
 
     /**
-     * Filename cleanup
+     * Filename cleanup.
      *
      * Removes unwanted characters in a filename.
      *
-     * @param   string  $n  Filename
+     * @param string $n Filename
      *
-     * @return  string      Tidy filemnae
+     * @return string Tidy filemnae
      */
     public static function tidyFileName(string $n): string
     {
@@ -552,36 +564,36 @@ class Files
     }
 
     /**
-     * Serve file through Http
+     * Serve file through Http.
      *
-     * @param   string      $needle                 The file to serve
-     * @param   array       $haystack               Paths to search on
-     * @param   array|null  $allowed_extensions     List of allowed file extension
-     * @param   bool        $allow_level_up         True to allow ".." directory
-     * @param   bool        $return_path            If true, return file path, else serve file
+     * @param string     $needle             The file to serve
+     * @param array      $haystack           Paths to search on
+     * @param null|array $allowed_extensions List of allowed file extension
+     * @param bool       $allow_level_up     True to allow ".." directory
+     * @param bool       $return_path        If true, return file path, else serve file
      *
-     * @return string|false                         File path (if $return_path=true)
+     * @return false|string File path (if $return_path=true)
      */
     public static function serveFile(string $needle, array $haystack, ?array $allowed_extensions = null, bool $allow_level_up = false, bool $return_path = false): string|False
     {
-        # Set default types
-        if ($allowed_extensions === null) {
+        // Set default types
+        if (null === $allowed_extensions) {
             $allowed_extensions = self::$allowed_served_extensions;
         }
 
         try {
-            # Check directory change ".."
+            // Check directory change ".."
             if (!$allow_level_up && str_contains('..', $needle)) {
-                throw new \Exception('file not found');
+                throw new Exception('file not found');
             }
 
-            # Clean query parameter
+            // Clean query parameter
             $needle = Path::clean($needle);
             if (empty($needle)) {
-                throw new \Exception('file not found');
+                throw new Exception('file not found');
             }
 
-            # Search dirs
+            // Search dirs
             $file = false;
             foreach ($haystack as $dir) {
                 if (is_string($dir)) {
@@ -592,9 +604,9 @@ class Files
             }
             unset($haystack);
 
-            # Check file and extension
-            if ($file === false || !is_file($file) || !is_readable($file) || !in_array(self::getExtension($file), $allowed_extensions)) {
-                throw new \Exception('file not found');
+            // Check file and extension
+            if (false === $file || !is_file($file) || !is_readable($file) || !in_array(self::getExtension($file), $allowed_extensions)) {
+                throw new Exception('file not found');
             }
         } catch (\Exception) {
             if ($return_path) {
@@ -603,6 +615,7 @@ class Files
 
             header('Content-Type: text/plain');
             Http::head(404, 'Not Found');
+
             exit;
         }
 
@@ -610,20 +623,21 @@ class Files
             return $file;
         }
 
-        # Set http cache (one week)
+        // Set http cache (one week)
         Http::$cache_max_age = 7 * 24 * 60 * 60; // One week cache
         Http::cache([$file]);
 
-        # Send file to output
+        // Send file to output
         header('Content-Type: ' . self::getMimeType($file));
         readfile($file);
+
         exit;
     }
 
     /**
-     * Server max upload file size
+     * Server max upload file size.
      *
-     * @return float    Max file size
+     * @return float Max file size
      */
     public static function getMaxUploadFilesize(): float
     {

@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Blogroll\Common\Blogroll
+ * @note Dotclear\Plugin\Blogroll\Common\Blogroll
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginBlogroll
+ * @ingroup  PluginBlogroll
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -41,7 +40,8 @@ class Blogroll
             ])
             ->where('blog_id = ' . $sql->quote(dotclear()->blog()->id))
             ->from(dotclear()->prefix . $this->table)
-            ->order('link_position');
+            ->order('link_position')
+        ;
 
         if (isset($params['link_id'])) {
             $sql->and('link_id = ' . (int) $params['link_id']);
@@ -57,7 +57,7 @@ class Blogroll
 
     public function getLangs(array|ArrayObject $params = []): Record
     {
-        # Use post_lang as an alias of link_lang to be able to use the dcAdminCombos::getLangsCombo() function
+        // Use post_lang as an alias of link_lang to be able to use the dcAdminCombos::getLangsCombo() function
         $sql = new SelectStatement(__METHOD__);
         $sql
             ->columns([
@@ -68,7 +68,8 @@ class Blogroll
             ->where('blog_id = ' . $sql->quote(dotclear()->blog()->id))
             ->and("link_id <> ''")
             ->and('link_id IS NOT NULL')
-            ->order('link_lang ' . (!empty($params['order']) && preg_match('/^(desc|asc)$/i', $params['order']) ? $params['order'] : 'desc'));
+            ->order('link_lang ' . (!empty($params['order']) && preg_match('/^(desc|asc)$/i', $params['order']) ? $params['order'] : 'desc'))
+        ;
 
         if (isset($params['lang'])) {
             $sql->and('link_lang = ' . $sql->quote($params['lang']));
@@ -117,7 +118,8 @@ class Blogroll
                     ->fInt() + 1,
             ]])
             ->from(dotclear()->prefix . $this->table)
-            ->insert();
+            ->insert()
+        ;
 
         dotclear()->blog()->triggerBlog();
     }
@@ -144,7 +146,8 @@ class Blogroll
             ->where('link_id = ' . $id)
             ->and('blog_id = ' . $sql->quote(dotclear()->blog()->id))
             ->from(dotclear()->prefix . $this->table)
-            ->update();
+            ->update()
+        ;
 
         dotclear()->blog()->triggerBlog();
     }
@@ -161,7 +164,8 @@ class Blogroll
             ->where('link_id = ' . $id)
             ->and('blog_id = ' . $sql->quote(dotclear()->blog()->id))
             ->from(dotclear()->prefix . $this->table)
-            ->update();
+            ->update()
+        ;
 
         dotclear()->blog()->triggerBlog();
     }
@@ -196,7 +200,8 @@ class Blogroll
                 $id,
             ]])
             ->from(dotclear()->prefix . $this->table)
-            ->insert();
+            ->insert()
+        ;
 
         dotclear()->blog()->triggerBlog();
 
@@ -210,7 +215,8 @@ class Blogroll
             ->where('link_id = ' . $id)
             ->and('blog_id = ' . $sql->quote(dotclear()->blog()->id))
             ->from(dotclear()->prefix . $this->table)
-            ->delete();
+            ->delete()
+        ;
 
         dotclear()->blog()->triggerBlog();
     }
@@ -223,7 +229,8 @@ class Blogroll
             ->where('link_id = ' . $id)
             ->and('blog_id = ' . $sql->quote(dotclear()->blog()->id))
             ->from(dotclear()->prefix . $this->table)
-            ->update();
+            ->update()
+        ;
 
         dotclear()->blog()->triggerBlog();
     }

@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Core\Meta\Meta
+ * @note Dotclear\Core\Meta\Meta
  * @brief Dotclear core meta class
  *
- * @package Dotclear
- * @subpackage Instance
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -27,16 +26,16 @@ use Dotclear\Helper\Text;
 
 class Meta
 {
-    /** @var    string  Meta table name */
+    /** @var string Meta table name */
     private $table = 'meta';
 
     /**
      * Splits up comma-separated values into an array of
      * unique, URL-proof metadata values.
      *
-     * @param   string  $str    Comma-separated metadata
+     * @param string $str Comma-separated metadata
      *
-     * @return  array           The array of sanitized metadata
+     * @return array The array of sanitized metadata
      */
     public function splitMetaValues(string $str): array
     {
@@ -56,9 +55,9 @@ class Meta
     /**
      * Make a metadata ID URL-proof.
      *
-     * @param   string  $str    The metadata ID
+     * @param string $str The metadata ID
      *
-     * @return  string          The sanitized metadata ID
+     * @return string The sanitized metadata ID
      */
     public static function sanitizeMetaID(string $str): string
     {
@@ -69,9 +68,9 @@ class Meta
      * Converts serialized metadata (for instance in dc_post post_meta)
      * into a meta array.
      *
-     * @param   string  $str    The serialized metadata
+     * @param string $str The serialized metadata
      *
-     * @return  array           The meta array.
+     * @return array the meta array
      */
     public function getMetaArray(string $str): array
     {
@@ -84,10 +83,10 @@ class Meta
      * Converts serialized metadata (for instance in dc_post post_meta)
      * into a comma-separated meta list for a given type.
      *
-     * @param   string  $str    The serialized metadata
-     * @param   string  $type   The meta type to retrieve metaIDs from
+     * @param string $str  The serialized metadata
+     * @param string $type The meta type to retrieve metaIDs from
      *
-     * @return  string          The comma-separated list of meta.
+     * @return string the comma-separated list of meta
      */
     public function getMetaStr(string $str, string $type): string
     {
@@ -100,10 +99,10 @@ class Meta
      * Converts serialized metadata (for instance in dc_post post_meta)
      * into a "fetchable" metadata record.
      *
-     * @param   string  $str    The serialized metadata
-     * @param   string  $type   The meta type to retrieve metaIDs from
+     * @param string $str  The serialized metadata
+     * @param string $type The meta type to retrieve metaIDs from
      *
-     * @return  StaticRecord    The meta recordset.
+     * @return StaticRecord the meta recordset
      */
     public function getMetaRecordset(string $str, string $type): StaticRecord
     {
@@ -130,9 +129,9 @@ class Meta
      * Checks whether the current user is allowed to change post meta
      * An exception is thrown if user is not allowed.
      *
-     * @param   int     $post_id    The post identifier
+     * @param int $post_id The post identifier
      *
-     * @throws  CoreException
+     * @throws CoreException
      */
     private function checkPermissionsOnPost(int $post_id): void
     {
@@ -140,15 +139,16 @@ class Meta
             throw new CoreException(__('You are not allowed to change this entry status'));
         }
 
-        # If user can only publish, we need to check the post's owner
+        // If user can only publish, we need to check the post's owner
         if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
             $sql = new SelectStatement(__METHOD__);
-            $rs = $sql
+            $rs  = $sql
                 ->from(dotclear()->prefix . 'post')
                 ->column('post_id')
                 ->where('post_id = ' . $post_id)
                 ->and('user_id = ' . $sql->quote(dotclear()->user()->userID()))
-                ->select();
+                ->select()
+            ;
 
             if ($rs->isEmpty()) {
                 throw new CoreException(__('You are not allowed to change this entry status'));
@@ -159,7 +159,7 @@ class Meta
     /**
      * Updates serialized post_meta information with dc_meta table information.
      *
-     * @param   int     $post_id    The post identifier
+     * @param int $post_id The post identifier
      */
     private function updatePostMeta(int $post_id): void
     {
@@ -170,7 +170,8 @@ class Meta
                 'meta_type',
             ])
             ->where('post_id = ' . $post_id)
-            ->select();
+            ->select()
+        ;
 
         $meta = [];
         while ($rs->fetch()) {
@@ -181,7 +182,8 @@ class Meta
         $sql->set('post_meta = ' . $sql->quote(serialize($meta)))
             ->from(dotclear()->prefix . 'post')
             ->where('post_id = ' . $post_id)
-            ->update();
+            ->update()
+        ;
 
         dotclear()->blog()->triggerBlog();
     }
@@ -190,13 +192,13 @@ class Meta
      * Retrieves posts corresponding to given meta criteria.
      * <b>$params</b> is an array taking the following optional parameters:
      * - meta_id : get posts having meta id
-     * - meta_type : get posts having meta type
+     * - meta_type : get posts having meta type.
      *
-     * @param   array                   $params         The parameters
-     * @param   bool                    $count_only     Only count results
-     * @param   SelectStatement|null    $sql            Optional dcSqlStatement instance
+     * @param array                $params     The parameters
+     * @param bool                 $count_only Only count results
+     * @param null|SelectStatement $sql        Optional dcSqlStatement instance
      *
-     * @return  Record|null                             The resulting posts record.
+     * @return null|Record the resulting posts record
      */
     public function getPostsByMeta(array|ArrayObject $params = [], bool $count_only = false, ?SelectStatement $sql = null): ?Record
     {
@@ -211,7 +213,8 @@ class Meta
         $sql
             ->from(dotclear()->prefix . $this->table . ' META')
             ->and('META.post_id = P.post_id')
-            ->and('META.meta_id = ' . $sql->quote($params['meta_id']));
+            ->and('META.meta_id = ' . $sql->quote($params['meta_id']))
+        ;
 
         if (!empty($params['meta_type'])) {
             $sql->and('META.meta_type = ' . $sql->quote($params['meta_type']));
@@ -228,12 +231,12 @@ class Meta
      * Retrieves comments corresponding to given meta criteria.
      * <b>$params</b> is an array taking the following optional parameters:
      * - meta_id : get posts having meta id
-     * - meta_type : get posts having meta type
+     * - meta_type : get posts having meta type.
      *
-     * @param   array   $params         The parameters
-     * @param   bool    $count_only     Only count results
+     * @param array $params     The parameters
+     * @param bool  $count_only Only count results
      *
-     * @return  Record|null             The resulting comments record.
+     * @return null|Record the resulting comments record
      */
     public function getCommentsByMeta(array|ArrayObject $params = [], bool $count_only = false, ?SelectStatement $sql = null): ?Record
     {
@@ -248,7 +251,8 @@ class Meta
         $sql
             ->from(dotclear()->prefix . $this->table . ' META')
             ->and('META.post_id = P.post_id')
-            ->and('META.meta_id = ' . $sql->quote($params['meta_id']));
+            ->and('META.meta_id = ' . $sql->quote($params['meta_id']))
+        ;
 
         if (!empty($params['meta_type'])) {
             $sql->and('META.meta_type = ' . $sql->quote($params['meta_type']));
@@ -262,7 +266,7 @@ class Meta
     /**
      * Generic-purpose metadata retrieval : gets metadatas according to given
      * criteria. <b>$params</b> is an array taking the following
-     * optionnal parameters:
+     * optionnal parameters:.
      *
      * - type: get metas having the given type
      * - meta_id: if not null, get metas having the given id
@@ -270,10 +274,10 @@ class Meta
      * - limit: number of max fetched metas
      * - order: results order (default : posts count DESC)
      *
-     * @param   array   $params      The parameters
-     * @param   bool    $count_only  Only counts results
+     * @param array $params     The parameters
+     * @param bool  $count_only Only counts results
      *
-     * @return  Record              The metadata recordset.
+     * @return Record the metadata recordset
      */
     public function getMetadata(array|ArrayObject $params = [], bool $count_only = false, ?SelectStatement $sql = null): Record
     {
@@ -302,7 +306,8 @@ class Meta
                     ->on('M.post_id = P.post_id')
                     ->statement()
             )
-            ->where('P.blog_id = ' . $sql->quote(dotclear()->blog()->id));
+            ->where('P.blog_id = ' . $sql->quote(dotclear()->blog()->id))
+        ;
 
         if (isset($params['meta_type'])) {
             $sql->and('meta_type = ' . $sql->quote($params['meta_type']));
@@ -342,7 +347,8 @@ class Meta
                     'meta_type',
                     'P.blog_id',
                 ])
-                ->order($params['order']);
+                ->order($params['order'])
+            ;
 
             if (isset($params['limit'])) {
                 $sql->limit($params['limit']);
@@ -354,11 +360,11 @@ class Meta
 
     /**
      * Computes statistics from a metadata recordset.
-     * Each record gets enriched with lowercase name, percent and roundpercent columns
+     * Each record gets enriched with lowercase name, percent and roundpercent columns.
      *
-     * @param   Record  $rs     The metadata recordset
+     * @param Record $rs The metadata recordset
      *
-     * @return  StaticRecord    The meta statistics.
+     * @return StaticRecord the meta statistics
      */
     public function computeMetaStats(Record $rs): StaticRecord
     {
@@ -377,7 +383,7 @@ class Meta
         }
 
         $rs_static->moveStart();
-        /** @phpstan-ignore-next-line (Failed to understand moveStart to index 0) */
+        // @phpstan-ignore-next-line (Failed to understand moveStart to index 0)
         while ($rs_static->fetch()) {
             $rs_static->set('meta_id_lower', Lexical::removeDiacritics(mb_strtolower($rs_static->f('meta_id'))));
 
@@ -394,9 +400,9 @@ class Meta
     /**
      * Adds a metadata to a post.
      *
-     * @param   int     $post_id    The post identifier
-     * @param   string  $type       The type
-     * @param   string  $value      The value
+     * @param int    $post_id The post identifier
+     * @param string $type    The type
+     * @param string $value   The value
      */
     public function setPostMeta(int $post_id, string $type, string $value): void
     {
@@ -418,9 +424,10 @@ class Meta
             ->line([[
                 $post_id,
                 $sql->quote($value),
-                $sql->quote($type)
+                $sql->quote($type),
             ]])
-            ->insert();
+            ->insert()
+        ;
 
         $this->updatePostMeta($post_id);
     }
@@ -428,9 +435,9 @@ class Meta
     /**
      * Removes metadata from a post.
      *
-     * @param   int             $post_id    The post identifier
-     * @param   string|null     $type       The meta type (if null, delete all types)
-     * @param   string|null     $meta_id    The meta identifier (if null, delete all values)
+     * @param int         $post_id The post identifier
+     * @param null|string $type    The meta type (if null, delete all types)
+     * @param null|string $meta_id The meta identifier (if null, delete all values)
      */
     public function delPostMeta(int $post_id, ?string $type = null, ?string $meta_id = null): void
     {
@@ -438,7 +445,8 @@ class Meta
 
         $sql = DeleteStatement::init(__METHOD__)
             ->from(dotclear()->prefix . $this->table)
-            ->where('post_id = ' . $post_id);
+            ->where('post_id = ' . $post_id)
+        ;
 
         if (null !== $type) {
             $sql->and('meta_type = ' . $sql->quote($type));
@@ -456,12 +464,12 @@ class Meta
     /**
      * Mass updates metadata for a given post_type.
      *
-     * @param   string          $meta_id        The old meta value
-     * @param   string          $new_meta_id    The new meta value
-     * @param   string|null     $type           The type (if null, select all types)
-     * @param   string|null     $post_type      The post type (if null, select all types)
+     * @param string      $meta_id     The old meta value
+     * @param string      $new_meta_id The new meta value
+     * @param null|string $type        The type (if null, select all types)
+     * @param null|string $post_type   The post type (if null, select all types)
      *
-     * @return  bool                            True if at least 1 post has been impacted
+     * @return bool True if at least 1 post has been impacted
      */
     public function updateMeta(string $meta_id, string $new_meta_id, ?string $type = null, ?string $post_type = null): bool
     {
@@ -479,7 +487,8 @@ class Meta
             ])
             ->column('M.post_id')
             ->where('P.post_id = M.post_id')
-            ->and('P.blog_id = ' . $sql->quote(dotclear()->blog()->id));
+            ->and('P.blog_id = ' . $sql->quote(dotclear()->blog()->id))
+        ;
 
         if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
             $sql->and('P.user_id = ' . $sql->quote(dotclear()->user()->userID()));
@@ -520,13 +529,14 @@ class Meta
             }
         }
 
-        # Delete duplicate meta
+        // Delete duplicate meta
         if (!empty($to_remove)) {
             $sqlDel = new DeleteStatement(__METHOD__);
             $sqlDel
                 ->from(dotclear()->prefix . $this->table)
                 ->where('post_id' . $sqlDel->in($to_remove, 'int'))      // Note: will cast all values to integer
-                ->and('meta_id = ' . $sqlDel->quote($meta_id));
+                ->and('meta_id = ' . $sqlDel->quote($meta_id))
+            ;
 
             if (null !== $type) {
                 $sqlDel->and('meta_type = ' . $sqlDel->quote($type));
@@ -539,14 +549,15 @@ class Meta
             }
         }
 
-        # Update meta
+        // Update meta
         if (!empty($to_update)) {
             $sqlUpd = new UpdateStatement(__METHOD__);
             $sqlUpd
                 ->from(dotclear()->prefix . $this->table)
                 ->set('meta_id = ' . $sqlUpd->quote($new_meta_id))
                 ->where('post_id' . $sqlUpd->in($to_update, 'int'))
-                ->and('meta_id = ' . $sqlUpd->quote($meta_id));
+                ->and('meta_id = ' . $sqlUpd->quote($meta_id))
+            ;
 
             if (null !== $type) {
                 $sqlUpd->and('meta_type = ' . $sqlUpd->quote($type));
@@ -565,11 +576,11 @@ class Meta
     /**
      * Mass delete metadata for a given post_type.
      *
-     * @param   string          $meta_id    The meta identifier
-     * @param   string|null     $type       The meta type (if null, select all types)
-     * @param   string|null     $post_type  The post type (if null, select all types)
+     * @param string      $meta_id   The meta identifier
+     * @param null|string $type      The meta type (if null, select all types)
+     * @param null|string $post_type The post type (if null, select all types)
      *
-     * @return  array                       The list of impacted post_ids
+     * @return array The list of impacted post_ids
      */
     public function delMeta(string $meta_id, ?string $type = null, ?string $post_type = null): array
     {
@@ -582,7 +593,8 @@ class Meta
             ])
             ->where('P.post_id = M.post_id')
             ->and('P.blog_id = ' . $sql->quote(dotclear()->blog()->id))
-            ->and('meta_id = ' . $sql->quote($meta_id));
+            ->and('meta_id = ' . $sql->quote($meta_id))
+        ;
 
         if (null !== $type) {
             $sql->and('meta_type = ' . $sql->quote($type));
@@ -607,7 +619,8 @@ class Meta
         $sql
             ->from(dotclear()->prefix . $this->table)
             ->where('post_id' . $sql->in($ids, 'int'))
-            ->and('meta_id = ' . $sql->quote($meta_id));
+            ->and('meta_id = ' . $sql->quote($meta_id))
+        ;
 
         if (null !== $type) {
             $sql->and('meta_type = ' . $sql->quote($type));

@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Inventory\Inventory\CommentInventory
+ * @note Dotclear\Process\Admin\Inventory\Inventory\CommentInventory
  * @brief Dotclear admin list helper
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -23,14 +22,14 @@ use Dotclear\Process\Admin\Page\Pager;
 class CommentInventory extends Inventory
 {
     /**
-     * Display a comment list
+     * Display a comment list.
      *
-     * @param   int     $page           The page
-     * @param   int     $nb_per_page    The number of per page
-     * @param   string  $enclose_block  The enclose block
-     * @param   bool    $filter         The filter flag
-     * @param   bool    $spam           The spam flag
-     * @param   bool    $show_ip        The show ip flag
+     * @param int    $page          The page
+     * @param int    $nb_per_page   The number of per page
+     * @param string $enclose_block The enclose block
+     * @param bool   $filter        The filter flag
+     * @param bool   $spam          The spam flag
+     * @param bool   $show_ip       The show ip flag
      */
     public function display(int $page, int $nb_per_page, string $enclose_block = '', bool $filter = false, bool $spam = false, bool $show_ip = true): void
     {
@@ -102,7 +101,7 @@ class CommentInventory extends Inventory
                 'status' => '<th scope="col" class="txt-center">' . __('Status') . '</th>',
             ];
             if ($spam) {
-                $cols['ip']          = '<th scope="col">' . __('IP') . '</th>';
+                $cols['ip'] = '<th scope="col">' . __('IP') . '</th>';
             }
             $cols['entry'] = '<th scope="col" abbr="entry">' . __('Entry') . '</th>';
 
@@ -123,9 +122,7 @@ class CommentInventory extends Inventory
                 echo $this->commentLine(isset($comments[$this->rs->fInt('comment_id')]), $spam);
             }
 
-            $fmt = function ($title, $image) {
-                return sprintf('<img alt="%1$s" title="%1$s" src="?df=images/%2$s" /> %1$s', $title, $image);
-            };
+            $fmt = fn ($title, $image) => sprintf('<img alt="%1$s" title="%1$s" src="?df=images/%2$s" /> %1$s', $title, $image);
 
             echo $blocks[1] .
                 '<p class="info">' . __('Legend: ') .
@@ -139,12 +136,12 @@ class CommentInventory extends Inventory
     }
 
     /**
-     * Get a comment line
+     * Get a comment line.
      *
-     * @param   bool    $checked    The checked flag
-     * @param   bool    $spam       The spam flag
+     * @param bool $checked The checked flag
+     * @param bool $spam    The spam flag
      *
-     * @return  string              The line
+     * @return string The line
      */
     private function commentLine(bool $checked = false, bool $spam = false): string
     {
@@ -153,27 +150,32 @@ class CommentInventory extends Inventory
         $comment_url = dotclear()->adminurl()->get('admin.comment', ['id' => $this->rs->f('comment_id')]);
         $comment_dt  = Dt::dt2str(
             dotclear()->blog()->settings()->get('system')->get('date_format') . ' - ' .
-            dotclear()->blog()->settings()->get('system')->get('time_format'), $this->rs->f('comment_dt')
+            dotclear()->blog()->settings()->get('system')->get('time_format'),
+            $this->rs->f('comment_dt')
         );
         $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
         $img_status = '';
         $sts_class  = '';
+
         switch ($this->rs->fInt('comment_status')) {
             case 1:
                 $img_status = sprintf($img, __('Published'), 'check-on.png');
                 $sts_class  = 'sts-online';
 
                 break;
+
             case 0:
                 $img_status = sprintf($img, __('Unpublished'), 'check-off.png');
                 $sts_class  = 'sts-offline';
 
                 break;
+
             case -1:
                 $img_status = sprintf($img, __('Pending'), 'check-wrn.png');
                 $sts_class  = 'sts-pending';
 
                 break;
+
             case -2:
                 $img_status = sprintf($img, __('Junk'), 'junk.png');
                 $sts_class  = 'sts-junk';

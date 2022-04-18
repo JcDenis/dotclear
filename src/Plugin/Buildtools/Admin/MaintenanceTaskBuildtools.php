@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Buildtools\Admin\MaintenanceTaskBuildtools
+ * @note Dotclear\Plugin\Buildtools\Admin\MaintenanceTaskBuildtools
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginBuildtools
+ * @ingroup  PluginBuildtools
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,7 +13,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Buildtools\Admin;
 
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
-use Dotclear\Plugin\Buildtools\Admin\L10nFaker;
 
 class MaintenanceTaskBuildtools extends MaintenanceTask
 {

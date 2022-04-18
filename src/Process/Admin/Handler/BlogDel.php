@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Handler\BlogDel
+ * @note Dotclear\Process\Admin\Handler\BlogDel
  * @brief Dotclear admin blog deletion page
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,11 +12,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
-use Dotclear\Process\Admin\Page\Page;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
+use Exception;
 
-class BlogDel extends Page
+class BlogDel extends AbstractPage
 {
     private $blog_id   = '';
     private $blog_name = '';
@@ -29,7 +29,7 @@ class BlogDel extends Page
 
     protected function getPagePrepend(): ?bool
     {
-        # search the blog
+        // search the blog
         $rs = null;
         if (!empty($_POST['blog_id'])) {
             try {
@@ -41,12 +41,12 @@ class BlogDel extends Page
                     $this->blog_id   = $rs->f('blog_id');
                     $this->blog_name = $rs->f('blog_name');
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Delete the blog
+        // Delete the blog
         if (!dotclear()->error()->flag() && $this->blog_id && !empty($_POST['del'])) {
             if (!dotclear()->user()->checkPassword($_POST['pwd'])) {
                 dotclear()->error()->add(__('Password verification failed'));
@@ -56,19 +56,19 @@ class BlogDel extends Page
                     dotclear()->notice()->addSuccessNotice(sprintf(__('Blog "%s" successfully deleted'), Html::escapeHTML($this->blog_name)));
 
                     dotclear()->adminurl()->redirect('admin.blogs');
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     dotclear()->error()->add($e->getMessage());
                 }
             }
         }
 
-        # Page setup
+        // Page setup
         $this
             ->setPageTitle(__('Delete a blog'))
             ->setPageBreadcrumb([
                 __('System')        => '',
                 __('Blogs')         => dotclear()->adminurl()->get('admin.blogs'),
-                __('Delete a blog') => ''
+                __('Delete a blog') => '',
             ])
         ;
 
@@ -81,14 +81,14 @@ class BlogDel extends Page
             return;
         }
 
-        echo
-        '<div class="warning-msg"><p><strong>' . __('Warning') . '</strong></p>' .
-        '<p>' . sprintf(__('You are about to delete the blog %s. Every entry, comment and category will be deleted.'),
-            '<strong>' . $this->blog_id . ' (' . $this->blog_name . ')</strong>') . '</p></div>' .
+        echo '<div class="warning-msg"><p><strong>' . __('Warning') . '</strong></p>' .
+        '<p>' . sprintf(
+            __('You are about to delete the blog %s. Every entry, comment and category will be deleted.'),
+            '<strong>' . $this->blog_id . ' (' . $this->blog_name . ')</strong>'
+        ) . '</p></div>' .
         '<p>' . __('Please give your password to confirm the blog deletion.') . '</p>';
 
-        echo
-        '<form action="' . dotclear()->adminurl()->root() . '" method="post">' .
+        echo '<form action="' . dotclear()->adminurl()->root() . '" method="post">' .
         '<p><label for="pwd">' . __('Your password:') . '</label> ' .
         Form::password('pwd', 20, 255, ['autocomplete' => 'current-password']) . '</p>' .
         '<p><input type="submit" class="delete" name="del" value="' . __('Delete this blog') . '" />' .

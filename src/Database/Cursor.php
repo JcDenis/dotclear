@@ -1,12 +1,11 @@
 <?php
 /**
- * @class Dotclear\Database\Cursor
+ * @note Dotclear\Database\Cursor
  * @brief Database cursor
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
- * @package Dotclear
- * @subpackage Database
+ * @ingroup  Database
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,7 +14,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Database;
 
-use Dotclear\Database\AbstractConnection;
 use Dotclear\Exception\DatabaseException;
 
 class Cursor
@@ -23,7 +21,7 @@ class Cursor
     private $__data = [];
 
     /**
-     * Constructor
+     * Constructor.
      *
      * Init cursor object on a given table. Note that you can init it with
      * {@link Layer::openCursor() openCursor()} method of your connection object.
@@ -41,20 +39,20 @@ class Cursor
      * </code>
      *
      * @see     AbstractConnection::openCursor()
-     * 
-     * @param   AbstractConnection  $__con      AbstractConnection object
-     * @param   string              $__table    Table name
+     *
+     * @param AbstractConnection $__con   AbstractConnection object
+     * @param string             $__table Table name
      */
     public function __construct(private AbstractConnection $__con, private string $__table)
     {
     }
 
     /**
-     * Set table
+     * Set table.
      *
      * Changes working table and resets data
      *
-     * @param   string  $table  Table name
+     * @param string $table Table name
      */
     public function setTable(string $table): void
     {
@@ -63,7 +61,7 @@ class Cursor
     }
 
     /**
-     * Set field
+     * Set field.
      *
      * Set value <var>$v</var> to a field named <var>$n</var>. Value could be
      * an string, an integer, a float, a null value or an array.
@@ -71,8 +69,8 @@ class Cursor
      * If value is an array, its first value will be interpreted as a SQL
      * command. String values will be automatically escaped.
      *
-     * @param   string  $n  Field name
-     * @param   mixed   $v  Field value
+     * @param string $n Field name
+     * @param mixed  $v Field value
      */
     public function setField(string $n, mixed $v): Cursor
     {
@@ -82,11 +80,11 @@ class Cursor
     }
 
     /**
-     * Unset field
+     * Unset field.
      *
      * Remove a field from data set.
      *
-     * @param   string  $n  Field name
+     * @param string $n Field name
      */
     public function unsetField(string $n): void
     {
@@ -94,9 +92,9 @@ class Cursor
     }
 
     /**
-     * Field exists
+     * Field exists.
      *
-     * @return  bool    True if field named <var>$n</var> exists
+     * @return bool True if field named <var>$n</var> exists
      */
     public function isField(string $n): bool
     {
@@ -104,17 +102,19 @@ class Cursor
     }
 
     /**
-     * Field value
+     * Field value.
      *
-     * @return  mixed   Value for a field named <var>$n</var>
+     * @return mixed Value for a field named <var>$n</var>
      */
     public function getField(string $n): mixed
     {
-        return isset($this->__data[$n]) ? $this->__data[$n] : null;
+        return $this->__data[$n] ?? null;
     }
 
     /**
      * @see self::setField()
+     *
+     * @param mixed $v
      */
     public function __set(string $n, $v): void
     {
@@ -130,7 +130,7 @@ class Cursor
     }
 
     /**
-     * Empty data set
+     * Empty data set.
      *
      * Removes all data from data set
      */
@@ -161,31 +161,25 @@ class Cursor
     }
 
     /**
-     * Get insert query
+     * Get insert query.
      *
      * Returns the generated INSERT query
-     *
-     * @return  string
      */
     public function getInsert(): string
     {
         $data = $this->formatFields();
 
-        $insReq = 'INSERT INTO ' . $this->__con->escapeSystem($this->__table) . " (\n" .
+        return 'INSERT INTO ' . $this->__con->escapeSystem($this->__table) . " (\n" .
         implode(",\n", array_keys($data)) . "\n) VALUES (\n" .
         implode(",\n", array_values($data)) . "\n) ";
-
-        return $insReq;
     }
 
     /**
-     * Get update query
+     * Get update query.
      *
      * Returns the generated UPDATE query
      *
-     * @param   string  $where  WHERE condition
-     * 
-     * @return  string
+     * @param string $where WHERE condition
      */
     public function getUpdate(string $where): string
     {
@@ -205,7 +199,7 @@ class Cursor
     }
 
     /**
-     * Execute insert query
+     * Execute insert query.
      *
      * Executes the generated INSERT query
      */
@@ -223,11 +217,11 @@ class Cursor
     }
 
     /**
-     * Execute update query
+     * Execute update query.
      *
      * Executes the generated UPDATE query
      *
-     * @param   string  $where  WHERE condition
+     * @param string $where WHERE condition
      */
     public function update(string $where): bool
     {

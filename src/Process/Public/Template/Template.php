@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Public\Template\Tempalte
+ * @note Dotclear\Process\Public\Template\Tempalte
  * @brief Dotclear public core prepend class
  *
- * @package Dotclear
- * @subpackage Public
+ * @ingroup  Public
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -20,14 +19,14 @@ use Dotclear\Helper\Dt;
 
 class Template extends BaseTemplate
 {
-    /** @var    string  $current_tag    Current tag */
+    /** @var string Current tag */
     private $current_tag;
 
     /**
-     * Constructor
-     * 
-     * @param   string  $cache_dir  Cache directory path
-     * @param   string  $self_name  Tempalte engine method name
+     * Constructor.
+     *
+     * @param string $cache_dir Cache directory path
+     * @param string $self_name Tempalte engine method name
      */
     public function __construct(string $cache_dir, string $self_name)
     {
@@ -36,14 +35,14 @@ class Template extends BaseTemplate
         $this->remove_php = !dotclear()->blog()->settings()->get('system')->get('tpl_allow_php');
         $this->use_cache  = dotclear()->blog()->settings()->get('system')->get('tpl_use_cache');
 
-        # l10n
+        // l10n
         $this->addValue('lang', [$this, 'l10n']);
 
-        # Loops test tags
+        // Loops test tags
         $this->addBlock('LoopPosition', [$this, 'LoopPosition']);
         $this->addValue('LoopIndex', [$this, 'LoopIndex']);
 
-        # Archives
+        // Archives
         $this->addBlock('Archives', [$this, 'Archives']);
         $this->addBlock('ArchivesHeader', [$this, 'ArchivesHeader']);
         $this->addBlock('ArchivesFooter', [$this, 'ArchivesFooter']);
@@ -55,7 +54,7 @@ class Template extends BaseTemplate
         $this->addValue('ArchiveEntriesCount', [$this, 'ArchiveEntriesCount']);
         $this->addValue('ArchiveURL', [$this, 'ArchiveURL']);
 
-        # Blog
+        // Blog
         $this->addValue('BlogArchiveURL', [$this, 'BlogArchiveURL']);
         $this->addValue('BlogCopyrightNotice', [$this, 'BlogCopyrightNotice']);
         $this->addValue('BlogDescription', [$this, 'BlogDescription']);
@@ -82,7 +81,7 @@ class Template extends BaseTemplate
         $this->addValue('BlogNbEntriesFirstPage', [$this, 'BlogNbEntriesFirstPage']);
         $this->addValue('BlogNbEntriesPerPage', [$this, 'BlogNbEntriesPerPage']);
 
-        # Categories
+        // Categories
         $this->addBlock('Categories', [$this, 'Categories']);
         $this->addBlock('CategoriesHeader', [$this, 'CategoriesHeader']);
         $this->addBlock('CategoriesFooter', [$this, 'CategoriesFooter']);
@@ -97,7 +96,7 @@ class Template extends BaseTemplate
         $this->addValue('CategoryTitle', [$this, 'CategoryTitle']);
         $this->addValue('CategoryEntriesCount', [$this, 'CategoryEntriesCount']);
 
-        # Comments
+        // Comments
         $this->addBlock('Comments', [$this, 'Comments']);
         $this->addValue('CommentAuthor', [$this, 'CommentAuthor']);
         $this->addValue('CommentAuthorDomain', [$this, 'CommentAuthorDomain']);
@@ -123,7 +122,7 @@ class Template extends BaseTemplate
         $this->addBlock('IfCommentAuthorEmail', [$this, 'IfCommentAuthorEmail']);
         $this->addValue('CommentHelp', [$this, 'CommentHelp']);
 
-        # Comment preview
+        // Comment preview
         $this->addBlock('IfCommentPreview', [$this, 'IfCommentPreview']);
         $this->addBlock('IfCommentPreviewOptional', [$this, 'IfCommentPreviewOptional']);
         $this->addValue('CommentPreviewName', [$this, 'CommentPreviewName']);
@@ -132,7 +131,7 @@ class Template extends BaseTemplate
         $this->addValue('CommentPreviewContent', [$this, 'CommentPreviewContent']);
         $this->addValue('CommentPreviewCheckRemember', [$this, 'CommentPreviewCheckRemember']);
 
-        # Entries
+        // Entries
         $this->addBlock('DateFooter', [$this, 'DateFooter']);
         $this->addBlock('DateHeader', [$this, 'DateHeader']);
         $this->addBlock('Entries', [$this, 'Entries']);
@@ -174,7 +173,7 @@ class Template extends BaseTemplate
         $this->addValue('EntryTime', [$this, 'EntryTime']);
         $this->addValue('EntryURL', [$this, 'EntryURL']);
 
-        # Languages
+        // Languages
         $this->addBlock('Languages', [$this, 'Languages']);
         $this->addBlock('LanguagesHeader', [$this, 'LanguagesHeader']);
         $this->addBlock('LanguagesFooter', [$this, 'LanguagesFooter']);
@@ -183,14 +182,14 @@ class Template extends BaseTemplate
         $this->addValue('LanguageURL', [$this, 'LanguageURL']);
         $this->addValue('FeedLanguage', [$this, 'FeedLanguage']);
 
-        # Pagination
+        // Pagination
         $this->addBlock('Pagination', [$this, 'Pagination']);
         $this->addValue('PaginationCounter', [$this, 'PaginationCounter']);
         $this->addValue('PaginationCurrent', [$this, 'PaginationCurrent']);
         $this->addBlock('PaginationIf', [$this, 'PaginationIf']);
         $this->addValue('PaginationURL', [$this, 'PaginationURL']);
 
-        # Trackbacks
+        // Trackbacks
         $this->addValue('PingBlogName', [$this, 'PingBlogName']);
         $this->addValue('PingContent', [$this, 'PingContent']);
         $this->addValue('PingDate', [$this, 'PingDate']);
@@ -210,7 +209,7 @@ class Template extends BaseTemplate
         $this->addValue('PingTitle', [$this, 'PingTitle']);
         $this->addValue('PingAuthorURL', [$this, 'PingAuthorURL']);
 
-        # System
+        // System
         $this->addValue('SysBehavior', [$this, 'SysBehavior']);
         $this->addBlock('SysIf', [$this, 'SysIf']);
         $this->addBlock('SysIfCommentPublished', [$this, 'SysIfCommentPublished']);
@@ -222,13 +221,13 @@ class Template extends BaseTemplate
         $this->addValue('SysSearchString', [$this, 'SysSearchString']);
         $this->addValue('SysSelfURI', [$this, 'SysSelfURI']);
 
-        # Generic
+        // Generic
         $this->addValue('else', [$this, 'GenericElse']);
     }
 
     public function getData(string $________): string
     {
-        # --BEHAVIOR-- tplBeforeData
+        // --BEHAVIOR-- tplBeforeData
         if (dotclear()->behavior()->has('tplBeforeData')) {
             self::$_r = dotclear()->behavior()->call('tplBeforeData');
             if (self::$_r) {
@@ -238,7 +237,7 @@ class Template extends BaseTemplate
 
         parent::getData($________);
 
-        # --BEHAVIOR-- tplAfterData
+        // --BEHAVIOR-- tplAfterData
         if (dotclear()->behavior()->has('tplAfterData')) {
             dotclear()->behavior()->call('tplAfterData', self::$_r);
         }
@@ -250,15 +249,15 @@ class Template extends BaseTemplate
     {
         $this->current_tag = $tag;
 
-        # --BEHAVIOR-- templateBeforeBlock
+        // --BEHAVIOR-- templateBeforeBlock
         $res = dotclear()->behavior()->call('templateBeforeBlock', $this->current_tag, $attr);
 
-        # --BEHAVIOR-- templateInsideBlock
-        dotclear()->behavior()->call('templateInsideBlock', $this->current_tag, $attr, [& $content]);
+        // --BEHAVIOR-- templateInsideBlock
+        dotclear()->behavior()->call('templateInsideBlock', $this->current_tag, $attr, [&$content]);
 
         $res .= parent::compileBlockNode($this->current_tag, $attr, $content);
 
-        # --BEHAVIOR-- templateAfterBlock
+        // --BEHAVIOR-- templateAfterBlock
         $res .= dotclear()->behavior()->call('templateAfterBlock', $this->current_tag, $attr);
 
         return $res;
@@ -269,12 +268,12 @@ class Template extends BaseTemplate
         $this->current_tag = $tag;
 
         $attr = new ArrayObject($attr);
-        # --BEHAVIOR-- templateBeforeValue
+        // --BEHAVIOR-- templateBeforeValue
         $res = dotclear()->behavior()->call('templateBeforeValue', $this->current_tag, $attr);
 
         $res .= parent::compileValueNode($this->current_tag, $attr, $str_attr);
 
-        # --BEHAVIOR-- templateAfterValue
+        // --BEHAVIOR-- templateAfterValue
         $res .= dotclear()->behavior()->call('templateAfterValue', $this->current_tag, $attr);
 
         return $res;
@@ -343,7 +342,7 @@ class Template extends BaseTemplate
 
         $alias = new ArrayObject();
 
-        # --BEHAVIOR-- templateCustomSortByAlias
+        // --BEHAVIOR-- templateCustomSortByAlias
         dotclear()->behavior()->call('templateCustomSortByAlias', $alias);
 
         $alias = $alias->getArrayCopy();
@@ -431,7 +430,7 @@ class Template extends BaseTemplate
 
     public function l10n(ArrayObject $attr, string $str_attr): string
     {
-        # Normalize content
+        // Normalize content
         $str_attr = preg_replace('/\s+/x', ' ', $str_attr);
 
         return "<?php echo __('" . str_replace("'", "\\'", $str_attr) . "'); ?>";
@@ -445,7 +444,7 @@ class Template extends BaseTemplate
         $modulo = isset($attr['modulo']) ? (int) $attr['modulo'] : 'null';
 
         if (0 < $start) {
-            $start--;
+            --$start;
         }
 
         return
@@ -461,7 +460,7 @@ class Template extends BaseTemplate
         return '<?php echo ' . sprintf($f, '(!dotclear()->context()->get("cur_loop") ? 0 : dotclear()->context()->get("cur_loop")->index() + 1)') . '; ?>';
     }
 
-    /* Archives ------------------------------------------- */
+    // Archives -------------------------------------------
     /*dtd
     <!ELEMENT tpl:Archives - - -- Archives dates loop -->
     <!ATTLIST tpl:Archives
@@ -693,7 +692,7 @@ class Template extends BaseTemplate
         return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("archives")->call("url")') . '; ?>';
     }
 
-    /* Blog ----------------------------------------------- */
+    // Blog -----------------------------------------------
     /*dtd
     <!ELEMENT tpl:BlogArchiveURL - O -- Blog Archives URL -->
      */
@@ -827,11 +826,12 @@ class Template extends BaseTemplate
 
         if ($rfc822) {
             return '<?php echo ' . sprintf($f, "dotclear()->blog()->getUpdateDate('rfc822')") . '; ?>';
-        } elseif ($iso8601) {
+        }
+        if ($iso8601) {
             return '<?php echo ' . sprintf($f, "dotclear()->blog()->getUpdateDate('iso8601')") . '; ?>';
         }
 
-        return '<?php echo ' . sprintf($f, "dotclear()->blog()->getUpdateDate('". $format . "')") . '; ?>';
+        return '<?php echo ' . sprintf($f, "dotclear()->blog()->getUpdateDate('" . $format . "')") . '; ?>';
     }
 
     /*dtd
@@ -943,7 +943,7 @@ class Template extends BaseTemplate
         return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->blog()->settings()->get("system")->get("nb_post_per_page")') . '; ?>';
     }
 
-    /* Categories ----------------------------------------- */
+    // Categories -----------------------------------------
 
     /*dtd
     <!ELEMENT tpl:Categories - - -- Categories loop -->
@@ -1182,7 +1182,7 @@ class Template extends BaseTemplate
         );
     }
 
-    /* Entries -------------------------------------------- */
+    // Entries --------------------------------------------
     /*dtd
     <!ELEMENT tpl:Entries - - -- Blog Entries loop -->
     <!ATTLIST tpl:Entries
@@ -1211,9 +1211,9 @@ class Template extends BaseTemplate
 
         $p = '$_page_number = dotclear()->context()->page_number(); if (!$_page_number) { $_page_number = 1; }' . "\n";
 
-        if ($lastn != 0) {
+        if (0 != $lastn) {
             // Set limit (aka nb of entries needed)
-            if ($lastn > 0) {
+            if (0 < $lastn) {
                 // nb of entries per page specified in template -> regular pagination
                 $p .= "\$params['limit'] = " . $lastn . ";\n";
                 $p .= '$nb_entry_first_page = $nb_entry_per_page = ' . $lastn . ";\n";
@@ -1227,7 +1227,7 @@ class Template extends BaseTemplate
                 $p .= "}\n";
             }
             // Set offset (aka index of first entry)
-            if (!isset($attr['ignore_pagination']) || $attr['ignore_pagination'] == '0') {
+            if (!isset($attr['ignore_pagination']) || '0' == $attr['ignore_pagination']) {
                 // standard pagination, set offset
                 $p .= "if ((dotclear()->url()->type == 'default') || (dotclear()->url()->type == 'default-page')) {\n";
                 $p .= "    \$params['limit'] = [(\$_page_number == 1 ? 0 : (\$_page_number - 2) * \$nb_entry_per_page + \$nb_entry_first_page),\$params['limit']];\n";
@@ -1259,7 +1259,7 @@ class Template extends BaseTemplate
         }
 
         if (!empty($attr['type'])) {
-            $p .= "\$params['post_type'] = preg_split('/\s*,\s*/','" . addslashes($attr['type']) . "',-1,PREG_SPLIT_NO_EMPTY);\n";
+            $p .= "\$params['post_type'] = preg_split('/\\s*,\\s*/','" . addslashes($attr['type']) . "',-1,PREG_SPLIT_NO_EMPTY);\n";
         }
 
         if (!empty($attr['url'])) {
@@ -1308,7 +1308,7 @@ class Template extends BaseTemplate
 
         if (isset($attr['age'])) {
             $age = $this->getAge($attr);
-            $p .= !empty($age) ? "@\$params['sql'] .= ' AND P.post_dt > \'" . $age . "\'';\n" : '';
+            $p .= !empty($age) ? "@\$params['sql'] .= ' AND P.post_dt > \\'" . $age . "\\'';\n" : '';
         }
 
         $res = "<?php\n";
@@ -1947,7 +1947,8 @@ class Template extends BaseTemplate
 
         if ($rfc822) {
             return '<?php echo ' . sprintf($f, "dotclear()->context()->get('posts')->getRFC822Date('" . $type . "')") . '; ?>';
-        } elseif ($iso8601) {
+        }
+        if ($iso8601) {
             return '<?php echo ' . sprintf($f, "dotclear()->context()->get('posts')->getISO8601Date('" . $type . "')") . '; ?>';
         }
 
@@ -2053,7 +2054,7 @@ class Template extends BaseTemplate
      */
     public function EntryPingData(ArrayObject $attr): string
     {
-        $format = !empty($attr['format']) && $attr['format'] == 'xml' ? 'xml' : 'html';
+        $format = !empty($attr['format']) && 'xml' == $attr['format'] ? 'xml' : 'html';
 
         return "<?php if (dotclear()->context()->get('posts')->trackbacksActive()) { echo dotclear()->context()->get('posts')->getTrackbackData('" . $format . "'); } ?>\n";
     }
@@ -2066,7 +2067,7 @@ class Template extends BaseTemplate
         return "<?php if (dotclear()->context()->get('posts')->trackbacksActive()) { echo dotclear()->context()->get('posts')->getTrackbackLink(); } ?>\n";
     }
 
-    /* Languages -------------------------------------- */
+    // Languages --------------------------------------
     /*dtd
     <!ELEMENT tpl:Languages - - -- Languages loop -->
     <!ATTLIST tpl:Languages
@@ -2171,7 +2172,7 @@ class Template extends BaseTemplate
         '   { echo ' . sprintf($f, 'dotclear()->blog()->settings()->get("system")->get("lang")') . '; } ?>';
     }
 
-    /* Pagination ------------------------------------- */
+    // Pagination -------------------------------------
     /*dtd
     <!ELEMENT tpl:Pagination - - -- Pagination container -->
     <!ATTLIST tpl:Pagination
@@ -2269,7 +2270,7 @@ class Template extends BaseTemplate
         return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->PaginationURL(' . $offset . ')') . '; ?>';
     }
 
-    /* Comments --------------------------------------- */
+    // Comments ---------------------------------------
     /*dtd
     <!ELEMENT tpl:Comments - - -- Comments container -->
     <!ATTLIST tpl:Comments
@@ -2293,7 +2294,7 @@ class Template extends BaseTemplate
             $lastn = abs((int) $attr['lastn']) + 0;
         }
 
-        if ($lastn > 0) {
+        if (0 < $lastn) {
             $p .= "\$params['limit'] = " . $lastn . ";\n";
         } else {
             $p .= "if (dotclear()->context()->get('nb_comment_per_page') !== null) { \$params['limit'] = (int) dotclear()->context()->get('nb_comment_per_page'); }\n";
@@ -2325,7 +2326,7 @@ class Template extends BaseTemplate
 
         if (isset($attr['age'])) {
             $age = $this->getAge($attr);
-            $p .= !empty($age) ? "@\$params['sql'] .= ' AND P.post_dt > \'" . $age . "\'';\n" : '';
+            $p .= !empty($age) ? "@\$params['sql'] .= ' AND P.post_dt > \\'" . $age . "\\'';\n" : '';
         }
 
         $res = "<?php\n";
@@ -2430,7 +2431,8 @@ class Template extends BaseTemplate
 
         if ($rfc822) {
             return '<?php echo ' . sprintf($f, "dotclear()->context()->get('comments')->getRFC822Date('" . $type . "')") . '; ?>';
-        } elseif ($iso8601) {
+        }
+        if ($iso8601) {
             return '<?php echo ' . sprintf($f, "dotclear()->context()->get('comments')->getISO8601Date('" . $type . "')") . '; ?>';
         }
 
@@ -2642,7 +2644,7 @@ class Template extends BaseTemplate
             '} ?>';
     }
 
-    /* Comment preview -------------------------------- */
+    // Comment preview --------------------------------
     /*dtd
     <!ELEMENT tpl:IfCommentPreviewOptional - - -- Container displayed if comment preview is optional or currently previewed -->
      */
@@ -2711,11 +2713,10 @@ class Template extends BaseTemplate
      */
     public function CommentPreviewCheckRemember(ArrayObject $attr): string
     {
-        return
-            "<?php if (dotclear()->context()->get('comment_preview')['remember']) { echo ' checked=\"checked\"'; } ?>";
+        return "<?php if (dotclear()->context()->get('comment_preview')['remember']) { echo ' checked=\"checked\"'; } ?>";
     }
 
-    /* Trackbacks ------------------------------------- */
+    // Trackbacks -------------------------------------
     /*dtd
     <!ELEMENT tpl:PingBlogName - O -- Trackback blog name -->
      */
@@ -2756,7 +2757,8 @@ class Template extends BaseTemplate
 
         if ($rfc822) {
             return '<?php echo ' . sprintf($f, "dotclear()->context()->get('pings')->getRFC822Date('" . $type . "')") . '; ?>';
-        } elseif ($iso8601) {
+        }
+        if ($iso8601) {
             return '<?php echo ' . sprintf($f, "dotclear()->context()->get('pings')->getISO8601Date('" . $type . "')") . '; ?>';
         }
 
@@ -2899,7 +2901,7 @@ class Template extends BaseTemplate
             $lastn = abs((int) $attr['lastn']) + 0;
         }
 
-        if ($lastn > 0) {
+        if (0 < $lastn) {
             $p .= "\$params['limit'] = " . $lastn . ";\n";
         } else {
             $p .= "if (dotclear()->context()->get('nb_comment_per_page') !== null) { \$params['limit'] = dotclear()->context()->get('nb_comment_per_page'); }\n";
@@ -2981,7 +2983,7 @@ class Template extends BaseTemplate
         return '<?php echo ' . sprintf($this->getFilters($attr), 'dotclear()->context()->get("pings")->getAuthorURL()') . '; ?>';
     }
 
-    # System
+    // System
     /*dtd
     <!ELEMENT tpl:SysBehavior - O -- Call a given behavior -->
     <!ATTLIST tpl:SysBehavior
@@ -3169,14 +3171,12 @@ class Template extends BaseTemplate
      */
     public function SysFormError(ArrayObject $attr): string
     {
-        return
-            '<?php if (dotclear()->context()->get("form_error") !== null) { echo dotclear()->context()->get("form_error"); } ?>';
+        return '<?php if (dotclear()->context()->get("form_error") !== null) { echo dotclear()->context()->get("form_error"); } ?>';
     }
 
     public function SysPoweredBy(ArrayObject $attr): string
     {
-        return
-            '<?php printf(__("Powered by %s"),"<a href=\"https://dotclear.org/\">Dotclear</a>"); ?>';
+        return '<?php printf(__("Powered by %s"),"<a href=\"https://dotclear.org/\">Dotclear</a>"); ?>';
     }
 
     public function SysSearchString(ArrayObject $attr): string

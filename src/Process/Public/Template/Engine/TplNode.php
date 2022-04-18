@@ -1,12 +1,13 @@
 <?php
 /**
- * @class Dotclear\Process\Public\Template\Engine\TplNode
+ * @note Dotclear\Process\Public\Template\Engine\TplNode
  * @brief Template nodes, for parsing purposes
  *
  * Generic list node, this one may only be instanciated once for root element
  *
- * @package Clearbricks
- * @subpackage Template
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Template
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,11 +18,9 @@ namespace Dotclear\Process\Public\Template\Engine;
 
 use ArrayObject;
 
-use Dotclear\Process\Public\Template\Engine\Template;
-
 class TplNode
 {
-    # Basic tree structure : links to parent, children forrest
+    // Basic tree structure : links to parent, children forrest
     protected $parentNode;
     protected $children;
 
@@ -42,14 +41,14 @@ class TplNode
         return $res;
     }
 
-    # Add a children to current node
+    // Add a children to current node
     public function addChild($child)
     {
         $this->children[] = $child;
         $child->setParent($this);
     }
 
-    # Set current node children
+    // Set current node children
     public function setChildren($children)
     {
         $this->children = $children;
@@ -58,20 +57,20 @@ class TplNode
         }
     }
 
-    # Defines parent for current node
+    // Defines parent for current node
     protected function setParent($parent)
     {
         $this->parentNode = $parent;
     }
 
-    # Retrieves current node parent.
-    # If parent is root node, null is returned
+    // Retrieves current node parent.
+    // If parent is root node, null is returned
     public function getParent()
     {
         return $this->parentNode;
     }
 
-    # Current node tag
+    // Current node tag
     public function getTag()
     {
         return 'ROOT';

@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\ImportExport\Admin\Lib\Module\ImportDc1
+ * @note Dotclear\Plugin\ImportExport\Admin\Lib\Module\ImportDc1
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginImportExport
+ * @ingroup  PluginImportExport
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -22,11 +21,12 @@ use Dotclear\Helper\Network\Http;
 use Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 use Dotclear\Helper\Crypt;
 use Dotclear\Helper\Text;
+use Exception;
 
 class ImportDc1 extends Module
 {
-    protected $action = null;
-    protected $step   = 1;
+    protected $action;
+    protected $step = 1;
 
     protected $post_offset = 0;
     protected $post_limit  = 20;
@@ -60,7 +60,7 @@ class ImportDc1 extends Module
         }
         $this->vars = &$_SESSION['dc1_import_vars'];
 
-        if ($this->vars['post_limit'] > 0) {
+        if (0 < $this->vars['post_limit']) {
             $this->post_limit = $this->vars['post_limit'];
         }
     }
@@ -76,8 +76,8 @@ class ImportDc1 extends Module
         $this->action = $do;
     }
 
-    # We handle process in another way to always display something to
-    # user
+    // We handle process in another way to always display something to
+    // user
     protected function guiprocess($do)
     {
         switch ($do) {
@@ -95,6 +95,7 @@ class ImportDc1 extends Module
                 echo $this->progressBar(1);
 
                 break;
+
             case 'step2':
                 $this->step = 2;
                 $this->importUsers();
@@ -102,6 +103,7 @@ class ImportDc1 extends Module
                 echo $this->progressBar(3);
 
                 break;
+
             case 'step3':
                 $this->step = 3;
                 $this->importCategories();
@@ -114,6 +116,7 @@ class ImportDc1 extends Module
                 }
 
                 break;
+
             case 'step4':
                 $this->step = 4;
                 $this->importLinks();
@@ -121,6 +124,7 @@ class ImportDc1 extends Module
                 echo $this->progressBar(7);
 
                 break;
+
             case 'step5':
                 $this->step        = 5;
                 $this->post_offset = !empty($_REQUEST['offset']) ? abs((int) $_REQUEST['offset']) : 0;
@@ -131,6 +135,7 @@ class ImportDc1 extends Module
                 }
 
                 break;
+
             case 'ok':
                 $this->resetVars();
                 dotclear()->blog()->triggerBlog();
@@ -145,19 +150,18 @@ class ImportDc1 extends Module
     {
         try {
             $this->guiprocess($this->action);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error($e);
         }
 
-        # db drivers
+        // db drivers
         $db_drivers = [
             'mysqli' => 'mysqli',
         ];
 
         switch ($this->step) {
             case 1:
-                echo
-                '<p>' . sprintf(
+                echo '<p>' . sprintf(
                     __('Import the content of a Dotclear 1.2\'s blog in the current blog: %s.'),
                     '<strong>' . Html::escapeHTML(dotclear()->blog()->name) . '</strong>'
                 ) . '</p>' .
@@ -185,6 +189,7 @@ class ImportDc1 extends Module
                 );
 
                 break;
+
             case 2:
                 printf(
                     $this->imForm(2, __('Importing users')),
@@ -192,6 +197,7 @@ class ImportDc1 extends Module
                 );
 
                 break;
+
             case 3:
                 printf(
                     $this->imForm(3, __('Importing categories')),
@@ -199,6 +205,7 @@ class ImportDc1 extends Module
                 );
 
                 break;
+
             case 4:
                 printf(
                     $this->imForm(4, __('Importing blogroll')),
@@ -206,6 +213,7 @@ class ImportDc1 extends Module
                 );
 
                 break;
+
             case 5:
                 $t = sprintf(
                     __('Importing entries from %d to %d / %d'),
@@ -220,9 +228,9 @@ class ImportDc1 extends Module
                 );
 
                 break;
+
             case 6:
-                echo
-                '<h3 class="vertical-separator">' . __('Please read carefully') . '</h3>' .
+                echo '<h3 class="vertical-separator">' . __('Please read carefully') . '</h3>' .
                 '<ul>' .
                 '<li>' . __('Every newly imported user has received a random password ' .
                     'and will need to ask for a new one by following the "I forgot my password" link on the login page ' .
@@ -241,7 +249,7 @@ class ImportDc1 extends Module
         }
     }
 
-    # Simple form for step by step process
+    // Simple form for step by step process
     protected function imForm($step, $legend, $submit_value = null)
     {
         if (!$submit_value) {
@@ -260,14 +268,14 @@ class ImportDc1 extends Module
             '</form>';
     }
 
-    # Error display
+    // Error display
     protected function error($e)
     {
         echo '<div class="error"><strong>' . __('Errors:') . '</strong>' .
         '<p>' . $e->getMessage() . '</p></div>';
     }
 
-    # Database init
+    // Database init
     protected function db()
     {
         $db = AbstractConnection::init($this->vars['db_driver'], $this->vars['db_host'], $this->vars['db_name'], $this->vars['db_user'], $this->vars['db_pwd']);
@@ -281,7 +289,7 @@ class ImportDc1 extends Module
             $this->has_table[$rs->f(0)] = true;
         }
 
-        # Set this to read data as they were written in Dotclear 1
+        // Set this to read data as they were written in Dotclear 1
         try {
             $db->execute('SET NAMES DEFAULT');
         } catch (\Exception) {
@@ -305,7 +313,7 @@ class ImportDc1 extends Module
         return Text::cleanUTF8(@Text::toUTF8($str));
     }
 
-    # Users import
+    // Users import
     protected function importUsers()
     {
         $db     = $this->db();
@@ -333,22 +341,26 @@ class ImportDc1 extends Module
                     ]));
 
                     $permissions = [];
+
                     switch ($rs->f('user_level')) {
                         case '0':
                             $cur->setField('user_status', 0);
 
                             break;
-                        case '1': # editor
+
+                        case '1': // editor
                             $permissions['usage'] = true;
 
                             break;
-                        case '5': # advanced editor
+
+                        case '5': // advanced editor
                             $permissions['contentadmin'] = true;
                             $permissions['categories']   = true;
                             $permissions['media_admin']  = true;
 
                             break;
-                        case '9': # admin
+
+                        case '9': // admin
                             $permissions['admin'] = true;
 
                             break;
@@ -365,7 +377,7 @@ class ImportDc1 extends Module
 
             dotclear()->con()->commit();
             $db->close();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             dotclear()->con()->rollback();
             $db->close();
 
@@ -373,7 +385,7 @@ class ImportDc1 extends Module
         }
     }
 
-    # Categories import
+    // Categories import
     protected function importCategories()
     {
         $db     = $this->db();
@@ -403,14 +415,14 @@ class ImportDc1 extends Module
             }
 
             $db->close();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $db->close();
 
             throw $e;
         }
     }
 
-    # Blogroll import
+    // Blogroll import
     protected function importLinks()
     {
         $db     = $this->db();
@@ -439,20 +451,20 @@ class ImportDc1 extends Module
             }
 
             $db->close();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $db->close();
 
             throw $e;
         }
     }
 
-    # Entries import
+    // Entries import
     protected function importPosts(&$percent)
     {
         $db     = $this->db();
         $prefix = $this->vars['db_prefix'];
 
-        //! $count = $db->select('SELECT COUNT(post_id) FROM ' . $prefix . 'post')->fInt();
+        // ! $count = $db->select('SELECT COUNT(post_id) FROM ' . $prefix . 'post')->fInt();
 
         $rs = $db->select(
             'SELECT * FROM ' . $prefix . 'post ORDER BY post_id ASC ' .
@@ -460,7 +472,7 @@ class ImportDc1 extends Module
         );
 
         try {
-            if ($this->post_offset == 0) {
+            if (0 == $this->post_offset) {
                 dotclear()->con()->execute(
                     'DELETE FROM ' . dotclear()->prefix . 'post ' .
                     "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' "
@@ -472,7 +484,7 @@ class ImportDc1 extends Module
             }
 
             $db->close();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $db->close();
 
             throw $e;
@@ -537,13 +549,13 @@ class ImportDc1 extends Module
         $this->importComments($rs->fInt('post_id'), $cur->getField('post_id'), $db);
         $this->importPings($rs->fInt('post_id'), $cur->getField('post_id'), $db);
 
-        # Load meta if we have some in DC1
+        // Load meta if we have some in DC1
         if (isset($this->has_table[$this->vars['db_prefix'] . 'post_meta'])) {
             $this->importMeta($rs->fInt('post_id'), $cur->getField('post_id'), $db);
         }
     }
 
-    # Comments import
+    // Comments import
     protected function importComments($post_id, $new_post_id, $db)
     {
         $count_c = $count_t = 0;
@@ -582,9 +594,9 @@ class ImportDc1 extends Module
             $cur->insert();
 
             if ($cur->getField('comment_trackback') && 1 == $cur->getField('comment_status')) {
-                $count_t++;
+                ++$count_t;
             } elseif (1 == $cur->getField('comment_status')) {
-                $count_c++;
+                ++$count_c;
             }
         }
 
@@ -598,7 +610,7 @@ class ImportDc1 extends Module
         }
     }
 
-    # Pings import
+    // Pings import
     protected function importPings($post_id, $new_post_id, $db)
     {
         $urls = [];
@@ -624,7 +636,7 @@ class ImportDc1 extends Module
         }
     }
 
-    # Meta import
+    // Meta import
     protected function importMeta($post_id, $new_post_id, $db)
     {
         $rs = $db->select(

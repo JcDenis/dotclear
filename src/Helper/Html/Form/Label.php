@@ -1,12 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Html\Form\Label
- * @brief HTML Forms label creation helpers
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
  * @package Dotclear
- * @subpackage html.form
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,8 +9,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html\Form;
 
-use Dotclear\Helper\Html\Form\Component;
-
+/**
+ * HTML Forms label creation helpers.
+ *
+ * \Dotclear\Helper\Html\Form\Label
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Helper Html Form
+ */
 class Label extends Component
 {
     private const DEFAULT_ELEMENT = 'label';
@@ -38,26 +39,27 @@ class Label extends Component
      *   INSIDE_TEXT_BEFORE   = inside label, label text before component
      *   INSIDE_TEXT_AFTER    = inside label, label text after component
      *   OUTSIDE_LABEL_BEFORE = after label
-     *   OUTSIDE_LABEL_AFTER  = before label
+     *   OUTSIDE_LABEL_AFTER  = before label.
      *
-     * @var        int
+     * @var int
      */
     private $_position = self::INSIDE_TEXT_BEFORE;
 
     /**
      * Constructs a new instance.
      *
-     * @param      string       $text      The text
-     * @param      int          $position  The position
-     * @param      null|string  $id        The identifier
+     * @param string      $text     The text
+     * @param int         $position The position
+     * @param null|string $id       The identifier
      */
     public function __construct(string $text = '', int $position = self::INSIDE_TEXT_BEFORE, ?string $id = null)
     {
         parent::__construct(__CLASS__, self::DEFAULT_ELEMENT);
         $this->_position = $position;
         $this
-            ->set('text', $text);
-        if ($id !== null) {
+            ->set('text', $text)
+        ;
+        if (null !== $id) {
             $this->set('for', $id);
         }
     }
@@ -65,30 +67,28 @@ class Label extends Component
     /**
      * Renders the HTML component.
      *
-     * @param      null|string  $buffer  The buffer
-     *
-     * @return     string
+     * @param null|string $buffer The buffer
      */
     public function render(?string $buffer = ''): string
     {
         /**
-         * sprintf formats
+         * sprintf formats.
          *
          * %1$s = label opening block
          * %2$s = text of label
          * %3$s = linked component
          * %4$s = label closing block
          *
-         * @var        array
+         * @var array
          */
         $formats = [
             '<%1$s>%2$s %3$s</%4$s>', // Component inside label with label text before it
             '<%1$s>%3$s %2$s</%4$s>', // Component inside label with label text after it
             '<%1$s>%2$s</%4$s> %3$s', // Component after label (for attribute will be used)
-            '%3$s <%1$s>%2$s</%4$s>'  // Component before label (for attribute will be used)
+            '%3$s <%1$s>%2$s</%4$s>',  // Component before label (for attribute will be used)
         ];
 
-        if ($this->_position < 0 || $this->_position > count($formats)) {
+        if (0 > $this->_position || count($formats) < $this->_position) {
             $this->_position = self::INSIDE_TEXT_BEFORE;
         }
 
@@ -107,7 +107,7 @@ class Label extends Component
     /**
      * Sets the position.
      *
-     * @param      int   $position  The position
+     * @param int $position The position
      */
     public function setPosition(int $position = self::INSIDE_TEXT_BEFORE)
     {
@@ -119,7 +119,7 @@ class Label extends Component
     /**
      * Gets the default element.
      *
-     * @return     string  The default element.
+     * @return string the default element
      */
     public function getDefaultElement(): string
     {

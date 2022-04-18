@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Widgets\Public\Prepend
+ * @note Dotclear\Plugin\Widgets\Public\Prepend
  * @brief Dotclear Plugin class
  *
- * @package Dotclear
- * @subpackage PluginWidgets
+ * @ingroup  PluginWidgets
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -23,7 +22,7 @@ class Prepend extends AbstractPrepend
 
     public function loadModule(): void
     {
-        # Load Widgets stack on public prepend
+        // Load Widgets stack on public prepend
         dotclear()->behavior()->add('publicPrepend', fn () => new WidgetsStack());
     }
 }

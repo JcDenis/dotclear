@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Attachments\Admin\AttachmentsBehavior
+ * @note Dotclear\Plugin\Attachments\Admin\AttachmentsBehavior
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginAttachments
+ * @ingroup  PluginAttachments
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,7 +15,6 @@ namespace Dotclear\Plugin\Attachments\Admin;
 use ArrayObject;
 use Dotclear\Database\Record;
 use Dotclear\Helper\File\Files;
-use Dotclear\Helper\Html\Form;
 
 class AttachmentsBehavior
 {
@@ -79,7 +77,7 @@ class AttachmentsBehavior
                     'post_id'   => $post->f('post_id'),
                     'media_id'  => $f->media_id,
                     'link_type' => 'attachment',
-                    'remove'    => '1'
+                    'remove'    => '1',
                 ]) . '">' .
                 '<img src="?df=images/trash.png" alt="' . __('remove') . '" /></a>' .
                     '</li>' .
@@ -101,8 +99,7 @@ class AttachmentsBehavior
     public function behaviorAdminPostAfterForm(?Record $post)
     {
         if (null !== $post) {
-            echo
-            '<form action="' . dotclear()->adminurl()->root() . '" id="attachment-remove-hide" method="post">' .
+            echo '<form action="' . dotclear()->adminurl()->root() . '" id="attachment-remove-hide" method="post">' .
             '<div>' .
             dotclear()->adminurl()->getHiddenFormFields('admin.post.media', [
                 'post_id'   => $post->f('post_id'),

@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Inventory\Inventory\PostMiniInventory
+ * @note Dotclear\Process\Admin\Inventory\Inventory\PostMiniInventory
  * @brief Dotclear admin list helper
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -22,11 +21,11 @@ use Dotclear\Process\Admin\Page\Pager;
 class PostMiniInventory extends Inventory
 {
     /**
-     * Display a mini post list
+     * Display a mini post list.
      *
-     * @param   int     $page           The page
-     * @param   int     $nb_per_page    The number of per page
-     * @param   string  $enclose_block  The enclose block
+     * @param int    $page          The page
+     * @param int    $nb_per_page   The number of per page
+     * @param string $enclose_block The enclose block
      */
     public function display(int $page, int $nb_per_page, string $enclose_block = ''): void
     {
@@ -71,29 +70,33 @@ class PostMiniInventory extends Inventory
     /**
      * Get a line.
      *
-     * @return  string  The line
+     * @return string The line
      */
     private function postLine(): string
     {
         $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
         $img_status = '';
         $sts_class  = '';
+
         switch ($this->rs->fInt('post_status')) {
             case 1:
                 $img_status = sprintf($img, __('Published'), 'check-on.png');
                 $sts_class  = 'sts-online';
 
                 break;
+
             case 0:
                 $img_status = sprintf($img, __('Unpublished'), 'check-off.png');
                 $sts_class  = 'sts-offline';
 
                 break;
+
             case -1:
                 $img_status = sprintf($img, __('Scheduled'), 'scheduled.png');
                 $sts_class  = 'sts-scheduled';
 
                 break;
+
             case -2:
                 $img_status = sprintf($img, __('Pending'), 'check-wrn.png');
                 $sts_class  = 'sts-pending';

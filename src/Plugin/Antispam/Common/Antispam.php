@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Antispam\Common\Antispam
+ * @note Dotclear\Plugin\Antispam\Common\Antispam
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginAntispam
+ * @ingroup  PluginAntispam
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,8 +13,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Antispam\Common;
 
 use ArrayObject;
-use Dotclear\Core\Blog;
-use Dotclear\Core\RsExt\RsExtUser;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
@@ -24,13 +21,12 @@ use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Plugin\Antispam\Common\Filter\FilterIp;
 use Dotclear\Plugin\Antispam\Common\Filter\FilterIpv6;
-use Dotclear\Plugin\Antispam\Common\Spamfilters;
 use Dotclear\Process\Admin\Action\Action;
 
 class Antispam
 {
-    /** @var Spamfilters|null Spamfitlers instance */
-    public $filters = null;
+    /** @var null|Spamfilters Spamfitlers instance */
+    public $filters;
 
     public function __construct()
     {
@@ -53,7 +49,7 @@ class Antispam
     {
         $spamfilters = new ArrayObject($this->defaultFilters());
 
-        # --BEHAVIOR-- antispamInitFilters , ArrayObject
+        // --BEHAVIOR-- antispamInitFilters , ArrayObject
         dotclear()->behavior()->call('antispamInitFilters', $spamfilters);
         $spamfilters = $spamfilters->getArrayCopy();
 
@@ -63,13 +59,13 @@ class Antispam
 
     public function defaultFilters(): array
     {
-        $ns = __NAMESPACE__ . '\\Filter\\';
+        $ns             = __NAMESPACE__ . '\\Filter\\';
         $defaultfilters = [
             $ns . 'FilterIp',
             $ns . 'FilterIplookup',
             $ns . 'FilterWords',
             $ns . 'FilterLinkslookup',
-       ];
+        ];
 
         if (function_exists('gmp_init') || function_exists('bcadd')) {
             $defaultfilters[] = $ns . 'FilterIpv6';
@@ -87,17 +83,17 @@ class Antispam
     public function trainFilters(Cursor $cur, Record $rs): void
     {
         $status = null;
-        # From ham to spam
+        // From ham to spam
         if (-2 != $rs->fInt('comment_status') && -2 == $cur->getField('comment_status')) {
             $status = 'spam';
         }
 
-        # From spam to ham
+        // From spam to ham
         if (-2 == $rs->f('comment_status') && 1 == $cur->getField('comment_status')) {
             $status = 'ham';
         }
 
-        # the status of this comment has changed
+        // the status of this comment has changed
         if (null !== $status) {
             $filter_name = $rs->call('spamFilter') ?: null;
 
@@ -149,7 +145,8 @@ class Antispam
                     ->statement()
             )
             ->where('blog_id = ' . $sql->quote(dotclear()->blog()->id))
-            ->and('comment_status = -2');
+            ->and('comment_status = -2')
+        ;
 
         if ($beforeDate) {
             $sql->and('comment_dt < ' . $sql->quote($beforeDate));
@@ -169,7 +166,8 @@ class Antispam
         $sql
             ->from(dotclear()->prefix . 'comment')
             ->where('comment_id' . $sql->in($r))
-            ->delete();
+            ->delete()
+        ;
     }
 
     public function getUserCode(): string
@@ -192,14 +190,15 @@ class Antispam
         }
 
         $sql = new SelectStatement(__METHOD__);
-        $rs = $sql
+        $rs  = $sql
             ->columns([
                 'user_id',
                 'user_pwd',
             ])
             ->where('user_id = ' . $sql->quote($user_id))
             ->from(dotclear()->prefix . 'user')
-            ->select();
+            ->select()
+        ;
 
         if ($rs->isEmpty()) {
             return false;
@@ -236,7 +235,7 @@ class Antispam
             $moderationTTL = $defaultModerationTTL;
         }
 
-        if ($moderationTTL < 0) {
+        if (0 > $moderationTTL) {
             // disabled
             return;
         }
@@ -278,14 +277,14 @@ class Antispam
         }
     }
 
-    //! todo: manage IPv6
+    // ! todo: manage IPv6
     public function commentsActionsPage(Action $ap): void
     {
         $ip_filter_active = true;
         if (null !== dotclear()->blog()->settings()->get('antispam')->get('antispam_filters')) {
             $filters_opt = dotclear()->blog()->settings()->get('antispam')->get('antispam_filters');
             if (is_array($filters_opt)) {
-                $ip_filter_active = isset($filters_opt['FilterIp']) && is_array($filters_opt['FilterIp']) && $filters_opt['FilterIp'][0] == 1;
+                $ip_filter_active = isset($filters_opt['FilterIp']) && is_array($filters_opt['FilterIp']) && 1 == $filters_opt['FilterIp'][0];
             }
         }
 
@@ -310,7 +309,7 @@ class Antispam
             throw new ModuleException(__('No comment selected'));
         }
 
-        $global = !empty($action) && $action == 'blocklist_global' && dotclear()->user()->isSuperAdmin();
+        $global = !empty($action) && 'blocklist_global' == $action && dotclear()->user()->isSuperAdmin();
 
         $rs = $ap->getRS();
 

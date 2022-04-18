@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Theme\Ductile\Admin\Prepend
+ * @note Dotclear\Theme\Ductile\Admin\Prepend
  * @brief Dotclear Theme class
  *
- * @package Dotclear
- * @subpackage ThemeResume
+ * @ingroup  ThemeResume
  *
  * @copyright Philippe aka amalgame
  * @copyright GPL-2.0-only

@@ -1,9 +1,8 @@
 <?php
 /**
- * @class Dotclear\Module\Iconset\DefineIconset
+ * @note Dotclear\Module\Iconset\DefineIconset
  *
- * @package Dotclear
- * @subpackage Module
+ * @ingroup  Module
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,13 +17,13 @@ class DefineIconset extends AbstractDefine
 {
     protected $type = 'Iconset';
 
-    # Disable permissions on Iconset
+    // Disable permissions on Iconset
     public function permissions(): ?string
     {
         return null;
     }
 
-    # Disable priority on Iconset
+    // Disable priority on Iconset
     public function priority(): int
     {
         return 1000;

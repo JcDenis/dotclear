@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Theme\Blowup\Admin\Prepend
+ * @note Dotclear\Theme\Blowup\Admin\Prepend
  * @brief Dotclear Theme class
  *
- * @package Dotclear
- * @subpackage ThemeResume
+ * @ingroup  ThemeBlowup
  *
  * @copyright Philippe aka amalgame
  * @copyright GPL-2.0-only

@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Action\Action\PostAction
+ * @note Dotclear\Process\Admin\Action\Action\PostAction
  * @brief Dotclear admin handler for action page on selected entries
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,9 +13,8 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Action\Action;
 
 use ArrayObject;
-use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Process\Admin\Action\Action\DefaultPostAction;
+use Exception;
 
 class PostAction extends DefaultPostAction
 {
@@ -24,19 +22,19 @@ class PostAction extends DefaultPostAction
     {
         parent::__construct($uri, $redirect_args);
 
-        # Action setup
+        // Action setup
         $this->redirect_fields = ['user_id', 'cat_id', 'status',
-            'selected', 'attachment', 'month', 'lang', 'sortby', 'order', 'page', 'nb'];
+            'selected', 'attachment', 'month', 'lang', 'sortby', 'order', 'page', 'nb', ];
         $this->loadDefaults();
 
-        # Page setup
+        // Page setup
         $this->setPageTitle(__('Posts'));
         $this->setPageType($this->in_plugin ? 'plugin' : 'full');
         $this->setPageHead(dotclear()->resource()->load('_posts_actions.js'));
         $this->setPageBreadcrumb([
             Html::escapeHTML(dotclear()->blog()->name) => '',
             $this->getCallerTitle()                    => $this->getRedirection(true),
-            __('Posts actions')                        => ''
+            __('Posts actions')                        => '',
         ]);
     }
 
@@ -46,7 +44,7 @@ class PostAction extends DefaultPostAction
         dotclear()->behavior()->call('adminPostsActionsPage', $this);
     }
 
-    public function error(\Exception $e)
+    public function error(Exception $e)
     {
         dotclear()->error()->add($e->getMessage());
         $this->setPageContent('<p><a class="back" href="' . $this->getRedirection(true) . '">' . __('Back to entries list') . '</a></p>');

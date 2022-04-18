@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Handler\LinkPopup
+ * @note Dotclear\Process\Admin\Handler\LinkPopup
  * @brief Dotclear admin generic link popup page
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,11 +12,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
-use Dotclear\Process\Admin\Page\Page;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\Form;
 
-class LinkPopup extends Page
+class LinkPopup extends AbstractPage
 {
     protected function getPermissions(): string|null|false
     {
@@ -42,22 +41,21 @@ class LinkPopup extends Page
 
     protected function getPageContent(): void
     {
-        $href      = !empty($_GET['href']) ? $_GET['href'] : '';
-        $hreflang  = !empty($_GET['hreflang']) ? $_GET['hreflang'] : '';
-        $title     = !empty($_GET['title']) ? $_GET['title'] : '';
+        $href     = !empty($_GET['href']) ? $_GET['href'] : '';
+        $hreflang = !empty($_GET['hreflang']) ? $_GET['hreflang'] : '';
+        $title    = !empty($_GET['title']) ? $_GET['title'] : '';
 
-        # Languages combo
+        // Languages combo
         $rs         = dotclear()->blog()->posts()->getLangs(['order' => 'asc']);
         $lang_combo = dotclear()->combo()->getLangsCombo($rs, true);
 
-        echo
-        '<h2 class="page-title">' . __('Add a link') . '</h2>' .
+        echo '<h2 class="page-title">' . __('Add a link') . '</h2>' .
 
         '<form id="link-insert-form" action="#" method="get">' .
         '<p><label class="required" for="href"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Link URL:') . '</label> ' .
         Form::field('href', 35, 512, [
             'default'    => Html::escapeHTML($href),
-            'extra_html' => 'required placeholder="' . __('URL') . '"'
+            'extra_html' => 'required placeholder="' . __('URL') . '"',
         ]) .
         '</p>' .
         '<p><label for="title">' . __('Link title:') . '</label> ' .

@@ -1,10 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\AboutConfig\Admin\Handler
- * @brief Dotclear Plugins class
- *
  * @package Dotclear
- * @subpackage PluginAboutConfig
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,33 +12,43 @@ namespace Dotclear\Plugin\AboutConfig\Admin;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
+use Exception;
 
+/**
+ * Admin plugin page.
+ *
+ * \Dotclear\Plugin\AboutConfig\Admin\Handler
+ *
+ * @ingroup  Plugin AboutConfig
+ */
 class Handler extends AbstractPage
 {
     protected function getPermissions(): string|null|false
     {
-        # Super admin
+        // Super admin
         return null;
     }
 
     protected function getPagePrepend(): ?bool
     {
-        # Local navigation
+        // Local navigation
         if (!empty($_POST['gs_nav'])) {
             dotclear()->adminurl()->redirect('admin.plugin.AboutConfig', [], $_POST['gs_nav']);
+
             exit;
         }
         if (!empty($_POST['ls_nav'])) {
             dotclear()->adminurl()->redirect('admin.plugin.AboutConfig', [], $_POST['ls_nav']);
+
             exit;
         }
 
-        # Local settings update
+        // Local settings update
         if (!empty($_POST['s']) && is_array($_POST['s'])) {
             try {
                 foreach ($_POST['s'] as $ns => $s) {
                     foreach ($s as $k => $v) {
-                        if ($_POST['s_type'][$ns][$k] == 'array') {
+                        if ('array' == $_POST['s_type'][$ns][$k]) {
                             $v = json_decode($v, true);
                         }
                         dotclear()->blog()->settings()->get($ns)->put($k, $v);
@@ -52,17 +58,17 @@ class Handler extends AbstractPage
 
                 dotclear()->notice()->addSuccessNotice(__('Configuration successfully updated'));
                 dotclear()->adminurl()->redirect('admin.plugin.AboutConfig');
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Global settings update
+        // Global settings update
         if (!empty($_POST['gs']) && is_array($_POST['gs'])) {
             try {
                 foreach ($_POST['gs'] as $ns => $s) {
                     foreach ($s as $k => $v) {
-                        if ($_POST['gs_type'][$ns][$k] == 'array') {
+                        if ('array' == $_POST['gs_type'][$ns][$k]) {
                             $v = json_decode($v, true);
                         }
                         dotclear()->blog()->settings()->get($ns)->put($k, $v, null, null, true, true);
@@ -72,23 +78,23 @@ class Handler extends AbstractPage
 
                 dotclear()->notice()->addSuccessNotice(__('Configuration successfully updated'));
                 dotclear()->adminurl()->redirect('admin.plugin.AboutConfig', ['part' => 'global']);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Page setup
+        // Page setup
         $this
             ->setPageTitle(__('about:config'))
             ->setPageHelp('aboutConfig')
             ->setPageHead(
-                dotclear()->resource()->pageTabs(!empty($_GET['part']) && $_GET['part'] == 'global' ? 'global' : 'local') .
+                dotclear()->resource()->pageTabs(!empty($_GET['part']) && 'global' == $_GET['part'] ? 'global' : 'local') .
                 dotclear()->resource()->load('index.js', 'Plugin', 'AboutConfig')
             )
             ->setPageBreadcrumb([
-                __('System')                              => '',
+                __('System')                               => '',
                 Html::escapeHTML(dotclear()->blog()->name) => '',
-                __('about:config')                        => ''
+                __('about:config')                         => '',
             ])
         ;
 
@@ -97,8 +103,7 @@ class Handler extends AbstractPage
 
     protected function getPageContent(): void
     {
-        echo
-        '<div id="local" class="multi-part" title="' . sprintf(__('Settings for %s'), Html::escapeHTML(dotclear()->blog()->name)) . '">' .
+        echo '<div id="local" class="multi-part" title="' . sprintf(__('Settings for %s'), Html::escapeHTML(dotclear()->blog()->name)) . '">' .
         '<h3 class="out-of-screen-if-js">' . sprintf(__('Settings for %s'), Html::escapeHTML(dotclear()->blog()->name)) . '</h3>';
 
         $settings = [];
@@ -147,12 +152,11 @@ class Handler extends AbstractPage
 
     private function settingMenu(array $combo, bool $global): void
     {
-        echo
-        '<form action="' . dotclear()->adminurl()->root() . '" method="post" class="anchor-nav-sticky">' .
+        echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" class="anchor-nav-sticky">' .
         '<p class="anchor-nav">' .
-        '<label for="' . ($global ? 'g' : 'l') .'s_nav" class="classic">' . __('Goto:') . '</label> ' .
-        form::combo(($global ? 'g' : 'l') .'s_nav', $combo, ['class' => 'navigation']) .
-        ' <input type="submit" value="' . __('Ok') . '" id="' . ($global ? 'g' : 'l') .'s_submit" />' .
+        '<label for="' . ($global ? 'g' : 'l') . 's_nav" class="classic">' . __('Goto:') . '</label> ' .
+        form::combo(($global ? 'g' : 'l') . 's_nav', $combo, ['class' => 'navigation']) .
+        ' <input type="submit" value="' . __('Ok') . '" id="' . ($global ? 'g' : 'l') . 's_submit" />' .
         dotclear()->adminurl()->getHiddenFormFields('admin.plugin.AboutConfig', [], true) .
         '</p></form>';
     }
@@ -182,13 +186,11 @@ class Handler extends AbstractPage
             echo $table_footer;
         }
 
-        echo
-        '<p><input type="submit" value="' . __('Save') . '" />' .
+        echo '<p><input type="submit" value="' . __('Save') . '" />' .
         '<input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
         dotclear()->adminurl()->getHiddenFormFields('admin.plugin.AboutConfig', [], true) . '</p>' .
         '</form>';
     }
-
 
     private function settingLine($id, $s, $ns, $field_name, $strong_label)
     {
@@ -233,8 +235,10 @@ class Handler extends AbstractPage
                 break;
         }
 
-        $type = Form::hidden([$field_name . '_type' . '[' . $ns . '][' . $id . ']', $field_name . '_' . $ns . '_' . $id . '_type'],
-            Html::escapeHTML($s['type']));
+        $type = Form::hidden(
+            [$field_name . '_type' . '[' . $ns . '][' . $id . ']', $field_name . '_' . $ns . '_' . $id . '_type'],
+            Html::escapeHTML($s['type'])
+        );
 
         $slabel = $strong_label ? '<strong>%s</strong>' : '%s';
 

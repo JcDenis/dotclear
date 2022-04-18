@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Antispam\Common\Filter\FilterIpookup
+ * @note Dotclear\Plugin\Antispam\Common\Filter\FilterIpookup
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginAntispam
+ * @ingroup  PluginAntispam
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,12 +12,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Common\Filter;
 
-
 use Dotclear\Plugin\Antispam\Common\Spamfilter;
-
 use Dotclear\Helper\Html\Html;
-Use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Network\Http;
+use Exception;
 
 class FilterIplookup extends Spamfilter
 {
@@ -83,7 +81,7 @@ class FilterIplookup extends Spamfilter
                 dotclear()->blog()->settings()->get('antispam')->put('antispam_dnsbls', $_POST['bls'], 'string', 'Antispam DNSBL servers', true, false);
                 dotclear()->notice()->addSuccessNotice(__('The list of DNSBL servers has been succesfully updated.'));
                 Http::redirect($url);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
@@ -120,6 +118,6 @@ class FilterIplookup extends Spamfilter
 
         $host = $revIp . '.' . $bl . '.';
 
-        return $host != gethostbyname($host);
+        return gethostbyname($host) != $host;
     }
 }

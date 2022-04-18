@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Filter\Filter
+ * @note Dotclear\Process\Admin\Filter\Filter
  * @brief Generic class for admin list filters form
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @since 2.20
  *
@@ -16,29 +15,25 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Filter;
 
 use ArrayObject;
-use Dotclear\Process\Admin\Filter\Filters;
 use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 use Dotclear\Helper\Html\Form;
-use Dotclear\Helper\Html\Form\Label;
-use Dotclear\Helper\Html\Form\Number;
-use Dotclear\Helper\Html\Form\Select;
 use Dotclear\Helper\Html\Html;
 
 class Filter extends Filters
 {
-    /** @var    array   Filters objects */
+    /** @var array Filters objects */
     protected $filters = [];
 
-    /** @var    bool    Show filter indicator */
+    /** @var bool Show filter indicator */
     protected $show = false;
 
-    /** @var    bool    Has user preferences */
+    /** @var bool Has user preferences */
     protected $has_user_pref = false;
 
     /**
      * Constructs a new instance.
      *
-     * @param string $type  The filter form main id
+     * @param string $type The filter form main id
      */
     public function __construct(protected string $type)
     {
@@ -46,11 +41,11 @@ class Filter extends Filters
     }
 
     /**
-     * Get user defined filter options (sortby, order, nb)
+     * Get user defined filter options (sortby, order, nb).
      *
-     * @param   string                      $option     The option
+     * @param string $option The option
      *
-     * @return  int|string|array|ArrayObject            User option
+     * @return array|ArrayObject|int|string User option
      */
     public function userOptions(?string $option = null): int|string|array|ArrayObject
     {
@@ -58,7 +53,7 @@ class Filter extends Filters
     }
 
     /**
-     * Parse _GET user pref options (sortby, order, nb)
+     * Parse _GET user pref options (sortby, order, nb).
      */
     protected function parseOptions(): void
     {
@@ -69,11 +64,12 @@ class Filter extends Filters
 
         if (!empty($options[1])) {
             $this->filters['sortby'] = DefaultFilter::init('sortby', $this->userOptions('sortby'))
-                ->options($options[1]);
+                ->options($options[1])
+            ;
 
             if (!empty($_GET['sortby'])
                 && in_array($_GET['sortby'], $options[1], true)
-                && $_GET['sortby'] != $this->userOptions('sortby')
+                && $this->userOptions('sortby') != $_GET['sortby']
             ) {
                 $this->show(true);
                 $this->filters['sortby']->value($_GET['sortby']);
@@ -81,11 +77,12 @@ class Filter extends Filters
         }
         if (!empty($options[3])) {
             $this->filters['order'] = DefaultFilter::init('order', $this->userOptions('order'))
-                ->options(dotclear()->combo()->getOrderCombo());
+                ->options(dotclear()->combo()->getOrderCombo())
+            ;
 
             if (!empty($_GET['order'])
                 && in_array($_GET['order'], dotclear()->combo()->getOrderCombo(), true)
-                && $_GET['order'] != $this->userOptions('order')
+                && $this->userOptions('order') != $_GET['order']
             ) {
                 $this->show(true);
                 $this->filters['order']->value($_GET['order']);
@@ -93,7 +90,8 @@ class Filter extends Filters
         }
         if (!empty($options[4])) {
             $this->filters['nb'] = DefaultFilter::init('nb', $this->userOptions('nb'))
-                ->title($options[4][0]);
+                ->title($options[4][0])
+            ;
 
             if (!empty($_GET['nb'])
                 && (int) $_GET['nb'] > 0
@@ -106,12 +104,12 @@ class Filter extends Filters
     }
 
     /**
-     * Get filters key/value pairs
+     * Get filters key/value pairs.
      *
-     * @param   bool    $escape     Escape widlcard %
-     * @param   bool    $ui_only    Limit to filters with ui
+     * @param bool $escape  Escape widlcard %
+     * @param bool $ui_only Limit to filters with ui
      *
-     * @return  array               The filters
+     * @return array The filters
      */
     public function values(bool $escape = false, bool $ui_only = false): array
     {
@@ -130,12 +128,12 @@ class Filter extends Filters
     }
 
     /**
-     * Get a filter value
+     * Get a filter value.
      *
-     * @param   string  $id         The filter id
-     * @param   mixed   $undefined  The value to return if not set
+     * @param string $id        The filter id
+     * @param mixed  $undefined The value to return if not set
      *
-     * @return  mixed               The filter value
+     * @return mixed The filter value
      */
     public function value(string $id, mixed $undefined = null): mixed
     {
@@ -151,7 +149,7 @@ class Filter extends Filters
     }
 
     /**
-     * Update a filter value
+     * Update a filter value.
      */
     public function set(string $id, mixed $value, mixed $undefined = null): mixed
     {
@@ -159,21 +157,21 @@ class Filter extends Filters
     }
 
     /**
-     * Add filter(s)
+     * Add filter(s).
      *
-     * @param   array|string|DefaultFilter|null     $filter     The filter(s) array or id or object
-     * @param   mixed                               $value      The filter value if $filter is id
+     * @param null|array|DefaultFilter|string $filter The filter(s) array or id or object
+     * @param mixed                           $value  The filter value if $filter is id
      *
-     * @return  mixed                                           The filter value
+     * @return mixed The filter value
      */
     public function add(array|string|DefaultFilter|null $filter = null, mixed $value = null): mixed
     {
-        # empty filter (ex: do not show form if there are no categories on a blog)
+        // empty filter (ex: do not show form if there are no categories on a blog)
         if (null === $filter) {
             return null;
         }
 
-        # multiple filters
+        // multiple filters
         if (is_array($filter)) {
             foreach ($filter as $f) {
                 $this->add($f);
@@ -182,25 +180,25 @@ class Filter extends Filters
             return null;
         }
 
-        # simple filter
+        // simple filter
         if (is_string($filter)) {
             $filter = new DefaultFilter($filter, $value);
         }
 
-        # not well formed filter or reserved id
+        // not well formed filter or reserved id
         if (!($filter instanceof DefaultFilter) || '' == $filter->get('id')) {
             return null;
         }
 
-        # parse _GET values and create html forms
+        // parse _GET values and create html forms
         $filter->parse();
 
-        # set key/value pair
+        // set key/value pair
         $this->filters[$filter->get('id')] = $filter;
 
-        # has contents
+        // has contents
         if ('' != $filter->get('html') && 'none' != $filter->get('form')) {
-            # not default value = show filters form
+            // not default value = show filters form
             $this->show('' !== $filter->get('value'));
         }
 
@@ -208,11 +206,11 @@ class Filter extends Filters
     }
 
     /**
-     * Remove a filter
+     * Remove a filter.
      *
-     * @param   string  $id     The filter id
+     * @param string $id The filter id
      *
-     * @return  bool            The success
+     * @return bool The success
      */
     public function remove(string $id): bool
     {
@@ -226,9 +224,9 @@ class Filter extends Filters
     }
 
     /**
-     * Get list query params
+     * Get list query params.
      *
-     * @return  array   The query params
+     * @return array The query params
      */
     public function params(): array
     {
@@ -238,7 +236,7 @@ class Filter extends Filters
             'from'    => '',
             'where'   => '',
             'sql'     => '',
-            'columns' => []
+            'columns' => [],
         ];
 
         if (!empty($filters['sortby']) && !empty($filters['order'])) {
@@ -255,7 +253,7 @@ class Filter extends Filters
 
                     if (in_array($p[0], ['from', 'where', 'sql'])) {
                         $params[$p[0]] .= $p[1];
-                    } elseif ($p[0] == 'columns' && is_array($p[1])) {
+                    } elseif ('columns' == $p[0] && is_array($p[1])) {
                         $params['columns'] = array_merge($params['columns'], $p[1]);
                     } else {
                         $params[$p[0]] = $p[1];
@@ -268,11 +266,11 @@ class Filter extends Filters
     }
 
     /**
-     * Show foldable filters form
+     * Show foldable filters form.
      *
-     * @param   bool    $set    Force to show filter form
+     * @param bool $set Force to show filter form
      *
-     * @return  bool            Show filter form
+     * @return bool Show filter form
      */
     public function show(bool $set = false): bool
     {
@@ -284,15 +282,15 @@ class Filter extends Filters
     }
 
     /**
-     * Get js filters foldable form control
+     * Get js filters foldable form control.
      *
-     * @param   string  $reset_url  The filter reset url
+     * @param string $reset_url The filter reset url
      *
-     * @return  string              The HTML JS code
+     * @return string The HTML JS code
      */
     public function js(string $reset_url = ''): string
     {
-        $js   = [
+        $js = [
             'show_filters'      => $this->show(),
             'filter_posts_list' => __('Show filters and display options'),
             'cancel_the_filter' => __('Cancel filters and display options'),
@@ -303,14 +301,13 @@ class Filter extends Filters
             dotclear()->resource()->json('filter_controls', $js) .
             dotclear()->resource()->json('filter_options', ['auto_filter' => dotclear()->user()->preference()->get('interface')->get('auto_filter')]) .
             dotclear()->resource()->load('filter-controls.js');
-
     }
 
     /**
-     * Echo filter form
+     * Echo filter form.
      *
-     * @param   array|string    $adminurl   The registered adminurl
-     * @param   string          $extra      The extra contents
+     * @param array|string $adminurl The registered adminurl
+     * @param string       $extra    The extra contents
      */
     public function display(array|string $adminurl, string $extra = ''): void
     {
@@ -320,8 +317,7 @@ class Filter extends Filters
             $adminurl = $adminurl[0];
         }
 
-        echo
-        '<form action="' . dotclear()->adminurl()->get($adminurl) . $tab . '" method="get" id="filters-form">' .
+        echo '<form action="' . dotclear()->adminurl()->get($adminurl) . $tab . '" method="get" id="filters-form">' .
         '<h3 class="out-of-screen-if-js">' . __('Show filters and display options') . '</h3>' .
 
         '<div class="table">';
@@ -348,17 +344,18 @@ class Filter extends Filters
         }
 
         if (isset($this->filters['sortby']) || isset($this->filters['order']) || isset($this->filters['nb'])) {
-            echo
-            '<div class="cell filters-options">' .
+            echo '<div class="cell filters-options">' .
             '<h4>' . __('Display options') . '</h4>';
 
             if (isset($this->filters['sortby'])) {
                 $label = Form\Label::init(__('Order by:'), Form\Label::OUTSIDE_LABEL_BEFORE, 'sortby')
-                    ->set('class', 'ib');
+                    ->set('class', 'ib')
+                ;
 
                 $select = Form\Select::init('sortby')
                     ->set('default', $this->filters['sortby']->get('value'))
-                    ->set('items', $this->filters['sortby']->get('options'));
+                    ->set('items', $this->filters['sortby']->get('options'))
+                ;
 
                 echo sprintf(
                     '<p>%s</p>',
@@ -367,11 +364,13 @@ class Filter extends Filters
             }
             if (isset($this->filters['order'])) {
                 $label = Form\Label::init(__('Sort:'), Form\Label::OUTSIDE_LABEL_BEFORE, 'order')
-                    ->set('class', 'ib');
+                    ->set('class', 'ib')
+                ;
 
                 $select = Form\Select::init('order')
                     ->set('default', $this->filters['order']->get('value'))
-                    ->set('items' ,$this->filters['order']->get('options'));
+                    ->set('items', $this->filters['order']->get('options'))
+                ;
 
                 echo sprintf(
                     '<p>%s</p>',
@@ -380,12 +379,14 @@ class Filter extends Filters
             }
             if (isset($this->filters['nb'])) {
                 $label = Form\Label::init($this->filters['nb']->get('title'), Form\Label::INSIDE_TEXT_AFTER, 'nb')
-                    ->set('class', 'classic');
+                    ->set('class', 'classic')
+                ;
 
                 $number = Form\Number::init('nb')
                     ->set('min', 0)
                     ->set('max', 999)
-                    ->set('value', $this->filters['nb']->get('value'));
+                    ->set('value', $this->filters['nb']->get('value'))
+                ;
 
                 echo sprintf(
                     '<p><span class="label ib">' . __('Show') . '</span> %s</p>',
@@ -394,22 +395,19 @@ class Filter extends Filters
             }
 
             if ($this->has_user_pref) {
-                echo
-                Form::hidden('filters-options-id', $this->type) .
+                echo Form::hidden('filters-options-id', $this->type) .
                 '<p class="hidden-if-no-js"><a href="#" id="filter-options-save">' . __('Save current options') . '</a></p>';
             }
-            echo
-            '</div>';
+            echo '</div>';
         }
 
-        echo
-        '</div>' .
+        echo '</div>' .
         '<p><input type="submit" value="' . __('Apply filters and display options') . '" />' .
         Form::hidden(['handler'], $adminurl) .
 
         $extra .
 
-        '<br class="clear" /></p>' . //Opera sucks
+        '<br class="clear" /></p>' . // Opera sucks
         '</form>';
     }
 }

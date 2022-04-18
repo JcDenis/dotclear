@@ -1,12 +1,11 @@
 <?php
 /**
- * @class Dotclear\Database\Driver\Mysqlimb4\Schema
+ * @note Dotclear\Database\Driver\Mysqlimb4\Schema
  * @brief Mysql mb4 schema driver
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
- * @package Dotclear
- * @subpackage Database
+ * @ingroup  Database
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -30,12 +29,12 @@ class Schema extends BaseSchema
             $null    = $f['null'];
 
             $type = $this->udt2dbt($type, $len, $default);
-            $len  = $len > 0 ? '(' . $len . ')' : '';
+            $len  = 0 < $len ? '(' . $len . ')' : '';
             $null = $null ? 'NULL' : 'NOT NULL';
 
-            if ($default === null) {
+            if (null === $default) {
                 $default = 'DEFAULT NULL';
-            } elseif ($default !== false) {
+            } elseif (false !== $default) {
                 $default = 'DEFAULT ' . $default . ' ';
             } else {
                 $default = '';

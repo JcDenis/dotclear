@@ -1,13 +1,12 @@
 <?php
 /**
- * @class Dotclear\Core\Media\Image\ImageTools
+ * @note Dotclear\Core\Media\Image\ImageTools
  * @brief Basic image handling tool
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  * Some methods are based on https://dev.media-box.net/big/
  *
- * @package Dotclear
- * @subpackage Utils
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,32 +15,32 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Media\Image;
 
-use \GdImage;
-use Dotclear\Exception\UtilsException;
+use GdImage;
+use Dotclear\Exception\HelperException;
 use Dotclear\Helper\File\Files;
 
 class ImageTools
 {
-    /** @var    GdImage|false   $res    Image resource */
+    /** @var false|GdImage Image resource */
     public $res = false;
 
     /** @ var   string  $memory_limit   Memory limit */
-    public $memory_limit = null;
+    public $memory_limit;
 
     /**
      * Constructor.
-     * 
-     * @throws  UtilsException
+     *
+     * @throws HelperException
      */
     public function __construct()
     {
         if (!function_exists('imagegd2')) {
-            throw new UtilsException('GD is not installed');
+            throw new HelperException('GD is not installed');
         }
     }
 
     /**
-     * Close
+     * Close.
      *
      * Destroy image resource
      */
@@ -57,18 +56,18 @@ class ImageTools
     }
 
     /**
-     * Load image
+     * Load image.
      *
      * Loads an image content in memory and set {@link $res} property.
-     * 
-     * @throws  UtilsException
      *
-     * @param   string $f   Image file path
+     * @param string $f Image file path
+     *
+     * @throws HelperException
      */
     public function loadImage(string $f): void
     {
         if (!file_exists($f)) {
-            throw new UtilsException('Image doest not exists');
+            throw new HelperException('Image doest not exists');
         }
 
         if (false !== ($info = @getimagesize($f))) {
@@ -87,14 +86,17 @@ class ImageTools
                     }
 
                     break;
+
                 case 2: // JPEG
                     $this->res = @imagecreatefromjpeg($f);
 
                     break;
+
                 case 1: // GIF
                     $this->res = @imagecreatefromgif($f);
 
                     break;
+
                 case 18: // WEBP
                     if (function_exists('imagecreatefromwebp')) {
                         $this->res = @imagecreatefromwebp($f);
@@ -103,7 +105,7 @@ class ImageTools
                             @imagesavealpha($this->res, true);
                         }
                     } else {
-                        throw new UtilsException('WebP image format not supported');
+                        throw new HelperException('WebP image format not supported');
                     }
 
                     break;
@@ -111,14 +113,14 @@ class ImageTools
         }
 
         if (empty($this->res)) {
-            throw new UtilsException('Unable to load image');
+            throw new HelperException('Unable to load image');
         }
     }
 
     /**
-     * Image width
+     * Image width.
      *
-     * @return  int     Image width
+     * @return int Image width
      */
     public function getW(): int
     {
@@ -126,9 +128,9 @@ class ImageTools
     }
 
     /**
-     * Image height
+     * Image height.
      *
-     * @return  int     Image height
+     * @return int Image height
      */
     public function getH(): int
     {
@@ -136,13 +138,12 @@ class ImageTools
     }
 
     /**
-     * Allocate memory
-     * 
-     * @throws  UtilsException
-     * 
-     * @param   int     $w  Image with
-     * @param   int     $h  Image height
-     * @param   int     $bpp
+     * Allocate memory.
+     *
+     * @param int $w Image with
+     * @param int $h Image height
+     *
+     * @throws HelperException
      */
     public function memoryAllocate(int $w, int $h, int $bpp = 4): void
     {
@@ -155,11 +156,11 @@ class ImageTools
         if ($mem_used && $mem_limit) {
             $mem_limit  = Files::str2bytes($mem_limit);
             $mem_avail  = $mem_limit - $mem_used - (512 * 1024);
-            $mem_needed = $w * $h * $bpp;
+            $mem_needed = $w                            * $h                            * $bpp;
 
             if ($mem_needed > $mem_avail) {
                 if (@ini_set('memory_limit', (string) ($mem_limit + $mem_needed + $mem_used)) === false) {
-                    throw new UtilsException(__('Not enough memory to open image.'));
+                    throw new HelperException(__('Not enough memory to open image.'));
                 }
 
                 if (!$this->memory_limit) {
@@ -170,33 +171,34 @@ class ImageTools
     }
 
     /**
-     * Image output
+     * Image output.
      *
      * Returns image content in a file or as HTML output (with headers)
      *
-     * @param   string          $type   Image type (png or jpg)
-     * @param   string|null     $file   Output file. If null, output will be echoed in STDOUT
-     * @param   int             $qual   JPEG image quality
-     * 
-     * @return  bool
+     * @param string      $type Image type (png or jpg)
+     * @param null|string $file Output file. If null, output will be echoed in STDOUT
+     * @param int         $qual JPEG image quality
      */
     public function output(string $type = 'png', ?string $file = null, int $qual = 90): bool
     {
         if (!$file) {
             header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
             header('Pragma: no-cache');
+
             switch (strtolower($type)) {
                 case 'png':
                     header('Content-type: image/png');
                     imagepng($this->res);
 
                     return true;
+
                 case 'jpeg':
                 case 'jpg':
                     header('Content-type: image/jpeg');
                     imagejpeg($this->res, null, $qual);
 
                     return true;
+
                 case 'wepb':
                     if (function_exists('imagewebp')) {
                         header('Content-type: image/webp');
@@ -206,6 +208,7 @@ class ImageTools
                     }
 
                     return false;
+
                 default:
                     return false;
             }
@@ -213,15 +216,18 @@ class ImageTools
             switch (strtolower($type)) {
                 case 'png':
                     return imagepng($this->res, $file);
+
                 case 'jpeg':
                 case 'jpg':
                     return imagejpeg($this->res, $file, $qual);
+
                 case 'webp':
                     if (function_exists('imagewebp')) {
                         return imagewebp($this->res, $file, $qual);
                     }
 
                     return false;
+
                 default:
                     return false;
             }
@@ -231,14 +237,12 @@ class ImageTools
     }
 
     /**
-     * Resize image
+     * Resize image.
      *
-     * @param   string|int  $WIDTH      Image width (px or percent)
-     * @param   string|int  $HEIGHT     Image height (px or percent)
-     * @param   string      $MODE       Crop mode (force, crop, ratio)
-     * @param   bool        $EXPAND     Allow resize of image
-     * 
-     * @return bool
+     * @param int|string $WIDTH  Image width (px or percent)
+     * @param int|string $HEIGHT Image height (px or percent)
+     * @param string     $MODE   Crop mode (force, crop, ratio)
+     * @param bool       $EXPAND Allow resize of image
      */
     public function resize($WIDTH, $HEIGHT, string $MODE = 'ratio', bool $EXPAND = false): bool
     {
@@ -259,13 +263,13 @@ class ImageTools
         $ratio = $imgWidth / $imgHeight;
 
         // guess resize ($_w et $_h)
-        if ($MODE == 'ratio') {
+        if ('ratio' == $MODE) {
             $_w = 99999;
-            if ($HEIGHT > 0) {
+            if (0 < $HEIGHT) {
                 $_h = $HEIGHT;
                 $_w = $_h * $ratio;
             }
-            if ($WIDTH > 0 && $_w > $WIDTH) {
+            if (0 < $WIDTH && $_w > $WIDTH) {
                 $_w = $WIDTH;
                 $_h = $_w / $ratio;
             }
@@ -280,14 +284,14 @@ class ImageTools
             $_h = $HEIGHT;
         }
 
-        if ($MODE == 'force') {
-            if ($WIDTH > 0) {
+        if ('force' == $MODE) {
+            if (0 < $WIDTH) {
                 $_w = $WIDTH;
             } else {
                 $_w = $HEIGHT * $ratio;
             }
 
-            if ($HEIGHT > 0) {
+            if (0 < $HEIGHT) {
                 $_h = $HEIGHT;
             } else {
                 $_h = $WIDTH / $ratio;
@@ -318,10 +322,10 @@ class ImageTools
             }
         }
 
-        if ($_w < 1) {
+        if (1 > $_w) {
             $_w = 1;
         }
-        if ($_h < 1) {
+        if (1 > $_h) {
             $_h = 1;
         }
 
@@ -333,7 +337,7 @@ class ImageTools
         settype($cropW, 'int');
         settype($cropH, 'int');
 
-        # truecolor is 24 bit RGB, ie. 3 bytes per pixel.
+        // truecolor is 24 bit RGB, ie. 3 bytes per pixel.
         $this->memoryAllocate($_w, $_h, 3);
         $dest = imagecreatetruecolor($_w, $_h);
         $fill = imagecolorallocate($dest, 128, 128, 128);

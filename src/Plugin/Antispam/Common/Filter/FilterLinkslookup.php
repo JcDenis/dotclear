@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Antispam\Common\Filter\FilterLinkslookup
+ * @note Dotclear\Plugin\Antispam\Common\Filter\FilterLinkslookup
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginAntispam
+ * @ingroup  PluginAntispam
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -57,14 +56,14 @@ class FilterLinkslookup extends Spamfilter
             $host = $domain_elem[$i];
             do {
                 $host = $domain_elem[$i - 1] . '.' . $host;
-                $i--;
+                --$i;
                 $response = gethostbyname($host . '.' . $this->server);
                 if ('127' === substr($response, 0, 3) && '1' !== substr($response, 8)) {
                     $status = substr($domain, 0, 128);
 
                     return true;
                 }
-            } while ($i > 0);
+            } while (0 < $i);
         }
 
         return null;

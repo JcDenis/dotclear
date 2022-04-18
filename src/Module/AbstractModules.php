@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Module\AbstractModules
+ * @note Dotclear\Module\AbstractModules
  * @brief Helper for admin list of modules.
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Module
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,86 +18,85 @@ use Dotclear\Helper\L10n;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Zip\Unzip;
-use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
-use Dotclear\Module\AbstractDefine;
+use Exception;
 
 abstract class AbstractModules
 {
     use ErrorTrait;
 
-    /** @var    array   List of enabled modules */
+    /** @var array List of enabled modules */
     protected $modules_enabled = [];
 
-    /** @var    array   List of disabled modules */
+    /** @var array List of disabled modules */
     protected $modules_disabled = [];
 
-    /** @var    array   List of modules versions */
+    /** @var array List of modules versions */
     protected $modules_version = [];
 
-    /** @var    string|null     Loading process, module id */
-    private $id = null;
+    /** @var null|string Loading process, module id */
+    private $id;
 
-    /** @var    bool            Loading process, in disabled mode */
+    /** @var bool Loading process, in disabled mode */
     private $disabled_mode = false;
 
-    /** @var    AbstractDefine|null     Loading process, disabled module */
-    private $disabled_meta = null;
+    /** @var null|AbstractDefine Loading process, disabled module */
+    private $disabled_meta;
 
-    /** @var    array           Loading process, modules to disable */
+    /** @var array Loading process, modules to disable */
     private $to_disable = [];
 
     private $modules_prepend = [];
 
     /**
-     * Get modules type
+     * Get modules type.
      *
-     * @return  string  The modules type
+     * @return string The modules type
      */
     abstract public function getModulesType(): string;
 
     /**
-     * Get modules path
+     * Get modules path.
      *
      * If more than one path exists, new module goes in this last path.
      *
-     * @return  array   The modules path
+     * @return array The modules path
      */
     abstract public function getModulesPath(): array;
 
     /**
-     * Get list of distributed modules (by id)
+     * Get list of distributed modules (by id).
      *
-     * @return  array   List of distributed modules ids
+     * @return array List of distributed modules ids
      */
     abstract public function getDistributedModules(): array;
 
     /**
-     * Check Process specifics on modules load
+     * Check Process specifics on modules load.
      */
     abstract protected function loadModulesProcess(): void;
 
     /**
-     * Check Process specifics on module load
+     * Check Process specifics on module load.
      *
-     * @param   string  $id     Current module id
+     * @param string $id Current module id
      */
     abstract protected function loadModuleProcess(string $id): void;
 
     /**
-     * Check Process specifics on modules define load
+     * Check Process specifics on modules define load.
      *
-     * @param   AbstractDefine  $define     Current module to check
+     * @param AbstractDefine $define Current module to check
      *
-     * @return  bool                        Module is OK
+     * @return bool Module is OK
      */
     abstract protected function loadModuleDefineProcess(AbstractDefine $define): bool;
 
     /**
-     * Constructor, load Modules
+     * Constructor, load Modules.
      *
-     * @param   string|null     $lang       The language
-     * @param   bool            $no_load    Only create Modules instance without loading modules
+     * @param null|string $lang    The language
+     * @param bool        $no_load Only create Modules instance without loading modules
      */
     public function __construct(?string $lang = null, bool $no_load = false)
     {
@@ -106,42 +104,41 @@ abstract class AbstractModules
             return;
         }
 
-        # Loop through each modules root path
+        // Loop through each modules root path
         foreach ($this->getModulesPath() as $root) {
-            # Check dir
+            // Check dir
             if (empty($root) || !is_dir($root) || !is_readable($root)) {
                 continue;
             }
 
-            # Open dir
-            if (($handle = @dir($root)) === false) {
+            // Open dir
+            if (false === ($handle = @dir($root))) {
                 continue;
             }
 
-            # Loop through current modules root path
-            while (($this->id = $handle->read()) !== false) {
+            // Loop through current modules root path
+            while (false !== ($this->id = $handle->read())) {
                 $entry_path = Path::implode($root, $this->id);
 
-                # Check dir
-                if ($this->id != '.' && $this->id != '..' && is_dir($entry_path)) {
-
-                    # Module will be disabled
+                // Check dir
+                if ('.' != $this->id && '..' != $this->id && is_dir($entry_path)) {
+                    // Module will be disabled
                     $entry_enabled = !file_exists($entry_path . '/_disabled') && !dotclear()->rescue();
                     if (!$entry_enabled) {
                         $this->disabled_mode = true;
                     }
 
-                    # Check module Define
+                    // Check module Define
                     $this->loadModuleDefine($entry_path, $this->id);
 
-                    # Add module namespace
+                    // Add module namespace
                     if ($entry_enabled) {
                         dotclear()->autoload()->addNamespace('Dotclear\\' . $this->getModulesType() . '\\' . $this->id, $entry_path);
-                    # Save module in disabled list
+                    // Save module in disabled list
                     } elseif (null !== $this->disabled_meta) {
-                        $this->disabled_mode       = false;
+                        $this->disabled_mode               = false;
                         $this->modules_disabled[$this->id] = $this->disabled_meta;
-                        $this->disabled_meta = null;
+                        $this->disabled_meta               = null;
                     }
                 }
                 $this->id = null;
@@ -149,22 +146,22 @@ abstract class AbstractModules
             $handle->close();
         }
 
-        # Check modules dependencies
+        // Check modules dependencies
         $this->checkModulesDependencies();
 
-        # Load modules specifics for current Process
+        // Load modules specifics for current Process
         $this->loadModulesProcess();
 
-        # Sort modules
+        // Sort modules
         uasort($this->modules_enabled, [$this, 'defaultSortModules']);
 
-        # Load modules stuff
+        // Load modules stuff
         foreach ($this->modules_enabled as $id => $define) {
-            # Search module Prepend ex: Dotclear\Plugin\MyPloug\Admin\Prepend
-            $class = 'Dotclear\\' . $this->getModulesType() . '\\' . $id . '\\' . dotclear()->processed() . '\Prepend';
+            // Search module Prepend ex: Dotclear\Plugin\MyPloug\Admin\Prepend
+            $class       = 'Dotclear\\' . $this->getModulesType() . '\\' . $id . '\\' . dotclear()->processed() . '\Prepend';
             $has_prepend = is_subclass_of($class, 'Dotclear\\Module\\AbstractPrepend');
 
-            # Check module and stop if method not returns True statement
+            // Check module and stop if method not returns True statement
             if ($has_prepend) {
                 $this->modules_prepend[$id] = new $class($define);
                 if (true !== $this->modules_prepend[$id]->checkModule()) {
@@ -172,16 +169,16 @@ abstract class AbstractModules
                 }
             }
 
-            # Load module main l10n
+            // Load module main l10n
             if ($lang) {
                 $this->loadModuleL10N($id, $lang, 'main');
                 $this->loadModuleL10N($id, $lang, strtolower(dotclear()->processed()));
             }
 
-            # Load module process specifics (auto register admi nurl, ...)
+            // Load module process specifics (auto register admi nurl, ...)
             $this->loadModuleProcess($id);
 
-            # Load all others stuff from module (menu,favs,behaviors,...)
+            // Load all others stuff from module (menu,favs,behaviors,...)
             if ($has_prepend) {
                 $this->modules_prepend[$id]->loadModule();
             }
@@ -190,10 +187,11 @@ abstract class AbstractModules
 
     public function loadModuleDefine(string $dir, string $id): void
     {
-        # Include module Define file
+        // Include module Define file
         ob_start();
+
         try {
-            $class = 'Dotclear\\Module\\' . $this->getModulesType() . '\\Define' . $this->getModulesType();
+            $class  = 'Dotclear\\Module\\' . $this->getModulesType() . '\\Define' . $this->getModulesType();
             $define = new $class($id, $dir . '/define.xml');
         } catch (ModuleException) {
             ob_end_clean();
@@ -202,14 +200,14 @@ abstract class AbstractModules
         }
         ob_end_clean();
 
-        # Stop on error in module definition
+        // Stop on error in module definition
         if ($define->error()->flag()) {
             $this->error()->add($define->error()->dump());
 
             return;
         }
 
-        # Set module as disabled and stop
+        // Set module as disabled and stop
         if ($this->disabled_mode) {
             $define->disableModule();
             $this->disabled_meta = $define;
@@ -221,7 +219,7 @@ abstract class AbstractModules
             return;
         }
 
-        # Check module install on multiple path (only from ::loadModules() )
+        // Check module install on multiple path (only from ::loadModules() )
         if ($this->id) {
             $module_exists    = array_key_exists($define->id(), $this->modules_version);
             $module_overwrite = $module_exists ? version_compare($this->modules_version[$define->id()], $define->version(), '<') : false;
@@ -245,9 +243,9 @@ abstract class AbstractModules
      *
      * <var>$file</var> should not have any extension.
      *
-     * @param   string          $id     The module identifier
-     * @param   string|null     $lang   The language code
-     * @param   string          $file   The filename (without extension)
+     * @param string      $id   The module identifier
+     * @param null|string $lang The language code
+     * @param string      $file The filename (without extension)
      */
     public function loadModuleL10N(string $id, ?string $lang, string $file): void
     {
@@ -256,13 +254,13 @@ abstract class AbstractModules
         }
 
         $lfile = $this->modules_enabled[$id]->root() . '/locales/%s/%s';
-        if (L10n::set(sprintf($lfile, $lang, $file)) === false && $lang != 'en') {
+        if (L10n::set(sprintf($lfile, $lang, $file)) === false && 'en' != $lang) {
             L10n::set(sprintf($lfile, 'en', $file));
         }
     }
 
     /**
-     * Checks all modules dependencies
+     * Checks all modules dependencies.
      *
      *     Fills in the following information in module :
      *       * cannot_enable : list reasons why module cannot be enabled. Not set if module can be enabled
@@ -276,15 +274,15 @@ abstract class AbstractModules
         $this->to_disable = [];
 
         foreach ($modules as $id => $module) {
-            # Grab missing dependencies
+            // Grab missing dependencies
             $missing = [];
             foreach ($module->requires() as $dep) {
-                # Module not present
-                if (!isset($modules[$dep[0]]) && $dep[0] != 'core') {
+                // Module not present
+                if (!isset($modules[$dep[0]]) && 'core' != $dep[0]) {
                     $missing[$dep[0]] = sprintf(__('Requires %s module which is not installed'), $dep[0]);
-                # Module present, but version missing
-                } elseif (count($dep) > 1 && version_compare(($dep[0] == 'core' ? $dc_version : $modules[$dep[0]]->version()), $dep[1]) == -1) {
-                    if ($dep[0] == 'core') {
+                // Module present, but version missing
+                } elseif (count($dep) > 1 && version_compare(('core' == $dep[0] ? $dc_version : $modules[$dep[0]]->version()), $dep[1]) == -1) {
+                    if ('core' == $dep[0]) {
                         $missing[$dep[0]] = sprintf(
                             __('Requires Dotclear version %s, but version %s is installed'),
                             $dep[1],
@@ -298,14 +296,14 @@ abstract class AbstractModules
                             $modules[$dep[0]]->version()
                         );
                     }
-                # Module is disabled
-                } elseif ($dep[0] != 'core' && !$modules[$dep[0]]->enabled()) {
+                    // Module is disabled
+                } elseif ('core' != $dep[0] && !$modules[$dep[0]]->enabled()) {
                     $missing[$dep[0]] = sprintf(__('Requires %s module which is disabled'), $dep[0]);
-                } elseif ($dep[0] != 'core') {
+                } elseif ('core' != $dep[0]) {
                     $modules[$dep[0]]->depParents($id);
                 }
             }
-            # Set module to disable
+            // Set module to disable
             if (count($missing)) {
                 $module->depMissing($missing);
                 if ($module->enabled()) {
@@ -313,7 +311,7 @@ abstract class AbstractModules
                 }
             }
         }
-        # Check modules that cannot be disabled
+        // Check modules that cannot be disabled
         foreach ($this->modules_enabled as $id => $module) {
             if ($module->enabled()) {
                 foreach ($module->depParents() as $im) {
@@ -326,14 +324,12 @@ abstract class AbstractModules
     }
 
     /**
-     * Install a Package
+     * Install a Package.
      *
-     * @param   string              $zip_file   The zip file
-     * @param   AbstractModules     $modules    The modules
+     * @param string          $zip_file The zip file
+     * @param AbstractModules $modules  The modules
      *
-     * @throws  ModuleException
-     *
-     * @return  int
+     * @throws ModuleException
      */
     public function installPackage(string $zip_file, AbstractModules $modules): int
     {
@@ -342,7 +338,7 @@ abstract class AbstractModules
 
         $zip_root_dir = $zip->getRootDir();
         $define       = '';
-        if ($zip_root_dir != false) {
+        if (false != $zip_root_dir) {
             $target      = dirname($zip_file);
             $destination = $target . '/' . $zip_root_dir;
             $define      = $zip_root_dir . '/Define.php';
@@ -389,7 +385,7 @@ abstract class AbstractModules
                 }
 
                 Files::deltree($destination);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $zip->close();
                 unlink($zip_file);
                 Files::deltree($destination);
@@ -397,7 +393,7 @@ abstract class AbstractModules
                 throw new ModuleException($e->getMessage());
             }
         } else {
-            # Test for update
+            // Test for update
             $sandbox = clone $modules;
             $zip->unzip($define, $target . '/Define.php');
 
@@ -413,7 +409,7 @@ abstract class AbstractModules
                 if (!empty($cur_module)
                     && (!dotclear()->production() || dotclear()->version()->compare($new_modules[$id]['version'], $cur_module['version'], '>', true))
                 ) {
-                    # Delete old module
+                    // Delete old module
                     if (!Files::deltree($destination)) {
                         throw new ModuleException(__('An error occurred during module deletion.'));
                     }
@@ -442,18 +438,16 @@ abstract class AbstractModules
      * This method installs all modules having a _install file.
      *
      * @see AbstractModules::installModule
-     *
-     * @return  array
      */
     public function installModules(): array
     {
         $res = ['success' => [], 'failure' => []];
         foreach ($this->modules_enabled as $id => $module) {
             $msg = '';
-            $i = $this->installModule($id, $msg);
-            if ($i === true) {
+            $i   = $this->installModule($id, $msg);
+            if (true === $i) {
                 $res['success'][$id] = true;
-            } elseif ($i === false) {
+            } elseif (false === $i) {
                 $res['failure'][$id] = $msg;
             }
         }
@@ -468,10 +462,8 @@ abstract class AbstractModules
      *
      * <var>$msg</var> is an out parameter that handle installer message.
      *
-     * @param   string  $id     The identifier
-     * @param   string  $msg    The message
-     *
-     * @return  bool|null
+     * @param string $id  The identifier
+     * @param string $msg The message
      */
     public function installModule(string $id, string &$msg): ?bool
     {
@@ -479,20 +471,20 @@ abstract class AbstractModules
             return null;
         }
 
-        # Check module version in db
+        // Check module version in db
         if (version_compare((string) dotclear()->version()->get($id), (string) $this->modules_enabled[$id]->version(), '>=')) {
             return null;
         }
 
         try {
-            # Do module installation
+            // Do module installation
             $i = $this->modules_prepend[$id]->installModule();
 
-            # Update module version in db
+            // Update module version in db
             dotclear()->version()->set($id, $this->modules_enabled[$id]->version());
 
             return $i ? true : null;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $msg = $e->getMessage();
 
             return false;
@@ -502,14 +494,14 @@ abstract class AbstractModules
     /**
      * Disables the dep modules.
      *
-     * @param   string  $redir_url  URL to redirect if modules are to disable
+     * @param string $redir_url URL to redirect if modules are to disable
      *
-     * @return  bool                true if a redirection has been performed
+     * @return bool true if a redirection has been performed
      */
     public function disableModulesDependencies(string $redir_url): bool
     {
         if (isset($_GET['dep'])) {
-            # Avoid infinite redirects
+            // Avoid infinite redirects
             return false;
         }
         $reason = [];
@@ -537,12 +529,12 @@ abstract class AbstractModules
     }
 
     /**
-     * Delete a module
+     * Delete a module.
      *
-     * @param   string  $id         The module identifier
-     * @param   bool    $disabled   Is module disabled
+     * @param string $id       The module identifier
+     * @param bool   $disabled Is module disabled
      *
-     * @throws  ModuleException  (description)
+     * @throws ModuleException (description)
      */
     public function deleteModule(string $id, bool $disabled = false): void
     {
@@ -558,11 +550,11 @@ abstract class AbstractModules
     }
 
     /**
-     * Deactivate a module
+     * Deactivate a module.
      *
-     * @param   string  $id     The identifier
+     * @param string $id The identifier
      *
-     * @throws  ModuleException
+     * @throws ModuleException
      */
     public function deactivateModule(string $id): void
     {
@@ -580,11 +572,11 @@ abstract class AbstractModules
     }
 
     /**
-     * Activate a module
+     * Activate a module.
      *
-     * @param   string  $id     The identifier
+     * @param string $id The identifier
      *
-     * @throws  ModuleException
+     * @throws ModuleException
      */
     public function activateModule(string $id): void
     {
@@ -602,7 +594,7 @@ abstract class AbstractModules
     }
 
     /**
-     * Reset modules list
+     * Reset modules list.
      */
     public function resetModulesList(): void
     {
@@ -613,9 +605,9 @@ abstract class AbstractModules
     }
 
     /**
-     * Returns all modules associative array
+     * Returns all modules associative array.
      *
-     * @return  array   The modules.
+     * @return array the modules
      */
     public function getModules(): array
     {
@@ -623,11 +615,11 @@ abstract class AbstractModules
     }
 
     /**
-     * Returns module <var>$id</var> array
+     * Returns module <var>$id</var> array.
      *
-     * @param   string  $id     The module identifier
+     * @param string $id The module identifier
      *
-     * @return  object|null     The module.
+     * @return null|object the module
      */
     public function getModule(string $id): ?object
     {
@@ -637,9 +629,9 @@ abstract class AbstractModules
     /**
      * Determines if module exists.
      *
-     * @param   string  $id     The module identifier
+     * @param string $id The module identifier
      *
-     * @return  bool    True if module exists, False otherwise.
+     * @return bool true if module exists, False otherwise
      */
     public function hasModule(string $id): bool
     {
@@ -649,7 +641,7 @@ abstract class AbstractModules
     /**
      * Gets the disabled modules.
      *
-     * @return  array   The disabled modules.
+     * @return array the disabled modules
      */
     public function getDisabledModules(): array
     {
@@ -659,9 +651,9 @@ abstract class AbstractModules
     /**
      * Check if a module is part of the distribution.
      *
-     * @param   string  $id     Module root directory
+     * @param string $id Module root directory
      *
-     * @return  bool            True if module is part of the distribution
+     * @return bool True if module is part of the distribution
      */
     public function isDistributedModule(string $id): bool
     {
@@ -671,11 +663,11 @@ abstract class AbstractModules
     /**
      * Sort modules list by specific field.
      *
-     * @param   array   $modules    Array of modules
-     * @param   string  $field      Field to sort from
-     * @param   bool    $asc        Sort asc if true, else decs
+     * @param array  $modules Array of modules
+     * @param string $field   Field to sort from
+     * @param bool   $asc     Sort asc if true, else decs
      *
-     * @return  array               Array of sorted modules
+     * @return array Array of sorted modules
      */
     public function sortModules(array $modules, string $field, bool $asc = true): array
     {
@@ -683,8 +675,8 @@ abstract class AbstractModules
 
         foreach ($modules as $id => $module) {
             $properties = $module->properties();
-            $origin[] = $module;
-            $sorter[] = $properties[$field] ?? $field;
+            $origin[]   = $module;
+            $sorter[]   = $properties[$field] ?? $field;
         }
 
         array_multisort($sorter, $asc ? SORT_ASC : SORT_DESC, $origin);
@@ -697,14 +689,14 @@ abstract class AbstractModules
     }
 
     /**
-     * Default sort modules
+     * Default sort modules.
      *
      * Version A < B = -1, A > B = 1, or compare name
      *
-     * @param   AbstractDefine  $a  The module A
-     * @param   AbstractDefine  $b  The module B
+     * @param AbstractDefine $a The module A
+     * @param AbstractDefine $b The module B
      *
-     * @return  int                 The comparison result
+     * @return int The comparison result
      */
     private function defaultSortModules(AbstractDefine $a, AbstractDefine $b): int
     {

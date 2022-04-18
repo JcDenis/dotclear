@@ -1,9 +1,8 @@
 <?php
 /**
- * @class Dotclear\Process\Public\Context\Context
+ * @note Dotclear\Process\Public\Context\Context
  *
- * @package Dotclear
- * @subpackage Public
+ * @ingroup  Public
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,11 +15,12 @@ use Dotclear\Database\Record;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Text;
+use Exception;
 
 class Context
 {
-    /** @var    array   $stack  Context stack */
-    public $stack               = [
+    /** @var array Context stack */
+    public $stack = [
         'nb_entry_per_page'   => [10],
         'nb_entry_first_page' => [10],
         'page_number'         => [0],
@@ -28,10 +28,10 @@ class Context
     ];
 
     /**
-     * Set a context value
-     * 
-     * @param   string  $name   The porperty name
-     * @param   mixed   $value  The property value
+     * Set a context value.
+     *
+     * @param string $name  The porperty name
+     * @param mixed  $value The property value
      */
     public function set(string $name, mixed $value): void
     {
@@ -42,15 +42,15 @@ class Context
             if ($value instanceof Record) {
                 $this->stack['cur_loop'][] = &$value;
             }
-        } 
+        }
     }
 
     /**
-     * Get a context value
-     * 
-     * @param   string  $name   The property name
-     * 
-     * @return  mixed           The property value
+     * Get a context value.
+     *
+     * @param string $name The property name
+     *
+     * @return mixed The property value
      */
     public function get(string $name): mixed
     {
@@ -64,11 +64,9 @@ class Context
     }
 
     /**
-     * Check if a context property exists
-     * 
-     * @param   string  $name   The property name
-     * 
-     * @return  bool
+     * Check if a context property exists.
+     *
+     * @param string $name The property name
      */
     public function exists(string $name): bool
     {
@@ -76,9 +74,9 @@ class Context
     }
 
     /**
-     * Pop a context property
-     * 
-     * @param   string  $name   The property name
+     * Pop a context property.
+     *
+     * @param string $name The property name
      */
     public function pop(string $name): void
     {
@@ -92,14 +90,12 @@ class Context
     }
 
     /**
-     * Check a loop position
-     * 
-     * @param   int         $start      Start position
-     * @param   int|null    $length     Loop length
-     * @param   int|null    $even       Even/odd test
-     * @param   int|null    $modulo     Modulo
-     * 
-     * @return  bool
+     * Check a loop position.
+     *
+     * @param int      $start  Start position
+     * @param null|int $length Loop length
+     * @param null|int $even   Even/odd test
+     * @param null|int $modulo Modulo
      */
     public function loopPosition(int $start, ?int $length = null, ?int $even = null, ?int $modulo = null): bool
     {
@@ -115,18 +111,18 @@ class Context
             $test = $index >= $start;
             if (null !== $length) {
                 if (0 <= $length) {
-                    $test = $test && $index < $start + $length;
+                    $test = $test && $start + $length > $index;
                 } else {
-                    $test = $test && $index < $size + $length;
+                    $test = $test && $size + $length > $index;
                 }
             }
         } else {
-            $test = $index >= $size + $start;
+            $test = $size + $start <= $index;
             if (null !== $length) {
                 if (0 <= $length) {
-                    $test = $test && $index < $size + $start + $length;
+                    $test = $test && $size + $start + $length > $index;
                 } else {
-                    $test = $test && $index < $size + $length;
+                    $test = $test && $size + $length > $index;
                 }
             }
         }
@@ -143,37 +139,37 @@ class Context
     }
 
     /**
-     * Apply default filters
-     * 
-     * @param   string  $filter     The filter (name)
-     * @param   string  $str        The content to apply filters
-     * @param   mixed   $arg        The additionnal argument
-     * 
-     * @return  string              The filtered content
+     * Apply default filters.
+     *
+     * @param string $filter The filter (name)
+     * @param string $str    The content to apply filters
+     * @param mixed  $arg    The additionnal argument
+     *
+     * @return string The filtered content
      */
     private function default_filters(string $filter, string $str, mixed $arg): string
     {
         return match ($filter) {
-            'strip_tags'                => $this->strip_tags($str),
-            'remove_html'               => preg_replace('/\s+/', ' ', $this->remove_html($str)),
+            'strip_tags'  => $this->strip_tags($str),
+            'remove_html' => preg_replace('/\s+/', ' ', $this->remove_html($str)),
             'encode_xml', 'encode_html' => $this->encode_xml($str),
-            'cut_string'                => $this->cut_string($str, (int) $arg),
-            'lower_case'                => $this->lower_case($str),
-            'capitalize'                => $this->capitalize($str),
-            'upper_case'                => $this->upper_case($str),
-            'encode_url'                => $this->encode_url($str),
-            default                     => $str,
+            'cut_string' => $this->cut_string($str, (int) $arg),
+            'lower_case' => $this->lower_case($str),
+            'capitalize' => $this->capitalize($str),
+            'upper_case' => $this->upper_case($str),
+            'encode_url' => $this->encode_url($str),
+            default      => $str,
         };
     }
 
     /**
-     * Apply global filters
-     * 
-     * @param   string  $str    The content
-     * @param   array   $args   The aguments
-     * @param   string  $tag    The tag
-     * 
-     * @return  string          The filtered content
+     * Apply global filters.
+     *
+     * @param string $str  The content
+     * @param array  $args The aguments
+     * @param string $tag  The tag
+     *
+     * @return string The filtered content
      */
     public function global_filters(string $str, array $args, string $tag = ''): string
     {
@@ -183,21 +179,22 @@ class Context
             'encode_xml', 'encode_html',              // Encode HTML entities
             'cut_string',                             // Cut string (length in $args['cut_string'])
             'lower_case', 'capitalize', 'upper_case', // Case transformations
-            'encode_url'                             // URL encode (as for insert in query string)
+            'encode_url',                             // URL encode (as for insert in query string)
         ];
 
         $args[0] = &$str;
 
-        # --BEHAVIOR-- publicBeforeContentFilter
+        // --BEHAVIOR-- publicBeforeContentFilter
         dotclear()->behavior()->call('publicBeforeContentFilter', $tag, $args);
         $str = $args[0];
 
         foreach ($filters as $filter) {
-            # --BEHAVIOR-- publicContentFilter
+            // --BEHAVIOR-- publicContentFilter
             switch (dotclear()->behavior()->call('publicContentFilter', $tag, $args, $filter)) {
                 case '1':
                     // 3rd party filter applied and must stop
                     break;
+
                 case '0':
                 default:
                     // 3rd party filter applied and should continue
@@ -208,7 +205,7 @@ class Context
             }
         }
 
-        # --BEHAVIOR-- publicAfterContentFilter
+        // --BEHAVIOR-- publicAfterContentFilter
         dotclear()->behavior()->call('publicAfterContentFilter', $tag, $args);
         $str = $args[0];
 
@@ -216,11 +213,9 @@ class Context
     }
 
     /**
-     * Filter, encode URL
-     * 
-     * @param   string  $str    The content
-     * 
-     * @return  string
+     * Filter, encode URL.
+     *
+     * @param string $str The content
      */
     public function encode_url(string $str): string
     {
@@ -228,12 +223,10 @@ class Context
     }
 
     /**
-     * Filter, cut string
-     * 
-     * @param   string  $str    The content
-     * @param   int     $l      The cut length
-     * 
-     * @return  string
+     * Filter, cut string.
+     *
+     * @param string $str The content
+     * @param int    $l   The cut length
      */
     public function cut_string(string $str, int $l): string
     {
@@ -241,11 +234,9 @@ class Context
     }
 
     /**
-     * Filter, encode XML
-     * 
-     * @param   string  $str    The content
-     * 
-     * @return  string
+     * Filter, encode XML.
+     *
+     * @param string $str The content
      */
     public function encode_xml(string $str): string
     {
@@ -253,11 +244,9 @@ class Context
     }
 
     /**
-     * Filter, remove isolated figcaptiong
-     * 
-     * @param   string  $str    The content
-     * 
-     * @return  string
+     * Filter, remove isolated figcaptiong.
+     *
+     * @param string $str The content
      */
     public function remove_isolated_figcaption(string $str): string
     {
@@ -268,17 +257,13 @@ class Context
         $str = preg_replace('/<figure[^>]*>([\t\n\r\s]*)(<a[^>]*>)*<img[^>]*>([\t\n\r\s]*)(<\/a[^>]*>)*([\t\n\r\s]*)<figcaption[^>]*>(.*?)<\/figcaption>([\t\n\r\s]*)<\/figure>/', '', (string) $str);
 
         // <figure><figcaption>isolated text</figcaption><audio…>…</audio></figure>
-        $str = preg_replace('/<figure[^>]*>([\t\n\r\s]*)<figcaption[^>]*>(.*)<\/figcaption>([\t\n\r\s]*)<audio[^>]*>(([\t\n\r\s]|.)*)<\/audio>([\t\n\r\s]*)<\/figure>/', '', $str);
-
-        return $str;
+        return preg_replace('/<figure[^>]*>([\t\n\r\s]*)<figcaption[^>]*>(.*)<\/figcaption>([\t\n\r\s]*)<audio[^>]*>(([\t\n\r\s]|.)*)<\/audio>([\t\n\r\s]*)<\/figure>/', '', $str);
     }
 
     /**
-     * Filter, remove HTML
-     * 
-     * @param   string  $str    The content
-     * 
-     * @return  string
+     * Filter, remove HTML.
+     *
+     * @param string $str The content
      */
     public function remove_html(string $str): string
     {
@@ -286,11 +271,9 @@ class Context
     }
 
     /**
-     * Filter, strip tags
-     * 
-     * @param   string  $str    The content
-     * 
-     * @return  string
+     * Filter, strip tags.
+     *
+     * @param string $str The content
      */
     public function strip_tags(string $str): string
     {
@@ -298,11 +281,9 @@ class Context
     }
 
     /**
-     * Filter, convert to lower case
-     * 
-     * @param   string  $str    The content
-     * 
-     * @return  string
+     * Filter, convert to lower case.
+     *
+     * @param string $str The content
      */
     public function lower_case(string $str): string
     {
@@ -310,11 +291,9 @@ class Context
     }
 
     /**
-     * Filter, convert to upper case
-     * 
-     * @param   string  $str    The content
-     * 
-     * @return  string
+     * Filter, convert to upper case.
+     *
+     * @param string $str The content
      */
     public function upper_case(string $str): string
     {
@@ -322,11 +301,9 @@ class Context
     }
 
     /**
-     * Filter, capitalize content
-     * 
-     * @param   string  $str    The content
-     * 
-     * @return  string
+     * Filter, capitalize content.
+     *
+     * @param string $str The content
      */
     public function capitalize(string $str): string
     {
@@ -338,11 +315,9 @@ class Context
     }
 
     /**
-     * Get/set page number
-     * 
-     * @param   string|int  $p  To set a page number
-     * 
-     * @return  int
+     * Get/set page number.
+     *
+     * @param int|string $p To set a page number
      */
     public function page_number(string|int $p = null): int
     {
@@ -354,9 +329,9 @@ class Context
     }
 
     /**
-     * Build category post param
-     * 
-     * @param   array   $p  The param
+     * Build category post param.
+     *
+     * @param array $p The param
      */
     public function categoryPostParam(array &$p): void
     {
@@ -380,9 +355,7 @@ class Context
     }
 
     /**
-     * Get pagination number of pages
-     * 
-     * @return  int|false
+     * Get pagination number of pages.
      */
     public function PaginationNbPages(): int|false
     {
@@ -393,17 +366,15 @@ class Context
         $nb_posts = $this->get('pagination')->fInt();
         $nb_pages = in_array(dotclear()->url()->type, ['default', 'default-page']) ?
             ceil(($nb_posts - (int) $this->get('nb_entry_first_page')) / (int) $this->get('nb_entry_per_page') + 1) :
-            ceil($nb_posts / (int) $this->get('nb_entry_per_page'));
+            ceil($nb_posts                                             / (int) $this->get('nb_entry_per_page'));
 
         return (int) $nb_pages;
     }
 
     /**
-     * Get pagination position
-     * 
-     * @param   int     $offset     The offset
-     * 
-     * @return  int
+     * Get pagination position.
+     *
+     * @param int $offset The offset
      */
     public function PaginationPosition(int $offset = 0): int
     {
@@ -417,13 +388,11 @@ class Context
             return $p;
         }
 
-        return $p > $n || $p <= 0 ? 1 : $p;
+        return $p > $n || 0 >= $p ? 1 : $p;
     }
 
     /**
-     * Check if it's pagination start
-     * 
-     * @return bool
+     * Check if it's pagination start.
      */
     public function PaginationStart(): bool
     {
@@ -431,9 +400,7 @@ class Context
     }
 
     /**
-     * Check if it's pagination end
-     * 
-     * @return bool
+     * Check if it's pagination end.
      */
     public function PaginationEnd(): bool
     {
@@ -441,11 +408,9 @@ class Context
     }
 
     /**
-     * Get pagination URL
-     * 
-     * @param   int     $offset     The offset
-     * 
-     * @return string
+     * Get pagination URL.
+     *
+     * @param int $offset The offset
      */
     public function PaginationURL(int $offset = 0): string
     {
@@ -457,7 +422,7 @@ class Context
             $url .= '/page/' . $n;
         }
 
-        # If search param
+        // If search param
         if (!empty($_GET['q'])) {
             $url .= (str_contains($url, '?') ? '&amp;' : '?') . 'q=' . rawurlencode($_GET['q']);
         }
@@ -466,12 +431,7 @@ class Context
     }
 
     /**
-     * Get Robots policy
-     * 
-     * @param   string  $base
-     * @param   string  $over
-     * 
-     * @return string
+     * Get Robots policy.
      */
     public function robotsPolicy(string $base, string $over): string
     {
@@ -488,8 +448,8 @@ class Context
             }
         }
 
-        /** @phpstan-ignore-next-line */
-        if ($pol['ARCHIVE'] == 'ARCHIVE') {
+        // @phpstan-ignore-next-line
+        if ('ARCHIVE' == $pol['ARCHIVE']) {
             unset($pol['ARCHIVE']);
         }
 
@@ -497,9 +457,7 @@ class Context
     }
 
     /**
-     * Load smilies
-     *
-     * @return  bool
+     * Load smilies.
      */
     public function getSmilies(): bool
     {
@@ -507,7 +465,7 @@ class Context
             return true;
         }
 
-        # Search smilies on public path then Theme path and then parent theme path and then core path
+        // Search smilies on public path then Theme path and then parent theme path and then core path
         $base_url = dotclear()->blog()->public_url . '/smilies/';
         $src      = '/resources/smilies/smilies.txt';
         $paths    = array_merge(
@@ -529,12 +487,10 @@ class Context
     }
 
     /**
-     * Parse smilies definition
-     * 
-     * @param   string  $file   Definiton file
-     * @param   string  $url    smilies URL
-     * 
-     * @return array
+     * Parse smilies definition.
+     *
+     * @param string $file Definiton file
+     * @param string $url  smilies URL
      */
     public function smiliesDefinition(string $file, string $url): array
     {
@@ -555,11 +511,9 @@ class Context
     }
 
     /**
-     * Add smilies to content
-     * 
-     * @param   string  $str    The content
-     * 
-     * @return string
+     * Add smilies to content.
+     *
+     * @param string $str The content
      */
     public function addSmilies(string $str): string
     {
@@ -567,18 +521,18 @@ class Context
             return $str;
         }
 
-        # Process part adapted from SmartyPants engine (J. Gruber et al.) :
+        // Process part adapted from SmartyPants engine (J. Gruber et al.) :
 
         $tokens = $this->tokenizeHTML($str);
         $result = '';
-        $in_pre = 0; # Keep track of when we're inside <pre> or <code> tags.
+        $in_pre = 0; // Keep track of when we're inside <pre> or <code> tags.
 
         foreach ($tokens as $cur_token) {
             if ('tag' == $cur_token[0]) {
-                # Don't mess with quotes inside tags.
+                // Don't mess with quotes inside tags.
                 $result .= $cur_token[1];
                 if (preg_match('@<(/?)(?:pre|code|kbd|script|math)[\s>]@', $cur_token[1], $matches)) {
-                    $in_pre = isset($matches[1]) && $matches[1] == '/' ? 0 : 1;
+                    $in_pre = isset($matches[1]) && '/' == $matches[1] ? 0 : 1;
                 }
             } else {
                 $t = $cur_token[1];
@@ -594,33 +548,33 @@ class Context
 
     private function tokenizeHTML(string $str): array
     {
-        # Function from SmartyPants engine (J. Gruber et al.)
-        #
-        #   Parameter:  String containing HTML markup.
-        #   Returns:    An array of the tokens comprising the input
-        #               string. Each token is either a tag (possibly with nested,
-        #               tags contained therein, such as <a href="<MTFoo>">, or a
-        #               run of text between tags. Each element of the array is a
-        #               two-element array; the first is either 'tag' or 'text';
-        #               the second is the actual value.
-        #
-        #
-        #   Regular expression derived from the _tokenize() subroutine in
-        #   Brad Choate's MTRegex plugin.
-        #   <http://www.bradchoate.com/past/mtregex.php>
-        #
+        // Function from SmartyPants engine (J. Gruber et al.)
+        //
+        //   Parameter:  String containing HTML markup.
+        //   Returns:    An array of the tokens comprising the input
+        //               string. Each token is either a tag (possibly with nested,
+        //               tags contained therein, such as <a href="<MTFoo>">, or a
+        //               run of text between tags. Each element of the array is a
+        //               two-element array; the first is either 'tag' or 'text';
+        //               the second is the actual value.
+        //
+        //
+        //   Regular expression derived from the _tokenize() subroutine in
+        //   Brad Choate's MTRegex plugin.
+        //   <http://www.bradchoate.com/past/mtregex.php>
+        //
         $index  = 0;
         $tokens = [];
 
-        $match = '(?s:<!(?:--.*?--\s*)+>)|' . # comment
-        '(?s:<\?.*?\?>)|' . # processing instruction
-        # regular tags
+        $match = '(?s:<!(?:--.*?--\s*)+>)|' . // comment
+        '(?s:<\?.*?\?>)|' . // processing instruction
+        // regular tags
         '(?:<[/!$]?[-a-zA-Z0-9:]+\b(?>[^"\'>]+|"[^"]*"|\'[^\']*\')*>)';
 
-        $parts = preg_split("{($match)}", $str, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $parts = preg_split("{({$match})}", $str, -1, PREG_SPLIT_DELIM_CAPTURE);
 
         foreach ($parts as $part) {
-            if (++$index % 2 && $part != '') {
+            if (++$index % 2 && '' != $part) {
                 $tokens[] = ['text', $part];
             } else {
                 $tokens[] = ['tag', $part];
@@ -631,16 +585,14 @@ class Context
     }
 
     /**
-     * First post image helpers
-     * 
-     * @param   string  $size           Size
-     * @param   bool    $with_category  Use category
-     * @param   string  $class          Class
-     * @param   bool    $no_tag         Return URL only
-     * @param   bool    $content_only   Search only in content
-     * @param   bool    $cat_only       Search on category only
-     * 
-     * @return  string
+     * First post image helpers.
+     *
+     * @param string $size          Size
+     * @param bool   $with_category Use category
+     * @param string $class         Class
+     * @param bool   $no_tag        Return URL only
+     * @param bool   $content_only  Search only in content
+     * @param bool   $cat_only      Search on category only
      */
     public function EntryFirstImageHelper(string $size, bool $with_category, string $class = '', bool $no_tag = false, bool $content_only = false, bool $cat_only = false): string
     {
@@ -663,14 +615,14 @@ class Context
             $src = '';
             $alt = '';
 
-            # We first look in post content
+            // We first look in post content
             if (!$cat_only && $this->get('posts')) {
                 $subject = ($content_only ? '' : $this->get('posts')->f('post_excerpt_xhtml')) . $this->get('posts')->f('post_content_xhtml');
                 if (0 < preg_match_all($pattern, $subject, $m)) {
                     foreach ($m[1] as $i => $img) {
-                        if (($src = $this->ContentFirstImageLookup($p_root, $img, $size)) !== false) {
+                        if (false !== ($src = $this->ContentFirstImageLookup($p_root, $img, $size))) {
                             $dirname = str_replace('\\', '/', dirname($img));
-                            $src     = $p_url . ($dirname != '/' ? $dirname : '') . '/' . $src;
+                            $src     = $p_url . ('/' != $dirname ? $dirname : '') . '/' . $src;
                             if (preg_match('/alt="([^"]+)"/', $m[0][$i], $malt)) {
                                 $alt = $malt[1];
                             }
@@ -681,13 +633,13 @@ class Context
                 }
             }
 
-            # No src, look in category description if available
+            // No src, look in category description if available
             if (!$src && $with_category && $this->get('posts')->f('cat_desc')) {
                 if (0 < preg_match_all($pattern, $this->get('posts')->f('cat_desc'), $m)) {
                     foreach ($m[1] as $i => $img) {
                         if (false !== ($src = $this->ContentFirstImageLookup($p_root, $img, $size))) {
                             $dirname = str_replace('\\', '/', dirname($img));
-                            $src     = $p_url . ($dirname != '/' ? $dirname : '') . '/' . $src;
+                            $src     = $p_url . ('/' != $dirname ? $dirname : '') . '/' . $src;
                             if (preg_match('/alt="([^"]+)"/', $m[0][$i], $malt)) {
                                 $alt = $malt[1];
                             }
@@ -695,7 +647,7 @@ class Context
                             break;
                         }
                     }
-                };
+                }
             }
 
             if ($src) {
@@ -705,7 +657,7 @@ class Context
 
                 return '<img alt="' . $alt . '" src="' . $src . '" class="' . $class . '" />';
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             dotclear()->error()->add($e->getMessage());
         }
 
@@ -713,13 +665,13 @@ class Context
     }
 
     /**
-     * Search first image of content
-     * 
-     * @param   string  $root   Image root path
-     * @param   string  $img    Image path
-     * @param   string  $size   Image size
-     * 
-     * @return  string|false    Image path or false
+     * Search first image of content.
+     *
+     * @param string $root Image root path
+     * @param string $img  Image path
+     * @param string $size Image size
+     *
+     * @return false|string Image path or false
      */
     private function ContentFirstImageLookup(string $root, string $img, string $size): string|false
     {
@@ -727,10 +679,10 @@ class Context
             return false;
         }
 
-        # Image extensions
+        // Image extensions
         $formats = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'wepb'];
 
-        # Get base name and extension
+        // Get base name and extension
         $info = Path::info($img);
         $base = $info['base'];
 
@@ -759,7 +711,8 @@ class Context
                             $res = $base . '.' . $format;
 
                             break;
-                        } elseif (file_exists($f . '.' . strtoupper($format))) {
+                        }
+                        if (file_exists($f . '.' . strtoupper($format))) {
                             $res = $base . '.' . strtoupper($format);
 
                             break;
@@ -767,7 +720,7 @@ class Context
                     }
                 }
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             dotclear()->error()->add($e->getMessage());
         }
 

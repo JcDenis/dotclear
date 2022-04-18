@@ -1,9 +1,6 @@
 <?php
 /**
- * @class Dotclear\Module\Plugin\Admin\ModulesPlugin
- *
  * @package Dotclear
- * @subpackage Module
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,9 +13,17 @@ use Dotclear\Module\AbstractModules;
 use Dotclear\Module\TraitModulesAdmin;
 use Dotclear\Module\Plugin\TraitModulesPlugin;
 
+/**
+ * Admin plugins prepend helper.
+ *
+ * \Dotclear\Module\Plugin\Admin\ModulesPlugin
+ *
+ * @ingroup  Module Plugin Admin
+ */
 class ModulesPlugin extends AbstractModules
 {
-    use TraitModulesAdmin, TraitModulesPlugin;
+    use TraitModulesAdmin;
+    use TraitModulesPlugin;
 
     protected function register(): bool
     {
@@ -37,7 +42,7 @@ class ModulesPlugin extends AbstractModules
             'title'      => __('Plugins management'),
             'url'        => dotclear()->adminurl()->get('admin.plugins'),
             'small-icon' => ['images/menu/plugins.svg', 'images/menu/plugins-dark.svg'],
-            'large-icon' => ['images/menu/plugins.svg', 'images/menu/plugins-dark.svg']
+            'large-icon' => ['images/menu/plugins.svg', 'images/menu/plugins-dark.svg'],
         ]);
 
         return dotclear()->adminurl()->is('admin.plugins');

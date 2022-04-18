@@ -1,12 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Html\Html
- * @brief Basic html tool
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
  * @package Dotclear
- * @subpackage Utils
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,25 +9,31 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html;
 
-use \ArrayObject;
-use Dotclear\Helper\Html\HtmlFilter;
+use ArrayObject;
 
+/**
+ * Basic html tool.
+ *
+ * \Dotclear\Helper\Html\Html
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Helper Html
+ */
 class Html
 {
-    /** @var    string|null  $url_root   Base URL */
-    public static $url_root = null;
+    /** @var null|string Base URL */
+    public static $url_root;
 
-    /** @var    array   $absolute_regs  Array of regular expression for {@link absoluteURLs()} */
+    /** @var array Array of regular expression for {@link absoluteURLs()} */
     public static $absolute_regs = [];
 
     /**
-     * HTML escape
+     * HTML escape.
      *
      * Replaces HTML special characters by entities.
      *
-     * @param     string|null   $str    String to escape
-     * 
-     * @return    string
+     * @param null|string $str String to escape
      */
     public static function escapeHTML(?string $str): string
     {
@@ -41,14 +41,12 @@ class Html
     }
 
     /**
-     * Decode HTML entities
+     * Decode HTML entities.
      *
      * Returns a string with all entities decoded.
      *
-     * @param   string|null     $str            String to protect
-     * @param   bool            $keep_special   Keep special characters: &gt; &lt; &amp;
-     * 
-     * @return  string
+     * @param null|string $str          String to protect
+     * @param bool        $keep_special Keep special characters: &gt; &lt; &amp;
      */
     public static function decodeEntities(?string $str, bool $keep_special = false): string
     {
@@ -63,7 +61,7 @@ class Html
             );
         }
 
-        # Some extra replacements
+        // Some extra replacements
         $extra = [
             '&apos;' => "'",
         ];
@@ -72,13 +70,11 @@ class Html
     }
 
     /**
-     * Remove markup
+     * Remove markup.
      *
      * Removes every tags, comments, cdata from string
      *
-     * @param   string|null     $str        String to clean
-     * 
-     * @return  string
+     * @param null|string $str String to clean
      */
     public static function clean(?string $str): string
     {
@@ -86,31 +82,26 @@ class Html
     }
 
     /**
-     * Javascript escape
+     * Javascript escape.
      *
      * Returns a protected JavaScript string
      *
-     * @param   string|null     $str    String to protect
-     * 
-     * @return  string
+     * @param null|string $str String to protect
      */
     public static function escapeJS(?string $str): string
     {
         $str = htmlspecialchars($str ?? '', ENT_NOQUOTES, 'UTF-8');
-        $str = str_replace("'", "\'", $str);
-        $str = str_replace('"', '\"', $str);
+        $str = str_replace("'", "\\'", $str);
 
-        return $str;
+        return str_replace('"', '\"', $str);
     }
 
     /**
-     * URL escape
+     * URL escape.
      *
      * Returns an escaped URL string for HTML content
      *
-     * @param   string|null     $str    String to escape
-     * 
-     * @return  string
+     * @param null|string $str String to escape
      */
     public static function escapeURL(?string $str): string
     {
@@ -118,13 +109,11 @@ class Html
     }
 
     /**
-     * URL sanitize
+     * URL sanitize.
      *
      * Encode every parts between / in url
      *
-     * @param   string|null     $str        String to satinyze
-     * 
-     * @return  string
+     * @param null|string $str String to satinyze
      */
     public static function sanitizeURL(?string $str): string
     {
@@ -132,13 +121,11 @@ class Html
     }
 
     /**
-     * Remove host in URL
+     * Remove host in URL.
      *
      * Removes host part in URL
      *
-     * @param   string|null     $str    URL to transform
-     * 
-     * @return  string
+     * @param null|string $str URL to transform
      */
     public static function stripHostURL(?string $str): string
     {
@@ -146,14 +133,12 @@ class Html
     }
 
     /**
-     * Set links to absolute ones
+     * Set links to absolute ones.
      *
      * Appends $root URL to URIs attributes in $str.
      *
-     * @param   string|null     $str    HTML to transform
-     * @param   string|null     $root   Base URL
-     * 
-     * @return  string
+     * @param null|string $str  HTML to transform
+     * @param null|string $root Base URL
      */
     public static function absoluteURLs(?string $str, ?string $root): string
     {
@@ -200,15 +185,13 @@ class Html
     }
 
     /**
-     * Filter HTML string
+     * Filter HTML string.
      *
      * Calls HTML filter to drop bad tags and produce valid XHTML output (if
      * tidy extension is present). If <b>enable_html_filter</b> blog setting is
      * false, returns not filtered string.
      *
-     * @param   string  $str    The string
-     *
-     * @return  string
+     * @param string $str The string
      */
     public static function filter(string $str): string
     {
@@ -219,27 +202,26 @@ class Html
         $options = new ArrayObject([
             'keep_aria' => false,
             'keep_data' => false,
-            'keep_js'   => false
+            'keep_js'   => false,
         ]);
 
-        # --BEHAVIOR-- HTMLfilter, \ArrayObject
+        // --BEHAVIOR-- HTMLfilter, \ArrayObject
         dotclear()->behavior()->call('HTMLfilter', $options);
 
         $filter = new HtmlFilter($options['keep_aria'], $options['keep_data'], $options['keep_js']);
-        $str    = trim($filter->apply($str));
 
-        return $str;
+        return trim($filter->apply($str));
     }
 
     /**
-     * Append version
+     * Append version.
      *
      * Usefull to bypass cache
      *
-     * @param   string          $src    The path
-     * @param   string|null     $v      The version (suffix)
+     * @param string      $src The path
+     * @param null|string $v   The version (suffix)
      *
-     * @return  string                  The versioned path
+     * @return string The versioned path
      */
     private static function appendVersion(string $src, ?string $v = ''): string
     {
@@ -249,13 +231,13 @@ class Html
     }
 
     /**
-     * Get HTML code to load a css file
+     * Get HTML code to load a css file.
      *
-     * @param   string          $src    The path
-     * @param   string          $media  The media type
-     * @param   string|null     $v      The version
+     * @param string      $src   The path
+     * @param string      $media The media type
+     * @param null|string $v     The version
      *
-     * @return  string                  The HTML code
+     * @return string The HTML code
      */
     public static function cssLoad(string $src, string $media = 'screen', ?string $v = null): string
     {
@@ -268,12 +250,12 @@ class Html
     }
 
     /**
-     * Get HTML code to load a js file
+     * Get HTML code to load a js file.
      *
-     * @param   string          $src    The path
-     * @param   string|null     $v      The version
+     * @param string      $src The path
+     * @param null|string $v   The version
      *
-     * @return  string                  The HTML code
+     * @return string The HTML code
      */
     public static function jsLoad(string $src, ?string $v = null): string
     {
@@ -286,19 +268,17 @@ class Html
     }
 
     /**
-     * Get HTML code to set a js var
+     * Get HTML code to set a js var.
      *
-     * @param   string  $id     The var name
-     * @param   mixed   $vars   The var value
+     * @param string $id   The var name
+     * @param mixed  $vars The var value
      *
-     * @return  string          The HTML code
+     * @return string The HTML code
      */
     public static function jsJson(string $id, mixed $vars): string
     {
         // Use echo self::jsLoad(dotclear()->blog()->public_url . '/util.js'); to use the JS dotclear.getData() decoder in public mode
-        $ret = '<script type="application/json" id="' . Html::escapeHTML($id) . '-data">' . "\n" .
+        return '<script type="application/json" id="' . Html::escapeHTML($id) . '-data">' . "\n" .
             json_encode($vars, JSON_HEX_TAG | JSON_UNESCAPED_SLASHES) . "\n" . '</script>';
-
-        return $ret;
     }
 }

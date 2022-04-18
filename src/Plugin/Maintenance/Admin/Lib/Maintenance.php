@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance
+ * @note Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginMaintenance
+ * @ingroup  PluginMaintenance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,30 +12,28 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Maintenance\Admin\Lib;
 
-use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceDescriptor;
-
 /**
-Main class to call everything related to maintenance.
+ * Main class to call everything related to maintenance.
  */
 class Maintenance
 {
-    /** @var    string  $p_url  Plugin URL */
+    /** @var string Plugin URL */
     public $p_url = '';
 
-    /** @var    array<string, MaintenanceTask>    $tasks   Tasks */
-    private $tasks     = [];
+    /** @var array<string, MaintenanceTask>      Tasks */
+    private $tasks = [];
 
-    /** @var    array<string, string>   $tasks_id   Tasks class name */
-    private $tasks_id  = [];
+    /** @var array<string, string>     Tasks class name */
+    private $tasks_id = [];
 
-    /** @var    array<string, MaintenanceDescriptor>    $tasks   Tasks tabs */
-    private $tabs      = [];
+    /** @var array<string, MaintenanceDescriptor>      Tasks tabs */
+    private $tabs = [];
 
-    /** @var    array<string, MaintenanceDescriptor>    $groups  Tasks groups */
-    private $groups    = [];
+    /** @var array<string, MaintenanceDescriptor>     Tasks groups */
+    private $groups = [];
 
-    /** @var    array<string, array>    $logs   Logs */
-    private $logs      = null;
+    /** @var array<string, array>      Logs */
+    private $logs;
 
     /**
      * Constructor.
@@ -57,20 +54,20 @@ class Maintenance
      */
     protected function init(): void
     {
-        # --BEHAVIOR-- dcMaintenanceInit
+        // --BEHAVIOR-- dcMaintenanceInit
         dotclear()->behavior()->call('dcMaintenanceInit', $this);
     }
 
-    /// @name Tab methods
-    //@{
+    // / @name Tab methods
+    // @{
     /**
      * Adds a tab.
      *
-     * @param   string                  $id         The identifier
-     * @param   string                  $name       The name
-     * @param   array<string, string>   $options    The options
+     * @param string                $id      The identifier
+     * @param string                $name    The name
+     * @param array<string, string> $options The options
      *
-     * @return  self
+     * @return self
      */
     public function addTab(string $id, string $name, array $options = []): Maintenance
     {
@@ -82,9 +79,9 @@ class Maintenance
     /**
      * Gets the tab.
      *
-     * @param   string  $id     The identifier
+     * @param string $id The identifier
      *
-     * @return  MaintenanceDescriptor|null  The tab.
+     * @return null|MaintenanceDescriptor the tab
      */
     public function getTab(string $id): ?MaintenanceDescriptor
     {
@@ -94,24 +91,24 @@ class Maintenance
     /**
      * Gets the tabs.
      *
-     * @return  array<string, MaintenanceDescriptor>    The tabs.
+     * @return array<string, MaintenanceDescriptor> the tabs
      */
     public function getTabs(): array
     {
         return $this->tabs;
     }
-    //@}
+    // @}
 
-    /// @name Group methods
-    //@{
+    // / @name Group methods
+    // @{
     /**
      * Adds a group.
      *
-     * @param   string                  $id         The identifier
-     * @param   string                  $name       The name
-     * @param   array<string, string>   $options    The options
+     * @param string                $id      The identifier
+     * @param string                $name    The name
+     * @param array<string, string> $options The options
      *
-     * @return  self
+     * @return self
      */
     public function addGroup(string $id, string $name, array $options = []): Maintenance
     {
@@ -123,9 +120,9 @@ class Maintenance
     /**
      * Gets the group.
      *
-     * @param   string  $id     The identifier
+     * @param string $id The identifier
      *
-     * @return  MaintenanceDescriptor|null  The group.
+     * @return null|MaintenanceDescriptor the group
      */
     public function getGroup($id): ?MaintenanceDescriptor
     {
@@ -135,27 +132,27 @@ class Maintenance
     /**
      * Gets the groups.
      *
-     * @return  array<string, MaintenanceDescriptor>    The groups.
+     * @return array<string, MaintenanceDescriptor> the groups
      */
     public function getGroups(): array
     {
         return $this->groups;
     }
-    //@}
+    // @}
 
-    /// @name Task methods
-    //@{
+    // / @name Task methods
+    // @{
     /**
      * Adds a task.
      *
-     * @param   string  $task   The task, Class name or object
+     * @param string $task The task, Class name or object
      *
-     * @return  self
+     * @return self
      */
     public function addTask(string $task): Maintenance
     {
         if (is_subclass_of($task, __NAMESPACE__ . '\\MaintenanceTask')) {
-            $this->tasks[$task] = new $task($this);
+            $this->tasks[$task]                        = new $task($this);
             $this->tasks_id[$this->tasks[$task]->id()] = $task;
         }
 
@@ -165,9 +162,9 @@ class Maintenance
     /**
      * Gets the task.
      *
-     * @param   string  $id     The identifier
+     * @param string $id The identifier
      *
-     * @return  mixed  The task.
+     * @return mixed the task
      */
     public function getTask(string $id)
     {
@@ -177,7 +174,7 @@ class Maintenance
     /**
      * Gets the tasks.
      *
-     * @return  array   The tasks.
+     * @return array the tasks
      */
     public function getTasks(): array
     {
@@ -187,7 +184,7 @@ class Maintenance
     /**
      * Gets the headers for plugin maintenance admin page.
      *
-     * @return  string  The headers.
+     * @return string the headers
      */
     public function getHeaders(): string
     {
@@ -198,27 +195,27 @@ class Maintenance
 
         return $res;
     }
-    //@}
+    // @}
 
-    /// @name Log methods
-    //@{
+    // / @name Log methods
+    // @{
     /**
      * Sets the log for a task.
      *
-     * @param   string  $id     Task ID
+     * @param string $id Task ID
      */
     public function setLog(string $id): void
     {
-        # Check if taks exists
+        // Check if taks exists
         if (!$this->getTask($id)) {
             return;
         }
 
-        # Get logs from this task
+        // Get logs from this task
         $rs = dotclear()->log()->get([
             'log_msg'   => $id,
             'log_table' => 'maintenance',
-            'blog_id'   => '*'
+            'blog_id'   => '*',
         ]);
 
         $logs = [];
@@ -226,12 +223,12 @@ class Maintenance
             $logs[] = $rs->fInt('log_id');
         }
 
-        # Delete old logs
+        // Delete old logs
         if (!empty($logs)) {
             dotclear()->log()->delete($logs);
         }
 
-        # Add new log
+        // Add new log
         $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'log');
         $cur->setField('log_msg', $id);
         $cur->setField('log_table', 'maintenance');
@@ -245,7 +242,7 @@ class Maintenance
      */
     public function delLogs(): void
     {
-        # Retrieve logs from this task
+        // Retrieve logs from this task
         $rs = dotclear()->log()->get([
             'log_table' => 'maintenance',
             'blog_id'   => '*',
@@ -256,14 +253,14 @@ class Maintenance
             $logs[] = $rs->fInt('log_id');
         }
 
-        # Delete old logs
+        // Delete old logs
         if (!empty($logs)) {
             dotclear()->log()->delete($logs);
         }
     }
 
     /**
-     * Get logs
+     * Get logs.
      *
      * Return [
      *        task id => [
@@ -272,7 +269,7 @@ class Maintenance
      *        ]
      * ]
      *
-     * @return  array<string, array>    List of logged tasks
+     * @return array<string, array> List of logged tasks
      */
     public function getLogs(): array
     {
@@ -293,5 +290,5 @@ class Maintenance
 
         return $this->logs;
     }
-    //@}
+    // @}
 }

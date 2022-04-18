@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Handler\Categories
+ * @note Dotclear\Process\Admin\Handler\Categories
  * @brief Dotclear admin categories list page
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,15 +12,16 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
-use Dotclear\Process\Admin\Page\Page;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Database\Record;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
+use Exception;
 
-class Categories extends Page
+class Categories extends AbstractPage
 {
-    /** @var Record     Categories working on*/
+    /** @var Record Categories working on */
     private $categories;
 
     protected function getPermissions(): string|null|false
@@ -31,12 +31,12 @@ class Categories extends Page
 
     protected function getPagePrepend(): ?bool
     {
-        # Remove a categories
+        // Remove a categories
         if (!empty($_POST['delete'])) {
             $keys   = array_keys($_POST['delete']);
             $cat_id = (int) $keys[0];
 
-            # Check if category to delete exists
+            // Check if category to delete exists
             $category = dotclear()->blog()->categories()->getCategory($cat_id);
             if ($category->isEmpty()) {
                 dotclear()->notice()->addErrorNotice(__('This category does not exist.'));
@@ -46,26 +46,26 @@ class Categories extends Page
             unset($category);
 
             try {
-                # Delete category
+                // Delete category
                 dotclear()->blog()->categories()->delCategory($cat_id);
                 dotclear()->notice()->addSuccessNotice(sprintf(__('The category "%s" has been successfully deleted.'), Html::escapeHTML($name)));
                 dotclear()->adminurl()->redirect('admin.categories');
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # move post into a category
+        // move post into a category
         if (!empty($_POST['mov']) && !empty($_POST['mov_cat'])) {
             try {
-                # Check if category where to move posts exists
+                // Check if category where to move posts exists
                 $keys    = array_keys($_POST['mov']);
                 $cat_id  = (int) $keys[0];
                 $mov_cat = (int) $_POST['mov_cat'][$cat_id];
 
                 $mov_cat = $mov_cat ?: null;
                 $name    = '';
-                if ($mov_cat !== null) {
+                if (null !== $mov_cat) {
                     $category = dotclear()->blog()->categories()->getCategory($mov_cat);
                     if ($category->isEmpty()) {
                         throw new AdminException(__('Category where to move entries does not exist'));
@@ -73,7 +73,7 @@ class Categories extends Page
                     $name = $category->f('cat_title');
                     unset($category);
                 }
-                # Move posts
+                // Move posts
                 if ($mov_cat != $cat_id) {
                     dotclear()->blog()->posts()->changePostsCategory($cat_id, $mov_cat);
                 }
@@ -82,12 +82,12 @@ class Categories extends Page
                     Html::escapeHTML($name)
                 ));
                 dotclear()->adminurl()->redirect('admin.categories');
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Update order
+        // Update order
         if (!empty($_POST['save_order']) && !empty($_POST['categories_order'])) {
             $categories = json_decode($_POST['categories_order']);
 
@@ -101,20 +101,20 @@ class Categories extends Page
             dotclear()->adminurl()->redirect('admin.categories');
         }
 
-        # Reset order
+        // Reset order
         if (!empty($_POST['reset'])) {
             try {
                 dotclear()->blog()->categories()->resetCategoriesOrder();
                 dotclear()->notice()->addSuccessNotice(__('Categories order has been successfully reset.'));
                 dotclear()->adminurl()->redirect('admin.categories');
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
         $this->categories = dotclear()->blog()->categories()->getCategories();
 
-        # Page setup
+        // Page setup
         if (!dotclear()->user()->preference()->get('accessibility')->get('nodragdrop')
             && dotclear()->user()->check('categories', dotclear()->blog()->id)
             && 1 < $this->categories->count()) {
@@ -134,7 +134,7 @@ class Categories extends Page
             )
             ->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog()->name) => '',
-                __('Categories')                          => ''
+                __('Categories')                           => '',
             ])
         ;
 
@@ -155,16 +155,13 @@ class Categories extends Page
 
         $categories_combo = dotclear()->combo()->getCategoriesCombo($this->categories);
 
-        echo
-        '<p class="top-add"><a class="button add" href="' . dotclear()->adminurl()->get('admin.category') . '">' . __('New category') . '</a></p>';
+        echo '<p class="top-add"><a class="button add" href="' . dotclear()->adminurl()->get('admin.category') . '">' . __('New category') . '</a></p>';
 
-        echo
-            '<div class="col">';
+        echo '<div class="col">';
         if ($this->categories->isEmpty()) {
             echo '<p>' . __('No category so far.') . '</p>';
         } else {
-            echo
-            '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-categories">' .
+            echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-categories">' .
                 '<div id="categories">';
 
             $ref_level = $level = $this->categories->fInt('level') - 1;
@@ -181,8 +178,7 @@ class Categories extends Page
                     echo '</li><li ' . $attr . '>';
                 }
 
-                echo
-                '<p class="cat-title"><label class="classic" for="cat_' . $this->categories->f('cat_id') . '"><a href="' .
+                echo '<p class="cat-title"><label class="classic" for="cat_' . $this->categories->f('cat_id') . '"><a href="' .
                 dotclear()->adminurl()->get('admin.category', ['id' => $this->categories->f('cat_id')]) . '">' . Html::escapeHTML($this->categories->f('cat_title')) .
                 '</a></label> </p>' .
                 '<p class="cat-nb-posts">(<a href="' . dotclear()->adminurl()->get('admin.posts', ['cat_id' => $this->categories->f('cat_id')]) . '">' .
@@ -190,15 +186,14 @@ class Categories extends Page
                 ', ' . __('total:') . ' ' . $this->categories->f('nb_total') . ')</p>' .
                 '<p class="cat-url">' . __('URL:') . ' <code>' . Html::escapeHTML($this->categories->f('cat_url')) . '</code></p>';
 
-                echo
-                    '<p class="cat-buttons">';
+                echo '<p class="cat-buttons">';
                 if (0 < $this->categories->fInt('nb_total')) {
                     $fn_cat_id = $this->categories->f('cat_id');
                     // remove current category
-                    echo
-                    '<label for="mov_cat_' . $this->categories->f('cat_id') . '">' . __('Move entries to') . '</label> ' .
-                    Form::combo(['mov_cat[' . $this->categories->f('cat_id') . ']', 'mov_cat_' . $this->categories->f('cat_id')], array_filter($categories_combo,
-                        function ($cat) use ($fn_cat_id) {return $cat->value != ($fn_cat_id ?? '0');}
+                    echo '<label for="mov_cat_' . $this->categories->f('cat_id') . '">' . __('Move entries to') . '</label> ' .
+                    Form::combo(['mov_cat[' . $this->categories->f('cat_id') . ']', 'mov_cat_' . $this->categories->f('cat_id')], array_filter(
+                        $categories_combo,
+                        fn ($cat) => $cat->value != ($fn_cat_id ?? '0')
                     ), '', '') .
                     ' <input type="submit" class="reset" name="mov[' . $this->categories->f('cat_id') . ']" value="' . __('OK') . '"/>';
 
@@ -208,8 +203,7 @@ class Categories extends Page
                     $attr_disabled = '';
                     $input_class   = '';
                 }
-                echo
-                ' <input type="submit"' . $attr_disabled . ' class="' . $input_class . 'delete" name="delete[' . $this->categories->f('cat_id') . ']" value="' . __('Delete category') . '"/>' .
+                echo ' <input type="submit"' . $attr_disabled . ' class="' . $input_class . 'delete" name="delete[' . $this->categories->f('cat_id') . ']" value="' . __('Delete category') . '"/>' .
                     '</p>';
 
                 $level = $this->categories->fInt('level');
@@ -218,8 +212,7 @@ class Categories extends Page
             if (0 > $ref_level - $level) {
                 echo str_repeat('</li></ul>', -($ref_level - $level));
             }
-            echo
-                '</div>';
+            echo '</div>';
 
             echo '<div class="clear">';
 
@@ -227,8 +220,7 @@ class Categories extends Page
                 if (!dotclear()->user()->preference()->get('accessibility')->get('nodragdrop')) {
                     echo '<p class="form-note hidden-if-no-js">' . __('To rearrange categories order, move items by drag and drop, then click on “Save categories order” button.') . '</p>';
                 }
-                echo
-                '<p><span class="hidden-if-no-js">' .
+                echo '<p><span class="hidden-if-no-js">' .
                 '<input type="hidden" id="categories_order" name="categories_order" value=""/>' .
                 '<input type="submit" name="save_order" id="save-set-order" value="' . __('Save categories order') . '" />' .
                     '</span> ';
@@ -236,8 +228,7 @@ class Categories extends Page
                 echo '<p>';
             }
 
-            echo
-            '<input type="submit" class="reset" name="reset" value="' . __('Reorder all categories on the top level') . '" />' .
+            echo '<input type="submit" class="reset" name="reset" value="' . __('Reorder all categories on the top level') . '" />' .
             dotclear()->adminurl()->getHiddenFormFields('admin.categories', [], true) . '</p>' .
                 '</div></form>';
         }

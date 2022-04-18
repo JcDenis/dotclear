@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Handler\Comments
+ * @note Dotclear\Process\Admin\Handler\Comments
  * @brief Dotclear admin comments list page
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,14 +12,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
-use Dotclear\Process\Admin\Page\Page;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Action\Action\CommentAction;
 use Dotclear\Process\Admin\Inventory\Inventory\CommentInventory;
 use Dotclear\Process\Admin\Filter\Filter\CommentFilter;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
+use Exception;
 
-class Comments extends Page
+class Comments extends AbstractPage
 {
     protected function getPermissions(): string|null|false
     {
@@ -29,7 +29,7 @@ class Comments extends Page
 
     protected function getActionInstance(): ?CommentAction
     {
-        return new CommentAction(dotclear()->adminurl()->get('admin.comments'));;
+        return new CommentAction(dotclear()->adminurl()->get('admin.comments'));
     }
 
     protected function getFilterInstance(): ?CommentFilter
@@ -41,21 +41,21 @@ class Comments extends Page
     {
         $params = $this->filter->params();
 
-        # lexical sort
+        // lexical sort
         $sortby_lex = [
             // key in sorty_combo (see above) => field in SQL request
             'post_title'          => 'post_title',
             'comment_author'      => 'comment_author',
-            'comment_spam_filter' => 'comment_spam_filter'];
+            'comment_spam_filter' => 'comment_spam_filter', ];
 
-        # --BEHAVIOR-- adminCommentsSortbyLexCombo
-        dotclear()->behavior()->call('adminCommentsSortbyLexCombo', [& $sortby_lex]);
+        // --BEHAVIOR-- adminCommentsSortbyLexCombo
+        dotclear()->behavior()->call('adminCommentsSortbyLexCombo', [&$sortby_lex]);
 
         $params['order'] = (array_key_exists($this->filter->get('sortby'), $sortby_lex) ?
             dotclear()->con()->lexFields($sortby_lex[$this->filter->get('sortby')]) :
             $this->filter->get('sortby')) . ' ' . $this->filter->get('order');
 
-        # default filter ? do not display spam
+        // default filter ? do not display spam
         if (!$this->filter->show() && '' == $this->filter->get('status')) {
             $params['comment_status_not'] = -2;
         }
@@ -74,19 +74,19 @@ class Comments extends Page
                 dotclear()->blog()->comments()->delJunkComments();
                 $_SESSION['comments_del_spam'] = true;
                 dotclear()->adminurl()->redirect('admin.comments');
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Page setup
+        // Page setup
         $this
             ->setPageTitle(__('Comments and trackbacks'))
             ->setPageHelp('core_comments')
             ->setPageHead(dotclear()->resource()->load('_comments.js') . $this->filter->js())
             ->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog()->name) => '',
-                __('Comments and trackbacks')             => ''
+                __('Comments and trackbacks')              => '',
             ])
         ;
 
@@ -118,8 +118,7 @@ class Comments extends Page
 
         $spam_count = dotclear()->blog()->comments()->getComments(['comment_status' => -2], true)->fInt();
         if (0 < $spam_count) {
-            echo
-            '<form action="' . dotclear()->adminurl()->root() . '" method="post" class="fieldset">';
+            echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" class="fieldset">';
 
             if (!$this->filter->show() || -2 != $this->filter->get('status')) {
                 if (1 == $spam_count) {
@@ -131,12 +130,11 @@ class Comments extends Page
                 }
             }
 
-            echo
-            '<p>' .
+            echo '<p>' .
             dotclear()->adminurl()->getHiddenFormFields('admin.comments', [], true) .
             '<input name="delete_all_spam" class="delete" type="submit" value="' . __('Delete all spams') . '" /></p>';
 
-            # --BEHAVIOR-- adminCommentsSpamForm
+            // --BEHAVIOR-- adminCommentsSpamForm
             dotclear()->behavior()->call('adminCommentsSpamForm');
 
             echo '</form>';
@@ -144,8 +142,10 @@ class Comments extends Page
 
         $this->filter->display('admin.comments');
 
-        # Show comments
-        $this->inventory->display($this->filter->get('page'), $this->filter->get('nb'),
+        // Show comments
+        $this->inventory->display(
+            $this->filter->get('page'),
+            $this->filter->get('nb'),
             '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-comments">' .
 
             '%s' .
@@ -154,8 +154,11 @@ class Comments extends Page
             '<p class="col checkboxes-helpers"></p>' .
 
             '<p class="col right"><label for="action" class="classic">' . __('Selected comments action:') . '</label> ' .
-            Form::combo('action', $this->action->getCombo(),
-                ['default' => $default, 'extra_html' => 'title="' . __('Actions') . '"']) .
+            Form::combo(
+                'action',
+                $this->action->getCombo(),
+                ['default' => $default, 'extra_html' => 'title="' . __('Actions') . '"']
+            ) .
             '<input id="do-action" type="submit" value="' . __('ok') . '" /></p>' .
             dotclear()->adminurl()->getHiddenFormFields('admin.comments', $this->filter->values(true), true) .
             '</div>' .

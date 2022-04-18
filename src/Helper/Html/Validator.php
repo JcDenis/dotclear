@@ -1,14 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Html\Validator
- * @brief HTML Validator
- *
- * This class will perform an HTML validation upon WDG validator.
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
  * @package Dotclear
- * @subpackage Html
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -20,24 +12,35 @@ namespace Dotclear\Helper\Html;
 use Dotclear\Exception\HtmlException;
 use Dotclear\Helper\Network\NetHttp\NetHttp;
 
+/**
+ * HTML Validator.
+ *
+ * \Dotclear\Helper\Html\Validator
+ *
+ * This class will perform an HTML validation upon WDG validator.
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Helper Html
+ */
 class Validator extends NetHttp
 {
-    /** @var    string  $host   host */
-    protected $host       = 'validator.w3.org';
+    /** @var string host */
+    protected $host = 'validator.w3.org';
 
-    /** @var    string  $path   path */
-    protected $path       = '/nu/';
+    /** @var string path */
+    protected $path = '/nu/';
 
-    /** @var    bool  $use_ssl  use ssl */
-    protected $use_ssl    = true;
+    /** @var bool use ssl */
+    protected $use_ssl = true;
 
-    /** @var    string  $user_agent   user agent */
+    /** @var string user agent */
     protected $user_agent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.3a) Gecko/20021207';
 
-    /** @var    int     $timeout    timeout */
-    protected $timeout    = 2;
+    /** @var int timeout */
+    protected $timeout = 2;
 
-    /** @var    string  $html_error  html reprenstation of errors */
+    /** @var string html reprenstation of errors */
     protected $html_errors = '';
 
     /**
@@ -49,12 +52,11 @@ class Validator extends NetHttp
     }
 
     /**
-     * HTML Document
+     * HTML Document.
      *
      * Returns an HTML document from a <var>$fragment</var>.
      *
-     * @param   string  $fragment   HTML content
-     * @return  string
+     * @param string $fragment HTML content
      */
     public function getDocument(string $fragment): string
     {
@@ -71,14 +73,12 @@ class Validator extends NetHttp
     }
 
     /**
-     * HTML validation
+     * HTML validation.
      *
      * Performs HTML validation of <var>$html</var>.
      *
-     * @param   string  $html       HTML document
-     * @param   string  $charset    Document charset
-     * 
-     * @return  bool
+     * @param string $html    HTML document
+     * @param string $charset Document charset
      */
     public function perform(string $html, string $charset = 'UTF-8'): bool
     {
@@ -102,9 +102,9 @@ class Validator extends NetHttp
     }
 
     /**
-     * Validation Errors
+     * Validation Errors.
      *
-     * @return  string  HTML validation errors list
+     * @return string HTML validation errors list
      */
     public function getErrors(): string
     {
@@ -112,7 +112,7 @@ class Validator extends NetHttp
     }
 
     /**
-     * Static HTML validation
+     * Static HTML validation.
      *
      * Static validation method of an HTML fragment. Returns an array with the
      * following parameters:
@@ -120,14 +120,14 @@ class Validator extends NetHttp
      * - valid (bool)
      * - errors (string)
      *
-     * @param   string  $fragment   HTML content
-     * @param   string  $charset    Document charset
-     * 
-     * @return  array
+     * @param string $fragment HTML content
+     * @param string $charset  Document charset
+     *
+     * @return array
      */
     public static function validate($fragment, $charset = 'UTF-8')
     {
-        $o        = new self;
+        $o        = new self();
         $fragment = $o->getDocument($fragment);
 
         if ($o->perform($fragment, $charset)) {

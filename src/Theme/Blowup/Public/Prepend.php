@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Theme\Blowup\Public\Prepend
+ * @note Dotclear\Theme\Blowup\Public\Prepend
  * @brief Dotclear Theme class
  *
- * @package Dotclear
- * @subpackage ThemeBlowup
+ * @ingroup  ThemeBlowup
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -27,7 +26,7 @@ class Prepend extends AbstractPrepend
             return;
         }
 
-        dotclear()->behavior()->add('publicHeadContent', function(): void {
+        dotclear()->behavior()->add('publicHeadContent', function (): void {
             $url = (new BlowupConfig())->publicCssUrlHelper();
             if ($url) {
                 echo '<link rel="stylesheet" href="' . $url . '" type="text/css" />';

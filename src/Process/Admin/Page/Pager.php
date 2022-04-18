@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Page\Pager
+ * @note Dotclear\Process\Admin\Page\Pager
  * @brief Dotclear admin menu helper
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -24,12 +23,12 @@ class Pager
     protected $index_group_start;
     protected $index_group_end;
 
-    protected $page_url = null;
+    protected $page_url;
 
     public $index_start;
     public $index_end;
 
-    public $base_url = null;
+    public $base_url;
 
     public $var_page = 'page';
 
@@ -44,12 +43,12 @@ class Pager
     protected $form_hidden;
 
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param   int     $env                    Current page index
-     * @param   int     $nb_elements            Total number of elements
-     * @param   int     $nb_per_page            Number of items per page
-     * @param   int     $nb_pages_per_group     Number of pages per group
+     * @param int $env                Current page index
+     * @param int $nb_elements        Total number of elements
+     * @param int $nb_per_page        Number of items per page
+     * @param int $nb_pages_per_group Number of pages per group
      */
     public function __construct(protected int $env, protected int $nb_elements, protected int $nb_per_page = 10, protected int $nb_pages_per_group = 10)
     {
@@ -58,33 +57,33 @@ class Pager
         $this->nb_per_page        = abs($this->nb_per_page);
         $this->nb_pages_per_group = abs($this->nb_pages_per_group);
 
-        # Pages count
+        // Pages count
         $this->nb_pages = ceil($this->nb_elements / $this->nb_per_page);
 
-        # Fix env value
-        if ($this->env > $this->nb_pages || $this->env < 1) {
+        // Fix env value
+        if ($this->env > $this->nb_pages || 1 > $this->env) {
             $this->env = 1;
         }
 
-        # Groups count
+        // Groups count
         $this->nb_groups = (int) ceil($this->nb_pages / $this->nb_pages_per_group);
 
-        # Page first element index
+        // Page first element index
         $this->index_start = ($this->env - 1) * $this->nb_per_page;
 
-        # Page last element index
+        // Page last element index
         $this->index_end = $this->index_start + $this->nb_per_page - 1;
         if ($this->index_end >= $this->nb_elements) {
             $this->index_end = $this->nb_elements - 1;
         }
 
-        # Current group
+        // Current group
         $this->env_group = (int) ceil($this->env / $this->nb_pages_per_group);
 
-        # Group first page index
+        // Group first page index
         $this->index_group_start = ($this->env_group - 1) * $this->nb_pages_per_group + 1;
 
-        # Group last page index
+        // Group last page index
         $this->index_group_end = $this->index_group_start + $this->nb_pages_per_group - 1;
         if ($this->index_group_end > $this->nb_pages) {
             $this->index_group_end = $this->nb_pages;
@@ -92,16 +91,16 @@ class Pager
     }
 
     /**
-     * Get the link
+     * Get the link.
      *
-     * @param   string  $li_class           The li class
-     * @param   string  $href               The href
-     * @param   string  $img_src            The image source
-     * @param   string  $img_src_nolink     The image source nolink
-     * @param   string  $img_alt            The image alternate
-     * @param   bool    $enable_link        The enable link
+     * @param string $li_class       The li class
+     * @param string $href           The href
+     * @param string $img_src        The image source
+     * @param string $img_src_nolink The image source nolink
+     * @param string $img_alt        The image alternate
+     * @param bool   $enable_link    The enable link
      *
-     * @return  string                      The link
+     * @return string The link
      */
     protected function getLink(string $li_class, string $href, string $img_src, string $img_src_nolink, string $img_alt, bool $enable_link): string
     {
@@ -120,7 +119,7 @@ class Pager
      */
     public function setURL(): void
     {
-        if ($this->base_url !== null) {
+        if (null !== $this->base_url) {
             $this->page_url = $this->base_url;
 
             return;
@@ -128,16 +127,16 @@ class Pager
 
         $url = (string) $_SERVER['REQUEST_URI'];
 
-        # Removing session information
+        // Removing session information
         if (session_id()) {
             $url = preg_replace('/' . preg_quote(session_name() . '=' . session_id(), '/') . '([&]?)/', '', $url);
             $url = preg_replace('/&$/', '', $url);
         }
 
-        # Escape page_url for sprintf
+        // Escape page_url for sprintf
         $url = preg_replace('/%/', '%%', $url);
 
-        # Changing page ref
+        // Changing page ref
         if (preg_match('/[?&]' . $this->var_page . '=[0-9]+/', $url)) {
             $url = preg_replace('/([?&]' . $this->var_page . '=)[0-9]+/', '$1%1$d', $url);
         } elseif (preg_match('/[?]/', $url)) {
@@ -154,7 +153,7 @@ class Pager
         } else {
             $args = [];
         }
-        # Removing session information
+        // Removing session information
         if (session_id()) {
             if (isset($args[session_name()])) {
                 unset($args[session_name()]);
@@ -170,7 +169,7 @@ class Pager
         $this->form_hidden = '';
         foreach ($args as $k => $v) {
             // Check parameter key (will prevent some forms of XSS)
-            if ($k === preg_replace('`[^A-Za-z0-9_-]`', '', $k)) {
+            if (preg_replace('`[^A-Za-z0-9_-]`', '', $k) === $k) {
                 if (is_array($v)) {
                     foreach ($v as $k2 => $v2) {
                         $this->form_hidden .= Form::hidden([$k . '[]'], Html::escapeHTML($v2));
@@ -184,9 +183,9 @@ class Pager
     }
 
     /**
-     * Pager Links
+     * Pager Links.
      *
-     * @return  string  The pager link
+     * @return string The pager link
      */
     public function getLinks(): string
     {
@@ -197,7 +196,7 @@ class Pager
             'images/pagination/first.svg',
             'images/pagination/no-first.svg',
             __('First page'),
-            ($this->env > 1)
+            (1 < $this->env)
         );
         $htmlPrev = $this->getLink(
             'prev',
@@ -205,7 +204,7 @@ class Pager
             'images/pagination/previous.svg',
             'images/pagination/no-previous.svg',
             __('Previous page'),
-            ($this->env > 1)
+            (1 < $this->env)
         );
         $htmlNext = $this->getLink(
             'next',
@@ -227,7 +226,7 @@ class Pager
         sprintf(__('Page %s / %s'), $this->env, $this->nb_pages) .
             '</strong></li>';
 
-        $htmlDirect = ($this->nb_pages > 1 ?
+        $htmlDirect = (1 < $this->nb_pages ?
             sprintf(
                 '<li class="direct-access">' . __('Direct access page %s'),
                 Form::number([$this->var_page], 1, (int) $this->nb_pages)
@@ -248,7 +247,7 @@ class Pager
             '</form>'
         ;
 
-        return $this->nb_elements > 0 ? $res : '';
+        return 0 < $this->nb_elements ? $res : '';
     }
 
     public function debug(): string

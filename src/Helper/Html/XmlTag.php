@@ -1,12 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Html\XmlTag
- * @brief XML tree
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
  * @package Dotclear
- * @subpackage Html
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,32 +9,44 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html;
 
+/**
+ * XML tree.
+ *
+ * \Dotclear\Helper\Html\XmlTag
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Helper Html
+ */
 class XmlTag
 {
-    /** @var    array   $_attr  Attributes */
-    private $_attr  = [];
+    /** @var array Attributes */
+    private $_attr = [];
 
-    /** @var    array   $_nodes     Nodes */
+    /** @var array Nodes */
     private $_nodes = [];
 
     /**
-     * Constructor
+     * Constructor.
      *
      * Creates the root XML tag named <var>$name</var>. If content is given,
      * it will be appended to root tag with {@link insertNode()}
      *
-     * @param   string|null     $_name       Tag name
-     * @param   mixed           $content    Tag content
+     * @param null|string $_name   Tag name
+     * @param mixed       $content Tag content
      */
     public function __construct(private string|null $_name = null, mixed $content = null)
     {
-        if ($content !== null) {
+        if (null !== $content) {
             $this->insertNode($content);
         }
     }
 
     /**
      * @see insertAttr()
+     *
+     * @param mixed $name
+     * @param mixed $value
      */
     public function __set($name, $value)
     {
@@ -48,12 +54,12 @@ class XmlTag
     }
 
     /**
-     * Add a tag
+     * Add a tag.
      *
      * This magic __call method appends a tag to XML tree.
      *
-     * @param   string  $name   Tag name
-     * @param   array   $args   Function arguments, the first one would be tag content
+     * @param string $name Tag name
+     * @param array  $args Function arguments, the first one would be tag content
      */
     public function __call($name, $args)
     {
@@ -69,11 +75,11 @@ class XmlTag
     }
 
     /**
-     * Add CDTA
+     * Add CDTA.
      *
      * Appends CDATA to current tag.
      *
-     * @param   string  $value  Tag CDATA content
+     * @param string $value Tag CDATA content
      */
     public function CDATA(string $value): void
     {
@@ -81,12 +87,12 @@ class XmlTag
     }
 
     /**
-     * Add Attribute
+     * Add Attribute.
      *
      * This method adds an attribute to current tag.
      *
-     * @param   string  $name   Attribute name
-     * @param   mixed   $value  Attribute value
+     * @param string $name  Attribute name
+     * @param mixed  $value Attribute value
      */
     public function insertAttr(string $name, mixed $value): void
     {
@@ -94,12 +100,12 @@ class XmlTag
     }
 
     /**
-     * Insert Node
+     * Insert Node.
      *
      * This method adds a new XML node. Node could be a instance of xmlTag, an
      * array of valid values, a boolean or a string.
      *
-     * @param   XmlTag|array|bool|string|int|null   $node   Node value
+     * @param null|array|bool|int|string|XmlTag $node Node value
      */
     public function insertNode(XmlTag|array|bool|int|string $node = null): void
     {
@@ -119,14 +125,12 @@ class XmlTag
     }
 
     /**
-     * XML Result
+     * XML Result.
      *
      * Returns a string with XML content.
      *
-     * @param   bool    $prolog     Append prolog to result
-     * @param   string  $encoding   Result charset
-     * 
-     * @return  string
+     * @param bool   $prolog   Append prolog to result
+     * @param string $encoding Result charset
      */
     public function toXML(bool $prolog = false, string $encoding = 'UTF-8'): string
     {

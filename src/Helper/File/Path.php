@@ -1,12 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\File\Path
- * @brief Basic path handling tool
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
  * @package Dotclear
- * @subpackage Utils
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,6 +9,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\File;
 
+/**
+ * Basic path handling tool.
+ *
+ * \Dotclear\Helper\File\Path
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Helper File
+ */
 class Path
 {
     /**
@@ -23,33 +26,33 @@ class Path
      * If parameter $strict is true, file should exist. Returns false if
      * file does not exist.
      *
-     * @param   string          $p          The filename
-     * @param   boolean         $strict     File should exists
+     * @param string $p      The filename
+     * @param bool   $strict File should exists
      *
-     * @return  string|false                The real path or false
+     * @return false|string The real path or false
      */
     public static function real(string $p, bool $strict = true): string|false
     {
         $os = (DIRECTORY_SEPARATOR == '\\') ? 'win' : 'nix';
 
-        # Absolute path?
-        if ($os == 'win') {
+        // Absolute path?
+        if ('win' == $os) {
             $_abs = preg_match('/^\w+:/', $p);
         } else {
             $_abs = substr($p, 0, 1) == '/';
         }
 
-        # Standard path form
-        if ($os == 'win') {
+        // Standard path form
+        if ('win' == $os) {
             $p = str_replace('\\', '/', $p);
         }
 
-        # Adding root if !$_abs
+        // Adding root if !$_abs
         if (!$_abs) {
             $p = dirname($_SERVER['SCRIPT_FILENAME']) . '/' . $p;
         }
 
-        # Clean up
+        // Clean up
         $p = preg_replace('|/+|', '/', $p);
 
         if (strlen($p) > 1) {
@@ -57,7 +60,7 @@ class Path
         }
 
         $_start = '';
-        if ($os == 'win') {
+        if ('win' == $os) {
             [$_start, $p] = explode(':', $p);
             $_start .= ':/';
         } else {
@@ -65,16 +68,16 @@ class Path
         }
         $p = substr($p, 1);
 
-        # Go through
+        // Go through
         $P   = explode('/', $p);
         $res = [];
 
-        for ($i = 0; $i < count($P); $i++) {
-            if ($P[$i] == '.') {
+        for ($i = 0; count($P) > $i; ++$i) {
+            if ('.' == $P[$i]) {
                 continue;
             }
 
-            if ($P[$i] == '..') {
+            if ('..' == $P[$i]) {
                 if (count($res) > 0) {
                     array_pop($res);
                 }
@@ -93,23 +96,22 @@ class Path
     }
 
     /**
-     * Returns a clean file path
+     * Returns a clean file path.
      *
-     * @param   string|null     $p  The file path
+     * @param null|string $p The file path
      *
-     * @return  string              The cleaned path
+     * @return string The cleaned path
      */
     public static function clean(?string $p): string
     {
         $p = preg_replace(['|^\.\.|', '|/\.\.|', '|\.\.$|'], '', (string) $p);   // Remove double point (upper directory)
         $p = preg_replace('|/{2,}|', '/', (string) $p);                          // Replace double slashes by one
-        $p = preg_replace('|/$|', '', (string) $p);                              // Remove trailing slash
 
-        return $p;
+        return preg_replace('|/$|', '', (string) $p);                              // Remove trailing slash
     }
 
     /**
-     * Path information
+     * Path information.
      *
      * Returns an array of information:
      * - dirname
@@ -117,9 +119,9 @@ class Path
      * - extension
      * - base (basename without extension)
      *
-     * @param   string  $f  The file path
+     * @param string $f The file path
      *
-     * @return  array       The file stat
+     * @return array The file stat
      */
     public static function info(string $f): array
     {
@@ -135,14 +137,14 @@ class Path
     }
 
     /**
-     * Full path with root
+     * Full path with root.
      *
      * Returns a path with root concatenation unless path begins with a slash
      *
-     * @param   string  $p      The file path
-     * @param   string  $root   The root path
+     * @param string $p    The file path
+     * @param string $root The root path
      *
-     * @return  string          The concatened path
+     * @return string The concatened path
      */
     public static function fullFromRoot(string $p, string $root): string
     {
@@ -154,10 +156,11 @@ class Path
     }
 
     /**
-     * Implode path chunks from Dotclear root directory
+     * Implode path chunks from Dotclear root directory.
      *
-     * @param   string  $args   The path chunks
-     * @return  string          The cleaned joined path
+     * @param string $args The path chunks
+     *
+     * @return string The cleaned joined path
      */
     public static function implodeRoot(string ...$args): string
     {
@@ -169,10 +172,11 @@ class Path
     }
 
     /**
-     * Implode path chunks
+     * Implode path chunks.
      *
-     * @param   string  $args   The path chunks
-     * @return  string          The cleaned joined path
+     * @param string $args The path chunks
+     *
+     * @return string The cleaned joined path
      */
     public static function implode(string ...$args): string
     {

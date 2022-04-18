@@ -1,12 +1,11 @@
 <?php
 /**
- * @class Dotclear\Database\Driver\Sqlite\Schema
+ * @note Dotclear\Database\Driver\Sqlite\Schema
  * @brief Sqlite schema driver
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
- * @package Dotclear
- * @subpackage Database
+ * @ingroup  Database
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -32,16 +31,19 @@ class Schema extends AbstractSchema
         switch ($type) {
             case 'float':
                 return 'real';
+
             case 'double':
                 return 'float';
+
             case 'timestamp':
-                # DATETIME real type is TIMESTAMP
-                if ($default == "'1970-01-01 00:00:00'") {
-                    # Bad hack
+                // DATETIME real type is TIMESTAMP
+                if ("'1970-01-01 00:00:00'" == $default) {
+                    // Bad hack
                     $default = 'now()';
                 }
 
                 return 'timestamp';
+
             case 'integer':
             case 'mediumint':
             case 'bigint':
@@ -49,6 +51,7 @@ class Schema extends AbstractSchema
             case 'smallint':
             case 'numeric':
                 return 'integer';
+
             case 'tinytext':
             case 'longtext':
                 return 'text';
@@ -66,15 +69,18 @@ class Schema extends AbstractSchema
             case 'smallint':
             case 'bigint':
                 return 'integer';
+
             case 'real':
             case 'float:':
                 return 'real';
+
             case 'date':
             case 'time':
                 return 'timestamp';
+
             case 'timestamp':
-                if ($default == 'now()') {
-                    # SQLite does not support now() default value...
+                if ('now()' == $default) {
+                    // SQLite does not support now() default value...
                     $default = "'1970-01-01 00:00:00'";
                 }
 
@@ -132,7 +138,7 @@ class Schema extends AbstractSchema
                 'type'    => $type,
                 'len'     => $len,
                 'null'    => $null,
-                'default' => $default
+                'default' => $default,
             ];
         }
 
@@ -144,7 +150,7 @@ class Schema extends AbstractSchema
         $t   = [];
         $res = [];
 
-        # Get primary keys first
+        // Get primary keys first
         $sql = "SELECT sql FROM sqlite_master WHERE type='table' AND name='" . $this->con->escape($table) . "'";
         $rs  = $this->con->select($sql);
 
@@ -152,30 +158,30 @@ class Schema extends AbstractSchema
             return [];
         }
 
-        # Get primary keys
+        // Get primary keys
         $n = preg_match_all('/^\s*CONSTRAINT\s+([^,]+?)\s+PRIMARY\s+KEY\s+\((.+?)\)/msi', $rs->f('sql'), $match);
-        if ($n > 0) {
+        if (0 < $n) {
             foreach ($match[1] as $i => $name) {
                 $cols  = preg_split('/\s*,\s*/', $match[2][$i]);
                 $res[] = [
                     'name'    => $name,
                     'primary' => true,
                     'unique'  => false,
-                    'cols'    => $cols
+                    'cols'    => $cols,
                 ];
             }
         }
 
-        # Get unique keys
+        // Get unique keys
         $n = preg_match_all('/^\s*CONSTRAINT\s+([^,]+?)\s+UNIQUE\s+\((.+?)\)/msi', $rs->f('sql'), $match);
-        if ($n > 0) {
+        if (0 < $n) {
             foreach ($match[1] as $i => $name) {
                 $cols  = preg_split('/\s*,\s*/', $match[2][$i]);
                 $res[] = [
                     'name'    => $name,
                     'primary' => false,
                     'unique'  => true,
-                    'cols'    => $cols
+                    'cols'    => $cols,
                 ];
             }
         }
@@ -203,7 +209,7 @@ class Schema extends AbstractSchema
             $res[] = [
                 'name' => $rs->f('name'),
                 'type' => 'btree',
-                'cols' => $cols
+                'cols' => $cols,
             ];
         }
 
@@ -215,7 +221,7 @@ class Schema extends AbstractSchema
         $sql = 'SELECT * FROM sqlite_master WHERE type=\'trigger\' AND tbl_name = \'%1$s\' AND name LIKE \'%2$s_%%\' ';
         $res = [];
 
-        # Find constraints on table
+        // Find constraints on table
         $bir = $this->con->select(sprintf($sql, $this->con->escape($table), 'bir'));
         $bur = $this->con->select(sprintf($sql, $this->con->escape($table), 'bur'));
 
@@ -224,7 +230,7 @@ class Schema extends AbstractSchema
         }
 
         while ($bir->fetch()) {
-            # Find child column and parent table and column
+            // Find child column and parent table and column
             if (!preg_match('/FROM\s+(.+?)\s+WHERE\s+(.+?)\s+=\s+NEW\.(.+?)\s*?\) IS\s+NULL/msi', $bir->f('sql'), $m)) {
                 continue;
             }
@@ -233,7 +239,7 @@ class Schema extends AbstractSchema
             $p_table = $m[1];
             $p_col   = $m[2];
 
-            # Find on update
+            // Find on update
             $on_update = 'restrict';
             $aur       = $this->con->select(sprintf($sql, $this->con->escape($p_table), 'aur'));
             while ($aur->fetch()) {
@@ -256,7 +262,7 @@ class Schema extends AbstractSchema
                 }
             }
 
-            # Find on delete
+            // Find on delete
             $on_delete = 'restrict';
             $bdr       = $this->con->select(sprintf($sql, $this->con->escape($p_table), 'bdr'));
             while ($bdr->fetch()) {
@@ -284,7 +290,7 @@ class Schema extends AbstractSchema
                 'p_table' => $p_table,
                 'p_cols'  => [$p_col],
                 'update'  => $on_update,
-                'delete'  => $on_delete
+                'delete'  => $on_delete,
             ];
         }
 
@@ -302,12 +308,12 @@ class Schema extends AbstractSchema
             $null    = $f['null'];
 
             $type = $this->udt2dbt($type, $len, $default);
-            $len  = $len > 0 ? '(' . $len . ')' : '';
+            $len  = 0 < $len ? '(' . $len . ')' : '';
             $null = $null ? 'NULL' : 'NOT NULL';
 
-            if ($default === null) {
+            if (null === $default) {
                 $default = 'DEFAULT NULL';
-            } elseif ($default !== false) {
+            } elseif (false !== $default) {
                 $default = 'DEFAULT ' . $default . ' ';
             } else {
                 $default = '';
@@ -324,15 +330,15 @@ class Schema extends AbstractSchema
     {
         $type = $this->udt2dbt($type, $len, $default);
 
-        if ($default === null) {
+        if (null === $default) {
             $default = 'DEFAULT NULL';
-        } elseif ($default !== false) {
+        } elseif (false !== $default) {
             $default = 'DEFAULT ' . $default . ' ';
         } else {
             $default = '';
         }
 
-        $sql = 'ALTER TABLE ' . $this->con->escapeSystem($table) . ' ADD COLUMN ' . $this->con->escapeSystem($name) . ' ' . $type . ($len > 0 ? '(' . $len . ')' : '') . ' ' . ($null ? 'NULL' : 'NOT NULL') . ' ' . $default;
+        $sql = 'ALTER TABLE ' . $this->con->escapeSystem($table) . ' ADD COLUMN ' . $this->con->escapeSystem($name) . ' ' . $type . (0 < $len ? '(' . $len . ')' : '') . ' ' . ($null ? 'NULL' : 'NOT NULL') . ' ' . $default;
 
         $this->con->execute($sql);
     }
@@ -370,7 +376,7 @@ class Schema extends AbstractSchema
 
         $cnull = $this->table_hist[$c_table][$c_col]['null'];
 
-        # Create constraint
+        // Create constraint
         $this->x_stack[] = 'CREATE TRIGGER bir_' . $name . "\n" .
             'BEFORE INSERT ON ' . $c_table . "\n" .
             "FOR EACH ROW BEGIN\n" .
@@ -380,7 +386,7 @@ class Schema extends AbstractSchema
             '(SELECT ' . $p_col . ' FROM ' . $p_table . ' WHERE ' . $p_col . ' = NEW.' . $c_col . ") IS NULL;\n" .
             "END;\n";
 
-        # Update constraint
+        // Update constraint
         $this->x_stack[] = 'CREATE TRIGGER bur_' . $name . "\n" .
             'BEFORE UPDATE ON ' . $c_table . "\n" .
             "FOR EACH ROW BEGIN\n" .
@@ -390,20 +396,20 @@ class Schema extends AbstractSchema
             '(SELECT ' . $p_col . ' FROM ' . $p_table . ' WHERE ' . $p_col . ' = NEW.' . $c_col . ") IS NULL;\n" .
             "END;\n";
 
-        # ON UPDATE
-        if ($update == 'cascade') {
+        // ON UPDATE
+        if ('cascade' == $update) {
             $this->x_stack[] = 'CREATE TRIGGER aur_' . $name . "\n" .
                 'AFTER UPDATE ON ' . $p_table . "\n" .
                 "FOR EACH ROW BEGIN\n" .
                 '  UPDATE ' . $c_table . ' SET ' . $c_col . ' = NEW.' . $p_col . ' WHERE ' . $c_col . ' = OLD.' . $p_col . ";\n" .
                 "END;\n";
-        } elseif ($update == 'set null') {
+        } elseif ('set null' == $update) {
             $this->x_stack[] = 'CREATE TRIGGER aur_' . $name . "\n" .
                 'AFTER UPDATE ON ' . $p_table . "\n" .
                 "FOR EACH ROW BEGIN\n" .
                 '  UPDATE ' . $c_table . ' SET ' . $c_col . ' = NULL WHERE ' . $c_col . ' = OLD.' . $p_col . ";\n" .
                 "END;\n";
-        } else { # default on restrict
+        } else { // default on restrict
             $this->x_stack[] = 'CREATE TRIGGER burp_' . $name . "\n" .
                 'BEFORE UPDATE ON ' . $p_table . "\n" .
                 "FOR EACH ROW BEGIN\n" .
@@ -412,14 +418,14 @@ class Schema extends AbstractSchema
                 "END;\n";
         }
 
-        # ON DELETE
-        if ($delete == 'cascade') {
+        // ON DELETE
+        if ('cascade' == $delete) {
             $this->x_stack[] = 'CREATE TRIGGER bdr_' . $name . "\n" .
                 'BEFORE DELETE ON ' . $p_table . "\n" .
                 "FOR EACH ROW BEGIN\n" .
                 '  DELETE FROM ' . $c_table . ' WHERE ' . $c_col . ' = OLD.' . $p_col . ";\n" .
                 "END;\n";
-        } elseif ($delete == 'set null') {
+        } elseif ('set null' == $delete) {
             $this->x_stack[] = 'CREATE TRIGGER bdr_' . $name . "\n" .
                 'BEFORE DELETE ON ' . $p_table . "\n" .
                 "FOR EACH ROW BEGIN\n" .
@@ -438,7 +444,7 @@ class Schema extends AbstractSchema
     public function db_alter_field(string $table, string $name, string $type, ?int $len, bool $null, $default): void
     {
         $type = $this->udt2dbt($type, $len, $default);
-        if ($type != 'integer' && $type != 'text' && $type != 'timestamp') {
+        if ('integer' != $type && 'text' != $type && 'timestamp' != $type) {
             throw new DatabaseException('SQLite fields cannot be changed.');
         }
     }

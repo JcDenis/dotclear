@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Filter\Filter\PostFilter
+ * @note Dotclear\Process\Admin\Filter\Filter\PostFilter
  * @brief class for admin post list filters form
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @since 2.20
  *
@@ -17,9 +16,9 @@ namespace Dotclear\Process\Admin\Filter\Filter;
 
 use ArrayObject;
 use Dotclear\Process\Admin\Filter\Filter;
-use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Lexical;
+use Exception;
 
 class PostFilter extends Filter
 {
@@ -46,10 +45,10 @@ class PostFilter extends Filter
             $this->getPostMonthFilter(),
             $this->getPostLangFilter(),
             $this->getPostCommentFilter(),
-            $this->getPostTrackbackFilter()
+            $this->getPostTrackbackFilter(),
         ]);
 
-        # --BEHAVIOR-- adminPostFilter
+        // --BEHAVIOR-- adminPostFilter
         dotclear()->behavior()->call('adminPostFilter', $filters);
 
         $filters = $filters->getArrayCopy();
@@ -58,7 +57,7 @@ class PostFilter extends Filter
     }
 
     /**
-     * Posts users select
+     * Posts users select.
      */
     public function getPostUserFilter(): ?DefaultFilter
     {
@@ -69,7 +68,7 @@ class PostFilter extends Filter
             if ($users->isEmpty()) {
                 return null;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             dotclear()->error()->add($e->getMessage());
 
             return null;
@@ -85,11 +84,12 @@ class PostFilter extends Filter
                 ['-' => ''],
                 $combo
             ))
-            ->prime(true);
+            ->prime(true)
+        ;
     }
 
     /**
-     * Posts categories select
+     * Posts categories select.
      */
     public function getPostCategoriesFilter(): ?DefaultFilter
     {
@@ -100,7 +100,7 @@ class PostFilter extends Filter
             if ($categories->isEmpty()) {
                 return null;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             dotclear()->error()->add($e->getMessage());
 
             return null;
@@ -108,7 +108,7 @@ class PostFilter extends Filter
 
         $combo = [
             '-'            => '',
-            __('(No cat)') => 'NULL'
+            __('(No cat)') => 'NULL',
         ];
         while ($categories->fetch()) {
             $combo[
@@ -121,11 +121,12 @@ class PostFilter extends Filter
             ->param()
             ->title(__('Category:'))
             ->options($combo)
-            ->prime(true);
+            ->prime(true)
+        ;
     }
 
     /**
-     * Posts status select
+     * Posts status select.
      */
     public function getPostStatusFilter(): DefaultFilter
     {
@@ -136,11 +137,12 @@ class PostFilter extends Filter
                 ['-' => ''],
                 dotclear()->combo()->getPostStatusesCombo()
             ))
-            ->prime(true);
+            ->prime(true)
+        ;
     }
 
     /**
-     * Posts format select
+     * Posts format select.
      */
     public function getPostFormatFilter(): DefaultFilter
     {
@@ -159,7 +161,8 @@ class PostFilter extends Filter
                 ['-' => ''],
                 $available_formats
             ))
-            ->prime(true);
+            ->prime(true)
+        ;
     }
 
     public function getPostFormatParam($f): string
@@ -168,7 +171,7 @@ class PostFilter extends Filter
     }
 
     /**
-     * Posts password state select
+     * Posts password state select.
      */
     public function getPostPasswordFilter(): DefaultFilter
     {
@@ -178,9 +181,10 @@ class PostFilter extends Filter
             ->options([
                 '-'                    => '',
                 __('With password')    => '1',
-                __('Without password') => '0'
+                __('Without password') => '0',
             ])
-            ->prime(true);
+            ->prime(true)
+        ;
     }
 
     public function getPostPasswordParam($f): string
@@ -189,7 +193,7 @@ class PostFilter extends Filter
     }
 
     /**
-     * Posts selected state select
+     * Posts selected state select.
      */
     public function getPostSelectedFilter(): DefaultFilter
     {
@@ -199,12 +203,13 @@ class PostFilter extends Filter
             ->options([
                 '-'                => '',
                 __('Selected')     => '1',
-                __('Not selected') => '0'
-            ]);
+                __('Not selected') => '0',
+            ])
+        ;
     }
 
     /**
-     * Posts attachment state select
+     * Posts attachment state select.
      */
     public function getPostAttachmentFilter(): DefaultFilter
     {
@@ -215,12 +220,13 @@ class PostFilter extends Filter
             ->options([
                 '-'                       => '',
                 __('With attachments')    => '1',
-                __('Without attachments') => '0'
-            ]);
+                __('Without attachments') => '0',
+            ])
+        ;
     }
 
     /**
-     * Posts by month select
+     * Posts by month select.
      */
     public function getPostMonthFilter(): ?DefaultFilter
     {
@@ -229,12 +235,12 @@ class PostFilter extends Filter
         try {
             $dates = dotclear()->blog()->posts()->getDates([
                 'type'      => 'month',
-                'post_type' => $this->post_type
+                'post_type' => $this->post_type,
             ]);
             if ($dates->isEmpty()) {
                 return null;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             dotclear()->error()->add($e->getMessage());
 
             return null;
@@ -247,7 +253,8 @@ class PostFilter extends Filter
             ->options(array_merge(
                 ['-' => ''],
                 dotclear()->combo()->getDatesCombo($dates)
-            ));
+            ))
+        ;
     }
 
     public function getPostMonthParam($f): string
@@ -261,7 +268,7 @@ class PostFilter extends Filter
     }
 
     /**
-     * Posts lang select
+     * Posts lang select.
      */
     public function getPostLangFilter(): ?DefaultFilter
     {
@@ -272,7 +279,7 @@ class PostFilter extends Filter
             if ($langs->isEmpty()) {
                 return null;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             dotclear()->error()->add($e->getMessage());
 
             return null;
@@ -284,11 +291,12 @@ class PostFilter extends Filter
             ->options(array_merge(
                 ['-' => ''],
                 dotclear()->combo()->getLangsCombo($langs, false)
-            ));
+            ))
+        ;
     }
 
     /**
-     * Posts comments state select
+     * Posts comments state select.
      */
     public function getPostCommentFilter(): DefaultFilter
     {
@@ -298,8 +306,9 @@ class PostFilter extends Filter
             ->options([
                 '-'          => '',
                 __('Opened') => '1',
-                __('Closed') => '0'
-            ]);
+                __('Closed') => '0',
+            ])
+        ;
     }
 
     public function getPostCommentParam($f): string
@@ -308,7 +317,7 @@ class PostFilter extends Filter
     }
 
     /**
-     * Posts trackbacks state select
+     * Posts trackbacks state select.
      */
     public function getPostTrackbackFilter(): DefaultFilter
     {
@@ -318,8 +327,9 @@ class PostFilter extends Filter
             ->options([
                 '-'          => '',
                 __('Opened') => '1',
-                __('Closed') => '0'
-            ]);
+                __('Closed') => '0',
+            ])
+        ;
     }
 
     public function getPostTrackbackParam($f): string

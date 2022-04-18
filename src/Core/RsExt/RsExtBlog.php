@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Core\RsExt\RsExtBlog
+ * @note Dotclear\Core\RsExt\RsExtBlog
  * @brief Dotclear blogs record helpers.
  *
- * @package Dotclear
- * @subpackage Core
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,8 +12,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\RsExt;
 
-use Dotclear\Core\RsExt\RsExtend;
-use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Dt;
 
 class RsExtBlog extends RsExtend
@@ -22,7 +19,7 @@ class RsExtBlog extends RsExtend
     /**
      * Gets the blog update date timestamp.
      *
-     * @return  int     The ts.
+     * @return int the ts
      */
     public function getTS(): int
     {
@@ -32,9 +29,9 @@ class RsExtBlog extends RsExtend
     /**
      * Returns blog update date formating according to the ISO 8601 standard.
      *
-     * @param   string  $tz     The timezone
+     * @param string $tz The timezone
      *
-     * @return  string          The iso 8601 date.
+     * @return string the iso 8601 date
      */
     public function getISO8601Date(string $tz = ''): string
     {
@@ -44,9 +41,9 @@ class RsExtBlog extends RsExtend
     /**
      * Returns blog update date formating according to RFC 822.
      *
-     * @param   string  $tz     The timezone
+     * @param string $tz The timezone
      *
-     * @return  string          The rfc 822 date.
+     * @return string the rfc 822 date
      */
     public function getRFC822Date(string $tz = ''): string
     {
@@ -57,9 +54,9 @@ class RsExtBlog extends RsExtend
      * Returns blog update date with <var>$format</var> as formatting pattern. If format
      * is empty, uses <var>date_format</var> blog setting.
      *
-     * @param   string  $format     The date format pattern
+     * @param string $format The date format pattern
      *
-     * @return  string              The date.
+     * @return string the date
      */
     public function getDate(string $format = ''): string
     {
@@ -70,9 +67,9 @@ class RsExtBlog extends RsExtend
      * Returns blog update time with <var>$format</var> as formatting pattern. If format
      * is empty, uses <var>time_format</var> blog setting.
      *
-     * @param   string  $format     The time format pattern
+     * @param string $format The time format pattern
      *
-     * @return  string              The time.
+     * @return string the time
      */
     public function getTime(string $format): string
     {

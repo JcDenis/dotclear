@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Pages\Admin\PagesInventory
+ * @note Dotclear\Plugin\Pages\Admin\PagesInventory
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginPages
+ * @ingroup  PluginPages
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,7 +13,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Pages\Admin;
 
 use ArrayObject;
-
 use Dotclear\Process\Admin\Page\Pager;
 use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Helper\Html\Form;
@@ -69,7 +67,7 @@ class PagesInventory extends Inventory
             $count = 0;
             while ($this->rs->fetch()) {
                 echo $this->postLine($count, isset($entries[$this->rs->fInt('post_id')]));
-                $count++;
+                ++$count;
             }
 
             echo $blocks[1];
@@ -94,22 +92,26 @@ class PagesInventory extends Inventory
         $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" class="mark mark-%3$s" />';
         $sts_class  = '';
         $img_status = '';
+
         switch ($this->rs->fInt('post_status')) {
             case 1:
                 $img_status = sprintf($img, __('Published'), 'check-on.png', 'published');
                 $sts_class  = 'sts-online';
 
                 break;
+
             case 0:
                 $img_status = sprintf($img, __('Unpublished'), 'check-off.png', 'unpublished');
                 $sts_class  = 'sts-offline';
 
                 break;
+
             case -1:
                 $img_status = sprintf($img, __('Scheduled'), 'scheduled.png', 'scheduled');
                 $sts_class  = 'sts-scheduled';
 
                 break;
+
             case -2:
                 $img_status = sprintf($img, __('Pending'), 'check-wrn.png', 'pending');
                 $sts_class  = 'sts-pending';
@@ -130,7 +132,7 @@ class PagesInventory extends Inventory
         $attach   = '';
         $nb_media = $this->rs->call('countMedia');
         if (0 < $nb_media) {
-            $attach_str = $nb_media == 1 ? __('%d attachment') : __('%d attachments');
+            $attach_str = 1 == $nb_media ? __('%d attachment') : __('%d attachments');
             $attach     = sprintf($img, sprintf($attach_str, $nb_media), 'attach.png', 'attach');
         }
 

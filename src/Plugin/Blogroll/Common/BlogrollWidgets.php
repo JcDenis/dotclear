@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Blogroll\Common\BlogrollWidgets
+ * @note Dotclear\Plugin\Blogroll\Common\BlogrollWidgets
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginBlogroll
+ * @ingroup  PluginBlogroll
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,10 +12,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Blogroll\Common;
 
-use ArrayObject;
-
-use Dotclear\Helper\Html\Html;
-use Dotclear\Plugin\Blogroll\Common\Blogroll;
 use Dotclear\Plugin\Blogroll\Public\BlogrollTemplate;
 use Dotclear\Plugin\Widgets\Common\Widget;
 use Dotclear\Plugin\Widgets\Common\Widgets;
@@ -49,7 +44,8 @@ class BlogrollWidgets
             ->addHomeOnly()
             ->addContentOnly()
             ->addClass()
-            ->addOffline();
+            ->addOffline()
+        ;
     }
 
     public function initDefaultWidgets(Widgets $widgets, array $default): void

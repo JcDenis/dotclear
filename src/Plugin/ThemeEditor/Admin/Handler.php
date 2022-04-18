@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\ThemeEditor\Admin\Handler
+ * @note Dotclear\Plugin\ThemeEditor\Admin\Handler
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginThemeEditor
+ * @ingroup  PluginThemeEditor
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,13 +12,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\ThemeEditor\Admin;
 
-use ArrayObject;
-use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
-use Dotclear\Plugin\ThemeEditor\Admin\ThemeEditor;
+use Exception;
 
 class Handler extends AbstractPage
 {
@@ -29,7 +26,7 @@ class Handler extends AbstractPage
 
     protected function getPermissions(): string|null|false
     {
-        # Super admin
+        // Super admin
         return null;
     }
 
@@ -41,8 +38,8 @@ class Handler extends AbstractPage
                 ->setPageHelp('themeEditor')
                 ->setPageBreadcrumb([
                     Html::escapeHTML(dotclear()->blog()->name) => '',
-                    __('Blog appearance')                  => dotclear()->adminurl()->get('admin.blog.theme'),
-                    __('Edit theme files')                 => ''
+                    __('Blog appearance')                      => dotclear()->adminurl()->get('admin.blog.theme'),
+                    __('Edit theme files')                     => '',
                 ])
             ;
 
@@ -51,11 +48,11 @@ class Handler extends AbstractPage
 
         $file_default = $this->te_file = ['c' => null, 'w' => false, 'type' => null, 'f' => null, 'default_file' => false];
 
-        # Get interface setting
+        // Get interface setting
         $user_ui_colorsyntax = dotclear()->user()->preference()->get('interface')->get('colorsyntax');
 
-        # Loading themes
-        $this->te_theme = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->get('system')->get('theme'));
+        // Loading themes
+        $this->te_theme  = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->get('system')->get('theme'));
         $this->te_editor = new ThemeEditor();
 
         try {
@@ -71,29 +68,29 @@ class Handler extends AbstractPage
                 } elseif (!empty($_REQUEST['php'])) {
                     $this->te_file = $this->te_editor->getFileContent('php', $_REQUEST['php']);
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->te_file = $file_default;
 
                 throw $e;
             }
 
-            # Write file
+            // Write file
             if (!empty($_POST['write'])) {
                 $this->te_file['c'] = $_POST['file_content'];
                 $this->te_editor->writeFile($this->te_file['type'], $this->te_file['f'], $this->te_file['c']);
             }
 
-            # Delete file
+            // Delete file
             if (!empty($_POST['delete'])) {
                 $this->te_editor->deleteFile($this->te_file['type'], $this->te_file['f']);
                 dotclear()->notice()->addSuccessNotice(__('The file has been reset.'));
                 dotclear()->adminurl()->redirect('admin.plugin.ThemeEditor', [$this->te_file['type'] => $this->te_file['f']]);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             dotclear()->error()->add($e->getMessage());
         }
 
-        # Page setup
+        // Page setup
         $this
             ->setPageTitle(__('Edit theme files'))
             ->setPageHelp('themeEditor')
@@ -101,7 +98,7 @@ class Handler extends AbstractPage
             ->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog()->name) => '',
                 __('Blog appearance')                      => dotclear()->adminurl()->get('admin.blog.theme'),
-                __('Edit theme files')                     => ''
+                __('Edit theme files')                     => '',
             ])
         ;
 
@@ -115,7 +112,7 @@ class Handler extends AbstractPage
                 'saving_document'    => __('Saving document...'),
                 'document_saved'     => __('Document saved'),
                 'error_occurred'     => __('An error occurred:'),
-                'confirm_reset_file' => __('Are you sure you want to reset this file?')
+                'confirm_reset_file' => __('Are you sure you want to reset this file?'),
             ]) .
             dotclear()->resource()->load('script.js', 'Plugin', 'ThemeEditor') .
             dotclear()->resource()->confirmClose('file-form')
@@ -140,35 +137,31 @@ class Handler extends AbstractPage
             return;
         }
 
-        echo
-        '<p><strong>' . sprintf(__('Your current theme on this blog is "%s".'), Html::escapeHTML($this->te_theme->name())) . '</strong></p>';
+        echo '<p><strong>' . sprintf(__('Your current theme on this blog is "%s".'), Html::escapeHTML($this->te_theme->name())) . '</strong></p>';
 
         if ('default' == dotclear()->blog()->settings()->get('system')->get('theme')) {
-            echo '<div class="error"><p>' .  __("You can't edit default theme.") . '</p></div>';
+            echo '<div class="error"><p>' . __("You can't edit default theme.") . '</p></div>';
 
             return;
         }
 
-        echo
-        '<div id="file-box">' .
+        echo '<div id="file-box">' .
         '<div id="file-editor">';
 
         if (null === $this->te_file['c']) {
             echo '<p>' . __('Please select a file to edit.') . '</p>';
         } else {
-            echo
-            '<form id="file-form" action="' . dotclear()->adminurl()->root() . '" method="post">' .
+            echo '<form id="file-form" action="' . dotclear()->adminurl()->root() . '" method="post">' .
             '<div class="fieldset"><h3>' . __('File editor') . '</h3>' .
             '<p><label for="file_content">' . sprintf(__('Editing file %s'), '<strong>' . $this->te_file['f']) . '</strong></label></p>' .
             '<p>' . Form::textarea('file_content', 72, 25, [
                 'default'  => Html::escapeHTML($this->te_file['c']),
                 'class'    => 'maximal',
-                'disabled' => !$this->te_file['w']
+                'disabled' => !$this->te_file['w'],
             ]) . '</p>';
 
             if ($this->te_file['w']) {
-                echo
-                '<p><input type="submit" name="write" value="' . __('Save') . ' (s)" accesskey="s" /> ' .
+                echo '<p><input type="submit" name="write" value="' . __('Save') . ' (s)" accesskey="s" /> ' .
                 ($this->te_editor->deletableFile($this->te_file['type'], $this->te_file['f']) ? '<input type="submit" name="delete" class="delete" value="' . __('Reset') . '" />' : '') .
                 dotclear()->adminurl()->getHiddenFormFields('admin.plugin.ThemeEditor', [], true) .
                     ($this->te_file['type'] ? Form::hidden([$this->te_file['type']], $this->te_file['f']) : '') .
@@ -177,8 +170,7 @@ class Handler extends AbstractPage
                 echo '<p>' . __('This file is not writable. Please check your theme files permissions.') . '</p>';
             }
 
-            echo
-                '</div></form>';
+            echo '</div></form>';
 
             if (dotclear()->user()->preference()->get('interface')->get('colorsyntax')) {
                 $editorMode = (!empty($_REQUEST['css']) ? 'css' :
@@ -192,8 +184,7 @@ class Handler extends AbstractPage
             }
         }
 
-        echo
-        '</div>
+        echo '</div>
         </div>
 
         <div id="file-chooser">' .
@@ -207,7 +198,7 @@ class Handler extends AbstractPage
         $this->te_editor->filesList('js', '<a href="' . dotclear()->adminurl()->get('admin.plugin.ThemeEditor') . '&amp;js=%2$s" class="js-link">%1$s</a>') .
 
         '<h3>' . __('Locales files') . '</h3>' .
-        $this->te_editor->filesList('po', '<a href="' . dotclear()->adminurl()->get('admin.plugin.ThemeEditor'). '&amp;po=%2$s" class="po-link">%1$s</a>') .
+        $this->te_editor->filesList('po', '<a href="' . dotclear()->adminurl()->get('admin.plugin.ThemeEditor') . '&amp;po=%2$s" class="po-link">%1$s</a>') .
 
         '<h3>' . __('PHP files') . '</h3>' .
         $this->te_editor->filesList('php', '<a href="' . dotclear()->adminurl()->get('admin.plugin.ThemeEditor') . '&amp;php=%2$s" class="php-link">%1$s</a>') .

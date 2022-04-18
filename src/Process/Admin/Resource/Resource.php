@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Resource\Resource
+ * @note Dotclear\Process\Admin\Resource\Resource
  * @brief Dotclear admin file url helper
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,27 +18,27 @@ use Dotclear\Helper\Html\Html;
 
 class Resource
 {
-    /** @var    array   Stack to keep track of loaded files */
-    private static $stack  = [];
+    /** @var array Stack to keep track of loaded files */
+    private static $stack = [];
 
     /**
-     * Constructor
-     * 
-     * @param   string  $query  The query parameter name
+     * Constructor.
+     *
+     * @param string $query The query parameter name
      */
     public function __construct(protected string $query = 'df')
     {
     }
 
     /**
-     * Parse ressource URL
-     * 
-     * @param   string          $src    The source
-     * @param   string|null     $type   The type
-     * @param   string|null     $id     The id
-     * @param   string|null     $ext    The extension
-     * 
-     * @return  string                  The URL
+     * Parse ressource URL.
+     *
+     * @param string      $src  The source
+     * @param null|string $type The type
+     * @param null|string $id   The id
+     * @param null|string $ext  The extension
+     *
+     * @return string The URL
      */
     public function url(string $src, ?string $type = null, ?string $id = null, ?string $ext = null): string
     {
@@ -57,20 +56,20 @@ class Resource
             $src = implode('/', [$type, $id, $src]);
         }
 
-        return dotclear()->config()->get('admin_url') . (str_contains($src, '?') ? '' : '?') . $this->query .'=' . $src;
+        return dotclear()->config()->get('admin_url') . (str_contains($src, '?') ? '' : '?') . $this->query . '=' . $src;
     }
 
     /**
-     * Parse ressource css URL
-     * 
+     * Parse ressource css URL.
+     *
      * @see     self::parse();
-     * 
-     * @param   string          $src        The source
-     * @param   string|null     $type       The type
-     * @param   string|null     $id         The id
-     * @param   string|null     $version    The version
-     * 
-     * @return  string                      The URL
+     *
+     * @param string      $src     The source
+     * @param null|string $type    The type
+     * @param null|string $id      The id
+     * @param null|string $version The version
+     *
+     * @return string The URL
      */
     public function css(string $src, ?string $type = null, ?string $id = null, ?string $version = null): string
     {
@@ -78,16 +77,16 @@ class Resource
     }
 
     /**
-     * Parse ressource js URL
-     * 
+     * Parse ressource js URL.
+     *
      * @see     self::parse();
-     * 
-     * @param   string          $src        The source
-     * @param   string|null     $type       The type
-     * @param   string|null     $id         The id
-     * @param   string|null     $version    The version
-     * 
-     * @return  string                      The URL
+     *
+     * @param string      $src     The source
+     * @param null|string $type    The type
+     * @param null|string $id      The id
+     * @param null|string $version The version
+     *
+     * @return string The URL
      */
     public function js(string $src, ?string $type = null, ?string $id = null, ?string $version = null): string
     {
@@ -95,17 +94,17 @@ class Resource
     }
 
     /**
-     * Parse ressource load URL
-     * 
+     * Parse ressource load URL.
+     *
      * @see     self::parse();
-     * 
-     * @param   string          $src        The source
-     * @param   string|null     $type       The type
-     * @param   string|null     $id         The id
-     * @param   string|null     $option     The option
-     * @param   string|null     $version    The version
-     * 
-     * @return  string                      The URL
+     *
+     * @param string      $src     The source
+     * @param null|string $type    The type
+     * @param null|string $id      The id
+     * @param null|string $option  The option
+     * @param null|string $version The version
+     *
+     * @return string The URL
      */
     public function load(string $src, ?string $type = null, ?string $id = null, ?string $option = null, ?string $version = null): string
     {
@@ -113,17 +112,17 @@ class Resource
     }
 
     /**
-     * Parse ressource preload URL
-     * 
+     * Parse ressource preload URL.
+     *
      * @see     self::parse();
-     * 
-     * @param   string          $src        The source
-     * @param   string|null     $type       The type
-     * @param   string|null     $id         The id
-     * @param   string|null     $option     The option
-     * @param   string|null     $version    The version
-     * 
-     * @return  string                      The URL
+     *
+     * @param string      $src     The source
+     * @param null|string $type    The type
+     * @param null|string $id      The id
+     * @param null|string $option  The option
+     * @param null|string $version The version
+     *
+     * @return string The URL
      */
     public function preload(string $src, ?string $type = null, ?string $id = null, ?string $option = null, ?string $version = null): string
     {
@@ -131,19 +130,19 @@ class Resource
     }
 
     /**
-     * Parse ressource URL
-     * 
+     * Parse ressource URL.
+     *
      * This keep track of (pre)load ressource to serve their URL HTML code once.
-     * 
-     * @param   string          $src        The source
-     * @param   string|null     $type       The type
-     * @param   string|null     $id         The id
-     * @param   string|null     $option     The option
-     * @param   bool            $preload    Preload
-     * @param   string|null     $ext        The extension
-     * @param   string|null     $version    The version
-     * 
-     * @return  string                      The URL
+     *
+     * @param string      $src     The source
+     * @param null|string $type    The type
+     * @param null|string $id      The id
+     * @param null|string $option  The option
+     * @param bool        $preload Preload
+     * @param null|string $ext     The extension
+     * @param null|string $version The version
+     *
+     * @return string The URL
      */
     private function parse(string $src, ?string $type = null, ?string $id = null, ?string $option = null, bool $preload = false, ?string $ext = null, ?string $version = null): string
     {
@@ -152,7 +151,7 @@ class Resource
             $ext = $src_ext;
         }
 
-        if (!in_array($ext, ['js','css'])) {
+        if (!in_array($ext, ['js', 'css'])) {
             return '';
         }
 
@@ -168,15 +167,16 @@ class Resource
 
         if ($preload) {
             return '<link rel="preload" href="' . $url . '" as="' . ($option ?: 'style') . '" />' . "\n";
-        } elseif ($src_ext == 'css') {
-            return '<link rel="stylesheet" href="' . $url . '" type="text/css" media="' . ($option ?: 'screen') . '" />' . "\n";
-        } else {
-            return '<script src="' . $url . '"></script>' . "\n";
         }
+        if ('css' == $src_ext) {
+            return '<link rel="stylesheet" href="' . $url . '" type="text/css" media="' . ($option ?: 'screen') . '" />' . "\n";
+        }
+
+        return '<script src="' . $url . '"></script>' . "\n";
     }
 
     /**
-     * Serve a ressource
+     * Serve a ressource.
      */
     public function serve(): void
     {
@@ -187,7 +187,7 @@ class Resource
         $src  = $_GET[$this->query];
         $dirs = [];
 
-        # Check if it in Var path
+        // Check if it in Var path
         $var_src  = explode('/', $src);
         $var_path = dotclear()->config()->get('var_dir');
         if (1 < count($var_src) && array_shift($var_src) == 'var' && !empty($var_path) && is_dir($var_path)) {
@@ -195,19 +195,19 @@ class Resource
             $src    = implode('/', $var_src);
         }
 
-        # Try to find module id and type
-        # Admin url should be ?df=ModuleType/ModuleId/a_sub_folder/a_file.ext
+        // Try to find module id and type
+        // Admin url should be ?df=ModuleType/ModuleId/a_sub_folder/a_file.ext
         $module_src = explode('/', $src);
         if (empty($dirs) && 2 < count($module_src)) {
             $module_type = array_shift($module_src);
             $module_id   = array_shift($module_src);
 
-            # Check module type
+            // Check module type
             $modules_class = 'Dotclear\\Module\\' . $module_type . '\\Admin\\Modules' . $module_type;
             if (is_subclass_of($modules_class, 'Dotclear\\Module\\AbstractModules')) {
                 $modules = new $modules_class(null, true);
-                # Chek if module path exists
-                foreach($modules->getModulesPath() as $modules_path) {
+                // Chek if module path exists
+                foreach ($modules->getModulesPath() as $modules_path) {
                     if (is_dir(Path::implode($modules_path, $module_id))) {
                         $dirs[] = Path::implode($modules_path, $module_id, 'Admin', 'resources');
                         $dirs[] = Path::implode($modules_path, $module_id, 'Common', 'resources');
@@ -220,35 +220,29 @@ class Resource
             }
         }
 
-        # List other available file paths
+        // List other available file paths
         $dirs[] = Path::implodeRoot('Process', 'Admin', 'resources');
         $dirs[] = Path::implodeRoot('Core', 'resources', 'css');
         $dirs[] = Path::implodeRoot('Core', 'resources', 'js');
 
-        # Search dirs
+        // Search dirs
         Files::serveFile($src, $dirs, dotclear()->config()->get('file_sever_type'));
     }
 
     /**
-     * Get json HTML code
-     * 
-     * @param   string  $id     The id
-     * @param   mixed   $vars   The vars
-     * 
-     * @return  string
+     * Get json HTML code.
+     *
+     * @param string $id   The id
+     * @param mixed  $vars The vars
      */
     public function json(string $id, mixed $vars): string
     {
-        $ret = '<script type="application/json" id="' . Html::escapeHTML($id) . '-data">' . "\n" .
+        return '<script type="application/json" id="' . Html::escapeHTML($id) . '-data">' . "\n" .
             json_encode($vars, JSON_HEX_TAG | JSON_UNESCAPED_SLASHES) . "\n" . '</script>';
-
-        return $ret;
     }
 
     /**
-     * Get HTML code to load common JS for admin pages
-     *
-     * @return  string
+     * Get HTML code to load common JS for admin pages.
      */
     public function common(): string
     {
@@ -268,7 +262,7 @@ class Resource
             'img_minus_txt' => '▼',
             'img_minus_alt' => __('hide'),
 
-            'adblocker_check' => dotclear()->config()->get('admin_adblocker_check') && $nocheckadblocker !== true,
+            'adblocker_check' => dotclear()->config()->get('admin_adblocker_check') && true !== $nocheckadblocker,
         ];
 
         $js_msg = [
@@ -361,9 +355,7 @@ class Resource
     }
 
     /**
-     * Get HTML code to load toggles JS
-     *
-     * @return  string
+     * Get HTML code to load toggles JS.
      */
     public function toggles(): string
     {
@@ -371,7 +363,7 @@ class Resource
         if (dotclear()->user()->preference()) {
             $unfolded_sections = explode(',', (string) dotclear()->user()->preference()->get('toggles')->get('unfolded_sections'));
             foreach ($unfolded_sections as $k => &$v) {
-                if ($v !== '') {
+                if ('' !== $v) {
                     $js[$unfolded_sections[$k]] = true;
                 }
             }
@@ -383,12 +375,10 @@ class Resource
     }
 
     /**
-     * Get HTML to load Upload JS utility
+     * Get HTML to load Upload JS utility.
      *
-     * @param   array           $params     The parameters
-     * @param   string|null     $base_url   The base url
-     *
-     * @return  string
+     * @param array       $params   The parameters
+     * @param null|string $base_url The base url
      */
     public function upload(array $params = [], ?string $base_url = null): string
     {
@@ -445,22 +435,17 @@ class Resource
     }
 
     /**
-     * Get HTML code to load Magnific popup JS
-     *
-     * @return  string
+     * Get HTML code to load Magnific popup JS.
      */
-    public function modal()
+    public function modal(): string
     {
-        return
-        $this->load('jquery/jquery.magnific-popup.js');
+        return $this->load('jquery/jquery.magnific-popup.js');
     }
 
     /**
-     * Get HTML code to load ConfirmClose JS
+     * Get HTML code to load ConfirmClose JS.
      *
-     * @param   string  ...$args    The arguments
-     *
-     * @return  string
+     * @param string ...$args The arguments
      */
     public function confirmClose(string ...$args): string
     {
@@ -475,13 +460,11 @@ class Resource
     }
 
     /**
-     * Get HTML code to load page tabs JS
+     * Get HTML code to load page tabs JS.
      *
-     * @param   mixed   $default    The default
-     *
-     * @return  string
+     * @param null|string $default The default
      */
-    public function pageTabs($default = null): string
+    public function pageTabs(?string $default = null): string
     {
         $js = [
             'default' => $default,
@@ -494,23 +477,19 @@ class Resource
     }
 
     /**
-     * Get HTML code to load meta editor
-     *
-     * @return  string
+     * Get HTML code to load meta editor.
      */
-    public function metaEditor()
+    public function metaEditor(): string
     {
         return $this->load('meta-editor.js');
     }
 
     /**
-     * Get HTML code to load Codemirror
+     * Get HTML code to load Codemirror.
      *
-     * @param   string  $theme  The theme
-     * @param   bool    $multi  Is multiplex?
-     * @param   array   $modes  The modes
-     *
-     * @return  string
+     * @param string $theme The theme
+     * @param bool   $multi Is multiplex?
+     * @param array  $modes The modes
      */
     public function loadCodeMirror($theme = '', $multi = true, $modes = ['css', 'htmlmixed', 'javascript', 'php', 'xml', 'clike']): string
     {
@@ -534,14 +513,12 @@ class Resource
     }
 
     /**
-     * Get HTML code to run Codemirror
+     * Get HTML code to run Codemirror.
      *
-     * @param   mixed   $name   The HTML name attribute
-     * @param   mixed   $id     The HTML id attribute
-     * @param   mixed   $mode   The Codemirror mode
-     * @param   string  $theme  The theme
-     *
-     * @return  string
+     * @param mixed  $name  The HTML name attribute
+     * @param mixed  $id    The HTML id attribute
+     * @param mixed  $mode  The Codemirror mode
+     * @param string $theme The theme
      */
     public function runCodeMirror($name, $id = null, $mode = null, $theme = ''): string
     {
@@ -564,7 +541,7 @@ class Resource
     /**
      * Gets the codemirror themes list.
      *
-     * @return  array   The code mirror themes.
+     * @return array the code mirror themes
      */
     public function getCodeMirrorThemes(): array
     {

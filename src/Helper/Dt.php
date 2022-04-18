@@ -1,12 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Dt
- * @brief Basic date handling tool
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
  * @package Dotclear
- * @subpackage Utils
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,20 +9,31 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper;
 
-use Dotclear\Exception\UtilsException;
+use Dotclear\Exception\HelperException;
+use DateTime;
+use DateTimeZone;
 
+/**
+ * Basic date handling tool.
+ *
+ * \Dotclear\Helper\Dt
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Helper Date
+ */
 class Dt
 {
-    private static $timezones = null;
+    private static $timezones;
 
     /**
-     * Convert strftime() format to date() format
+     * Convert strftime() format to date() format.
      *
-     * @param      string      $src  The strftime() format
+     * @param string $src The strftime() format
      *
-     * @throws     UtilsException  Thrown if a invalid format is used
+     * @throws HelperException Thrown if a invalid format is used
      *
-     * @return     string       The date() format
+     * @return string The date() format
      */
     private static function strftimeToDateFormat(string $src = ''): string
     {
@@ -80,27 +85,26 @@ class Dt
             }
         }
         if (!empty($invalids)) {
-            throw new UtilsException('Found these invalid chars: ' . implode(',', $invalids) . ' in ' . $src);
+            throw new HelperException('Found these invalid chars: ' . implode(',', $invalids) . ' in ' . $src);
         }
 
         return str_replace(array_keys($converts), array_values($converts), $src);
     }
 
     /**
-     * Timestamp formating
+     * Timestamp formating.
      *
      * Returns a date formated like PHP <a href="http://www.php.net/manual/en/function.strftime.php">strftime</a>
      * function.
      * Special cases %a, %A, %b and %B are handled by {@link l10n} library.
      *
-     * @param string            $p        Format pattern
-     * @param integer|boolean   $ts       Timestamp
-     * @param string            $tz       Timezone
-     * @return    string
+     * @param string   $p  Format pattern
+     * @param bool|int $ts Timestamp
+     * @param string   $tz Timezone
      */
     public static function str(string $p, $ts = null, string $tz = null): string
     {
-        if ($ts === null || $ts === false) {
+        if (null === $ts || false === $ts) {
             $ts = time();
         }
 
@@ -114,8 +118,9 @@ class Dt
         $p = preg_replace('/(?<!%)%b/', '{{__\b%m__}}', $p);
         $p = preg_replace('/(?<!%)%B/', '{{__\B%m__}}', $p);
 
-        $res = date(self::strftimeToDateFormat($p), $ts);
-
+        // $res = date(self::strftimeToDateFormat($p), $ts);
+        $res = DateTime::createFromFormat('U', (string) $ts, new DateTimeZone('UTC'))->setTimezone(new DateTimeZone($tz ?: 'UTC'))->format(self::strftimeToDateFormat($p));
+        // !
         $res = preg_replace_callback('/{{__(a|A|b|B)([0-9]{1,2})__}}/', ['self', '_callback'], $res);
 
         if ($tz) {
@@ -131,14 +136,13 @@ class Dt
     }
 
     /**
-     * Date to date
+     * Date to date.
      *
      * Format a literal date to another literal date.
      *
-     * @param string    $p        Format pattern
-     * @param string    $dt        Date
-     * @param string    $tz        Timezone
-     * @return    string
+     * @param string $p  Format pattern
+     * @param string $dt Date
+     * @param string $tz Timezone
      */
     public static function dt2str(string $p, string $dt, ?string $tz = null): string
     {
@@ -146,46 +150,44 @@ class Dt
     }
 
     /**
-     * ISO-8601 formatting
+     * ISO-8601 formatting.
      *
      * Returns a timestamp converted to ISO-8601 format.
      *
-     * @param integer    $ts        Timestamp
-     * @param string    $tz        Timezone
-     * @return    string
+     * @param int    $ts Timestamp
+     * @param string $tz Timezone
      */
     public static function iso8601(int $ts, string $tz = 'UTC'): string
     {
         $o  = self::getTimeOffset($tz, $ts);
         $of = sprintf('%02u:%02u', abs($o) / 3600, (abs($o) % 3600) / 60);
 
-        return date('Y-m-d\\TH:i:s', $ts) . ($o < 0 ? '-' : '+') . $of;
+        return date('Y-m-d\\TH:i:s', $ts) . (0 > $o ? '-' : '+') . $of;
     }
 
     /**
-     * RFC-822 formatting
+     * RFC-822 formatting.
      *
      * Returns a timestamp converted to RFC-822 format.
      *
-     * @param integer    $ts        Timestamp
-     * @param string    $tz        Timezone
-     * @return    string
+     * @param int    $ts Timestamp
+     * @param string $tz Timezone
      */
     public static function rfc822(int $ts, string $tz = 'UTC'): string
     {
-        # Get offset
+        // Get offset
         $o  = self::getTimeOffset($tz, $ts);
         $of = sprintf('%02u%02u', abs($o) / 3600, (abs($o) % 3600) / 60);
 
-        return strftime('%a, %d %b %Y %H:%M:%S ' . ($o < 0 ? '-' : '+') . $of, $ts);
+        return strftime('%a, %d %b %Y %H:%M:%S ' . (0 > $o ? '-' : '+') . $of, $ts);
     }
 
     /**
-     * Timezone set
+     * Timezone set.
      *
      * Set timezone during script execution.
      *
-     * @param    string    $tz        Timezone
+     * @param string $tz Timezone
      */
     public static function setTZ(string $tz): void
     {
@@ -201,11 +203,9 @@ class Dt
     }
 
     /**
-     * Current timezone
+     * Current timezone.
      *
      * Returns current timezone.
-     *
-     * @return string
      */
     public static function getTZ(): string
     {
@@ -217,13 +217,12 @@ class Dt
     }
 
     /**
-     * Time offset
+     * Time offset.
      *
      * Get time offset for a timezone and an optionnal $ts timestamp.
      *
-     * @param string    $tz        Timezone
-     * @param integer|null    $ts        Timestamp
-     * @return integer
+     * @param string   $tz Timezone
+     * @param null|int $ts Timestamp
      */
     public static function getTimeOffset(string $tz, ?int $ts = null): int
     {
@@ -243,12 +242,11 @@ class Dt
     }
 
     /**
-     * UTC conversion
+     * UTC conversion.
      *
      * Returns any timestamp from current timezone to UTC timestamp.
      *
-     * @param integer    $ts        Timestamp
-     * @return integer
+     * @param int $ts Timestamp
      */
     public static function toUTC(int $ts): int
     {
@@ -256,17 +254,16 @@ class Dt
     }
 
     /**
-     * Add timezone
+     * Add timezone.
      *
      * Returns a timestamp with its timezone offset.
      *
-     * @param string    $tz        Timezone
-     * @param integer|boolean    $ts        Timestamp
-     * @return integer
+     * @param string   $tz Timezone
+     * @param bool|int $ts Timestamp
      */
     public static function addTimeZone(string $tz, $ts = false): int
     {
-        if ($ts === false) {
+        if (false === $ts) {
             $ts = time();
         }
 
@@ -274,13 +271,12 @@ class Dt
     }
 
     /**
-     * Timzones
+     * Timzones.
      *
      * Returns an array of supported timezones, codes are keys and names are values.
      *
-     * @param boolean    $flip      Names are keys and codes are values
-     * @param boolean    $groups    Return timezones in arrays of continents
-     * @return array
+     * @param bool $flip   Names are keys and codes are values
+     * @param bool $groups Return timezones in arrays of continents
      */
     public static function getZones(bool $flip = false, bool $groups = false): array
     {

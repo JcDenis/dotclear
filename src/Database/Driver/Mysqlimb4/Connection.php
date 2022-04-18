@@ -1,12 +1,11 @@
 <?php
 /**
- * @class Dotclear\Database\Driver\Mysqlimb4\Connection
+ * @note Dotclear\Database\Driver\Mysqlimb4\Connection
  * @brief Mysql mb4 connection driver
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
- * @package Dotclear
- * @subpackage Database
+ * @ingroup  Database
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,10 +16,12 @@ namespace Dotclear\Database\Driver\Mysqlimb4;
 
 use Dotclear\Database\Driver\Mysqli\Connection as BaseConnection;
 use Dotclear\Exception\DatabaseException;
+use mysqli_result;
+use mysqli;
 
 class Connection extends BaseConnection
 {
-    public static $weak_locks = true; ///< boolean: Enables weak locks if true
+    public static $weak_locks = true; // /< boolean: Enables weak locks if true
 
     protected $__driver = 'mysqlimb4';
     protected $__syntax = 'mysql';
@@ -47,7 +48,7 @@ class Connection extends BaseConnection
                 $port = 0;
             }
         }
-        if (($link = @mysqli_connect($host, $user, $password, $database, $port, $socket)) === false) {
+        if (false === ($link = @mysqli_connect($host, $user, $password, $database, $port, $socket))) {
             throw new DatabaseException('Unable to connect to database');
         }
 
@@ -82,14 +83,14 @@ class Connection extends BaseConnection
 
     public function db_close(mixed $handle): void
     {
-        if ($handle instanceof \MySQLi) {
+        if ($handle instanceof mysqli) {
             mysqli_close($handle);
         }
     }
 
     public function db_version(mixed $handle): string
     {
-        if ($handle instanceof \MySQLi) {
+        if ($handle instanceof mysqli) {
             $v = mysqli_get_server_version($handle);
 
             return sprintf('%s.%s.%s', ($v - ($v % 10000)) / 10000, ($v - ($v % 100)) % 10000 / 100, $v % 100);
@@ -100,9 +101,9 @@ class Connection extends BaseConnection
 
     public function db_query(mixed $handle, string $query): mixed
     {
-        if ($handle instanceof \MySQLi) {
+        if ($handle instanceof mysqli) {
             $res = @mysqli_query($handle, $query);
-            if ($res === false) {
+            if (false === $res) {
                 $e = new DatabaseException($this->db_last_error($handle));
 
                 throw $e;
@@ -121,8 +122,8 @@ class Connection extends BaseConnection
 
     public function db_num_fields(mixed $res): int
     {
-        if ($res instanceof \MySQLi_Result) {
-            //return mysql_num_fields($res);
+        if ($res instanceof mysqli_result) {
+            // return mysql_num_fields($res);
             return $res->field_count;
         }
 
@@ -131,7 +132,7 @@ class Connection extends BaseConnection
 
     public function db_num_rows(mixed $res): int
     {
-        if ($res instanceof \MySQLi_Result) {
+        if ($res instanceof mysqli_result) {
             return $res->num_rows;
         }
 
@@ -140,11 +141,11 @@ class Connection extends BaseConnection
 
     public function db_field_name(mixed $res, int $position): string
     {
-        if ($res instanceof \MySQLi_Result) {
+        if ($res instanceof mysqli_result) {
             $res->field_seek($position);
             $finfo = $res->fetch_field();
 
-            /** @phpstan-ignore-next-line */
+            // @phpstan-ignore-next-line
             return $finfo->name;
         }
 
@@ -153,11 +154,11 @@ class Connection extends BaseConnection
 
     public function db_field_type(mixed $res, int $position): string
     {
-        if ($res instanceof \MySQLi_Result) {
+        if ($res instanceof mysqli_result) {
             $res->field_seek($position);
             $finfo = $res->fetch_field();
 
-            /** @phpstan-ignore-next-line */
+            // @phpstan-ignore-next-line
             return $this->_convert_types($finfo->type);
         }
 
@@ -166,10 +167,10 @@ class Connection extends BaseConnection
 
     public function db_fetch_assoc(mixed $res): array|false
     {
-        if ($res instanceof \MySQLi_Result) {
+        if ($res instanceof mysqli_result) {
             $v = $res->fetch_assoc();
 
-            return ($v === null) ? false : $v;
+            return (null === $v) ? false : $v;
         }
 
         return false;
@@ -177,7 +178,7 @@ class Connection extends BaseConnection
 
     public function db_result_seek(mixed $res, int $row): bool
     {
-        if ($res instanceof \MySQLi_Result) {
+        if ($res instanceof mysqli_result) {
             return $res->data_seek($row);
         }
 
@@ -186,7 +187,7 @@ class Connection extends BaseConnection
 
     public function db_changes(mixed $handle, mixed $res): int
     {
-        if ($handle instanceof \MySQLi) {
+        if ($handle instanceof mysqli) {
             return mysqli_affected_rows($handle);
         }
 
@@ -195,10 +196,10 @@ class Connection extends BaseConnection
 
     public function db_last_error(mixed $handle): string|false
     {
-        if ($handle instanceof \MySQLi) {
+        if ($handle instanceof mysqli) {
             $e = mysqli_error($handle);
             if ($e) {
-                return $e . ' (' . \MySQLi_errno($handle) . ')';
+                return $e . ' (' . \mysqli_errno($handle) . ')';
             }
         }
 
@@ -207,7 +208,7 @@ class Connection extends BaseConnection
 
     public function db_escape_string(?string $str, mixed $handle = null): string
     {
-        if ($handle instanceof \MySQLi) {
+        if ($handle instanceof mysqli) {
             return mysqli_real_escape_string($handle, (string) $str);
         }
 
@@ -219,7 +220,7 @@ class Connection extends BaseConnection
         try {
             $this->execute('LOCK TABLES ' . $this->escapeSystem($table) . ' WRITE');
         } catch (DatabaseException $e) {
-            # As lock is a privilege in MySQL, we can avoid errors with weak_locks static var
+            // As lock is a privilege in MySQL, we can avoid errors with weak_locks static var
             if (!self::$weak_locks) {
                 throw $e;
             }
@@ -282,7 +283,7 @@ class Connection extends BaseConnection
         return empty($res) ? '' : implode(',', $res);
     }
 
-    public function concat(): string 
+    public function concat(): string
     {
         $args = func_get_args();
 
@@ -303,7 +304,7 @@ class Connection extends BaseConnection
             '8' => 'int',
             '9' => 'int',
 
-            '16' => 'int', //BIT type recognized as unknown with mysql adapter
+            '16' => 'int', // BIT type recognized as unknown with mysql adapter
 
             '4'   => 'real',
             '5'   => 'real',
@@ -320,7 +321,6 @@ class Connection extends BaseConnection
             '7' => 'timestamp',
 
             '252' => 'blob',
-
         ];
         $type = 'unknown';
 

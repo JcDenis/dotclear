@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\CKEditor\Admin\Prepend
+ * @note Dotclear\Plugin\CKEditor\Admin\Prepend
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginCKEditor
+ * @ingroup  PluginCKEditor
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,7 +14,6 @@ namespace Dotclear\Plugin\CKEditor\Admin;
 
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
-use Dotclear\Plugin\CKEditor\Admin\CKEditorBehavior;
 
 class Prepend extends AbstractPrepend
 {
@@ -23,26 +21,26 @@ class Prepend extends AbstractPrepend
 
     public function loadModule(): void
     {
-        # Menu and favs
+        // Menu and favs
         $this->addStandardMenu('Plugins');
-        //$this->addStandardFavorites('admin');
+        // $this->addStandardFavorites('admin');
 
-        # Settings
+        // Settings
         if (!dotclear()->blog()->settings()->get('dcckeditor')->get('active')) {
-            //return;
+            // return;
         }
 
-        # Admin url for post js
+        // Admin url for post js
         dotclear()->adminurl()->register(
             'admin.plugin.CKEditorPost',
             'Dotclear\\Plugin\\CKEditor\\Admin\\HandlerPost'
         );
 
-        # Formater
+        // Formater
         dotclear()->formater()->addEditorFormater('CKEditor', 'xhtml', fn ($s) => $s);
 
-        # Behaviors
-        new CKEditorBehavior();;
+        // Behaviors
+        new CKEditorBehavior();
     }
 
     public function installModule(): ?bool

@@ -1,12 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Mail
- * @brief Basic mail tool
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
  * @package Dotclear
- * @subpackage Utils
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,31 +9,40 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper;
 
-use Dotclear\Exception\UtilsException;
-use Dotclear\Helper\Text;
+use Dotclear\Exception\HelperException;
 
+/**
+ * Basic mail tool.
+ *
+ * \Dotclear\Helper\Mail
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Helper Mail
+ */
 class Mail
 {
     /**
-     * Send email
+     * Send email.
      *
      * Sends email to destination. If a function called _mail() exists it will
      * be used instead of PHP mail() function. _mail() function should have the
      * same signature. Headers could be provided as a string or an array.
      *
-     * @param string        $to            Email destination
-     * @param string        $subject        Email subject
-     * @param string        $message        Email message
-     * @param string|array    $headers        Email headers
-     * @param string        $p            UNIX mail additionnal parameters
-     * @return boolean                    true on success
+     * @param string       $to      Email destination
+     * @param string       $subject Email subject
+     * @param string       $message Email message
+     * @param array|string $headers Email headers
+     * @param string       $p       UNIX mail additionnal parameters
+     *
+     * @return bool true on success
      */
     public static function sendMail(string $to, string $subject, string $message, $headers = null, $p = null): bool
     {
         /**
-         * User defined mail function
+         * User defined mail function.
          *
-         * @var        callable $f
+         * @var callable $f
          */
         $f   = function_exists('_mail') ? '_mail' : null;
         $eol = trim(ini_get('sendmail_path')) ? "\n" : "\r\n";
@@ -48,9 +51,9 @@ class Mail
             $headers = implode($eol, $headers);
         }
 
-        if ($f == null) {
+        if (null == $f) {
             if (!@mail($to, $subject, $message, $headers, $p)) {
-                throw new UtilsException('Unable to send email');
+                throw new HelperException('Unable to send email');
             }
         } else {
             call_user_func($f, $to, $subject, $message, $headers, $p);
@@ -60,12 +63,11 @@ class Mail
     }
 
     /**
-     * Get Host MX
+     * Get Host MX.
      *
      * Returns MX records sorted by weight for a given host.
      *
-     * @param string    $host        Hostname
-     * @return array|null
+     * @param string $host Hostname
      */
     public static function getMX(string $host): ?array
     {
@@ -75,7 +77,7 @@ class Mail
 
         $res = [];
 
-        for ($i = 0; $i < count($mx_h); $i++) {
+        for ($i = 0; count($mx_h) > $i; ++$i) {
             $res[$mx_h[$i]] = $mx_w[$i];
         }
 
@@ -85,13 +87,12 @@ class Mail
     }
 
     /**
-     * Quoted printable header
+     * Quoted printable header.
      *
      * Encodes given string as a quoted printable mail header.
      *
-     * @param      string $str String to encode
-     * @param      string $charset Charset (default UTF-8)
-     * @return     string
+     * @param string $str     String to encode
+     * @param string $charset Charset (default UTF-8)
      */
     public static function QPHeader(string $str, string $charset = 'UTF-8'): string
     {
@@ -103,13 +104,12 @@ class Mail
     }
 
     /**
-     * B64 header
+     * B64 header.
      *
      * Encodes given string as a base64 mail header.
      *
-     * @param      string $str String to encode
-     * @param      string $charset Charset (default UTF-8)
-     * @return string
+     * @param string $str     String to encode
+     * @param string $charset Charset (default UTF-8)
      */
     public static function B64Header(string $str, string $charset = 'UTF-8'): string
     {

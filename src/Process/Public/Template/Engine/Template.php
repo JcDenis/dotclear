@@ -1,10 +1,11 @@
 <?php
 /**
- * @class Dotclear\Process\Public\Template\Engine\Template
- * @class template
+ * @note Dotclear\Process\Public\Template\Engine\Template
+ * @brief template engine
  *
- * @package Clearbricks
- * @subpackage Template
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Template
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -28,8 +29,8 @@ class Template
 
     protected $remove_php = true;
 
-    protected $unknown_value_handler = null;
-    protected $unknown_block_handler = null;
+    protected $unknown_value_handler;
+    protected $unknown_block_handler;
 
     protected $tpl_path = [];
     protected $cache_dir;
@@ -38,7 +39,7 @@ class Template
     protected $compile_stack = [];
     protected $parent_stack  = [];
 
-    # Inclusion variables
+    // Inclusion variables
     protected static $superglobals = ['GLOBALS', '_SERVER', '_GET', '_POST', '_COOKIE', '_FILES', '_ENV', '_REQUEST', '_SESSION'];
     protected static $_k;
     protected static $_n;
@@ -69,7 +70,7 @@ class Template
 
         return
         '<?php try { ' .
-        'echo ' . $this->self_name . "->getData('" . str_replace("'", "\'", $src) . "'); " .
+        'echo ' . $this->self_name . "->getData('" . str_replace("'", "\\'", $src) . "'); " .
             '} catch (\Exception) {} ?>' . "\n";
     }
 
@@ -91,7 +92,7 @@ class Template
         }
 
         foreach ($path as $k => $v) {
-            if (($v = Path::real($v)) === false) {
+            if (false === ($v = Path::real($v))) {
                 unset($path[$k]);
             }
         }
@@ -205,15 +206,15 @@ class Template
             $stat_d = stat($dest_file);
         }
 
-        # We create template if:
-        # - dest_file doest not exists
-        # - we don't want cache
-        # - dest_file size == 0
-        # - tpl_file is more recent thant dest_file
-        if (!$stat_d || !$this->use_cache || $stat_d['size'] == 0 || $stat_f['mtime'] > $stat_d['mtime']) {
+        // We create template if:
+        // - dest_file doest not exists
+        // - we don't want cache
+        // - dest_file size == 0
+        // - tpl_file is more recent thant dest_file
+        if (!$stat_d || !$this->use_cache || 0 == $stat_d['size'] || $stat_f['mtime'] > $stat_d['mtime']) {
             Files::makeDir(dirname($dest_file), true);
 
-            if (($fp = @fopen($dest_file, 'wb')) === false) {
+            if (false === ($fp = @fopen($dest_file, 'wb'))) {
                 throw new TemplateException('Unable to create cache file');
             }
 
@@ -280,23 +281,23 @@ class Template
 
         $this->compile_stack[] = $file;
 
-        # Remove every PHP tags
+        // Remove every PHP tags
         if ($this->remove_php) {
             $fc = preg_replace('/<\?(?=php|=|\s).*?\?>/ms', '', $fc);
         }
 
-        # Transform what could be considered as PHP short tags
+        // Transform what could be considered as PHP short tags
         $fc = preg_replace(
             '/(<\?(?!php|=|\s))(.*?)(\?>)/ms',
             '<?php echo "$1"; ?>$2<?php echo "$3"; ?>',
             $fc
         );
 
-        # Remove template comments <!-- #... -->
+        // Remove template comments <!-- #... -->
         $fc = preg_replace('/(^\s*)?<!-- #(.*?)-->/ms', '', $fc);
 
-        # Lexer part : split file into small pieces
-        # each array entry will be either a tag or plain text
+        // Lexer part : split file into small pieces
+        // each array entry will be either a tag or plain text
         $blocks = preg_split(
             '#(<tpl:\w+[^>]*>)|(</tpl:\w+>)|({{tpl:\w+[^}]*}})#msu',
             $fc,
@@ -304,14 +305,14 @@ class Template
             PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY
         );
 
-        # Next : build semantic tree from tokens.
+        // Next : build semantic tree from tokens.
         $rootNode          = new TplNode();
         $node              = $rootNode;
         $errors            = [];
         $this->parent_file = '';
         foreach ($blocks as $id => $block) {
             $isblock = preg_match('#<tpl:(\w+)(?:(\s+.*?)>|>)|</tpl:(\w+)>|{{tpl:(\w+)(\s(.*?))?}}#ms', $block, $match);
-            if ($isblock == 1) {
+            if (1 == $isblock) {
                 if (substr($match[0], 1, 1) == '/') {
                     // Closing tag, check if it matches current opened node
                     $tag = $match[3];
@@ -349,7 +350,7 @@ class Template
                         $attr     = $this->getAttrs($match[6]);
                     }
                     if (strtolower($tag) == 'extends') {
-                        if (isset($attr['parent']) && $this->parent_file == '') {
+                        if (isset($attr['parent']) && '' == $this->parent_file) {
                             $this->parent_file = $attr['parent'];
                         }
                     } elseif (strtolower($tag) == 'parent') {
@@ -360,7 +361,7 @@ class Template
                 } else {
                     // Opening tag, create new node and dive into it
                     $tag = $match[1];
-                    if ($tag == 'Block') {
+                    if ('Block' == $tag) {
                         $newnode = new TplNodeBlockDefinition($tag, isset($match[2]) ? $this->getAttrs($match[2]) : []);
                     } else {
                         $newnode = new TplNodeBlock($tag, isset($match[2]) ? $this->getAttrs($match[2]) : []);
@@ -401,14 +402,14 @@ class Template
             if ($file && !in_array($file, $this->parent_stack)) {
                 $tree = $this->getCompiledTree($file, $err);
 
-                if ($this->parent_file == '__parent__') {
+                if ('__parent__' == $this->parent_file) {
                     $this->parent_stack[] = $file;
                     $newfile              = $this->getParentFilePath(dirname($file), basename($file));
                     if (!$newfile) {
                         throw new TemplateException('No template found for ' . basename($file));
                     }
                     $file = $newfile;
-                } elseif ($this->parent_file != '') {
+                } elseif ('' != $this->parent_file) {
                     $this->parent_stack[] = $file;
                     $file                 = $this->getFilePath($this->parent_file);
                     if (!$file) {
@@ -418,7 +419,7 @@ class Template
                     return $tree->compile($this) . $err;
                 }
             } else {
-                if ($tree != null) {
+                if (null != $tree) {
                     return $tree->compile($this) . $err;
                 }
 
@@ -432,7 +433,7 @@ class Template
         $res = '';
         if (isset($this->blocks[$tag])) {
             $res .= call_user_func($this->blocks[$tag], $attr, $content);
-        } elseif ($this->unknown_block_handler != null) {
+        } elseif (null != $this->unknown_block_handler) {
             $res .= call_user_func($this->unknown_block_handler, $tag, $attr, $content);
         }
 
@@ -444,7 +445,7 @@ class Template
         $res = '';
         if (isset($this->values[$tag])) {
             $res .= call_user_func($this->values[$tag], $attr, ltrim((string) $str_attr));
-        } elseif ($this->unknown_value_handler != null) {
+        } elseif (null != $this->unknown_value_handler) {
             $res .= call_user_func($this->unknown_value_handler, $tag, $attr, $str_attr);
         }
 

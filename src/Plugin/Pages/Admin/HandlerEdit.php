@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Pages\Admin\HandlerEdit
+ * @note Dotclear\Plugin\Pages\Admin\HandlerEdit
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginPages
+ * @ingroup  PluginPages
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,7 +13,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Pages\Admin;
 
 use ArrayObject;
-use Dotclear\Core\Trackback\Trackback;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Dt;
 use Dotclear\Helper\Html\Form;
@@ -23,6 +21,7 @@ use Dotclear\Helper\Network\Http;
 use Dotclear\Module\AbstractPage;
 use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Action\Action\CommentAction;
+use Exception;
 
 class HandlerEdit extends AbstractPage
 {
@@ -44,7 +43,7 @@ class HandlerEdit extends AbstractPage
     private $post_open_comment  = false;
     private $post_open_tb       = false;
     private $post_selected      = false;
-    //private $post_media = [];
+    // private $post_media = [];
 
     private $can_view_page = true;
     private $can_view_ip   = false;
@@ -52,16 +51,16 @@ class HandlerEdit extends AbstractPage
     private $can_publish   = false;
     private $can_delete    = false;
 
-    private $post = null;
-    //private $trackback = null;
-    //private $tb_urls    ='';
-    //private $tb_excerpt = '';
-    //private $comments_actions = null;
+    private $post;
+    // private $trackback = null;
+    // private $tb_urls    ='';
+    // private $tb_excerpt = '';
+    // private $comments_actions = null;
 
-    private $next_link     = null;
-    private $prev_link     = null;
+    private $next_link;
+    private $prev_link;
 
-    private $bad_dt = false;
+    private $bad_dt     = false;
     private $img_status = '';
 
     protected function getPermissions(): string|null|false
@@ -71,17 +70,17 @@ class HandlerEdit extends AbstractPage
 
     protected function getActionInstance(): ?Action
     {
-        $action =  new CommentAction(dotclear()->adminurl()->get('admin.plugin.Page', ['id' => $_REQUEST['id'] ?? ''], '&'));
+        $action = new CommentAction(dotclear()->adminurl()->get('admin.plugin.Page', ['id' => $_REQUEST['id'] ?? ''], '&'));
         $action->setEnableRedirSelection(false);
 
         return $action;
     }
 
-    protected function getPagePrepend(): ? bool
+    protected function getPagePrepend(): ?bool
     {
         Dt::setTZ(dotclear()->user()->getInfo('user_tz'));
 
-        $page_title = __('New post');
+        $page_title    = __('New post');
         $next_headlink = $prev_headlink = '';
 
         $this->post_format   = dotclear()->user()->getOption('post_format');
@@ -90,17 +89,17 @@ class HandlerEdit extends AbstractPage
         $this->post_status   = dotclear()->user()->getInfo('user_post_status');
         $this->can_edit_page = dotclear()->user()->check('pages,usage', dotclear()->blog()->id);
         $this->can_publish   = dotclear()->user()->check('pages,publish,contentadmin', dotclear()->blog()->id);
-        $post_headlink = '<link rel="%s" title="%s" href="' . dotclear()->adminurl()->get('admin.plugin.Page', ['id' => '%s'], '&amp;', true) . '" />';
-        $post_link     = '<a href="' . dotclear()->adminurl()->get('admin.plugin.Page', ['id' => '%s'], '&amp;', true) . '" title="%s">%s</a>';
+        $post_headlink       = '<link rel="%s" title="%s" href="' . dotclear()->adminurl()->get('admin.plugin.Page', ['id' => '%s'], '&amp;', true) . '" />';
+        $post_link           = '<a href="' . dotclear()->adminurl()->get('admin.plugin.Page', ['id' => '%s'], '&amp;', true) . '" title="%s">%s</a>';
 
-        # If user can't publish
+        // If user can't publish
         if (!$this->can_publish) {
             $this->post_status = -2;
         }
 
         $img_status_pattern = '<img class="img_select_option" alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
 
-        # Get page informations
+        // Get page informations
         if (!empty($_REQUEST['id'])) {
             $page_title = __('Edit page');
 
@@ -175,7 +174,7 @@ class HandlerEdit extends AbstractPage
             }
         }
 
-        # Format content
+        // Format content
         if (!empty($_POST) && $this->can_edit_page) {
             $this->post_format  = $_POST['post_format'];
             $this->post_excerpt = $_POST['post_excerpt'];
@@ -198,7 +197,7 @@ class HandlerEdit extends AbstractPage
                         throw new AdminException(__('Invalid publication date'));
                     }
                     $this->post_dt = date('Y-m-d H:i', $this->post_dt);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     dotclear()->error()->add($e->getMessage());
                 }
             }
@@ -226,23 +225,23 @@ class HandlerEdit extends AbstractPage
             );
         }
 
-        # Delete post
+        // Delete post
         if (!empty($_POST['delete']) && $this->can_delete) {
             try {
-                # --BEHAVIOR-- adminBeforePostDelete
+                // --BEHAVIOR-- adminBeforePostDelete
                 dotclear()->behavior()->call('adminBeforePageDelete', $this->post_id);
                 dotclear()->blog()->posts()->delPost($this->post_id);
                 dotclear()->adminurl()->redirect('admin.plugin.Page');
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Create or update page
+        // Create or update page
         if (!empty($_POST) && !empty($_POST['save']) && $this->can_edit_page && !$this->bad_dt) {
             $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
 
-            # Magic tweak :)
+            // Magic tweak :)
             dotclear()->blog()->settings()->get('system')->set('post_url_format', '{t}');
 
             $cur->setField('post_type', 'page');
@@ -269,41 +268,41 @@ class HandlerEdit extends AbstractPage
             // Back to UTC in order to keep UTC datetime for creadt/upddt
             Dt::setTZ('UTC');
 
-            # Update post
+            // Update post
             if ($this->post_id) {
                 try {
-                    # --BEHAVIOR-- adminBeforePageUpdate
+                    // --BEHAVIOR-- adminBeforePageUpdate
                     dotclear()->behavior()->call('adminBeforePageUpdate', $cur, $this->post_id);
 
                     dotclear()->blog()->posts()->updPost($this->post_id, $cur);
 
-                    # --BEHAVIOR-- adminAfterPageUpdate
+                    // --BEHAVIOR-- adminAfterPageUpdate
                     dotclear()->behavior()->call('adminAfterPageUpdate', $cur, $this->post_id);
 
                     dotclear()->adminurl()->redirect('admin.plugin.Page', ['id' => $this->post_id, 'upd' => 1]);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     dotclear()->error()->add($e->getMessage());
                 }
             } else {
                 $cur->setField('user_id', dotclear()->user()->userID());
 
                 try {
-                    # --BEHAVIOR-- adminBeforePageCreate
+                    // --BEHAVIOR-- adminBeforePageCreate
                     dotclear()->behavior()->call('adminBeforePageCreate', $cur);
 
                     $return_id = dotclear()->blog()->posts()->addPost($cur);
 
-                    # --BEHAVIOR-- adminAfterPageCreate
+                    // --BEHAVIOR-- adminAfterPageCreate
                     dotclear()->behavior()->call('adminAfterPageCreate', $cur, $return_id);
 
                     dotclear()->adminurl()->redirect('admin.plugin.Page', ['id' => $return_id, 'crea' => 1]);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     dotclear()->error()->add($e->getMessage());
                 }
             }
         }
 
-        # Page setup
+        // Page setup
         $default_tab = 'edit-entry';
         if (!$this->can_edit_page) {
             $default_tab = '';
@@ -314,10 +313,10 @@ class HandlerEdit extends AbstractPage
 
         if ($this->post_id) {
             $this->img_status = match ($this->post_status) {
-                1  => sprintf($img_status_pattern, __('Published'), 'check-on.png'),
-                0  => sprintf($img_status_pattern, __('Unpublished'), 'check-off.png'),
-                -1 => sprintf($img_status_pattern, __('Scheduled'), 'scheduled.png'),
-                -2 => sprintf($img_status_pattern, __('Pending'), 'check-wrn.png'),
+                1       => sprintf($img_status_pattern, __('Published'), 'check-on.png'),
+                0       => sprintf($img_status_pattern, __('Unpublished'), 'check-off.png'),
+                -1      => sprintf($img_status_pattern, __('Scheduled'), 'scheduled.png'),
+                -2      => sprintf($img_status_pattern, __('Pending'), 'check-wrn.png'),
                 default => '',
             };
             $edit_entry_str  = __('&ldquo;%s&rdquo;');
@@ -334,7 +333,8 @@ class HandlerEdit extends AbstractPage
                 dotclear()->resource()->json('pages_page', ['confirm_delete_post' => __('Are you sure you want to delete this page?')]) .
                 dotclear()->resource()->load('_post.js') .
                 dotclear()->resource()->load('page.js', 'Plugin', 'Pages')
-        );
+            )
+        ;
 
         if ($this->post_editor) {
             $p_edit = $c_edit = '';
@@ -373,7 +373,7 @@ class HandlerEdit extends AbstractPage
         $this
             ->setPageHead(
                 dotclear()->resource()->confirmClose('entry-form', 'comment-form') .
-                # --BEHAVIOR-- adminPostHeaders
+                // --BEHAVIOR-- adminPostHeaders
                 dotclear()->behavior()->call('adminPageHeaders') .
                 dotclear()->resource()->pageTabs($default_tab) .
                 $next_headlink . "\n" . $prev_headlink
@@ -406,7 +406,7 @@ class HandlerEdit extends AbstractPage
         }
 
         if (!empty($_GET['upd'])) {
-           dotclear()->notice()->success(__('Page has been successfully updated.'));
+            dotclear()->notice()->success(__('Page has been successfully updated.'));
         } elseif (!empty($_GET['crea'])) {
             dotclear()->notice()->success(__('Page has been successfully created.'));
         } elseif (!empty($_GET['attached'])) {
@@ -415,7 +415,7 @@ class HandlerEdit extends AbstractPage
             dotclear()->notice()->success(__('Attachment has been successfully removed.'));
         }
 
-        # XHTML conversion
+        // XHTML conversion
         if (!empty($_GET['xconv'])) {
             $this->post_excerpt = $this->post_excerpt_xhtml;
             $this->post_content = $this->post_content_xhtml;
@@ -439,13 +439,13 @@ class HandlerEdit extends AbstractPage
                 echo $this->next_link;
             }
 
-            # --BEHAVIOR-- adminPostNavLinks
+            // --BEHAVIOR-- adminPostNavLinks
             dotclear()->behavior()->call('adminPageNavLinks', $this->post ?? null);
 
             echo '</p>';
         }
 
-        # Exit if we cannot view page
+        // Exit if we cannot view page
         if (!$this->can_view_page) {
             return;
         }
@@ -477,7 +477,7 @@ class HandlerEdit extends AbstractPage
                         '<h5 id="label_format"><label for="post_format" class="classic">' . __('Text formatting') . '</label></h5>' .
                         '<p>' . Form::combo('post_format', $available_formats, $this->post_format, 'maximal') . '</p>' .
                         '<p class="format_control control_wiki">' .
-                        '<a id="convert-xhtml" class="button' . ($this->post_id && $this->post_format != 'wiki' ? ' hide' : '') .
+                        '<a id="convert-xhtml" class="button' . ($this->post_id && 'wiki' != $this->post_format ? ' hide' : '') .
                         '" href="' . dotclear()->adminurl()->get('admin.plugin.Page', ['id' => $this->post_id, 'xconv' => '1']) . '">' .
                         __('Convert to XHTML') . '</a></p></div>', ], ],
                 'metas-box' => [
@@ -579,7 +579,7 @@ class HandlerEdit extends AbstractPage
                 ]
             );
 
-            # --BEHAVIOR-- adminPostFormItems
+            // --BEHAVIOR-- adminPostFormItems
             dotclear()->behavior()->call('adminPageFormItems', $main_items, $sidebar_items, $this->post ?? null);
 
             echo '<div class="multi-part" title="' . ($this->post_id ? __('Edit page') : __('New page')) .
@@ -594,11 +594,10 @@ class HandlerEdit extends AbstractPage
                 echo $item;
             }
 
-            # --BEHAVIOR-- adminPageForm
+            // --BEHAVIOR-- adminPageForm
             dotclear()->behavior()->call('adminPageForm', $this->post ?? null);
 
-            echo
-            '<p class="border-top">' .
+            echo '<p class="border-top">' .
             ($this->post_id ? Form::hidden('id', $this->post_id) : '') .
             '<input type="submit" value="' . __('Save') . ' (s)" ' .
                 'accesskey="s" name="save" /> ';
@@ -622,8 +621,7 @@ class HandlerEdit extends AbstractPage
                 echo '<a id="post-preview" href="' . $preview_url . '" class="button' . $preview_class . '" accesskey="p"' . $preview_target . '>' . __('Preview') . ' (p)' . '</a>';
                 echo ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />';
             } else {
-                echo
-                '<a id="post-cancel" href="' . dotclear()->adminurl()->get('admin.home') . '" class="button" accesskey="c">' . __('Cancel') . ' (c)</a>';
+                echo '<a id="post-cancel" href="' . dotclear()->adminurl()->get('admin.home') . '" class="button" accesskey="c">' . __('Cancel') . ' (c)</a>';
             }
 
             echo($this->can_delete ? ' <input type="submit" class="delete" value="' . __('Delete') . '" name="delete" />' : '') .
@@ -644,21 +642,20 @@ class HandlerEdit extends AbstractPage
                 echo '</div>';
             }
 
-            # --BEHAVIOR-- adminPageFormSidebar
+            // --BEHAVIOR-- adminPageFormSidebar
             dotclear()->behavior()->call('adminPageFormSidebar', $this->post ?? null);
 
             echo '</div>'; // End #entry-sidebar
 
             echo '</form>';
 
-            # --BEHAVIOR-- adminPostForm
+            // --BEHAVIOR-- adminPostForm
             dotclear()->behavior()->call('adminPageAfterForm', $this->post ?? null);
 
             echo '</div>'; // End
 
             if ($this->post_id) { // && !empty($this->post_media)) {
-                echo
-                '<form action="' . dotclear()->adminurl()->root() . '" id="attachment-remove-hide" method="post">' .
+                echo '<form action="' . dotclear()->adminurl()->root() . '" id="attachment-remove-hide" method="post">' .
                 '<div>' .
                 dotclear()->adminurl()->getHiddenFormFields('admin.post.media', [
                     'post_id'  => $this->post_id,
@@ -677,7 +674,7 @@ class HandlerEdit extends AbstractPage
             $comments   = dotclear()->blog()->comments()->getComments(array_merge($params, ['comment_trackback' => 0]));
             $trackbacks = dotclear()->blog()->comments()->getComments(array_merge($params, ['comment_trackback' => 1]));
 
-            # Actions combo box
+            // Actions combo box
             $combo_action = [];
             if ($this->can_edit_page && dotclear()->user()->check('publish,contentadmin', dotclear()->blog()->id)) {
                 $combo_action[__('Publish')]         = 'publish';
@@ -692,11 +689,9 @@ class HandlerEdit extends AbstractPage
 
             $has_action = !empty($combo_action) && (!$trackbacks->isEmpty() || !$comments->isEmpty());
 
-            echo
-            '<div id="comments" class="multi-part" title="' . __('Comments') . '">';
+            echo '<div id="comments" class="multi-part" title="' . __('Comments') . '">';
 
-            echo
-            '<p class="top-add"><a class="button add" href="#comment-form">' . __('Add a comment') . '</a></p>';
+            echo '<p class="top-add"><a class="button add" href="#comment-form">' . __('Add a comment') . '</a></p>';
 
             if ($has_action) {
                 echo '<form action="' . dotclear()->adminurl()->root() . '#comments" method="post">';
@@ -718,8 +713,7 @@ class HandlerEdit extends AbstractPage
             }
 
             if ($has_action) {
-                echo
-                '<div class="two-cols">' .
+                echo '<div class="two-cols">' .
                 '<p class="col checkboxes-helpers"></p>' .
 
                 '<p class="col right"><label for="action" class="classic">' . __('Selected comments action:') . '</label> ' .
@@ -733,8 +727,7 @@ class HandlerEdit extends AbstractPage
             /* Add a comment
             -------------------------------------------------------- */
 
-            echo
-            '<div class="fieldset clear">' .
+            echo '<div class="fieldset clear">' .
             '<h3>' . __('Add a comment') . '</h3>' .
 
             '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="comment-form">' .
@@ -770,17 +763,17 @@ class HandlerEdit extends AbstractPage
             '<p>' . Form::hidden('post_id', $this->post_id) .
             dotclear()->adminurl()->getHiddenFormFields('admin.comment', [], true) .
             '<input type="submit" name="add" value="' . __('Save') . '" /></p>' .
-            '</div>' . #constrained
+            '</div>' . // constrained
 
             '</form>' .
-            '</div>' . #add comment
-            '</div>'; #comments
+            '</div>' . // add comment
+            '</div>'; // comments
         }
     }
 
-    # Controls comments capabilities
-     protected function isContributionAllowed($id, $dt, $com = true)
-     {
+    // Controls comments capabilities
+    protected function isContributionAllowed($id, $dt, $com = true)
+    {
         if (!$id) {
             return true;
         }
@@ -797,11 +790,10 @@ class HandlerEdit extends AbstractPage
         return false;
     }
 
-    # Show comments
+    // Show comments
     protected function showComments($rs, $has_action, $tb = false)
     {
-        echo
-        '<div class="table-outer">' .
+        echo '<div class="table-outer">' .
         '<table class="comments-list"><tr>' .
         '<th colspan="2" class="first">' . __('Author') . '</th>' .
         '<th>' . __('Date') . '</th>' .
@@ -819,34 +811,37 @@ class HandlerEdit extends AbstractPage
         while ($rs->fetch()) {
             $comment_url = dotclear()->adminurl()->get('admin.comment', ['id' => $rs->f('comment_id')]);
 
-            $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
+            $img              = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
             $this->img_status = '';
-            $sts_class  = '';
+            $sts_class        = '';
+
             switch ($rs->fInt('comment_status')) {
                 case 1:
                     $this->img_status = sprintf($img, __('Published'), 'check-on.png');
-                    $sts_class  = 'sts-online';
+                    $sts_class        = 'sts-online';
 
                     break;
+
                 case 0:
                     $this->img_status = sprintf($img, __('Unpublished'), 'check-off.png');
-                    $sts_class  = 'sts-offline';
+                    $sts_class        = 'sts-offline';
 
                     break;
+
                 case -1:
                     $this->img_status = sprintf($img, __('Pending'), 'check-wrn.png');
-                    $sts_class  = 'sts-pending';
+                    $sts_class        = 'sts-pending';
 
                     break;
+
                 case -2:
                     $this->img_status = sprintf($img, __('Junk'), 'junk.png');
-                    $sts_class  = 'sts-junk';
+                    $sts_class        = 'sts-junk';
 
                     break;
             }
 
-            echo
-            '<tr class="line ' . (1 != $rs->fInt('comment_status') ? ' offline ' : '') . $sts_class . '"' .
+            echo '<tr class="line ' . (1 != $rs->fInt('comment_status') ? ' offline ' : '') . $sts_class . '"' .
             ' id="c' . $rs->f('comment_id') . '">' .
 
             '<td class="nowrap">' .

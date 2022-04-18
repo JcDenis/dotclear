@@ -1,12 +1,11 @@
 <?php
 /**
- * @class Dotclear\Database\Record
+ * @note Dotclear\Database\Record
  * @brief Database record
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
- * @package Dotclear
- * @subpackage Database
+ * @ingroup  Database
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,27 +16,28 @@ namespace Dotclear\Database;
 
 use Iterator;
 use Countable;
-use Dotclear\Database\StaticRecord;
+use ReflectionClass;
+use ReturnTypeWillChange;
 
 class Record implements Iterator, Countable
 {
-    /** @var    mixed   $__link     atabase resource link */
+    /** @var mixed atabase resource link */
     protected $__link;
 
-    /** @var    array<string, callable>     $__extend   List of static functions that extend recor */
+    /** @var array<string, callable>       List of static functions that extend recor */
     protected $__extend = [];
 
-    /** @var    int     $__index    Current result position */
-    protected $__index  = 0;
+    /** @var int Current result position */
+    protected $__index = 0;
 
-    /** @var    array|false   $__row  Current result row content */
-    protected $__row    = false;
+    /** @var array|false Current result row content */
+    protected $__row = false;
 
-    /** @var    bool    $__fetch    Fetch method position mark */
+    /** @var bool Fetch method position mark */
     private $__fetch = false;
 
     /**
-     * Constructor
+     * Constructor.
      *
      * Creates class instance from result link and some informations.
      * <var>$info</var> is an array with the following content:
@@ -48,8 +48,8 @@ class Record implements Iterator, Countable
      * - info[name] => an array with columns names
      * - info[type] => an array with columns types
      *
-     * @param   mixed   $__result   Resource result
-     * @param   array   $__info     Information array
+     * @param mixed $__result Resource result
+     * @param array $__info   Information array
      */
     public function __construct(protected mixed $__result, protected array $__info)
     {
@@ -58,15 +58,13 @@ class Record implements Iterator, Countable
     }
 
     /**
-     * To staticRecord
+     * To staticRecord.
      *
      * Converts this record to a {@link StaticRecord} instance.
-     * 
-     * @return  StaticRecord
      */
     public function toStatic(): StaticRecord
     {
-        return  ($this instanceof StaticRecord) ? $this : new StaticRecord($this->__result, $this->__info);
+        return ($this instanceof StaticRecord) ? $this : new StaticRecord($this->__result, $this->__info);
     }
 
     /**
@@ -80,17 +78,14 @@ class Record implements Iterator, Countable
     }
 
     /**
-     * Call a registered method
+     * Call a registered method.
      *
      * Magic call function. Calls function added by {@link extend()} if exists, passing it
      * self object and arguments.
-     *
-     * @return  mixed
      */
     public function call(string $function, mixed ...$args): mixed
     {
         if (isset($this->__extend[$function])) {
-
             return call_user_func_array($this->__extend[$function], $args);
         }
 
@@ -114,13 +109,11 @@ class Record implements Iterator, Countable
     }
 
     /**
-     * Get field
+     * Get field.
      *
      * Retrieve field value by its name or column position.
      *
-     * @param   string|int  $field  Field name
-     * 
-     * @return  mixed
+     * @param int|string $field Field name
      */
     public function field(string|int $field): mixed
     {
@@ -136,13 +129,11 @@ class Record implements Iterator, Countable
     }
 
     /**
-     * Field exists
+     * Field exists.
      *
      * Returns true if a field exists.
      *
-     * @param   string  $field  Field name
-     * 
-     * @return  bool
+     * @param string $field Field name
      */
     public function exists(string $field): bool
     {
@@ -158,7 +149,7 @@ class Record implements Iterator, Countable
     }
 
     /**
-     * Extend record
+     * Extend record.
      *
      * Extends this instance capabilities by adding all public static methods of
      * <var>$class</var> to current instance. Class methods should take at least
@@ -166,7 +157,7 @@ class Record implements Iterator, Countable
      *
      * @see     self::__call()
      *
-     * @param   RecordExtend    $class  Class
+     * @param RecordExtend $class Class
      */
     public function extend(RecordExtend $class): void
     {
@@ -176,7 +167,7 @@ class Record implements Iterator, Countable
 
         $class->setRecord($this);
 
-        $c = new \ReflectionClass($class);
+        $c = new ReflectionClass($class);
         foreach ($c->getMethods() as $m) {
             if ($m->isPublic()) {
                 $this->__extend[$m->name] = [$class, $m->name];
@@ -186,8 +177,6 @@ class Record implements Iterator, Countable
 
     /**
      * Returns record extensions.
-     *
-     * @return  array
      */
     public function extensions(): array
     {
@@ -198,7 +187,7 @@ class Record implements Iterator, Countable
     {
         $this->__row = $this->__info['con']->db_fetch_assoc($this->__result);
 
-        if ($this->__row !== false) {
+        if (false !== $this->__row) {
             foreach ($this->__row as $k => $v) {
                 $this->__row[] = &$this->__row[$k];
             }
@@ -213,17 +202,15 @@ class Record implements Iterator, Countable
      * Returns the current index position (0 is first) or move to <var>$row</var> if
      * specified.
      *
-     * @param   int         $row    Row number to move
-     * 
-     * @return  int|bool
+     * @param int $row Row number to move
      */
     public function index(int $row = null): int|bool
     {
-        if ($row === null) {
-            return $this->__index === null ? 0 : $this->__index;
+        if (null === $row) {
+            return null === $this->__index ? 0 : $this->__index;
         }
 
-        if ($row < 0 || $row + 1 > $this->__info['rows']) {
+        if (0 > $row || $row + 1 > $this->__info['rows']) {
             return false;
         }
 
@@ -239,7 +226,7 @@ class Record implements Iterator, Countable
     }
 
     /**
-     * One step move index
+     * One step move index.
      *
      * This method moves index forward and return true until index is not
      * the last one. You can use it to loop over record. Example:
@@ -250,8 +237,6 @@ class Record implements Iterator, Countable
      * }
      * ?>
      * </code>
-     *
-     * @return  bool
      */
     public function fetch(): bool
     {
@@ -274,8 +259,6 @@ class Record implements Iterator, Countable
 
     /**
      * Moves index to first position.
-     *
-     * @return  int|bool
      */
     public function moveStart(): int|bool
     {
@@ -286,8 +269,6 @@ class Record implements Iterator, Countable
 
     /**
      * Moves index to last position.
-     *
-     * @return  int|bool
      */
     public function moveEnd(): int|bool
     {
@@ -296,8 +277,6 @@ class Record implements Iterator, Countable
 
     /**
      * Moves index to next position.
-     *
-     * @return  int|bool
      */
     public function moveNext(): int|bool
     {
@@ -306,8 +285,6 @@ class Record implements Iterator, Countable
 
     /**
      * Moves index to previous position.
-     *
-     * @return  int|bool
      */
     public function movePrev(): int|bool
     {
@@ -315,9 +292,9 @@ class Record implements Iterator, Countable
     }
 
     /**
-     * Check if it is end position
-     * 
-     * @return  bool    true if index is at last position
+     * Check if it is end position.
+     *
+     * @return bool true if index is at last position
      */
     public function isEnd(): bool
     {
@@ -325,19 +302,19 @@ class Record implements Iterator, Countable
     }
 
     /**
-     * Check if it is start position
-     * 
-     * @return  bool    true if index is at first position.
+     * Check if it is start position.
+     *
+     * @return bool true if index is at first position
      */
     public function isStart(): bool
     {
-        return $this->__index <= 0;
+        return 0 >= $this->__index;
     }
 
     /**
-     * Chek if record is empty
-     * 
-     * @return  bool    true if record contains no result.
+     * Chek if record is empty.
+     *
+     * @return bool true if record contains no result
      */
     public function isEmpty(): bool
     {
@@ -345,20 +322,20 @@ class Record implements Iterator, Countable
     }
 
     /**
-     * Get number of rows
-     * 
-     * @return  int     number of rows in record
+     * Get number of rows.
+     *
+     * @return int number of rows in record
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function count(): int
     {
         return $this->__info['rows'];
     }
 
     /**
-     * Get columns
-     * 
-     * @return  array   array of columns, with name as key and type as value.
+     * Get columns.
+     *
+     * @return array array of columns, with name as key and type as value
      */
     public function columns(): array
     {
@@ -366,9 +343,9 @@ class Record implements Iterator, Countable
     }
 
     /**
-     * Get all rows
-     * 
-     * @return  array    all rows in record.
+     * Get all rows.
+     *
+     * @return array all rows in record
      */
     public function rows(): array
     {
@@ -376,11 +353,9 @@ class Record implements Iterator, Countable
     }
 
     /**
-     * Get all data
+     * Get all data.
      *
      * Returns an array of all rows in record. This method is called by rows().
-     *
-     * @return  array
      */
     protected function getData(): array
     {
@@ -391,7 +366,7 @@ class Record implements Iterator, Countable
         }
 
         $this->__info['con']->db_result_seek($this->__result, 0);
-        while (($r = $this->__info['con']->db_fetch_assoc($this->__result)) !== false) {
+        while (false !== ($r = $this->__info['con']->db_fetch_assoc($this->__result))) {
             foreach ($r as $k => $v) {
                 $r[] = &$r[$k];
             }
@@ -403,21 +378,21 @@ class Record implements Iterator, Countable
     }
 
     /**
-     * Get current row
-     * 
-     * @return  array    current rows.
+     * Get current row.
+     *
+     * @return array current rows
      */
     public function row(): array
     {
         return $this->__row;
     }
 
-    /* Iterator methods */
+    // Iterator methods
 
     /**
      * @see     Iterator::current
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function current()
     {
         return $this;
@@ -426,15 +401,16 @@ class Record implements Iterator, Countable
     /**
      * @see     Iterator::key
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function key()
     {
         return $this->index();
     }
+
     /**
      * @see     Iterator::next
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function next()
     {
         $this->fetch();
@@ -443,7 +419,7 @@ class Record implements Iterator, Countable
     /**
      * @see     Iterator::rewind
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function rewind()
     {
         $this->moveStart();
@@ -453,20 +429,18 @@ class Record implements Iterator, Countable
     /**
      * @see     Iterator::valid
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function valid()
     {
         return $this->__fetch;
     }
 
     /**
-     * Return as integer the field result
+     * Return as integer the field result.
      *
      * Usefull with 'count only' request
      *
-     * @param   string|int  $n  The field
-     *
-     * @return  int
+     * @param int|string $n The field
      */
     public function fInt(string|int $n = 0): int
     {

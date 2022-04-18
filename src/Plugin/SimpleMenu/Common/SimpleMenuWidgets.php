@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\SimpleMenu\Common\SimpleMenuWidgets
+ * @note Dotclear\Plugin\SimpleMenu\Common\SimpleMenuWidgets
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginSimpleMenu
+ * @ingroup  PluginSimpleMenu
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -37,20 +36,26 @@ class SimpleMenuWidgets
         $w
             ->create('simplemenu', __('Simple menu'), [$this, 'simpleMenuWidget'], null, 'List of simple menu items')
             ->addTitle(__('Menu'))
-            ->setting('description', __('Item description'), 0, 'combo',
+            ->setting(
+                'description',
+                __('Item description'),
+                0,
+                'combo',
                 [
                     __('Displayed in link')                   => 0, // span
                     __('Used as link title')                  => 1, // title
                     __('Displayed in link and used as title') => 2, // both
-                    __('Not displayed nor used')              => 3 // none
-                ])
+                    __('Not displayed nor used')              => 3, // none
+                ]
+            )
             ->addHomeOnly()
             ->addContentOnly()
             ->addClass()
-            ->addOffline();
+            ->addOffline()
+        ;
     }
 
-    # Template function
+    // Template function
     public function simpleMenu(ArrayObject $attr): string
     {
         if (!(bool) dotclear()->blog()->settings()->get('system')->get('simpleMenu_active')) {
@@ -72,13 +77,13 @@ class SimpleMenuWidgets
             '); ?>';
     }
 
-    # Widget function
+    // Widget function
     public function simpleMenuWidget(Widget $widget): string
     {
         $descr_type = [0 => 'span', 1 => 'title', 2 => 'both', 3 => 'none'];
 
         if (!dotclear()->blog()->settings()->get('system')->get('simpleMenu_active')
-            || $widget->isOffline() 
+            || $widget->isOffline()
             || !$widget->checkHomeOnly(dotclear()->url()->type)
         ) {
             return '';
@@ -93,9 +98,9 @@ class SimpleMenuWidgets
         }
 
         return $widget->renderDiv(
-            $widget->get('content_only'), 
-            'simple-menu ' . $widget->get('class'), 
-            '', 
+            $widget->get('content_only'),
+            'simple-menu ' . $widget->get('class'),
+            '',
             $widget->renderTitle() . $menu
         );
     }
@@ -117,39 +122,39 @@ class SimpleMenuWidgets
             // Home recognition var
             $home_url       = html::stripHostURL(dotclear()->blog()->url);
             $home_directory = dirname($home_url);
-            if ($home_directory != '/') {
+            if ('/' != $home_directory) {
                 $home_directory = $home_directory . '/';
             }
 
             // Menu items loop
             foreach ($menu as $i => $m) {
-                # $href = lien de l'item de menu
+                // $href = lien de l'item de menu
                 $href = $m['url'];
                 $href = html::escapeHTML($href);
 
-                # Cope with request only URL (ie ?query_part)
+                // Cope with request only URL (ie ?query_part)
                 $href_part = '';
-                if ($href != '' && substr($href, 0, 1) == '?') {
+                if ('' != $href && substr($href, 0, 1) == '?') {
                     $href_part = substr($href, 1);
                 }
 
                 $targetBlank = ((isset($m['targetBlank'])) && ($m['targetBlank'])) ? true : false;
 
-                # Active item test
+                // Active item test
                 $active = false;
-                if (($url == $href) || ($abs_url == $href) || ($_SERVER['URL_REQUEST_PART'] == $href) || (($href_part != '') && ($_SERVER['URL_REQUEST_PART'] == $href_part)) || (($_SERVER['URL_REQUEST_PART'] == '') && (($href == $home_url) || ($href == $home_directory)))) {
+                if (($url == $href) || ($abs_url == $href) || ($_SERVER['URL_REQUEST_PART'] == $href) || (('' != $href_part) && ($_SERVER['URL_REQUEST_PART'] == $href_part)) || (('' == $_SERVER['URL_REQUEST_PART']) && (($href == $home_url) || ($href == $home_directory)))) {
                     $active = true;
                 }
                 $title = $span = '';
 
                 if ($m['descr']) {
-                    if (($description == 'title' || $description == 'both') && $targetBlank) {
+                    if (('title' == $description || 'both' == $description) && $targetBlank) {
                         $title = html::escapeHTML($m['descr']) . ' (' .
                         __('new window') . ')';
-                    } elseif ($description == 'title' || $description == 'both') {
+                    } elseif ('title' == $description || 'both' == $description) {
                         $title = html::escapeHTML($m['descr']);
                     }
-                    if ($description == 'span' || $description == 'both') {
+                    if ('span' == $description || 'both' == $description) {
                         $span = ' <span class="simple-menu-descr">' . html::escapeHTML($m['descr']) . '</span>';
                     }
                 }
@@ -169,16 +174,16 @@ class SimpleMenuWidgets
                     'title'  => $title,  // <a> link title (optional)
                     'span'   => $span,   // description (will be displayed after <a> link)
                     'active' => $active, // status (true/false)
-                    'class'  => ''      // additional <li> class (optional)
+                    'class'  => '',      // additional <li> class (optional)
                 ]);
 
-                # --BEHAVIOR-- publicSimpleMenuItem
+                // --BEHAVIOR-- publicSimpleMenuItem
                 dotclear()->behavior()->call('publicSimpleMenuItem', $i, $item);
 
                 $ret .= '<li class="li' . ($i + 1) .
                     ($item['active'] ? ' active' : '') .
-                    ($i == 0 ? ' li-first' : '') .
-                    ($i == count($menu) - 1 ? ' li-last' : '') .
+                    (0                == $i ? ' li-first' : '') .
+                    (count($menu) - 1 == $i ? ' li-last' : '') .
                     ($item['class'] ? ' ' . $item['class'] : '') .
                     '">' .
                     '<a href="' . $href . '"' .

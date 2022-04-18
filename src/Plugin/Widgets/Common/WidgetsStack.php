@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Widgets\Common\WidgetsStack
+ * @note Dotclear\Plugin\Widgets\Common\WidgetsStack
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginWidgets
+ * @ingroup  PluginWidgets
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,22 +17,21 @@ use Dotclear\Database\Record;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Feed\Reader;
-use Dotclear\Plugin\Widgets\Common\Widget;
-use Dotclear\Plugin\Widgets\Common\Widgets;
+use SimpleXMLElement;
 
 class WidgetsStack
 {
-    /** @var    WidgetsStack     @stack  Self instance */
+    /** @var WidgetsStack @stack  Self instance */
     public static $stack;
 
-    /** @var    Widgets     $__widgets  Widgets */
+    /** @var Widgets Widgets */
     public static $__widgets;
 
-    /** @var    array<string, Widgets>  $__default_widgets  Default widgets */
+    /** @var array<string, Widgets>   Default widgets */
     public static $__default_widgets;
 
     /**
-     * Constructor
+     * Constructor.
      */
     public function __construct()
     {
@@ -47,14 +45,12 @@ class WidgetsStack
         }
     }
 
-    /// @name Widgets page methods
-    //@{
+    // / @name Widgets page methods
+    // @{
     /**
-     * Render widget 'search'
-     * 
-     * @param   Widget  $widget     The widget
-     * 
-     * @return string
+     * Render widget 'search'.
+     *
+     * @param Widget $widget The widget
      */
     public function search(Widget $widget): string
     {
@@ -67,22 +63,24 @@ class WidgetsStack
 
         $value = dotclear()->url()->search_string ? Html::escapeHTML(dotclear()->url()->search_string) : '';
 
-        return $widget->renderDiv($widget->get('content_only'), $widget->get('class'), 'id="search"',
+        return $widget->renderDiv(
+            $widget->get('content_only'),
+            $widget->get('class'),
+            'id="search"',
             ($widget->get('title') ? $widget->renderTitle('<label for="q">' . Html::escapeHTML($widget->get('title')) . '</label>', false) : '') .
             '<form action="' . dotclear()->blog()->url . '" method="get" role="search">' .
             '<p><input type="text" size="10" maxlength="255" id="q" name="q" value="' . $value . '" ' .
             ($widget->get('placeholder') ? 'placeholder="' . Html::escapeHTML($widget->get('placeholder')) . '"' : '') .
             ' aria-label="' . __('Search') . '"/> ' .
             '<input type="submit" class="submit" value="ok" title="' . __('Search') . '" /></p>' .
-            '</form>');
+            '</form>'
+        );
     }
 
     /**
-     * Render widget 'navigation'
-     * 
-     * @param   Widget  $widget     The widget
-     * 
-     * @return string
+     * Render widget 'navigation'.
+     *
+     * @param Widget $widget The widget
      */
     public function navigation(Widget $widget): string
     {
@@ -120,11 +118,9 @@ class WidgetsStack
     }
 
     /**
-     * Render widget 'catgories'
-     * 
-     * @param   Widget  $widget     The widget
-     * 
-     * @return string
+     * Render widget 'catgories'.
+     *
+     * @param Widget $widget The widget
      */
     public function categories(Widget $widget): string
     {
@@ -172,11 +168,9 @@ class WidgetsStack
     }
 
     /**
-     * Render widget 'bestof'
-     * 
-     * @param   Widget  $widget     The widget
-     * 
-     * @return string
+     * Render widget 'bestof'.
+     *
+     * @param Widget $widget The widget
      */
     public function bestof(Widget $widget): string
     {
@@ -187,7 +181,7 @@ class WidgetsStack
         $params = [
             'post_selected' => true,
             'no_content'    => true,
-            'order'         => 'post_dt ' . strtoupper($widget->get('orderby'))
+            'order'         => 'post_dt ' . strtoupper($widget->get('orderby')),
         ];
 
         $rs = dotclear()->blog()->posts()->getPosts($params);
@@ -213,11 +207,9 @@ class WidgetsStack
     }
 
     /**
-     * Render widget 'langs'
-     * 
-     * @param   Widget  $widget     The widget
-     * 
-     * @return string
+     * Render widget 'langs'.
+     *
+     * @param Widget $widget The widget
      */
     public function langs(Widget $widget): string
     {
@@ -241,10 +233,12 @@ class WidgetsStack
             $lang_name = $langs[$rs->f('post_lang')] ?? $rs->f('post_lang');
 
             $res .= ' <li>' .
-            sprintf($l,
+            sprintf(
+                $l,
                 '<a href="' . dotclear()->blog()->getURLFor('lang', $rs->f('post_lang')) . '" ' .
                 'class="lang-' . $rs->f('post_lang') . '">' .
-                $lang_name . '</a>') .
+                $lang_name . '</a>'
+            ) .
                 ' </li>';
         }
 
@@ -254,11 +248,9 @@ class WidgetsStack
     }
 
     /**
-     * Render widget 'subscribe'
-     * 
-     * @param   Widget  $widget     The widget
-     * 
-     * @return string
+     * Render widget 'subscribe'.
+     *
+     * @param Widget $widget The widget
      */
     public function subscribe(Widget $widget): string
     {
@@ -267,7 +259,7 @@ class WidgetsStack
         }
 
         $type = ('atom' == $widget->get('type') || 'rss2' == $widget->get('type')) ? $widget->get('type') : 'rss2';
-        $mime = 'rss2' == $type ? 'application/rss+xml' : 'application/atom+xml';
+        $mime = 'rss2'  == $type ? 'application/rss+xml' : 'application/atom+xml';
         if (dotclear()->context()->exists('cur_lang')) {
             $type = dotclear()->context()->get('cur_lang') . '/' . $type;
         }
@@ -296,23 +288,21 @@ class WidgetsStack
     }
 
     /**
-     * Render widget 'feed'
-     * 
-     * @param   Widget  $widget     The widget
-     * 
-     * @return string
+     * Render widget 'feed'.
+     *
+     * @param Widget $widget The widget
      */
     public function feed(Widget $widget): string
     {
         if (!$widget->get('url') || $widget->isOffline() || !$widget->checkHomeOnly(dotclear()->url()->type)) {
-            return '' ;
+            return '';
         }
 
         $limit = abs((int) $widget->get('limit'));
 
         try {
             $feed = Reader::quickParse($widget->get('url'), dotclear()->config()->get('cache_dir'));
-            if ($feed == false || count($feed->items) == 0) {
+            if (false == $feed || count($feed->items) == 0) {
                 return '';
             }
         } catch (\Exception) {
@@ -337,7 +327,7 @@ class WidgetsStack
 
             $li = $link ? '<a href="' . Html::escapeHTML($item->link) . '">' . $title . '</a>' : $title;
             $res .= ' <li>' . $li . '</li> ';
-            $i++;
+            ++$i;
             if ($i >= $limit) {
                 break;
             }
@@ -349,11 +339,9 @@ class WidgetsStack
     }
 
     /**
-     * Render widget 'text'
-     * 
-     * @param   Widget  $widget     The widget
-     * 
-     * @return string
+     * Render widget 'text'.
+     *
+     * @param Widget $widget The widget
      */
     public function text(Widget $widget): string
     {
@@ -362,19 +350,17 @@ class WidgetsStack
         }
 
         return $widget->renderDiv(
-            $widget->get('content_only'), 
-            'text ' . $widget->get('class'), 
-            '', 
+            $widget->get('content_only'),
+            'text ' . $widget->get('class'),
+            '',
             $widget->renderTitle() . $widget->get('text')
         );
     }
 
     /**
-     * Render widget 'lastposts'
-     * 
-     * @param   Widget  $widget     The widget
-     * 
-     * @return string
+     * Render widget 'lastposts'.
+     *
+     * @param Widget $widget The widget
      */
     public function lastposts(Widget $widget): string
     {
@@ -425,11 +411,9 @@ class WidgetsStack
     }
 
     /**
-     * Render widget 'lastcomments'
-     * 
-     * @param   Widget  $widget     The widget
-     * 
-     * @return string
+     * Render widget 'lastcomments'.
+     *
+     * @param Widget $widget The widget
      */
     public function lastcomments(Widget $widget): string
     {
@@ -460,12 +444,12 @@ class WidgetsStack
 
         return $widget->renderDiv($widget->get('content_only'), 'lastcomments ' . $widget->get('class'), '', $res);
     }
-    //@}
+    // @}
 
-    /// @name Widgets init methods
-    //@{
+    // / @name Widgets init methods
+    // @{
     /**
-     * Intialize widgets
+     * Intialize widgets.
      */
     public function initWidgets(): void
     {
@@ -478,7 +462,8 @@ class WidgetsStack
             ->addHomeOnly()
             ->addContentOnly()
             ->addClass()
-            ->addOffline();
+            ->addOffline()
+        ;
 
         $__widgets
             ->create('navigation', __('Navigation links'), [$this, 'navigation'], null, 'List of navigation links')
@@ -486,7 +471,8 @@ class WidgetsStack
             ->addHomeOnly()
             ->addContentOnly()
             ->addClass()
-            ->addOffline();
+            ->addOffline()
+        ;
 
         $__widgets
             ->create('bestof', __('Selected entries'), [$this, 'bestof'], null, 'List of selected entries')
@@ -495,7 +481,8 @@ class WidgetsStack
             ->addHomeOnly()
             ->addContentOnly()
             ->addClass()
-            ->addOffline();
+            ->addOffline()
+        ;
 
         $__widgets
             ->create('langs', __('Blog languages'), [$this, 'langs'], null, 'List of available languages')
@@ -503,7 +490,8 @@ class WidgetsStack
             ->addHomeOnly()
             ->addContentOnly()
             ->addClass()
-            ->addOffline();
+            ->addOffline()
+        ;
 
         $__widgets
             ->create('categories', __('List of categories'), [$this, 'categories'], null, 'List of categories')
@@ -514,7 +502,8 @@ class WidgetsStack
             ->addHomeOnly()
             ->addContentOnly()
             ->addClass()
-            ->addOffline();
+            ->addOffline()
+        ;
 
         $__widgets
             ->create('subscribe', __('Subscribe links'), [$this, 'subscribe'], null, 'Feed subscription links (RSS or Atom)')
@@ -523,7 +512,8 @@ class WidgetsStack
             ->addHomeOnly()
             ->addContentOnly()
             ->addClass()
-            ->addOffline();
+            ->addOffline()
+        ;
 
         $__widgets
             ->create('feed', __('Feed reader'), [$this, 'feed'], null, 'List of last entries from feed (RSS or Atom)')
@@ -533,7 +523,8 @@ class WidgetsStack
             ->addHomeOnly()
             ->addContentOnly()
             ->addClass()
-            ->addOffline();
+            ->addOffline()
+        ;
 
         $__widgets
             ->create('text', __('Text'), [$this, 'text'], null, 'Simple text')
@@ -542,7 +533,8 @@ class WidgetsStack
             ->addHomeOnly()
             ->addContentOnly()
             ->addClass()
-            ->addOffline();
+            ->addOffline()
+        ;
 
         $rs         = dotclear()->blog()->categories()->getCategories(['post_type' => 'post']);
         $categories = ['' => '', __('Uncategorized') => 'null'];
@@ -552,7 +544,8 @@ class WidgetsStack
         $widget = $__widgets->create('lastposts', __('Last entries'), [$this, 'lastposts'], null, 'List of last entries published');
         $widget
             ->addTitle(__('Last entries'))
-            ->setting('category', __('Category:'), '', 'combo', $categories);
+            ->setting('category', __('Category:'), '', 'combo', $categories)
+        ;
         if (dotclear()->plugins()->hasModule('Tags')) {
             $widget->setting('tag', __('Tag:'), '');
         }
@@ -561,7 +554,8 @@ class WidgetsStack
             ->addHomeOnly()
             ->addContentOnly()
             ->addClass()
-            ->addOffline();
+            ->addOffline()
+        ;
         unset($rs, $categories, $widget);
 
         $__widgets
@@ -571,9 +565,10 @@ class WidgetsStack
             ->addHomeOnly()
             ->addContentOnly()
             ->addClass()
-            ->addOffline();
+            ->addOffline()
+        ;
 
-        # --BEHAVIOR-- initWidgets
+        // --BEHAVIOR-- initWidgets
         dotclear()->behavior()->call('initWidgets', $__widgets);
 
         $__default_widgets = ['nav' => new Widgets(), 'extra' => new Widgets(), 'custom' => new Widgets()];
@@ -583,27 +578,27 @@ class WidgetsStack
         $__default_widgets['nav']->append($__widgets->get('categories'));
         $__default_widgets['custom']->append($__widgets->get('subscribe'));
 
-        # --BEHAVIOR-- initDefaultWidgets
+        // --BEHAVIOR-- initDefaultWidgets
         dotclear()->behavior()->call('initDefaultWidgets', $__widgets, $__default_widgets);
 
-        self::$__widgets = $__widgets;
+        self::$__widgets         = $__widgets;
         self::$__default_widgets = $__default_widgets;
     }
-    //@}
+    // @}
 
-    /// @name Widgets tempalte methods
-    //@{
+    // / @name Widgets tempalte methods
+    // @{
     public function tplWidgets(ArrayObject $attr): string
     {
         $type = $attr['type'] ?? '';
 
-        # widgets to disable
+        // widgets to disable
         $disable = isset($attr['disable']) ? trim($attr['disable']) : '';
 
-        if ($type == '') {
+        if ('' == $type) {
             $res = __CLASS__ . "::\$stack->widgetsHandler('nav','" . addslashes($disable) . "');" . "\n" .
-            "   " . __CLASS__ . "::\$stack->widgetsHandler('extra','" . addslashes($disable) . "');" . "\n" .
-            "   " . __CLASS__ . "::\$stack->widgetsHandler('custom','" . addslashes($disable) . "');" . "\n";
+            '   ' . __CLASS__ . "::\$stack->widgetsHandler('extra','" . addslashes($disable) . "');" . "\n" .
+            '   ' . __CLASS__ . "::\$stack->widgetsHandler('custom','" . addslashes($disable) . "');" . "\n";
         } else {
             if (!in_array($type, ['nav', 'extra', 'custom'])) {
                 $type = 'nav';
@@ -616,7 +611,7 @@ class WidgetsStack
 
     public function widgetsHandler(string $type, string $disable = ''): void
     {
-        $wtype = 'widgets_' . $type;
+        $wtype   = 'widgets_' . $type;
         $widgets = dotclear()->blog()->settings()->get('widgets')->get($wtype);
 
         if (!$widgets) {
@@ -624,7 +619,7 @@ class WidgetsStack
             $widgets = $this->defaultWidgets($type);
         } else {
             // Otherwise, load widgets
-            $widget = new Widgets();
+            $widget  = new Widgets();
             $widgets = $widget->load($widgets);
         }
 
@@ -648,13 +643,13 @@ class WidgetsStack
     {
         $type = $attr['type'] ?? '';
 
-        # widgets to disable
+        // widgets to disable
         $disable = isset($attr['disable']) ? trim($attr['disable']) : '';
 
-        if ($type == '') {
+        if ('' == $type) {
             $res = __CLASS__ . "::\$stack->ifWidgetsHandler('nav','" . addslashes($disable) . "') &&" . "\n" .
-            "   " . __CLASS__ . "::\$stack->ifWidgetsHandler('extra','" . addslashes($disable) . "') &&" . "\n" .
-            "   " . __CLASS__ . "::\$stack->ifWidgetsHandler('custom','" . addslashes($disable) . "')" . "\n";
+            '   ' . __CLASS__ . "::\$stack->ifWidgetsHandler('extra','" . addslashes($disable) . "') &&" . "\n" .
+            '   ' . __CLASS__ . "::\$stack->ifWidgetsHandler('custom','" . addslashes($disable) . "')" . "\n";
         } else {
             if (!in_array($type, ['nav', 'extra', 'custom'])) {
                 $type = 'nav';
@@ -667,7 +662,7 @@ class WidgetsStack
 
     public function ifWidgetsHandler(string $type, string $disable = ''): bool
     {
-        $wtype = 'widgets_' . $type;
+        $wtype   = 'widgets_' . $type;
         $widgets = dotclear()->blog()->settings()->get('widgets')->get($wtype);
 
         if (!$widgets) {
@@ -678,7 +673,7 @@ class WidgetsStack
             $widgets = (new Widgets())->load($widgets);
         }
 
-        return (!$widgets->isEmpty());
+        return !$widgets->isEmpty();
     }
 
     private function defaultWidgets(string $type): Widgets
@@ -698,14 +693,13 @@ class WidgetsStack
             return '';
         }
 
-        # We change tpl:lang syntax, we need it
+        // We change tpl:lang syntax, we need it
         $content = preg_replace('/\{\{tpl:lang\s+(.*?)\}\}/msu', '{tpl:lang $1}', $content);
 
-        # We remove every {{tpl:
+        // We remove every {{tpl:
         $content = preg_replace('/\{\{tpl:.*?\}\}/msu', '', $content);
 
-        return
-        "<?php " . __CLASS__ . "::\$stack->widgetHandler('" . addslashes($attr['id']) . "','" . str_replace("'", "\\'", $content) . "'); ?>";
+        return '<?php ' . __CLASS__ . "::\$stack->widgetHandler('" . addslashes($attr['id']) . "','" . str_replace("'", "\\'", $content) . "'); ?>";
     }
 
     public function widgetHandler(string $id, string $xml): void
@@ -722,7 +716,7 @@ class WidgetsStack
 
         $xml = '<?xml version="1.0" encoding="utf-8" ?><widget>' . $xml . '</widget>';
         $xml = @simplexml_load_string($xml);
-        if (!($xml instanceof \SimpleXMLElement)) {
+        if (!($xml instanceof SimpleXMLElement)) {
             echo 'Invalid widget XML fragment';
 
             return;
@@ -751,5 +745,5 @@ class WidgetsStack
     {
         return __($m[1]);
     }
-    //@}
+    // @}
 }

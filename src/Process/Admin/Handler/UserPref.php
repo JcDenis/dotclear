@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Handler\UserPref
+ * @note Dotclear\Process\Admin\Handler\UserPref
  * @brief Dotclear admin user preferences page
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,24 +13,24 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 use ArrayObject;
-
-use Dotclear\Process\Admin\Page\Page;
-use Dotclear\Container\UserContainer;
+use Dotclear\Process\Admin\Page\AbstractPage;
+use Dotclear\Core\User\UserContainer;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Dt;
 use Dotclear\Helper\Lexical;
+use Exception;
 
-class UserPref extends Page
+class UserPref extends AbstractPage
 {
-    /** @var    UserContainer   User container */
+    /** @var UserContainer User container */
     protected $container;
 
-    /** @var    string  User other emails (comma separated list ) */
+    /** @var string User other emails (comma separated list ) */
     protected $user_profile_mails = '';
 
-    /** @var    string  User other URLs (comma separated list ) */
+    /** @var string User other URLs (comma separated list ) */
     protected $user_profile_urls = '';
 
     protected $format_by_editors = [];
@@ -45,19 +44,19 @@ class UserPref extends Page
     protected $user_dm_doclinks   = '';
     protected $user_dm_dcnews     = '';
     protected $user_dm_quickentry = '';
-    protected $user_dm_nofavicons ='';
+    protected $user_dm_nofavicons = '';
     protected $user_dm_nodcupdate = false;
 
     protected $user_acc_nodragdrop = false;
 
-    protected $user_ui_theme            = '';
-    protected $user_ui_enhanceduploader = '';
-    protected $user_ui_blank_preview    = '';
-    protected $user_ui_hidemoreinfo     = '';
-    protected $user_ui_hidehelpbutton   = '';
-    protected $user_ui_showajaxloader   = '';
-    protected $user_ui_htmlfontsize     = '';
-    protected $user_ui_hide_std_favicon = false;
+    protected $user_ui_theme              = '';
+    protected $user_ui_enhanceduploader   = '';
+    protected $user_ui_blank_preview      = '';
+    protected $user_ui_hidemoreinfo       = '';
+    protected $user_ui_hidehelpbutton     = '';
+    protected $user_ui_showajaxloader     = '';
+    protected $user_ui_htmlfontsize       = '';
+    protected $user_ui_hide_std_favicon   = false;
     protected $user_ui_iconset            = '';
     protected $user_ui_nofavmenu          = '';
     protected $user_ui_media_nb_last_dirs = '';
@@ -115,12 +114,12 @@ class UserPref extends Page
         } elseif (!empty($_GET['updated'])) {
             $default_tab = 'user-options';
         }
-        if (($default_tab != 'user-profile') && ($default_tab != 'user-options') && ($default_tab != 'user-favorites')) {
+        if (('user-profile' != $default_tab) && ('user-options' != $default_tab) && ('user-favorites' != $default_tab)) {
             $default_tab = 'user-profile';
         }
 
-        # Format by editors
-        $formaters         = dotclear()->formater()->getFormaters();
+        // Format by editors
+        $formaters               = dotclear()->formater()->getFormaters();
         $this->format_by_editors = [];
         foreach ($formaters as $editor => $formats) {
             foreach ($formats as $format) {
@@ -133,19 +132,19 @@ class UserPref extends Page
             $this->container->setOption('editor', array_merge([$format => ''], $this->container->getOption('editor')));
         }
 
-        # Ensure Font size is set to default is empty
-        if ($this->user_ui_htmlfontsize == '') {
+        // Ensure Font size is set to default is empty
+        if ('' == $this->user_ui_htmlfontsize) {
             $this->user_ui_htmlfontsize = '62.5%';
         }
 
-        # Get 3rd parts xhtml editor flags
+        // Get 3rd parts xhtml editor flags
         $rte = [
             'blog_descr' => [true, __('Blog description (in blog parameters)')],
             'cat_descr'  => [true, __('Category description')],
         ];
         $this->rte = new ArrayObject($rte);
         dotclear()->behavior()->call('adminRteFlags', $this->rte);
-        # Load user settings
+        // Load user settings
         $rte_flags = @dotclear()->user()->preference()->get('interface')->get('rte_flags');
         if (is_array($rte_flags)) {
             foreach ($rte_flags as $fk => $fv) {
@@ -155,13 +154,13 @@ class UserPref extends Page
             }
         }
 
-        # Get default colums (admin lists)
+        // Get default colums (admin lists)
         $this->cols = dotclear()->listoption()->getUserColumns();
 
-        # Get default sortby, order, nbperpage (admin lists)
+        // Get default sortby, order, nbperpage (admin lists)
         $this->sorts = dotclear()->listoption()->getUserFilters();
 
-        # Add or update user
+        // Add or update user
         if (isset($_POST['user_name'])) {
             try {
                 $pwd_check = !empty($_POST['cur_pwd']) && dotclear()->user()->checkPassword($_POST['cur_pwd']);
@@ -193,14 +192,14 @@ class UserPref extends Page
                     $cur->setField('user_pwd', $_POST['new_pwd']);
                 }
 
-                # --BEHAVIOR-- adminBeforeUserUpdate
+                // --BEHAVIOR-- adminBeforeUserUpdate
                 dotclear()->behavior()->call('adminBeforeUserProfileUpdate', $cur, dotclear()->user()->userID());
 
-                # Udate user
+                // Udate user
                 dotclear()->users()->updUser(dotclear()->user()->userID(), $cur);
 
-                # Update profile
-                # Sanitize list of secondary mails and urls if any
+                // Update profile
+                // Sanitize list of secondary mails and urls if any
                 $mails = $urls = '';
                 if (!empty($_POST['user_profile_mails'])) {
                     $mails = implode(',', array_filter(filter_var_array(array_map('trim', explode(',', $_POST['user_profile_mails'])), FILTER_VALIDATE_EMAIL)));
@@ -211,18 +210,18 @@ class UserPref extends Page
                 dotclear()->user()->preference()->get('profile')->put('mails', $mails, 'string');
                 dotclear()->user()->preference()->get('profile')->put('urls', $urls, 'string');
 
-                # --BEHAVIOR-- adminAfterUserUpdate
+                // --BEHAVIOR-- adminAfterUserUpdate
                 dotclear()->behavior()->call('adminAfterUserProfileUpdate', $cur, dotclear()->user()->userID());
 
                 dotclear()->notice()->addSuccessNotice(__('Personal information has been successfully updated.'));
 
                 dotclear()->adminurl()->redirect('admin.user.pref');
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Update user options
+        // Update user options
         if (isset($_POST['user_options_submit'])) {
             try {
                 $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'user');
@@ -247,10 +246,10 @@ class UserPref extends Page
 
                 $cur->setField('user_options', new ArrayObject($this->container->getOptions()));
 
-                # --BEHAVIOR-- adminBeforeUserOptionsUpdate
+                // --BEHAVIOR-- adminBeforeUserOptionsUpdate
                 dotclear()->behavior()->call('adminBeforeUserOptionsUpdate', $cur, dotclear()->user()->userID());
 
-                # Update user prefs
+                // Update user prefs
                 dotclear()->user()->preference()->get('accessibility')->put('nodragdrop', !empty($_POST['user_acc_nodragdrop']), 'boolean');
                 dotclear()->user()->preference()->get('interface')->put('theme', $_POST['user_ui_theme'], 'string');
                 dotclear()->user()->preference()->get('interface')->put('enhanceduploader', !empty($_POST['user_ui_enhanceduploader']), 'boolean');
@@ -260,7 +259,7 @@ class UserPref extends Page
                 dotclear()->user()->preference()->get('interface')->put('showajaxloader', !empty($_POST['user_ui_showajaxloader']), 'boolean');
                 dotclear()->user()->preference()->get('interface')->put('htmlfontsize', $_POST['user_ui_htmlfontsize'], 'string');
                 if (dotclear()->user()->isSuperAdmin()) {
-                    # Applied to all users
+                    // Applied to all users
                     dotclear()->user()->preference()->get('interface')->put('hide_std_favicon', !empty($_POST['user_ui_hide_std_favicon']), 'boolean', null, true, true);
                 }
                 dotclear()->user()->preference()->get('interface')->put('media_nb_last_dirs', (int) $_POST['user_ui_media_nb_last_dirs'], 'integer');
@@ -268,7 +267,7 @@ class UserPref extends Page
                 dotclear()->user()->preference()->get('interface')->put('media_fav_dirs', [], 'array', null, false);
                 dotclear()->user()->preference()->get('interface')->put('nocheckadblocker', !empty($_POST['user_ui_nocheckadblocker']), 'boolean');
 
-                # Update user columns (lists)
+                // Update user columns (lists)
                 $cu = [];
                 foreach ($this->cols as $col_type => $cols_list) {
                     $ct = [];
@@ -281,7 +280,7 @@ class UserPref extends Page
                 }
                 dotclear()->user()->preference()->get('interface')->put('cols', $cu, 'array');
 
-                # Update user lists options
+                // Update user lists options
                 $su = [];
                 foreach ($this->sorts as $sort_type => $sort_data) {
                     if (null !== $sort_data[1]) {
@@ -304,33 +303,33 @@ class UserPref extends Page
                 // All filters
                 dotclear()->user()->preference()->get('interface')->put('auto_filter', !empty($_POST['user_ui_auto_filter']), 'boolean');
 
-                # Update user xhtml editor flags
+                // Update user xhtml editor flags
                 $rf = [];
                 foreach ($this->rte as $rk => $rv) {
                     $rf[$rk] = isset($_POST['rte_flags']) && in_array($rk, $_POST['rte_flags'], true) ? true : false;
                 }
                 dotclear()->user()->preference()->get('interface')->put('rte_flags', $rf, 'array');
 
-                # Update user
+                // Update user
                 dotclear()->users()->updUser(dotclear()->user()->userID(), $cur);
 
-                # --BEHAVIOR-- adminAfterUserOptionsUpdate
+                // --BEHAVIOR-- adminAfterUserOptionsUpdate
                 dotclear()->behavior()->call('adminAfterUserOptionsUpdate', $cur, dotclear()->user()->userID());
 
                 dotclear()->notice()->addSuccessNotice(__('Personal options has been successfully updated.'));
                 dotclear()->adminurl()->redirect('admin.user.pref', [], '#user-options');
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Dashboard options
+        // Dashboard options
         if (isset($_POST['db-options'])) {
             try {
-                # --BEHAVIOR-- adminBeforeUserOptionsUpdate
+                // --BEHAVIOR-- adminBeforeUserOptionsUpdate
                 dotclear()->behavior()->call('adminBeforeDashboardOptionsUpdate', dotclear()->user()->userID());
 
-                # Update user prefs
+                // Update user prefs
                 dotclear()->user()->preference()->get('dashboard')->put('doclinks', !empty($_POST['user_dm_doclinks']), 'boolean');
                 dotclear()->user()->preference()->get('dashboard')->put('dcnews', !empty($_POST['user_dm_dcnews']), 'boolean');
                 dotclear()->user()->preference()->get('dashboard')->put('quickentry', !empty($_POST['user_dm_quickentry']), 'boolean');
@@ -341,17 +340,17 @@ class UserPref extends Page
                 dotclear()->user()->preference()->get('interface')->put('iconset', (!empty($_POST['user_ui_iconset']) ? $_POST['user_ui_iconset'] : ''));
                 dotclear()->user()->preference()->get('interface')->put('nofavmenu', empty($_POST['user_ui_nofavmenu']), 'boolean');
 
-                # --BEHAVIOR-- adminAfterUserOptionsUpdate
+                // --BEHAVIOR-- adminAfterUserOptionsUpdate
                 dotclear()->behavior()->call('adminAfterDashboardOptionsUpdate', dotclear()->user()->userID());
 
                 dotclear()->notice()->addSuccessNotice(__('Dashboard options has been successfully updated.'));
                 dotclear()->adminurl()->redirect('admin.user.pref', [], '#user-favorites');
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Add selected favorites
+        // Add selected favorites
         if (!empty($_POST['appendaction'])) {
             try {
                 if (empty($_POST['append'])) {
@@ -369,12 +368,12 @@ class UserPref extends Page
                     dotclear()->notice()->addSuccessNotice(__('Favorites have been successfully added.'));
                     dotclear()->adminurl()->redirect('admin.user.pref', [], '#user-favorites');
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Delete selected favorites
+        // Delete selected favorites
         if (!empty($_POST['removeaction'])) {
             try {
                 if (empty($_POST['remove'])) {
@@ -394,12 +393,12 @@ class UserPref extends Page
                     dotclear()->notice()->addSuccessNotice(__('Favorites have been successfully removed.'));
                     dotclear()->adminurl()->redirect('admin.user.pref', [], '#user-favorites');
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Order favs
+        // Order favs
         $order = [];
         if (empty($_POST['favs_order']) && !empty($_POST['order'])) {
             $order = $_POST['order'];
@@ -422,7 +421,7 @@ class UserPref extends Page
             }
         }
 
-        # Replace default favorites by current set (super admin only)
+        // Replace default favorites by current set (super admin only)
         if (!empty($_POST['replace']) && dotclear()->user()->isSuperAdmin()) {
             $user_favs = dotclear()->favorite()->getFavoriteIDs(false);
             dotclear()->favorite()->setFavoriteIDs($user_favs, true);
@@ -433,7 +432,7 @@ class UserPref extends Page
             }
         }
 
-        # Reset dashboard items order
+        // Reset dashboard items order
         if (!empty($_POST['resetorder'])) {
             dotclear()->user()->preference()->get('dashboard')->drop('main_order');
             dotclear()->user()->preference()->get('dashboard')->drop('boxes_order');
@@ -446,8 +445,7 @@ class UserPref extends Page
             }
         }
 
-
-        # Page setup
+        // Page setup
         if (!$this->user_acc_nodragdrop) {
             $this->setPageHead(dotclear()->resource()->load('_preferences-dragdrop.js'));
         }
@@ -468,12 +466,12 @@ class UserPref extends Page
                 dotclear()->resource()->pageTabs($default_tab) .
                 dotclear()->resource()->confirmClose('user-form', 'opts-forms', 'favs-form', 'db-forms') .
 
-                # --BEHAVIOR-- adminPreferencesHeaders
+                // --BEHAVIOR-- adminPreferencesHeaders
                 dotclear()->behavior()->call('adminPreferencesHeaders')
             )
             ->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->user()->userID()) => '',
-                $page_title                                   => '',
+                $page_title                                    => '',
             ])
         ;
 
@@ -487,14 +485,14 @@ class UserPref extends Page
 
         $iconsets_combo = dotclear()->combo()->getIconsetCombo();
 
-        # Themes
+        // Themes
         $theme_combo = [
             __('Light')     => 'light',
             __('Dark')      => 'dark',
             __('Automatic') => '',
         ];
 
-        # Body base font size (37.5% = 6px, 50% = 8px, 62.5% = 10px, 75% = 12px, 87.5% = 14px)
+        // Body base font size (37.5% = 6px, 50% = 8px, 62.5% = 10px, 75% = 12px, 87.5% = 14px)
         $htmlfontsize_combo = [
             __('Smallest') => '37.5%',
             __('Smaller')  => '50%',
@@ -505,11 +503,10 @@ class UserPref extends Page
 
         $auto_filter = dotclear()->user()->preference()->get('interface')->get('auto_filter');
 
-        # User profile
+        // User profile
         echo '<div class="multi-part" id="user-profile" title="' . __('My profile') . '">';
 
-        echo
-        '<h3>' . __('My profile') . '</h3>' .
+        echo '<h3>' . __('My profile') . '</h3>' .
         '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="user-form">' .
 
         '<p><label for="user_name">' . __('Last Name:') . '</label>' .
@@ -569,8 +566,7 @@ class UserPref extends Page
         Form::combo('user_tz', Dt::getZones(true, true), $this->container->get('user_tz')) . '</p>';
 
         if (dotclear()->user()->allowPassChange()) {
-            echo
-            '<h4 class="vertical-separator pretty-title">' . __('Change my password') . '</h4>' .
+            echo '<h4 class="vertical-separator pretty-title">' . __('Change my password') . '</h4>' .
 
             '<p><label for="new_pwd">' . __('New password:') . '</label>' .
             Form::password(
@@ -607,8 +603,7 @@ class UserPref extends Page
                 '</p>';
         }
 
-        echo
-        '<p class="clear vertical-separator">' .
+        echo '<p class="clear vertical-separator">' .
         dotclear()->adminurl()->getHiddenFormFields('admin.user.pref', [], true) .
         '<input type="submit" accesskey="s" value="' . __('Update my profile') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
@@ -617,15 +612,13 @@ class UserPref extends Page
 
             '</div>';
 
-        # User options : some from actual user profile, dashboard modules, ...
+        // User options : some from actual user profile, dashboard modules, ...
         echo '<div class="multi-part" id="user-options" title="' . __('My options') . '">';
 
-        echo
-        '<form action="' . dotclear()->adminurl()->root() . '#user-options" method="post" id="opts-forms">' .
+        echo '<form action="' . dotclear()->adminurl()->root() . '#user-options" method="post" id="opts-forms">' .
         '<h3>' . __('My options') . '</h3>';
 
-        echo
-        '<div class="fieldset">' .
+        echo '<div class="fieldset">' .
         '<h4 id="user_options_interface">' . __('Interface') . '</h4>' .
 
         '<p><label for="user_ui_theme" class="classic">' . __('Theme:') . '</label>' . ' ' .
@@ -659,39 +652,33 @@ class UserPref extends Page
         '<p><label for="user_ui_htmlfontsize" class="classic">' . __('Font size:') . '</label>' . ' ' .
         Form::combo('user_ui_htmlfontsize', $htmlfontsize_combo, $this->user_ui_htmlfontsize) . '</p>';
 
-        echo
-        '<p><label for="user_ui_media_nb_last_dirs" class="classic">' . __('Number of recent folders proposed in media manager:') . '</label> ' .
+        echo '<p><label for="user_ui_media_nb_last_dirs" class="classic">' . __('Number of recent folders proposed in media manager:') . '</label> ' .
         Form::number('user_ui_media_nb_last_dirs', 0, 999, (string) $this->user_ui_media_nb_last_dirs, '', '', false, 'aria-describedby="user_ui_media_nb_last_dirs_help"') . '</p>' .
         '<p class="clear form-note" id="user_ui_media_nb_last_dirs_help">' . __('Leave empty to ignore, displayed only if Javascript is enabled in your browser.') . '</p>';
 
         if (dotclear()->user()->isSuperAdmin()) {
-            echo
-            '<p><label for="user_ui_hide_std_favicon" class="classic">' .
+            echo '<p><label for="user_ui_hide_std_favicon" class="classic">' .
             Form::checkbox('user_ui_hide_std_favicon', 1, $this->user_ui_hide_std_favicon, '', '', false, 'aria-describedby="user_ui_hide_std_favicon_help"') . ' ' .
             __('Do not use standard favicon') . '</label> ' .
             '<span class="clear form-note warn" id="user_ui_hide_std_favicon_help">' . __('This will be applied for all users') . '.</span>' .
-                '</p>'; //Opera sucks;
+                '</p>'; // Opera sucks;
         }
 
-        echo
-        '<p><label for="user_ui_nocheckadblocker" class="classic">' .
+        echo '<p><label for="user_ui_nocheckadblocker" class="classic">' .
         Form::checkbox('user_ui_nocheckadblocker', 1, $this->user_ui_nocheckadblocker, '', '', false, 'aria-describedby="user_ui_nocheckadblocker_help"') . ' ' .
         __('Disable Ad-blocker check') . '</label></p>' .
         '<p class="clear form-note" id="user_ui_nocheckadblocker_help">' . __('Some ad-blockers (Ghostery, Adblock plus, uBloc origin, …) may interfere with some feature as inserting link or media in entries with CKEditor; in this case you should disable it for this Dotclear installation (backend only). Note that Dotclear do not add ads ot trackers in the backend.') . '</p>';
 
-        echo
-            '</div>';
+        echo '</div>';
 
-        echo
-        '<div class="fieldset">' .
+        echo '<div class="fieldset">' .
         '<h4 id="user_options_columns">' . __('Optional columns displayed in lists') . '</h4>';
         $odd = true;
         foreach ($this->cols as $col_type => $col_list) {
             echo '<div class="two-boxes ' . ($odd ? 'odd' : 'even') . '">';
             echo '<h5>' . $col_list[0] . '</h5>';
             foreach ($col_list[1] as $col_name => $col_data) {
-                echo
-                '<p><label for="cols_' . $col_type . '-' . $col_name . '" class="classic">' .
+                echo '<p><label for="cols_' . $col_type . '-' . $col_name . '" class="classic">' .
                 Form::checkbox(['cols_' . $col_type . '[]', 'cols_' . $col_type . '-' . $col_name], $col_name, $col_data[0]) . $col_data[1] . '</label>';
             }
             echo '</div>';
@@ -699,8 +686,7 @@ class UserPref extends Page
         }
         echo '</div>';
 
-        echo
-        '<div class="fieldset">' .
+        echo '<div class="fieldset">' .
         '<h4 id="user_options_lists">' . __('Options for lists') . '</h4>' .
         '<p><label for="user_ui_auto_filter" class="classic">' .
         Form::checkbox('user_ui_auto_filter', 1, $auto_filter) . ' ' .
@@ -714,18 +700,15 @@ class UserPref extends Page
             echo '<div class="two-boxes ' . ($odd ? 'odd' : 'even') . '">';
             echo '<h5>' . $sort_data[0] . '</h5>';
             if (null !== $sort_data[1]) {
-                echo
-                '<p class="field"><label for="sorts_' . $sort_type . '_sortby">' . __('Order by:') . '</label> ' .
+                echo '<p class="field"><label for="sorts_' . $sort_type . '_sortby">' . __('Order by:') . '</label> ' .
                 Form::combo('sorts_' . $sort_type . '_sortby', $sort_data[1], $sort_data[2]) . '</p>';
             }
             if (null !== $sort_data[3]) {
-                echo
-                '<p class="field"><label for="sorts_' . $sort_type . '_order">' . __('Sort:') . '</label> ' .
+                echo '<p class="field"><label for="sorts_' . $sort_type . '_order">' . __('Sort:') . '</label> ' .
                 Form::combo('sorts_' . $sort_type . '_order', dotclear()->combo()->getOrderCombo(), $sort_data[3]) . '</p>';
             }
             if (is_array($sort_data[4])) {
-                echo
-                '<p><span class="label ib">' . __('Show') . '</span> <label for="sorts_' . $sort_type . '_nb" class="classic">' .
+                echo '<p><span class="label ib">' . __('Show') . '</span> <label for="sorts_' . $sort_type . '_nb" class="classic">' .
                 Form::number('sorts_' . $sort_type . '_nb', 0, 999, (string) $sort_data[4][1]) . ' ' .
                 $sort_data[4][0] . '</label></p>';
             }
@@ -734,27 +717,23 @@ class UserPref extends Page
         }
         echo '</div>';
 
-        echo
-        '<div class="fieldset">' .
+        echo '<div class="fieldset">' .
         '<h4 id="user_options_edition">' . __('Edition') . '</h4>';
 
         echo '<div class="two-boxes odd">';
         $user_editors = $this->container->getOption('editor');
         foreach ($this->format_by_editors as $format => $editors) {
-            echo
-            '<p class="field"><label for="user_editor_' . $format . '">' . sprintf(__('Preferred editor for %s:'), $format) . '</label>' .
+            echo '<p class="field"><label for="user_editor_' . $format . '">' . sprintf(__('Preferred editor for %s:'), $format) . '</label>' .
             Form::combo(
                 ['user_editor[' . $format . ']', 'user_editor_' . $format],
                 array_merge([__('Choose an editor') => ''], $editors),
                 $user_editors[$format]
             ) . '</p>';
         }
-        echo
-        '<p class="field"><label for="user_post_format">' . __('Preferred format:') . '</label>' .
+        echo '<p class="field"><label for="user_post_format">' . __('Preferred format:') . '</label>' .
         Form::combo('user_post_format', $this->available_formats, $this->container->getOption('post_format')) . '</p>';
 
-        echo
-        '<p class="field"><label for="user_post_status">' . __('Default entry status:') . '</label>' .
+        echo '<p class="field"><label for="user_post_status">' . __('Default entry status:') . '</label>' .
         Form::combo('user_post_status', dotclear()->combo()->getPostStatusesCombo(), $this->container->get('user_post_status')) . '</p>' .
 
         '<p class="field"><label for="user_edit_size">' . __('Entry edit field height:') . '</label>' .
@@ -773,22 +752,19 @@ class UserPref extends Page
         echo '<div class="two-boxes even">';
         echo '<h5>' . __('Use xhtml editor for:') . '</h5>';
         foreach ($this->rte as $rk => $rv) {
-            echo
-            '<p><label for="rte_' . $rk . '" class="classic">' .
+            echo '<p><label for="rte_' . $rk . '" class="classic">' .
             Form::checkbox(['rte_flags[]', 'rte_' . $rk], $rk, $rv[0]) . $rv[1] . '</label>';
         }
         echo '</div>';
 
         echo '</div>'; // fieldset
 
-        echo
-        '<h4 class="pretty-title">' . __('Other options') . '</h4>';
+        echo '<h4 class="pretty-title">' . __('Other options') . '</h4>';
 
-        # --BEHAVIOR-- adminPreferencesForm
+        // --BEHAVIOR-- adminPreferencesForm
         dotclear()->behavior()->call('adminPreferencesForm');
 
-        echo
-        '<p class="clear vertical-separator">' .
+        echo '<p class="clear vertical-separator">' .
         dotclear()->adminurl()->getHiddenFormFields('admin.user.pref', [], true) .
         '<input name="user_options_submit" type="submit" accesskey="s" value="' . __('Save my options') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
@@ -797,11 +773,11 @@ class UserPref extends Page
 
         echo '</div>';
 
-        # My dashboard
+        // My dashboard
         echo '<div class="multi-part" id="user-favorites" title="' . __('My dashboard') . '">';
         echo '<h3>' . __('My dashboard') . '</h3>';
 
-        # Favorites
+        // Favorites
         echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="favs-form" class="two-boxes odd">';
 
         echo '<div id="my-favs" class="fieldset"><h4>' . __('My favorites') . '</h4>';
@@ -812,14 +788,14 @@ class UserPref extends Page
             $fav = dotclear()->favorite()->getFavorite($id);
             if (!empty($fav)) {
                 // User favorites only
-                if ($count == 0) {
+                if (0 == $count) {
                     echo '<ul class="fav-list">';
                 }
 
-                $count++;
+                ++$count;
                 $icon = dotclear()->summary()->getIconTheme($fav['small-icon']);
                 $zoom = dotclear()->summary()->getIconTheme($fav['large-icon'], false);
-                if ($zoom !== '') {
+                if ('' !== $zoom) {
                     $icon .= ' <span class="zoom">' . $zoom . '</span>';
                 }
                 echo '<li id="fu-' . $id . '">' . '<label for="fuk-' . $id . '">' . $icon .
@@ -835,13 +811,12 @@ class UserPref extends Page
                     '</li>';
             }
         }
-        if ($count > 0) {
+        if (0 < $count) {
             echo '</ul>';
         }
 
-        if ($count > 0) {
-            echo
-            '<div class="clear">' .
+        if (0 < $count) {
+            echo '<div class="clear">' .
             '<p>' . Form::hidden('favs_order', '') .
             '<input type="submit" name="saveorder" value="' . __('Save order') . '" /> ' .
 
@@ -861,8 +836,7 @@ class UserPref extends Page
 
                 '</div>';
         } else {
-            echo
-            '<p>' . __('Currently no personal favorites.') . '</p>';
+            echo '<p>' . __('Currently no personal favorites.') . '</p>';
         }
 
         $avail_fav       = dotclear()->favorite()->getFavorites(dotclear()->favorite()->getAvailableFavoritesIDs());
@@ -870,10 +844,10 @@ class UserPref extends Page
         foreach (dotclear()->favorite()->getFavoriteIDs(true) as $v) {
             $default_fav_ids[$v] = true;
         }
-        echo '</div>'; # /box my-fav
+        echo '</div>'; // /box my-fav
 
         echo '<div class="fieldset" id="available-favs">';
-        # Available favorites
+        // Available favorites
         echo '<h5 class="pretty-title">' . __('Other available favorites') . '</h5>';
         $count = 0;
         uasort($avail_fav, function ($a, $b) {
@@ -889,14 +863,14 @@ class UserPref extends Page
             }
         }
         foreach ($avail_fav as $k => $fav) {
-            if ($count == 0) {
+            if (0 == $count) {
                 echo '<ul class="fav-list">';
             }
 
-            $count++;
+            ++$count;
             $icon = dotclear()->summary()->getIconTheme($fav['small-icon']);
             $zoom = dotclear()->summary()->getIconTheme($fav['large-icon'], false);
-            if ($zoom !== '') {
+            if ('' !== $zoom) {
                 $icon .= ' <span class="zoom">' . $zoom . '</span>';
             }
             echo '<li id="fa-' . $k . '">' . '<label for="fak-' . $k . '">' . $icon .
@@ -905,21 +879,19 @@ class UserPref extends Page
                 (isset($default_fav_ids[$k]) ? ' <span class="default-fav"><img src="?df=images/selected.png" alt="' . __('(default favorite)') . '" /></span>' : '') .
                 '</li>';
         }
-        if ($count > 0) {
+        if (0 < $count) {
             echo '</ul>';
         }
 
-        echo
-        '<p>' .
+        echo '<p>' .
         dotclear()->adminurl()->getHiddenFormFields('admin.user.pref', [], true) .
         '<input type="submit" name="appendaction" value="' . __('Add to my favorites') . '" /></p>';
-        echo '</div>'; # /available favorites
+        echo '</div>'; // /available favorites
 
         echo '</form>';
 
-        # Dashboard items
-        echo
-        '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="db-forms" class="two-boxes even">' .
+        // Dashboard items
+        echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="db-forms" class="two-boxes even">' .
 
         '<div class="fieldset">' .
         '<h4>' . __('Menu') . '</h4>' .
@@ -927,26 +899,21 @@ class UserPref extends Page
         Form::checkbox('user_ui_nofavmenu', 1, !$this->user_ui_nofavmenu) . ' ' .
         __('Display favorites at the top of the menu') . '</label></p></div>';
 
-        echo
-        '<div class="fieldset">' .
+        echo '<div class="fieldset">' .
         '<h4>' . __('Dashboard icons') . '</h4>' .
         '<p><label for="user_dm_nofavicons" class="classic">' .
         Form::checkbox('user_dm_nofavicons', 1, !$this->user_dm_nofavicons) . ' ' .
         __('Display dashboard icons') . '</label></p>';
 
-
         if (count($iconsets_combo) > 1) {
-            echo
-            '<p><label for="user_ui_iconset" class="classic">' . __('Iconset:') . '</label> ' .
+            echo '<p><label for="user_ui_iconset" class="classic">' . __('Iconset:') . '</label> ' .
             Form::combo('user_ui_iconset', $iconsets_combo, $this->user_ui_iconset) . '</p>';
         } else {
             echo '<p class="hidden">' . Form::hidden('user_ui_iconset', '') . '</p>';
         }
-        echo
-            '</div>';
+        echo '</div>';
 
-        echo
-        '<div class="fieldset">' .
+        echo '<div class="fieldset">' .
         '<h4>' . __('Dashboard modules') . '</h4>' .
 
         '<p><label for="user_dm_doclinks" class="classic">' .
@@ -962,19 +929,17 @@ class UserPref extends Page
         __('Display quick entry form') . '</label></p>';
 
         if (dotclear()->user()->isSuperAdmin()) {
-            echo
-            '<p><label for="user_dm_nodcupdate" class="classic">' .
+            echo '<p><label for="user_dm_nodcupdate" class="classic">' .
             Form::checkbox('user_dm_nodcupdate', 1, $this->user_dm_nodcupdate) . ' ' .
             __('Do not display Dotclear updates') . '</label></p>';
         }
 
         echo '</div>';
 
-        # --BEHAVIOR-- adminDashboardOptionsForm
+        // --BEHAVIOR-- adminDashboardOptionsForm
         dotclear()->behavior()->call('adminDashboardOptionsForm', dotclear());
 
-        echo
-        '<p>' .
+        echo '<p>' .
         Form::hidden('db-options', '-') .
         dotclear()->adminurl()->getHiddenFormFields('admin.user.pref', [], true) .
         '<input type="submit" accesskey="s" value="' . __('Save my dashboard options') . '" />' .
@@ -982,16 +947,15 @@ class UserPref extends Page
             '</p>' .
             '</form>';
 
-        # Dashboard items order (reset)
+        // Dashboard items order (reset)
         echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="order-reset" class="two-boxes even">';
         echo '<div class="fieldset"><h4>' . __('Dashboard items order') . '</h4>';
-        echo
-        '<p>' .
+        echo '<p>' .
         dotclear()->adminurl()->getHiddenFormFields('admin.user.pref', [], true) .
         '<input type="submit" name="resetorder" value="' . __('Reset dashboard items order') . '" /></p>';
         echo '</div>';
         echo '</form>';
 
-        echo '</div>'; # /multipart-user-favorites
+        echo '</div>'; // /multipart-user-favorites
     }
 }

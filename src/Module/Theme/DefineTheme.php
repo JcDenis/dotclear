@@ -1,9 +1,8 @@
 <?php
 /**
- * @class Dotclear\Module\Theme\DefineTheme
+ * @note Dotclear\Module\Theme\DefineTheme
  *
- * @package Dotclear
- * @subpackage Module
+ * @ingroup  Module
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,7 +17,7 @@ class DefineTheme extends AbstractDefine
 {
     protected $type = 'Theme';
 
-    # Force permissions on Theme
+    // Force permissions on Theme
     public function permissions(): ?string
     {
         return 'Admin';

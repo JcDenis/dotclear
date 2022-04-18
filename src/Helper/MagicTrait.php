@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Helper\MagicTrait
+ * @note Dotclear\Helper\MagicTrait
  * @brief Dotclear protect class from magic get/set
  *
- * @package Dotclear
- * @subpackage Helper
+ * @ingroup  Helper
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only

@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat\FlatBackupItem
+ * @note Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat\FlatBackupItem
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginImportExport
+ * @ingroup  PluginImportExport
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only

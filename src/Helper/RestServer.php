@@ -1,10 +1,6 @@
 <?php
 /**
- * @class Dotclear\Core\Helper\RestServer
- * @brief Dotclear core rest server class
- *
  * @package Dotclear
- * @subpackage Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,13 +10,21 @@ declare(strict_types=1);
 namespace Dotclear\Helper;
 
 use Dotclear\Helper\Html\XmlTag;
+use Exception;
 
+/**
+ * Rest server.
+ *
+ * \Dotclear\Helper\RestServer
+ *
+ * @ingroup  Helper Rest
+ */
 class RestServer
 {
-    /** @var    XmlTag  $rsp    XML response */
+    /** @var XmlTag XML response */
     protected $rsp;
 
-    /** @var    array   $functions  Registered fucntions */
+    /** @var array Registered fucntions */
     protected $functions = [];
 
     /**
@@ -32,14 +36,14 @@ class RestServer
     }
 
     /**
-     * Add Function
+     * Add Function.
      *
      * This adds a new function to the server. <var>$callback</var> should be
      * a valid PHP callback. Callback function takes two arguments: GET and
      * POST values.
      *
-     * @param string    $name        Function name
-     * @param callable  $callback        Callback function
+     * @param string   $name     Function name
+     * @param callable $callback Callback function
      */
     public function addFunction(string $name, $callback): void
     {
@@ -49,13 +53,14 @@ class RestServer
     }
 
     /**
-     * Call Function
+     * Call Function.
      *
      * This method calls callback named <var>$name</var>.
      *
-     * @param string    $name        Function name
-     * @param array        $get            GET values
-     * @param array        $post        POST values
+     * @param string $name Function name
+     * @param array  $get  GET values
+     * @param array  $post POST values
+     *
      * @return mixed
      */
     protected function callFunction(string $name, array $get, array $post)
@@ -66,13 +71,11 @@ class RestServer
     }
 
     /**
-     * Main server
+     * Main server.
      *
      * This method creates the main server.
      *
-     * @param string    $encoding        Server charset
-     *
-     * @return bool
+     * @param string $encoding Server charset
      */
     public function serve(string $encoding = 'UTF-8'): bool
     {
@@ -97,7 +100,7 @@ class RestServer
 
         try {
             $res = $this->callFunction($_REQUEST['f'], $get, $post);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->rsp->insertAttr('status', 'failed');
             $this->rsp->insertNode(new XmlTag('message', $e->getMessage()));
             $this->getXML($encoding);
@@ -115,11 +118,11 @@ class RestServer
     }
 
     /**
-     * Get XML
+     * Get XML.
      *
      * This method send to ouput the xml response
      *
-     * @param string    $encoding        Server charset
+     * @param string $encoding Server charset
      */
     private function getXML(string $encoding = 'UTF-8'): void
     {

@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Core\RsExt\RsExtDate
+ * @note Dotclear\Core\RsExt\RsExtDate
  * @brief Dotclear dates record helpers.
  *
  * This class adds new methods to database dates results.
@@ -9,8 +9,7 @@
  * @warning You should not give the first argument (usualy $rs)
  * of every described function.
  *
- * @package Dotclear
- * @subpackage Core
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,15 +18,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\RsExt;
 
-use Dotclear\Core\RsExt\RsExtend;
 use Dotclear\Helper\Dt;
 
 class RsExtDate extends RsExtend
 {
     /**
-     * Convert date to timestamp
-     *
-     * @return  int
+     * Convert date to timestamp.
      */
     public function ts(): int
     {
@@ -35,9 +31,7 @@ class RsExtDate extends RsExtend
     }
 
     /**
-     * Get date year
-     *
-     * @return  string
+     * Get date year.
      */
     public function year(): string
     {
@@ -45,39 +39,31 @@ class RsExtDate extends RsExtend
     }
 
     /**
-     * Get date month
-     *
-     * @return  string
+     * Get date month.
      */
     public function month(): string
     {
-        return date('m',  $this->ts());
+        return date('m', $this->ts());
     }
 
     /**
-     * Get date day
-     *
-     * @return  string
+     * Get date day.
      */
     public function day(): string
     {
-        return date('d',  $this->ts());
+        return date('d', $this->ts());
     }
 
     /**
      * Returns date month archive full URL.
-     *
-     * @return  string
      */
     public function url(): string
     {
-        return dotclear()->blog()->getURLFor('archive', date('Y/m',  $this->ts()));
+        return dotclear()->blog()->getURLFor('archive', date('Y/m', $this->ts()));
     }
 
     /**
      * Returns whether date is the first of year.
-     *
-     * @return  bool
      */
     public function yearHeader(): bool
     {
@@ -95,8 +81,6 @@ class RsExtDate extends RsExtend
 
     /**
      * Returns whether date is the last of year.
-     *
-     * @return  bool
      */
     public function yearFooter(): bool
     {
@@ -119,9 +103,9 @@ class RsExtDate extends RsExtend
      * Returns date with <var>$format</var> as formatting pattern. If format
      * is empty, uses <var>date_format</var> blog setting.
      *
-     * @param   string  $format     The date format pattern
+     * @param string $format The date format pattern
      *
-     * @return  string              The date.
+     * @return string the date
      */
     public function getDate(string $format = ''): string
     {

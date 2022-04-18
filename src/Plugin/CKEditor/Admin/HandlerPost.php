@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\CKEditor\Admin\HandlerPost
+ * @note Dotclear\Plugin\CKEditor\Admin\HandlerPost
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginCKEditor
+ * @ingroup  PluginCKEditor
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -37,9 +36,7 @@ class HandlerPost extends AbstractPage
 
         $__extraPlugins = new ArrayObject();
         dotclear()->behavior()->call('ckeditorExtraPlugins', $__extraPlugins, $context);
-        $extraPlugins = $__extraPlugins->getArrayCopy();
-
-?>
+        $extraPlugins = $__extraPlugins->getArrayCopy(); ?>
 
 (function($) {
     $.toolbarPopup = function toolbarPopup(url) {
@@ -99,33 +96,33 @@ $(function() {
 
     CKEDITOR.timestamp = '';
 
-<?php if ($s->get('disable_native_spellchecker')): ?>
+<?php if ($s->get('disable_native_spellchecker')) { ?>
     CKEDITOR.config.disableNativeSpellChecker = true;
-<?php else: ?>
+<?php } else { ?>
     CKEDITOR.config.disableNativeSpellChecker = false;
-<?php endif;?>
+<?php } ?>
 
     CKEDITOR.config.skin = 'dotclear,'+dotclear.dcckeditor_plugin_url+'/js/ckeditor-skins/dotclear/';
     CKEDITOR.config.baseHref = dotclear.base_url;
     CKEDITOR.config.height = '<?php echo dotclear()->user()->getOption('edit_size') * 14; ?>px';
 
-<?php if (!empty($s->get('cancollapse_button'))): ?>
+<?php if (!empty($s->get('cancollapse_button'))) { ?>
     CKEDITOR.config.toolbarCanCollapse = true;
-<?php endif;?>
+<?php } ?>
 
     CKEDITOR.plugins.addExternal('entrylink',dotclear.dcckeditor_plugin_url+'/js/ckeditor-plugins/entrylink/');
     CKEDITOR.plugins.addExternal('dclink',dotclear.dcckeditor_plugin_url+'/js/ckeditor-plugins/dclink/');
     CKEDITOR.plugins.addExternal('media',dotclear.dcckeditor_plugin_url+'/js/ckeditor-plugins/media/');
     CKEDITOR.plugins.addExternal('img',dotclear.dcckeditor_plugin_url+'/js/ckeditor-plugins/img/');
 
-<?php if (!empty($s->get('textcolor_button')) || !empty($s->get('background_textcolor_button'))): ?>
+<?php if (!empty($s->get('textcolor_button')) || !empty($s->get('background_textcolor_button'))) { ?>
     // button add "More Colors..." can be added if colordialog plugin is enabled
     CKEDITOR.config.colorButton_enableMore = true;
-    <?php if (!empty($s->get('custom_color_list'))) : ?>
+    <?php if (!empty($s->get('custom_color_list'))) { ?>
         CKEDITOR.config.colorButton_colors = '<?php echo $s->get('custom_color_list'); ?>';
-    <?php endif;?>
-    CKEDITOR.config.colorButton_colorsPerRow = <?php echo($s->get('colors_per_row') ?: 6); /* @phpstan-ignore-line */ ?>;
-<?php endif;?>
+    <?php }?>
+    CKEDITOR.config.colorButton_colorsPerRow = <?php echo $s->get('colors_per_row') ?: 6; /* @phpstan-ignore-line */ ?>;
+<?php } ?>
 
     CKEDITOR.config.defaultLanguage = dotclear.user_language;
     CKEDITOR.config.language = dotclear.user_language;
@@ -133,11 +130,10 @@ $(function() {
 
 <?php
 if (!empty($extraPlugins)) {
-    foreach ($extraPlugins as $plugin) {
-        printf("\tCKEDITOR.plugins.addExternal('%s','%s');\n", $plugin['name'], $plugin['url']);
-    }
-}
-?>
+            foreach ($extraPlugins as $plugin) {
+                printf("\tCKEDITOR.plugins.addExternal('%s','%s');\n", $plugin['name'], $plugin['url']);
+            }
+        } ?>
     if (dotclear.ckeditor_context === undefined || dotclear.ckeditor_tags_context[dotclear.ckeditor_context] === undefined) {
         return;
     }
@@ -145,12 +141,11 @@ if (!empty($extraPlugins)) {
 
 <?php
 $defautExtraPlugins = 'entrylink,dclink,media,justify,colorbutton,format,img,footnotes';
-if (!empty($extraPlugins)) {
-    foreach ($extraPlugins as $plugin) {
-        $defautExtraPlugins .= ',' . $plugin['name'];
-    }
-}
-?>
+        if (!empty($extraPlugins)) {
+            foreach ($extraPlugins as $plugin) {
+                $defautExtraPlugins .= ',' . $plugin['name'];
+            }
+        } ?>
         extraPlugins: '<?php echo $defautExtraPlugins; ?>',
 
         keystrokes: [
@@ -160,14 +155,14 @@ if (!empty($extraPlugins)) {
                 dotclear.msg.img_select_accesskey.toUpperCase().charCodeAt(0),'mediaCommand' ],    // Ctrl+Alt+m
         ],
 
-<?php if (!empty($s->get('format_select'))): ?>
+<?php if (!empty($s->get('format_select'))) { ?>
         // format tags
 
-    <?php if (!empty($s->get('format_tags'))): ?>
+    <?php if (!empty($s->get('format_tags'))) { ?>
         format_tags: '<?php echo $s->get('format_tags'); ?>',
-    <?php else: ?>
+    <?php } else { ?>
         format_tags: 'p;h1;h2;h3;h4;h5;h6;pre;address',
-    <?php endif;?>
+    <?php }?>
 
         // following definition are needed to be specialized
         format_p: { element: 'p' },
@@ -179,7 +174,7 @@ if (!empty($extraPlugins)) {
         format_h6: { element: 'h6' },
         format_pre: { element: 'pre' },
         format_address: { element: 'address' },
-<?php endif;?>
+<?php } ?>
 
         entities: false,
         removeButtons: '',
@@ -189,47 +184,47 @@ if (!empty($extraPlugins)) {
                 name: 'basicstyles',
                 items: [
 
-<?php if (!empty($s->get('format_select'))): ?>
+<?php if (!empty($s->get('format_select'))) { ?>
                     'Format',
-<?php endif;?>
+<?php } ?>
 
                     'Bold','Italic','Underline','Strike','Subscript','Superscript','Code','Blockquote',
 
-<?php if (!empty($s->get('list_buttons'))): ?>
+<?php if (!empty($s->get('list_buttons'))) { ?>
                     'NumberedList','BulletedList',
-<?php endif;?>
+<?php } ?>
 
                     'RemoveFormat'
                 ]
             },
 
-<?php if (!empty($s->get('clipboard_buttons'))): ?>
+<?php if (!empty($s->get('clipboard_buttons'))) { ?>
             {
                 name: 'clipoard',
                 items: ['Cut','Copy','Paste','PasteText','PasteFromWord']
             },
-<?php endif;?>
+<?php } ?>
 
-<?php if (!empty($s->get('action_buttons'))): ?>
+<?php if (!empty($s->get('action_buttons'))) { ?>
             {
                 name: 'action',
                 items: ['Undo','Redo']
             },
-<?php endif;?>
+<?php } ?>
 
-<?php if (!empty($s->get('alignment_buttons'))): ?>
+<?php if (!empty($s->get('alignment_buttons'))) { ?>
             {
                 name: 'paragraph',
                 items: ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock']
             },
-<?php endif;?>
+<?php } ?>
 
-<?php if (!empty($s->get('table_button'))): ?>
+<?php if (!empty($s->get('table_button'))) { ?>
             {
                 name: 'table',
                 items: ['Table']
             },
-<?php endif;?>
+<?php } ?>
 
             {
                 name: 'custom',
@@ -237,13 +232,13 @@ if (!empty($extraPlugins)) {
                     'EntryLink','dcLink','Media','img','Footnotes','-',
                     'Source'
 
-<?php if (!empty($s->get('textcolor_button'))): ?>
+<?php if (!empty($s->get('textcolor_button'))) { ?>
                     ,'TextColor'
-<?php endif;?>
+<?php } ?>
 
-<?php if (!empty($s->get('background_textcolor_button'))): ?>
+<?php if (!empty($s->get('background_textcolor_button'))) { ?>
                     ,'BGColor'
-<?php endif;?>
+<?php } ?>
                 ]
             },
             {
@@ -261,19 +256,17 @@ if (!empty($extraPlugins)) {
         $extra_icons .= sprintf("'%s',", $plugin['button']);
     }
     printf($extraPlugins_str, $extra_icons);
-}
-?>
+} ?>
         ],
 
 <?php // footnotes related
     $tag = match (dotclear()->blog()->settings()->get('system')->get('note_title_tag')) {
-        1 => 'h3',
-        2 => 'p',
+        1       => 'h3',
+        2       => 'p',
         default => 'h4',
     };
-    $notes_tag   = sprintf("['<%s>', '</%s>']", $tag, $tag);
-    $notes_title = sprintf('"%s"', __('Note(s)'));
-?>
+        $notes_tag   = sprintf("['<%s>', '</%s>']", $tag, $tag);
+        $notes_title = sprintf('"%s"', __('Note(s)')); ?>
         footnotesHeaderEls: <?php printf($notes_tag); ?>,
         footnotesTitle: <?php printf($notes_title); ?>
 

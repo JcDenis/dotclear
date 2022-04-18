@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\ThemeEditor\Admin\ThemeEditor
+ * @note Dotclear\Plugin\ThemeEditor\Admin\ThemeEditor
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginThemeEditor
+ * @ingroup  PluginThemeEditor
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,6 +17,7 @@ use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\L10n;
+use Exception;
 
 class ThemeEditor
 {
@@ -38,24 +38,24 @@ class ThemeEditor
 
     public function __construct()
     {
-        # Default template set
+        // Default template set
         $this->tplset_theme = Path::implodeRoot('Process', 'Public', 'templates', dotclear()->config()->get('template_default'));
         $this->tplset_name  = dotclear()->config()->get('template_default');
 
-        # Current theme
+        // Current theme
         $module = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->get('system')->get('theme'));
         if (!$module) {
             throw new AdminException('Blog theme is not set');
         }
-        $this->user_theme   = Path::real($module->root(), false);
+        $this->user_theme = Path::real($module->root(), false);
 
-        # Current theme template set
+        // Current theme template set
         if ($module->templateset()) {
             $this->tplset_theme = Path::implodeRoot('Process', 'Public', 'templates', $module->templateset());
             $this->tplset_name  = $module->templateset();
         }
 
-        # Parent theme
+        // Parent theme
         $parent = dotclear()->themes()->getModule((string) $module->parent());
         if (null != $parent) {
             $this->parent_theme = Path::real($parent->root());
@@ -94,11 +94,17 @@ class ThemeEditor
                     $list_tpl .= sprintf($li, $k, Html::escapeHTML($k));
                 }
             }
-            $list .= ($list_theme != '' ? sprintf('<li class="group-file">' . __('From theme:') . '<ul>%s</ul></li>', $list_theme) : '');
-            $list .= ($list_parent != '' ? sprintf('<li class="group-file">' . __('From parent:') . ' %s<ul>%s</ul></li>',
-                $this->parent_name, $list_parent) : '');
-            $list .= ($list_tpl != '' ? sprintf('<li class="group-file">' . __('From template set:') . ' %s<ul>%s</ul></li>',
-                $this->tplset_name, $list_tpl) : '');
+            $list .= ('' != $list_theme ? sprintf('<li class="group-file">' . __('From theme:') . '<ul>%s</ul></li>', $list_theme) : '');
+            $list .= ('' != $list_parent ? sprintf(
+                '<li class="group-file">' . __('From parent:') . ' %s<ul>%s</ul></li>',
+                $this->parent_name,
+                $list_parent
+            ) : '');
+            $list .= ('' != $list_tpl ? sprintf(
+                '<li class="group-file">' . __('From template set:') . ' %s<ul>%s</ul></li>',
+                $this->tplset_name,
+                $list_tpl
+            ) : '');
         } else {
             foreach ($files as $k => $v) {
                 if (str_starts_with($v, $this->user_theme)) {
@@ -132,7 +138,7 @@ class ThemeEditor
             'c'    => file_get_contents($F),
             'w'    => $this->getDestinationFile($type, $f) !== false,
             'type' => $type,
-            'f'    => $f
+            'f'    => $f,
         ];
     }
 
@@ -148,7 +154,7 @@ class ThemeEditor
             $dest = $this->getDestinationFile($type, $f);
 
             if (false == $dest) {
-                throw new \Exception();
+                throw new Exception();
             }
 
             if ('tpl' == $type && !is_dir(dirname($dest))) {
@@ -161,7 +167,7 @@ class ThemeEditor
 
             $fp = @fopen($dest, 'wb');
             if (!$fp) {
-                throw new \Exception();
+                throw new Exception();
             }
 
             $content = preg_replace('/(\r?\n)/m', "\n", $content);
@@ -170,7 +176,7 @@ class ThemeEditor
             fwrite($fp, $content);
             fclose($fp);
 
-            # Updating inner files list
+            // Updating inner files list
             $this->updateFileInList($type, $f, $dest);
         } catch (\Exception) {
             throw new AdminException(sprintf(__('Unable to write file %s. Please check your theme files and folders permissions.'), $f));
@@ -297,7 +303,7 @@ class ThemeEditor
 
         $this->tpl = array_merge($this->tpl, $this->getFilesInDir($this->user_theme . '/templates/tpl'));
 
-        # Then we look in 'default-templates' plugins directory
+        // Then we look in 'default-templates' plugins directory
         $plugins = dotclear()->plugins()->getModules();
         foreach ($plugins as $p) {
             // Looking in default-templates directory

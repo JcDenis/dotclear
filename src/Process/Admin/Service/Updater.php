@@ -1,10 +1,9 @@
 <?php
 /**
- * @class  Dotclear\Process\Admin\Service\Updater
+ * @note  Dotclear\Process\Admin\Service\Updater
  * @brief Dotclear core update
  *
- * @package Dotclear
- * @subpackage Core
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,6 +18,8 @@ use Dotclear\Helper\File\Zip\Unzip;
 use Dotclear\Helper\File\Zip\Zip;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Network\NetHttp\NetHttp;
+use SimpleXMLElement;
+use Exception;
 
 class Updater
 {
@@ -41,12 +42,12 @@ class Updater
     protected $forced_files = [];
 
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param   string  $url        Versions file URL
-     * @param   string  $subject    Subject to check
-     * @param   string  $version    Version type
-     * @param   string  $cache_dir  Directory cache path
+     * @param string $url       Versions file URL
+     * @param string $subject   Subject to check
+     * @param string $version   Version type
+     * @param string $cache_dir Directory cache path
      */
     public function __construct(protected string $url, protected string $subject, protected string $version, string $cache_dir)
     {
@@ -57,10 +58,10 @@ class Updater
      * Checks for Dotclear updates.
      * Returns latest version if available or false.
      *
-     * @param   string  $version    Current version to compare
-     * @param   bool    $nocache    Force checking
+     * @param string $version Current version to compare
+     * @param bool   $nocache Force checking
      *
-     * @return  mixed   Latest version if available
+     * @return mixed Latest version if available
      */
     public function check($version, $nocache = false)
     {
@@ -75,7 +76,7 @@ class Updater
 
     public function getVersionInfo($nocache = false)
     {
-        # Check cached file
+        // Check cached file
         if (is_readable($this->cache_file) && filemtime($this->cache_file) > strtotime($this->cache_ttl) && !$nocache) {
             $c = @file_get_contents($this->cache_file);
             $c = @unserialize($c);
@@ -87,11 +88,11 @@ class Updater
         }
 
         $cache_dir = dirname($this->cache_file);
-        $can_write = (!is_dir($cache_dir) && is_writable(dirname($cache_dir)))
+        $can_write = (!is_dir($cache_dir)   && is_writable(dirname($cache_dir)))
         || (!file_exists($this->cache_file) && is_writable($cache_dir))
         || is_writable($this->cache_file);
 
-        # If we can't write file, don't bug host with queries
+        // If we can't write file, don't bug host with queries
         if (!$can_write) {
             return;
         }
@@ -104,14 +105,14 @@ class Updater
             }
         }
 
-        # Try to get latest version number
+        // Try to get latest version number
         try {
             $path   = '';
             $status = 0;
 
             $http_get = function ($http_url) use (&$status, $path) {
                 $client = NetHttp::initClient($http_url, $path);
-                if ($client !== false) {
+                if (false !== $client) {
                     $client->setTimeout(dotclear()->config()->get('query_timeout'));
                     $client->setUserAgent($_SERVER['HTTP_USER_AGENT']);
                     $client->get($path);
@@ -122,16 +123,16 @@ class Updater
             };
 
             $client = $http_get($this->url);
-            if ($status >= 400) {
+            if (400 <= $status) {
                 // If original URL uses HTTPS, try with HTTP
                 $url_parts = parse_url($client->getRequestURL());
-                if (isset($url_parts['scheme']) && $url_parts['scheme'] == 'https') {
+                if (isset($url_parts['scheme']) && 'https' == $url_parts['scheme']) {
                     // Replace https by http in url
                     $this->url = preg_replace('/^https(?=:\/\/)/i', 'http', $this->url);
                     $client    = $http_get($this->url);
                 }
             }
-            if (!$status || $status >= 400) {
+            if (!$status || 400 <= $status) {
                 throw new AdminException();
             }
             $this->readVersion($client->getContent());
@@ -139,7 +140,7 @@ class Updater
             return;
         }
 
-        # Create cache
+        // Create cache
         file_put_contents($this->cache_file, serialize($this->version_info));
     }
 
@@ -185,6 +186,8 @@ class Updater
 
     /**
      * Sets notification flag.
+     *
+     * @param mixed $n
      */
     public function setNotify($n)
     {
@@ -216,6 +219,8 @@ class Updater
 
     /**
      * Downloads new version to destination $dest.
+     *
+     * @param mixed $dest
      */
     public function download($dest)
     {
@@ -235,7 +240,7 @@ class Updater
 
             $http_get = function ($http_url) use (&$status, $dest, $path) {
                 $client = NetHttp::initClient($http_url, $path);
-                if ($client !== false) {
+                if (false !== $client) {
                     $client->setTimeout(dotclear()->config()->get('query_timeout'));
                     $client->setUserAgent($_SERVER['HTTP_USER_AGENT']);
                     $client->useGzip(false);
@@ -249,16 +254,16 @@ class Updater
             };
 
             $client = $http_get($url);
-            if ($status >= 400) {
+            if (400 <= $status) {
                 // If original URL uses HTTPS, try with HTTP
                 $url_parts = parse_url($client->getRequestURL());
-                if (isset($url_parts['scheme']) && $url_parts['scheme'] == 'https') {
+                if (isset($url_parts['scheme']) && 'https' == $url_parts['scheme']) {
                     // Replace https by http in url
                     $url    = preg_replace('/^https(?=:\/\/)/i', 'http', $url);
                     $client = $http_get($url);
                 }
             }
-            if ($status != 200) {
+            if (200 != $status) {
                 @unlink($dest);
 
                 throw new AdminException();
@@ -270,6 +275,8 @@ class Updater
 
     /**
      * Checks if archive was successfully downloaded.
+     *
+     * @param mixed $zip
      */
     public function checkDownload($zip)
     {
@@ -280,6 +287,12 @@ class Updater
 
     /**
      * Backups changed files before an update.
+     *
+     * @param mixed $zip_file
+     * @param mixed $zip_digests
+     * @param mixed $root
+     * @param mixed $root_digests
+     * @param mixed $dest
      */
     public function backup($zip_file, $zip_digests, $root, $root_digests, $dest)
     {
@@ -293,7 +306,7 @@ class Updater
             throw new AdminException(__('Unable to read current digests file.'));
         }
 
-        # Stop everything if a backup already exists and can not be overrided
+        // Stop everything if a backup already exists and can not be overrided
         if (!is_writable(dirname($dest)) && !file_exists($dest)) {
             throw new AdminException(__('Root directory is not writable.'));
         }
@@ -303,7 +316,7 @@ class Updater
         }
 
         $b_fp = @fopen($dest, 'wb');
-        if ($b_fp === false) {
+        if (false === $b_fp) {
             return false;
         }
 
@@ -341,7 +354,7 @@ class Updater
             }
         }
 
-        # If only one file is not readable, stop everything now
+        // If only one file is not readable, stop everything now
         if (!empty($not_readable)) {
             $e            = new AdminException('Some files are not readable.', self::ERR_FILES_UNREADABLE);
             $e->bad_files = $not_readable;  // @phpstan-ignore-line
@@ -358,6 +371,12 @@ class Updater
 
     /**
      * Upgrade process.
+     *
+     * @param mixed $zip_file
+     * @param mixed $zip_digests
+     * @param mixed $zip_root
+     * @param mixed $root
+     * @param mixed $root_digests
      */
     public function performUpgrade($zip_file, $zip_digests, $zip_root, $root, $root_digests)
     {
@@ -414,7 +433,7 @@ class Updater
             $zip_files[] = $file;
         }
 
-        # If only one file is not writable, stop everything now
+        // If only one file is not writable, stop everything now
         if (!empty($not_writable)) {
             $e            = new AdminException('Some files are not writable', self::ERR_FILES_UNWRITALBE);
             $e->bad_files = $not_writable;  // @phpstan-ignore-line
@@ -422,7 +441,7 @@ class Updater
             throw $e;
         }
 
-        # Everything's fine, we can write files, then do it now
+        // Everything's fine, we can write files, then do it now
         $can_touch = function_exists('touch');
         foreach ($zip_files as $file) {
             $zip->unzip($zip_root . '/' . $file, $root . '/' . $file);
@@ -452,7 +471,7 @@ class Updater
     protected function readVersion($str)
     {
         try {
-            $xml = new \SimpleXMLElement($str, LIBXML_NOERROR);
+            $xml = new SimpleXMLElement($str, LIBXML_NOERROR);
             $r   = $xml->xpath("/versions/subject[@name='" . $this->subject . "']/release[@name='" . $this->version . "']");
 
             if (!empty($r) && is_array($r)) {
@@ -463,7 +482,7 @@ class Updater
                 $this->version_info['info']     = isset($r['info']) ? (string) $r['info'] : null;
                 $this->version_info['php']      = isset($r['php']) ? (string) $r['php'] : null;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw $e;
         }
     }
@@ -487,13 +506,13 @@ class Updater
             $md5      = $m[1];
             $filename = $root . '/' . $m[2];
 
-            # Invalid checksum
+            // Invalid checksum
             if (!is_readable($filename) || !$this->md5_check($filename, $md5)) {
                 $changes[] = substr($m[2], 2);
             }
         }
 
-        # No checksum found in digests file
+        // No checksum found in digests file
         if (empty($md5)) {
             throw new AdminException(__('Invalid digests file.'));
         }
@@ -507,7 +526,7 @@ class Updater
             return;
         }
 
-        $v = $n == 1 ? md5($m[2] . $m[1]) : substr($m[2], 2);
+        $v = 1 == $n ? md5($m[2] . $m[1]) : substr($m[2], 2);
     }
 
     protected function md5_check($filename, $md5)

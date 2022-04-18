@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Tags\Common\TagsCore
+ * @note Dotclear\Plugin\Tags\Common\TagsCore
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginTags
+ * @ingroup  PluginTags
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,7 +13,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Tags\Common;
 
 use Dotclear\Core\Wiki\Wiki2xhtml;
-use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 
 class TagsCore

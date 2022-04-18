@@ -1,12 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Html\Form\Fieldset
- * @brief HTML Forms fieldset creation helpers
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
  * @package Dotclear
- * @subpackage html.form
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,9 +9,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html\Form;
 
-use Dotclear\Helper\Html\Form\Component;
-use Dotclear\Helper\Html\Form\Legend;
-
+/**
+ * HTML Forms fieldset creation helpers.
+ *
+ * \Dotclear\Helper\Html\Form\Fieldset
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Helper Html Form
+ */
 class Fieldset extends Component
 {
     private const DEFAULT_ELEMENT = 'fieldset';
@@ -25,23 +25,24 @@ class Fieldset extends Component
     /**
      * Constructs a new instance.
      *
-     * @param      null|string  $id       The identifier
-     * @param      null|string  $element  The element
+     * @param null|string $id      The identifier
+     * @param null|string $element The element
      */
     public function __construct(?string $id = null, ?string $element = null)
     {
         parent::__construct(__CLASS__, $element ?? self::DEFAULT_ELEMENT);
-        if ($id !== null) {
+        if (null !== $id) {
             $this
                 ->set('id', $id)
-                ->set('name', $id);
+                ->set('name', $id)
+            ;
         }
     }
 
     /**
      * Attaches the legend to this fieldset.
      *
-     * @param      Legend|null  $legend  The legend
+     * @param null|Legend $legend The legend
      */
     public function attachLegend(?Legend $legend)
     {
@@ -64,8 +65,6 @@ class Fieldset extends Component
 
     /**
      * Renders the HTML component (including the associated legend if any).
-     *
-     * @return     string
      */
     public function render(): string
     {
@@ -95,7 +94,7 @@ class Fieldset extends Component
     /**
      * Gets the default element.
      *
-     * @return     string  The default element.
+     * @return string the default element
      */
     public function getDefaultElement(): string
     {

@@ -15,6 +15,7 @@ return $config
         '@PhpCsFixer'             => true, 
         '@PSR12'                  => true,
         '@PHP80Migration'         => true,
+        'binary_operator_spaces'  => ['default' => 'align'],
         'concat_space'            => ['spacing' => 'one'],
         'global_namespace_import' => true,
         'phpdoc_no_package'       => false,

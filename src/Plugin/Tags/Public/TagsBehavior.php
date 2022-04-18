@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Tags\Public\TagsBehavior
+ * @note Dotclear\Plugin\Tags\Public\TagsBehavior
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginTags
+ * @ingroup  PluginTags
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -35,7 +34,8 @@ class TagsBehavior
             "\$params['sql'] .= \"AND META.meta_type = 'tag' \";\n" .
             "\$params['sql'] .= \"AND META.meta_id = '" . dotclear()->con()->escape($attr['tag']) . "' \";\n" .
                 "?>\n";
-        } elseif (empty($attr['no_context']) && in_array($tag, ['Entries', 'Comments'])) {
+        }
+        if (empty($attr['no_context']) && in_array($tag, ['Entries', 'Comments'])) {
             return
                 '<?php if (dotclear()->context()->exists("meta") && dotclear()->context()->get("meta")->rows() && dotclear()->context()->get("meta")->f("meta_type") == "tag") { ' .
                 "if (!isset(\$params)) { \$params = []; }\n" .

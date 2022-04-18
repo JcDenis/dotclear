@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Core\Blogs\Blogs
+ * @note Dotclear\Core\Blogs\Blogs
  * @brief Dotclear core blogs managment class
  *
- * @package Dotclear
- * @subpackage Core
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,7 +13,6 @@ declare(strict_types=1);
 namespace Dotclear\Core\Blogs;
 
 use ArrayObject;
-
 use Dotclear\Core\RsExt\RsExtBlog;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
@@ -26,37 +24,37 @@ class Blogs
     /**
      * Gets all blog status.
      *
-     * @return  array   An array of available blog status codes and names.
+     * @return array an array of available blog status codes and names
      */
     public function getAllBlogStatus(): array
     {
         return [
             1  => __('online'),
             0  => __('offline'),
-            -1 => __('removed')
+            -1 => __('removed'),
         ];
     }
 
     /**
-     * Get blog status
+     * Get blog status.
      *
      * Returns a blog status name given to a code. This is intended to be
      * human-readable and will be translated, so never use it for tests.
      * If status code does not exist, returns <i>offline</i>.
      *
-     * @param   int     $status_code    Status code
+     * @param int $status_code Status code
      *
-     * @return  string  The blog status name.
+     * @return string the blog status name
      */
     public function getBlogStatus(int $status_code): string
     {
         $all = $this->getAllBlogStatus();
 
-        return isset($all[$status_code]) ? $all[$status_code] : $all[0];
+        return $all[$status_code] ?? $all[0];
     }
 
     /**
-     * Returns all blog permissions (users) as an array which looks like:
+     * Returns all blog permissions (users) as an array which looks like:.
      *
      * - [user_id]
      * - [name] => User name
@@ -67,10 +65,10 @@ class Blogs
      * - [permission] => true
      * - ...
      *
-     * @param   string  $blog_id        The blog identifier
-     * @param   bool    $with_super     Includes super admins in result
+     * @param string $blog_id    The blog identifier
+     * @param bool   $with_super Includes super admins in result
      *
-     * @return  array   The blog permissions.
+     * @return array the blog permissions
      */
     public function getBlogPermissions(string $blog_id, bool $with_super = true): array
     {
@@ -99,7 +97,7 @@ class Blogs
                 'displayname' => $rs->f('user_displayname'),
                 'email'       => $rs->f('user_email'),
                 'super'       => (bool) $rs->f('user_super'),
-                'p'           => dotclear()->user()->parsePermissions($rs->f('permissions'))
+                'p'           => dotclear()->user()->parsePermissions($rs->f('permissions')),
             ];
         }
 
@@ -109,15 +107,15 @@ class Blogs
     /**
      * Gets the blog.
      *
-     * @param   string  $blog_id    The blog identifier
+     * @param string $blog_id The blog identifier
      *
-     * @return  Record|null         The blog.
+     * @return null|Record the blog
      */
     public function getBlog(string $blog_id): ?Record
     {
         $blog = $this->getBlogs(['blog_id' => $blog_id]);
 
-       return $blog->isEmpty() ? null : $blog;
+        return $blog->isEmpty() ? null : $blog;
     }
 
     /**
@@ -128,10 +126,10 @@ class Blogs
      * - <var>q</var>: Search string on blog_id, blog_name and blog_url
      * - <var>limit</var>: limit results
      *
-     * @param   array|ArrayObject   $params         The parameters
-     * @param   bool                $count_only     Count only results
+     * @param array|ArrayObject $params     The parameters
+     * @param bool              $count_only Count only results
      *
-     * @return  Record  The blogs.
+     * @return Record the blogs
      */
     public function getBlogs(array|ArrayObject $params = [], bool $count_only = false): Record
     {
@@ -212,9 +210,9 @@ class Blogs
     /**
      * Adds a new blog.
      *
-     * @param   cursor  $cur    The blog cursor
+     * @param cursor $cur The blog cursor
      *
-     * @throws  CoreException
+     * @throws CoreException
      */
     public function addBlog(Cursor $cur): void
     {
@@ -234,8 +232,8 @@ class Blogs
     /**
      * Updates a given blog.
      *
-     * @param   string  $blog_id    The blog identifier
-     * @param   Cursor  $cur        The cursor
+     * @param string $blog_id The blog identifier
+     * @param Cursor $cur     The cursor
      */
     public function updBlog(string $blog_id, Cursor $cur): void
     {
@@ -249,9 +247,9 @@ class Blogs
     /**
      * Gets the blog cursor.
      *
-     * @param   Cursor  $cur    The cursor
+     * @param Cursor $cur The cursor
      *
-     * @throws  CoreException
+     * @throws CoreException
      */
     private function getBlogCursor(Cursor $cur): void
     {
@@ -274,12 +272,13 @@ class Blogs
 
     /**
      * Removes a given blog.
+     *
      * @warning This will remove everything related to the blog (posts,
      * categories, comments, links...)
      *
-     * @param   string  $blog_id    The blog identifier
+     * @param string $blog_id The blog identifier
      *
-     * @throws  CoreException
+     * @throws CoreException
      */
     public function delBlog(string $blog_id): void
     {
@@ -296,9 +295,9 @@ class Blogs
     /**
      * Determines if blog exists.
      *
-     * @param   string  $blog_id    The blog identifier
+     * @param string $blog_id The blog identifier
      *
-     * @return  bool    True if blog exists, False otherwise.
+     * @return bool true if blog exists, False otherwise
      */
     public function blogExists(string $blog_id): bool
     {
@@ -314,10 +313,10 @@ class Blogs
     /**
      * Counts the number of blog posts.
      *
-     * @param   string          $blog_id    The blog identifier
-     * @param   string|null     $post_type  The post type
+     * @param string      $blog_id   The blog identifier
+     * @param null|string $post_type The post type
      *
-     * @return  int     Number of blog posts.
+     * @return int number of blog posts
      */
     public function countBlogPosts(string $blog_id, ?string $post_type = null): int
     {
@@ -331,5 +330,4 @@ class Blogs
 
         return dotclear()->con()->select($strReq)->fInt();
     }
-
 }

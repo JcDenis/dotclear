@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Pings\Common\PingsAPI
+ * @note Dotclear\Plugin\Pings\Common\PingsAPI
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginPings
+ * @ingroup  PluginPings
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only

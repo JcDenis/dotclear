@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Module\TraitPrependPublic
+ * @note Dotclear\Module\TraitPrependPublic
  * @brief Dotclear Module public trait Prepend
  *
- * @package Dotclear
- * @subpackage Module
+ * @ingroup  Module
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,7 +15,8 @@ namespace Dotclear\Module;
 trait TraitPrependPublic
 {
     /**
-     * Not used on Public process
+     * Not used on Public process.
+     *
      * @see Dotclear\Module\AbstractModules::loadModules()
      */
     public function checkModule(): bool
@@ -25,7 +25,8 @@ trait TraitPrependPublic
     }
 
     /**
-     * Not used on Public process
+     * Not used on Public process.
+     *
      * @see Dotclear\Module\AbstractModules::loadModules()
      */
     public function installModule(): ?bool
@@ -34,7 +35,7 @@ trait TraitPrependPublic
     }
 
     /**
-     * Add template path
+     * Add template path.
      *
      * Helper for modules to add their template set
      */
@@ -52,9 +53,9 @@ trait TraitPrependPublic
     }
 
     /**
-     * Helper to check if current blog theme is this module
+     * Helper to check if current blog theme is this module.
      *
-     * @return  bool    True if blog theme is this modle
+     * @return bool True if blog theme is this modle
      */
     protected function isTheme()
     {

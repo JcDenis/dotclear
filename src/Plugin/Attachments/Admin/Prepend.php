@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Attachments\Admin\Prepend
+ * @note Dotclear\Plugin\Attachments\Admin\Prepend
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginAttachments
+ * @ingroup  PluginAttachments
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,10 +12,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Attachments\Admin;
 
-use ArrayObject;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
-use Dotclear\Plugin\Attachments\Admin\AttachmentsBehavior;
 
 class Prepend extends AbstractPrepend
 {

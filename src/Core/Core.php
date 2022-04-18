@@ -1,10 +1,6 @@
 <?php
 /**
- * @class Dotclear\Core\Core
- * @brief Dotclear core class
- *
  * @package Dotclear
- * @subpackage Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -44,119 +40,126 @@ use Dotclear\Helper\L10n;
 use Dotclear\Helper\RestServer;
 use Dotclear\Helper\Statistic;
 use Dotclear\Helper\File\Path;
+use Error;
+use Exception;
 
+/**
+ * Core for process.
+ *
+ * \Dotclear\Core\Core
+ *
+ * @ingroup Process Core
+ */
 class Core
 {
     use Errortrait;
 
-    /** @var    Autoload   Autoload instance */
+    /** @var Autoload Autoload instance */
     private $autoload;
 
-    /** @var    Behavior    Behavior instance */
+    /** @var Behavior Behavior instance */
     private $behavior;
 
-    /** @var    Blog|null   Blog instance */
-    private $blog = null;
+    /** @var null|Blog Blog instance */
+    private $blog;
 
-    /** @var    Blogs   Blogs instance */
+    /** @var Blogs Blogs instance */
     private $blogs;
 
-    /** @var    AbstractConnection   AbstractConnection instance */
+    /** @var AbstractConnection AbstractConnection instance */
     private $con;
 
-    /** @var    Configuration   Configuration instance */
+    /** @var Configuration Configuration instance */
     private $config;
 
-    /** @var    Formater   Formater instance */
+    /** @var Formater Formater instance */
     private $formater;
 
-    /** @var    Log   Log instance */
+    /** @var Log Log instance */
     private $log;
 
-    /** @var    Media|null  Media instance */
-    private $media = null;
+    /** @var null|Media Media instance */
+    private $media;
 
-    /** @var    Meta   Meta instance */
+    /** @var Meta Meta instance */
     private $meta;
 
-    /** @var    Nonce   Nonce instance */
+    /** @var Nonce Nonce instance */
     private $nonce;
 
-    /** @var    PostType   PostType instance */
+    /** @var PostType PostType instance */
     private $posttype;
 
-    /** @var    RestServer   RestServer instance */
+    /** @var RestServer RestServer instance */
     private $rest;
 
-    /** @var    Session   Session instance */
+    /** @var Session Session instance */
     private $session;
 
-    /** @var    Url     Url instance */
+    /** @var Url Url instance */
     private $url;
 
-    /** @var    User    User instance */
+    /** @var User User instance */
     private $user;
 
-    /** @var    Users   Users instance */
+    /** @var Users Users instance */
     private $users;
 
-    /** @var    Version     Version instance */
+    /** @var Version Version instance */
     private $version;
 
-    /** @var    Wiki    Wiki instance */
+    /** @var Wiki Wiki instance */
     private $wiki;
 
-    /** @var    static|null  Core singleton instance */
-    private static $instance = null;
+    /** @var null|static Core singleton instance */
+    private static $instance;
 
-    /** @var    string  Current Process */
+    /** @var string Current Process */
     protected $process;
 
-    /** @var    string  Current lang */
+    /** @var string Current lang */
     protected $lang = 'en';
 
-    /** @var    array   top behaviors */
+    /** @var array top behaviors */
     protected static $top_behaviors = [];
 
-    /** @var    string  Database table prefix */
+    /** @var string Database table prefix */
     public $prefix = '';
 
-    /// @name Core instance methods
-    //@{
+    // / @name Core instance methods
+    // @{
     /**
-     * Disabled children constructor and direct instance
+     * Disabled children constructor and direct instance.
      *
      * Set up some (no config) static features
      */
     final protected function __construct()
     {
-        # Statistic (dev)
+        // Statistic (dev)
         Statistic::start();
 
-        # Encoding
+        // Encoding
         mb_internal_encoding('UTF-8');
 
-        # Timezone
+        // Timezone
         Dt::setTZ('UTC');
 
-        # Disallow every special wrapper
+        // Disallow every special wrapper
         Http::unregisterWrapper();
 
-        # Add custom regs
+        // Add custom regs
         Html::$absolute_regs[] = '/(<param\s+name="movie"\s+value=")(.*?)(")/msu';
         Html::$absolute_regs[] = '/(<param\s+name="FlashVars"\s+value=".*?(?:mp3|flv)=)(.*?)(&|")/msu';
     }
 
-    /*
-     * Disabled clone method
-     */
+    // Disabled clone method
     final public function __clone()
     {
         trigger_error('Core instance can not be cloned.', E_USER_ERROR);
     }
 
     /**
-     * Disable sleep method
+     * Disable sleep method.
      */
     final public function __sleep()
     {
@@ -164,7 +167,7 @@ class Core
     }
 
     /**
-     * Disable wakeup method
+     * Disable wakeup method.
      */
     final public function __wakeup()
     {
@@ -172,34 +175,34 @@ class Core
     }
 
     /**
-     * Get core unique instance
+     * Get core unique instance.
      *
      * Use a two stage instanciation (construct then process).
      *
-     * @param   string|null     $blog_id    Blog ID on first public process call
+     * @param null|string $blog_id Blog ID on first public process call
      *
-     * @return  static|null                 Core (Process) instance
+     * @return null|static Core (Process) instance
      */
     final public static function singleton(?string $blog_id = null): ?static
     {
-        if (null == self::$instance && static::class != self::class) {
+        if (null == self::$instance && self::class != static::class) {
             self::$instance = new static();
             self::$instance->process($blog_id);
         }
 
         return self::$instance;
     }
-    //@}
+    // @}
 
-    /// @name Core others instances methods
-    //@{
+    // / @name Core others instances methods
+    // @{
     /**
-     * Get autoload instance
+     * Get autoload instance.
      *
      * Instanciate a core autoloader for custom
      * third party (plugins/themes) specifics needs
      *
-     * @return  Autoload   Autoload instance
+     * @return Autoload Autoload instance
      */
     public function autoload(): Autoload
     {
@@ -211,9 +214,9 @@ class Core
     }
 
     /**
-     * Get behavior instance
+     * Get behavior instance.
      *
-     * @return  Behavior    Behavior instance
+     * @return Behavior Behavior instance
      */
     public function behavior(): Behavior
     {
@@ -225,9 +228,9 @@ class Core
     }
 
     /**
-     * Get blog instance
+     * Get blog instance.
      *
-     * @return  Blog|null   Blog instance
+     * @return null|Blog Blog instance
      */
     public function blog(): ?Blog
     {
@@ -235,9 +238,9 @@ class Core
     }
 
     /**
-     * Get blogs instance
+     * Get blogs instance.
      *
-     * @return  Blogs   Blogs instance
+     * @return Blogs Blogs instance
      */
     public function blogs(): Blogs
     {
@@ -249,9 +252,9 @@ class Core
     }
 
     /**
-     * Get database connection instance
+     * Get database connection instance.
      *
-     * @return  AbstractConnection  AbstractConnection instance
+     * @return AbstractConnection AbstractConnection instance
      */
     public function con(): AbstractConnection
     {
@@ -260,7 +263,7 @@ class Core
                 $prefix = $this->config()->get('database_prefix');
                 $driver = $this->config()->get('database_driver');
 
-                # Create connection instance
+                // Create connection instance
                 $con = AbstractConnection::init(
                     $driver,
                     $this->config()->get('database_host'),
@@ -270,13 +273,13 @@ class Core
                     $this->config()->get('database_persist')
                 );
 
-                # Define weak_locks for mysql
+                // Define weak_locks for mysql
                 if (in_array($driver, ['mysqli', 'mysqlimb4'])) {
                     $con::$weak_locks = true;
                 }
 
-                # Define searchpath for postgresql
-                if ($driver == 'pgsql') {
+                // Define searchpath for postgresql
+                if ('pgsql' == $driver) {
                     $searchpath = explode('.', $prefix, 2);
                     if (count($searchpath) > 1) {
                         $prefix = $searchpath[1];
@@ -285,11 +288,11 @@ class Core
                     }
                 }
 
-                # Set table prefix in core
+                // Set table prefix in core
                 $this->prefix = $prefix;
 
-                $this->con =  $con;
-            } catch (\Exception $e) {
+                $this->con = $con;
+            } catch (Exception $e) {
                 $msg = sprintf(
                     __('<p>This either means that the username and password information in ' .
                     'your <strong>config.php</strong> file is incorrect or we can\'t contact ' .
@@ -316,17 +319,17 @@ class Core
     }
 
     /**
-     * Get dotclear configuration instance
+     * Get dotclear configuration instance.
      *
-     * @return  Configuration  Configuration instance
+     * @return Configuration Configuration instance
      */
     public function config(): Configuration
     {
         if (!($this->config instanceof Configuration)) {
-            $config_file = defined('DOTCLEAR_CONFIG_PATH') && is_file(\DOTCLEAR_CONFIG_PATH) ? \DOTCLEAR_CONFIG_PATH : [];
+            $config_file  = defined('DOTCLEAR_CONFIG_PATH') && is_file(\DOTCLEAR_CONFIG_PATH) ? \DOTCLEAR_CONFIG_PATH : [];
             $this->config = new Configuration($this->getDefaultConfig(), $config_file);
 
-            # Alias that could be required before first connection instance
+            // Alias that could be required before first connection instance
             $this->prefix = $this->config->get('database_prefix');
         }
 
@@ -334,9 +337,9 @@ class Core
     }
 
     /**
-     * Get formater instance
+     * Get formater instance.
      *
-     * @return  Formater   Formater instance
+     * @return Formater Formater instance
      */
     public function formater(): Formater
     {
@@ -348,9 +351,9 @@ class Core
     }
 
     /**
-     * Get log instance
+     * Get log instance.
      *
-     * @return  Log   Log instance
+     * @return Log Log instance
      */
     public function log(): Log
     {
@@ -362,21 +365,21 @@ class Core
     }
 
     /**
-     * Get media instance
+     * Get media instance.
      *
      * Caller MUST cope with Media instance failure.
      *
-     * @param   bool    $reload     Force reload of Media instance
-     * @param   bool    $throw      Throw Exception on instance failure
+     * @param bool $reload Force reload of Media instance
+     * @param bool $throw  Throw Exception on instance failure
      *
-     * @return  Media   Media instance
+     * @return Media Media instance
      */
     public function media(bool $reload = false, bool $throw = false): ?Media
     {
         if ($reload || !($this->media instanceof Media)) {
             try {
                 $this->media = new Media();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->media = null;
                 if ($throw) {
                     throw $e;
@@ -388,9 +391,9 @@ class Core
     }
 
     /**
-     * Get meta instance
+     * Get meta instance.
      *
-     * @return  Meta   Meta instance
+     * @return Meta Meta instance
      */
     public function meta(): Meta
     {
@@ -402,9 +405,9 @@ class Core
     }
 
     /**
-     * Get nonce instance
+     * Get nonce instance.
      *
-     * @return  Nonce   Nonce instance
+     * @return Nonce Nonce instance
      */
     public function nonce(): Nonce
     {
@@ -416,9 +419,9 @@ class Core
     }
 
     /**
-     * Get posttype instance
+     * Get posttype instance.
      *
-     * @return  PostType   PostType instance
+     * @return PostType PostType instance
      */
     public function posttype(): PostType
     {
@@ -430,9 +433,9 @@ class Core
     }
 
     /**
-     * Get reser server instance
+     * Get reser server instance.
      *
-     * @return  RestServer   RestServer instance
+     * @return RestServer RestServer instance
      */
     public function rest(): RestServer
     {
@@ -444,9 +447,9 @@ class Core
     }
 
     /**
-     * Get session instance
+     * Get session instance.
      *
-     * @return  Session   Session instance
+     * @return Session Session instance
      */
     public function session(): Session
     {
@@ -458,9 +461,9 @@ class Core
     }
 
     /**
-     * Get url (public) instance
+     * Get url (public) instance.
      *
-     * @return  Url   Url instance
+     * @return Url Url instance
      */
     public function url(): Url
     {
@@ -472,32 +475,32 @@ class Core
     }
 
     /**
-     * Get user (auth) instance
+     * Get user (auth) instance.
      *
      * You can set \DOTCLEAR_USER_CLASS to whatever you want.
      * Your new class *should* inherits Dotclear\Core\User\User class.
      *
-     * @return  User  User instance
+     * @return User User instance
      */
     public function user(): User
     {
         if (!($this->user instanceof User)) {
             try {
                 $dc_user_class = __NAMESPACE__ . '\\User\\User';
-                $class = defined('DOTCLEAR_USER_CLASS') ? \DOTCLEAR_USER_CLASS : $dc_user_class;
+                $class         = defined('DOTCLEAR_USER_CLASS') ? \DOTCLEAR_USER_CLASS : $dc_user_class;
 
-                # Check if auth class exists
+                // Check if auth class exists
                 if (!class_exists($class)) {
-                    throw new \Exception(sprintf('Authentication class %s does not exist.', $class));
+                    throw new Exception(sprintf('Authentication class %s does not exist.', $class));
                 }
 
-                # Check if auth class inherit Dotclear auth class
+                // Check if auth class inherit Dotclear auth class
                 if ($class != $dc_user_class && !is_subclass_of($class, $dc_user_class)) {
-                    throw new \Exception(sprintf('Authentication class %s does not inherit %s.', $class, $dc_user_class));
+                    throw new Exception(sprintf('Authentication class %s does not inherit %s.', $class, $dc_user_class));
                 }
 
                 $this->user = new $class();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->throwException(
                     __('Unable to do authentication'),
                     sprintf(__('Something went wrong while trying to load authentication class: %s'), $e->getMessage()),
@@ -510,9 +513,9 @@ class Core
     }
 
     /**
-     * Get users instance
+     * Get users instance.
      *
-     * @return  Users   Users instance
+     * @return Users Users instance
      */
     public function users(): Users
     {
@@ -524,9 +527,9 @@ class Core
     }
 
     /**
-     * Get version instance
+     * Get version instance.
      *
-     * @return  Version   Version instance
+     * @return Version Version instance
      */
     public function version(): Version
     {
@@ -538,9 +541,9 @@ class Core
     }
 
     /**
-     * Get wkik (wki2xhtml) instance
+     * Get wkik (wki2xhtml) instance.
      *
-     * @return  Wiki   Wiki instance
+     * @return Wiki Wiki instance
      */
     public function wiki(): Wiki
     {
@@ -550,16 +553,16 @@ class Core
 
         return $this->wiki;
     }
-    //@}
+    // @}
 
-    /// @name Core methods
-    //@{
+    // / @name Core methods
+    // @{
     /**
-     * Start Dotclear Core process
+     * Start Dotclear Core process.
      */
     protected function process(string $_ = null): void
     {
-        # Find configuration file
+        // Find configuration file
         if (!defined('DOTCLEAR_CONFIG_PATH')) {
             if (isset($_SERVER['DOTCLEAR_CONFIG_PATH'])) {
                 define('DOTCLEAR_CONFIG_PATH', $_SERVER['DOTCLEAR_CONFIG_PATH']);
@@ -570,14 +573,13 @@ class Core
             }
         }
 
-        # No configuration ? start installalation process
+        // No configuration ? start installalation process
         if (!is_file(\DOTCLEAR_CONFIG_PATH)) {
-            # Stop core process here in installalation process
+            // Stop core process here in installalation process
             if ('Install' == $this->process) {
-
                 return;
             }
-            # Redirect to installation process
+            // Redirect to installation process
             Http::redirect(preg_replace(
                 ['%admin/.*?$%', '%index.php.*?$%', '%/$%'],
                 '',
@@ -587,40 +589,41 @@ class Core
             exit;
         }
 
-        # In non production environment, display all errors
+        // In non production environment, display all errors
         if (!$this->production()) {
             ini_set('display_errors', '1');
             error_reporting(E_ALL | E_STRICT);
         }
 
-        # Start l10n
+        // Start l10n
         L10n::init();
 
-        # Find a default appropriate language (used by Exceptions)
+        // Find a default appropriate language (used by Exceptions)
         foreach (Http::getAcceptLanguages() as $lang) {
             if ('en' == $lang || false !== L10n::set(Path::implode($this->config()->get('l10n_dir'), $lang, 'main'))) {
                 $this->lang($lang);
+
                 break;
             }
         }
 
-        # Set some Http stuff
+        // Set some Http stuff
         Http::$https_scheme_on_443 = $this->config()->get('force_scheme_443');
-        Http::$reverse_proxy = $this->config()->get('reverse_proxy');
+        Http::$reverse_proxy       = $this->config()->get('reverse_proxy');
         Http::trimRequest();
 
-        # Check master key
+        // Check master key
         if (32 > strlen($this->config()->get('master_key'))) {
-                $this->throwException(
-                    __('Unsufficient master key'),
-                    __('Master key is not strong enough, please change it.'),
-                    611
-                );
+            $this->throwException(
+                __('Unsufficient master key'),
+                __('Master key is not strong enough, please change it.'),
+                611
+            );
         }
 
-        # Check cryptography algorithm
+        // Check cryptography algorithm
         if ('sha1' == $this->config()->get('crypt_algo')) {
-            # Check length of cryptographic algorithm result and exit if less than 40 characters long
+            // Check length of cryptographic algorithm result and exit if less than 40 characters long
             if (40 > strlen(Crypt::hmac($this->config()->get('master_key'), $this->config()->get('vendor_name'), $this->config()->get('crypt_algo')))) {
                 $this->throwException(
                     __('Cryptographic error'),
@@ -630,15 +633,15 @@ class Core
             }
         }
 
-        # Check existence of digests directory
+        // Check existence of digests directory
         if (!is_dir($this->config()->get('digests_dir'))) {
-            /* Try to create it */
+            // Try to create it
             @Files::makeDir($this->config()->get('digests_dir'));
         }
 
-        # Check existence of cache directory
+        // Check existence of cache directory
         if (!is_dir($this->config()->get('cache_dir'))) {
-            /* Try to create it */
+            // Try to create it
             @Files::makeDir($this->config()->get('cache_dir'));
             if (!is_dir($this->config()->get('cache_dir'))) {
                 $this->throwException(
@@ -649,7 +652,7 @@ class Core
             }
         }
 
-        # Check existence of var directory
+        // Check existence of var directory
         if (!is_dir($this->config()->get('var_dir'))) {
             // Try to create it
             @Files::makeDir($this->config()->get('var_dir'));
@@ -662,7 +665,7 @@ class Core
             }
         }
 
-        # Check configuration required values
+        // Check configuration required values
         if ($this->config()->error()->flag()) {
             $this->throwException(
                 __('Configuration file is not complete.'),
@@ -671,22 +674,22 @@ class Core
             );
         }
 
-        # Add top behaviors
+        // Add top behaviors
         $this->registerTopBehaviors();
 
-        # Register Core post types
+        // Register Core post types
         $this->posttype()->setPostType('post', '?handler=admin.post&id=%d', $this->url()->getURLFor('post', '%s'), 'Posts');
 
-        # Register shutdown function
+        // Register shutdown function
         register_shutdown_function([$this, 'shutdown']);
     }
 
     /**
-     * Check current process
-     * 
-     * @param   string|null     $process    Process name to check, or null to get its name
-     * 
-     * @return  string|bool                 True this is the process, or the process name
+     * Check current process.
+     *
+     * @param null|string $process Process name to check, or null to get its name
+     *
+     * @return bool|string True this is the process, or the process name
      */
     public function processed(?string $process = null): string|bool
     {
@@ -694,11 +697,11 @@ class Core
     }
 
     /**
-     * Get current lang
-     * 
-     * @param   string  $lang   Lang to switch on
-     * 
-     * @return  string          Lang
+     * Get current lang.
+     *
+     * @param string $lang Lang to switch on
+     *
+     * @return string Lang
      */
     public function lang(string $lang = null): string
     {
@@ -710,9 +713,9 @@ class Core
     }
 
     /**
-     * Check production environment
+     * Check production environment.
      *
-     * @return  bool    True for production env
+     * @return bool True for production env
      */
     public function production(): bool
     {
@@ -720,9 +723,9 @@ class Core
     }
 
     /**
-     * Check rescue mode
-     * 
-     * @return  bool    True for rescue mode
+     * Check rescue mode.
+     *
+     * @return bool True for rescue mode
      */
     public function rescue()
     {
@@ -730,7 +733,7 @@ class Core
     }
 
     /**
-     * Shutdown method
+     * Shutdown method.
      *
      * Close properly session and connection.
      */
@@ -742,20 +745,20 @@ class Core
 
         try {
             $this->con->close();
-        } catch (\Exception | \Error) {
+        } catch (Exception|Error) {
         }
     }
 
-    /// @name Core top behaviors methods
-    //@{
+    // / @name Core top behaviors methods
+    // @{
     /**
-     * Add Top Behavior statically before class instanciate
+     * Add Top Behavior statically before class instanciate.
      *
      * ::addTopBehavior('MyBehavior', 'MyFunction');
      * also work from other child class.
      *
-     * @param  string                   $behavior   The behavior
-     * @param  string|array|Closure     $callback   The function
+     * @param string               $behavior The behavior
+     * @param array|Closure|string $callback The function
      */
     public static function addTopBehavior(string $behavior, string|array|Closure $callback): void
     {
@@ -763,7 +766,7 @@ class Core
     }
 
     /**
-     * Register Top Behaviors into class instance behaviors
+     * Register Top Behaviors into class instance behaviors.
      */
     protected function registerTopBehaviors(): void
     {
@@ -771,20 +774,20 @@ class Core
             $this->behavior()->add($behavior[0], $behavior[1]);
         }
     }
-    //@}
+    // @}
 
-    /// @name Core blog methods
-    //@{
+    // / @name Core blog methods
+    // @{
     /**
      * Sets the blog to use.
      *
-     * @param   string  $blog_id    The blog ID
+     * @param string $blog_id The blog ID
      */
     public function setBlog(string $blog_id): void
     {
         try {
             $this->blog = new Blog($blog_id);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->throwException(
                 __('Unable to load blog'),
                 sprintf(__('Something went wrong while trying to load blog: %s'), $e->getMessage()),
@@ -794,47 +797,48 @@ class Core
     }
 
     /**
-     * Unsets blog property
+     * Unsets blog property.
      */
     public function unsetBlog(): void
     {
         $this->blog = null;
     }
-    //@}
+    // @}
 
-    /// @name Core exception methods
-    //@{
+    // / @name Core exception methods
+    // @{
     /**
-     * display default error message
+     * display default error message.
      *
-     * @throws  PrependException
+     * @param string $message The short message
+     * @param string $detail  The detailed message
+     * @param int    $code    The code
      *
-     * @param   string  $message    The short message
-     * @param   string  $detail     The detailed message
-     * @param   int     $code       The code
+     * @throws PrependException
      */
     protected function throwException(string $message, string $detail, int $code, Throwable $previous = null): void
     {
         $title = $this->getExceptionTitle($code);
 
-        # If in non production env and there are some details
+        // If in non production env and there are some details
         if (!$this->production() && !empty($detail)) {
             $message = $detail;
-        # If error code is higher than 630 and in plublic, then show a standard message
+        // If error code is higher than 630 and in plublic, then show a standard message
         } elseif (630 <= $code && !in_array(dotclear()->processed(), ['Admin', 'Install'])) {
-            $title = __('Site temporarily unavailable');
+            $title   = __('Site temporarily unavailable');
             $message = __('<p>We apologize for this temporary unavailability.<br />Thank you for your understanding.</p>');
         }
 
-        # Use an Exception handler to get trace for non production env
+        // Use an Exception handler to get trace for non production env
         throw new PrependException($title, $message, $code, !$this->production(), $previous);
     }
 
     /**
-     * Get Exception title according to code
+     * Get Exception title according to code.
      *
-     * @param   int     $code   The code
-     * @return  string          The title
+     * @param int $code The code
+     *
+     * @return string The title
      */
     protected function getExceptionTitle(int $code): string
     {
@@ -854,12 +858,12 @@ class Core
 
         return $errors[$code] ?? __('Dotclear error');
     }
-    //@}
+    // @}
 
     /**
-     * Empty templates cache directory
+     * Empty templates cache directory.
      */
-    public function emptyTemplatesCache(): void //! move this
+    public function emptyTemplatesCache(): void // ! move this
     {
         if (is_dir(Path::implode(dotclear()->config()->get('cache_dir'), 'cbtpl'))) {
             Files::deltree(Path::implode(dotclear()->config()->get('cache_dir'), 'cbtpl'));
@@ -867,13 +871,13 @@ class Core
     }
 
     /**
-     * Default Dotclear configuration
+     * Default Dotclear configuration.
      *
      * This configuration must be completed by the config.php file.
      *
      * @see     Dotclear\Helper\Configuration
      *
-     * @return  array   Initial configuation
+     * @return array Initial configuation
      */
     private function getDefaultConfig(): array
     {
@@ -901,7 +905,7 @@ class Core
             'digests_dir'           => [null, Path::implodeRoot('..', 'digests')],
             'file_serve_type'       => [null, ['ico', 'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'css', 'js', 'swf', 'svg', 'woff', 'woff2', 'ttf', 'otf', 'eot', 'html', 'xml', 'json', 'txt', 'zip']],
             'force_scheme_443'      => [null, true],
-            'iconset_dirs'          => [null, []], //[null, [Path::implodeRoot('Iconset')],
+            'iconset_dirs'          => [null, []], // [null, [Path::implodeRoot('Iconset')],
             'iconset_official'      => [false, ['Legacy', 'ThomasDaveluy']],
             'iconset_update_url'    => [null, ''],
             'jquery_default'        => [null, '3.6.0'],
@@ -918,7 +922,7 @@ class Core
             'production'            => [null, true],
             'query_timeout'         => [null, 4],
             'reverse_proxy'         => [null, true],
-            'root_dir'              => [false, Path::implodeRoot()], //Alias for \DOTCLEAR_ROOT_DIR
+            'root_dir'              => [false, Path::implodeRoot()], // Alias for \DOTCLEAR_ROOT_DIR
             'session_name'          => [null, 'dcxd'],
             'session_ttl'           => [null, '-120 minutes'],
             'store_allow_repo'      => [null, true],

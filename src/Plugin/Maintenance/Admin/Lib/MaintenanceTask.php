@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask
+ * @note Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginMaintenance
+ * @ingroup  PluginMaintenance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,64 +12,62 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Maintenance\Admin\Lib;
 
-use Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance;
-
 /**
-@brief Maintenance plugin task class.
-
-Every task of maintenance must extend this class.
+ * @brief Maintenance plugin task class.
+ *
+ * Every task of maintenance must extend this class.
  */
 class MaintenanceTask
 {
-    /** @var    string  $p_url  Plugin URL */
+    /** @var string Plugin URL */
     protected $p_url = '';
 
-    /** @var    int     $code   Code for stepped task */
+    /** @var int Code for stepped task */
     protected $code = 0;
 
-    /** @var    int     $ts     Timestamp between task execution */
+    /** @var int Timestamp between task execution */
     protected $ts = 0;
 
-    /** @var    int|false|null  $expired    Task expired */
+    /** @var null|false|int Task expired */
     protected $expired = 0;
 
-    /** @var    bool    $ajax   Use ajax */
+    /** @var bool Use ajax */
     protected $ajax = false;
 
-    /** @var    bool    $blog   Is limited to current blog */
+    /** @var bool Is limited to current blog */
     protected $blog = false;
 
-    /** @var    string|null     $perm   Permission to use task */
-    protected $perm = null;
+    /** @var null|string Permission to use task */
+    protected $perm;
 
-    /** @var    string  $id     Task ID */
+    /** @var string Task ID */
     protected $id = '';
 
-    /** @var    string  $sid    Task sanitized ID */
+    /** @var string Task sanitized ID */
     protected $sid = '';
 
-    /** @var    string  $anme   Task name */
+    /** @var string Task name */
     protected $name = '';
 
-    /** @var    string  $decription     Task description */
+    /** @var string Task description */
     protected $description = '';
 
-    /** @var    string|null   Task tab */  
+    /** @var null|string Task tab */
     protected $tab = 'maintenance';
 
-    /** @var    string|null     $group  Task group */
+    /** @var null|string Task group */
     protected $group = 'other';
 
-    /** @var    string|null     Task execution message */
-    protected $step = null;
+    /** @var null|string Task execution message */
+    protected $step;
 
-    /** @var    string  $task   Task form button message */
+    /** @var string Task form button message */
     protected $task = '';
 
-    /** @var    string  $error  Task error message */
+    /** @var string Task error message */
     protected $error = '';
 
-    /** @var    string  $success    Task success message */
+    /** @var string Task success message */
     protected $success = '';
 
     /**
@@ -79,7 +76,7 @@ class MaintenanceTask
      * If your task required something on construct,
      * use method init() to do it.
      *
-     * @param      Maintenance  $maintenance  The maintenance
+     * @param Maintenance $maintenance The maintenance
      */
     final public function __construct(protected Maintenance $maintenance)
     {
@@ -123,7 +120,7 @@ class MaintenanceTask
      * Return user permission required to run this task
      * or null for super admin.
      *
-     * @return  string|null   Permission.
+     * @return null|string permission
      */
     public function perm(): ?string
     {
@@ -135,7 +132,7 @@ class MaintenanceTask
      *.
      * Is task limited to current blog.
      *
-     * @return  bool    Limit to blog
+     * @return bool Limit to blog
      */
     public function blog(): bool
     {
@@ -145,7 +142,7 @@ class MaintenanceTask
     /**
      * Set $code for task having multiple steps.
      *
-     * @param   int     $code   Code used for task execution
+     * @param int $code Code used for task execution
      */
     public function code(int $code = 0): void
     {
@@ -155,7 +152,7 @@ class MaintenanceTask
     /**
      * Get timestamp between maintenances.
      *
-     * @return  int   Timestamp
+     * @return int Timestamp
      */
     public function ts(): int
     {
@@ -170,7 +167,7 @@ class MaintenanceTask
      * - False if it not expired or has no recall time
      * - Null if it has never been executed
      *
-     * @return    int|false|null    Last update
+     * @return null|false|int Last update
      */
     public function expired(): int|false|null
     {
@@ -181,7 +178,7 @@ class MaintenanceTask
                 $this->expired = null;
                 $logs          = [];
                 foreach ($this->maintenance->getLogs() as $id => $log) {
-                    if ($id != $this->id() || $this->blog && !$log['blog']) {
+                    if ($this->id() != $id || $this->blog && !$log['blog']) {
                         continue;
                     }
 
@@ -196,7 +193,7 @@ class MaintenanceTask
     /**
      * Get task ID.
      *
-     * @return  string  Task ID (class name)
+     * @return string Task ID (class name)
      */
     public function id(): string
     {
@@ -206,7 +203,7 @@ class MaintenanceTask
     /**
      * Get task name.
      *
-     * @return  string  Task name
+     * @return string Task name
      */
     public function name(): string
     {
@@ -216,7 +213,7 @@ class MaintenanceTask
     /**
      * Get task description.
      *
-     * @return  string  Description
+     * @return string Description
      */
     public function description(): string
     {
@@ -226,7 +223,7 @@ class MaintenanceTask
     /**
      * Get task tab.
      *
-     * @return  string|null     Task tab ID or null
+     * @return null|string Task tab ID or null
      */
     public function tab(): ?string
     {
@@ -239,7 +236,7 @@ class MaintenanceTask
      * If task required a full tab,
      * this must be returned null.
      *
-     * @return  string|null     Task group ID or null
+     * @return null|string Task group ID or null
      */
     public function group(): ?string
     {
@@ -247,12 +244,12 @@ class MaintenanceTask
     }
 
     /**
-     * Use ajax
+     * Use ajax.
      *
      * Is task use maintenance ajax script
      * for steps process.
      *
-     * @return  bool    Use ajax
+     * @return bool Use ajax
      */
     public function ajax(): bool
     {
@@ -264,7 +261,7 @@ class MaintenanceTask
      *
      * This message is used on form button.
      *
-     * @return  string  Message
+     * @return string Message
      */
     public function task(): string
     {
@@ -276,7 +273,7 @@ class MaintenanceTask
      *
      * This message is displayed during task step execution.
      *
-     * @return  string|null     Message or null
+     * @return null|string Message or null
      */
     public function step(): ?string
     {
@@ -288,7 +285,7 @@ class MaintenanceTask
      *
      * This message is displayed when task is accomplished.
      *
-     * @return  string  Message
+     * @return string Message
      */
     public function success(): string
     {
@@ -300,7 +297,7 @@ class MaintenanceTask
      *
      * This message is displayed on error.
      *
-     * @return  string  Message
+     * @return string Message
      */
     public function error(): string
     {
@@ -312,7 +309,7 @@ class MaintenanceTask
      *
      * Headers required on maintenance page.
      *
-     * @return  string|null     Message or null
+     * @return null|string Message or null
      */
     public function header(): ?string
     {
@@ -324,7 +321,7 @@ class MaintenanceTask
      *
      * Content for full tab task.
      *
-     * @return  string|null     Tab's content
+     * @return null|string Tab's content
      */
     public function content(): ?string
     {
@@ -334,10 +331,10 @@ class MaintenanceTask
     /**
      * Execute task.
      *
-     * @return    int|bool    :
-     *    - FALSE on error,
-     *    - TRUE if task is finished
-     *    - INTEGER if task required a next step
+     * @return bool|int :
+     *                  - FALSE on error,
+     *                  - TRUE if task is finished
+     *                  - INTEGER if task required a next step
      */
     public function execute(): int|bool
     {

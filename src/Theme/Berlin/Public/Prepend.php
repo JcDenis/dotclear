@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Theme\Berlin\Public\Prepend
+ * @note Dotclear\Theme\Berlin\Public\Prepend
  * @brief Dotclear Theme class
  *
- * @package Dotclear
- * @subpackage ThemeBerlin
+ * @ingroup  ThemeBerlin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -31,7 +30,7 @@ class Prepend extends AbstractPrepend
             echo Html::jsJson('dotclear_berlin', [
                 'show_menu'  => __('Show menu'),
                 'hide_menu'  => __('Hide menu'),
-                'navigation' => __('Main menu')
+                'navigation' => __('Main menu'),
             ]);
         });
     }

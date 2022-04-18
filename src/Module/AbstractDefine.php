@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Module\AbstractDefine
+ * @note Dotclear\Module\AbstractDefine
  * @brief Dotclear Module define default structure
  *
  * This class provides all necessary informations about Module.
@@ -8,8 +8,7 @@
  * and content calls to Define methods.
  * ie: $this->setName('MyPluginName') ...
  *
- * @package Dotclear
- * @subpackage Module
+ * @ingroup  Module
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -27,7 +26,7 @@ abstract class AbstractDefine
 {
     use ErrorTrait;
 
-    /** @var    array<string, mixed>   Module cleaned properties */
+    /** @var array<string, mixed>   Module cleaned properties */
     protected $properties = [
         'id'                => '',
         'root'              => '',
@@ -56,25 +55,25 @@ abstract class AbstractDefine
         'score'             => 0,
     ];
 
-    /** @var    array<int, string>   Module parents dependencies */
+    /** @var array<int, string>   Module parents dependencies */
     private $dep_parents = [];
 
-    /** @var    array<int, string>   Module children dependencies */
+    /** @var array<int, string>   Module children dependencies */
     private $dep_children = [];
 
-    /** @var    array<int, string>   Module missing dependencies */
+    /** @var array<int, string>   Module missing dependencies */
     private $dep_missing = [];
 
-    /** @var    string  Required module type */
+    /** @var string Required module type */
     protected $type = '';
 
     /**
-     * Constructor
+     * Constructor.
      *
      * Requires a file that content calls to "set" methods.
      *
-     * @param   string                          $id     Module id
-     * @param   string|array<string, mixed>     $args   Module Define file path or properties array
+     * @param string                      $id   Module id
+     * @param array<string, mixed>|string $args Module Define file path or properties array
      */
     public function __construct(string $id, string|array $args)
     {
@@ -88,26 +87,26 @@ abstract class AbstractDefine
     }
 
     /**
-     * Load define from an array
-     * 
-     * @param   string                  $id             Module id
-     * @param   array<string, mixed>    $properties     Module properties
+     * Load define from an array.
+     *
+     * @param string               $id         Module id
+     * @param array<string, mixed> $properties Module properties
      */
     private function newFromArray(string $id, array $properties): void
     {
-        $this->properties = array_merge($this->properties, $properties);
+        $this->properties       = array_merge($this->properties, $properties);
         $this->properties['id'] = $id;
         if (empty($properties['root']) || !is_string($this->properties['root']) || !is_dir($properties['root'])) {
-            $this->properties['root'] =  '';
+            $this->properties['root'] = '';
         }
         $this->properties['writable'] = !empty($this->properties['root']) && is_writable($this->properties['root']);
     }
 
     /**
-     * Load define from a file
-     * 
-     * @param   string  $id     Module id
-     * @param   string  $file   File path
+     * Load define from a file.
+     *
+     * @param string $id   Module id
+     * @param string $file File path
      */
     private function newFromFile(string $id, string $file): void
     {
@@ -116,28 +115,36 @@ abstract class AbstractDefine
 
         if (!file_exists($file)) {
             throw new ModuleException(sprintf(
-                __('Failed to open define file "%s" for module "%s".'), $e_file, $e_id
+                __('Failed to open define file "%s" for module "%s".'),
+                $e_file,
+                $e_id
             ));
         }
 
         $contents = file_get_contents($file);
         if (!$contents) {
             throw new ModuleException(sprintf(
-                __('Failed to get contents of define file "%s" for module "%s".'), $e_file, $e_id
+                __('Failed to get contents of define file "%s" for module "%s".'),
+                $e_file,
+                $e_id
             ));
         }
 
         $xml = simplexml_load_string($contents, 'SimpleXMLElement', LIBXML_NOCDATA | LIBXML_NOBLANKS);
         if (!$xml) {
             throw new ModuleException(sprintf(
-                __('Failed to load xml content of define file "%s" for module "%s".'), $e_file, $e_id
+                __('Failed to load xml content of define file "%s" for module "%s".'),
+                $e_file,
+                $e_id
             ));
         }
 
         $array = json_decode(json_encode($xml), true);
         if (!is_array($array)) {
             throw new ModuleException(sprintf(
-                __('Failed to parse xml contents of define file "%s" for module "%s".'), $e_file, $e_id
+                __('Failed to parse xml contents of define file "%s" for module "%s".'),
+                $e_file,
+                $e_id
             ));
         }
 
@@ -147,17 +154,17 @@ abstract class AbstractDefine
             [
                 'id'       => $id,
                 'root'     => dirname($file),
-                'writable' => is_writable(dirname($file))
+                'writable' => is_writable(dirname($file)),
             ]
         );
     }
 
     /**
-     * Get module properties
+     * Get module properties.
      *
-     * @param   bool    $reload     Reload properties
+     * @param bool $reload Reload properties
      *
-     * @return  array               The module properties
+     * @return array The module properties
      */
     public function properties(bool $reload = false): array
     {
@@ -169,7 +176,7 @@ abstract class AbstractDefine
     }
 
     /**
-     * Check properties
+     * Check properties.
      */
     protected function checkProperties(): void
     {
@@ -223,7 +230,7 @@ abstract class AbstractDefine
         $this->properties['priority'] = (int) $this->properties['priority'];
         $this->properties['sname']    = preg_replace('/[^A-Za-z0-9\@\#+_-]/', '', strtolower($this->properties['name']));
 
-        foreach($this->properties['requires'] as $k => $v) {
+        foreach ($this->properties['requires'] as $k => $v) {
             if (!is_array($v)) {
                 $this->properties['requires'][$k] = [$v];
             }
@@ -238,7 +245,7 @@ abstract class AbstractDefine
                 Http::concatURL($this->properties['repository'], 'dcstore.xml');
         }
 
-        foreach($this->properties['tags'] as $k => $v) {
+        foreach ($this->properties['tags'] as $k => $v) {
             if (!is_string($v)) {
                 unset($this->properties['tags'][$k]);
             }
@@ -246,11 +253,11 @@ abstract class AbstractDefine
     }
 
     /**
-     * Disable/Enable module
-     * 
-     * @param   bool    $disable    True to disable module
-     * 
-     * @return  static              Module define instance
+     * Disable/Enable module.
+     *
+     * @param bool $disable True to disable module
+     *
+     * @return static Module define instance
      */
     final public function disableModule(bool $disable = true): static
     {
@@ -260,11 +267,11 @@ abstract class AbstractDefine
     }
 
     /**
-     * Get / Set dependency parents
-     * 
-     * @param   string|null     $arg    Parent id or null to get parents
-     * 
-     * @return  array<int, string>      List of parents
+     * Get / Set dependency parents.
+     *
+     * @param null|string $arg Parent id or null to get parents
+     *
+     * @return array<int, string> List of parents
      */
     final public function depParents(?string $arg = null): array
     {
@@ -276,11 +283,11 @@ abstract class AbstractDefine
     }
 
     /**
-     * Get / Set dependency children
-     * 
-     * @param   string|null     $arg    Child id or null to get children
-     * 
-     * @return  array<int, string>      List of children
+     * Get / Set dependency children.
+     *
+     * @param null|string $arg Child id or null to get children
+     *
+     * @return array<int, string> List of children
      */
     final public function depChildren(?string $arg = null): array
     {
@@ -292,11 +299,11 @@ abstract class AbstractDefine
     }
 
     /**
-     * Get / Set missing dependency
-     * 
-     * @param   array<int, string>|null  $arg    List of missing dependencies
-     * 
-     * @return  array<int, string>               List of missing modules
+     * Get / Set missing dependency.
+     *
+     * @param null|array<int, string> $arg List of missing dependencies
+     *
+     * @return array<int, string> List of missing modules
      */
     final public function depMissing(?array $arg = null): array
     {
@@ -308,9 +315,9 @@ abstract class AbstractDefine
     }
 
     /**
-     * Get module id
-     * 
-     * @return  string  Module id
+     * Get module id.
+     *
+     * @return string Module id
      */
     final public function id(): string
     {
@@ -318,9 +325,9 @@ abstract class AbstractDefine
     }
 
     /**
-     * Get module name or id
-     * 
-     * @return  string  Module name
+     * Get module name or id.
+     *
+     * @return string Module name
      */
     final public function nid(): string
     {
@@ -328,9 +335,9 @@ abstract class AbstractDefine
     }
 
     /**
-     * Get module root path
-     * 
-     * @return  string  Module root path
+     * Get module root path.
+     *
+     * @return string Module root path
      */
     final public function root(): string
     {
@@ -338,9 +345,9 @@ abstract class AbstractDefine
     }
 
     /**
-     * Check if module path is writable
-     * 
-     * @return  bool    True if writable path
+     * Check if module path is writable.
+     *
+     * @return bool True if writable path
      */
     final public function writable(): bool
     {
@@ -348,9 +355,9 @@ abstract class AbstractDefine
     }
 
     /**
-     * Check if module is enabled
-     * 
-     * @return  bool    True if enabled
+     * Check if module is enabled.
+     *
+     * @return bool True if enabled
      */
     final public function enabled(): bool
     {
@@ -358,12 +365,12 @@ abstract class AbstractDefine
     }
 
     /**
-     * Check user permissions on module
-     * 
-     * Returns a comma separeated list of permissions 
+     * Check user permissions on module.
+     *
+     * Returns a comma separeated list of permissions
      * or null for super admin
-     * 
-     * @return  string|null     Permissions
+     *
+     * @return null|string Permissions
      */
     public function permissions(): ?string
     {
@@ -371,9 +378,9 @@ abstract class AbstractDefine
     }
 
     /**
-     * Get module name
-     * 
-     * @return  string  Module name
+     * Get module name.
+     *
+     * @return string Module name
      */
     public function name(): string
     {
@@ -381,9 +388,9 @@ abstract class AbstractDefine
     }
 
     /**
-     * Get module sanitized name
-     * 
-     * @return  string  Module sanitized name
+     * Get module sanitized name.
+     *
+     * @return string Module sanitized name
      */
     public function sname(): string
     {
@@ -391,9 +398,9 @@ abstract class AbstractDefine
     }
 
     /**
-     * Get module description
-     * 
-     * @return  string  Module description
+     * Get module description.
+     *
+     * @return string Module description
      */
     public function description(): string
     {
@@ -401,9 +408,9 @@ abstract class AbstractDefine
     }
 
     /**
-     * Get module author
-     * 
-     * @return  string  Module author
+     * Get module author.
+     *
+     * @return string Module author
      */
     public function author(): string
     {
@@ -411,9 +418,9 @@ abstract class AbstractDefine
     }
 
     /**
-     * Get module version
-     * 
-     * @return  string  Module version
+     * Get module version.
+     *
+     * @return string Module version
      */
     public function version(): string
     {
@@ -421,9 +428,9 @@ abstract class AbstractDefine
     }
 
     /**
-     * Get module current version (used from install/update process)
-     * 
-     * @return  string  Module current version
+     * Get module current version (used from install/update process).
+     *
+     * @return string Module current version
      */
     public function currentVersion(): string
     {
@@ -431,9 +438,9 @@ abstract class AbstractDefine
     }
 
     /**
-     * Get module type
-     * 
-     * @return  string  Module type
+     * Get module type.
+     *
+     * @return string Module type
      */
     public function type(): string
     {
@@ -441,9 +448,9 @@ abstract class AbstractDefine
     }
 
     /**
-     * Get module priority
-     * 
-     * @return  int     Module priority
+     * Get module priority.
+     *
+     * @return int Module priority
      */
     public function priority(): int
     {
@@ -451,9 +458,9 @@ abstract class AbstractDefine
     }
 
     /**
-     * Get module requriements
-     * 
-     * @return  array<string, array>   Module requirements
+     * Get module requriements.
+     *
+     * @return array<string, array> Module requirements
      */
     public function requires(): array
     {
@@ -461,9 +468,9 @@ abstract class AbstractDefine
     }
 
     /**
-     * Get module support URL
-     * 
-     * @return  string  Module support URL
+     * Get module support URL.
+     *
+     * @return string Module support URL
      */
     public function support(): string
     {
@@ -471,9 +478,9 @@ abstract class AbstractDefine
     }
 
     /**
-     * Get module details URL
-     * 
-     * @return  string  Module details URL
+     * Get module details URL.
+     *
+     * @return string Module details URL
      */
     public function details(): string
     {
@@ -481,11 +488,11 @@ abstract class AbstractDefine
     }
 
     /**
-     * Get module option(s)
-     * 
-     * @param   string|null     $key    The Option or null for all
-     * 
-     * @return  mixed                   Module option(s)
+     * Get module option(s).
+     *
+     * @param null|string $key The Option or null for all
+     *
+     * @return mixed Module option(s)
      */
     public function options(?string $key = null): mixed
     {
@@ -497,9 +504,9 @@ abstract class AbstractDefine
     }
 
     /**
-     * Get module standalone configuration
-     * 
-     * @return  bool  True for standalone config
+     * Get module standalone configuration.
+     *
+     * @return bool True for standalone config
      */
     public function standaloneConfig(): bool
     {
@@ -507,9 +514,9 @@ abstract class AbstractDefine
     }
 
     /**
-     * Get module settings
-     * 
-     * @return  array   Module defined settings
+     * Get module settings.
+     *
+     * @return array Module defined settings
      */
     public function settings(): array
     {
@@ -517,9 +524,9 @@ abstract class AbstractDefine
     }
 
     /**
-     * Get module repository URL
-     * 
-     * @return  string  Module repository URL
+     * Get module repository URL.
+     *
+     * @return string Module repository URL
      */
     public function repository(): string
     {
@@ -527,9 +534,9 @@ abstract class AbstractDefine
     }
 
     /**
-     * Get module templateset (theme)
-     * 
-     * @return  string  Module templateset
+     * Get module templateset (theme).
+     *
+     * @return string Module templateset
      */
     public function templateset(): ?string
     {
@@ -537,9 +544,9 @@ abstract class AbstractDefine
     }
 
     /**
-     * Get module parent (theme)
-     * 
-     * @return  string  Module parent
+     * Get module parent (theme).
+     *
+     * @return string Module parent
      */
     public function parent(): ?string
     {
@@ -547,9 +554,9 @@ abstract class AbstractDefine
     }
 
     /**
-     * Get module screenshot URL (theme)
-     * 
-     * @return  string  Module screenshot URL
+     * Get module screenshot URL (theme).
+     *
+     * @return string Module screenshot URL
      */
     public function screenshot(): string
     {
@@ -557,9 +564,9 @@ abstract class AbstractDefine
     }
 
     /**
-     * Get module file path (store)
-     * 
-     * @return  string  Module file path
+     * Get module file path (store).
+     *
+     * @return string Module file path
      */
     public function file(): string
     {
@@ -567,9 +574,9 @@ abstract class AbstractDefine
     }
 
     /**
-     * Get module section (store)
-     * 
-     * @return  string  Module section
+     * Get module section (store).
+     *
+     * @return string Module section
      */
     public function section(): string
     {
@@ -577,9 +584,9 @@ abstract class AbstractDefine
     }
 
     /**
-     * Get module tags (store)
-     * 
-     * @return  array   Module tags
+     * Get module tags (store).
+     *
+     * @return array Module tags
      */
     public function tags(): array
     {
@@ -587,9 +594,9 @@ abstract class AbstractDefine
     }
 
     /**
-     * Get module score (store)
-     * 
-     * @return  int     Module score
+     * Get module score (store).
+     *
+     * @return int Module score
      */
     public function score(): int
     {

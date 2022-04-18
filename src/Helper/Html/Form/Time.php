@@ -1,12 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Html\Form\Time
- * @brief HTML Forms time field creation helpers
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
  * @package Dotclear
- * @subpackage html.form
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,14 +9,21 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html\Form;
 
-use Dotclear\Helper\Html\Form\Input;
-
+/**
+ * HTML Forms time field creation helpers.
+ *
+ * \Dotclear\Helper\Html\Form\Time
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Helper Html Form
+ */
 class Time extends Input
 {
     /**
      * Constructs a new instance.
      *
-     * @param      string  $id     The identifier
+     * @param string $id The identifier
      */
     public function __construct(?string $id = null, ?string $value = null)
     {
@@ -31,9 +32,10 @@ class Time extends Input
             ->set('size', 5)
             ->set('maxlength', 5)
             ->set('pattern', '[0-9]{2}:[0-9]{2}')
-            ->set('placeholder', '14:45');
+            ->set('placeholder', '14:45')
+        ;
 
-        if ($value !== null) {
+        if (null !== $value) {
             $this->set('value', $value);
         }
     }

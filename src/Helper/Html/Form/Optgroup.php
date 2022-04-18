@@ -1,12 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Html\Form\Optgroup
- * @brief HTML Forms optgroup creation helpers
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
  * @package Dotclear
- * @subpackage html.form
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,9 +9,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html\Form;
 
-use Dotclear\Helper\Html\Form\Input;
-use Dotclear\Helper\Html\Form\Option;
-
+/**
+ * HTML Forms optgroup creation helpers.
+ *
+ * \Dotclear\Helper\Html\Form\Optgroup
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Helper Html Form
+ */
 class Optgroup extends Component
 {
     private const DEFAULT_ELEMENT = 'optgroup';
@@ -25,22 +25,21 @@ class Optgroup extends Component
     /**
      * Constructs a new instance.
      *
-     * @param      string       $name     The optgroup name
-     * @param      null|string  $element  The element
+     * @param string      $name    The optgroup name
+     * @param null|string $element The element
      */
     public function __construct(string $name, ?string $element = null)
     {
         parent::__construct(__CLASS__, $element ?? self::DEFAULT_ELEMENT);
         $this
-            ->set('text', $name);
+            ->set('text', $name)
+        ;
     }
 
     /**
      * Renders the HTML component.
      *
-     * @param      null|string  $default   The default value
-     *
-     * @return     string
+     * @param null|string $default The default value
      */
     public function render(?string $default = null): string
     {
@@ -53,10 +52,8 @@ class Optgroup extends Component
                 if ($value instanceof Option || $value instanceof Optgroup) {
                     $buffer .= $value->render($default);
                 } elseif (is_array($value)) {
-
                     $buffer .= (new Optgroup($item))->call('items', $value)->render($this->get('default') ?? $default ?? null);
                 } else {
-
                     $buffer .= (new Option($item, $value))->render($this->get('default') ?? $default ?? null);
                 }
             }
@@ -70,7 +67,7 @@ class Optgroup extends Component
     /**
      * Gets the default element.
      *
-     * @return     string  The default element.
+     * @return string the default element
      */
     public function getDefaultElement(): string
     {

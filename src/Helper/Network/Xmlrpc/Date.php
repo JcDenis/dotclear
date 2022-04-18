@@ -1,12 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Network\Xmlrpc\Date
- * @brief XML-RPC Date object
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
  * @package Dotclear
- * @subpackage Network
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,27 +9,36 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Network\Xmlrpc;
 
+/**
+ * XML-RPC Date object.
+ *
+ * \Dotclear\Helper\Network\Xmlrpc\Date
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Helper Network Xmlrpc
+ */
 class Date
 {
-    protected $year;   ///< string
-    protected $month;  ///< string
-    protected $day;    ///< string
-    protected $hour;   ///< string
-    protected $minute; ///< string
-    protected $second; ///< string
+    protected $year;   // /< string
+    protected $month;  // /< string
+    protected $day;    // /< string
+    protected $hour;   // /< string
+    protected $minute; // /< string
+    protected $second; // /< string
     protected $ts;
 
     /**
-     * Constructor
+     * Constructor.
      *
      * Creates a new instance of xmlrpcDate. <var>$time</var> could be a
      * timestamp or a litteral date.
      *
-     * @param   int|string  $time   Timestamp or litteral date.
+     * @param int|string $time timestamp or litteral date
      */
     public function __construct(int|string $time)
     {
-        # $time can be a PHP timestamp or an ISO one
+        // $time can be a PHP timestamp or an ISO one
         if (is_numeric($time)) {
             $this->parseTimestamp($time);
         } else {
@@ -44,9 +47,9 @@ class Date
     }
 
     /**
-     * Timestamp parser
+     * Timestamp parser.
      *
-     * @param   int     $timestamp  Timestamp
+     * @param int $timestamp Timestamp
      */
     protected function parseTimestamp(int $timestamp): void
     {
@@ -60,11 +63,9 @@ class Date
     }
 
     /**
-     * ISO Date
+     * ISO Date.
      *
      * Returns the date in ISO-8601 format.
-     *
-     * @return  string
      */
     public function getIso(): string
     {
@@ -72,11 +73,9 @@ class Date
     }
 
     /**
-     * XML Date
+     * XML Date.
      *
      * Returns the XML fragment for XML-RPC message inclusion.
-     *
-     * @return  string
      */
     public function getXml(): string
     {
@@ -84,11 +83,9 @@ class Date
     }
 
     /**
-     * Timestamp
+     * Timestamp.
      *
      * Returns the date timestamp.
-     *
-     * @return  int
      */
     public function getTimestamp(): int
     {

@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Inventory\Inventory\UserInventory
+ * @note Dotclear\Process\Admin\Inventory\Inventory\UserInventory
  * @brief Dotclear admin list helper
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -22,12 +21,12 @@ use Dotclear\Process\Admin\Page\Pager;
 class UserInventory extends Inventory
 {
     /**
-     * Display a user list
+     * Display a user list.
      *
-     * @param  int      $page           The page
-     * @param  int      $nb_per_page    The number of per page
-     * @param  string   $enclose_block  The enclose block
-     * @param  bool     $filter         The filter flag
+     * @param int    $page          The page
+     * @param int    $nb_per_page   The number of per page
+     * @param string $enclose_block The enclose block
+     * @param bool   $filter        The filter flag
      */
     public function display(int $page, int $nb_per_page, string $enclose_block = '', bool $filter = false): void
     {
@@ -57,7 +56,7 @@ class UserInventory extends Inventory
                 'entries'      => '<th scope="col" class="nowrap">' . __('Entries (all types)') . '</th>',
             ];
 
-            $cols = new \ArrayObject($cols);
+            $cols = new ArrayObject($cols);
             dotclear()->behavior()->call('adminUserListHeader', $this->rs, $cols);
 
             $html_block .= '<tr>' . implode(iterator_to_array($cols)) . '</tr>%s</table>%s</div>';
@@ -73,9 +72,7 @@ class UserInventory extends Inventory
                 echo $this->userLine();
             }
 
-            $fmt = function ($title, $image) {
-                return sprintf('<img alt="%1$s" title="%1$s" src="?df=images/%2$s" /> %1$s', $title, $image);
-            };
+            $fmt = fn ($title, $image) => sprintf('<img alt="%1$s" title="%1$s" src="?df=images/%2$s" /> %1$s', $title, $image);
 
             echo $blocks[1] .
                 '<p class="info">' . __('Legend: ') .
@@ -87,9 +84,9 @@ class UserInventory extends Inventory
     }
 
     /**
-     * Get a user line
+     * Get a user line.
      *
-     * @return  string  The line
+     * @return string The line
      */
     private function userLine(): string
     {
@@ -121,7 +118,7 @@ class UserInventory extends Inventory
             $this->rs->f('nb_post') . '</a></td>',
         ];
 
-        $cols = new \ArrayObject($cols);
+        $cols = new ArrayObject($cols);
         dotclear()->behavior()->call('adminUserListValue', $this->rs, $cols);
 
         $res .= implode(iterator_to_array($cols));

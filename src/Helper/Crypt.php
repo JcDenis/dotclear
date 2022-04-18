@@ -1,12 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Crypt
- * @brief Basic cryptography tool
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
  * @package Dotclear
- * @subpackage Utils
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,18 +9,26 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper;
 
+/**
+ * Basic cryptography tool.
+ *
+ * \Dotclear\Helper\Crypt
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Helper Crypt
+ */
 class Crypt
 {
     /**
-     * SHA1 or MD5 + HMAC
+     * SHA1 or MD5 + HMAC.
      *
      * Returns an HMAC encoded value of <var>$data</var>, using the said <var>$key</var>
      * and <var>$hashfunc</var> as hash method (sha1 or md5 are accepted if hash_hmac function not exists.)
      *
-     * @param    string    $key        Hash key
-     * @param    string    $data        Data
-     * @param    string    $hashfunc    Hash function (md5 or sha1)
-     * @return string
+     * @param string $key      Hash key
+     * @param string $data     Data
+     * @param string $hashfunc Hash function (md5 or sha1)
      */
     public static function hmac(string $key, string $data, string $hashfunc = 'sha1'): string
     {
@@ -44,7 +46,7 @@ class Crypt
     public static function hmac_legacy(string $key, string $data, string $hashfunc = 'sha1'): string
     {
         // Legacy way
-        if ($hashfunc != 'sha1') {
+        if ('sha1' != $hashfunc) {
             $hashfunc = 'md5';
         }
         $blocksize = 64;
@@ -53,19 +55,18 @@ class Crypt
         }
         $key  = str_pad($key, $blocksize, chr(0x00));
         $ipad = str_repeat(chr(0x36), $blocksize);
-        $opad = str_repeat(chr(0x5c), $blocksize);
+        $opad = str_repeat(chr(0x5C), $blocksize);
         $hmac = pack('H*', $hashfunc(($key ^ $opad) . pack('H*', $hashfunc(($key ^ $ipad) . $data))));
 
         return bin2hex($hmac);
     }
 
     /**
-     * Password generator
+     * Password generator.
      *
      * Returns an n characters random password.
      *
-     * @param      integer $length required length
-     * @return     string
+     * @param int $length required length
      */
     public static function createPassword(int $length = 8): string
     {
@@ -73,10 +74,10 @@ class Crypt
         $chars  = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
         $chars2 = '$!@';
 
-        for ($i = 0; $i < $length; $i++) {
+        for ($i = 0; $i < $length; ++$i) {
             $pwd[] = $chars[rand(0, strlen($chars) - 1)];
         }
-        for ($j = 0; $j < (int) ($length / 4); $j++) {
+        for ($j = 0; (int) ($length / 4) > $j; ++$j) {
             $pos       = rand(0, 3) + 4 * $j;
             $pwd[$pos] = $chars2[rand(0, strlen($chars2) - 1)];
         }

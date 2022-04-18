@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Widgets\Admin\Handler
+ * @note Dotclear\Plugin\Widgets\Admin\Handler
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginWidgets
+ * @ingroup  PluginWidgets
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,29 +18,29 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
 use Dotclear\Plugin\Widgets\Common\Widgets;
 use Dotclear\Plugin\Widgets\Common\WidgetsStack;
-
+use Exception;
 
 class Handler extends AbstractPage
 {
-    /** @var    Widgets     $widgets_nav    Navigation widgets */
-    private $widgets_nav = null;
+    /** @var Widgets Navigation widgets */
+    private $widgets_nav;
 
-    /** @var    Widgets     $widgets_extra  Extra widgets */
-    private $widgets_extra = null;
+    /** @var Widgets Extra widgets */
+    private $widgets_extra;
 
-    /** @var    Widgets     $widgets_custom     Custom widgets */
-    private $widgets_custom = null;
+    /** @var Widgets Custom widgets */
+    private $widgets_custom;
 
     protected function getPermissions(): string|null|false
     {
-        # Super admin
+        // Super admin
         return null;
     }
 
     protected function getPagePrepend(): ?bool
     {
         $widgets = new Widgets();
-        # Loading navigation, extra widgets and custom widgets
+        // Loading navigation, extra widgets and custom widgets
         if (dotclear()->blog()->settings()->get('widgets')->get('widgets_nav')) {
             $this->widgets_nav = $widgets->load(dotclear()->blog()->settings()->get('widgets')->get('widgets_nav'));
         }
@@ -52,9 +51,9 @@ class Handler extends AbstractPage
             $this->widgets_custom = $widgets->load(dotclear()->blog()->settings()->get('widgets')->get('widgets_custom'));
         }
 
-        # Adding widgets to sidebars
+        // Adding widgets to sidebars
         if (!empty($_POST['append']) && is_array($_POST['addw'])) {
-            # Filter selection
+            // Filter selection
             $addw = [];
             foreach ($_POST['addw'] as $k => $v) {
                 if (in_array($v, ['extra', 'nav', 'custom']) && null !== WidgetsStack::$__widgets->get($k)) {
@@ -62,14 +61,14 @@ class Handler extends AbstractPage
                 }
             }
 
-            # Append 1 widget
+            // Append 1 widget
             $wid = false;
             if ('array' == gettype($_POST['append']) && 1 == count($_POST['append'])) {
                 $wid = array_keys($_POST['append']);
                 $wid = $wid[0];
             }
 
-            # Append widgets
+            // Append widgets
             if (!empty($addw)) {
                 if (!($this->widgets_nav instanceof Widgets)) {
                     $this->widgets_nav = new Widgets();
@@ -88,10 +87,12 @@ class Handler extends AbstractPage
                                 $this->widgets_nav->append(WidgetsStack::$__widgets->get($k));
 
                                 break;
+
                             case 'extra':
                                 $this->widgets_extra->append(WidgetsStack::$__widgets->get($k));
 
                                 break;
+
                             case 'custom':
                                 $this->widgets_custom->append(WidgetsStack::$__widgets->get($k));
 
@@ -106,13 +107,13 @@ class Handler extends AbstractPage
                     dotclear()->blog()->settings()->get('widgets')->put('widgets_custom', $this->widgets_custom->store());
                     dotclear()->blog()->triggerBlog();
                     dotclear()->adminurl()->redirect('admin.plugin.Widgets');
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     dotclear()->error()->add($e->getMessage());
                 }
             }
         }
 
-        # Removing ?
+        // Removing ?
         $removing = false;
         if (isset($_POST['w']) && is_array($_POST['w'])) {
             foreach ($_POST['w'] as $nsid => $nsw) {
@@ -126,7 +127,7 @@ class Handler extends AbstractPage
             }
         }
 
-        # Move ?
+        // Move ?
         $move = false;
         if (isset($_POST['w']) && is_array($_POST['w'])) {
             foreach ($_POST['w'] as $nsid => $nsw) {
@@ -153,14 +154,14 @@ class Handler extends AbstractPage
             }
         }
 
-        # Update sidebars
+        // Update sidebars
         if (!empty($_POST['wup']) || $removing || $move) {
             if (!isset($_POST['w']) || !is_array($_POST['w'])) {
                 $_POST['w'] = [];
             }
 
             try {
-                # Removing mark as _rem widgets
+                // Removing mark as _rem widgets
                 foreach ($_POST['w'] as $nsid => $nsw) {
                     foreach ($nsw as $i => $v) {
                         if (!empty($v['_rem'])) {
@@ -192,7 +193,7 @@ class Handler extends AbstractPage
 
                 dotclear()->notice()->addSuccessNotice(__('Sidebars and their widgets have been saved.'));
                 dotclear()->adminurl()->redirect('admin.plugin.Widgets');
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         } elseif (!empty($_POST['wreset'])) {
@@ -204,19 +205,19 @@ class Handler extends AbstractPage
 
                 dotclear()->notice()->addSuccessNotice(__('Sidebars have been resetting.'));
                 dotclear()->adminurl()->redirect('admin.plugin.Widgets');
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Page setup
+        // Page setup
         $this
             ->setPageTitle(__('Widgets'))
             ->setPageHead(self::widgetsHead())
             ->setPageHelp('widgets', self::widgetsHelp())
             ->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog()->name) => '',
-                __('Widgets')                             => ''
+                __('Widgets')                              => '',
             ])
         ;
 
@@ -225,21 +226,19 @@ class Handler extends AbstractPage
 
     protected function getPageContent(): void
     {
-        # All widgets
-        echo
-        '<form id="listWidgets" action="' . dotclear()->adminurl()->root() . '" method="post"  class="widgets">' .
+        // All widgets
+        echo '<form id="listWidgets" action="' . dotclear()->adminurl()->root() . '" method="post"  class="widgets">' .
         '<h3>' . __('Available widgets') . '</h3>' .
         '<p>' . __('Drag widgets from this list to one of the sidebars, for add.') . '</p>' .
             '<ul id="widgets-ref">';
 
         $j = 0;
         foreach (WidgetsStack::$__widgets->elements(true) as $w) {
-            echo
-            '<li>' . Form::hidden(['w[void][0][id]'], Html::escapeHTML($w->id())) .
+            echo '<li>' . Form::hidden(['w[void][0][id]'], Html::escapeHTML($w->id())) .
             '<p class="widget-name">' . Form::number(['w[void][0][order]'], [
                 'default'    => 0,
                 'class'      => 'hide',
-                'extra_html' => 'title="' . __('order') . '"'
+                'extra_html' => 'title="' . __('order') . '"',
             ]) .
             ' ' . $w->name() .
             ($w->desc() != '' ? ' <span class="form-note">' . __($w->desc()) . '</span>' : '') . '</p>' .
@@ -248,36 +247,31 @@ class Handler extends AbstractPage
             '<input type="submit" name="append[' . $w->id() . ']" value="' . __('Add') . '" /></p>' .
             '<div class="widgetSettings hidden-if-drag">' . $w->formSettings('w[void][0]', $j) . '</div>' .
                 '</li>';
-            $j++;
+            ++$j;
         }
 
-        echo
-        '</ul>' .
+        echo '</ul>' .
         '<p class="remove-if-drag"><input type="submit" name="append" value="' . __('Add widgets to sidebars') . '" />' .
         dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Widgets', [], true) . '</p>' .
             '</form>';
 
         echo '<form id="sidebarsWidgets" action="' . dotclear()->adminurl()->root() . '" method="post">';
-        # Nav sidebar
-        echo
-        '<div id="sidebarNav" class="widgets fieldset">' .
+        // Nav sidebar
+        echo '<div id="sidebarNav" class="widgets fieldset">' .
         $this->sidebarWidgets('dndnav', __('Navigation sidebar'), $this->widgets_nav, 'nav', WidgetsStack::$__default_widgets['nav'], $j);
         echo '</div>';
 
-        # Extra sidebar
-        echo
-        '<div id="sidebarExtra" class="widgets fieldset">' .
+        // Extra sidebar
+        echo '<div id="sidebarExtra" class="widgets fieldset">' .
         $this->sidebarWidgets('dndextra', __('Extra sidebar'), $this->widgets_extra, 'extra', WidgetsStack::$__default_widgets['extra'], $j);
         echo '</div>';
 
-        # Custom sidebar
-        echo
-        '<div id="sidebarCustom" class="widgets fieldset">' .
+        // Custom sidebar
+        echo '<div id="sidebarCustom" class="widgets fieldset">' .
         $this->sidebarWidgets('dndcustom', __('Custom sidebar'), $this->widgets_custom, 'custom', WidgetsStack::$__default_widgets['custom'], $j);
         echo '</div>';
 
-        echo
-        '<p id="sidebarsControl">' .
+        echo '<p id="sidebarsControl">' .
         '<input type="submit" name="wup" value="' . __('Update sidebars') . '" /> ' .
         '<input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" /> ' .
         '<input type="submit" class="reset" name="wreset" value="' . __('Reset sidebars') . '" />' .
@@ -288,7 +282,6 @@ class Handler extends AbstractPage
 
     private function widgetsHead(): string
     {
-
         $widget_editor = dotclear()->user()->getOption('editor');
         $rte_flag      = true;
         $rte_flags     = @dotclear()->user()->preference()->get('interface')->get('rte_flags');
@@ -303,7 +296,7 @@ class Handler extends AbstractPage
         dotclear()->resource()->Load('jquery/jquery.ui.touch-punch.js') .
         dotclear()->resource()->json('widgets', [
             'widget_noeditor' => ($rte_flag ? 0 : 1),
-            'msg'             => ['confirm_widgets_reset' => __('Are you sure you want to reset sidebars?')]
+            'msg'             => ['confirm_widgets_reset' => __('Are you sure you want to reset sidebars?')],
         ]) .
         dotclear()->resource()->load('widgets.js', 'Plugin', 'Widgets') .
         (!$user_dm_nodragdrop ? dotclear()->resource()->load('dragdrop.js', 'Plugin', 'Widgets') : '') .
@@ -331,11 +324,13 @@ class Handler extends AbstractPage
                             $s_type = __('boolean') . ', ' . __('possible values:') . ' <code>0</code> ' . __('or') . ' <code>1</code>';
 
                             break;
+
                         case 'combo':
                             $s['options'] = array_map([$this, 'literalNullString'], $s['options']);
                             $s_type       = __('listitem') . ', ' . __('possible values:') . ' <code>' . implode('</code>, <code>', $s['options']) . '</code>';
 
                             break;
+
                         case 'text':
                         case 'textarea':
                         default:
@@ -372,10 +367,10 @@ class Handler extends AbstractPage
 
         $i = 0;
         foreach ($widgets->elements() as $w) {
-            $upDisabled   = $i == 0 ? ' disabled" src="?df=images/disabled_' : '" src="?df=images/';
-            $downDisabled = $i == count($widgets->elements()) - 1 ? ' disabled" src="?df=images/disabled_' : '" src="?df=images/';
-            $altUp        = $i == 0 ? ' alt=""' : ' alt="' . __('Up the widget') . '"';
-            $altDown      = $i == count($widgets->elements()) - 1 ? ' alt=""' : ' alt="' . __('Down the widget') . '"';
+            $upDisabled   = 0                               == $i ? ' disabled" src="?df=images/disabled_' : '" src="?df=images/';
+            $downDisabled = count($widgets->elements()) - 1 == $i ? ' disabled" src="?df=images/disabled_' : '" src="?df=images/';
+            $altUp        = 0                               == $i ? ' alt=""' : ' alt="' . __('Up the widget') . '"';
+            $altDown      = count($widgets->elements()) - 1 == $i ? ' alt=""' : ' alt="' . __('Down the widget') . '"';
 
             $iname   = 'w[' . $pr . '][' . $i . ']';
             $offline = $w->isOffline() ? ' offline' : '';
@@ -384,7 +379,7 @@ class Handler extends AbstractPage
             '<p class="widget-name' . $offline . '">' . Form::number([$iname . '[order]'], [
                 'default'    => $i,
                 'class'      => 'hidden',
-                'extra_html' => 'title="' . __('order') . '"'
+                'extra_html' => 'title="' . __('order') . '"',
             ]) .
             ' ' . $w->name() .
             ($w->desc() != '' ? ' <span class="form-note">' . __($w->desc()) . '</span>' : '') .
@@ -397,13 +392,13 @@ class Handler extends AbstractPage
             '<div class="widgetSettings hidden-if-drag">' . $w->formSettings($iname, $j) . '</div>' .
                 '</li>';
 
-            $i++;
-            $j++;
+            ++$i;
+            ++$j;
         }
 
         $res .= '</ul>';
 
-        $res .= '<ul class="sortable-delete"' . ($i > 0 ? '' : ' style="display: none;"') . '><li class="sortable-delete-placeholder">' .
+        $res .= '<ul class="sortable-delete"' . (0 < $i ? '' : ' style="display: none;"') . '><li class="sortable-delete-placeholder">' .
         __('Drag widgets here to remove.') . '</li></ul>';
 
         return $res;
@@ -415,7 +410,7 @@ class Handler extends AbstractPage
             '-'              => 0,
             __('navigation') => 'nav',
             __('extra')      => 'extra',
-            __('custom')     => 'custom'
+            __('custom')     => 'custom',
         ];
     }
 

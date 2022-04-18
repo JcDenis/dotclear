@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Handler\PostMedia
+ * @note Dotclear\Process\Admin\Handler\PostMedia
  * @brief Dotclear admin post media selector helper page
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,14 +12,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
-use Dotclear\Process\Admin\Page\Page;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Core\Media\PostMedia as CoreMedia;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
+use Exception;
 
-class PostMedia extends Page
+class PostMedia extends AbstractPage
 {
     protected function getPermissions(): string|null|false
     {
@@ -31,7 +31,7 @@ class PostMedia extends Page
     {
         try {
             dotclear()->media(true, true);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             dotclear()->error()->add($e->getMessage());
 
             return false;
@@ -57,6 +57,7 @@ class PostMedia extends Page
                 if (!empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
                     header('Content-type: application/json');
                     echo json_encode(['url' => dotclear()->posttype()->getPostAdminURL($rs->f('post_type'), $post_id, false)]);
+
                     exit();
                 }
                 Http::redirect(dotclear()->posttype()->getPostAdminURL($rs->f('post_type'), $post_id, false));
@@ -69,11 +70,11 @@ class PostMedia extends Page
                 throw new AdminException(__('This attachment does not exist'));
             }
             $f = $f[0];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             dotclear()->error()->add($e->getMessage());
         }
 
-        # Remove a media from en
+        // Remove a media from en
         if (($post_id && $media_id) || dotclear()->error()->flag()) {
             if (!empty($_POST['remove'])) {
                 $postmedia->removePostMedia($post_id, $media_id, $link_type);
@@ -89,7 +90,7 @@ class PostMedia extends Page
                     ->setPageTitle(__('Remove attachment'))
                     ->setPageBreadcrumb([
                         Html::escapeHTML(dotclear()->blog()->name) => '',
-                        __('Posts')                            => ''
+                        __('Posts')                                => '',
                     ])
                     ->setPageContent(
                         '<h2>' . __('Attachment') . ' &rsaquo; <span class="page-title">' . __('confirm removal') . '</span></h2>' .

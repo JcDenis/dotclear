@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Antispam\Common\AntispamUrl
+ * @note Dotclear\Plugin\Antispam\Common\AntispamUrl
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginAntispam
+ * @ingroup  PluginAntispam
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,10 +12,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Common;
 
-use ArrayObject;
 use Dotclear\Core\Url\Url;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Plugin\Antispam\Common\Antispam;
 
 class AntispamUrl extends Url
 {
@@ -62,8 +59,7 @@ class AntispamUrl extends Url
             $params['sql'] = ' AND comment_status IN (1,-1) ';
         }
 
-        echo
-        '<?xml version="1.0" encoding="utf-8"?>' . "\n" .
+        echo '<?xml version="1.0" encoding="utf-8"?>' . "\n" .
         '<rss version="2.0"' . "\n" .
         'xmlns:dc="http://purl.org/dc/elements/1.1/"' . "\n" .
         'xmlns:content="http://purl.org/rss/1.0/modules/content/">' . "\n" .
@@ -77,8 +73,8 @@ class AntispamUrl extends Url
         $nbitems  = 0;
 
         while ($rs->fetch() && ($nbitems < $maxitems)) {
-            $nbitems++;
-            /* @phpstan-ignore-next-line */
+            ++$nbitems;
+            // @phpstan-ignore-next-line
             $uri    = dotclear()->config()->get('admin_url') != '' ? dotclear()->config()->get('admin_url') . '?handler=admin.comment&id=' . $rs->f('comment_id') : 'about:blank';
             $author = $rs->f('comment_author');
             $title  = $rs->f('post_title') . ' - ' . $author;
@@ -95,8 +91,7 @@ class AntispamUrl extends Url
             $content .= "</p><hr />\n";
             $content .= $rs->f('comment_content');
 
-            echo
-            '<item>' . "\n" .
+            echo '<item>' . "\n" .
             '  <title>' . html::escapeHTML($title) . '</title>' . "\n" .
             '  <link>' . $uri . '</link>' . "\n" .
             '  <guid>' . $id . '</guid>' . "\n" .

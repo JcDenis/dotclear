@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Antispam\Admin\AntispamBehavior
+ * @note Dotclear\Plugin\Antispam\Admin\AntispamBehavior
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginAntispam
+ * @ingroup  PluginAntispam
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,7 +13,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Antispam\Admin;
 
 use ArrayObject;
-
 use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\XmlTag;
@@ -24,10 +22,10 @@ class AntispamBehavior
 {
     public function __construct()
     {
-        # Rest service
+        // Rest service
         dotclear()->rest()->addFunction('getSpamsCount', [$this, 'restGetSpamsCount']);
 
-        # Admin behaviors
+        // Admin behaviors
         dotclear()->behavior()->add('adminDashboardFavsIcon', [$this, 'behaviorAdminDashboardFavsIcon']);
 
         if (false == DC_ANTISPAM_CONF_SUPER || dotclear()->user()->isSuperAdmin()) {
@@ -41,9 +39,9 @@ class AntispamBehavior
     public function behaviorAdminDashboardFavsIcon(string $name, ArrayObject $icon): void
     {
         $str = '';
-        # Check if it is comments favs
+        // Check if it is comments favs
         if ('comments' == $name) {
-            # Hack comments title if there is at least one spam
+            // Hack comments title if there is at least one spam
             if (0 < ($count = (new Antispam())->countSpam())) {
                 $str = '</span></a> <a href="' . dotclear()->adminurl()->get('admin.comments', ['status' => '-2']) . '"><span class="db-icon-title-spam">' .
                     sprintf((1 < $count) ? __('(including %d spam comments)') : __('(including %d spam comment)'), $count);
@@ -84,8 +82,7 @@ class AntispamBehavior
 
     public function behaviorAdminBlogPreferencesForm(Settings $settings): void
     {
-        echo
-        '<div class="fieldset"><h4 id="antispam_params">Antispam</h4>' .
+        echo '<div class="fieldset"><h4 id="antispam_params">Antispam</h4>' .
         '<p><label for="antispam_moderation_ttl" class="classic">' . __('Delete junk comments older than') . ' ' .
         Form::number('antispam_moderation_ttl', -1, 999, (string) $settings->get('antispam')->get('antispam_moderation_ttl')) .
         ' ' . __('days') .
@@ -103,15 +100,15 @@ class AntispamBehavior
     /**
      * Gets the spams count.
      *
-     * @param      array   $get    The cleaned $_GET
+     * @param array $get The cleaned $_GET
      *
-     * @return     XmlTag  The spams count.
+     * @return XmlTag the spams count
      */
     public function restGetSpamsCount($get): XmlTag
     {
         $count = (new Antispam())->countSpam();
-        $str  = 0 < $count ?
-            sprintf(($count > 1) ? __('(including %d spam comments)') : __('(including %d spam comment)'), $count) :
+        $str   = 0     < $count ?
+            sprintf((1 < $count) ? __('(including %d spam comments)') : __('(including %d spam comment)'), $count) :
             '';
 
         $rsp = new xmlTag('count');

@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Handler\MediaItem
+ * @note Dotclear\Process\Admin\Handler\MediaItem
  * @brief Dotclear class for admin media item page
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -21,17 +20,19 @@ use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Dt;
-use Dotclear\Process\Admin\Page\Page;
+use Dotclear\Process\Admin\Page\AbstractPage;
+use SimpleXMLElement;
+use Exception;
 
-class MediaItem extends Page
+class MediaItem extends AbstractPage
 {
     private $popup;
     private $select;
     private $page_url_params;
     private $media_page_url_params;
     private $id;
-    
-    /** @var    Item|null   File info */
+
+    /** @var null|Item File info */
     private $file;
 
     private $dirs_combo;
@@ -46,7 +47,7 @@ class MediaItem extends Page
     {
         try {
             dotclear()->media(true, true);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             dotclear()->error()->add($e->getMessage());
 
             return true;
@@ -70,14 +71,14 @@ class MediaItem extends Page
         $this->page_url_params       = ['popup' => $this->popup, 'select' => $this->select, 'post_id' => $post_id];
         $this->media_page_url_params = ['popup' => $this->popup, 'select' => $this->select, 'post_id' => $post_id, 'link_type' => !empty($_REQUEST['link_type']) ? $_REQUEST['link_type'] : null];
 
-        if ($plugin_id != '') {
+        if ('' != $plugin_id) {
             $this->page_url_params['plugin_id']       = $plugin_id;
             $this->media_page_url_params['plugin_id'] = $plugin_id;
         }
 
         $this->id = !empty($_REQUEST['id']) ? (int) $_REQUEST['id'] : '';
 
-        if ($this->id != '') {
+        if ('' != $this->id) {
             $this->page_url_params['id'] = $this->id;
         }
 
@@ -90,29 +91,28 @@ class MediaItem extends Page
                 $this->file = dotclear()->media()->getFile($this->id);
             }
 
-            if ($this->file === null) {
+            if (null === $this->file) {
                 throw new AdminException(__('Not a valid file'));
             }
 
             dotclear()->media()->chdir(dirname($this->file->relname));
             $this->media_writable = dotclear()->media()->writable();
 
-            # Prepare directories combo box
+            // Prepare directories combo box
             foreach (dotclear()->media()->getDBDirs() as $v) {
                 $this->dirs_combo['/' . $v] = $v;
             }
-            # Add parent and direct childs directories if any
+            // Add parent and direct childs directories if any
             dotclear()->media()->getFSDir();
             foreach (dotclear()->media()->dir['dirs'] as $k => $v) {
                 $this->dirs_combo['/' . $v->relname] = $v->relname;
             }
             ksort($this->dirs_combo);
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             dotclear()->error()->add($e->getMessage());
         }
 
-        # Upload a new file
+        // Upload a new file
         if ($this->file && !empty($_FILES['upfile']) && $this->file->editable && $this->media_writable) {
             try {
                 Files::uploadStatus($_FILES['upfile']);
@@ -120,12 +120,12 @@ class MediaItem extends Page
 
                 dotclear()->notice()->addSuccessNotice(__('File has been successfully updated.'));
                 dotclear()->adminurl()->redirect('admin.media.item', $this->page_url_params);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Update file
+        // Update file
         if ($this->file && !empty($_POST['media_file']) && $this->file->editable && $this->media_writable) {
             $newFile = clone $this->file;
 
@@ -145,12 +145,12 @@ class MediaItem extends Page
 
             $desc = isset($_POST['media_desc']) ? Html::escapeHTML($_POST['media_desc']) : '';
 
-            if ($this->file->media_meta instanceof \SimpleXMLElement) {
+            if ($this->file->media_meta instanceof SimpleXMLElement) {
                 if (0 < count($this->file->media_meta)) {
                     foreach ($this->file->media_meta as $k => $v) {
                         if ('Description' == $k) {
                             // Update value
-                            //$v[0] = $desc;
+                            // $v[0] = $desc;
                             $this->file->media_meta->Description = $desc;
 
                             break;
@@ -176,13 +176,13 @@ class MediaItem extends Page
                 dotclear()->notice()->addSuccessNotice(__('File has been successfully updated.'));
                 $this->page_url_params['tab'] = 'media-details-tab';
                 dotclear()->adminurl()->redirect('admin.media.item', $this->page_url_params);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Update thumbnails
-        if (!empty($_POST['thumbs']) && $this->file->media_type == 'image' && $this->file->editable && $this->media_writable) {
+        // Update thumbnails
+        if (!empty($_POST['thumbs']) && 'image' == $this->file->media_type && $this->file->editable && $this->media_writable) {
             try {
                 $foo = null;
                 dotclear()->media()->mediaFireRecreateEvent($this->file);
@@ -190,25 +190,25 @@ class MediaItem extends Page
                 dotclear()->notice()->addSuccessNotice(__('Thumbnails have been successfully updated.'));
                 $this->page_url_params['tab'] = 'media-details-tab';
                 dotclear()->adminurl()->redirect('admin.media.item', $this->page_url_params);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Unzip file
-        if (!empty($_POST['unzip']) && $this->file->type == 'application/zip' && $this->file->editable && $this->media_writable) {
+        // Unzip file
+        if (!empty($_POST['unzip']) && 'application/zip' == $this->file->type && $this->file->editable && $this->media_writable) {
             try {
-                $unzip_dir = dotclear()->media()->inflateZipFile($this->file, $_POST['inflate_mode'] == 'new');
+                $unzip_dir = dotclear()->media()->inflateZipFile($this->file, 'new' == $_POST['inflate_mode']);
 
                 dotclear()->notice()->addSuccessNotice(__('Zip file has been successfully extracted.'));
                 $this->media_page_url_params['d'] = $unzip_dir;
                 dotclear()->adminurl()->redirect('admin.media', $this->media_page_url_params);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Save media insertion settings for the blog
+        // Save media insertion settings for the blog
         if (!empty($_POST['save_blog_prefs'])) {
             if (!empty($_POST['pref_src'])) {
                 if (!($s = array_search($_POST['pref_src'], $this->file->media_thumb))) {
@@ -220,7 +220,7 @@ class MediaItem extends Page
                 dotclear()->blog()->settings()->get('system')->put('media_img_default_alignment', $_POST['pref_alignment']);
             }
             if (!empty($_POST['pref_insertion'])) {
-                dotclear()->blog()->settings()->get('system')->put('media_img_default_link', ($_POST['pref_insertion'] == 'link'));
+                dotclear()->blog()->settings()->get('system')->put('media_img_default_link', ('link' == $_POST['pref_insertion']));
             }
             if (!empty($_POST['pref_legend'])) {
                 dotclear()->blog()->settings()->get('system')->put('media_img_default_legend', $_POST['pref_legend']);
@@ -230,7 +230,7 @@ class MediaItem extends Page
             dotclear()->adminurl()->redirect('admin.media.item', $this->page_url_params);
         }
 
-        # Save media insertion settings for the folder
+        // Save media insertion settings for the folder
         if (!empty($_POST['save_folder_prefs'])) {
             $prefs = [];
             if (!empty($_POST['pref_src'])) {
@@ -243,7 +243,7 @@ class MediaItem extends Page
                 $prefs['alignment'] = $_POST['pref_alignment'];
             }
             if (!empty($_POST['pref_insertion'])) {
-                $prefs['link'] = ($_POST['pref_insertion'] == 'link');
+                $prefs['link'] = ('link' == $_POST['pref_insertion']);
             }
             if (!empty($_POST['pref_legend'])) {
                 $prefs['legend'] = $_POST['pref_legend'];
@@ -256,7 +256,7 @@ class MediaItem extends Page
             dotclear()->adminurl()->redirect('admin.media.item', $this->page_url_params);
         }
 
-        # Delete media insertion settings for the folder (.mediadef and .mediadef.json)
+        // Delete media insertion settings for the folder (.mediadef and .mediadef.json)
         if (!empty($_POST['remove_folder_prefs'])) {
             $local      = dotclear()->media()->root . '/' . dirname($this->file->relname) . '/' . '.mediadef';
             $local_json = $local . '.json';
@@ -266,7 +266,7 @@ class MediaItem extends Page
             dotclear()->adminurl()->redirect('admin.media.item', $this->page_url_params);
         }
 
-        # Page setup
+        // Page setup
         $this->setPageHead(
             dotclear()->resource()->modal() .
             dotclear()->resource()->load('_media_item.js')
@@ -278,7 +278,7 @@ class MediaItem extends Page
         $temp_params      = $this->media_page_url_params;
         $temp_params['d'] = '%s';
         $breadcrumb       = dotclear()->media()->breadCrumb(dotclear()->adminurl()->get('admin.media', $temp_params, '&amp;', true)) .
-            ($this->file === null ? '' : '<span class="page-title">' . $this->file->basename . '</span>');
+            (null === $this->file ? '' : '<span class="page-title">' . $this->file->basename . '</span>');
         $temp_params['d'] = '';
         $home_url         = dotclear()->adminurl()->get('admin.media', $temp_params);
 
@@ -286,8 +286,8 @@ class MediaItem extends Page
         $this->setPageBreadcrumb(
             [
                 Html::escapeHTML(dotclear()->blog()->name) => '',
-                __('Media manager')                 => $home_url,
-                $breadcrumb                         => '',
+                __('Media manager')                        => $home_url,
+                $breadcrumb                                => '',
             ],
             [
                 'home_link' => !$this->popup,
@@ -308,7 +308,6 @@ class MediaItem extends Page
     protected function getPageContent(): void
     {
         if (!dotclear()->media()) {
-
             return;
         }
 
@@ -322,10 +321,10 @@ class MediaItem extends Page
             dotclear()->notice()->success(__('Default media insertion settings have been successfully updated.'));
         }
 
-        # Get major file type (first part of mime type)
+        // Get major file type (first part of mime type)
         $file_type = explode('/', $this->file->type);
 
-        # Selection mode
+        // Selection mode
         if ($this->select) {
             // Let user choose thumbnail size if image
             $media_title = $this->file->media_title;
@@ -336,12 +335,11 @@ class MediaItem extends Page
             $media_desc = $this->getImageDescription($this->file, $media_title);
             $defaults   = $this->getImageDefinition($this->file);
 
-            echo
-            '<div id="media-select" class="multi-part" title="' . __('Select media item') . '">' .
+            echo '<div id="media-select" class="multi-part" title="' . __('Select media item') . '">' .
             '<h3>' . __('Select media item') . '</h3>' .
                 '<form id="media-select-form" action="" method="get">';
 
-            if ($this->file->media_type == 'image') {
+            if ('image' == $this->file->media_type) {
                 $media_type  = 'image';
                 $media_title = $this->getImageTitle(
                     $this->file,
@@ -353,8 +351,7 @@ class MediaItem extends Page
                     $media_title = '';
                 }
 
-                echo
-                '<h3>' . __('Image size:') . '</h3> ';
+                echo '<h3>' . __('Image size:') . '</h3> ';
 
                 $s_checked = false;
                 echo '<p>';
@@ -368,16 +365,15 @@ class MediaItem extends Page
                 echo '<label class="classic">' .
                 Form::radio(['src'], $this->file->file_url, $s_checked) . ' ' . __('original') . '</label><br /> ';
                 echo '</p>';
-            } elseif ($file_type[0] == 'audio') {
+            } elseif ('audio' == $file_type[0]) {
                 $media_type = 'mp3';
-            } elseif ($file_type[0] == 'video') {
+            } elseif ('video' == $file_type[0]) {
                 $media_type = 'flv';
             } else {
                 $media_type = 'default';
             }
 
-            echo
-            '<p>' .
+            echo '<p>' .
             '<button type="button" id="media-select-ok" class="submit">' . __('Select') . '</button> ' .
             '<button type="button" id="media-select-cancel">' . __('Cancel') . '</button>' .
             Form::hidden(['type'], Html::escapeHTML($media_type)) .
@@ -390,7 +386,7 @@ class MediaItem extends Page
             echo '</div>';
         }
 
-        # Insertion popup
+        // Insertion popup
         if ($this->popup && !$this->select) {
             $media_title = $this->file->media_title;
             if ($media_title == $this->file->basename || Files::tidyFileName($media_title) == $this->file->basename) {
@@ -400,12 +396,11 @@ class MediaItem extends Page
             $media_desc = $this->getImageDescription($this->file, $media_title);
             $defaults   = $this->getImageDefinition($this->file);
 
-            echo
-            '<div id="media-insert" class="multi-part" title="' . __('Insert media item') . '">' .
+            echo '<div id="media-insert" class="multi-part" title="' . __('Insert media item') . '">' .
             '<h3>' . __('Insert media item') . '</h3>' .
                 '<form id="media-insert-form" action="" method="get">';
 
-            if ($this->file->media_type == 'image') {
+            if ('image' == $this->file->media_type) {
                 $media_type  = 'image';
                 $media_title = $this->getImageTitle(
                     $this->file,
@@ -417,8 +412,7 @@ class MediaItem extends Page
                     $media_title = '';
                 }
 
-                echo
-                '<div class="two-boxes">' .
+                echo '<div class="two-boxes">' .
                 '<h3>' . __('Image size:') . '</h3> ';
                 $s_checked = false;
                 echo '<p>';
@@ -434,44 +428,42 @@ class MediaItem extends Page
                 echo '</p>';
                 echo '</div>';
 
-                echo
-                '<div class="two-boxes">' .
+                echo '<div class="two-boxes">' .
                 '<h3>' . __('Image legend and title') . '</h3>' .
                 '<p>' .
                 '<label for="legend1" class="classic">' . Form::radio(
                     ['legend', 'legend1'],
                     'legend',
-                    ($defaults['legend'] == 'legend')
+                    ('legend' == $defaults['legend'])
                 ) .
                 __('Legend and title') . '</label><br />' .
                 '<label for="legend2" class="classic">' . Form::radio(
                     ['legend', 'legend2'],
                     'title',
-                    ($defaults['legend'] == 'title')
+                    ('title' == $defaults['legend'])
                 ) .
                 __('Title') . '</label><br />' .
                 '<label for="legend3" class="classic">' . Form::radio(
                     ['legend', 'legend3'],
                     'none',
-                    ($defaults['legend'] == 'none')
+                    ('none' == $defaults['legend'])
                 ) .
                 __('None') . '</label>' .
                 '</p>' .
                 '<p id="media-attribute">' .
-                __('Title: ') . ($media_title != '' ? '<span class="media-title">' . $media_title . '</span>' : __('(none)')) .
+                __('Title: ') . ('' != $media_title ? '<span class="media-title">' . $media_title . '</span>' : __('(none)')) .
                 '<br />' .
-                __('Legend: ') . ($media_desc != '' ? ' <span class="media-desc">' . $media_desc . '</span>' : __('(none)')) .
+                __('Legend: ') . ('' != $media_desc ? ' <span class="media-desc">' . $media_desc . '</span>' : __('(none)')) .
                     '</p>' .
                     '</div>';
 
-                echo
-                '<div class="two-boxes">' .
+                echo '<div class="two-boxes">' .
                 '<h3>' . __('Image alignment') . '</h3>';
                 $i_align = [
-                    'none'   => [__('None'), ($defaults['alignment'] == 'none' ? 1 : 0)],
-                    'left'   => [__('Left'), ($defaults['alignment'] == 'left' ? 1 : 0)],
-                    'right'  => [__('Right'), ($defaults['alignment'] == 'right' ? 1 : 0)],
-                    'center' => [__('Center'), ($defaults['alignment'] == 'center' ? 1 : 0)],
+                    'none'   => [__('None'), ('none' == $defaults['alignment'] ? 1 : 0)],
+                    'left'   => [__('Left'), ('left' == $defaults['alignment'] ? 1 : 0)],
+                    'right'  => [__('Right'), ('right' == $defaults['alignment'] ? 1 : 0)],
+                    'center' => [__('Center'), ('center' == $defaults['alignment'] ? 1 : 0)],
                 ];
 
                 echo '<p>';
@@ -482,8 +474,7 @@ class MediaItem extends Page
                 echo '</p>';
                 echo '</div>';
 
-                echo
-                '<div class="two-boxes">' .
+                echo '<div class="two-boxes">' .
                 '<h3>' . __('Image insertion') . '</h3>' .
                 '<p>' .
                 '<label for="insert1" class="classic">' . Form::radio(['insertion', 'insert1'], 'simple', !$defaults['link']) .
@@ -492,19 +483,18 @@ class MediaItem extends Page
                 __('As a link to the original image') . '</label>' .
                     '</p>' .
                     '</div>';
-            } elseif ($file_type[0] == 'audio') {
+            } elseif ('audio' == $file_type[0]) {
                 $media_type = 'mp3';
 
-                echo
-                '<div class="two-boxes">' .
+                echo '<div class="two-boxes">' .
                 '<h3>' . __('MP3 disposition') . '</h3>';
                 dotclear()->notice()->message(__('Please note that you cannot insert mp3 files with visual editor.'), false);
 
                 $i_align = [
-                    'none'   => [__('None'), ($defaults['alignment'] == 'none' ? 1 : 0)],
-                    'left'   => [__('Left'), ($defaults['alignment'] == 'left' ? 1 : 0)],
-                    'right'  => [__('Right'), ($defaults['alignment'] == 'right' ? 1 : 0)],
-                    'center' => [__('Center'), ($defaults['alignment'] == 'center' ? 1 : 0)],
+                    'none'   => [__('None'), ('none' == $defaults['alignment'] ? 1 : 0)],
+                    'left'   => [__('Left'), ('left' == $defaults['alignment'] ? 1 : 0)],
+                    'right'  => [__('Right'), ('right' == $defaults['alignment'] ? 1 : 0)],
+                    'center' => [__('Center'), ('center' == $defaults['alignment'] ? 1 : 0)],
                 ];
 
                 echo '<p>';
@@ -516,13 +506,12 @@ class MediaItem extends Page
                 echo Form::hidden('public_player', Html::escapeHTML(Media::audioPlayer($this->file->type, $this->file->file_url)));
                 echo '</p>';
                 echo '</div>';
-            } elseif ($file_type[0] == 'video') {
+            } elseif ('video' == $file_type[0]) {
                 $media_type = 'flv';
 
                 dotclear()->notice()->message(__('Please note that you cannot insert video files with visual editor.'), false);
 
-                echo
-                '<div class="two-boxes">' .
+                echo '<div class="two-boxes">' .
                 '<h3>' . __('Video size') . '</h3>' .
                 '<p><label for="video_w" class="classic">' . __('Width:') . '</label> ' .
                 Form::number('video_w', 0, 9999, dotclear()->blog()->settings()->get('system')->get('media_video_width')) . '  ' .
@@ -531,15 +520,14 @@ class MediaItem extends Page
                     '</p>' .
                     '</div>';
 
-                echo
-                '<div class="two-boxes">' .
+                echo '<div class="two-boxes">' .
                 '<h3>' . __('Video disposition') . '</h3>';
 
                 $i_align = [
-                    'none'   => [__('None'), ($defaults['alignment'] == 'none' ? 1 : 0)],
-                    'left'   => [__('Left'), ($defaults['alignment'] == 'left' ? 1 : 0)],
-                    'right'  => [__('Right'), ($defaults['alignment'] == 'right' ? 1 : 0)],
-                    'center' => [__('Center'), ($defaults['alignment'] == 'center' ? 1 : 0)],
+                    'none'   => [__('None'), ('none' == $defaults['alignment'] ? 1 : 0)],
+                    'left'   => [__('Left'), ('left' == $defaults['alignment'] ? 1 : 0)],
+                    'right'  => [__('Right'), ('right' == $defaults['alignment'] ? 1 : 0)],
+                    'center' => [__('Center'), ('center' == $defaults['alignment'] ? 1 : 0)],
                 ];
 
                 echo '<p>';
@@ -557,8 +545,7 @@ class MediaItem extends Page
                 echo '<p>' . __('Media item will be inserted as a link.') . '</p>';
             }
 
-            echo
-            '<p>' .
+            echo '<p>' .
             '<button type="button" id="media-insert-ok" class="submit">' . __('Insert') . '</button> ' .
             '<button type="button" id="media-insert-cancel">' . __('Cancel') . '</button>' .
             Form::hidden(['type'], Html::escapeHTML($media_type)) .
@@ -569,9 +556,8 @@ class MediaItem extends Page
 
             echo '</form>';
 
-            if ($media_type != 'default') {
-                echo
-                '<div class="border-top">' .
+            if ('default' != $media_type) {
+                echo '<div class="border-top">' .
                 '<form id="save_settings" action="' . dotclear()->adminurl()->root() . '" method="post">' .
                 '<p>' . __('Make current settings as default') . ' ' .
                 '<input class="reset" type="submit" name="save_blog_prefs" value="' . __('For the blog') . '" /> ' . __('or') . ' ' .
@@ -582,14 +568,12 @@ class MediaItem extends Page
                     $local .= '.json';
                 }
                 if (file_exists($local)) {
-                    echo
-                    '</p>' .
+                    echo '</p>' .
                     '<p>' . __('Settings exist for this folder:') . ' ' .
                     '<input class="delete" type="submit" name="remove_folder_prefs" value="' . __('Remove them') . '" /> ';
                 }
 
-                echo
-                Form::hidden(['pref_src'], '') .
+                echo Form::hidden(['pref_src'], '') .
                 Form::hidden(['pref_alignment'], '') .
                 Form::hidden(['pref_insertion'], '') .
                 Form::hidden(['pref_legend'], '') .
@@ -601,22 +585,19 @@ class MediaItem extends Page
         }
 
         if ($this->popup || $this->select) {
-            echo
-            '<div class="multi-part" title="' . __('Media details') . '" id="media-details-tab">';
+            echo '<div class="multi-part" title="' . __('Media details') . '" id="media-details-tab">';
         } else {
             echo '<h3 class="out-of-screen-if-js">' . __('Media details') . '</h3>';
         }
-        echo
-        '<p id="media-icon"><img class="media-icon-square" src="' . $this->file->media_icon . '&' . time() * rand() . '" alt="" /></p>';
+        echo '<p id="media-icon"><img class="media-icon-square" src="' . $this->file->media_icon . '&' . time() * rand() . '" alt="" /></p>';
 
-        echo
-            '<div id="media-details">' .
+        echo '<div id="media-details">' .
             '<div class="near-icon">';
 
         if ($this->file->media_image) {
             $thumb_size = !empty($_GET['size']) ? $_GET['size'] : 's';
 
-            if (!isset(dotclear()->media()->thumb_sizes[$thumb_size]) && $thumb_size != 'o') {
+            if (!isset(dotclear()->media()->thumb_sizes[$thumb_size]) && 'o' != $thumb_size) {
                 $thumb_size = 's';
             }
 
@@ -624,9 +605,9 @@ class MediaItem extends Page
                 echo '<p><a class="modal-image" href="' . $this->file->file_url . '">' .
                 '<img src="' . $this->file->media_thumb[$thumb_size] . '&' . time() * rand() . '" alt="" />' .
                     '</a></p>';
-            } elseif ($thumb_size == 'o') {
+            } elseif ('o' == $thumb_size) {
                 $S     = getimagesize($this->file->file);
-                $class = !$S || ($S[1] > 500) ? ' class="overheight"' : '';
+                $class = !$S || (500 < $S[1]) ? ' class="overheight"' : '';
                 unset($S);
                 echo '<p id="media-original-image"' . $class . '><a class="modal-image" href="' . $this->file->file_url . '">' .
                 '<img src="' . $this->file->file_url . '&' . time() * rand() . '" alt="" />' .
@@ -644,9 +625,9 @@ class MediaItem extends Page
             echo '<a href="' . dotclear()->adminurl()->get('admin.media.item', array_merge($this->page_url_params, ['size' => 'o', 'tab' => 'media-details-tab'])) . '">' . __('original') . '</a>';
             echo '</p>';
 
-            if ($thumb_size != 'o' && isset($this->file->media_thumb[$thumb_size])) {
+            if ('o' != $thumb_size && isset($this->file->media_thumb[$thumb_size])) {
                 $p          = Path::info($this->file->file);
-                $alpha      = ($p['extension'] == 'png') || ($p['extension'] == 'PNG');
+                $alpha      = ('png' == $p['extension']) || ('PNG' == $p['extension']);
                 $alpha      = strtolower($p['extension']) === 'png';
                 $webp       = strtolower($p['extension']) === 'webp';
                 $thumb_tp   = ($alpha ? dotclear()->media()->thumb_tp_alpha : ($webp ? dotclear()->media()->thumb_tp_webp : dotclear()->media()->thumb_tp));
@@ -654,16 +635,13 @@ class MediaItem extends Page
                 $thumb_file = sprintf($thumb, $thumb_size);
                 $T          = getimagesize($thumb_file);
                 $stats      = stat($thumb_file);
-                echo
-                '<h3>' . __('Thumbnail details') . '</h3>' .
+                echo '<h3>' . __('Thumbnail details') . '</h3>' .
                 '<ul>';
                 if (is_array($T)) {
-                    echo
-                    '<li><strong>' . __('Image width:') . '</strong> ' . $T[0] . ' px</li>' .
+                    echo '<li><strong>' . __('Image width:') . '</strong> ' . $T[0] . ' px</li>' .
                     '<li><strong>' . __('Image height:') . '</strong> ' . $T[1] . ' px</li>';
                 }
-                echo
-                '<li><strong>' . __('File size:') . '</strong> ' . Files::size($stats[7]) . '</li>' .
+                echo '<li><strong>' . __('File size:') . '</strong> ' . Files::size($stats[7]) . '</li>' .
                 '<li><strong>' . __('File URL:') . '</strong> <a href="' . $this->file->media_thumb[$thumb_size] . '">' .
                 $this->file->media_thumb[$thumb_size] . '</a></li>' .
                     '</ul>';
@@ -671,35 +649,31 @@ class MediaItem extends Page
         }
 
         // Show player if relevant
-        if ($file_type[0] == 'audio') {
+        if ('audio' == $file_type[0]) {
             echo Media::audioPlayer($this->file->type, $this->file->file_url);
         }
-        if ($file_type[0] == 'video') {
+        if ('video' == $file_type[0]) {
             echo Media::videoPlayer($this->file->type, $this->file->file_url);
         }
 
-        echo
-        '<h3>' . __('Media details') . '</h3>' .
+        echo '<h3>' . __('Media details') . '</h3>' .
         '<ul>' .
         '<li><strong>' . __('File owner:') . '</strong> ' . $this->file->media_user . '</li>' .
         '<li><strong>' . __('File type:') . '</strong> ' . $this->file->type . '</li>';
         if ($this->file->media_image) {
             $S = getimagesize($this->file->file);
             if (is_array($S)) {
-                echo
-                '<li><strong>' . __('Image width:') . '</strong> ' . $S[0] . ' px</li>' .
+                echo '<li><strong>' . __('Image width:') . '</strong> ' . $S[0] . ' px</li>' .
                 '<li><strong>' . __('Image height:') . '</strong> ' . $S[1] . ' px</li>';
                 unset($S);
             }
         }
-        echo
-        '<li><strong>' . __('File size:') . '</strong> ' . Files::size($this->file->size) . '</li>' .
+        echo '<li><strong>' . __('File size:') . '</strong> ' . Files::size($this->file->size) . '</li>' .
         '<li><strong>' . __('File URL:') . '</strong> <a href="' . $this->file->file_url . '">' . $this->file->file_url . '</a></li>' .
             '</ul>';
 
         if (empty($_GET['find_posts'])) {
-            echo
-            '<p><a class="button" href="' . dotclear()->adminurl()->get('admin.media.item', array_merge($this->page_url_params, ['find_posts' => 1, 'tab' => 'media-details-tab'])) . '">' .
+            echo '<p><a class="button" href="' . dotclear()->adminurl()->get('admin.media.item', array_merge($this->page_url_params, ['find_posts' => 1, 'tab' => 'media-details-tab'])) . '">' .
             __('Show entries containing this media') . '</a></p>';
         } else {
             echo '<h3>' . __('Entries containing this media') . '</h3>';
@@ -713,7 +687,7 @@ class MediaItem extends Page
             ];
 
             if ($this->file->media_image) {
-                # We look for thumbnails too
+                // We look for thumbnails too
                 $media_root = dotclear()->blog()->public_url . '/';
 
                 foreach ($this->file->media_thumb as $v) {
@@ -734,10 +708,10 @@ class MediaItem extends Page
                 while ($rs->fetch()) {
                     $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
                     $img_status = match ($rs->fInt('post_status')) {
-                        1  => sprintf($img, __('published'), 'check-on.png'),
-                        0  => sprintf($img, __('unpublished'), 'check-off.png'),
-                        -1 => sprintf($img, __('scheduled'), 'scheduled.png'),
-                        -2 => sprintf($img, __('pending'), 'check-wrn.png'),
+                        1       => sprintf($img, __('published'), 'check-on.png'),
+                        0       => sprintf($img, __('unpublished'), 'check-off.png'),
+                        -1      => sprintf($img, __('scheduled'), 'scheduled.png'),
+                        -2      => sprintf($img, __('pending'), 'check-wrn.png'),
                         default => '',
                     };
                     echo '<li>' . $img_status . ' ' . '<a href="' . dotclear()->posttype()->getPostAdminURL($rs->f('post_type'), $rs->f('post_id')) . '">' .
@@ -749,7 +723,7 @@ class MediaItem extends Page
             }
         }
 
-        if ($this->file->type == 'image/jpeg' || $this->file->type == 'image/webp') {
+        if ('image/jpeg' == $this->file->type || 'image/webp' == $this->file->type) {
             echo '<h3>' . __('Image details') . '</h3>';
 
             $details = '';
@@ -772,9 +746,8 @@ class MediaItem extends Page
         echo '<h3>' . __('Updates and modifications') . '</h3>';
 
         if ($this->file->editable && $this->media_writable) {
-            if ($this->file->media_type == 'image') {
-                echo
-                '<form class="clear fieldset" action="' . dotclear()->adminurl()->root() . '" method="post">' .
+            if ('image' == $this->file->media_type) {
+                echo '<form class="clear fieldset" action="' . dotclear()->adminurl()->root() . '" method="post">' .
                 '<h4>' . __('Update thumbnails') . '</h4>' .
                 '<p class="more-info">' . __('This will create or update thumbnails for this image.') . '</p>' .
                 '<p><input type="submit" name="thumbs" value="' . __('Update thumbnails') . '" />' .
@@ -783,14 +756,13 @@ class MediaItem extends Page
                     '</form>';
             }
 
-            if ($this->file->type == 'application/zip') {
+            if ('application/zip' == $this->file->type) {
                 $inflate_combo = [
                     __('Extract in a new directory')   => 'new',
                     __('Extract in current directory') => 'current',
                 ];
 
-                echo
-                '<form class="clear fieldset" id="file-unzip" action="' . dotclear()->adminurl()->root() . '" method="post">' .
+                echo '<form class="clear fieldset" id="file-unzip" action="' . dotclear()->adminurl()->root() . '" method="post">' .
                 '<h4>' . __('Extract archive') . '</h4>' .
                 '<ul>' .
                 '<li><strong>' . __('Extract in a new directory') . '</strong> : ' .
@@ -806,8 +778,7 @@ class MediaItem extends Page
                     '</form>';
             }
 
-            echo
-            '<form class="clear fieldset" action="' . dotclear()->adminurl()->root() . '" method="post">' .
+            echo '<form class="clear fieldset" action="' . dotclear()->adminurl()->root() . '" method="post">' .
             '<h4>' . __('Change media properties') . '</h4>' .
             '<p><label for="media_file">' . __('File name:') . '</label>' .
             Form::field('media_file', 30, 255, Html::escapeHTML($this->file->basename)) . '</p>' .
@@ -821,9 +792,8 @@ class MediaItem extends Page
                     'extra_html' => 'lang="' . dotclear()->user()->getInfo('user_lang') . '" spellcheck="true"',
                 ]
             ) . '</p>';
-            if ($this->file->type == 'image/jpeg' || $this->file->type == 'image/webp') {
-                echo
-                '<p><label for="media_desc">' . __('File description:') . '</label>' .
+            if ('image/jpeg' == $this->file->type || 'image/webp' == $this->file->type) {
+                echo '<p><label for="media_desc">' . __('File description:') . '</label>' .
                 Form::field(
                     'media_desc',
                     60,
@@ -835,8 +805,7 @@ class MediaItem extends Page
                 ) . '</p>' .
                 '<p><label for="media_dt">' . __('File date:') . '</label>';
             }
-            echo
-            Form::datetime('media_dt', ['default' => Html::escapeHTML(Dt::str('%Y-%m-%d\T%H:%M', $this->file->media_dt))]) .
+            echo Form::datetime('media_dt', ['default' => Html::escapeHTML(Dt::str('%Y-%m-%d\T%H:%M', $this->file->media_dt))]) .
             '</p>' .
             '<p><label for="media_private" class="classic">' . Form::checkbox('media_private', 1, $this->file->media_priv) . ' ' .
             __('Private') . '</label></p>' .
@@ -847,8 +816,7 @@ class MediaItem extends Page
             '</p>' .
                 '</form>';
 
-            echo
-            '<form class="clear fieldset" action="' . dotclear()->adminurl()->root() . '" method="post" enctype="multipart/form-data">' .
+            echo '<form class="clear fieldset" action="' . dotclear()->adminurl()->root() . '" method="post" enctype="multipart/form-data">' .
             '<h4>' . __('Change file') . '</h4>' .
             '<div>' . Form::hidden(['MAX_FILE_SIZE'], (string) dotclear()->config()->get('media_upload_maxsize')) . '</div>' .
             '<p><label for="upfile">' . __('Choose a file:') .
@@ -861,8 +829,7 @@ class MediaItem extends Page
                 '</form>';
 
             if ($this->file->del) {
-                echo
-                '<form id="delete-form" method="post" action="' . dotclear()->adminurl()->root() . '">' .
+                echo '<form id="delete-form" method="post" action="' . dotclear()->adminurl()->root() . '">' .
                 '<p><input name="delete" type="submit" class="delete" value="' . __('Delete this media') . '" />' .
                 Form::hidden('remove', rawurlencode($this->file->basename)) .
                 Form::hidden('rmyes', 1) .
@@ -871,17 +838,15 @@ class MediaItem extends Page
                     '</form>';
             }
 
-            # --BEHAVIOR-- adminMediaItemForm
+            // --BEHAVIOR-- adminMediaItemForm
             dotclear()->behavior()->call('adminMediaItemForm', $this->file);
         }
 
-        echo
-            '</div>';
+        echo '</div>';
         if ($this->popup || $this->select) {
-            echo
-                '</div>';
+            echo '</div>';
         } else {
-            # Go back button
+            // Go back button
             echo '<p><input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" /></p>';
         }
     }
@@ -895,33 +860,33 @@ class MediaItem extends Page
         $items   = 0;
 
         foreach ($pattern as $v) {
-            if ($v == 'Title') {
-                if ($file->media_title != '') {
+            if ('Title' == $v) {
+                if ('' != $file->media_title) {
                     $res[] = $file->media_title;
                 }
-                $items++;
+                ++$items;
             } elseif ($file->media_meta->{$v}) {
                 if ((string) $file->media_meta->{$v} != '') {
                     $res[] = (string) $file->media_meta->{$v};
                 }
-                $items++;
+                ++$items;
             } elseif (preg_match('/^Date\((.+?)\)$/u', $v, $m)) {
-                if ($dto_first && ($file->media_meta->DateTimeOriginal != 0)) {
+                if ($dto_first && (0 != $file->media_meta->DateTimeOriginal)) {
                     $res[] = Dt::dt2str($m[1], (string) $file->media_meta->DateTimeOriginal);
                 } else {
                     $res[] = Dt::str($m[1], $file->media_dt);
                 }
-                $items++;
-                $dates++;
+                ++$items;
+                ++$dates;
             } elseif (preg_match('/^DateTimeOriginal\((.+?)\)$/u', $v, $m) && $file->media_meta->DateTimeOriginal) {
                 $res[] = Dt::dt2str($m[1], (string) $file->media_meta->DateTimeOriginal);
-                $items++;
-                $dates++;
+                ++$items;
+                ++$dates;
             } elseif (preg_match('/^separator\((.*?)\)$/u', $v, $m)) {
                 $sep = $m[1];
             }
         }
-        if ($no_date_alone && $dates == count($res) && $dates < $items) {
+        if ($no_date_alone && count($res) == $dates && $dates < $items) {
             // On ne laisse pas les dates seules, sauf si ce sont les seuls items du pattern (hors séparateur)
             return '';
         }
@@ -933,7 +898,7 @@ class MediaItem extends Page
     {
         if (count($file->media_meta) > 0) {
             foreach ($file->media_meta as $k => $v) {
-                if ((string) $v && ($k == 'Description')) {
+                if ((string) $v && ('Description' == $k)) {
                     return (string) $v;
                 }
             }

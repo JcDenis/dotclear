@@ -1,12 +1,11 @@
 <?php
 /**
- * @class Dotclear\Core\Media\Manager\Item
+ * @note Dotclear\Core\Media\Manager\Item
  * @brief Item for file manager tool
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
- * @package Dotclear
- * @subpackage File
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,115 +16,114 @@ namespace Dotclear\Core\Media\Manager;
 
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Files;
+use SimpleXMLElement;
 
 class Item
 {
-
-    /** @var    string  $file   Complete path to file */
+    /** @var string Complete path to file */
     public $file;
 
-    /** @var    string  $basename   File basename */
+    /** @var string File basename */
     public $basename;
 
-    /** @var    string  $dir    File directory name */
+    /** @var string File directory name */
     public $dir;
 
-    /** @var    string  $file_url   File URL */
+    /** @var string File URL */
     public $file_url;
 
-    /** @var    string  $dir_url    File directory URL */
+    /** @var string File directory URL */
     public $dir_url;
 
-    /** @var    string  $extension  File extension */
+    /** @var string File extension */
     public $extension;
 
-    /** @var    string  $relname    File path relative to <var>$root</var> given in constructor */
+    /** @var string File path relative to <var>$root</var> given in constructor */
     public $relname;
 
-    /** @var    bool    $parent     Parent directory (ie. "..") */
+    /** @var bool Parent directory (ie. "..") */
     public $parent = false;
 
-    /** @var    string  $type   File MimeType. See {@link Files::getMimeType()}. */
+    /** @var string File MimeType. See {@link Files::getMimeType()}. */
     public $type;
 
-    /** @var    string  $type_prefix  */  
+    /** @var string */
     public $type_prefix;
 
-    /** @var    int     $mtime   File modification timestamp */
+    /** @var int File modification timestamp */
     public $mtime;
 
-    /** @var    int     $size  File size */
+    /** @var int File size */
     public $size;
 
-    /** @var    int     $mode  File permissions mode */
+    /** @var int File permissions mode */
     public $mode;
 
-    /** @var    int     $uid    File owner ID */
+    /** @var int File owner ID */
     public $uid;
 
-    /** @var    int     $gid    File group ID */
+    /** @var int File group ID */
     public $gid;
 
-    /** @var    bool    $w  True if file or directory is writable */
+    /** @var bool True if file or directory is writable */
     public $w;
 
-    /** @var    bool    $d  True if file is a directory */
+    /** @var bool True if file is a directory */
     public $d;
 
-    /** @var    bool    $x  True if file file is executable or directory is traversable */
+    /** @var bool True if file file is executable or directory is traversable */
     public $x;
 
-    /** @var    bool    $f  True if file is a file */
+    /** @var bool True if file is a file */
     public $f;
 
-    /** @var    bool    $del    True if file or directory is deletable */
+    /** @var bool True if file or directory is deletable */
     public $del;
 
-    /** @var    bool    $editable   Is editable */
-    public $editable    = true;
+    /** @var bool Is editable */
+    public $editable = true;
 
+    /** @var string Media id */
+    public $media_id = '';
 
-    /** @var    string  $media_id   Media id */
-    public $media_id    = '';
-
-    /** @var    string  $media_title   Media title */ 
+    /** @var string Media title */
     public $media_title = '';
 
-    /** @var \SimpleXMLElement|null     $media_meta     Media meta */
-    public $media_meta; //xml
+    /** @var null|SimpleXMLElement Media meta */
+    public $media_meta; // xml
 
-    /** @var    string  $media_user     Media owner */
-    public $media_user  = '';
+    /** @var string Media owner */
+    public $media_user = '';
 
-    /** @var    bool   $media_priv   Media is private */
-    public $media_priv  = false;
+    /** @var bool Media is private */
+    public $media_priv = false;
 
-    /** @var    int     $media_dt   Media date */
-    public $media_dt    = 0;
+    /** @var int Media date */
+    public $media_dt = 0;
 
-    /** @var    string  $media_dtstr    Media date */
+    /** @var string Media date */
     public $media_dtstr = '';
 
-    /** @var    bool    $media_image    Media is image */
+    /** @var bool Media is image */
     public $media_image = false;
 
-    /** @var    string  $media_icon     Media icon */
-    public $media_icon  = 'blank';
+    /** @var string Media icon */
+    public $media_icon = 'blank';
 
-    /** @var    string  $media_type     Media type */
+    /** @var string Media type */
     public $media_type = 'image';
 
-    /** @var    array   $media_thumb    Media avialble thumbnail */
+    /** @var array Media avialble thumbnail */
     public $media_thumb = [];
 
     /**
-     * Constructor
+     * Constructor.
      *
      * Creates an instance of fileItem object.
      *
-     * @param   string  $file       Absolute file or directory path
-     * @param   string  $root       File root path
-     * @param   string  $root_url   File root URL
+     * @param string $file     Absolute file or directory path
+     * @param string $root     File root path
+     * @param string $root_url File root URL
      */
     public function __construct(string $file, string $root, string $root_url = '')
     {

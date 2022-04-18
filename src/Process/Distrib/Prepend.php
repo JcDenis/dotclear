@@ -2,8 +2,7 @@
 /**
  * @brief Dotclear upgrade procedure (CLI)
  *
- * @package Dotclear
- * @subpackage Distrib
+ * @ingroup  Distrib
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,9 +12,8 @@ declare(strict_types=1);
 namespace Dotclear\Process\Distrib;
 
 use Dotclear\Exception\DistribException;
-
 use Dotclear\Core\Core;
-use Dotclear\Process\Distrib\Upgrade;
+use Exception;
 
 class Prepend extends Core
 {
@@ -49,13 +47,14 @@ class Prepend extends Core
 
         try {
             $changes = (new Upgrade())->doUpgrade();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->con()->rollback();
 
             throw $e;
         }
         $this->con()->commit();
         echo 'Upgrade process successfully completed (' . $changes . "). \n";
+
         exit(0);
     }
 }

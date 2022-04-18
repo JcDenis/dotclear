@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\SimpleMenu\Public\Prepend
+ * @note Dotclear\Plugin\SimpleMenu\Public\Prepend
  * @brief Dotclear Plugin class
  *
- * @package Dotclear
- * @subpackage PluginWidgets
+ * @ingroup  PluginSimpleMenu
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -23,7 +22,7 @@ class Prepend extends AbstractPrepend
 
     public function loadModule(): void
     {
-        # Widgets
+        // Widgets
         new SimpleMenuWidgets();
     }
 }

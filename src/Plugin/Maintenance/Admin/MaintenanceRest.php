@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Maintenance\Admin\MaintenanceRest
+ * @note Dotclear\Plugin\Maintenance\Admin\MaintenanceRest
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginMaintenance
+ * @ingroup  PluginMaintenance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,11 +18,11 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\XmlTag;
 
 /**
-@ingroup PLUGIN_MAINTENANCE
-@nosubgrouping
-@brief Maintenance plugin rest service class.
-
-Serve maintenance methods via Dotclear's rest API
+ * @ingroup PLUGIN_MAINTENANCE
+ * @nosubgrouping
+ * @brief Maintenance plugin rest service class.
+ *
+ * Serve maintenance methods via Dotclear's rest API
  */
 class MaintenanceRest
 {
@@ -35,12 +34,12 @@ class MaintenanceRest
     /**
      * Serve method to do step by step task for maintenance.
      *
-     * @param   array   $get    Cleaned $_GET
-     * @param   array   $post   Cleaned $_POST
+     * @param array $get  Cleaned $_GET
+     * @param array $post Cleaned $_POST
      *
-     * @throws  AdminException  
+     * @throws AdminException
      *
-     * @return  XmlTag          XML representation of response.
+     * @return XmlTag XML representation of response
      */
     public function step(array $get, array $post): XmlTag
     {

@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Inventory\Inventory\PostInventory
+ * @note Dotclear\Process\Admin\Inventory\Inventory\PostInventory
  * @brief Dotclear admin list helper
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -23,12 +22,12 @@ use Dotclear\Process\Admin\Page\Pager;
 class PostInventory extends Inventory
 {
     /**
-     * Display admin post list
+     * Display admin post list.
      *
-     * @param   int     $page           The page
-     * @param   int     $nb_per_page    The number of per page
-     * @param   string  $enclose_block  The enclose block
-     * @param   bool    $filter         The filter
+     * @param int    $page          The page
+     * @param int    $nb_per_page   The number of per page
+     * @param string $enclose_block The enclose block
+     * @param bool   $filter        The filter
      */
     public function display(int $page, int $nb_per_page, string $enclose_block = '', bool $filter = false): void
     {
@@ -116,9 +115,7 @@ class PostInventory extends Inventory
                 echo $this->postLine(isset($entries[$this->rs->fInt('post_id')]));
             }
 
-            $fmt = function ($title, $image) {
-                return sprintf('<img alt="%1$s" title="%1$s" src="?df=images/%2$s" /> %1$s', $title, $image);
-            };
+            $fmt = fn ($title, $image) => sprintf('<img alt="%1$s" title="%1$s" src="?df=images/%2$s" /> %1$s', $title, $image);
 
             echo $blocks[1] .
                 '<p class="info">' . __('Legend: ') .
@@ -137,9 +134,9 @@ class PostInventory extends Inventory
     /**
      * Get a line.
      *
-     * @param   bool    $checked    The checked flag
+     * @param bool $checked The checked flag
      *
-     * @return  string              The line
+     * @return string The line
      */
     private function postLine(bool $checked): string
     {
@@ -162,22 +159,26 @@ class PostInventory extends Inventory
         $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" class="mark mark-%3$s" />';
         $img_status = '';
         $sts_class  = '';
+
         switch ($this->rs->fInt('post_status')) {
             case 1:
                 $img_status = sprintf($img, __('Published'), 'check-on.png', 'published');
                 $sts_class  = 'sts-online';
 
                 break;
+
             case 0:
                 $img_status = sprintf($img, __('Unpublished'), 'check-off.png', 'unpublished');
                 $sts_class  = 'sts-offline';
 
                 break;
+
             case -1:
                 $img_status = sprintf($img, __('Scheduled'), 'scheduled.png', 'scheduled');
                 $sts_class  = 'sts-scheduled';
 
                 break;
+
             case -2:
                 $img_status = sprintf($img, __('Pending'), 'check-wrn.png', 'pending');
                 $sts_class  = 'sts-pending';

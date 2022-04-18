@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Handler\Charte
+ * @note Dotclear\Process\Admin\Handler\Charte
  * @brief Dotclear admin design help page
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,9 +12,9 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
-use Dotclear\Process\Admin\Page\Page;
+use Dotclear\Process\Admin\Page\AbstractPage;
 
-class Charte extends Page
+class Charte extends AbstractPage
 {
     protected function getPermissions(): string|null|false
     {
@@ -27,8 +26,7 @@ class Charte extends Page
     protected function getPageContent(): void
     {
         $js         = [];
-        $data_theme = dotclear()->user()->preference()->get('interface')->get('theme');
-?>
+        $data_theme = dotclear()->user()->preference()->get('interface')->get('theme'); ?>
 <!DOCTYPE html>
 <html lang="fr" data-theme="<?php echo $data_theme; ?>">
 <head>
@@ -42,20 +40,19 @@ class Charte extends Page
 
 echo dotclear()->resource()->load('default.css');
 
-if (dotclear()->user()->preference()->get('interface')->get('htmlfontsize')) {
-    $js['htmlFontSize'] = dotclear()->user()->preference()->get('interface')->get('htmlfontsize');
-}
-// Set some JSON data
-echo dotclear()->resource()->json('dotclear_init', $js);
-echo dotclear()->resource()->load('jquery/jquery.js');
-echo dotclear()->resource()->load('jquery/jquery-ui.custom.js');
-echo dotclear()->resource()->load('jquery/jquery.ui.touch-punch.js');
-echo dotclear()->resource()->load('jquery/jquery.pageTabs.js');
-echo dotclear()->resource()->load('prepend.js');
-echo dotclear()->resource()->load('common.js');
-echo dotclear()->resource()->load('prelude.js');
-echo dotclear()->resource()->load('_charte.js');
-?>
+        if (dotclear()->user()->preference()->get('interface')->get('htmlfontsize')) {
+            $js['htmlFontSize'] = dotclear()->user()->preference()->get('interface')->get('htmlfontsize');
+        }
+        // Set some JSON data
+        echo dotclear()->resource()->json('dotclear_init', $js);
+        echo dotclear()->resource()->load('jquery/jquery.js');
+        echo dotclear()->resource()->load('jquery/jquery-ui.custom.js');
+        echo dotclear()->resource()->load('jquery/jquery.ui.touch-punch.js');
+        echo dotclear()->resource()->load('jquery/jquery.pageTabs.js');
+        echo dotclear()->resource()->load('prepend.js');
+        echo dotclear()->resource()->load('common.js');
+        echo dotclear()->resource()->load('prelude.js');
+        echo dotclear()->resource()->load('_charte.js'); ?>
 </head>
 
 <body id="dotclear-admin" class="no-js guideline">

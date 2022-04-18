@@ -1,12 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Network\Xmlrpc\Request
- * @brief XML-RPC Request
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
  * @package Dotclear
- * @subpackage Network
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,17 +9,24 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Network\Xmlrpc;
 
-use Dotclear\Helper\Network\Xmlrpc\Value;
-
+/**
+ * XML-RPC Request.
+ *
+ * \Dotclear\Helper\Network\Xmlrpc\Request
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Helper Network Xmlrpc
+ */
 class Request
 {
-    public $xml;    ///< string Request XML string
+    public $xml;    // /< string Request XML string
 
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param   string  $method     Method name
-     * @param   array   $args       Method arguments
+     * @param string $method Method name
+     * @param array  $args   Method arguments
      */
     public function __construct(public string $method, public array $args)
     {
@@ -45,11 +46,9 @@ class Request
     }
 
     /**
-     * Request length
+     * Request length.
      *
      * Returns {@link $xml} content length.
-     *
-     * @return  int
      */
     public function getLength(): int
     {
@@ -57,11 +56,9 @@ class Request
     }
 
     /**
-     * Request XML
+     * Request XML.
      *
      * Returns request XML version.
-     *
-     * @return  string
      */
     public function getXml(): string
     {

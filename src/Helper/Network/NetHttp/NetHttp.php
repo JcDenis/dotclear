@@ -1,7 +1,21 @@
 <?php
 /**
- * @class Dotclear\Helper\Network\NetHttp\NetHttp
- * @brief Net Http client
+ * @package Dotclear
+ *
+ * @copyright Olivier Meunier & Association Dotclear
+ * @copyright GPL-2.0-only
+ */
+declare(strict_types=1);
+
+namespace Dotclear\Helper\Network\NetHttp;
+
+use Dotclear\Exception\NetworkException;
+use Dotclear\Helper\Network\Socket\Socket;
+
+/**
+ * Net Http client.
+ *
+ * \Dotclear\Helper\Network\NetHttp\NetHttp
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
@@ -33,72 +47,61 @@
  * - Handles redirects on other hosts
  * - Configurable output
  *
- * @package Dotclear
- * @subpackage Network
- *
- * @copyright Olivier Meunier & Association Dotclear
- * @copyright GPL-2.0-only
+ * @ingroup  Helper Network
  */
-declare(strict_types=1);
-
-namespace Dotclear\Helper\Network\NetHttp;
-
-use Dotclear\Exception\NetworkException;
-use Dotclear\Helper\Network\Socket\Socket;
-
 class NetHttp extends Socket
 {
-    protected $host;          ///< string Server host
-    protected $port;          ///< integer Server port
-    protected $path;          ///< string Query path
-    protected $method;        ///< string HTTP method
-    protected $postdata = ''; ///< string POST query string
-    protected $post_charset;  ///< string POST charset
-    protected $cookies = [];  ///< array Cookies sent
-    protected $referer;       ///< string HTTP referer
+    protected $host;          // /< string Server host
+    protected $port;          // /< integer Server port
+    protected $path;          // /< string Query path
+    protected $method;        // /< string HTTP method
+    protected $postdata = ''; // /< string POST query string
+    protected $post_charset;  // /< string POST charset
+    protected $cookies = [];  // /< array Cookies sent
+    protected $referer;       // /< string HTTP referer
 
-    protected $accept = 'text/xml,application/xml,application/xhtml+xml,text/html,text/plain,image/png,image/jpeg,image/gif,image/webp,*/*'; ///< string HTTP accept header
+    protected $accept = 'text/xml,application/xml,application/xhtml+xml,text/html,text/plain,image/png,image/jpeg,image/gif,image/webp,*/*'; // /< string HTTP accept header
 
-    protected $accept_encoding  = 'gzip';                    ///< string HTTP accept encoding
-    protected $accept_language  = 'en-us';                   ///< string HTTP accept language
-    protected $user_agent       = 'Clearbricks HTTP Client'; ///< string HTTP User Agent
-    protected $more_headers     = [];                        ///< array More headers to be sent
-    protected $timeout          = 10;                        ///< integer Connection timeout
-    protected $use_ssl          = false;                     ///< boolean Use SSL connection
-    protected $use_gzip         = false;                     ///< boolean Use gzip transfert
-    protected $persist_cookies  = true;                      ///< boolean Allow persistant cookies
-    protected $persist_referers = true;                      ///< boolean Allow persistant referers
-    protected $debug            = false;                     ///< boolean Use debug mode
-    protected $handle_redirects = true;                      ///< boolean Follow redirects
-    protected $max_redirects    = 5;                         ///< integer Maximum redirects to follow
-    protected $headers_only     = false;                     ///< boolean Retrieve only headers
-    protected $username;                                     ///< string Authentication user name
-    protected $password;                                     ///< string Authentication password
-    protected $proxy_host;                                   ///< string Proxy server host
-    protected $proxy_port;                                   ///< integer Proxy server port
+    protected $accept_encoding  = 'gzip';                    // /< string HTTP accept encoding
+    protected $accept_language  = 'en-us';                   // /< string HTTP accept language
+    protected $user_agent       = 'Clearbricks HTTP Client'; // /< string HTTP User Agent
+    protected $more_headers     = [];                        // /< array More headers to be sent
+    protected $timeout          = 10;                        // /< integer Connection timeout
+    protected $use_ssl          = false;                     // /< boolean Use SSL connection
+    protected $use_gzip         = false;                     // /< boolean Use gzip transfert
+    protected $persist_cookies  = true;                      // /< boolean Allow persistant cookies
+    protected $persist_referers = true;                      // /< boolean Allow persistant referers
+    protected $debug            = false;                     // /< boolean Use debug mode
+    protected $handle_redirects = true;                      // /< boolean Follow redirects
+    protected $max_redirects    = 5;                         // /< integer Maximum redirects to follow
+    protected $headers_only     = false;                     // /< boolean Retrieve only headers
+    protected $username;                                     // /< string Authentication user name
+    protected $password;                                     // /< string Authentication password
+    protected $proxy_host;                                   // /< string Proxy server host
+    protected $proxy_port;                                   // /< integer Proxy server port
 
-    # Response vars
-    protected $status;        ///< integer HTTP Status code
-    protected $status_string; ///< string HTTP Status string
-    protected $headers = [];  ///< array Response headers
-    protected $content = '';  ///< string Response body
+    // Response vars
+    protected $status;        // /< integer HTTP Status code
+    protected $status_string; // /< string HTTP Status string
+    protected $headers = [];  // /< array Response headers
+    protected $content = '';  // /< string Response body
 
-    # Tracker variables
-    protected $redirect_count = 0;  ///< integer Internal redirects count
-    protected $cookie_host    = ''; ///< string Internal cookie host
+    // Tracker variables
+    protected $redirect_count = 0;  // /< integer Internal redirects count
+    protected $cookie_host    = ''; // /< string Internal cookie host
 
-    # Output module (null is this->content)
-    protected $output   = null; ///< string Output stream name
-    protected $output_h = null; ///< resource Output resource
+    // Output module (null is this->content)
+    protected $output; // /< string Output stream name
+    protected $output_h; // /< resource Output resource
 
     /**
      * Constructor.
      *
      * Takes the web server host, an optional port and timeout.
      *
-     * @param string    $host            Server host
-     * @param integer    $port            Server port
-     * @param integer    $timeout            Connection timeout
+     * @param string $host    Server host
+     * @param int    $port    Server port
+     * @param int    $timeout Connection timeout
      */
     public function __construct($host, $port = 80, $timeout = null)
     {
@@ -115,16 +118,17 @@ class NetHttp extends Socket
     }
 
     /**
-     * GET Request
+     * GET Request.
      *
      * Executes a GET request for the specified path. If <var>$data</var> is
      * specified, appends it to a query string as part of the get request.
      * <var>$data</var> can be an array of key value pairs, in which case a
      * matching query string will be constructed. Returns true on success.
      *
-     * @param string    $path            Request path
-     * @param boolean|array        $data            Request parameters
-     * @return boolean
+     * @param string     $path Request path
+     * @param array|bool $data Request parameters
+     *
+     * @return bool
      */
     public function get($path, $data = false)
     {
@@ -139,17 +143,18 @@ class NetHttp extends Socket
     }
 
     /**
-     * POST Request
+     * POST Request.
      *
      * Executes a POST request for the specified path. If <var>$data</var> is
      * specified, appends it to a query string as part of the get request.
      * <var>$data</var> can be an array of key value pairs, in which case a
      * matching query string will be constructed. Returns true on success.
      *
-     * @param string        $path            Request path
-     * @param array|string  $data            Request parameters
-     * @param string        $charset         Request charset
-     * @return boolean
+     * @param string       $path    Request path
+     * @param array|string $data    Request parameters
+     * @param string       $charset Request charset
+     *
+     * @return bool
      */
     public function post($path, $data, $charset = null)
     {
@@ -164,19 +169,20 @@ class NetHttp extends Socket
     }
 
     /**
-     * Query String Builder
+     * Query String Builder.
      *
      * Prepares Query String for HTTP request. <var>$data</var> is an associative
      * array of arguments.
      *
-     * @param array|string        $data            Query data
+     * @param array|string $data Query data
+     *
      * @return string
      */
     protected function buildQueryString($data)
     {
         if (is_array($data)) {
             $qs = [];
-            # Change data in to postable data
+            // Change data in to postable data
             foreach ($data as $key => $val) {
                 if (is_array($val)) {
                     foreach ($val as $val2) {
@@ -195,11 +201,11 @@ class NetHttp extends Socket
     }
 
     /**
-     * Do Request
+     * Do Request.
      *
      * Sends HTTP request and stores status, headers, content object properties.
      *
-     * @return boolean
+     * @return bool
      */
     protected function doRequest()
     {
@@ -213,7 +219,7 @@ class NetHttp extends Socket
             $this->_transport = $this->use_ssl ? 'ssl://' : '';
         }
 
-        #Reset all the variables that should not persist between requests
+        // Reset all the variables that should not persist between requests
         $this->headers = [];
         $in_headers    = true;
         $this->outputOpen();
@@ -224,24 +230,24 @@ class NetHttp extends Socket
         $this->open();
         $this->debug('Connecting to ' . $this->_transport . $this->_host . ':' . $this->_port);
         foreach ($this->write($request) as $index => $line) {
-            # Deal with first line of returned data
-            if ($index == 0) {
+            // Deal with first line of returned data
+            if (0 == $index) {
                 $line = rtrim($line, "\r\n");
                 if (!preg_match('/HTTP\/(\\d\\.\\d)\\s*(\\d+)\\s*(.*)/', $line, $m)) {
                     throw new NetworkException('Status code line invalid: ' . $line);
                 }
-                $http_version        = $m[1]; # not used
+                $http_version        = $m[1]; // not used
                 $this->status        = $m[2];
-                $this->status_string = $m[3]; # not used
+                $this->status_string = $m[3]; // not used
                 $this->debug($line);
 
                 continue;
             }
 
-            # Read headers
+            // Read headers
             if ($in_headers) {
                 $line = rtrim($line, "\r\n");
-                if ($line == '') {
+                if ('' == $line) {
                     $in_headers = false;
                     $this->debug('Received Headers', $this->headers);
                     if ($this->headers_only) {
@@ -252,12 +258,12 @@ class NetHttp extends Socket
                 }
 
                 if (!preg_match('/([^:]+):\\s*(.*)/', $line, $m)) {
-                    # Skip to the next header
+                    // Skip to the next header
                     continue;
                 }
                 $key = strtolower(trim($m[1]));
                 $val = trim($m[2]);
-                # Deal with the possibility of multiple headers of same name
+                // Deal with the possibility of multiple headers of same name
                 if (isset($this->headers[$key])) {
                     if (is_array($this->headers[$key])) {
                         $this->headers[$key][] = $val;
@@ -271,20 +277,20 @@ class NetHttp extends Socket
                 continue;
             }
 
-            # We're not in the headers, so append the line to the contents
+            // We're not in the headers, so append the line to the contents
             $this->outputWrite($line);
         }
         $this->close();
         $this->outputClose();
 
-        # If data is compressed, uncompress it
+        // If data is compressed, uncompress it
         if ($this->getHeader('content-encoding') && $this->use_gzip) {
             $this->debug('Content is gzip encoded, unzipping it');
-            # See http://www.php.net/manual/en/function.gzencode.php
+            // See http://www.php.net/manual/en/function.gzencode.php
             $this->content = gzinflate(substr($this->content, 10));
         }
 
-        # If $persist_cookies, deal with any cookies
+        // If $persist_cookies, deal with any cookies
         if ($this->persist_cookies && $this->getHeader('set-cookie') && $this->host == $this->cookie_host) {
             $cookies = $this->headers['set-cookie'];
             if (!is_array($cookies)) {
@@ -297,17 +303,17 @@ class NetHttp extends Socket
                 }
             }
 
-            # Record domain of cookies for security reasons
+            // Record domain of cookies for security reasons
             $this->cookie_host = $this->host;
         }
 
-        # If $persist_referers, set the referer ready for the next request
+        // If $persist_referers, set the referer ready for the next request
         if ($this->persist_referers) {
             $this->debug('Persisting referer: ' . $this->getRequestURL());
             $this->referer = $this->getRequestURL();
         }
 
-        # Finally, if handle_redirects and a redirect is sent, do that
+        // Finally, if handle_redirects and a redirect is sent, do that
         if ($this->handle_redirects) {
             if (++$this->redirect_count >= $this->max_redirects) {
                 $this->redirect_count = 0;
@@ -319,7 +325,7 @@ class NetHttp extends Socket
             $uri      = $this->headers['uri']      ?? '';
             if ($location || $uri) {
                 if (self::readUrl($location . $uri, $r_ssl, $r_host, $r_port, $r_path, $r_user, $r_pass)) {
-                    # If we try to move on another host, remove cookies, user and pass
+                    // If we try to move on another host, remove cookies, user and pass
                     if ($r_host != $this->host || $r_port != $this->port) {
                         $this->cookies = [];
                         $this->setAuthorization(null, null);
@@ -338,11 +344,9 @@ class NetHttp extends Socket
     }
 
     /**
-     * Prepare Request
+     * Prepare Request.
      *
      * Prepares HTTP request and returns an array of HTTP headers.
-     *
-     * @return  array
      */
     protected function buildRequest(): array
     {
@@ -354,7 +358,7 @@ class NetHttp extends Socket
             $path = $this->path;
         }
 
-        # Using 1.1 leads to all manner of problems, such as "chunked" encoding
+        // Using 1.1 leads to all manner of problems, such as "chunked" encoding
         $headers[] = $this->method . ' ' . $path . ' HTTP/1.0';
 
         $headers[] = 'Host: ' . $this->host;
@@ -370,7 +374,7 @@ class NetHttp extends Socket
             $headers[] = 'Referer: ' . $this->referer;
         }
 
-        # Cookies
+        // Cookies
         if ($this->cookies) {
             $cookie = 'Cookie: ';
             foreach ($this->cookies as $key => $value) {
@@ -379,7 +383,7 @@ class NetHttp extends Socket
             $headers[] = $cookie;
         }
 
-        # X-Forwarded-For
+        // X-Forwarded-For
         $xforward = [];
         if (isset($_SERVER['REMOTE_ADDR'])) {
             $xforward[] = $_SERVER['REMOTE_ADDR'];
@@ -391,14 +395,14 @@ class NetHttp extends Socket
             $headers[] = 'X-Forwarded-For: ' . implode(', ', $xforward);
         }
 
-        # Basic authentication
+        // Basic authentication
         if ($this->username && $this->password) {
             $headers[] = 'Authorization: Basic ' . base64_encode($this->username . ':' . $this->password);
         }
 
         $headers = array_merge($headers, $this->more_headers);
 
-        # If this is a POST, set the content type and length
+        // If this is a POST, set the content type and length
         if ($this->postdata) {
             $needed = true;
             foreach ($headers as $value) {
@@ -425,7 +429,7 @@ class NetHttp extends Socket
     }
 
     /**
-     * Open Output
+     * Open Output.
      *
      * Initializes output handler if {@link $output} property is not null and
      * is a valid resource stream.
@@ -433,7 +437,7 @@ class NetHttp extends Socket
     protected function outputOpen()
     {
         if ($this->output) {
-            if (($this->output_h = @fopen($this->output, 'wb')) === false) {
+            if (false === ($this->output_h = @fopen($this->output, 'wb'))) {
                 throw new NetworkException('Unable to open output stream ' . $this->output);
             }
         } else {
@@ -442,7 +446,7 @@ class NetHttp extends Socket
     }
 
     /**
-     * Close Output
+     * Close Output.
      *
      * Closes output module if exists.
      */
@@ -454,11 +458,11 @@ class NetHttp extends Socket
     }
 
     /**
-     * Write Output
+     * Write Output.
      *
      * Writes data <var>$c</var> to output module.
      *
-     * @param string    $c                Data content
+     * @param string $c Data content
      */
     protected function outputWrite($c)
     {
@@ -470,7 +474,7 @@ class NetHttp extends Socket
     }
 
     /**
-     * Get Status
+     * Get Status.
      *
      * Returns the status code of the response - 200 means OK, 404 means file not
      * found, etc.
@@ -483,7 +487,7 @@ class NetHttp extends Socket
     }
 
     /**
-     * Get Contet
+     * Get Contet.
      *
      * Returns the content of the HTTP response. This is usually an HTML document.
      *
@@ -495,7 +499,7 @@ class NetHttp extends Socket
     }
 
     /**
-     * Response Headers
+     * Response Headers.
      *
      * Returns the HTTP headers returned by the server as an associative array.
      *
@@ -507,12 +511,13 @@ class NetHttp extends Socket
     }
 
     /**
-     * Response Header
+     * Response Header.
      *
      * Returns the specified response header, or false if it does not exist.
      *
-     * @param string    $header            Header name
-     * @return string|false
+     * @param string $header Header name
+     *
+     * @return false|string
      */
     public function getHeader($header)
     {
@@ -525,7 +530,7 @@ class NetHttp extends Socket
     }
 
     /**
-     * Cookies
+     * Cookies.
      *
      * Returns an array of cookies set by the server.
      *
@@ -537,7 +542,7 @@ class NetHttp extends Socket
     }
 
     /**
-     * Request URL
+     * Request URL.
      *
      * Returns the full URL that has been requested.
      *
@@ -546,7 +551,7 @@ class NetHttp extends Socket
     public function getRequestURL()
     {
         $url = 'http' . ($this->use_ssl ? 's' : '') . '://' . $this->host;
-        if (!$this->use_ssl && $this->port != 80 || $this->use_ssl && $this->port != 443) {
+        if (!$this->use_ssl && 80 != $this->port || $this->use_ssl && 443 != $this->port) {
             $url .= ':' . $this->port;
         }
         $url .= $this->path;
@@ -557,8 +562,8 @@ class NetHttp extends Socket
     /**
      * Sets server host and port.
      *
-     * @param string    $host            Server host
-     * @param integer    $port            Server port
+     * @param string $host Server host
+     * @param int    $port Server port
      */
     public function setHost($host, $port = 80)
     {
@@ -569,8 +574,8 @@ class NetHttp extends Socket
     /**
      * Sets proxy host and port.
      *
-     * @param string    $host                Proxy host
-     * @param mixed     $port                Proxy port
+     * @param string $host Proxy host
+     * @param mixed  $port Proxy port
      */
     public function setProxy($host, $port = '8080')
     {
@@ -581,7 +586,7 @@ class NetHttp extends Socket
     /**
      * Sets connection timeout.
      *
-     * @param integer    $t                Connection timeout
+     * @param int $t Connection timeout
      */
     public function setTimeout($t)
     {
@@ -589,12 +594,12 @@ class NetHttp extends Socket
     }
 
     /**
-     * User Agent String
+     * User Agent String.
      *
      * Sets the user agent string to be used in the request. Default is
      * "Clearbricks HTTP Client".
      *
-     * @param string    $string            User agent string
+     * @param string $string User agent string
      */
     public function setUserAgent($string)
     {
@@ -602,13 +607,13 @@ class NetHttp extends Socket
     }
 
     /**
-     * HTTP Authentication
+     * HTTP Authentication.
      *
      * Sets the HTTP authorization username and password to be used in requests.
      * Don't forget to unset this in subsequent requests to different servers.
      *
-     * @param string    $username            User name
-     * @param string    $password            Password
+     * @param string $username User name
+     * @param string $password Password
      */
     public function setAuthorization(?string $username, ?string $password)
     {
@@ -617,11 +622,11 @@ class NetHttp extends Socket
     }
 
     /**
-     * Add Header
+     * Add Header.
      *
      * Sets additionnal header to be sent with the request.
      *
-     * @param string    $header            Full header definition
+     * @param string $header Full header definition
      */
     public function setMoreHeader($header)
     {
@@ -629,7 +634,7 @@ class NetHttp extends Socket
     }
 
     /**
-     * Empty additionnal headers
+     * Empty additionnal headers.
      */
     public function voidMoreHeaders()
     {
@@ -637,12 +642,12 @@ class NetHttp extends Socket
     }
 
     /**
-     * Set Cookies
+     * Set Cookies.
      *
      * Sets the cookies to be sent in the request. Takes an array of name value
      * pairs.
      *
-     * @param array        $array            Cookies array
+     * @param array $array Cookies array
      */
     public function setCookies($array)
     {
@@ -650,11 +655,11 @@ class NetHttp extends Socket
     }
 
     /**
-     * Enable / Disable SSL
+     * Enable / Disable SSL.
      *
      * Sets SSL connection usage.
      *
-     * @param boolean    $boolean            Enable/Disable SSL
+     * @param bool $boolean Enable/Disable SSL
      */
     public function useSSL($boolean)
     {
@@ -669,13 +674,13 @@ class NetHttp extends Socket
     }
 
     /**
-     * Use Gzip
+     * Use Gzip.
      *
      * Specifies if the client should request gzip encoded content from the server
      * (saves bandwidth but can increase processor time). Default behaviour is
      * false.
      *
-     * @param boolean    $boolean            Enable/Disable Gzip
+     * @param bool $boolean Enable/Disable Gzip
      */
     public function useGzip($boolean)
     {
@@ -683,12 +688,12 @@ class NetHttp extends Socket
     }
 
     /**
-     * Persistant Cookies
+     * Persistant Cookies.
      *
      * Specify if the client should persist cookies between requests. Default
      * behaviour is true.
      *
-     * @param boolean    $boolean            Enable/Disable Persist Cookies
+     * @param bool $boolean Enable/Disable Persist Cookies
      */
     public function setPersistCookies($boolean)
     {
@@ -696,12 +701,12 @@ class NetHttp extends Socket
     }
 
     /**
-     * Persistant Referrers
+     * Persistant Referrers.
      *
      * Specify if the client should use the URL of the previous request as the
      * referral of a subsequent request. Default behaviour is true.
      *
-     * @param boolean    $boolean            Enable/Disable Persistant Referrers
+     * @param bool $boolean Enable/Disable Persistant Referrers
      */
     public function setPersistReferers($boolean)
     {
@@ -709,12 +714,12 @@ class NetHttp extends Socket
     }
 
     /**
-     * Enable / Disable Redirects
+     * Enable / Disable Redirects.
      *
      * Specify if the client should automatically follow redirected requests.
      * Default behaviour is true.
      *
-     * @param boolean    $boolean            Enable/Disable Redirects
+     * @param bool $boolean Enable/Disable Redirects
      */
     public function setHandleRedirects($boolean)
     {
@@ -722,12 +727,12 @@ class NetHttp extends Socket
     }
 
     /**
-     * Maximum Redirects
+     * Maximum Redirects.
      *
      * Set the maximum number of redirects allowed before the client quits
      * (mainly to prevent infinite loops) Default is 5.
      *
-     * @param integer    $num                Maximum redirects value
+     * @param int $num Maximum redirects value
      */
     public function setMaxRedirects($num)
     {
@@ -735,12 +740,12 @@ class NetHttp extends Socket
     }
 
     /**
-     * Headers Only
+     * Headers Only.
      *
      * If true, the client only retrieves the headers from a page. This could be
      * useful for implementing things like link checkers. Defaults to false.
      *
-     * @param boolean    $boolean            Enable/Disable Headers Only
+     * @param bool $boolean Enable/Disable Headers Only
      */
     public function setHeadersOnly($boolean)
     {
@@ -748,11 +753,11 @@ class NetHttp extends Socket
     }
 
     /**
-     * Debug mode
+     * Debug mode.
      *
      * Should the client run in debug mode? Default behaviour is false.
      *
-     * @param boolean    $boolean            Enable/Disable Debug Mode
+     * @param bool $boolean Enable/Disable Debug Mode
      */
     public function setDebug($boolean)
     {
@@ -760,12 +765,12 @@ class NetHttp extends Socket
     }
 
     /**
-     * Set Output
+     * Set Output.
      *
      * Output module init. If <var>$out</var> is null, then output will be
      * directed to STDOUT.
      *
-     * @param string|null    $out            Output stream
+     * @param null|string $out Output stream
      */
     public function setOutput($out)
     {
@@ -773,18 +778,19 @@ class NetHttp extends Socket
     }
 
     /**
-     * Quick Get
+     * Quick Get.
      *
      * Static method designed for running simple GET requests. Returns content or
      * false on failure.
      *
-     * @param string    $url                Request URL
-     * @param string    $output            Optionnal output stream
-     * @return string|false
+     * @param string $url    Request URL
+     * @param string $output Optionnal output stream
+     *
+     * @return false|string
      */
     public static function quickGet($url, $output = null)
     {
-        if (($client = self::initClient($url, $path)) === false) {
+        if (false === ($client = self::initClient($url, $path))) {
             return false;
         }
         $client->setOutput($output);
@@ -794,19 +800,20 @@ class NetHttp extends Socket
     }
 
     /**
-     * Quick Post
+     * Quick Post.
      *
      * Static method designed for running simple POST requests. Returns content or
      * false on failure.
      *
-     * @param string    $url               Request URL
-     * @param array     $data              Array of parameters
-     * @param string    $output            Optionnal output stream
-     * @return string|false
+     * @param string $url    Request URL
+     * @param array  $data   Array of parameters
+     * @param string $output Optionnal output stream
+     *
+     * @return false|string
      */
     public static function quickPost($url, $data, $output = null)
     {
-        if (($client = self::initClient($url, $path)) === false) {
+        if (false === ($client = self::initClient($url, $path))) {
             return false;
         }
         $client->setOutput($output);
@@ -816,13 +823,14 @@ class NetHttp extends Socket
     }
 
     /**
-     * Quick Init
+     * Quick Init.
      *
      * Returns a new instance of the class. <var>$path</var> is an output variable.
      *
-     * @param   string    $url                Request URL
-     * @param   string    $path               Resulting path
-     * @return  NetHttp|false
+     * @param string $url  Request URL
+     * @param string $path Resulting path
+     *
+     * @return false|NetHttp
      */
     public static function initClient($url, &$path)
     {
@@ -838,20 +846,21 @@ class NetHttp extends Socket
     }
 
     /**
-     * Read URL
+     * Read URL.
      *
      * Parses an URL and fills <var>$ssl</var>, <var>$host</var>, <var>$port</var>,
      * <var>$path</var>, <var>$user</var> and <var>$pass</var> variables. Returns
      * true on succes.
      *
-     * @param string    $url             Request URL
-     * @param boolean   $ssl             true if HTTPS URL
-     * @param string    $host            Host name
-     * @param string    $port            Server Port
-     * @param string    $path            Path
-     * @param string    $user            Username
-     * @param string    $pass            Password
-     * @return boolean
+     * @param string $url  Request URL
+     * @param bool   $ssl  true if HTTPS URL
+     * @param string $host Host name
+     * @param string $port Server Port
+     * @param string $path Path
+     * @param string $user Username
+     * @param string $pass Password
+     *
+     * @return bool
      */
     public static function readURL($url, &$ssl, &$host, &$port, &$path, &$user, &$pass)
     {
@@ -872,7 +881,7 @@ class NetHttp extends Socket
         $user   = $bits['user']   ?? null;
         $pass   = $bits['pass']   ?? null;
 
-        $ssl = $scheme == 'https';
+        $ssl = 'https' == $scheme;
 
         if (!$port) {
             $port = $ssl ? 443 : 80;
@@ -886,7 +895,7 @@ class NetHttp extends Socket
     }
 
     /**
-     * Debug
+     * Debug.
      *
      * This method is the method the class calls whenever there is debugging
      * information available. $msg is a debugging message and $object is an
@@ -896,8 +905,8 @@ class NetHttp extends Socket
      * creating a new class that extends HttpClient and over-riding the debug()
      * method in that class.
      *
-     * @param string    $msg                Debug message
-     * @param mixed        $object            Variable to print_r
+     * @param string $msg    Debug message
+     * @param mixed  $object Variable to print_r
      */
     protected function debug($msg, $object = false)
     {

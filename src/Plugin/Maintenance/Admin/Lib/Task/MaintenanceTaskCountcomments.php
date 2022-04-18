@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskCountcomments
+ * @note Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskCountcomments
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginMaintenance
+ * @ingroup  PluginMaintenance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -42,7 +41,7 @@ class MaintenanceTaskCountcomments extends MaintenanceTask
      */
     public function countAllComments(): void
     {
-        # Comments
+        // Comments
         $sql = new SelectStatement(__METHOD__);
         $sel = $sql
             ->column($sql->count('C.comment_id'))
@@ -52,14 +51,16 @@ class MaintenanceTaskCountcomments extends MaintenanceTask
                 'C.comment_trackback <> 1',
                 'C.comment_status = 1',
             ])
-            ->statement();
+            ->statement()
+        ;
 
         $sql = UpdateStatement::init(__METHOD__)
-            ->set('nb_comment = (' . $sel .')')
+            ->set('nb_comment = (' . $sel . ')')
             ->from(dotclear()->prefix . 'post P')
-            ->update();
+            ->update()
+        ;
 
-        # Trackback
+        // Trackback
         $sql = new SelectStatement(__METHOD__);
         $sel = $sql
             ->column($sql->count('C.comment_id'))
@@ -69,11 +70,13 @@ class MaintenanceTaskCountcomments extends MaintenanceTask
                 'C.comment_trackback = 1',
                 'C.comment_status = 1',
             ])
-            ->statement();
+            ->statement()
+        ;
 
         $sql = UpdateStatement::init(__METHOD__)
-            ->set('nb_trackback = (' . $sel .')')
+            ->set('nb_trackback = (' . $sel . ')')
             ->from(dotclear()->prefix . 'post P')
-            ->update();
+            ->update()
+        ;
     }
 }

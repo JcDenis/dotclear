@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Tags\Admin\Prepend
+ * @note Dotclear\Plugin\Tags\Admin\Prepend
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginTags
+ * @ingroup  PluginTags
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,7 +14,6 @@ namespace Dotclear\Plugin\Tags\Admin;
 
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
-use Dotclear\Plugin\Tags\Admin\TagsBehavior;
 use Dotclear\Plugin\Tags\Common\TagsCore;
 use Dotclear\Plugin\Tags\Common\TagsUrl;
 use Dotclear\Plugin\Tags\Common\TagsXmlrpc;
@@ -27,17 +25,17 @@ class Prepend extends AbstractPrepend
 
     public function loadModule(): void
     {
-        # Menu and favs
+        // Menu and favs
         $this->addStandardMenu('Blog');
         $this->addStandardFavorites('usage,contentadmin');
 
-        # Behaviors and url
+        // Behaviors and url
         new TagsUrl();
         new TagsCore();
         new TagsBehavior();
         new TagsXmlrpc();
 
-        # Widgets
+        // Widgets
         if (dotclear()->adminurl()->is('admin.plugin.Widgets')) {
             new TagsWidgets();
         }

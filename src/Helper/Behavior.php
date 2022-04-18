@@ -1,10 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Behavior
- * @brief Stack by group of callable functions
- *
  * @package Dotclear
- * @subpackage Instance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,6 +11,13 @@ namespace Dotclear\Helper;
 
 use Closure;
 
+/**
+ * Stack by group of callable functions.
+ *
+ * \Dotclear\Helper\Behavior
+ *
+ * @ingroup  Helper Behavior Stack
+ */
 class Behavior
 {
     /** @var array Registered behavoirs */
@@ -25,12 +28,12 @@ class Behavior
      *
      * $callback must be a valid and callable callback.
      *
-     * @param   string          $group      The group name
-     * @param   string|array    $callback   The callback function
+     * @param string       $group    The group name
+     * @param array|string $callback The callback function
      */
     public function add(string $group, string|array|Closure $callback): void
     {
-        # Silently failed non callable function
+        // Silently failed non callable function
         if (is_callable($callback)) {
             $this->stack[$group][] = $callback;
         }
@@ -39,9 +42,9 @@ class Behavior
     /**
      * Determines if a group exists in stack.
      *
-     * @param   string  $group   The behavior
+     * @param string $group The behavior
      *
-     * @return  bool    True if behavior exists, False otherwise.
+     * @return bool true if behavior exists, False otherwise
      */
     public function has(string $group): bool
     {
@@ -51,9 +54,9 @@ class Behavior
     /**
      * Gets the stack (or part of).
      *
-     * @param   string  $group   The group
+     * @param string $group The group
      *
-     * @return  array   The stack.
+     * @return array the stack
      */
     public function get(string $group): array
     {
@@ -66,10 +69,10 @@ class Behavior
      *
      * Every parameters added after $group will be pass to calls.
      *
-     * @param   string  $group      The group
-     * @param   mixed   ...$args    The arguments
+     * @param string $group   The group
+     * @param mixed  ...$args The arguments
      *
-     * @return  string|null  Behavior concatened result
+     * @return null|string Behavior concatened result
      */
     public function call(string $group, mixed ...$args): ?string
     {
@@ -95,9 +98,9 @@ class Behavior
     }
 
     /**
-     * Dump behaviors stack
+     * Dump behaviors stack.
      *
-     * @return  array   Registred behaviors
+     * @return array Registred behaviors
      */
     public function dump()
     {
@@ -105,12 +108,12 @@ class Behavior
     }
 
     /**
-     * Trace call
+     * Trace call.
      *
      * For debug purpose, you can define a callable function.
      *
-     * @param  string   $callback   Called function
-     * @param  array    $args       Called function arguments
+     * @param string $callback Called function
+     * @param array  $args     Called function arguments
      */
     private function trace($callback, $args): void
     {

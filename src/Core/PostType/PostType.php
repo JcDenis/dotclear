@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Core\PostType\PostType
+ * @note Dotclear\Core\PostType\PostType
  * @brief Dotclear core Post Type class
  *
- * @package Dotclear
- * @subpackage Instance
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,21 +12,21 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\PostType;
 
-use Dotclear\Helper\Html\Html;;
+use Dotclear\Helper\Html\Html;
 
 class PostType
 {
-    /** @var    array   Formaters container */
-    private $post_types  = [];
+    /** @var array Formaters container */
+    private $post_types = [];
 
     /**
      * Gets the post admin url.
      *
-     * @param   string      $type       The type
-     * @param   string|int  $post_id    The post identifier
-     * @param   bool        $escaped    Escape the URL
+     * @param string     $type    The type
+     * @param int|string $post_id The post identifier
+     * @param bool       $escaped Escape the URL
      *
-     * @return  string  The post admin url.
+     * @return string the post admin url
      */
     public function getPostAdminURL(string $type, string|int $post_id, bool $escaped = true): string
     {
@@ -43,11 +42,11 @@ class PostType
     /**
      * Gets the post public url.
      *
-     * @param  string   $type       The type
-     * @param  string   $post_url   The post url
-     * @param  bool     $escaped    Escape the URL
+     * @param string $type     The type
+     * @param string $post_url The post url
+     * @param bool   $escaped  Escape the URL
      *
-     * @return string   The post public url.
+     * @return string the post public url
      */
     public function getPostPublicURL(string $type, string $post_url, bool $escaped = true): string
     {
@@ -63,24 +62,24 @@ class PostType
     /**
      * Sets the post type.
      *
-     * @param   string  $type           The type
-     * @param   string  $admin_url      The admin url
-     * @param   string  $public_url     The public url
-     * @param   string  $label          The label
+     * @param string $type       The type
+     * @param string $admin_url  The admin url
+     * @param string $public_url The public url
+     * @param string $label      The label
      */
     public function setPostType(string $type, string $admin_url, string $public_url, string $label = ''): void
     {
         $this->post_types[$type] = [
             'admin_url'  => $admin_url,
             'public_url' => $public_url,
-            'label'      => ($label != '' ? $label : $type)
+            'label'      => ('' != $label ? $label : $type),
         ];
     }
 
     /**
      * Gets the post types.
      *
-     * @return  array   The post types.
+     * @return array the post types
      */
     public function getPostTypes(): array
     {

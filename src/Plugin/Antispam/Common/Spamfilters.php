@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Antispam\Common\Spamfilters
+ * @note Dotclear\Plugin\Antispam\Common\Spamfilters
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginAntispam
+ * @ingroup  PluginAntispam
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,7 +14,6 @@ namespace Dotclear\Plugin\Antispam\Common;
 
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
-use Dotclear\Plugin\Antispam\Common\Spamfilter;
 
 class Spamfilters
 {
@@ -29,7 +27,7 @@ class Spamfilters
                 continue;
             }
 
-            $f = new $class();
+            $f                     = new $class();
             $this->filters[$f->id] = $f;
         }
 
@@ -67,17 +65,18 @@ class Spamfilters
 
             $is_spam = $f->isSpam($type, $author, $email, $site, $ip, $content, $post_id, $status);
 
-            if ($is_spam === true) {
+            if (true === $is_spam) {
                 if ($f->auto_delete) {
                     $cur->clean();
                 } else {
-                    $cur->setField('comment_status',      -2);
+                    $cur->setField('comment_status', -2);
                     $cur->setField('comment_spam_status', $status);
                     $cur->setField('comment_spam_filter', $fid);
                 }
 
                 return true;
-            } elseif ($is_spam === false) {
+            }
+            if (false === $is_spam) {
                 return false;
             }
         }
@@ -107,7 +106,7 @@ class Spamfilters
     {
         $f = $this->filters[$filter_name] ?? null;
 
-        if ($f === null) {
+        if (null === $f) {
             return __('Unknown filter.');
         }
         $status = $rs->call('spamStatus') ?: null;
@@ -129,7 +128,7 @@ class Spamfilters
             $this->filters_opt = dotclear()->blog()->settings()->get('antispam')->get('antispam_filters');
         }
 
-        # Create default options if needed
+        // Create default options if needed
         if (!is_array($this->filters_opt)) {
             $this->saveFilterOpts([], true);
             $this->filters_opt = [];

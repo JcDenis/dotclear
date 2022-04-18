@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Service\RestMethods
+ * @note Dotclear\Process\Admin\Service\RestMethods
  * @brief Dotclear common admin REST methods
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -21,12 +20,11 @@ use Dotclear\Helper\Html\XmlTag;
 use Dotclear\Helper\Network\Feed\Reader;
 use Dotclear\Helper\Text;
 use Dotclear\Module\Store\Repository\Repository;
-use Dotclear\Process\Admin\Service\Updater;
 
 class RestMethods
 {
     /**
-     * Register Dotclear default Rest methods
+     * Register Dotclear default Rest methods.
      */
     public function __construct()
     {
@@ -51,17 +49,17 @@ class RestMethods
             'setListsOptions',
         ];
 
-        foreach($methods as $method) {
+        foreach ($methods as $method) {
             dotclear()->rest()->addFunction($method, [$this, $method]);
         }
     }
 
     /**
-     * Get number of posts (whatever are their status) for current blog
+     * Get number of posts (whatever are their status) for current blog.
      *
-     * @param   array   $get    Cleaned $_GET
+     * @param array $get Cleaned $_GET
      *
-     * @return  XmlTag          The response
+     * @return XmlTag The response
      */
     public function getPostsCount(array $get): XmlTag
     {
@@ -75,11 +73,11 @@ class RestMethods
     }
 
     /**
-     * Get number of comments (whatever are their status) for current blog
+     * Get number of comments (whatever are their status) for current blog.
      *
-     * @param   array   $get    Cleaned $_GET
+     * @param array $get Cleaned $_GET
      *
-     * @return  XmlTag          The response
+     * @return XmlTag The response
      */
     public function getCommentsCount(array $get): XmlTag
     {
@@ -93,15 +91,15 @@ class RestMethods
     }
 
     /**
-     * Check news update
+     * Check news update.
      *
-     * @param   array   $get    Cleaned $_GET
+     * @param array $get Cleaned $_GET
      *
-     * @return  XmlTag          The response
+     * @return XmlTag The response
      */
     public function checkNewsUpdate(array $get): XmlTag
     {
-        # Dotclear news
+        // Dotclear news
 
         $rsp = new XmlTag('news');
         $rsp->insertAttr('check', false);
@@ -121,14 +119,14 @@ class RestMethods
                     $ret = '<div class="box medium dc-box" id="ajax-news"><h3>' . __('Dotclear news') . '</h3><dl id="news">';
                     $i   = 1;
                     foreach ($feed->items as $item) {
-                        /* @phpstan-ignore-next-line */
+                        // @phpstan-ignore-next-line
                         $dt = isset($item->link) ? '<a href="' . $item->link . '" class="outgoing" title="' . $item->title . '">' .
-                        /* @phpstan-ignore-next-line */
+                        // @phpstan-ignore-next-line
                         $item->title . ' <img src="?df=images/outgoing-link.svg" alt="" /></a>' : $item->title;
                         $ret .= '<dt>' . $dt . '</dt>' .
                         '<dd><p><strong>' . Dt::dt2str(__('%d %B %Y:'), $item->pubdate, 'Europe/Paris') . '</strong> ' .
                         '<em>' . Text::cutString(Html::clean($item->content), 120) . '...</em></p></dd>';
-                        $i++;
+                        ++$i;
                         if (2 < $i) {
                             break;
                         }
@@ -145,15 +143,15 @@ class RestMethods
     }
 
     /**
-     * Check core update
+     * Check core update.
      *
-     * @param   array   $get    Cleaned $_GET
+     * @param array $get Cleaned $_GET
      *
-     * @return  XmlTag          The response
+     * @return XmlTag The response
      */
     public function checkCoreUpdate(array $get): XmlTag
     {
-        # Dotclear updates notifications
+        // Dotclear updates notifications
 
         $rsp = new XmlTag('update');
         $rsp->insertAttr('check', false);
@@ -208,16 +206,16 @@ class RestMethods
     }
 
     /**
-     * Check repository update
+     * Check repository update.
      *
-     * @param   array   $get    Cleaned $_GET
-     * @param   array   $post   Cleaned $_POST
+     * @param array $get  Cleaned $_GET
+     * @param array $post Cleaned $_POST
      *
-     * @return  XmlTag          The response
+     * @return XmlTag The response
      */
     public function checkStoreUpdate(array $get, array $post): XmlTag
     {
-        # Dotclear store updates notifications
+        // Dotclear store updates notifications
 
         $rsp = new XmlTag('update');
         $rsp->insertAttr('check', false);
@@ -237,11 +235,10 @@ class RestMethods
             $mod = dotclear()->plugins();
             $url = dotclear()->blog()->settings()->get('system')->get('store_plugin_url');
         } else {
-
-            # --BEHAVIOR-- restCheckStoreUpdate
+            // --BEHAVIOR-- restCheckStoreUpdate
             dotclear()->behavior()->call('restCheckStoreUpdate', $post['store'], [&$mod], [&$url]);
 
-            /** @phpstan-ignore-next-line */
+            // @phpstan-ignore-next-line
             if (empty($mod) || empty($url)) {
                 throw new AdminException('Unknown store type');
             }
@@ -261,11 +258,11 @@ class RestMethods
     }
 
     /**
-     * Get a post by its id
+     * Get a post by its id.
      *
-     * @param   array   $get    Cleaned $_GET
+     * @param array $get Cleaned $_GET
      *
-     * @return  XmlTag          The response
+     * @return XmlTag The response
      */
     public function getPostById(array $get): XmlTag
     {
@@ -310,20 +307,20 @@ class RestMethods
             'post_open_tb'       => $rs->f('post_open_tb'),
             'nb_comment'         => $rs->f('nb_comment'),
             'nb_trackback'       => $rs->f('nb_trackback'),
-            'user_name'          =>  $rs->f('user_name'),
+            'user_name'          => $rs->f('user_name'),
             'user_firstname'     => $rs->f('user_firstname'),
             'user_displayname'   => $rs->f('user_displayname'),
-            'user_email'         =>  $rs->f('user_email'),
-            'user_url'           =>  $rs->f('user_url'),
-            'cat_title'          =>  $rs->f('cat_title'),
-            'cat_url'            =>  $rs->f('cat_url'),
+            'user_email'         => $rs->f('user_email'),
+            'user_url'           => $rs->f('user_url'),
+            'cat_title'          => $rs->f('cat_title'),
+            'cat_url'            => $rs->f('cat_url'),
 
             'post_display_content' => $rs->getContent(true),
             'post_display_excerpt' => $rs->getExcerpt(true),
         ]);
 
         $metaTag = new XmlTag('meta');
-        if (($meta = unserialize((string) $rs->f('post_meta'))) !== false) {
+        if (false !== ($meta = unserialize((string) $rs->f('post_meta')))) {
             foreach ($meta as $K => $V) {
                 foreach ($V as $v) {
                     $metaTag->insertNode([$K => $v]);
@@ -336,11 +333,11 @@ class RestMethods
     }
 
     /**
-     * Get a comment by its id
+     * Get a comment by its id.
      *
-     * @param   array   $get    Cleaned $_GET
+     * @param array $get Cleaned $_GET
      *
-     * @return  XmlTag          The response
+     * @return XmlTag The response
      */
     public function getCommentById(array $get): XmlTag
     {
@@ -376,26 +373,26 @@ class RestMethods
 
         if (dotclear()->user()->userID()) {
             $rsp->insertNode([
-                'comment_ip' => $rs->f('comment_ip'),
+                'comment_ip'    => $rs->f('comment_ip'),
                 'comment_email' => $rs->f('comment_email'),
             ]);
-//!            $rsp->insertNode(['comment_spam_disp' => dcAntispam::statusMessage($rs)]);
+            // !            $rsp->insertNode(['comment_spam_disp' => dcAntispam::statusMessage($rs)]);
         }
 
         return $rsp;
     }
 
     /**
-     * Do a post
+     * Do a post.
      *
-     * @param   array   $get    Cleaned $_GET
-     * @param   array   $post   Cleaned $_POST
+     * @param array $get  Cleaned $_GET
+     * @param array $post Cleaned $_POST
      *
-     * @return  XmlTag          The response
+     * @return XmlTag The response
      */
     public function quickPost(array $get, array $post): XmlTag
     {
-        # Create category
+        // Create category
         if (!empty($post['new_cat_title']) && dotclear()->user()->check('categories', dotclear()->blog()->id)) {
             $cur_cat = dotclear()->con()->openCursor(dotclear()->prefix . 'category');
             $cur_cat->setField('cat_title', $post['new_cat_title']);
@@ -403,12 +400,12 @@ class RestMethods
 
             $parent_cat = !empty($post['new_cat_parent']) ? $post['new_cat_parent'] : '';
 
-            # --BEHAVIOR-- adminBeforeCategoryCreate
+            // --BEHAVIOR-- adminBeforeCategoryCreate
             dotclear()->behavior()->call('adminBeforeCategoryCreate', $cur_cat);
 
             $post['cat_id'] = dotclear()->blog()->categories()->addCategory($cur_cat, (int) $parent_cat);
 
-            # --BEHAVIOR-- adminAfterCategoryCreate
+            // --BEHAVIOR-- adminAfterCategoryCreate
             dotclear()->behavior()->call('adminAfterCategoryCreate', $cur_cat, $post['cat_id']);
         }
 
@@ -424,12 +421,12 @@ class RestMethods
         $cur->setField('post_open_comment', (int) dotclear()->blog()->settings()->get('system')->get('allow_comments'));
         $cur->setField('post_open_tb', (int) dotclear()->blog()->settings()->get('system')->get('allow_trackbacks'));
 
-        # --BEHAVIOR-- adminBeforePostCreate
+        // --BEHAVIOR-- adminBeforePostCreate
         dotclear()->behavior()->call('adminBeforePostCreate', $cur);
 
         $return_id = dotclear()->blog()->posts()->addPost($cur);
 
-        # --BEHAVIOR-- adminAfterPostCreate
+        // --BEHAVIOR-- adminAfterPostCreate
         dotclear()->behavior()->call('adminAfterPostCreate', $cur, $return_id);
 
         $rsp = new XmlTag('post');
@@ -444,12 +441,12 @@ class RestMethods
     }
 
     /**
-     * Check a post markup
+     * Check a post markup.
      *
-     * @param   array   $get    Cleaned $_GET
-     * @param   array   $post   Cleaned $_POST
+     * @param array $get  Cleaned $_GET
+     * @param array $post Cleaned $_POST
      *
-     * @return  XmlTag          The response
+     * @return XmlTag The response
      */
     public function validatePostMarkup(array $get, array $post): XmlTag
     {
@@ -491,12 +488,12 @@ class RestMethods
     }
 
     /**
-     * Get zipped media
+     * Get zipped media.
      *
-     * @param   array   $get    Cleaned $_GET
-     * @param   array   $post   Cleaned $_POST
+     * @param array $get  Cleaned $_GET
+     * @param array $post Cleaned $_POST
      *
-     * @return  XmlTag          The response
+     * @return XmlTag The response
      */
     public function getZipMediaContent(array $get, array $post): XmlTag
     {
@@ -536,11 +533,11 @@ class RestMethods
     }
 
     /**
-     * Get meta
+     * Get meta.
      *
-     * @param   array   $get    Cleaned $_GET
+     * @param array $get Cleaned $_GET
      *
-     * @return  XmlTag          The response
+     * @return XmlTag The response
      */
     public function getMeta(array $get): XmlTag
     {
@@ -567,14 +564,17 @@ class RestMethods
                 $sort = 'meta_id_lower';
 
                 break;
+
             case 'count':
                 $sort = 'count';
 
                 break;
+
             case 'metaType':
                 $sort = 'meta_type';
 
                 break;
+
             default:
                 $sort = 'meta_type';
         }
@@ -599,12 +599,12 @@ class RestMethods
     }
 
     /**
-     * Set a post meta
+     * Set a post meta.
      *
-     * @param   array   $get    Cleaned $_GET
-     * @param   array   $post   Cleaned $_POST
+     * @param array $get  Cleaned $_GET
+     * @param array $post Cleaned $_POST
      *
-     * @return  bool            The success
+     * @return bool The success
      */
     public function setPostMeta(array $get, array $post): bool
     {
@@ -620,7 +620,7 @@ class RestMethods
             throw new AdminException('No meta type');
         }
 
-        # Get previous meta for post
+        // Get previous meta for post
         $post_meta = dotclear()->meta()->getMetadata([
             'meta_type' => $post['metaType'],
             'post_id'   => (int) $post['postId'], ]);
@@ -639,12 +639,12 @@ class RestMethods
     }
 
     /**
-     * Delete meta
+     * Delete meta.
      *
-     * @param   array   $get    Cleaned $_GET
-     * @param   array   $post   Cleaned $_POST
+     * @param array $get  Cleaned $_GET
+     * @param array $post Cleaned $_POST
      *
-     * @return  bool            The success
+     * @return bool The success
      */
     public function delMeta(array $get, array $post): bool
     {
@@ -666,11 +666,11 @@ class RestMethods
     }
 
     /**
-     * Search meta
+     * Search meta.
      *
-     * @param   array   $get    Cleaned $_GET
+     * @param array $get Cleaned $_GET
      *
-     * @return  XmlTag          The response
+     * @return XmlTag The response
      */
     public function searchMeta(array $get): XmlTag
     {
@@ -691,14 +691,17 @@ class RestMethods
                 $sort = 'meta_id_lower';
 
                 break;
+
             case 'count':
                 $sort = 'count';
 
                 break;
+
             case 'metaType':
                 $sort = 'meta_type';
 
                 break;
+
             default:
                 $sort = 'meta_type';
         }
@@ -725,12 +728,12 @@ class RestMethods
     }
 
     /**
-     * Set preference on foldable section
+     * Set preference on foldable section.
      *
-     * @param   array   $get    Cleaned $_GET
-     * @param   array   $post   Cleaned $_POST
+     * @param array $get  Cleaned $_GET
+     * @param array $post Cleaned $_POST
      *
-     * @return  bool            The success
+     * @return bool The success
      */
     public function setSectionFold(array $get, array $post): bool
     {
@@ -755,7 +758,7 @@ class RestMethods
             // false == unfold section ==> add it to unfolded list
             if (false !== $k) {
                 $toggles[] = $section;
-            };
+            }
         }
         dotclear()->user()->preference()->get('toggles')->put('unfolded_sections', join(',', $toggles));
 
@@ -763,12 +766,12 @@ class RestMethods
     }
 
     /**
-     * Set dashboard elements position
+     * Set dashboard elements position.
      *
-     * @param   array   $get    Cleaned $_GET
-     * @param   array   $post   Cleaned $_POST
+     * @param array $get  Cleaned $_GET
+     * @param array $post Cleaned $_POST
      *
-     * @return  bool            The success
+     * @return bool The success
      */
     public function setDashboardPositions(array $get, array $post): bool
     {
@@ -788,12 +791,12 @@ class RestMethods
     }
 
     /**
-     * Set list option preference
+     * Set list option preference.
      *
-     * @param   array   $get    Cleaned $_GET
-     * @param   array   $post   Cleaned $_POST
+     * @param array $get  Cleaned $_GET
+     * @param array $post Cleaned $_POST
      *
-     * @return  XmlTag          The response
+     * @return XmlTag The response
      */
     public function setListsOptions(array $get, array $post): XmlTag
     {
@@ -833,12 +836,12 @@ class RestMethods
     }
 
     /**
-     * Get a module (define) by its id
+     * Get a module (define) by its id.
      *
-     * @param   array   $get    Cleaned $_GET
-     * @param   array   $post   Cleaned $_POST
+     * @param array $get  Cleaned $_GET
+     * @param array $post Cleaned $_POST
      *
-     * @return  XmlTag          The response
+     * @return XmlTag The response
      */
     public function getModuleById(array $get, array $post): XmlTag
     {

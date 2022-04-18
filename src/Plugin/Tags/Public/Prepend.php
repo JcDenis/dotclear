@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Tags\Public\Prepend
+ * @note Dotclear\Plugin\Tags\Public\Prepend
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginTags
+ * @ingroup  PluginTags
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,8 +17,6 @@ use Dotclear\Module\TraitPrependPublic;
 use Dotclear\Plugin\Tags\Common\TagsUrl;
 use Dotclear\Plugin\Tags\Common\TagsXmlrpc;
 use Dotclear\Plugin\Tags\Common\TagsWidgets;
-use Dotclear\Plugin\Tags\Public\TagsBehavior;
-use Dotclear\Plugin\Tags\Public\TagsTemplate;
 
 class Prepend extends AbstractPrepend
 {
@@ -27,7 +24,7 @@ class Prepend extends AbstractPrepend
 
     public function loadModule(): void
     {
-        # Localized string we find in template
+        // Localized string we find in template
         __("This tag's comments Atom feed");
         __("This tag's entries Atom feed");
 

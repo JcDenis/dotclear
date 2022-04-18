@@ -1,12 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\File\Zip\Zip
- * @brief Zip tool
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
  * @package Dotclear
- * @subpackage File
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,17 +12,26 @@ namespace Dotclear\Helper\File\Zip;
 use Dotclear\Exception\FileException;
 use Dotclear\Helper\File\Files;
 
+/**
+ * Zip tool.
+ *
+ * \Dotclear\Helper\File\Zip\Zip
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Helper File Zip
+ */
 class Zip
 {
-    protected $entries  = [];
-    protected $root_dir = null;
+    protected $entries = [];
+    protected $root_dir;
 
     protected $ctrl_dir     = [];
     protected $eof_ctrl_dir = "\x50\x4b\x05\x06\x00\x00\x00\x00";
     protected $old_offset   = 0;
 
     protected $fp;
-    protected $memory_limit = null;
+    protected $memory_limit;
 
     protected $exclusions = [];
 
@@ -99,7 +102,7 @@ class Zip
             $dir .= '/';
         }
 
-        if (!$name && $name !== '') {
+        if (!$name && '' !== $name) {
             $name = $dir;
         }
 
@@ -107,14 +110,14 @@ class Zip
             return;
         }
 
-        if ($name !== '') {
+        if ('' !== $name) {
             if (substr($name, -1, 1) != '/') {
                 $name .= '/';
             }
 
             $name = $this->formatName($name);
 
-            if ($name !== '') {
+            if ('' !== $name) {
                 $this->entries[$name] = [
                     'file'   => null,
                     'is_dir' => true,
@@ -133,8 +136,8 @@ class Zip
             }
 
             $D = dir($dir);
-            while (($e = $D->read()) !== false) {
-                if ($e == '.' || $e == '..') {
+            while (false !== ($e = $D->read())) {
+                if ('.' == $e || '..' == $e) {
                     continue;
                 }
 
@@ -163,11 +166,11 @@ class Zip
             $this->fp,
             $ctrldir .
             $this->eof_ctrl_dir .
-            pack('v', sizeof($this->ctrl_dir)) . # total # of entries "on this disk"
-            pack('v', sizeof($this->ctrl_dir)) . # total # of entries overall
-            pack('V', strlen($ctrldir)) . # size of central dir
-            pack('V', $this->old_offset) . # offset to start of central dir
-            "\x00\x00" # .zip file comment length
+            pack('v', sizeof($this->ctrl_dir)) . // total # of entries "on this disk"
+            pack('v', sizeof($this->ctrl_dir)) . // total # of entries overall
+            pack('V', strlen($ctrldir)) . // size of central dir
+            pack('V', $this->old_offset) . // offset to start of central dir
+            "\x00\x00" // .zip file comment length
         );
     }
 
@@ -180,44 +183,44 @@ class Zip
         $mdate = $this->makeDate(time());
         $mtime = $this->makeTime(time());
 
-        # Data descriptor
+        // Data descriptor
         $data_desc = "\x50\x4b\x03\x04" .
-        "\x0a\x00" . # ver needed to extract
-        "\x00\x00" . # gen purpose bit flag
-        "\x00\x00" . # compression method
-        pack('v', $mtime) . # last mod time
-        pack('v', $mdate) . # last mod date
-        pack('V', 0) . # crc32
-        pack('V', 0) . # compressed filesize
-        pack('V', 0) . # uncompressed filesize
-        pack('v', strlen($name)) . # length of pathname
-        pack('v', 0) . # extra field length
-        $name . # end of "local file header" segment
-        pack('V', 0) . # crc32
-        pack('V', 0) . # compressed filesize
-        pack('V', 0); # uncompressed filesize
+        "\x0a\x00" . // ver needed to extract
+        "\x00\x00" . // gen purpose bit flag
+        "\x00\x00" . // compression method
+        pack('v', $mtime) . // last mod time
+        pack('v', $mdate) . // last mod date
+        pack('V', 0) . // crc32
+        pack('V', 0) . // compressed filesize
+        pack('V', 0) . // uncompressed filesize
+        pack('v', strlen($name)) . // length of pathname
+        pack('v', 0) . // extra field length
+        $name . // end of "local file header" segment
+        pack('V', 0) . // crc32
+        pack('V', 0) . // compressed filesize
+        pack('V', 0); // uncompressed filesize
 
         $new_offset = $this->old_offset + strlen($data_desc);
         fwrite($this->fp, $data_desc);
 
-        # Add to central record
+        // Add to central record
         $cdrec = "\x50\x4b\x01\x02" .
-        "\x00\x00" . # version made by
-        "\x0a\x00" . # version needed to extract
-        "\x00\x00" . # gen purpose bit flag
-        "\x00\x00" . # compression method
-        pack('v', $mtime) . # last mod time
-        pack('v', $mdate) . # last mod date
-        pack('V', 0) . # crc32
-        pack('V', 0) . # compressed filesize
-        pack('V', 0) . # uncompressed filesize
-        pack('v', strlen($name)) . # length of filename
-        pack('v', 0) . # extra field length
-        pack('v', 0) . # file comment length
-        pack('v', 0) . # disk number start
-        pack('v', 0) . # internal file attributes
-        pack('V', 16) . # external file attributes  - 'directory' bit set
-        pack('V', $this->old_offset) . # relative offset of local header
+        "\x00\x00" . // version made by
+        "\x0a\x00" . // version needed to extract
+        "\x00\x00" . // gen purpose bit flag
+        "\x00\x00" . // compression method
+        pack('v', $mtime) . // last mod time
+        pack('v', $mdate) . // last mod date
+        pack('V', 0) . // crc32
+        pack('V', 0) . // compressed filesize
+        pack('V', 0) . // uncompressed filesize
+        pack('v', strlen($name)) . // length of filename
+        pack('v', 0) . // extra field length
+        pack('v', 0) . // file comment length
+        pack('v', 0) . // disk number start
+        pack('v', 0) . // internal file attributes
+        pack('V', 16) . // external file attributes  - 'directory' bit set
+        pack('V', $this->old_offset) . // relative offset of local header
         $name;
 
         $this->old_offset = $new_offset;
@@ -245,47 +248,47 @@ class Zip
         $mdate = $this->makeDate($mtime);
         $mtime = $this->makeTime($mtime);
 
-        # Data descriptor
+        // Data descriptor
         $data_desc = "\x50\x4b\x03\x04" .
-        "\x14\x00" . # ver needed to extract
-        "\x00\x00" . # gen purpose bit flag
-        "\x08\x00" . # compression method
-        pack('v', $mtime) . # last mod time
-        pack('v', $mdate) . # last mod date
-        pack('V', $crc) . # crc32
-        pack('V', $c_len) . # compressed filesize
-        pack('V', $unc_len) . # uncompressed filesize
-        pack('v', strlen($name)) . # length of filename
-        pack('v', 0) . # extra field length
-        $name . # end of "local file header" segment
-        $zdata . # "file data" segment
-        pack('V', $crc) . # crc32
-        pack('V', $c_len) . # compressed filesize
-        pack('V', $unc_len); # uncompressed filesize
+        "\x14\x00" . // ver needed to extract
+        "\x00\x00" . // gen purpose bit flag
+        "\x08\x00" . // compression method
+        pack('v', $mtime) . // last mod time
+        pack('v', $mdate) . // last mod date
+        pack('V', $crc) . // crc32
+        pack('V', $c_len) . // compressed filesize
+        pack('V', $unc_len) . // uncompressed filesize
+        pack('v', strlen($name)) . // length of filename
+        pack('v', 0) . // extra field length
+        $name . // end of "local file header" segment
+        $zdata . // "file data" segment
+        pack('V', $crc) . // crc32
+        pack('V', $c_len) . // compressed filesize
+        pack('V', $unc_len); // uncompressed filesize
 
         fwrite($this->fp, $data_desc);
         unset($zdata);
 
         $new_offset = $this->old_offset + strlen($data_desc);
 
-        # Add to central directory record
+        // Add to central directory record
         $cdrec = "\x50\x4b\x01\x02" .
-        "\x00\x00" . # version made by
-        "\x14\x00" . # version needed to extract
-        "\x00\x00" . # gen purpose bit flag
-        "\x08\x00" . # compression method
-        pack('v', $mtime) . # last mod time
-        pack('v', $mdate) . # last mod date
-        pack('V', $crc) . # crc32
-        pack('V', $c_len) . # compressed filesize
-        pack('V', $unc_len) . # uncompressed filesize
-        pack('v', strlen($name)) . # length of filename
-        pack('v', 0) . # extra field length
-        pack('v', 0) . # file comment length
-        pack('v', 0) . # disk number start
-        pack('v', 0) . # internal file attributes
-        pack('V', 32) . # external file attributes - 'archive' bit set
-        pack('V', $this->old_offset) . # relative offset of local header
+        "\x00\x00" . // version made by
+        "\x14\x00" . // version needed to extract
+        "\x00\x00" . // gen purpose bit flag
+        "\x08\x00" . // compression method
+        pack('v', $mtime) . // last mod time
+        pack('v', $mdate) . // last mod date
+        pack('V', $crc) . // crc32
+        pack('V', $c_len) . // compressed filesize
+        pack('V', $unc_len) . // uncompressed filesize
+        pack('v', strlen($name)) . // length of filename
+        pack('v', 0) . // extra field length
+        pack('v', 0) . // file comment length
+        pack('v', 0) . // disk number start
+        pack('v', 0) . // internal file attributes
+        pack('V', 32) . // external file attributes - 'archive' bit set
+        pack('V', $this->old_offset) . // relative offset of local header
         $name;
 
         $this->old_offset = $new_offset;
@@ -315,7 +318,7 @@ class Zip
     protected function makeDate(int $ts): int
     {
         $year = date('Y', $ts) - 1980;
-        if ($year < 0) {
+        if (0 > $year) {
             $year = 0;
         }
 

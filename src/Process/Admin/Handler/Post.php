@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Handler\Post
+ * @note Dotclear\Process\Admin\Handler\Post
  * @brief Dotclear admin post page
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,8 +13,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 use ArrayObject;
-
-use Dotclear\Process\Admin\Page\Page;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Action\Action\CommentAction;
 use Dotclear\Core\Trackback\Trackback;
 use Dotclear\Exception\AdminException;
@@ -24,10 +22,11 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Dt;
 use Dotclear\Helper\Text;
+use Exception;
 
-class Post extends Page
+class Post extends AbstractPage
 {
-    private $post_id            = null;
+    private $post_id;
     private $cat_id             = '';
     private $post_dt            = '';
     private $post_format        = '';
@@ -52,16 +51,16 @@ class Post extends Page
     private $can_publish   = false;
     private $can_delete    = false;
 
-    private $post = null;
-    private $trackback = null;
-    private $tb_urls    ='';
+    private $post;
+    private $trackback;
+    private $tb_urls    = '';
     private $tb_excerpt = '';
-    private $comments_actions = null;
+    private $comments_actions;
 
-    private $next_link     = null;
-    private $prev_link     = null;
+    private $next_link;
+    private $prev_link;
 
-    private $bad_dt = false;
+    private $bad_dt     = false;
     private $img_status = '';
 
     protected function getPermissions(): string|null|false
@@ -69,7 +68,7 @@ class Post extends Page
         return 'usage,contentadmin';
     }
 
-    protected function getPagePrepend(): ? bool
+    protected function getPagePrepend(): ?bool
     {
         Dt::setTZ(dotclear()->user()->getInfo('user_tz'));
 
@@ -77,12 +76,12 @@ class Post extends Page
 
         $this->trackback = new Trackback();
 
-        $this->post_format        = dotclear()->user()->getOption('post_format');
-        $this->post_editor        = dotclear()->user()->getOption('editor');
-        $this->post_lang          = dotclear()->user()->getInfo('user_lang');
-        $this->post_status        = dotclear()->user()->getInfo('user_post_status');
-        $this->post_open_comment  = dotclear()->blog()->settings()->get('system')->get('allow_comments');
-        $this->post_open_tb       = dotclear()->blog()->settings()->get('system')->get('allow_trackbacks');
+        $this->post_format       = dotclear()->user()->getOption('post_format');
+        $this->post_editor       = dotclear()->user()->getOption('editor');
+        $this->post_lang         = dotclear()->user()->getInfo('user_lang');
+        $this->post_status       = dotclear()->user()->getInfo('user_post_status');
+        $this->post_open_comment = dotclear()->blog()->settings()->get('system')->get('allow_comments');
+        $this->post_open_tb      = dotclear()->blog()->settings()->get('system')->get('allow_trackbacks');
 
         $this->can_view_ip   = dotclear()->user()->check('contentadmin', dotclear()->blog()->id);
         $this->can_edit_post = dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id);
@@ -90,15 +89,15 @@ class Post extends Page
 
         $post_headlink      = '<link rel="%s" title="%s" href="' . dotclear()->adminurl()->get('admin.post', ['id' => '%s'], '&amp;', true) . '" />';
         $post_link          = '<a href="' . dotclear()->adminurl()->get('admin.post', ['id' => '%s'], '&amp;', true) . '" title="%s">%s</a>';
-        $next_headlink      = $prev_headlink = null;
+        $next_headlink      = $prev_headlink      = null;
         $img_status_pattern = '<img class="img_select_option" alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
 
-        # If user can't publish
+        // If user can't publish
         if (!$this->can_publish) {
             $this->post_status = -2;
         }
 
-        # Get entry informations
+        // Get entry informations
         if (!empty($_REQUEST['id'])) {
             $page_title = __('Edit post');
 
@@ -170,7 +169,7 @@ class Post extends Page
                 }
                 */
 
-                # Sanitize trackbacks excerpt
+                // Sanitize trackbacks excerpt
                 $this->tb_excerpt = empty($_POST['tb_excerpt']) ?
                     $this->post_excerpt_xhtml . ' ' . $this->post_content_xhtml : $_POST['tb_excerpt'];
                 $this->tb_excerpt = Html::decodeEntities(Html::clean($this->tb_excerpt));
@@ -184,7 +183,7 @@ class Post extends Page
         $this->comments_actions = new CommentAction(dotclear()->adminurl()->get('admin.post'), ['id' => $this->post_id, '_ANCHOR' => $anchor, 'section' => $anchor]);
         $this->comments_actions->pageProcess(); // Redirect on action made
 
-        # Ping blogs
+        // Ping blogs
         if (!empty($_POST['ping'])) {
             if (!empty($_POST['tb_urls']) && $this->post_id && 1 == $this->post_status && $this->can_edit_post) {
                 $this->tb_urls = $_POST['tb_urls'];
@@ -194,11 +193,11 @@ class Post extends Page
 
                 foreach (explode("\n", $this->tb_urls) as $tb_url) {
                     try {
-                        # --BEHAVIOR-- adminBeforePingTrackback
+                        // --BEHAVIOR-- adminBeforePingTrackback
                         dotclear()->behavior()->call('adminBeforePingTrackback', $tb_url, $this->post_id, $tb_post_title, $this->tb_excerpt, $tb_post_url);
 
                         $this->trackback->ping($tb_url, $this->post_id, $tb_post_title, $this->tb_excerpt, $tb_post_url);
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         dotclear()->error()->add($e->getMessage());
                     }
                 }
@@ -213,7 +212,7 @@ class Post extends Page
             }
         }
 
-        # Format excerpt and content
+        // Format excerpt and content
         elseif (!empty($_POST) && $this->can_edit_post) {
             $this->post_format  = $_POST['post_format'];
             $this->post_excerpt = $_POST['post_excerpt'];
@@ -236,7 +235,7 @@ class Post extends Page
                         throw new AdminException(__('Invalid publication date'));
                     }
                     $this->post_dt = date('Y-m-d H:i', $this->post_dt);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     dotclear()->error()->add($e->getMessage());
                 }
             }
@@ -263,21 +262,21 @@ class Post extends Page
             );
         }
 
-        # Delete post
+        // Delete post
         if (!empty($_POST['delete']) && $this->can_delete) {
             try {
-                # --BEHAVIOR-- adminBeforePostDelete
+                // --BEHAVIOR-- adminBeforePostDelete
                 dotclear()->behavior()->call('adminBeforePostDelete', $this->post_id);
                 dotclear()->blog()->posts()->delPost($this->post_id);
                 dotclear()->adminurl()->redirect('admin.posts');
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Create or update post
+        // Create or update post
         if (!empty($_POST) && !empty($_POST['save']) && $this->can_edit_post && !$this->bad_dt) {
-            # Create category
+            // Create category
             if (!empty($_POST['new_cat_title']) && dotclear()->user()->check('categories', dotclear()->blog()->id)) {
                 $cur_cat = dotclear()->con()->openCursor(dotclear()->prefix . 'category');
                 $cur_cat->setField('cat_title', $_POST['new_cat_title']);
@@ -285,12 +284,12 @@ class Post extends Page
 
                 $parent_cat = !empty($_POST['new_cat_parent']) ? $_POST['new_cat_parent'] : '';
 
-                # --BEHAVIOR-- adminBeforeCategoryCreate
+                // --BEHAVIOR-- adminBeforeCategoryCreate
                 dotclear()->behavior()->call('adminBeforeCategoryCreate', $cur_cat);
 
                 $this->cat_id = dotclear()->blog()->categories()->addCategory($cur_cat, (int) $parent_cat);
 
-                # --BEHAVIOR-- adminAfterCategoryCreate
+                // --BEHAVIOR-- adminAfterCategoryCreate
                 dotclear()->behavior()->call('adminAfterCategoryCreate', $cur_cat, $this->cat_id);
             }
 
@@ -316,40 +315,40 @@ class Post extends Page
                 $cur->setField('post_url', $this->post_url);
             }
 
-            # Back to UTC in order to keep UTC datetime for creadt/upddt
+            // Back to UTC in order to keep UTC datetime for creadt/upddt
             dt::setTZ('UTC');
 
-            # Update post
+            // Update post
             if ($this->post_id) {
                 try {
-                    # --BEHAVIOR-- adminBeforePostUpdate, Cursor, int
+                    // --BEHAVIOR-- adminBeforePostUpdate, Cursor, int
                     dotclear()->behavior()->call('adminBeforePostUpdate', $cur, $this->post_id);
 
                     dotclear()->blog()->posts()->updPost($this->post_id, $cur);
 
-                    # --BEHAVIOR-- adminAfterPostUpdate, Cursor, int
+                    // --BEHAVIOR-- adminAfterPostUpdate, Cursor, int
                     dotclear()->behavior()->call('adminAfterPostUpdate', $cur, $this->post_id);
                     dotclear()->notice()->addSuccessNotice(sprintf(
-                        __('The post "%s" has been successfully updated'), 
+                        __('The post "%s" has been successfully updated'),
                         Html::escapeHTML(trim(Html::clean($cur->getField('post_title'))))
                     ));
                     dotclear()->adminurl()->redirect(
                         'admin.post',
                         ['id' => $this->post_id]
                     );
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     dotclear()->error()->add($e->getMessage());
                 }
             } else {
                 $cur->setField('user_id', dotclear()->user()->userID());
 
                 try {
-                    # --BEHAVIOR-- adminBeforePostCreate, Cursor
+                    // --BEHAVIOR-- adminBeforePostCreate, Cursor
                     dotclear()->behavior()->call('adminBeforePostCreate', $cur);
 
                     $return_id = dotclear()->blog()->posts()->addPost($cur);
 
-                    # --BEHAVIOR-- adminAfterPostCreate, Cursor, int
+                    // --BEHAVIOR-- adminAfterPostCreate, Cursor, int
                     dotclear()->behavior()->call('adminAfterPostCreate', $cur, $return_id);
 
                     dotclear()->notice()->addSuccessNotice(__('Entry has been successfully created.'));
@@ -357,13 +356,13 @@ class Post extends Page
                         'admin.post',
                         ['id' => $return_id]
                     );
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     dotclear()->error()->add($e->getMessage());
                 }
             }
         }
 
-        # Page setup
+        // Page setup
         $default_tab = 'edit-entry';
         if (!$this->can_edit_post) {
             $default_tab = '';
@@ -376,10 +375,10 @@ class Post extends Page
 
         if ($this->post_id) {
             $this->img_status = match ($this->post_status) {
-                1  => sprintf($img_status_pattern, __('Published'), 'check-on.png'),
-                0  => sprintf($img_status_pattern, __('Unpublished'), 'check-off.png'),
-                -1 => sprintf($img_status_pattern, __('Scheduled'), 'scheduled.png'),
-                -2 => sprintf($img_status_pattern, __('Pending'), 'check-wrn.png'),
+                1       => sprintf($img_status_pattern, __('Published'), 'check-on.png'),
+                0       => sprintf($img_status_pattern, __('Unpublished'), 'check-off.png'),
+                -1      => sprintf($img_status_pattern, __('Scheduled'), 'scheduled.png'),
+                -2      => sprintf($img_status_pattern, __('Pending'), 'check-wrn.png'),
                 default => '',
             };
             $edit_entry_str  = __('&ldquo;%s&rdquo;');
@@ -437,7 +436,7 @@ class Post extends Page
             ->setPageHead(
                 dotclear()->resource()->load('_post.js') .
                 dotclear()->resource()->confirmClose('entry-form', 'comment-form') .
-                # --BEHAVIOR-- adminPostHeaders
+                // --BEHAVIOR-- adminPostHeaders
                 dotclear()->behavior()->call('adminPostHeaders') .
                 dotclear()->resource()->pageTabs($default_tab) .
                 $next_headlink . "\n" . $prev_headlink
@@ -463,7 +462,8 @@ class Post extends Page
         $status_combo = dotclear()->combo()->getPostStatusesCombo();
 
         $lang_combo = dotclear()->combo()->getLangsCombo(
-            dotclear()->blog()->posts()->getLangs(['order' => 'asc']), true
+            dotclear()->blog()->posts()->getLangs(['order' => 'asc']),
+            true
         );
 
         $core_formaters    = dotclear()->formater()->getFormaters();
@@ -491,7 +491,7 @@ class Post extends Page
             dotclear()->notice()->success(__('All pings sent.'));
         }
 
-        # XHTML conversion
+        // XHTML conversion
         if (!empty($_GET['xconv'])) {
             $this->post_excerpt = $this->post_excerpt_xhtml;
             $this->post_content = $this->post_content_xhtml;
@@ -515,13 +515,13 @@ class Post extends Page
                 echo $this->next_link;
             }
 
-            # --BEHAVIOR-- adminPostNavLinks
+            // --BEHAVIOR-- adminPostNavLinks
             dotclear()->behavior()->call('adminPostNavLinks', $this->post ?? null, 'post');
 
             echo '</p>';
         }
 
-        # Exit if we cannot view page
+        // Exit if we cannot view page
         if (!$this->can_view_page) {
             return;
         }
@@ -553,7 +553,7 @@ class Post extends Page
                         '<h5 id="label_format"><label for="post_format" class="classic">' . __('Text formatting') . '</label></h5>' .
                         '<p>' . Form::combo('post_format', $available_formats, $this->post_format, 'maximal') . '</p>' .
                         '<p class="format_control control_no_xhtml">' .
-                        '<a id="convert-xhtml" class="button' . ($this->post_id && $this->post_format != 'wiki' ? ' hide' : '') . '" href="' .
+                        '<a id="convert-xhtml" class="button' . ($this->post_id && 'wiki' != $this->post_format ? ' hide' : '') . '" href="' .
                         dotclear()->adminurl()->get('admin.post', ['id' => $this->post_id, 'xconv' => '1']) .
                         '">' .
                         __('Convert to XHTML') . '</a></p></div>', ], ],
@@ -668,7 +668,7 @@ class Post extends Page
                 ]
             );
 
-            # --BEHAVIOR-- adminPostFormItems, ArrayObject, ArrayObject, Record|null, string
+            // --BEHAVIOR-- adminPostFormItems, ArrayObject, ArrayObject, Record|null, string
             dotclear()->behavior()->call('adminPostFormItems', $main_items, $sidebar_items, $this->post ?? null, 'post');
 
             echo '<div class="multi-part" title="' . ($this->post_id ? __('Edit post') : __('New post')) .
@@ -683,11 +683,10 @@ class Post extends Page
                 echo $item;
             }
 
-            # --BEHAVIOR-- adminPostForm (may be deprecated)
+            // --BEHAVIOR-- adminPostForm (may be deprecated)
             dotclear()->behavior()->call('adminPostForm', $this->post ?? null, 'post');
 
-            echo
-            '<p class="border-top">' .
+            echo '<p class="border-top">' .
             ($this->post_id ? Form::hidden('id', $this->post_id) : '') .
             '<input type="submit" value="' . __('Save') . ' (s)" ' .
                 'accesskey="s" name="save" /> ';
@@ -705,8 +704,7 @@ class Post extends Page
                 echo '<a id="post-preview" href="' . $preview_url . '" class="button' . $preview_class . '" accesskey="p"' . $preview_target . '>' . __('Preview') . ' (p)' . '</a>';
                 echo ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />';
             } else {
-                echo
-                '<a id="post-cancel" href="' . dotclear()->adminurl()->get('admin.home') . '" class="button" accesskey="c">' . __('Cancel') . ' (c)</a>';
+                echo '<a id="post-cancel" href="' . dotclear()->adminurl()->get('admin.home') . '" class="button" accesskey="c">' . __('Cancel') . ' (c)</a>';
             }
 
             echo($this->can_delete ? ' <input type="submit" class="delete" value="' . __('Delete') . '" name="delete" />' : '') .
@@ -727,13 +725,13 @@ class Post extends Page
                 echo '</div>';
             }
 
-            # --BEHAVIOR-- adminPostFormSidebar (may be deprecated)
+            // --BEHAVIOR-- adminPostFormSidebar (may be deprecated)
             dotclear()->behavior()->call('adminPostFormSidebar', $this->post ?? null, 'post');
             echo '</div>'; // End #entry-sidebar
 
             echo '</form>';
 
-            # --BEHAVIOR-- adminPostForm
+            // --BEHAVIOR-- adminPostForm
             dotclear()->behavior()->call('adminPostAfterForm', $this->post ?? null, 'post');
 
             echo '</div>';
@@ -747,12 +745,10 @@ class Post extends Page
 
             $comments = dotclear()->blog()->comments()->getComments(array_merge($params, ['comment_trackback' => 0]));
 
-            echo
-            '<div id="comments" class="clear multi-part" title="' . __('Comments') . '">';
+            echo '<div id="comments" class="clear multi-part" title="' . __('Comments') . '">';
             $combo_action = $this->comments_actions->getCombo();
             $has_action   = !empty($combo_action) && !$comments->isEmpty();
-            echo
-            '<p class="top-add"><a class="button add" href="#comment-form">' . __('Add a comment') . '</a></p>';
+            echo '<p class="top-add"><a class="button add" href="#comment-form">' . __('Add a comment') . '</a></p>';
 
             if ($has_action) {
                 echo '<form action="' . dotclear()->adminurl()->root() . '" id="form-comments" method="post">';
@@ -766,8 +762,7 @@ class Post extends Page
             }
 
             if ($has_action) {
-                echo
-                '<div class="two-cols">' .
+                echo '<div class="two-cols">' .
                 '<p class="col checkboxes-helpers"></p>' .
 
                 '<p class="col right"><label for="action" class="classic">' . __('Selected comments action:') . '</label> ' .
@@ -783,8 +778,7 @@ class Post extends Page
             /* Add a comment
             -------------------------------------------------------- */
 
-            echo
-            '<div class="fieldset clear">' .
+            echo '<div class="fieldset clear">' .
             '<h3>' . __('Add a comment') . '</h3>' .
 
             '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="comment-form">' .
@@ -821,11 +815,11 @@ class Post extends Page
             Form::hidden('post_id', $this->post_id) .
             dotclear()->adminurl()->getHiddenFormFields('admin.comment', [], true) .
             '<input type="submit" name="add" value="' . __('Save') . '" /></p>' .
-            '</div>' . #constrained
+            '</div>' . // constrained
 
             '</form>' .
-            '</div>' . #add comment
-            '</div>'; #comments
+            '</div>' . // add comment
+            '</div>'; // comments
         }
 
         if ($this->post_id && 1 == $this->post_status) {
@@ -835,7 +829,7 @@ class Post extends Page
             $params     = ['post_id' => $this->post_id, 'order' => 'comment_dt ASC'];
             $trackbacks = dotclear()->blog()->comments()->getComments(array_merge($params, ['comment_trackback' => 1]));
 
-            # Actions combo box
+            // Actions combo box
             $combo_action = $this->comments_actions->getCombo();
             $has_action   = !empty($combo_action) && !$trackbacks->isEmpty();
 
@@ -843,11 +837,10 @@ class Post extends Page
                 $this->tb_urls = implode("\n", $this->trackback->discover($this->post_excerpt_xhtml . ' ' . $this->post_content_xhtml));
             }
 
-            # Display tab
-            echo
-            '<div id="trackbacks" class="clear multi-part" title="' . __('Trackbacks') . '">';
+            // Display tab
+            echo '<div id="trackbacks" class="clear multi-part" title="' . __('Trackbacks') . '">';
 
-            # tracbacks actions
+            // tracbacks actions
             if ($has_action) {
                 echo '<form action="' . dotclear()->adminurl()->root() . '" id="form-trackbacks" method="post">';
             }
@@ -861,8 +854,7 @@ class Post extends Page
             }
 
             if ($has_action) {
-                echo
-                '<div class="two-cols">' .
+                echo '<div class="two-cols">' .
                 '<p class="col checkboxes-helpers"></p>' .
 
                 '<p class="col right"><label for="action" class="classic">' . __('Selected trackbacks action:') . '</label> ' .
@@ -877,11 +869,9 @@ class Post extends Page
             /* Add trackbacks
             -------------------------------------------------------- */
             if ($this->can_edit_post && $this->post->f('post_status')) {
-                echo
-                    '<div class="fieldset clear">';
+                echo '<div class="fieldset clear">';
 
-                echo
-                '<h3>' . __('Ping blogs') . '</h3>' .
+                echo '<h3>' . __('Ping blogs') . '</h3>' .
                 '<form action="' . dotclear()->adminurl()->root() . '" id="trackback-form" method="post">' .
                 '<p><label for="tb_urls" class="area">' . __('URLs to ping:') . '</label>' .
                 Form::textarea('tb_urls', 60, 5, $this->tb_urls) .
@@ -908,8 +898,7 @@ class Post extends Page
 
                     echo '<ul class="nice">';
                     while ($pings->fetch()) {
-                        echo
-                        '<li>' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $pings->ping_dt) . ' - ' .
+                        echo '<li>' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $pings->ping_dt) . ' - ' .
                         $pings->ping_url . '</li>';
                     }
                     echo '</ul>';
@@ -918,18 +907,18 @@ class Post extends Page
                 echo '</div>';
             }
 
-            echo '</div>'; #trackbacks
+            echo '</div>'; // trackbacks
         }
     }
 
-    # Controls comments or trakbacks capabilities
-     protected function isContributionAllowed($id, $dt, $com = true)
-     {
+    // Controls comments or trakbacks capabilities
+    protected function isContributionAllowed($id, $dt, $com = true)
+    {
         if (!$id) {
             return true;
         }
         if ($com) {
-            if (0 == dotclear()->blog()->settings()->get('system')->get('comments_ttl') || $dt > (time() - dotclear()->blog()->settings()->get('system')->get('comments_ttl') * 86400 )) {
+            if (0 == dotclear()->blog()->settings()->get('system')->get('comments_ttl') || $dt > (time() - dotclear()->blog()->settings()->get('system')->get('comments_ttl') * 86400)) {
                 return true;
             }
         } else {
@@ -941,11 +930,10 @@ class Post extends Page
         return false;
     }
 
-    # Show comments or trackbacks
+    // Show comments or trackbacks
     protected function showComments($rs, $has_action, $tb = false)
     {
-        echo
-        '<div class="table-outer">' .
+        echo '<div class="table-outer">' .
         '<table class="comments-list"><tr>' .
         '<th colspan="2" class="first">' . __('Author') . '</th>' .
         '<th>' . __('Date') . '</th>' .
@@ -963,34 +951,37 @@ class Post extends Page
         while ($rs->fetch()) {
             $comment_url = dotclear()->adminurl()->get('admin.comment', ['id' => $rs->f('comment_id')]);
 
-            $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
+            $img              = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
             $this->img_status = '';
-            $sts_class  = '';
+            $sts_class        = '';
+
             switch ($rs->fInt('comment_status')) {
                 case 1:
                     $this->img_status = sprintf($img, __('Published'), 'check-on.png');
-                    $sts_class  = 'sts-online';
+                    $sts_class        = 'sts-online';
 
                     break;
+
                 case 0:
                     $this->img_status = sprintf($img, __('Unpublished'), 'check-off.png');
-                    $sts_class  = 'sts-offline';
+                    $sts_class        = 'sts-offline';
 
                     break;
+
                 case -1:
                     $this->img_status = sprintf($img, __('Pending'), 'check-wrn.png');
-                    $sts_class  = 'sts-pending';
+                    $sts_class        = 'sts-pending';
 
                     break;
+
                 case -2:
                     $this->img_status = sprintf($img, __('Junk'), 'junk.png');
-                    $sts_class  = 'sts-junk';
+                    $sts_class        = 'sts-junk';
 
                     break;
             }
 
-            echo
-            '<tr class="line ' . (1 != $rs->f('comment_status') ? ' offline ' : '') . $sts_class . '"' .
+            echo '<tr class="line ' . (1 != $rs->f('comment_status') ? ' offline ' : '') . $sts_class . '"' .
             ' id="c' . $rs->f('comment_id') . '">' .
 
             '<td class="nowrap">' .

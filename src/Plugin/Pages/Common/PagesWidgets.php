@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Pages\Common\PagesWidgets
+ * @note Dotclear\Plugin\Pages\Common\PagesWidgets
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginPages
+ * @ingroup  PluginPages
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,7 +12,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Pages\Common;
 
-use ArrayObject;
 use Dotclear\Database\Record;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Plugin\Widgets\Common\Widget;
@@ -57,7 +55,8 @@ class PagesWidgets
             ->addHomeOnly()
             ->addContentOnly()
             ->addClass()
-            ->addOffline();
+            ->addOffline()
+        ;
     }
 
     public function initDefaultWidgets(Widgets $widgets, array $default): void
@@ -81,13 +80,13 @@ class PagesWidgets
         }
 
         $order = $widget->get('orderby');
-        if ($order != 'asc') {
+        if ('asc' != $order) {
             $order = 'desc';
         }
         $params['order'] = $sort . ' ' . $order;
 
         if (abs((int) $widget->get('limit'))) {
-            $params['limit']         = abs((int) $widget->get('limit'));
+            $params['limit'] = abs((int) $widget->get('limit'));
         }
 
         $rs = dotclear()->blog()->posts()->getPosts($params);

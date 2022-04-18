@@ -1,9 +1,8 @@
 <?php
 /**
- * @brief Dotclear install process
- *
- * @package Dotclear
- * @subpackage Process
+ * Run install process.
+ * 
+ * @file \admin\install\index.php
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only

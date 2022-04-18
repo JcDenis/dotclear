@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Core\Blog\Categories\CategoriesTree
+ * @note Dotclear\Core\Blog\Categories\CategoriesTree
  * @brief Dotclear core blog categories tree class
  *
- * @package Dotclear
- * @subpackage Core
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -39,12 +38,12 @@ class CategoriesTree extends NestedTree
     /**
      * Gets the category children.
      *
-     * @param   int         $start      The start
-     * @param   int|null    $id         The identifier
-     * @param   string      $sort       The sort
-     * @param   array       $fields     The fields
+     * @param int      $start  The start
+     * @param null|int $id     The identifier
+     * @param string   $sort   The sort
+     * @param array    $fields The fields
      *
-     * @return  Record                  The children.
+     * @return Record the children
      */
     public function getChildren(int $start = 0, ?int $id = null, string $sort = 'asc', array $fields = []): Record
     {
@@ -56,10 +55,10 @@ class CategoriesTree extends NestedTree
     /**
      * Gets the parents.
      *
-     * @param   int     $id         The identifier
-     * @param   array   $fields     The fields
+     * @param int   $id     The identifier
+     * @param array $fields The fields
      *
-     * @return  Record              The parents.
+     * @return Record the parents
      */
     public function getParents(int $id, array $fields = []): Record
     {
@@ -71,10 +70,10 @@ class CategoriesTree extends NestedTree
     /**
      * Gets the parent.
      *
-     * @param   int     $id         The identifier
-     * @param   array   $fields     The fields
+     * @param int   $id     The identifier
+     * @param array $fields The fields
      *
-     * @return  Record              The parent.
+     * @return Record the parent
      */
     public function getParent(int $id, array $fields = []): Record
     {

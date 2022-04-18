@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\ImportExport\Admin\MaintenanceTask\Exportblog
+ * @note Dotclear\Plugin\ImportExport\Admin\MaintenanceTask\Exportblog
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginImportExport
+ * @ingroup  PluginImportExport
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,7 +13,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\ImportExport\Admin\MaintenanceTask;
 
 use Dotclear\Plugin\ImportExport\Admin\Lib\Module\ExportFlat as BaseExportFlat;
-use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
 class ExportFlat extends BaseExportFlat
 {
@@ -23,7 +21,7 @@ class ExportFlat extends BaseExportFlat
      *
      * Bad hack to change redirection of dcExportFlat::process()
      *
-     * @param      string  $id     Task ID
+     * @param string $id Task ID
      */
     public function setURL($id)
     {

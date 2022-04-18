@@ -1,14 +1,13 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Handler\CspReport
+ * @note Dotclear\Process\Admin\Handler\CspReport
  * @brief Dotclear admin csp report endpoint
  *
  * From: https://github.com/nico3333fr/CSP-useful
  * Note: this script requires PHP ≥ 5.4.
  * Inspired from https://mathiasbynens.be/notes/csp-reports
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,13 +16,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
-use Dotclear\Process\Admin\Page\Page;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Files;
 
-class CspReport extends Page
+class CspReport extends AbstractPage
 {
-    # not used but required
+    // not used but required
     protected function getPermissions(): string|null|false
     {
         return false;
@@ -45,7 +44,6 @@ class CspReport extends Page
         // Only continue if it’s valid JSON that is not just `null`, `0`, `false` or an
         // empty string, i.e. if it could be a CSP violation report.
         if ($data = json_decode($data, true)) {
-
             // get source-file and blocked-URI to perform some tests
             $source_file        = $data['csp-report']['source-file']        ?? '';
             $line_number        = $data['csp-report']['line-number']        ?? '';
@@ -70,7 +68,6 @@ class CspReport extends Page
 
                 // Google Search App see for details https://github.com/nico3333fr/CSP-useful/commit/ecc8f9b0b379ae643bc754d2db33c8b47e185fd1
                  && !str_contains($blocked_uri, 'gsa://onpageload')
-
             ) {
                 // Prepare report data (hash => info)
                 $hash = hash('md5', $blocked_uri . $document_uri . $source_file . $line_number . $violated_directive);
@@ -88,7 +85,7 @@ class CspReport extends Page
                                 // Remove final comma if present
                                 $contents = substr($contents, 0, -1);
                             }
-                            if ($contents != '') {
+                            if ('' != $contents) {
                                 $list = json_decode('[' . $contents . ']', true);
                                 if (is_array($list)) {
                                     foreach ($list as $idx => $value) {
@@ -114,7 +111,7 @@ class CspReport extends Page
 
                     // The file content will have to be enclosed in brackets [] before
                     // beeing decoded with json_decoded(<content>,true);
-                    fprintf($fp, ($contents != '' ? ',' : '') . '%s', $output);
+                    fprintf($fp, ('' != $contents ? ',' : '') . '%s', $output);
                 } catch (\Exception) {
                     return null;
                 }

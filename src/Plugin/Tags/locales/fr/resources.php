@@ -1,7 +1,6 @@
 <?php
 /**
- * @package Dotclear
- * @subpackage Plugins
+ * @ingroup  PluginTags
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only

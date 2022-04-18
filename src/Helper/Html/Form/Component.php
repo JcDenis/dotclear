@@ -1,12 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Html\Form\Component
- * @brief HTML Forms creation helpers
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
  * @package Dotclear
- * @subpackage html.form
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,11 +9,18 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html\Form;
 
-use Dotclear\Helper\Html\Form\Label;
-
+/**
+ * HTML Forms creation helpers.
+ *
+ * \Dotclear\Helper\Html\Form\Component
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Helper Html Form
+ */
 abstract class Component
 {
-    /** @var    array   Custom component properties (see __get() and __set()) */
+    /** @var array Custom component properties (see __get() and __set()) */
     private $_data = [];
 
     public function __construct(private string|null $_type = null, private string|null $_element = null)
@@ -30,7 +31,7 @@ abstract class Component
     }
 
     /**
-     * Call statically new instance
+     * Call statically new instance.
      *
      * @return object New formXxx instance
      */
@@ -42,11 +43,11 @@ abstract class Component
     }
 
     /**
-     * Magic getter method
+     * Magic getter method.
      *
-     * @param      string  $property  The property
+     * @param string $property The property
      *
-     * @return     mixed   property value if property exists or null
+     * @return mixed property value if property exists or null
      */
     public function get(string $property)
     {
@@ -56,19 +57,20 @@ abstract class Component
 
         return null;
     }
-/*
-    public function __get(string $property)
-    {
-        return $this->get($property);
-    }
-*/
+
+    /*
+        public function __get(string $property)
+        {
+            return $this->get($property);
+        }
+    */
     /**
-     * Magic setter method
+     * Magic setter method.
      *
-     * @param      string  $property  The property
-     * @param      mixed   $value     The value
+     * @param string $property The property
+     * @param mixed  $value    The value
      *
-     * @return     self
+     * @return self
      */
     public function set(string $property, $value)
     {
@@ -76,55 +78,56 @@ abstract class Component
 
         return $this;
     }
-/*
-    public function __set(string $property, $value)
-    {
-        return $this->set($property, $value);
-    }
-*/
+
+    /*
+        public function __set(string $property, $value)
+        {
+            return $this->set($property, $value);
+        }
+    */
     /**
-     * Check if a property exists
+     * Check if a property exists.
      *
-     * @param      string  $property  The property
-     *
-     * @return     bool
+     * @param string $property The property
      */
     public function exists(string $property): bool
     {
         return isset($this->_data[$property]);
     }
-/*
-    public function __isset(string $property): bool
-    {
-        return $this->exists($property);
-    }
-*/
+
+    /*
+        public function __isset(string $property): bool
+        {
+            return $this->exists($property);
+        }
+    */
     /**
-     * Remove a property
+     * Remove a property.
      *
-     * @param      string  $property  The property
+     * @param string $property The property
      */
     public function remove(string $property)
     {
         unset($this->_data[$property]);
     }
-/*
-    public function __unset(string $property)
-    {
-        $this->remove($property);
-    }
-*/
+
+    /*
+        public function __unset(string $property)
+        {
+            $this->remove($property);
+        }
+    */
     /**
-     * Call a component method
+     * Call a component method.
      *
      * If the method exists, call it and return it's return value
      * If not, if there is no argument ($argument empty array), assume that it's a get
      * If not, assume that's is a set (value = $argument[0])
      *
-     * @param      string  $method     The property
-     * @param      mixed   ...$arguments  The arguments
+     * @param string $method       The property
+     * @param mixed  ...$arguments The arguments
      *
-     * @return     mixed   method called, property value (or null), self
+     * @return mixed method called, property value (or null), self
      */
     public function call(string $method, mixed ...$arguments)
     {
@@ -147,18 +150,17 @@ abstract class Component
 
         return $this;
     }
-/*
-    public function __call(string $method, $arguments)
-    {
-        return call_user_func_array([$this, 'call'], $arguments);
-    }
-*/
+
+    /*
+        public function __call(string $method, $arguments)
+        {
+            return call_user_func_array([$this, 'call'], $arguments);
+        }
+    */
     /**
-     * Magic invoke method
+     * Magic invoke method.
      *
      * Return rendering of component
-     *
-     * @return     string
      */
     public function __invoke(): string
     {
@@ -166,9 +168,9 @@ abstract class Component
     }
 
     /**
-     * Gets the type of component
+     * Gets the type of component.
      *
-     * @return     string  The type.
+     * @return string the type
      */
     public function getType(): string
     {
@@ -176,11 +178,11 @@ abstract class Component
     }
 
     /**
-     * Sets the type of component
+     * Sets the type of component.
      *
-     * @param      string  $type   The type
+     * @param string $type The type
      *
-     * @return     self
+     * @return self
      */
     public function setType(string $type)
     {
@@ -190,9 +192,9 @@ abstract class Component
     }
 
     /**
-     * Gets the HTML element
+     * Gets the HTML element.
      *
-     * @return     null|string  The element.
+     * @return null|string the element
      */
     public function getElement(): ?string
     {
@@ -200,11 +202,11 @@ abstract class Component
     }
 
     /**
-     * Sets the HTML element
+     * Sets the HTML element.
      *
-     * @param      string  $element  The element
+     * @param string $element The element
      *
-     * @return     self
+     * @return self
      */
     public function setElement(string $element)
     {
@@ -216,17 +218,17 @@ abstract class Component
     /**
      * Attaches the label.
      *
-     * @param      Label|null  $label     The label
-     * @param      int|null        $position  The position
+     * @param null|Label $label    The label
+     * @param null|int   $position The position
      *
-     * @return     self
+     * @return self
      */
     public function attachLabel(?Label $label = null, ?int $position = null)
     {
         if ($label) {
             $this->call('label', $label);
             $label->call('for', $this->get('id'));
-            if ($position !== null) {
+            if (null !== $position) {
                 $label->setPosition($position);
             }
         } elseif ($this->exists('label')) {
@@ -237,9 +239,9 @@ abstract class Component
     }
 
     /**
-     * Detaches the label from this component
+     * Detaches the label from this component.
      *
-     * @return     self
+     * @return self
      */
     public function detachLabel()
     {
@@ -251,9 +253,7 @@ abstract class Component
     }
 
     /**
-     * Check mandatory attributes in properties, at least name or id must be present
-     *
-     * @return     bool
+     * Check mandatory attributes in properties, at least name or id must be present.
      */
     public function checkMandatoryAttributes(): bool
     {
@@ -262,7 +262,7 @@ abstract class Component
     }
 
     /**
-     * Render common attributes
+     * Render common attributes.
      *
      *      $this->
      *
@@ -305,10 +305,8 @@ abstract class Component
      *
      *          extra           => string (or array of string) extra HTML attributes.
      *
-     * @param      bool    $includeValue    Includes $this->value if exist (default = true)
-     *                                      should be set to false to textarea and may be some others
-     *
-     * @return     string
+     * @param bool $includeValue Includes $this->value if exist (default = true)
+     *                           should be set to false to textarea and may be some others
      */
     public function renderCommonAttributes(bool $includeValue = true): string
     {
@@ -410,7 +408,7 @@ abstract class Component
     /**
      * Gets the default element.
      *
-     * @return     string  The default HTML element.
+     * @return string the default HTML element
      */
     abstract protected function getDefaultElement(): string;
 }

@@ -2,8 +2,7 @@
 /**
  * @brief Dotclear install wizard class
  *
- * @package Dotclear
- * @subpackage Install
+ * @ingroup  Install
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -36,9 +35,9 @@ class Wizard
         );
         $install_url = $root_url . '/admin/install/index.php';
 
-        # Loading locales for detected language
+        // Loading locales for detected language
         $dlang = Http::getAcceptLanguage();
-        if ($dlang != 'en') {
+        if ('en' != $dlang) {
             L10n::init($dlang);
             L10n::set(Path::implode(dotclear()->config()->get('l10n_dir'), $dlang, 'main'));
         }
@@ -62,12 +61,12 @@ class Wizard
 
         if (!empty($_POST)) {
             try {
-                if ($DBDRIVER == 'sqlite') {
+                if ('sqlite' == $DBDRIVER) {
                     if (!str_contains($DBNAME, '/')) {
                         $sqlite_db_directory = implode(DIRECTORY_SEPARATOR, [\DOTCLEAR_ROOT_DIR, '..', 'db']);
                         Files::makeDir($sqlite_db_directory, true);
 
-                        # Can we write sqlite_db_directory ?
+                        // Can we write sqlite_db_directory ?
                         if (!is_writable($sqlite_db_directory)) {
                             throw new InstallException(sprintf(__('Cannot write "%s" directory.'), Path::real($sqlite_db_directory, false)));
                         }
@@ -75,14 +74,14 @@ class Wizard
                     }
                 }
 
-                # Tries to connect to database (only using distributed database drivers)
+                // Tries to connect to database (only using distributed database drivers)
                 try {
                     $con = AbstractConnection::init($DBDRIVER, $DBHOST, $DBNAME, $DBUSER, $DBPASSWORD);
                 } catch (DatabaseException $e) {
                     throw new InstallException('<p>' . __($e->getMessage()) . '</p>');
                 }
 
-                # Checks system capabilites
+                // Checks system capabilites
                 $_e = [];
                 if (!Distrib::checkRequirements($con, $_e)) {
                     $can_install = false;
@@ -90,21 +89,21 @@ class Wizard
                     throw new InstallException('<p>' . __('Dotclear cannot be installed.') . '</p><ul><li>' . implode('</li><li>', $_e) . '</li></ul>');
                 }
 
-                # Check if dotclear is already installed
+                // Check if dotclear is already installed
                 $schema = AbstractSchema::init($con);
                 if (in_array($DBPREFIX . 'version', $schema->getTables())) {
                     throw new InstallException(__('Dotclear is already installed.'));
                 }
-                # Check master email
+                // Check master email
                 if (!Text::isEmail($ADMINMAILFROM)) {
                     throw new InstallException(__('Master email is not valid.'));
                 }
-                # Can we write config.php
+                // Can we write config.php
                 if (!is_writable(dirname(\DOTCLEAR_CONFIG_PATH))) {
                     throw new InstallException(sprintf(__('Cannot write %s file.'), \DOTCLEAR_CONFIG_PATH));
                 }
 
-                # Creates config.php file
+                // Creates config.php file
                 $full_conf = Distrib::getConfigFile();
 
                 $this->writeConfigValue('database_driver', $DBDRIVER, $full_conf);
@@ -121,7 +120,7 @@ class Wizard
                 $this->writeConfigValue('master_key', md5(uniqid()), $full_conf);
 
                 $fp = @fopen(\DOTCLEAR_CONFIG_PATH, 'wb');
-                if ($fp === false) {
+                if (false === $fp) {
                     throw new InstallException(sprintf(__('Cannot write %s file.'), \DOTCLEAR_CONFIG_PATH));
                 }
                 fwrite($fp, $full_conf);
@@ -158,8 +157,7 @@ class Wizard
         <body id="dotclear-admin" class="install">
         <div id="content">
         <?php
-        echo
-        '<h1>' . __('Dotclear installation wizard') . '</h1>' .
+        echo '<h1>' . __('Dotclear installation wizard') . '</h1>' .
             '<div id="main">';
 
         if (!empty($err)) {
@@ -176,19 +174,21 @@ class Wizard
                 'file manually.') . '</p>';
         }
 
-        echo
-        '<h2>' . __('System information') . '</h2>' .
+        echo '<h2>' . __('System information') . '</h2>' .
 
         '<p>' . __('Please provide the following information needed to create your configuration file.') . '</p>' .
 
         '<form action="' . $install_url . '" method="post">' .
         '<p><label class="required" for="DBDRIVER"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Database type:') . '</label> ' .
-        Form::combo('DBDRIVER', [
-            __('MySQLi')              => 'mysqli',
-            __('MySQLi (full UTF-8)') => 'mysqlimb4',
-            __('PostgreSQL')          => 'pgsql',
-            __('SQLite')              => 'sqlite'],
-            ['default' => $DBDRIVER, 'extra_html' => 'required placeholder="' . __('Driver') . '"']) . '</p>' .
+        Form::combo(
+            'DBDRIVER',
+            [
+                __('MySQLi')              => 'mysqli',
+                __('MySQLi (full UTF-8)') => 'mysqlimb4',
+                __('PostgreSQL')          => 'pgsql',
+                __('SQLite')              => 'sqlite', ],
+            ['default' => $DBDRIVER, 'extra_html' => 'required placeholder="' . __('Driver') . '"']
+        ) . '</p>' .
         '<p><label for="DBHOST">' . __('Database Host Name:') . '</label> ' .
         Form::field('DBHOST', 30, 255, Html::escapeHTML($DBHOST)) . '</p>' .
         '<p><label for="DBNAME">' . __('Database Name:') . '</label> ' .
@@ -200,20 +200,19 @@ class Wizard
         '<p><label for="DBPREFIX" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Database Tables Prefix:') . '</label> ' .
         Form::field('DBPREFIX', 30, 255, [
             'default'    => Html::escapeHTML($DBPREFIX),
-            'extra_html' => 'required placeholder="' . __('Prefix') . '"'
+            'extra_html' => 'required placeholder="' . __('Prefix') . '"',
         ]) .
         '</p>' .
         '<p><label for="ADMINMAILFROM">' . __('Master Email: (used as sender for password recovery)') . '</label> ' .
         Form::email('ADMINMAILFROM', [
             'size'         => 30,
             'default'      => Html::escapeHTML($ADMINMAILFROM),
-            'autocomplete' => 'email'
+            'autocomplete' => 'email',
         ]) .
         '</p>' .
 
         '<p><input type="submit" value="' . __('Continue') . '" /></p>' .
-            '</form>';
-        ?>
+            '</form>'; ?>
         </div>
         </div>
         </body>
@@ -224,7 +223,7 @@ class Wizard
 
     protected function writeConfigValue(string $name, string $val, string &$str): void
     {
-        $val = str_replace("'", "\'", $val);
+        $val = str_replace("'", "\\'", $val);
         $str = preg_replace('/(\'' . $name . '\')(.*?)$/ms', '$1 => \'' . $val . '\',', $str);
     }
 }

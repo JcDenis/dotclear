@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Core\RsExt\RsExtLog
+ * @note Dotclear\Core\RsExt\RsExtLog
  * @brief Dotclear log record helpers.
  *
- * @package Dotclear
- * @subpackage Core
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,8 +12,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\RsExt;
 
-use Dotclear\Container\UserContainer;
-use Dotclear\Core\RsExt\RsExtend;
+use Dotclear\Core\User\UserContainer;
 
 /**
  * Extent log record class.
@@ -24,7 +22,7 @@ class RsExtLog extends RsExtend
     /**
      * Gets the user cn.
      *
-     * @return     string  The user cn.
+     * @return string the user cn
      */
     public function getUserCN()
     {
@@ -35,7 +33,7 @@ class RsExtLog extends RsExtend
             $this->rs->f('user_displayname')
         );
 
-        if ($user === 'unknown') {
+        if ('unknown' === $user) {
             $user = __('unknown');
         }
 

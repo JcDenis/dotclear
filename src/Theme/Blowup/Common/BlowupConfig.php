@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Theme\Blowup\Common\BlowupConfig
+ * @note Dotclear\Theme\Blowup\Common\BlowupConfig
  * @brief Helper for default theme (Blowup) config.
  *
- * @package Dotclear
- * @subpackage Theme
+ * @ingroup  ThemeBlowup
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -28,19 +27,19 @@ class BlowupConfig
             'ss2' => 'Verdana,Geneva, Arial, Helvetica, sans-serif',
             'ss3' => '"Lucida Grande", "Lucida Sans Unicode", sans-serif',
             'ss4' => '"Trebuchet MS", Helvetica, sans-serif',
-            'ss5' => 'Impact, Charcoal, sans-serif'
+            'ss5' => 'Impact, Charcoal, sans-serif',
         ],
 
         'serif' => [
             's1' => 'Times, "Times New Roman", serif',
             's2' => 'Georgia, serif',
-            's3' => 'Baskerville, "Palatino Linotype", serif'
+            's3' => 'Baskerville, "Palatino Linotype", serif',
         ],
 
         'monospace' => [
             'm1' => '"Andale Mono", "Courier New", monospace',
-            'm2' => '"Courier New", Courier, mono, monospace'
-        ]
+            'm2' => '"Courier New", Courier, mono, monospace',
+        ],
     ];
 
     protected $fonts_combo = [];
@@ -62,7 +61,7 @@ class BlowupConfig
         'rabbit'         => 'Rabbit',
         'roadrunner-1'   => 'Road Runner 1',
         'roadrunner-2'   => 'Road Runner 2',
-        'typo'           => 'Typo'
+        'typo'           => 'Typo',
     ];
 
     public $utils;
@@ -153,7 +152,7 @@ class BlowupConfig
 
     public function createCss($s)
     {
-        if ($s === null) {
+        if (null === $s) {
             return;
         }
 
@@ -161,7 +160,7 @@ class BlowupConfig
 
         /* Sidebar position
         ---------------------------------------------- */
-        if ($s['sidebar_position'] == 'left') {
+        if ('left' == $s['sidebar_position']) {
             $css['#wrapper']['background-position'] = '-300px 0';
             $css['#main']['float']                  = 'right';
             $css['#sidebar']['float']               = 'left';
@@ -183,7 +182,7 @@ class BlowupConfig
             $this->utils->prop($css, '#top h1', 'font-size', $s['blog_title_s']);
             $this->utils->prop($css, '#top h1', 'font-family', $this->fontDef($s['blog_title_f']));
 
-            if ($s['blog_title_a'] == 'right' || $s['blog_title_a'] == 'left') {
+            if ('right' == $s['blog_title_a'] || 'left' == $s['blog_title_a']) {
                 $css['#top h1'][$s['blog_title_a']] = '0px';
                 $css['#top h1']['width']            = 'auto';
             }
@@ -191,8 +190,8 @@ class BlowupConfig
             if ($s['blog_title_p']) {
                 $_p                    = explode(':', $s['blog_title_p']);
                 $css['#top h1']['top'] = $_p[1] . 'px';
-                if ($s['blog_title_a'] != 'center') {
-                    $_a                  = $s['blog_title_a'] == 'right' ? 'right' : 'left';
+                if ('center' != $s['blog_title_a']) {
+                    $_a                  = 'right' == $s['blog_title_a'] ? 'right' : 'left';
                     $css['#top h1'][$_a] = $_p[0] . 'px';
                 }
             }
@@ -202,7 +201,7 @@ class BlowupConfig
             $css['#top h1 a'] = [
                 'display' => 'block',
                 'height'  => $s['top_height'] ? ($s['top_height'] - 10) . 'px' : '120px',
-                'width'   => '800px'
+                'width'   => '800px',
             ];
         }
         $this->utils->prop($css, '#top', 'height', $s['top_height']);
@@ -268,10 +267,10 @@ class BlowupConfig
         /* Images
         ------------------------------------------------------ */
         $this->backgroundImg($css, 'body', $s['body_bg_c'], 'body-bg.png');
-        $this->backgroundImg($css, 'body', $s['body_bg_g'] != 'light', 'body-bg.png');
+        $this->backgroundImg($css, 'body', 'light' != $s['body_bg_g'], 'body-bg.png');
         $this->backgroundImg($css, 'body', $s['prelude_c'], 'body-bg.png');
         $this->backgroundImg($css, '#top', $s['body_bg_c'], 'page-t.png');
-        $this->backgroundImg($css, '#top', $s['body_bg_g'] != 'light', 'page-t.png');
+        $this->backgroundImg($css, '#top', 'light' != $s['body_bg_g'], 'page-t.png');
         $this->backgroundImg($css, '#top', $s['uploaded'] || $s['top_image'], 'page-t.png');
         $this->backgroundImg($css, '#footer', $s['body_bg_c'], 'page-b.png');
         $this->backgroundImg($css, '#comments dt', $s['post_comment_bg_c'], 'comment-t.png');
@@ -296,10 +295,10 @@ class BlowupConfig
             throw new ModuleException(__('Unable to create css file.'));
         }
 
-        # erase old css file
+        // erase old css file
         $this->dropCss(dotclear()->blog()->settings()->get('system')->get('theme'));
 
-        # create new css file into public Blowup-css subdirectory
+        // create new css file into public Blowup-css subdirectory
         $this->writeCss(dotclear()->blog()->settings()->get('system')->get('theme'), $res);
 
         return $res;
@@ -316,7 +315,7 @@ class BlowupConfig
 
         $config['top_height'] = null;
 
-        if ($top_image != 'custom' && !isset($this->top_images[$top_image])) {
+        if ('custom' != $top_image && !isset($this->top_images[$top_image])) {
             $top_image = 'default';
         }
         if ($uploaded && !is_file($uploaded)) {
@@ -330,12 +329,12 @@ class BlowupConfig
         $body_fill = [
             'light'  => __DIR__ . '/resources/alpha-img/gradient-l.png',
             'medium' => __DIR__ . '/resources/alpha-img/gradient-m.png',
-            'dark'   => __DIR__ . '/resources/alpha-img/gradient-d.png'
+            'dark'   => __DIR__ . '/resources/alpha-img/gradient-d.png',
         ];
 
         $body_g = $body_fill[$gradient] ?? false;
 
-        if ($top_image == 'custom' && $uploaded) {
+        if ('custom' == $top_image && $uploaded) {
             $page_t = $uploaded;
         } else {
             $page_t = __DIR__ . '/resources/alpha-img/page-t/' . $top_image . '.png';
@@ -361,18 +360,18 @@ class BlowupConfig
 
         $d_body_bg = false;
 
-        if ($top_image || $body_color || $gradient != 'light' || $prelude_color || $uploaded) {
+        if ($top_image || $body_color || 'light' != $gradient || $prelude_color || $uploaded) {
             if (!$body_color) {
                 $body_color = $default_bg;
             }
             $body_color = sscanf($body_color, '#%2X%2X%2X');
 
-            # Create body gradient with color
+            // Create body gradient with color
             $d_body_bg = imagecreatetruecolor(50, 180);
             $fill      = imagecolorallocate($d_body_bg, $body_color[0], $body_color[1], $body_color[2]);
             imagefill($d_body_bg, 0, 0, $fill);
 
-            # User choosed a gradient
+            // User choosed a gradient
             if ($body_g) {
                 $s_body_bg = imagecreatefrompng($body_g);
                 imagealphablending($s_body_bg, true);
@@ -393,15 +392,15 @@ class BlowupConfig
             imagepng($d_body_bg, $this->imagesPath() . '/' . basename($body_bg));
         }
 
-        if ($top_image || $body_color || $gradient != 'light') {
-            # Create top image from uploaded image
+        if ($top_image || $body_color || 'light' != $gradient) {
+            // Create top image from uploaded image
             $size = getimagesize($page_t);
             $size = $size[1];
             $type = Files::getMimeType($page_t);
 
             $d_page_t = imagecreatetruecolor(800, $size);
 
-            if ($type == 'image/png') {
+            if ('image/png' == $type) {
                 $s_page_t = @imagecreatefrompng($page_t);
             } else {
                 $s_page_t = @imagecreatefromjpeg($page_t);
@@ -414,13 +413,13 @@ class BlowupConfig
             $fill = imagecolorallocate($d_page_t, $body_color[0], $body_color[1], $body_color[2]);
             imagefill($d_page_t, 0, 0, $fill);
 
-            if ($type == 'image/png') {
-                # PNG, we only add body gradient and image
+            if ('image/png' == $type) {
+                // PNG, we only add body gradient and image
                 imagealphablending($s_page_t, true);
                 imagecopyresized($d_page_t, $d_body_bg, 0, 0, 0, 50, 800, 130, 50, 130);
                 imagecopy($d_page_t, $s_page_t, 0, 0, 0, 0, 800, $size);
             } else {
-                # JPEG, we add image and a frame with rounded corners
+                // JPEG, we add image and a frame with rounded corners
                 imagecopy($d_page_t, $s_page_t, 0, 0, 0, 0, 800, $size);
 
                 imagecopy($d_page_t, $d_body_bg, 0, 0, 0, 50, 8, 4);
@@ -434,9 +433,9 @@ class BlowupConfig
                 imagedestroy($mask);
 
                 $fill = imagecolorallocate($d_page_t, 255, 255, 255);
-                imagefilledrectangle($d_page_t, 0, 11, 3, $size - 1, $fill);
+                imagefilledrectangle($d_page_t, 0, 11, 3, $size     - 1, $fill);
                 imagefilledrectangle($d_page_t, 796, 11, 799, $size - 1, $fill);
-                imagefilledrectangle($d_page_t, 0, $size - 9, 799, $size - 1, $fill);
+                imagefilledrectangle($d_page_t, 0, $size            - 9, 799, $size            - 1, $fill);
             }
 
             $config['top_height'] = ($size) . 'px';
@@ -447,7 +446,7 @@ class BlowupConfig
             imagedestroy($d_page_t);
             imagedestroy($s_page_t);
 
-            # Create bottom image with color
+            // Create bottom image with color
             $d_page_b = imagecreatetruecolor(800, 8);
             $fill     = imagecolorallocate($d_page_b, $body_color[0], $body_color[1], $body_color[2]);
             imagefill($d_page_b, 0, 0, $fill);

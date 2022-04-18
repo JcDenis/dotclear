@@ -1,12 +1,11 @@
 <?php
 /**
- * @class Dotclear\Core\Media\Manager\Manager
+ * @note Dotclear\Core\Media\Manager\Manager
  * @brief File manager tool
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
- * @package Dotclear
- * @subpackage File
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,34 +14,33 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Media\Manager;
 
-use Dotclear\Core\Media\Manager\Item;
 use Dotclear\Exception\FileException;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Files;
 
 class Manager
 {
-    /** @var    string  $pwd   Working (current) director */ 
+    /** @var string Working (current) director */
     protected $pwd = '';
 
-    /** @var    array   $exclude_list   Array of regexps defining excluded items */
+    /** @var array Array of regexps defining excluded items */
     protected $exclude_list = [];
 
-    /** @var    string  $exclude_pattern    Files exclusion regexp pattern */
+    /** @var string Files exclusion regexp pattern */
     protected $exclude_pattern = '';
 
-    /** @var    array   $dir    Current directory content array */
+    /** @var array Current directory content array */
     public $dir = ['dirs' => [], 'files' => []];
 
     /**
-     * Constructor
+     * Constructor.
      *
      * New filemanage istance. Note that filemanage is a jail in given root
      * path. You won't be able to access files outside {@link $root} path with
      * the object's methods.
      *
-     * @param   string  $root       Root path
-     * @param   string  $root_url   Root URL
+     * @param string $root     Root path
+     * @param string $root_url Root URL
      */
     public function __construct(public string $root, public string $root_url = '')
     {
@@ -58,12 +56,12 @@ class Manager
     }
 
     /**
-     * Change directory
+     * Change directory.
      *
      * Changes working directory. $dir is relative to instance {@link $root}
      * directory.
      *
-     * @param   string|null     $dir    Directory
+     * @param null|string $dir Directory
      */
     public function chdir(?string $dir): void
     {
@@ -80,9 +78,7 @@ class Manager
     }
 
     /**
-     * Get working directory
-     *
-     * @return  string
+     * Get working directory.
      */
     public function getPwd(): string
     {
@@ -90,9 +86,9 @@ class Manager
     }
 
     /**
-     * Current directory is writable
+     * Current directory is writable.
      *
-     * @return  bool    True if working directory is writable
+     * @return bool True if working directory is writable
      */
     public function writable(): bool
     {
@@ -100,38 +96,36 @@ class Manager
     }
 
     /**
-     * Add exclusion
+     * Add exclusion.
      *
      * Appends an exclusion to exclusions list. $f should be a regexp.
      *
      * @see     $exclude_list
-     * 
-     * @param   array|string    $f  Exclusion regexp
+     *
+     * @param array|string $f Exclusion regexp
      */
     public function addExclusion(array|string $f): void
     {
         if (is_array($f)) {
             foreach ($f as $v) {
-                if (($V = Path::real($v)) !== false) {
+                if (false !== ($V = Path::real($v))) {
                     $this->exclude_list[] = $V;
                 }
             }
-        } elseif (($F = Path::real($f)) !== false) {
+        } elseif (false !== ($F = Path::real($f))) {
             $this->exclude_list[] = $F;
         }
     }
 
     /**
-     * Path is excluded
+     * Path is excluded.
      *
      * Returns true if path (file or directory) $f is excluded. $f path is
      * relative to {@link $root} path.
      *
      * @see $exclude_list
-     * 
-     * @param   string  $f  Path to match
-     * 
-     * @return  bool
+     *
+     * @param string $f Path to match
      */
     protected function isExclude(string $f): bool
     {
@@ -145,16 +139,14 @@ class Manager
     }
 
     /**
-     * File is excluded
+     * File is excluded.
      *
      * Returns true if file $f is excluded. $f path is relative to {@link $root}
      * path.
      *
      * @see $exclude_pattern
-     * 
-     * @param   string  $f  File to match
-     * 
-     * @return  bool
+     *
+     * @param string $f File to match
      */
     protected function isFileExclude(string $f): bool
     {
@@ -162,14 +154,12 @@ class Manager
     }
 
     /**
-     * Item in jail
+     * Item in jail.
      *
      * Returns true if file or directory $f is in jail (ie. not outside the
      * {@link $root} directory).
      *
-     * @param   string  $f  Path to match
-     * 
-     * @return  bool
+     * @param string $f Path to match
      */
     protected function inJail(string $f): bool
     {
@@ -179,13 +169,11 @@ class Manager
     }
 
     /**
-     * File in files
+     * File in files.
      *
      * Returns true if file $f is in files array of {@link $dir}.
      *
-     * @param   string  $f  File to match
-     * 
-     * @return  bool
+     * @param string $f File to match
      */
     public function inFiles(string $f): bool
     {
@@ -199,7 +187,7 @@ class Manager
     }
 
     /**
-     * Directory list
+     * Directory list.
      *
      * Creates list of items in working directory and append it to {@link $dir}
      *
@@ -223,7 +211,7 @@ class Manager
             if ($this->inJail($fname) && !$this->isExclude($fname)) {
                 if (is_dir($fname) && '.' != $file) {
                     $tmp = new Item($fname, $this->root, $this->root_url);
-                    if ($file == '..') {
+                    if ('..' == $file) {
                         $tmp->parent = true;
                     }
                     $d_res[] = $tmp;
@@ -242,13 +230,11 @@ class Manager
     }
 
     /**
-     * Root directories
+     * Root directories.
      *
      * Returns an array of directory under {@link $root} directory.
      *
      * @uses Item
-     * 
-     * @return  array
      */
     public function getRootDirs(): array
     {
@@ -264,7 +250,7 @@ class Manager
     }
 
     /**
-     * Upload file
+     * Upload file.
      *
      * Move <var>$tmp</var> file to its final destination <var>$dest</var> and
      * returns the destination file path.
@@ -275,14 +261,14 @@ class Manager
      * or PHP native functions.
      *
      * @see Files::uploadStatus()
-     * 
-     * @throws  FileException
-     * 
-     * @param   string  $tmp        Temporary uploaded file path
-     * @param   string  $dest       Destination file
-     * @param   bool    $overwrite  Overwrite mode
-     * 
-     * @return  string              Destination real path
+     *
+     * @param string $tmp       Temporary uploaded file path
+     * @param string $dest      Destination file
+     * @param bool   $overwrite Overwrite mode
+     *
+     * @throws FileException
+     *
+     * @return string Destination real path
      */
     public function uploadFile(string $tmp, string $dest, bool $overwrite = false): string
     {
@@ -314,19 +300,19 @@ class Manager
     }
 
     /**
-     * Upload file by bits
+     * Upload file by bits.
      *
      * Creates a new file <var>$name</var> with contents of <var>$bits</var> and
      * return the destination file path.
      * <var>$name</var> should be in jail. This method will throw exception
      * if file cannot be written.
-     * 
-     * @throws  FileException
      *
-     * @param   string  $bits   Destination file content
-     * @param   string  $name   Destination file
-     * 
-     * @return  string          Destination real path
+     * @param string $bits Destination file content
+     * @param string $name Destination file
+     *
+     * @throws FileException
+     *
+     * @return string Destination real path
      */
     public function uploadBits(string $name, string $bits): string
     {
@@ -357,11 +343,11 @@ class Manager
     }
 
     /**
-     * New directory
+     * New directory.
      *
      * Creates a new directory <var>$d</var> relative to working directory.
      *
-     * @param   string  $d  Directory name
+     * @param string $d Directory name
      */
     public function makeDir(string $d): void
     {
@@ -369,15 +355,15 @@ class Manager
     }
 
     /**
-     * Move file
+     * Move file.
      *
      * Moves a file <var>$s</var> to a new destination <var>$d</var>. Both
      * <var>$s</var> and <var>$d</var> are relative to {@link $root}.
      *
-     * @throws  FileException
+     * @param string $s Source file
+     * @param string $d Destination file
      *
-     * @param   string  $s  Source file
-     * @param   string  $d  Destination file
+     * @throws FileException
      */
     public function moveFile(string $s, string $d): void
     {
@@ -407,12 +393,12 @@ class Manager
     }
 
     /**
-     * Remove item
+     * Remove item.
      *
      * Removes a file or directory <var>$f</var> which is relative to working
      * directory.
      *
-     * @param   string  $f  Path to remove
+     * @param string $f Path to remove
      */
     public function removeItem(string $f): void
     {
@@ -420,7 +406,8 @@ class Manager
 
         if (false === $file) {
             return;
-        } elseif (is_file($file)) {
+        }
+        if (is_file($file)) {
             $this->removeFile($f);
         } elseif (is_dir($file)) {
             $this->removeDir($f);
@@ -428,13 +415,13 @@ class Manager
     }
 
     /**
-     * Remove item
+     * Remove item.
      *
      * Removes a file <var>$f</var> which is relative to working directory.
      *
-     * @throws  FileException
+     * @param string $f File to remove
      *
-     * @param   string  $f  File to remove
+     * @throws FileException
      */
     public function removeFile(string $f): void
     {
@@ -458,19 +445,19 @@ class Manager
     }
 
     /**
-     * Remove item
+     * Remove item.
      *
      * Removes a directory <var>$d</var> which is relative to working directory.
      *
-     * @throws  FileException
+     * @param string $d Directory to remove
      *
-     * @param   string  $d  Directory to remove
+     * @throws FileException
      */
     public function removeDir(string $d): void
     {
         $d = Path::real($this->pwd . '/' . Path::clean($d));
 
-        if ($d === false) {
+        if (false === $d) {
             return;
         }
 
@@ -482,21 +469,19 @@ class Manager
             throw new FileException(__('Directory cannot be removed.'));
         }
 
-        if (@rmdir($d) === false) {
+        if (false === @rmdir($d)) {
             throw new FileException(__('Directory cannot be removed.'));
         }
     }
 
     /**
-     * SortHandler
+     * SortHandler.
      *
      * This method is called by {@link getDir()} to sort files. Can be overrided
      * in inherited classes.
      *
-     * @param   Item    $a  Item object
-     * @param   Item    $b  Item object
-     * 
-     * @return  int
+     * @param Item $a Item object
+     * @param Item $b Item object
      */
     protected function sortHandler(Item $a, Item $b): int
     {

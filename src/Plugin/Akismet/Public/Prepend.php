@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Akismet\Public\Prepend
+ * @note Dotclear\Plugin\Akismet\Public\Prepend
  * @brief Dotclear Plugin class
  *
- * @package Dotclear
- * @subpackage PluginAkismet
+ * @ingroup  PluginAkismet
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only

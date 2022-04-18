@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Filter\Filter\CommentFilter
+ * @note Dotclear\Process\Admin\Filter\Filter\CommentFilter
  * @brief class for admin comment list filters form
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @since 2.20
  *
@@ -17,7 +16,6 @@ namespace Dotclear\Process\Admin\Filter\Filter;
 
 use ArrayObject;
 use Dotclear\Process\Admin\Filter\Filter;
-use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 
 class CommentFilter extends Filter
 {
@@ -32,10 +30,10 @@ class CommentFilter extends Filter
             $this->getCommentStatusFilter(),
             $this->getCommentIpFilter(),
             $this->getInputFilter('email', __('Email:'), 'comment_email'),
-            $this->getInputFilter('site', __('Web site:'), 'comment_site')
+            $this->getInputFilter('site', __('Web site:'), 'comment_site'),
         ]);
 
-        # --BEHAVIOR-- adminCommentFilter
+        // --BEHAVIOR-- adminCommentFilter
         dotclear()->behavior()->call('adminCommentFilter', $filters);
 
         $filters = $filters->getArrayCopy();
@@ -44,18 +42,19 @@ class CommentFilter extends Filter
     }
 
     /**
-     * Comment author select
+     * Comment author select.
      */
     public function getCommentAuthorFilter(): DefaultFilter
     {
         return DefaultFilter::init('author')
             ->param('q_author')
             ->form('input')
-            ->title(__('Author:'));
+            ->title(__('Author:'))
+        ;
     }
 
     /**
-     * Comment type select
+     * Comment type select.
      */
     public function getCommentTypeFilter(): DefaultFilter
     {
@@ -65,18 +64,19 @@ class CommentFilter extends Filter
             ->options([
                 '-'             => '',
                 __('Comment')   => 'co',
-                __('Trackback') => 'tb'
+                __('Trackback') => 'tb',
             ])
-            ->prime(true);
+            ->prime(true)
+        ;
     }
 
     public function getCommentTypeParam($f): bool
     {
-        return $f[0] == 'tb';
+        return 'tb' == $f[0];
     }
 
     /**
-     * Comment status select
+     * Comment status select.
      */
     public function getCommentStatusFilter(): DefaultFilter
     {
@@ -87,11 +87,12 @@ class CommentFilter extends Filter
                 ['-' => ''],
                 dotclear()->combo()->getCommentStatusesCombo()
             ))
-            ->prime(true);
+            ->prime(true)
+        ;
     }
 
     /**
-     * Common IP field
+     * Common IP field.
      */
     public function getCommentIpFilter(): ?DefaultFilter
     {
@@ -102,6 +103,7 @@ class CommentFilter extends Filter
         return DefaultFilter::init('ip')
             ->param('comment_ip')
             ->form('input')
-            ->title(__('IP address:'));
+            ->title(__('IP address:'))
+        ;
     }
 }

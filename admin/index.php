@@ -1,15 +1,14 @@
 <?php
 /**
- * @brief Dotclear admin process
+ * Run admin process.
+ * 
+ * @file \admin\index.php
  *
  * This file is the admin (backend) access point
  * of the blogs plateform.
  *
  * If you move admin access point (this file),
- * require path below must match functions.php file.
- *
- * @package Dotclear
- * @subpackage Process
+ * require path below must match functions.php file path.
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only

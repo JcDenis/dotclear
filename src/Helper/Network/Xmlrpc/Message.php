@@ -1,12 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Network\Xmlrpc\Message
- * @brief XML-RPC Message
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
  * @package Dotclear
- * @subpackage Network
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,34 +9,43 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Network\Xmlrpc;
 
-use \XMLParser;
+use XMLParser;
 use Dotclear\Exception\NetworkException;
-use Dotclear\Helper\Network\Xmlrpc\Date;
+use DOMDocument;
 
+/**
+ * XML-RPC Message.
+ *
+ * \Dotclear\Helper\Network\Xmlrpc\Message
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Helper Network Xmlrpc
+ */
 class Message
 {
-    protected $brutxml; ///< string Brut XML message
+    protected $brutxml; // /< string Brut XML message
 
-    public $messageType;      ///< string Type of message - methodCall / methodResponse / fault
-    public $faultCode;        ///< string Fault code
-    public $faultString;      ///< string Fault string
-    public $methodName;       ///< string Method name
-    public $params = []; ///< array Method parameters
+    public $messageType;      // /< string Type of message - methodCall / methodResponse / fault
+    public $faultCode;        // /< string Fault code
+    public $faultString;      // /< string Fault string
+    public $methodName;       // /< string Method name
+    public $params = []; // /< array Method parameters
 
-    # Currentstring variable stacks
-    protected $_arraystructs      = []; ///< The stack used to keep track of the current array/struct
-    protected $_arraystructstypes = []; ///< Stack keeping track of if things are structs or array
-    protected $_currentStructName = []; ///< A stack as well
+    // Currentstring variable stacks
+    protected $_arraystructs      = []; // /< The stack used to keep track of the current array/struct
+    protected $_arraystructstypes = []; // /< Stack keeping track of if things are structs or array
+    protected $_currentStructName = []; // /< A stack as well
     protected $_param;
     protected $_value;
     protected $_currentTag;
     protected $_currentTagContents;
-    protected $_parser; ///< The XML parser
+    protected $_parser; // /< The XML parser
 
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param   string  $message    XML Message
+     * @param string $message XML Message
      */
     public function __construct(protected string $message)
     {
@@ -50,9 +53,7 @@ class Message
     }
 
     /**
-     * Message parser
-     * 
-     * @return  bool
+     * Message parser.
      */
     public function parse(): bool
     {
@@ -65,7 +66,7 @@ class Message
         // Strip DTD.
         $header = preg_replace('/^<!DOCTYPE[^>]*+>/i', '', substr($this->message, 0, 200), 1);
         $xml    = trim(substr_replace($this->message, $header, 0, 200));
-        if ($xml == '') {
+        if ('' == $xml) {
             throw new NetworkException('XML Parser Error.');
         }
         // Confirm the XML now starts with a valid root tag. A root tag can end in [> \t\r\n]
@@ -79,7 +80,7 @@ class Message
         }
 
         try {
-            $dom = new \DOMDocument();
+            $dom = new DOMDocument();
             @$dom->loadXML($xml);
             if ($dom->getElementsByTagName('*')->length > 30000) {
                 throw new NetworkException('XML Parser Error.');
@@ -89,10 +90,10 @@ class Message
         }
         $this->_parser = xml_parser_create();
 
-        # Set XML parser to take the case of tags in to account
+        // Set XML parser to take the case of tags in to account
         xml_parser_set_option($this->_parser, XML_OPTION_CASE_FOLDING, 0);
 
-        # Set XML parser callback functions
+        // Set XML parser callback functions
         xml_set_object($this->_parser, $this);
         xml_set_element_handler($this->_parser, [$this, 'tag_open'], [$this, 'tag_close']);
         xml_set_character_data_handler($this->_parser, [$this, 'cdata']);
@@ -107,8 +108,8 @@ class Message
 
         xml_parser_free($this->_parser);
 
-        # Grab the error messages, if any
-        if ($this->messageType == 'fault') {
+        // Grab the error messages, if any
+        if ('fault' == $this->messageType) {
             $this->faultCode   = $this->params[0]['faultCode'];
             $this->faultString = $this->params[0]['faultString'];
         }
@@ -127,12 +128,13 @@ class Message
                 $this->messageType = $tag;
 
                 break;
-            # Deal with stacks of arrays and structs
-            case 'data': # data is to all intents and puposes more interesting than array
+            // Deal with stacks of arrays and structs
+            case 'data': // data is to all intents and puposes more interesting than array
                 $this->_arraystructstypes[] = 'array';
                 $this->_arraystructs[]      = [];
 
                 break;
+
             case 'struct':
                 $this->_arraystructstypes[] = 'struct';
                 $this->_arraystructs[]      = [];
@@ -159,27 +161,31 @@ class Message
                 $valueFlag                 = true;
 
                 break;
+
             case 'double':
                 $value                     = (float) trim($this->_currentTagContents);
                 $this->_currentTagContents = '';
                 $valueFlag                 = true;
 
                 break;
+
             case 'string':
                 $value                     = (string) trim($this->_currentTagContents);
                 $this->_currentTagContents = '';
                 $valueFlag                 = true;
 
                 break;
+
             case 'dateTime.iso8601':
                 $value = new Date(trim($this->_currentTagContents));
-                # $value = $iso->getTimestamp();
+                // $value = $iso->getTimestamp();
                 $this->_currentTagContents = '';
                 $valueFlag                 = true;
 
                 break;
+
             case 'value':
-                # "If no type is indicated, the type is string."
+                // "If no type is indicated, the type is string."
                 if (trim($this->_currentTagContents) != '') {
                     $value                     = (string) $this->_currentTagContents;
                     $this->_currentTagContents = '';
@@ -187,19 +193,21 @@ class Message
                 }
 
                 break;
+
             case 'boolean':
                 $value                     = (bool) trim($this->_currentTagContents);
                 $this->_currentTagContents = '';
                 $valueFlag                 = true;
 
                 break;
+
             case 'base64':
                 $value                     = base64_decode($this->_currentTagContents);
                 $this->_currentTagContents = '';
                 $valueFlag                 = true;
 
                 break;
-            # Deal with stacks of arrays and structs
+            // Deal with stacks of arrays and structs
             case 'data':
             case 'struct':
                 $value = array_pop($this->_arraystructs);
@@ -207,15 +215,18 @@ class Message
                 $valueFlag = true;
 
                 break;
+
             case 'member':
                 array_pop($this->_currentStructName);
 
                 break;
+
             case 'name':
                 $this->_currentStructName[] = trim($this->_currentTagContents);
                 $this->_currentTagContents  = '';
 
                 break;
+
             case 'methodName':
                 $this->methodName          = trim($this->_currentTagContents);
                 $this->_currentTagContents = '';
@@ -225,16 +236,16 @@ class Message
 
         if ($valueFlag) {
             if (count($this->_arraystructs) > 0) {
-                # Add value to struct or array
+                // Add value to struct or array
                 if ($this->_arraystructstypes[count($this->_arraystructstypes) - 1] == 'struct') {
-                    # Add to struct
+                    // Add to struct
                     $this->_arraystructs[count($this->_arraystructs) - 1][$this->_currentStructName[count($this->_currentStructName) - 1]] = $value;
                 } else {
-                    # Add to array
+                    // Add to array
                     $this->_arraystructs[count($this->_arraystructs) - 1][] = $value;
                 }
             } else {
-                # Just add as a paramater
+                // Just add as a paramater
                 $this->params[] = $value;
             }
         }

@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Core\User\Preference\Workspace
+ * @note Dotclear\Core\User\Preference\Workspace
  * @brief Dotclear core workspace class
  *
- * @package Dotclear
- * @subpackage Core
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,22 +18,23 @@ use Dotclear\Database\Statement\InsertStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Exception\CoreException;
+use Exception;
 
 class Workspace
 {
-    /** @var    string      Preferences table name */
+    /** @var string Preferences table name */
     protected $table;
 
-    /** @var    array       Global prefs array */
+    /** @var array Global prefs array */
     protected $global_prefs = [];
 
-    /** @var    array       Local prefs array */
+    /** @var array Local prefs array */
     protected $local_prefs = [];
 
-    /** @var    array       Associative prefs array */
+    /** @var array Associative prefs array */
     protected $prefs = [];
 
-    /** @var    string      Current workspace */
+    /** @var string Current workspace */
     protected $ws;
 
     protected const WS_NAME_SCHEMA = '/^[a-zA-Z][a-zA-Z0-9]+$/';
@@ -46,11 +46,11 @@ class Workspace
      * Retrieves user prefs and puts them in $prefs
      * array. Local (user) prefs have a highest priority than global prefs.
      *
-     * @param   string|null     $user_id    The user identifier
-     * @param   string          $name       The name
-     * @param   Record|null     $rs         The recordset
+     * @param null|string $user_id The user identifier
+     * @param string      $name    The name
+     * @param null|Record $rs      The recordset
      *
-     * @throws  CoreException
+     * @throws CoreException
      */
     public function __construct(protected ?string $user_id, string $name, ?Record $rs = null)
     {
@@ -70,18 +70,16 @@ class Workspace
     }
 
     /**
-     * Get preferences
-     * 
-     * @param   Record|null     $rs     Record instance
-     * 
-     * @return  bool
+     * Get preferences.
+     *
+     * @param null|Record $rs Record instance
      */
     private function getPrefs(?Record $rs = null): bool
     {
-        if ($rs == null) {
+        if (null == $rs) {
             try {
                 $sql = new SelectStatement(__METHOD__);
-                $rs = $sql
+                $rs  = $sql
                     ->columns([
                         'user_id',
                         'pref_id',
@@ -97,9 +95,9 @@ class Workspace
                     ]))
                     ->and('pref_ws = ' . $sql->quote($this->ws))
                     ->order('pref_id ASC')
-                    ->select();
-
-            } catch (\Exception $e) {
+                    ->select()
+                ;
+            } catch (Exception $e) {
                 throw $e;
             }
         }
@@ -144,12 +142,10 @@ class Workspace
     }
 
     /**
-     * Returns true if a pref exist, else false
+     * Returns true if a pref exist, else false.
      *
-     * @param   string  $id         The identifier
-     * @param   bool    $global     The global
-     *
-     * @return  bool
+     * @param string $id     The identifier
+     * @param bool   $global The global
      */
     public function prefExists(string $id, bool $global = false): bool
     {
@@ -161,9 +157,7 @@ class Workspace
     /**
      * Returns pref value if exists.
      *
-     * @param   string  $n  Pref name
-     *
-     * @return  mixed
+     * @param string $n Pref name
      */
     public function get(string $n): mixed
     {
@@ -174,9 +168,7 @@ class Workspace
     /**
      * Returns global pref value if exists.
      *
-     * @param   string  $n  Pref name
-     *
-     * @return  mixed
+     * @param string $n Pref name
      */
     public function getGlobal(string $n): mixed
     {
@@ -187,9 +179,7 @@ class Workspace
     /**
      * Returns local pref value if exists.
      *
-     * @param   string  $n  Pref name
-     *
-     * @return  mixed
+     * @param string $n Pref name
      */
     public function getLocal(string $n): mixed
     {
@@ -203,8 +193,8 @@ class Workspace
      * This sets the pref for script
      * execution time only and if pref exists.
      *
-     * @param   string  $n  The pref name
-     * @param   mixed   $v  The pref value
+     * @param string $n The pref name
+     * @param mixed  $v The pref value
      */
     public function set(string $n, mixed $v): void
     {
@@ -222,14 +212,14 @@ class Workspace
      * $value_change allow you to not change pref. Useful if you need to change
      * a pref label or type and don't want to change its value.
      *
-     * @param   string      $id             The pref identifier
-     * @param   mixed       $value          The pref value
-     * @param   string      $type           The pref type
-     * @param   string      $label          The pref label
-     * @param   bool|null   $value_change   Change pref value or not
-     * @param   bool        $global         Pref is global
+     * @param string    $id           The pref identifier
+     * @param mixed     $value        The pref value
+     * @param string    $type         The pref type
+     * @param string    $label        The pref label
+     * @param null|bool $value_change Change pref value or not
+     * @param bool      $global       Pref is global
      *
-     * @throws                              CoreException
+     * @throws CoreException
      */
     public function put(string $id, mixed $value, ?string $type = null, ?string $label = null, ?bool $value_change = true, bool $global = false): void
     {
@@ -237,7 +227,7 @@ class Workspace
             throw new CoreException(sprintf(__('%s is not a valid pref id'), $id));
         }
 
-        # We don't want to change pref value
+        // We don't want to change pref value
         if (!$value_change) {
             if (!$global && $this->prefExists($id, false)) {
                 $value = $this->local_prefs[$id]['value'];
@@ -246,7 +236,7 @@ class Workspace
             }
         }
 
-        # Pref type
+        // Pref type
         if ('double' == $type) {
             $type = 'float';
         } elseif (null === $type) {
@@ -261,7 +251,7 @@ class Workspace
             $type = 'string';
         }
 
-        # We don't change label
+        // We don't change label
         if (null == $label) {
             if (!$global && $this->prefExists($id, false)) {
                 $label = $this->local_prefs[$id]['label'];
@@ -276,12 +266,12 @@ class Workspace
             $value = json_encode($value);
         }
 
-        #If we are local, compare to global value
+        // If we are local, compare to global value
         if (!$global && $this->prefExists($id, true)) {
             $g         = $this->global_prefs[$id];
             $same_pref = ($g['ws'] == $this->ws && $g['value'] == $value && $g['type'] == $type && $g['label'] == $label);
 
-            # Drop pref if same value as global
+            // Drop pref if same value as global
             if ($same_pref && $this->prefExists($id, false)) {
                 $this->drop($id);
             } elseif ($same_pref) {
@@ -289,7 +279,7 @@ class Workspace
             }
         }
 
-        # Update
+        // Update
         if ($this->prefExists($id, $global) && $this->ws == $this->prefs[$id]['ws']) {
             $sql = new UpdateStatement(__METHOD__);
             $sql
@@ -298,15 +288,17 @@ class Workspace
                     'pref_type = ' . $sql->quote($type),
                     'pref_label = ' . $sql->quote($label),
                 ])
-                ->where($global ?
+                ->where(
+                    $global ?
                     'user_id IS NULL' :
                     'user_id = ' . $sql->quote($this->user_id)
                 )
                 ->and('pref_id = ' . $sql->quote($id))
                 ->and('pref_ws = ' . $sql->quote($this->ws))
                 ->from($this->table)
-                ->update();
-        # Insert
+                ->update()
+            ;
+        // Insert
         } else {
             $sql = new InsertStatement(__METHOD__);
             $sql
@@ -324,22 +316,23 @@ class Workspace
                     $sql->quote($label),
                     $sql->quote($id),
                     $global ? 'NULL' : $sql->quote($this->user_id),
-                    $sql->quote($this->ws)
+                    $sql->quote($this->ws),
                 ]])
                 ->from($this->table)
-                ->insert();
+                ->insert()
+            ;
         }
     }
 
     /**
-     * Rename an existing pref in a Workspace
+     * Rename an existing pref in a Workspace.
      *
-     * @param   string  $oldId  The old identifier
-     * @param   string  $newId  The new identifier
+     * @param string $oldId The old identifier
+     * @param string $newId The new identifier
      *
-     * @throws  CoreException
+     * @throws CoreException
      *
-     * @return  bool            false is error, true if renamed
+     * @return bool false is error, true if renamed
      */
     public function rename(string $oldId, string $newId): bool
     {
@@ -355,29 +348,30 @@ class Workspace
             throw new CoreException(sprintf(__('%s is not a valid pref id'), $newId));
         }
 
-        # Rename the pref in the prefs array
+        // Rename the pref in the prefs array
         $this->prefs[$newId] = $this->prefs[$oldId];
         unset($this->prefs[$oldId]);
 
-        # Rename the pref in the database
+        // Rename the pref in the database
         $sql = new UpdateStatement(__METHOD__);
         $sql
             ->set('pref_id = ' . $sql->quote($newId))
             ->where('pref_ws = ' . $sql->quote($this->ws))
             ->and('pref_id = ' . $sql->quote($oldId))
             ->from($this->table)
-            ->update();
+            ->update()
+        ;
 
         return true;
     }
 
     /**
-     * Removes an existing pref. Workspace
+     * Removes an existing pref. Workspace.
      *
-     * @param   string  $id             The pref identifier
-     * @param   bool    $force_global   Force global pref drop
+     * @param string $id           The pref identifier
+     * @param bool   $force_global Force global pref drop
      *
-     * @throws  CoreException
+     * @throws CoreException
      */
     public function drop(string $id, bool $force_global = false): void
     {
@@ -389,14 +383,16 @@ class Workspace
 
         $sql = new DeleteStatement(__METHOD__);
         $sql
-            ->where($global ?
+            ->where(
+                $global ?
                 'user_id IS NULL' :
                 'user_id = ' . $sql->quote($this->user_id)
             )
             ->and('pref_id = ' . $sql->quote($id))
             ->and('pref_ws = ' . $sql->quote($this->ws))
             ->from($this->table)
-            ->delete();
+            ->delete()
+        ;
 
         if ($this->prefExists($id, $global)) {
             $array = $global ? 'global' : 'local';
@@ -410,10 +406,10 @@ class Workspace
     }
 
     /**
-     * Removes every existing specific pref. in a workspace
+     * Removes every existing specific pref. in a workspace.
      *
-     * @param   string  $id         Pref ID
-     * @param   bool    $global     Remove global pref too
+     * @param string $id     Pref ID
+     * @param bool   $global Remove global pref too
      */
     public function dropEvery(string $id, bool $global = false): void
     {
@@ -424,7 +420,8 @@ class Workspace
         $sql = new DeleteStatement(__METHOD__);
         $sql
             ->where('pref_id = ' . $sql->quote($id))
-            ->and('pref_ws = ' . $sql->quote($this->ws));
+            ->and('pref_ws = ' . $sql->quote($this->ws))
+        ;
 
         if (!$global) {
             $sql->and('user_id IS NOT NULL');
@@ -432,15 +429,16 @@ class Workspace
 
         $sql
             ->from($this->table)
-            ->delete();
+            ->delete()
+        ;
     }
 
     /**
-     * Removes all existing pref. in a Workspace
+     * Removes all existing pref. in a Workspace.
      *
-     * @param   bool    $force_global   Remove global prefs too
+     * @param bool $force_global Remove global prefs too
      *
-     * @throws  CoreException
+     * @throws CoreException
      */
     public function dropAll(bool $force_global = false): void
     {
@@ -452,13 +450,15 @@ class Workspace
 
         $sql = new DeleteStatement(__METHOD__);
         $sql
-            ->where($global ?
-                'user_id IS NULL' : 
+            ->where(
+                $global ?
+                'user_id IS NULL' :
                 'user_id = ' . $sql->quote($this->user_id)
             )
             ->and('pref_ws = ' . $sql->quote($this->ws))
             ->from($this->table)
-            ->delete();
+            ->delete()
+        ;
 
         $array = $global ? 'global' : 'local';
         unset($this->{$array . '_prefs'});
@@ -470,8 +470,6 @@ class Workspace
 
     /**
      * Dumps a workspace.
-     *
-     * @return  string
      */
     public function dumpWorkspace(): string
     {
@@ -480,8 +478,6 @@ class Workspace
 
     /**
      * Dumps preferences.
-     *
-     * @return  array
      */
     public function dumpPrefs(): array
     {
@@ -490,8 +486,6 @@ class Workspace
 
     /**
      * Dumps local preferences.
-     *
-     * @return  array
      */
     public function dumpLocalPrefs(): array
     {
@@ -500,8 +494,6 @@ class Workspace
 
     /**
      * Dumps global preferences.
-     *
-     * @return  array
      */
     public function dumpGlobalPrefs(): array
     {

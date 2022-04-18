@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Core\Blog\Blog
+ * @note Dotclear\Core\Blog\Blog
  * @brief Dotclear core blog class
  *
- * @package Dotclear
- * @subpackage Core
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -26,64 +25,64 @@ use Dotclear\Helper\Network\Http;
 
 class Blog
 {
-    /** @var    Categories  Categories instance */
+    /** @var Categories Categories instance */
     private $categories;
 
-    /** @var    Comments    Comments instance */
+    /** @var Comments Comments instance */
     private $comments;
 
-    /** @var    Posts   Posts instance */
+    /** @var Posts Posts instance */
     private $posts;
 
-    /** @var    Settings    Settings instance */
+    /** @var Settings Settings instance */
     private $settings;
 
-    /** @var    string  Blog ID */
+    /** @var string Blog ID */
     public $id;
 
-    /** @var    string  Blog unique ID */
+    /** @var string Blog unique ID */
     public $uid;
 
-    /** @var    string  Blog name */
+    /** @var string Blog name */
     public $name;
 
-    /** @var    string  Blog description */
+    /** @var string Blog description */
     public $desc;
 
-    /** @var    string  Blog URL */
+    /** @var string Blog URL */
     public $url;
 
-    /** @var    string  Blog host */
+    /** @var string Blog host */
     public $host;
 
-    /** @var    int     Blog creation date */
+    /** @var int Blog creation date */
     public $creadt;
 
-    /** @var    int     Blog last update date */
+    /** @var int Blog last update date */
     public $upddt;
 
-    /** @var    int     Blog status */
+    /** @var int Blog status */
     public $status;
 
-    /** @var    string|false    Blog public path */
+    /** @var false|string Blog public path */
     public $public_path;
 
-    /** @var    string  Blog fake public url */
+    /** @var string Blog fake public url */
     public $public_url;
 
-    /** @var    array   post status list */
-    private $post_status    = [];
+    /** @var array post status list */
+    private $post_status = [];
 
-    /** @var    array   comment status list */
+    /** @var array comment status list */
     private $comment_status = [];
 
-    /** @var    bool    Disallow entries password protection */
+    /** @var bool Disallow entries password protection */
     public $without_password = true;
 
     /**
      * Constructs a new instance.
      *
-     * @param   string  $id     The blog identifier
+     * @param string $id The blog identifier
      */
     public function __construct(string $id)
     {
@@ -99,7 +98,7 @@ class Blog
             $this->status = (int) $rs->f('blog_status');
 
             $this->public_path = Path::real(Path::fullFromRoot($this->settings()->get('system')->get('public_path'), dotclear()->config()->get('base_dir')));
-            $this->public_url  = $this->getURLFor('resources'); //! to enhance
+            $this->public_url  = $this->getURLFor('resources'); // ! to enhance
 
             $this->post_status['-2'] = __('Pending');
             $this->post_status['-1'] = __('Scheduled');
@@ -111,17 +110,17 @@ class Blog
             $this->comment_status['0']  = __('Unpublished');
             $this->comment_status['1']  = __('Published');
 
-            # --BEHAVIOR-- coreBlogConstruct, Dotclear\Core\Blog
+            // --BEHAVIOR-- coreBlogConstruct, Dotclear\Core\Blog
             dotclear()->behavior()->call('coreBlogConstruct', $this);
         }
     }
 
-    /// @name Blog sub instances methods
-    //@{
+    // / @name Blog sub instances methods
+    // @{
     /**
-     * Get instance
+     * Get instance.
      *
-     * @return  Categories   Categories instance
+     * @return Categories Categories instance
      */
     public function categories(): Categories
     {
@@ -133,9 +132,9 @@ class Blog
     }
 
     /**
-     * Get instance
+     * Get instance.
      *
-     * @return  Comments   Comments instance
+     * @return Comments Comments instance
      */
     public function comments(): Comments
     {
@@ -147,9 +146,9 @@ class Blog
     }
 
     /**
-     * Get instance
+     * Get instance.
      *
-     * @return  Posts   Posts instance
+     * @return Posts Posts instance
      */
     public function posts(): Posts
     {
@@ -159,10 +158,11 @@ class Blog
 
         return $this->posts;
     }
+
     /**
-     * Get settings instance
+     * Get settings instance.
      *
-     * @return  Settings   Settings instance
+     * @return Settings Settings instance
      */
     public function settings(): Settings
     {
@@ -173,14 +173,14 @@ class Blog
         return $this->settings;
     }
 
-    //@}
+    // @}
 
-    /// @name Common public methods
-    //@{
+    // / @name Common public methods
+    // @{
     /**
      * Returns blog URL ending with a question mark.
      *
-     * @return  string  The qmark url.
+     * @return string the qmark url
      */
     public function getQmarkURL(): string
     {
@@ -188,12 +188,12 @@ class Blog
     }
 
     /**
-     * Returns URLs from URL handler with blog root URL
+     * Returns URLs from URL handler with blog root URL.
      *
-     * @param   string      $type   The URL handler type
-     * @param   string|int  $value  The URL handler value
+     * @param string     $type  The URL handler type
+     * @param int|string $value The URL handler value
      *
-     * @return  string              The URL
+     * @return string The URL
      */
     public function getURLFor(string $type, string|int $value = ''): string
     {
@@ -204,8 +204,6 @@ class Blog
 
     /**
      * Gets the jQuery version.
-     *
-     * @return  string
      */
     public function getJsJQuery(): string
     {
@@ -226,24 +224,24 @@ class Blog
     }
 
     /**
-     * Returns an entry status name given to a code. 
-     * 
-     * Status are translated, never use it for tests. 
+     * Returns an entry status name given to a code.
+     *
+     * Status are translated, never use it for tests.
      * If status code does not exist, returns <i>unpublished</i>.
      *
-     * @param   int  $s     The status code
+     * @param int $s The status code
      *
-     * @return  string      The post status.
+     * @return string the post status
      */
     public function getPostStatus(int $s): string
     {
-        return isset($this->post_status[$s]) ? $this->post_status[$s] : $this->post_status['0'];
+        return $this->post_status[$s] ?? $this->post_status['0'];
     }
 
     /**
      * Returns an array of available entry status codes and names.
      *
-     * @return  array   Simple array with codes in keys and names in value.
+     * @return array simple array with codes in keys and names in value
      */
     public function getAllPostStatus(): array
     {
@@ -253,7 +251,7 @@ class Blog
     /**
      * Returns an array of available comment status codes and names.
      *
-     * @return  array   Simple array with codes in keys and names in value
+     * @return array Simple array with codes in keys and names in value
      */
     public function getAllCommentStatus(): array
     {
@@ -261,12 +259,12 @@ class Blog
     }
 
     /**
-     * Disallows entries password protection. 
-     * 
+     * Disallows entries password protection.
+     *
      * You need to set it to <var>false</var> while serving a public blog.
      * Set it to null to read current value.
      *
-     * @param   bool|null   $v  Set password usage
+     * @param null|bool $v Set password usage
      */
     public function withoutPassword(?bool $v = null): bool
     {
@@ -278,44 +276,48 @@ class Blog
     }
 
     /**
-     * Get (non-)formatted blog update date
-     * 
-     * @param   string  $format     The date format
-     * 
-     * @return  string|int          The formatted update date
+     * Get (non-)formatted blog update date.
+     *
+     * @param string $format The date format
+     *
+     * @return int|string The formatted update date
      */
     public function getUpdateDate(string $format = ''): int|string
     {
         if ('rfc822' == $format) {
             return Dt::rfc822($this->upddt, $this->settings()->get('system')->get('blog_timezone'));
-        } elseif ('iso8601' == $format) {
+        }
+        if ('iso8601' == $format) {
             return Dt::iso8601($this->upddt, $this->settings()->get('system')->get('blog_timezone'));
-        } elseif (!$format) {
+        }
+        if (!$format) {
             return Dt::str($format, $this->upddt);
         }
 
         return $this->upddt;
     }
-    //@}
+    // @}
 
-    /// @name Triggers methods
-    //@{
+    // / @name Triggers methods
+    // @{
     /**
-     * Updates blog last update date. 
-     * 
+     * Updates blog last update date.
+     *
      * Should be called every time you change
      * an element related to the blog.
      */
     public function triggerBlog(): void
     {
         $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'blog')
-            ->setField('blog_upddt', date('Y-m-d H:i:s'));
+            ->setField('blog_upddt', date('Y-m-d H:i:s'))
+        ;
 
         $sql = new UpdateStatement(__METHOD__);
         $sql->where('blog_id = ' . $sql->quote($this->id))
-            ->update($cur);
+            ->update($cur)
+        ;
 
-        # --BEHAVIOR-- coreBlogAfterTriggerBlog, Dotclear\Database\Cursor
+        // --BEHAVIOR-- coreBlogAfterTriggerBlog, Dotclear\Database\Cursor
         dotclear()->behavior()->call('coreBlogAfterTriggerBlog', $cur);
     }
 
@@ -323,8 +325,8 @@ class Blog
      * Updates comment and trackback counters in post table. Should be called
      * every time a comment or trackback is added, removed or changed its status.
      *
-     * @param   int     $id     The comment identifier
-     * @param   bool    $del    If comment is deleted, set this to true
+     * @param int  $id  The comment identifier
+     * @param bool $del If comment is deleted, set this to true
      */
     public function triggerComment(int $id, bool $del = false): void
     {
@@ -332,27 +334,28 @@ class Blog
     }
 
     /**
-     * Updates comments and trackbacks counters in post table. 
-     * 
-     * Should be called every time comments or trackbacks are 
+     * Updates comments and trackbacks counters in post table.
+     *
+     * Should be called every time comments or trackbacks are
      * added, removed or changed their status.
      *
-     * @param   array|ArrayObject   $ids                The identifiers
-     * @param   bool                $del                If comment is delete, set this to true
-     * @param   null|array          $affected_posts     The affected posts IDs
+     * @param array|ArrayObject $ids            The identifiers
+     * @param bool              $del            If comment is delete, set this to true
+     * @param null|array        $affected_posts The affected posts IDs
      */
     public function triggerComments(array|ArrayObject $ids, bool $del = false, ?array $affected_posts = null): void
     {
         $comments_ids = $this->cleanIds($ids);
 
-        # Get posts affected by comments edition
+        // Get posts affected by comments edition
         if (empty($affected_posts)) {
             $sql = new SelectStatement(__METHOD__ . 'Id');
-            $rs = $sql
+            $rs  = $sql
                 ->from(dotclear()->prefix . 'comment ')
                 ->where('comment_id' . $sql->in($comments_ids))
                 ->group('post_id')
-                ->select();
+                ->select()
+            ;
 
             $affected_posts = [];
             while ($rs->fetch()) {
@@ -364,9 +367,9 @@ class Blog
             return;
         }
 
-        # Count number of comments if exists for affected posts
+        // Count number of comments if exists for affected posts
         $sql = new SelectStatement(__METHOD__ . 'Count');
-        $rs = $sql
+        $rs  = $sql
             ->columns([
                 'post_id',
                 $sql->count('post_id', 'nb_comment'),
@@ -376,7 +379,8 @@ class Blog
             ->where('comment_status = 1')
             ->and('post_id' . $sql->in($affected_posts))
             ->group(['post_id', 'comment_trackback'])
-            ->select();
+            ->select()
+        ;
 
         $posts = [];
         while ($rs->fetch()) {
@@ -387,11 +391,12 @@ class Blog
             }
         }
 
-        # Update number of comments on affected posts
+        // Update number of comments on affected posts
         foreach ($affected_posts as $post_id) {
             $sql = UpdateStatement::init(__METHOD__ . $post_id)
                 ->from(dotclear()->prefix . 'post')
-                ->where('post_id = ' . $post_id);
+                ->where('post_id = ' . $post_id)
+            ;
 
             if (array_key_exists($post_id, $posts)) {
                 $sql->set('nb_trackback = ' . ($posts[$post_id]['trackback'] ?: 0));
@@ -404,16 +409,14 @@ class Blog
             $sql->update();
         }
     }
-    //@}
+    // @}
 
-    /// @name Helper methods
-    //@{
+    // / @name Helper methods
+    // @{
     /**
-     * Cleanup a list of IDs
+     * Cleanup a list of IDs.
      *
-     * @param   mixed   $ids    The identifiers
-     *
-     * @return  array
+     * @param mixed $ids The identifiers
      */
     public function cleanIds($ids): array
     {
@@ -437,5 +440,5 @@ class Blog
 
         return $clean_ids;
     }
-    //@}
+    // @}
 }

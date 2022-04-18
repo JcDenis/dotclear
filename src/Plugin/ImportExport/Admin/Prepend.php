@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\ImportExport\Admin\Prepend
+ * @note Dotclear\Plugin\ImportExport\Admin\Prepend
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginImportExport
+ * @ingroup  PluginImportExport
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,8 +11,6 @@
 declare(strict_types=1);
 
 namespace Dotclear\Plugin\ImportExport\Admin;
-
-use ArrayObject;
 
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
@@ -24,13 +21,13 @@ class Prepend extends AbstractPrepend
 
     public function loadModule(): void
     {
-        # Menu and favs
+        // Menu and favs
         $this->addStandardMenu('Plugins');
         $this->addStandardFavorites();
 
-        # ImportExport modules
+        // ImportExport modules
         dotclear()->behavior()->add('importExportModules', function ($modules) {
-            $ns = __NAMESPACE__ . '\\Lib\\Module\\';
+            $ns                = __NAMESPACE__ . '\\Lib\\Module\\';
             $modules['import'] = array_merge($modules['import'], [$ns . 'ImportFlat']);
             $modules['import'] = array_merge($modules['import'], [$ns . 'ImportFeed']);
 
@@ -42,7 +39,7 @@ class Prepend extends AbstractPrepend
             }
         });
 
-        # Maintenance task
+        // Maintenance task
         dotclear()->behavior()->add('dcMaintenanceInit', function ($maintenance) {
             $ns = __NAMESPACE__ . '\\MaintenanceTask\\';
             $maintenance

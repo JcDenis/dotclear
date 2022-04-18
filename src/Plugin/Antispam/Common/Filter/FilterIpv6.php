@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Antispam\Common\Filter\FilterIpv6
+ * @note Dotclear\Plugin\Antispam\Common\Filter\FilterIpv6
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginAntispam
+ * @ingroup  PluginAntispam
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,9 +18,10 @@ use Dotclear\Database\Statement\InsertStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Helper\Html\Html;
-Use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Plugin\Antispam\Common\Spamfilter;
+use Exception;
 
 class FilterIpv6 extends Spamfilter
 {
@@ -54,12 +54,12 @@ class FilterIpv6 extends Spamfilter
             return null;
         }
 
-        # White list check
+        // White list check
         if (false !== $this->checkIP($ip, 'whitev6')) {
             return false;
         }
 
-        # Black list check
+        // Black list check
         if (false !== ($s = $this->checkIP($ip, 'blackv6'))) {
             $status = $s;
 
@@ -71,14 +71,14 @@ class FilterIpv6 extends Spamfilter
 
     public function gui(string $url): string
     {
-        # Set current type and tab
+        // Set current type and tab
         $ip_type = 'blackv6';
         if (!empty($_REQUEST['ip_type']) && 'whitev6' == $_REQUEST['ip_type']) {
             $ip_type = 'whitev6';
         }
         $this->tab = 'tab_' . $ip_type;
 
-        # Add IP to list
+        // Add IP to list
         if (!empty($_POST['addip'])) {
             try {
                 $global = !empty($_POST['globalip']) && dotclear()->user()->isSuperAdmin();
@@ -86,18 +86,18 @@ class FilterIpv6 extends Spamfilter
                 $this->addIP($ip_type, $_POST['addip'], $global);
                 dotclear()->notice()->addSuccessNotice(__('IP address has been successfully added.'));
                 Http::redirect($url . '&ip_type=' . $ip_type);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Remove IP from list
+        // Remove IP from list
         if (!empty($_POST['delip']) && is_array($_POST['delip'])) {
             try {
                 $this->removeRule($_POST['delip']);
                 dotclear()->notice()->addSuccessNotice(__('IP addresses have been successfully removed.'));
                 Http::redirect($url . '&ip_type=' . $ip_type);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
@@ -147,7 +147,6 @@ class FilterIpv6 extends Spamfilter
             $res_global = '';
             $res_local  = '';
             while ($rs->fetch()) {
-
                 $disabled_ip = false;
                 $p_style     = '';
                 if (!$rs->f('blog_id')) {
@@ -156,9 +155,11 @@ class FilterIpv6 extends Spamfilter
                 }
 
                 $item = '<p class="' . $p_style . '"><label class="classic" for="' . $type . '-ip-' . $rs->f('rule_id') . '">' .
-                Form::checkbox(['delip[]', $type . '-ip-' . $rs->f('rule_id')], $rs->f('rule_id'),
+                Form::checkbox(
+                    ['delip[]', $type . '-ip-' . $rs->f('rule_id')],
+                    $rs->f('rule_id'),
                     [
-                        'disabled' => $disabled_ip
+                        'disabled' => $disabled_ip,
                     ]
                 ) . ' ' .
                 Html::escapeHTML($rs->f('rule_content')) .
@@ -166,13 +167,13 @@ class FilterIpv6 extends Spamfilter
 
                 if ($rs->f('blog_id')) {
                     // local list
-                    if ($res_local == '') {
+                    if ('' == $res_local) {
                         $res_local = '<h4>' . __('Local IPs (used only for this blog)') . '</h4>';
                     }
                     $res_local .= $item;
                 } else {
                     // global list
-                    if ($res_global == '') {
+                    if ('' == $res_global) {
                         $res_global = '<h4>' . __('Global IPs (used for all blogs)') . '</h4>';
                     }
                     $res_global .= $item;
@@ -207,7 +208,7 @@ class FilterIpv6 extends Spamfilter
                     'rule_id',
                     'rule_type',
                     'rule_content',
-                    'blog_id'
+                    'blog_id',
                 ])
                 ->line([[
                     SelectStatement::init(__METHOD__)
@@ -220,7 +221,8 @@ class FilterIpv6 extends Spamfilter
                     $global && dotclear()->user()->isSuperAdmin() ? 'NULL' : $sql->quote(dotclear()->blog()->id),
                 ]])
                 ->from($this->table)
-                ->insert();
+                ->insert()
+            ;
         } else {
             $sql = new UpdateStatement(__METHOD__);
             $sql
@@ -228,7 +230,8 @@ class FilterIpv6 extends Spamfilter
                 ->set('rule_content = ' . $sql->quote($pattern))
                 ->where('rule_id = ' . $old->fInt('rule_id'))
                 ->from($this->table)
-                ->update();
+                ->update()
+            ;
         }
     }
 
@@ -250,10 +253,11 @@ class FilterIpv6 extends Spamfilter
             ]))
             ->order([
                 'blog_id ASC',
-                'rule_content ASC'
+                'rule_content ASC',
             ])
             ->from($this->table)
-            ->select();
+            ->select()
+        ;
     }
 
     private function getRuleCIDR(string $type, bool $global, string $pattern): Record
@@ -267,19 +271,21 @@ class FilterIpv6 extends Spamfilter
         return $sql
             ->column('*')
             ->where('rule_type = ' . $sql->quote($type))
-            ->and($sql->like('rule_content',  $ip . "%"))
-            ->and($global ?
+            ->and($sql->like('rule_content', $ip . '%'))
+            ->and(
+                $global ?
                 'blog_id IS NULL' :
                 'blog_id = ' . $sql->quote(dotclear()->blog()->id)
             )
             ->from($this->table)
-            ->select();
+            ->select()
+        ;
     }
 
     private function checkIP(string $cip, string $type): string|false
     {
         $sql = new SelectStatement(__METHOD__);
-        $rs = $sql
+        $rs  = $sql
             ->distinct()
             ->column('rule_content')
             ->where('rule_type = ' . $sql->quote($type))
@@ -289,7 +295,8 @@ class FilterIpv6 extends Spamfilter
             ]))
             ->order('rule_content ASC')
             ->from($this->table)
-            ->select();
+            ->select()
+        ;
 
         while ($rs->fetch()) {
             $pattern = $rs->f('rule_content');
@@ -320,7 +327,8 @@ class FilterIpv6 extends Spamfilter
 
         $sql
             ->from($this->table)
-            ->delete();
+            ->delete()
+        ;
     }
 
     private function compact(string $pattern): string
@@ -333,10 +341,12 @@ class FilterIpv6 extends Spamfilter
         if (!isset($bits[1])) {
             // Only IP address
             return $ip;
-        } elseif (strpos($bits[1], ':')) {
+        }
+        if (strpos($bits[1], ':')) {
             // End IP address
             return $ip . '/' . $mask;
-        } elseif ('1' === $mask) {
+        }
+        if ('1' === $mask) {
             // Ignore mask
             return $ip;
         }
@@ -389,16 +399,16 @@ class FilterIpv6 extends Spamfilter
         $bits = explode('/', $pattern);
 
         if (!filter_var($bits[0], FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-            throw new \Exception('Invalid IPv6 address');
+            throw new Exception('Invalid IPv6 address');
         }
 
         $ip = $this->ip2long_v6($bits[0]);
 
-        if (!$ip || $ip == -1) {
-            throw new \Exception('Invalid IP address');
+        if (!$ip || -1 == $ip) {
+            throw new Exception('Invalid IP address');
         }
 
-        # Set mask
+        // Set mask
         if (!isset($bits[1])) {
             $mask = '1';
         } elseif (strpos($bits[1], ':')) {
@@ -409,7 +419,7 @@ class FilterIpv6 extends Spamfilter
                 $mask = $this->long2ip_v6($mask);
             }
         } else {
-            //$mask = ~((1 << (128 - min((int) $bits[1], 128))) - 1);
+            // $mask = ~((1 << (128 - min((int) $bits[1], 128))) - 1);
             if (function_exists('gmp_init')) {
                 $mask = gmp_mul(gmp_init(1), gmp_pow(gmp_init(2), 128 - min((int) $bits[1], 128)));
             } elseif (function_exists('bcadd')) {
@@ -425,15 +435,16 @@ class FilterIpv6 extends Spamfilter
         // Convert IP v6 to long integer
         $ip_n = inet_pton($ip);
         $bin  = '';
-        for ($bit = strlen($ip_n) - 1; $bit >= 0; $bit--) {
+        for ($bit = strlen($ip_n) - 1; 0 <= $bit; --$bit) {
             $bin = sprintf('%08b', ord($ip_n[$bit])) . $bin;
         }
 
         if (function_exists('gmp_init')) {
             return gmp_strval(gmp_init($bin, 2), 10);
-        } elseif (function_exists('bcadd')) {
+        }
+        if (function_exists('bcadd')) {
             $dec = '0';
-            for ($i = 0; $i < strlen($bin); $i++) {
+            for ($i = 0; strlen($bin) > $i; ++$i) {
                 $dec = bcmul($dec, '2', 0);
                 $dec = bcadd($dec, $bin[$i], 0);
             }
@@ -461,7 +472,7 @@ class FilterIpv6 extends Spamfilter
 
         $bin = str_pad($bin, 128, '0', STR_PAD_LEFT);
         $ip  = [];
-        for ($bit = 0; $bit <= 7; $bit++) {
+        for ($bit = 0; 7 >= $bit; ++$bit) {
             $bin_part = substr($bin, $bit * 16, 16);
             $ip[]     = dechex(bindec($bin_part));
         }

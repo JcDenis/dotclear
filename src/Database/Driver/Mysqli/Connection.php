@@ -1,12 +1,11 @@
 <?php
 /**
- * @class Dotclear\Database\Driver\Mysqli\Connection
+ * @note Dotclear\Database\Driver\Mysqli\Connection
  * @brief Mysql connection driver
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
- * @package Dotclear
- * @subpackage Database
+ * @ingroup  Database
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,6 +16,8 @@ namespace Dotclear\Database\Driver\Mysqli;
 
 use Dotclear\Database\AbstractConnection;
 use Dotclear\Exception\DatabaseException;
+use mysqli_result;
+use mysqli;
 
 class Connection extends AbstractConnection
 {
@@ -45,7 +46,7 @@ class Connection extends AbstractConnection
                 $port = 0;
             }
         }
-        if (($link = @mysqli_connect($host, $user, $password, $database, $port, $socket)) === false) {
+        if (false === ($link = @mysqli_connect($host, $user, $password, $database, $port, $socket))) {
             throw new DatabaseException('Unable to connect to database');
         }
 
@@ -78,14 +79,14 @@ class Connection extends AbstractConnection
 
     public function db_close(mixed $handle): void
     {
-        if ($handle instanceof \MySQLi) {
+        if ($handle instanceof mysqli) {
             mysqli_close($handle);
         }
     }
 
     public function db_version(mixed $handle): string
     {
-        if ($handle instanceof \MySQLi) {
+        if ($handle instanceof mysqli) {
             $v = mysqli_get_server_version($handle);
 
             return sprintf('%s.%s.%s', ($v - ($v % 10000)) / 10000, ($v - ($v % 100)) % 10000 / 100, $v % 100);
@@ -96,9 +97,9 @@ class Connection extends AbstractConnection
 
     public function db_query(mixed $handle, string $query): mixed
     {
-        if ($handle instanceof \MySQLi) {
+        if ($handle instanceof mysqli) {
             $res = @mysqli_query($handle, $query);
-            if ($res === false) {
+            if (false === $res) {
                 $e = new DatabaseException($this->db_last_error($handle));
 
                 throw $e;
@@ -117,8 +118,8 @@ class Connection extends AbstractConnection
 
     public function db_num_fields(mixed $res): int
     {
-        if ($res instanceof \MySQLi_Result) {
-            //return mysql_num_fields($res);
+        if ($res instanceof mysqli_result) {
+            // return mysql_num_fields($res);
             return $res->field_count;
         }
 
@@ -127,7 +128,7 @@ class Connection extends AbstractConnection
 
     public function db_num_rows(mixed $res): int
     {
-        if ($res instanceof \MySQLi_Result) {
+        if ($res instanceof mysqli_result) {
             return $res->num_rows;
         }
 
@@ -136,11 +137,11 @@ class Connection extends AbstractConnection
 
     public function db_field_name(mixed $res, int $position): string
     {
-        if ($res instanceof \MySQLi_Result) {
+        if ($res instanceof mysqli_result) {
             $res->field_seek($position);
             $finfo = $res->fetch_field();
 
-            /** @phpstan-ignore-next-line */
+            // @phpstan-ignore-next-line
             return $finfo->name;
         }
 
@@ -149,11 +150,11 @@ class Connection extends AbstractConnection
 
     public function db_field_type(mixed $res, int $position): string
     {
-        if ($res instanceof \MySQLi_Result) {
+        if ($res instanceof mysqli_result) {
             $res->field_seek($position);
             $finfo = $res->fetch_field();
 
-            /** @phpstan-ignore-next-line */
+            // @phpstan-ignore-next-line
             return $this->_convert_types($finfo->type);
         }
 
@@ -162,10 +163,10 @@ class Connection extends AbstractConnection
 
     public function db_fetch_assoc(mixed $res): array|false
     {
-        if ($res instanceof \MySQLi_Result) {
+        if ($res instanceof mysqli_result) {
             $v = $res->fetch_assoc();
 
-            return ($v === null) ? false : $v;
+            return (null === $v) ? false : $v;
         }
 
         return false;
@@ -173,7 +174,7 @@ class Connection extends AbstractConnection
 
     public function db_result_seek(mixed $res, int $row): bool
     {
-        if ($res instanceof \MySQLi_Result) {
+        if ($res instanceof mysqli_result) {
             return $res->data_seek($row);
         }
 
@@ -182,7 +183,7 @@ class Connection extends AbstractConnection
 
     public function db_changes(mixed $handle, mixed $res): int
     {
-        if ($handle instanceof \MySQLi) {
+        if ($handle instanceof mysqli) {
             return mysqli_affected_rows($handle);
         }
 
@@ -191,10 +192,10 @@ class Connection extends AbstractConnection
 
     public function db_last_error(mixed $handle): string|false
     {
-        if ($handle instanceof \MySQLi) {
+        if ($handle instanceof mysqli) {
             $e = mysqli_error($handle);
             if ($e) {
-                return $e . ' (' . \MySQLi_errno($handle) . ')';
+                return $e . ' (' . \mysqli_errno($handle) . ')';
             }
         }
 
@@ -203,7 +204,7 @@ class Connection extends AbstractConnection
 
     public function db_escape_string(?string $str, mixed $handle = null): string
     {
-        if ($handle instanceof \MySQLi) {
+        if ($handle instanceof mysqli) {
             return mysqli_real_escape_string($handle, (string) $str);
         }
 
@@ -215,7 +216,7 @@ class Connection extends AbstractConnection
         try {
             $this->execute('LOCK TABLES ' . $this->escapeSystem($table) . ' WRITE');
         } catch (DatabaseException $e) {
-            # As lock is a privilege in MySQL, we can avoid errors with weak_locks static var
+            // As lock is a privilege in MySQL, we can avoid errors with weak_locks static var
             if (!self::$weak_locks) {
                 throw $e;
             }
@@ -249,7 +250,7 @@ class Connection extends AbstractConnection
     {
         $default = [
             'order'   => '',
-            'collate' => false
+            'collate' => false,
         ];
         foreach (func_get_args() as $v) {
             if (is_string($v)) {
@@ -271,14 +272,14 @@ class Connection extends AbstractConnection
             if (is_string($v)) {
                 $res[] = sprintf($fmt, $v);
             } elseif (is_array($v)) {
-                $res = array_map(function ($i) use ($fmt) {return sprintf($fmt, $i);}, $v);
+                $res = array_map(fn ($i) => sprintf($fmt, $i), $v);
             }
         }
 
         return empty($res) ? '' : implode(',', $res);
     }
 
-    public function concat():string
+    public function concat(): string
     {
         $args = func_get_args();
 
@@ -299,7 +300,7 @@ class Connection extends AbstractConnection
             '8' => 'int',
             '9' => 'int',
 
-            '16' => 'int', //BIT type recognized as unknown with mysql adapter
+            '16' => 'int', // BIT type recognized as unknown with mysql adapter
 
             '4'   => 'real',
             '5'   => 'real',
@@ -315,8 +316,7 @@ class Connection extends AbstractConnection
 
             '7' => 'timestamp',
 
-            '252' => 'blob'
-
+            '252' => 'blob',
         ];
         $type = 'unknown';
 
@@ -330,10 +330,10 @@ class Connection extends AbstractConnection
     public function db_field_cast(mixed $str, string $type): mixed
     {
         return match ($type) {
-            'int', 'timestamp'                                   => (int) $str,
-            'real'                                               => (float) $str,
+            'int', 'timestamp' => (int) $str,
+            'real' => (float) $str,
             'string', 'date', 'time', 'datetime', 'year', 'blob' => (string) $str,
-            default                                              => $str,
+            default => $str,
         };
     }
 }

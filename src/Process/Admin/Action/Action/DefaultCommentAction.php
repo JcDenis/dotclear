@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Action\Action\DefaultCommentAction
+ * @note Dotclear\Process\Admin\Action\Action\DefaultCommentAction
  * @brief Dotclear admin handler for action page on selected comments
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,7 +15,6 @@ namespace Dotclear\Process\Admin\Action\Action;
 use ArrayObject;
 use Dotclear\Exception\AdminException;
 use Dotclear\Process\Admin\Action\Action;
-use Dotclear\Process\Admin\Page\Page;
 
 abstract class DefaultCommentAction extends Action
 {
@@ -28,7 +26,7 @@ abstract class DefaultCommentAction extends Action
                     __('Publish')         => 'publish',
                     __('Unpublish')       => 'unpublish',
                     __('Mark as pending') => 'pending',
-                    __('Mark as junk')    => 'junk'
+                    __('Mark as junk')    => 'junk',
                 ]],
                 [$this, 'doChangeCommentStatus']
             );
@@ -37,7 +35,7 @@ abstract class DefaultCommentAction extends Action
         if (dotclear()->user()->check('delete,contentadmin', dotclear()->blog()->id)) {
             $ap->addAction(
                 [__('Delete') => [
-                    __('Delete') => 'delete']],
+                    __('Delete') => 'delete', ]],
                 [$this, 'doDeleteComment']
             );
         }
@@ -50,7 +48,7 @@ abstract class DefaultCommentAction extends Action
             throw new AdminException(__('No comment selected'));
         }
 
-        $status  = match($ap->getAction()) {
+        $status = match ($ap->getAction()) {
             'unpublish' => 0,
             'pending'   => -1,
             'junk'      => -2,
@@ -71,11 +69,11 @@ abstract class DefaultCommentAction extends Action
         }
         // Backward compatibility
         foreach ($co_ids as $comment_id) {
-            # --BEHAVIOR-- adminBeforeCommentDelete
+            // --BEHAVIOR-- adminBeforeCommentDelete
             dotclear()->behavior()->call('adminBeforeCommentDelete', $comment_id);
         }
 
-        # --BEHAVIOR-- adminBeforeCommentsDelete
+        // --BEHAVIOR-- adminBeforeCommentsDelete
         dotclear()->behavior()->call('adminBeforeCommentsDelete', $co_ids);
 
         dotclear()->blog()->comments()->delComments($co_ids);

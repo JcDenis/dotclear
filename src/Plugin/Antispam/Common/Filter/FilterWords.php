@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Antispam\Common\Filter\FilterWords
+ * @note Dotclear\Plugin\Antispam\Common\Filter\FilterWords
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginAntispam
+ * @ingroup  PluginAntispam
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,9 +18,10 @@ use Dotclear\Database\Statement\InsertStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Helper\Html\Html;
-Use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Plugin\Antispam\Common\Spamfilter;
+use Exception;
 
 class FilterWords extends Spamfilter
 {
@@ -75,18 +75,18 @@ class FilterWords extends Spamfilter
 
     public function gui(string $url): string
     {
-        # Create list
+        // Create list
         if (!empty($_POST['createlist'])) {
             try {
                 $this->defaultWordsList();
                 dotclear()->notice()->addSuccessNotice(__('Words have been successfully added.'));
                 Http::redirect($url);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Adding a word
+        // Adding a word
         if (!empty($_POST['swa'])) {
             $globalsw = !empty($_POST['globalsw']) && dotclear()->user()->isSuperAdmin();
 
@@ -94,18 +94,18 @@ class FilterWords extends Spamfilter
                 $this->addRule($_POST['swa'], $globalsw);
                 dotclear()->notice()->addSuccessNotice(__('Word has been successfully added.'));
                 Http::redirect($url);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Removing spamwords
+        // Removing spamwords
         if (!empty($_POST['swd']) && is_array($_POST['swd'])) {
             try {
                 $this->removeRule($_POST['swd']);
                 dotclear()->notice()->addSuccessNotice(__('Words have been successfully removed.'));
                 Http::redirect($url);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
@@ -146,9 +146,11 @@ class FilterWords extends Spamfilter
                 }
 
                 $item = '<p class="' . $p_style . '"><label class="classic" for="word-' . $rs->f('rule_id') . '">' .
-                Form::checkbox(['swd[]', 'word-' . $rs->f('rule_id')], $rs->f('rule_id'),
+                Form::checkbox(
+                    ['swd[]', 'word-' . $rs->f('rule_id')],
+                    $rs->f('rule_id'),
                     [
-                        'disabled' => $disabled_word
+                        'disabled' => $disabled_word,
                     ]
                 ) . ' ' .
                 Html::escapeHTML($rs->f('rule_content')) .
@@ -156,13 +158,13 @@ class FilterWords extends Spamfilter
 
                 if ($rs->f('blog_id')) {
                     // local list
-                    if ($res_local == '') {
+                    if ('' == $res_local) {
                         $res_local = '<h4>' . __('Local words (used only for this blog)') . '</h4>';
                     }
                     $res_local .= $item;
                 } else {
                     // global list
-                    if ($res_global == '') {
+                    if ('' == $res_global) {
                         $res_global = '<h4>' . __('Global words (used for all blogs)') . '</h4>';
                     }
                     $res_global .= $item;
@@ -207,10 +209,11 @@ class FilterWords extends Spamfilter
             ]))
             ->order([
                 'blog_id ASC',
-                'rule_content ASC'
+                'rule_content ASC',
             ])
             ->from($this->table)
-            ->select();
+            ->select()
+        ;
     }
 
     private function addRule(string $content, bool $general = false): void
@@ -219,7 +222,8 @@ class FilterWords extends Spamfilter
         $sql
             ->from($this->table)
             ->where('rule_type = ' . $sql->quote('word'))
-            ->and('rule_content = ' . $sql->quote($content));
+            ->and('rule_content = ' . $sql->quote($content))
+        ;
 
         if (!$general) {
             $sql->and('blog_id = ' . $sql->quote(dotclear()->blog()->id));
@@ -228,7 +232,7 @@ class FilterWords extends Spamfilter
         $rs = $sql->select();
 
         if (!$rs->isEmpty() && !$general) {
-            throw new \Exception(__('This word exists'));
+            throw new Exception(__('This word exists'));
         }
 
         if (!$rs->isEmpty() && $general) {
@@ -236,12 +240,14 @@ class FilterWords extends Spamfilter
             $sql
                 ->set('rule_type = ' . $sql->quote('word'))
                 ->set('rule_content = ' . $sql->quote($content))
-                ->set(true === $general && dotclear()->user()->isSuperAdmin() ?
+                ->set(
+                    true === $general && dotclear()->user()->isSuperAdmin() ?
                     'blog_id = NULL' :
                     'blog_id = ' . $sql->quote(dotclear()->blog()->id)
                 )
                 ->where('rule_id = ' . $rs->fInt('rule_id'))
-                ->update();
+                ->update()
+            ;
         } else {
             $sql = new InsertStatement(__METHOD__);
             $sql
@@ -261,7 +267,8 @@ class FilterWords extends Spamfilter
                         ->select()
                         ->fInt() + 1,
                 ]])
-                ->insert();
+                ->insert()
+            ;
         }
     }
 
@@ -284,7 +291,8 @@ class FilterWords extends Spamfilter
 
         $sql
             ->from($this->table)
-            ->delete();
+            ->delete()
+        ;
     }
 
     public function defaultWordsList(): void
@@ -387,7 +395,7 @@ class FilterWords extends Spamfilter
             'vicodin',
             'vioxx',
             'xanax',
-            'zolus'
+            'zolus',
         ];
 
         foreach ($words as $w) {

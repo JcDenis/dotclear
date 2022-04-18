@@ -1,6 +1,6 @@
 <?php
 /**
- * @class Dotclear\Core\Media\Image\ImageMeta
+ * @note Dotclear\Core\Media\Image\ImageMeta
  * @brief Basic image metadata handling tool
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
@@ -9,8 +9,7 @@
  *
  * - Contributor: Mathieu Lecarme.
  *
- * @package Dotclear
- * @subpackage Utils
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,23 +18,22 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Media\Image;
 
-use Dotclear\Exception\UtilsException;
-use Dotclear\Helper\File\Files;
+use Dotclear\Exception\HelperException;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Text;
 
 class ImageMeta
 {
-    /** @var    array   $xmp    Internal XMP array */
-    protected $xmp  = [];
+    /** @var array Internal XMP array */
+    protected $xmp = [];
 
-    /** @var    array   $xmp    Internal IPTC array */
+    /** @var array Internal IPTC array */
     protected $iptc = [];
 
-    /** @var    array   $xmp    Internal EXIF array */
+    /** @var array Internal EXIF array */
     protected $exif = [];
 
-    /** @var    array   $properties     Final properties array */
+    /** @var array Final properties array */
     protected $properties = [
         'Title'             => null,
         'Description'       => null,
@@ -57,89 +55,89 @@ class ImageMeta
         'Country'           => null,
         'State'             => null,
         'City'              => null,
-        'Keywords'          => null
+        'Keywords'          => null,
     ];
 
-    /** @var    array   $xmp_reg     XMP */
+    /** @var array XMP */
     protected $xmp_reg = [
         'Title' => [
-            '%<dc:title>\s*<rdf:Alt>\s*<rdf:li.*?>(.+?)</rdf:li>%msu'
+            '%<dc:title>\s*<rdf:Alt>\s*<rdf:li.*?>(.+?)</rdf:li>%msu',
         ],
         'Description' => [
-            '%<dc:description>\s*<rdf:Alt>\s*<rdf:li.*?>(.+?)</rdf:li>%msu'
+            '%<dc:description>\s*<rdf:Alt>\s*<rdf:li.*?>(.+?)</rdf:li>%msu',
         ],
         'Creator' => [
-            '%<dc:creator>\s*<rdf:Seq>\s*<rdf:li>(.+?)</rdf:li>%msu'
+            '%<dc:creator>\s*<rdf:Seq>\s*<rdf:li>(.+?)</rdf:li>%msu',
         ],
         'Rights' => [
-            '%<dc:rights>\s*<rdf:Alt>\s*<rdf:li.*?>(.+?)</rdf:li>%msu'
+            '%<dc:rights>\s*<rdf:Alt>\s*<rdf:li.*?>(.+?)</rdf:li>%msu',
         ],
         'Make' => [
             '%<tiff:Make>(.+?)</tiff:Make>%msu',
-            '%tiff:Make="(.+?)"%msu'
+            '%tiff:Make="(.+?)"%msu',
         ],
         'Model' => [
             '%<tiff:Model>(.+?)</tiff:Model>%msu',
-            '%tiff:Model="(.+?)"%msu'
+            '%tiff:Model="(.+?)"%msu',
         ],
         'Exposure' => [
             '%<exif:ExposureTime>(.+?)</exif:ExposureTime>%msu',
-            '%exif:ExposureTime="(.+?)"%msu'
+            '%exif:ExposureTime="(.+?)"%msu',
         ],
         'FNumber' => [
             '%<exif:FNumber>(.+?)</exif:FNumber>%msu',
-            '%exif:FNumber="(.+?)"%msu'
+            '%exif:FNumber="(.+?)"%msu',
         ],
         'MaxApertureValue' => [
             '%<exif:MaxApertureValue>(.+?)</exif:MaxApertureValue>%msu',
-            '%exif:MaxApertureValue="(.+?)"%msu'
+            '%exif:MaxApertureValue="(.+?)"%msu',
         ],
         'ExposureProgram' => [
             '%<exif:ExposureProgram>(.+?)</exif:ExposureProgram>%msu',
-            '%exif:ExposureProgram="(.+?)"%msu'
+            '%exif:ExposureProgram="(.+?)"%msu',
         ],
         'ISOSpeedRatings' => [
-            '%<exif:ISOSpeedRatings>\s*<rdf:Seq>\s*<rdf:li>(.+?)</rdf:li>%msu'
+            '%<exif:ISOSpeedRatings>\s*<rdf:Seq>\s*<rdf:li>(.+?)</rdf:li>%msu',
         ],
         'DateTimeOriginal' => [
             '%<exif:DateTimeOriginal>(.+?)</exif:DateTimeOriginal>%msu',
-            '%exif:DateTimeOriginal="(.+?)"%msu'
+            '%exif:DateTimeOriginal="(.+?)"%msu',
         ],
         'ExposureBiasValue' => [
             '%<exif:ExposureBiasValue>(.+?)</exif:ExposureBiasValue>%msu',
-            '%exif:ExposureBiasValue="(.+?)"%msu'
+            '%exif:ExposureBiasValue="(.+?)"%msu',
         ],
         'MeteringMode' => [
             '%<exif:MeteringMode>(.+?)</exif:MeteringMode>%msu',
-            '%exif:MeteringMode="(.+?)"%msu'
+            '%exif:MeteringMode="(.+?)"%msu',
         ],
         'FocalLength' => [
             '%<exif:FocalLength>(.+?)</exif:FocalLength>%msu',
-            '%exif:FocalLength="(.+?)"%msu'
+            '%exif:FocalLength="(.+?)"%msu',
         ],
         'Lens' => [
             '%<aux:Lens>(.+?)</aux:Lens>%msu',
-            '%aux:Lens="(.+?)"%msu'
+            '%aux:Lens="(.+?)"%msu',
         ],
         'CountryCode' => [
             '%<Iptc4xmpCore:CountryCode>(.+?)</Iptc4xmpCore:CountryCode>%msu',
-            '%Iptc4xmpCore:CountryCode="(.+?)"%msu'
+            '%Iptc4xmpCore:CountryCode="(.+?)"%msu',
         ],
         'Country' => [
             '%<photoshop:Country>(.+?)</photoshop:Country>%msu',
-            '%photoshop:Country="(.+?)"%msu'
+            '%photoshop:Country="(.+?)"%msu',
         ],
         'State' => [
             '%<photoshop:State>(.+?)</photoshop:State>%msu',
-            '%photoshop:State="(.+?)"%msu'
+            '%photoshop:State="(.+?)"%msu',
         ],
         'City' => [
             '%<photoshop:City>(.+?)</photoshop:City>%msu',
-            '%photoshop:City="(.+?)"%msu'
-        ]
+            '%photoshop:City="(.+?)"%msu',
+        ],
     ];
 
-    /** @var    array   $iptc_reg     IPTC */
+    /** @var array IPTC */
     protected $iptc_ref = [
         '1#090' => 'Iptc.Envelope.CharacterSet', // Character Set used (32 chars max)
         '2#005' => 'Iptc.ObjectName',            // Title (64 chars max)
@@ -164,10 +162,10 @@ class ImageMeta
         '2#116' => 'Iptc.Copyright',             // Copyright Notice (128 chars max)
         '2#118' => 'Iptc.Contact',               // (128 chars max)
         '2#120' => 'Iptc.Caption',               // Caption/Abstract (2000 chars max)
-        '2#122' => 'Iptc.CaptionWriter'         // Caption Writer/Editor (32 chars max)
+        '2#122' => 'Iptc.CaptionWriter',         // Caption Writer/Editor (32 chars max)
     ];
 
-    /** @var    array   $iptc_to_property   IPTC props */
+    /** @var array IPTC props */
     protected $iptc_to_property = [
         'Iptc.ObjectName'    => 'Title',
         'Iptc.Caption'       => 'Description',
@@ -177,12 +175,12 @@ class ImageMeta
         'Iptc.CountryName'   => 'Country',
         'Iptc.ProvinceState' => 'State',
         'Iptc.City'          => 'City',
-        'Iptc.Keywords'      => 'Keywords'
+        'Iptc.Keywords'      => 'Keywords',
     ];
 
-    /** @var    array   $exif_to_property   EXIF props */
+    /** @var array EXIF props */
     protected $exif_to_property = [
-        //'' => 'Title',
+        // '' => 'Title',
         'ImageDescription'  => 'Description',
         'Artist'            => 'Creator',
         'Copyright'         => 'Rights',
@@ -196,39 +194,35 @@ class ImageMeta
         'DateTimeOriginal'  => 'DateTimeOriginal',
         'ExposureBiasValue' => 'ExposureBiasValue',
         'MeteringMode'      => 'MeteringMode',
-        'FocalLength'       => 'FocalLength'
-        //'' => 'Lens',
-        //'' => 'CountryCode',
-        //'' => 'Country',
-        //'' => 'State',
-        //'' => 'City',
-        //'' => 'Keywords'
+        'FocalLength'       => 'FocalLength',
+        // '' => 'Lens',
+        // '' => 'CountryCode',
+        // '' => 'Country',
+        // '' => 'State',
+        // '' => 'City',
+        // '' => 'Keywords'
     ];
 
     /**
-     * Read metadata
+     * Read metadata.
      *
      * Returns all image metadata in an array as defined in {@link $properties}.
      *
-     * @param   string  $f  Image file path
-     * 
-     * @return  array
+     * @param string $f Image file path
      */
     public static function readMeta(string $f): array
     {
-        $o = new self;
+        $o = new self();
         $o->loadFile($f);
 
         return $o->getMeta();
     }
 
     /**
-     * Get metadata
+     * Get metadata.
      *
      * Returns all image metadata in an array as defined in {@link $properties}.
      * Should call {@link loadFile()} before.
-     *
-     * @return  array
      */
     public function getMeta(): array
     {
@@ -242,7 +236,7 @@ class ImageMeta
             }
         }
 
-        # Fix date format
+        // Fix date format
         if (null !== $this->properties['DateTimeOriginal']) {
             $this->properties['DateTimeOriginal'] = preg_replace(
                 '/^(\d{4}):(\d{2}):(\d{2})/',
@@ -255,16 +249,16 @@ class ImageMeta
     }
 
     /**
-     * Load file
+     * Load file.
      *
      * Loads a file and read its metadata.
      *
-     * @param   string  $f  Image file path
+     * @param string $f Image file path
      */
     public function loadFile(string $f): void
     {
         if (!is_file($f) || !is_readable($f)) {
-            throw new UtilsException('Unable to read file');
+            throw new HelperException('Unable to read file');
         }
 
         $this->readXMP($f);
@@ -273,16 +267,16 @@ class ImageMeta
     }
 
     /**
-     * Read XMP
+     * Read XMP.
      *
      * Reads XML metadata and assigns values to {@link $xmp}.
      *
-     * @param   string  $f  Image file path
+     * @param string $f Image file path
      */
     protected function readXMP(string $f): void
     {
         if (false === ($fp = @fopen($f, 'rb'))) {
-            throw new UtilsException('Unable to open image file');
+            throw new HelperException('Unable to open image file');
         }
 
         $inside = false;
@@ -340,11 +334,11 @@ class ImageMeta
     }
 
     /**
-     * Read IPTC
+     * Read IPTC.
      *
      * Reads IPTC metadata and assigns values to {@link $iptc}.
      *
-     * @param   string  $f  Image file path
+     * @param string $f Image file path
      */
     protected function readIPTC(string $f): void
     {
@@ -366,20 +360,20 @@ class ImageMeta
         }
 
         foreach ($this->iptc_ref as $k => $v) {
-            if (isset($iptc[$k]) && isset($this->iptc_to_property[$v])) {
+            if (isset($iptc[$k], $this->iptc_to_property[$v])) {
                 $this->iptc[$this->iptc_to_property[$v]] = Text::toUTF8(trim(implode(',', $iptc[$k])));
             }
         }
     }
 
     /**
-     * Read EXIF
+     * Read EXIF.
      *
      * Reads EXIF metadata and assigns values to {@link $exif}.
      *
-     * @param   string  $f  Image file path
+     * @param string $f Image file path
      */
-    protected function readEXIF(string$f): void
+    protected function readEXIF(string $f): void
     {
         if (!function_exists('exif_read_data')) {
             return;

@@ -1,12 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Html\Form\Input
- * @brief HTML Forms input field creation helpers
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
  * @package Dotclear
- * @subpackage html.form
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,42 +9,48 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html\Form;
 
-use Dotclear\Helper\Html\Form\Component;
-
+/**
+ * HTML Forms input field creation helpers.
+ *
+ * \Dotclear\Helper\Html\Form\Input
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Helper Html Form
+ */
 class Input extends Component
 {
     private const DEFAULT_ELEMENT = 'input';
 
     /**
-     * Should include the associated label if exist
+     * Should include the associated label if exist.
      *
-     * @var        bool
+     * @var bool
      */
     private $renderLabel = true;
 
     /**
      * Constructs a new instance.
      *
-     * @param      string  $id           The identifier
-     * @param      string  $type         The input type
-     * @param      bool    $renderLabel  Render label if present
+     * @param string $id          The identifier
+     * @param string $type        The input type
+     * @param bool   $renderLabel Render label if present
      */
     public function __construct(string $id = null, string $type = 'text', bool $renderLabel = true)
     {
         parent::__construct(__CLASS__, self::DEFAULT_ELEMENT);
         $this->call('type', $type);
         $this->renderLabel = $renderLabel;
-        if ($id !== null) {
+        if (null !== $id) {
             $this
                 ->set('id', $id)
-                ->set('name', $id);
+                ->set('name', $id)
+            ;
         }
     }
 
     /**
      * Renders the HTML component.
-     *
-     * @return     string
      */
     public function render(): string
     {
@@ -71,7 +71,7 @@ class Input extends Component
     /**
      * Gets the default element.
      *
-     * @return     string  The default element.
+     * @return string the default element
      */
     public function getDefaultElement(): string
     {

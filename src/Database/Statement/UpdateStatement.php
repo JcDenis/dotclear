@@ -1,22 +1,22 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Dotclear\Database\Statement;
 
 use Dotclear\Database\Cursor;
-use Dotclear\Database\Statement\SqlStatement;
 
 /**
- * Update Statement : small utility to build update queries
+ * Update Statement : small utility to build update queries.
  */
 class UpdateStatement extends SqlStatement
 {
     protected $set = [];
 
     /**
-     * Class constructor
+     * Class constructor.
      *
-     * @param mixed     $ctx    optional context
+     * @param mixed $ctx optional context
      */
     public function __construct($ctx = null)
     {
@@ -29,10 +29,10 @@ class UpdateStatement extends SqlStatement
     }
 
     /**
-     * from() alias
+     * from() alias.
      *
-     * @param mixed     $c      the reference clause(s)
-     * @param boolean   $reset  reset previous reference first
+     * @param mixed $c     the reference clause(s)
+     * @param bool  $reset reset previous reference first
      *
      * @return self instance, enabling to chain calls
      */
@@ -44,10 +44,10 @@ class UpdateStatement extends SqlStatement
     }
 
     /**
-     * from() alias
+     * from() alias.
      *
-     * @param mixed     $c      the reference clause(s)
-     * @param boolean   $reset  reset previous reference first
+     * @param mixed $c     the reference clause(s)
+     * @param bool  $reset reset previous reference first
      *
      * @return self instance, enabling to chain calls
      */
@@ -57,10 +57,10 @@ class UpdateStatement extends SqlStatement
     }
 
     /**
-     * Adds update value(s)
+     * Adds update value(s).
      *
-     * @param mixed     $c      the udpate values(s)
-     * @param boolean   $reset  reset previous update value(s) first
+     * @param mixed $c     the udpate values(s)
+     * @param bool  $reset reset previous update value(s) first
      *
      * @return self instance, enabling to chain calls
      */
@@ -79,10 +79,10 @@ class UpdateStatement extends SqlStatement
     }
 
     /**
-     * set() alias
+     * set() alias.
      *
-     * @param      mixed    $c      the update value(s)
-     * @param      boolean  $reset  reset previous update value(s) first
+     * @param mixed $c     the update value(s)
+     * @param bool  $reset reset previous update value(s) first
      *
      * @return self instance, enabling to chain calls
      */
@@ -92,7 +92,7 @@ class UpdateStatement extends SqlStatement
     }
 
     /**
-     * Returns the WHERE part of update statement
+     * Returns the WHERE part of update statement.
      *
      * Useful to construct the where clause used with cursor->update() method
      *
@@ -100,7 +100,7 @@ class UpdateStatement extends SqlStatement
      */
     public function whereStatement(): string
     {
-        # --BEHAVIOR-- coreBeforeUpdateWhereStatement
+        // --BEHAVIOR-- coreBeforeUpdateWhereStatement
         dotclear()->behavior()->call('coreBeforeUpdateWhereStatement', $this);
 
         $query = '';
@@ -125,20 +125,20 @@ class UpdateStatement extends SqlStatement
 
         $query = trim($query);
 
-        # --BEHAVIOR-- coreAfertUpdateWhereStatement
+        // --BEHAVIOR-- coreAfertUpdateWhereStatement
         dotclear()->behavior()->call('coreAfterUpdateWhereStatement', $this, $query);
 
         return $query;
     }
 
     /**
-     * Returns the update statement
+     * Returns the update statement.
      *
      * @return string the statement
      */
     public function statement(): string
     {
-        # --BEHAVIOR-- coreBeforeUpdateStatement
+        // --BEHAVIOR-- coreBeforeUpdateStatement
         dotclear()->behavior()->call('coreBeforeUpdateStatement', $this);
 
         // Check if source given
@@ -177,18 +177,16 @@ class UpdateStatement extends SqlStatement
 
         $query = trim($query);
 
-        # --BEHAVIOR-- coreAfertUpdateStatement
+        // --BEHAVIOR-- coreAfertUpdateStatement
         dotclear()->behavior()->call('coreAfterUpdateStatement', $this, $query);
 
         return $query;
     }
 
     /**
-     * Run the SQL update query
+     * Run the SQL update query.
      *
-     * @param      cursor|null  $cur    The cursor
-     *
-     * @return     bool
+     * @param null|cursor $cur The cursor
      */
     public function update(?Cursor $cur = null): bool
     {
@@ -204,11 +202,9 @@ class UpdateStatement extends SqlStatement
     }
 
     /**
-     * update() alias
+     * update() alias.
      *
-     * @param      cursor|null  $cur    The cursor
-     *
-     * @return     bool
+     * @param null|cursor $cur The cursor
      */
     public function run(?Cursor $cur = null): bool
     {

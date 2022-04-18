@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\ImportExport\Admin\MaintenanceTask\ExportFull
+ * @note Dotclear\Plugin\ImportExport\Admin\MaintenanceTask\ExportFull
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginImportExport
+ * @ingroup  PluginImportExport
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,10 +12,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\ImportExport\Admin\MaintenanceTask;
 
-use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\Html\Form;
-use Dotclear\Helper\Html\Html;
-use Dotclear\Plugin\ImportExport\Admin\MaintenanceTask\ExportFlat;
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
 class ExportFull extends MaintenanceTask
@@ -54,9 +50,8 @@ class ExportFull extends MaintenanceTask
             exit(1);
         }
         // Go to step and show form
-        else {
-            return 1;
-        }
+
+        return 1;
     }
 
     public function step(): ?string
@@ -70,10 +65,11 @@ class ExportFull extends MaintenanceTask
             $ie = new ExportFlat();
             $ie->setURL($this->id);
             $ie->process('ok');
-            
+
             exit(1);
-        } else {
-            return
+        }
+
+        return
             '<p><label for="file_name">' . __('File name:') . '</label>' .
             Form::field('file_name', 50, 255, date('Y-m-d-H-i-') . $this->export_name) .
             '</p>' .
@@ -92,6 +88,5 @@ class ExportFull extends MaintenanceTask
                     'autocomplete' => 'current-password',
                 ]
             ) . '</p>';
-        }
     }
 }

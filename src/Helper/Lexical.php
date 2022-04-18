@@ -1,10 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Lexical
- * @brief Dotclear lexical helper class
- *
  * @package Dotclear
- * @subpackage Utils
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,25 +9,28 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper;
 
-use ArrayObject;
-
+/**
+ * Lexical helper.
+ *
+ * \Dotclear\Helper\Lexical
+ *
+ * @ingroup  Helper Localisation
+ */
 class Lexical
 {
-    /** @var    string  $lexical_lang   Current lang */
+    /** @var string Current lang */
     protected static $lexical_lang = '';
 
     /**
-     * Locale specific array sorting function
+     * Locale specific array sorting function.
      *
-     * @param   array   $arr    single array of strings
-     * @param   string  $ns     admin/public/lang
-     * @param   string  $lang   language to be used if $ns = 'lang'
-     * 
-     * @return  bool
+     * @param array  $arr  single array of strings
+     * @param string $ns   admin/public/lang
+     * @param string $lang language to be used if $ns = 'lang'
      */
     public static function lexicalSort(array &$arr, string $ns = '', string $lang = 'en_US'): bool
     {
-        if ($ns != '') {
+        if ('' != $ns) {
             self::setLexicalLang($ns, $lang);
         }
 
@@ -39,17 +38,15 @@ class Lexical
     }
 
     /**
-     * Locale specific array sorting function (preserving keys)
+     * Locale specific array sorting function (preserving keys).
      *
-     * @param   array   $arr    single array of strings
-     * @param   string  $ns     admin/public/lang
-     * @param   string  $lang   language to be used if $ns = 'lang'
-     * 
-     * @return  bool
+     * @param array  $arr  single array of strings
+     * @param string $ns   admin/public/lang
+     * @param string $lang language to be used if $ns = 'lang'
      */
     public static function lexicalArraySort(array &$arr, string $ns = '', string $lang = 'en_US'): bool
     {
-        if ($ns != '') {
+        if ('' != $ns) {
             self::setLexicalLang($ns, $lang);
         }
 
@@ -57,17 +54,15 @@ class Lexical
     }
 
     /**
-     * Locale specific array sorting function (sorting keys)
+     * Locale specific array sorting function (sorting keys).
      *
-     * @param   array   $arr    single array of strings
-     * @param   string  $ns     admin/public/lang
-     * @param   string  $lang   language to be used if $ns = 'lang'
-     * 
-     * @return  bool
+     * @param array  $arr  single array of strings
+     * @param string $ns   admin/public/lang
+     * @param string $lang language to be used if $ns = 'lang'
      */
     public static function lexicalKeySort(array &$arr, string $ns = '', string $lang = 'en_US'): bool
     {
-        if ($ns != '') {
+        if ('' != $ns) {
             self::setLexicalLang($ns, $lang);
         }
 
@@ -75,14 +70,14 @@ class Lexical
     }
 
     /**
-     * Set or change lang
-     * 
-     * @param   string  $ns     location in code
-     * @param   string  $lang   lang
+     * Set or change lang.
+     *
+     * @param string $ns   location in code
+     * @param string $lang lang
      */
     public static function setLexicalLang(string $ns = '', string $lang = 'en_US'): void
     {
-        if ($ns != 'lang' && self::$lexical_lang == '') {
+        if ('lang' != $ns && '' == self::$lexical_lang) {
             self::$lexical_lang = $lang;
         }
 
@@ -95,6 +90,7 @@ class Lexical
                 setlocale(LC_COLLATE, self::$lexical_lang);
 
                 break;
+
             case 'lang':
                 // Set locale with arg
                 setlocale(LC_COLLATE, $lang);
@@ -476,7 +472,7 @@ class Lexical
     public static function removeDiacritics(string $str): string
     {
         $flags = 'um';
-        for ($i = 0; $i < sizeof(self::$defaultDiacriticsRemovalMap); $i++) {
+        for ($i = 0; sizeof(self::$defaultDiacriticsRemovalMap) > $i; ++$i) {
             $str = preg_replace(
                 self::$defaultDiacriticsRemovalMap[$i]['letters'] . $flags,
                 self::$defaultDiacriticsRemovalMap[$i]['base'],

@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Core\RsExt\RsExtPost
+ * @note Dotclear\Core\RsExt\RsExtPost
  * @brief Dotclear posts record helpers.
  *
- * @package Dotclear
- * @subpackage Core
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,34 +12,33 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\RsExt;
 
-use Dotclear\Container\UserContainer;
-use Dotclear\Core\RsExt\RsExtend;
+use Dotclear\Core\User\UserContainer;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Dt;
 
 class RsExtPost extends RsExtend
 {
-    /** @var    array<int, int>     Nb of attach media */
+    /** @var array<int, int>     Nb of attach media */
     public $_nb_media = [];
 
     /**
      * Determines whether the specified post is editable.
      *
-     * @return  bool    True if the specified rs is editable, False otherwise.
+     * @return bool true if the specified rs is editable, False otherwise
      */
     public function isEditable(): bool
     {
-        # If user is admin or contentadmin, true
+        // If user is admin or contentadmin, true
         if (dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
             return true;
         }
 
-        # No user id in result ? false
+        // No user id in result ? false
         if (!$this->rs->exists('user_id')) {
             return false;
         }
 
-        # If user is usage and owner of the entrie
+        // If user is usage and owner of the entrie
         if (dotclear()->user()->check('usage', dotclear()->blog()->id)
             && $this->rs->f('user_id') == dotclear()->user()->userID()) {
             return true;
@@ -52,21 +50,21 @@ class RsExtPost extends RsExtend
     /**
      * Determines whether the specified post is deletable.
      *
-     * @return  bool    True if the specified rs is deletable, False otherwise.
+     * @return bool true if the specified rs is deletable, False otherwise
      */
     public function isDeletable(): bool
     {
-        # If user is admin, or contentadmin, true
+        // If user is admin, or contentadmin, true
         if (dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
             return true;
         }
 
-        # No user id in result ? false
+        // No user id in result ? false
         if (!$this->rs->exists('user_id')) {
             return false;
         }
 
-        # If user has delete rights and is owner of the entrie
+        // If user has delete rights and is owner of the entrie
         if (dotclear()->user()->check('delete', dotclear()->blog()->id)
             && $this->rs->f('user_id') == dotclear()->user()->userID()) {
             return true;
@@ -77,8 +75,6 @@ class RsExtPost extends RsExtend
 
     /**
      * Returns whether post is the first one of its day.
-     *
-     * @return  bool
      */
     public function firstPostOfDay(): bool
     {
@@ -96,8 +92,6 @@ class RsExtPost extends RsExtend
 
     /**
      * Returns whether post is the last one of its day.
-     *
-     * @return  bool
      */
     public function lastPostOfDay(): bool
     {
@@ -115,38 +109,34 @@ class RsExtPost extends RsExtend
 
     /**
      * Returns whether comments are enabled on post.
-     *
-     * @return  bool
      */
     public function commentsActive(): bool
     {
         return
             dotclear()->blog()->settings()->get('system')->get('allow_comments')
             && $this->rs->f('post_open_comment')
-            && (0 == dotclear()->blog()->settings()->get('system')->get('comments_ttl') 
+            && (
+                0 == dotclear()->blog()->settings()->get('system')->get('comments_ttl')
                 || time() - (dotclear()->blog()->settings()->get('system')->get('comments_ttl') * 86400) < $this->getTS()
             );
     }
 
     /**
      * Returns whether trackbacks are enabled on post.
-     *
-     * @return  bool
      */
     public function trackbacksActive(): bool
     {
         return
             dotclear()->blog()->settings()->get('system')->get('allow_trackbacks')
             && $this->rs->f('post_open_tb')
-            && (0 == dotclear()->blog()->settings()->get('system')->get('trackbacks_ttl') 
+            && (
+                0 == dotclear()->blog()->settings()->get('system')->get('trackbacks_ttl')
                 || time() - (dotclear()->blog()->settings()->get('system')->get('trackbacks_ttl') * 86400) < $this->getTS()
             );
     }
 
     /**
      * Returns whether post has at least one comment.
-     *
-     * @return  bool
      */
     public function hasComments(): bool
     {
@@ -155,8 +145,6 @@ class RsExtPost extends RsExtend
 
     /**
      * Returns whether post has at least one trackbacks.
-     *
-     * @return  bool
      */
     public function hasTrackbacks(): bool
     {
@@ -165,8 +153,6 @@ class RsExtPost extends RsExtend
 
     /**
      * Returns whether post has been updated since publication.
-     *
-     * @return  bool
      */
     public function isRepublished(): bool
     {
@@ -177,19 +163,20 @@ class RsExtPost extends RsExtend
     /**
      * Gets the full post url.
      *
-     * @return  string  The url.
+     * @return string the url
      */
     public function getURL(): string
     {
         return dotclear()->blog()->url . dotclear()->posttype()->getPostPublicURL(
-            $this->rs->f('post_type'), Html::sanitizeURL($this->rs->f('post_url'))
+            $this->rs->f('post_type'),
+            Html::sanitizeURL($this->rs->f('post_url'))
         );
     }
 
     /**
      * Returns full post category URL.
      *
-     * @return string   The category url.
+     * @return string the category url
      */
     public function getCategoryURL(): string
     {
@@ -198,8 +185,6 @@ class RsExtPost extends RsExtend
 
     /**
      * Returns whether post has an excerpt.
-     *
-     * @return  bool
      */
     public function isExtended(): bool
     {
@@ -209,13 +194,13 @@ class RsExtPost extends RsExtend
     /**
      * Gets the post timestamp.
      *
-     * @param   string  $type   The type, (dt|upddt|creadt) defaults to post_dt
+     * @param string $type The type, (dt|upddt|creadt) defaults to post_dt
      *
-     * @return  int             The ts.
+     * @return int the ts
      */
     public function getTS(string $type = ''): int
     {
-        return match($type) {
+        return match ($type) {
             'upddt'  => strtotime($this->rs->f('post_upddt')),
             'creadt' => strtotime($this->rs->f('post_creadt')),
             default  => strtotime($this->rs->f('post_dt')),
@@ -225,30 +210,30 @@ class RsExtPost extends RsExtend
     /**
      * Returns post date formating according to the ISO 8601 standard.
      *
-     * @param   string  $type   The type, (dt|upddt|creadt) defaults to post_dt
+     * @param string $type The type, (dt|upddt|creadt) defaults to post_dt
      *
-     * @return  string          The iso 8601 date.
+     * @return string the iso 8601 date
      */
     public function getISO8601Date(string $type = ''): string
     {
         return match ($type) {
             'upddt', 'creadt' => Dt::iso8601($this->getTS($type) + Dt::getTimeOffset($this->rs->f('post_tz')), $this->rs->f('post_tz')),
-            default           => Dt::iso8601($this->getTS(), $this->rs->f('post_tz')),
+            default => Dt::iso8601($this->getTS(), $this->rs->f('post_tz')),
         };
     }
 
     /**
      * Returns post date formating according to RFC 822.
      *
-     * @param   string  $type   The type, (dt|upddt|creadt) defaults to post_dt
+     * @param string $type The type, (dt|upddt|creadt) defaults to post_dt
      *
-     * @return  string          The rfc 822 date.
+     * @return string the rfc 822 date
      */
     public function getRFC822Date(string $type = ''): string
     {
         return match ($type) {
             'upddt', 'creadt' => Dt::rfc822($this->getTS($type) + Dt::getTimeOffset($this->rs->f('post_tz')), $this->rs->f('post_tz')),
-            default           => Dt::rfc822($this->getTS($type), $this->rs->f('post_tz')),
+            default => Dt::rfc822($this->getTS($type), $this->rs->f('post_tz')),
         };
     }
 
@@ -256,10 +241,10 @@ class RsExtPost extends RsExtend
      * Returns post date with <var>$format</var> as formatting pattern. If format
      * is empty, uses <var>date_format</var> blog setting.
      *
-     * @param   string  $format     The date format pattern
-     * @param   string  $type       The type, (dt|upddt|creadt) defaults to post_dt
+     * @param string $format The date format pattern
+     * @param string $type   The type, (dt|upddt|creadt) defaults to post_dt
      *
-     * @return  string              The date.
+     * @return string the date
      */
     public function getDate(string $format, string $type = ''): string
     {
@@ -267,7 +252,7 @@ class RsExtPost extends RsExtend
             $format = dotclear()->blog()->settings()->get('system')->get('date_format');
         }
 
-        return match($type) {
+        return match ($type) {
             'upddt'  => Dt::dt2str($format, $this->rs->f('post_upddt'), $this->rs->f('post_tz')),
             'creadt' => Dt::dt2str($format, $this->rs->f('post_creadt'), $this->rs->f('post_tz')),
             default  => Dt::dt2str($format, $this->rs->f('post_dt')),
@@ -278,10 +263,10 @@ class RsExtPost extends RsExtend
      * Returns post time with <var>$format</var> as formatting pattern. If format
      * is empty, uses <var>time_format</var> blog setting.
      *
-     * @param   string  $format     The time format pattern
-     * @param   string  $type       The type, (dt|upddt|creadt) defaults to post_dt
+     * @param string $format The time format pattern
+     * @param string $type   The type, (dt|upddt|creadt) defaults to post_dt
      *
-     * @return  string              The time.
+     * @return string the time
      */
     public function getTime(string $format, string $type = ''): string
     {
@@ -300,7 +285,7 @@ class RsExtPost extends RsExtend
      * Returns author common name using user_id, user_name, user_firstname and
      * user_displayname fields.
      *
-     * @return  string  The author common name.
+     * @return string the author common name
      */
     public function getAuthorCN(): string
     {
@@ -314,8 +299,6 @@ class RsExtPost extends RsExtend
 
     /**
      * Returns author common name with a link if he specified one in its preferences.
-     *
-     * @return  string
      */
     public function getAuthorLink(): string
     {
@@ -332,9 +315,9 @@ class RsExtPost extends RsExtend
      * Returns author e-mail address. If <var>$encoded</var> is true, "@" sign is
      * replaced by "%40" and "." by "%2e".
      *
-     * @param   bool    $encoded    Encode address
+     * @param bool $encoded Encode address
      *
-     * @return  string              The author email.
+     * @return string the author email
      */
     public function getAuthorEmail(bool $encoded = true): string
     {
@@ -344,7 +327,7 @@ class RsExtPost extends RsExtend
     /**
      * Gets the post feed unique id.
      *
-     * @return  string  The feed id.
+     * @return string the feed id
      */
     public function getFeedID(): string
     {
@@ -354,14 +337,12 @@ class RsExtPost extends RsExtend
     /**
      * Returns trackback RDF information block in HTML comment.
      *
-     * @param   string  $format     The format (html|xml)
-     *
-     * @return  string
+     * @param string $format The format (html|xml)
      */
     public function getTrackbackData(string $format = 'html'): string
     {
         return
-        ($format == 'xml' ? "<![CDATA[>\n" : '') .
+        ('xml' == $format ? "<![CDATA[>\n" : '') .
         "<!--\n" .
         '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"' . "\n" .
         '  xmlns:dc="http://purl.org/dc/elements/1.1/"' . "\n" .
@@ -372,14 +353,14 @@ class RsExtPost extends RsExtend
         '  dc:title="' . htmlspecialchars($this->rs->f('post_title'), ENT_COMPAT, 'UTF-8') . '"' . "\n" .
         '  trackback:ping="' . $this->getTrackbackLink() . '" />' . "\n" .
             "</rdf:RDF>\n" .
-            ($format == 'xml' ? '<!]]><!--' : '') .
+            ('xml' == $format ? '<!]]><!--' : '') .
             "-->\n";
     }
 
     /**
      * Gets the post trackback full URL.
      *
-     * @return  string  The trackback link.
+     * @return string the trackback link
      */
     public function getTrackbackLink(): string
     {
@@ -390,9 +371,9 @@ class RsExtPost extends RsExtend
      * Returns post content. If <var>$absolute_urls</var> is true, appends full
      * blog URL to each relative post URLs.
      *
-     * @param   bool    $absolute_urls  With absolute URLs
+     * @param bool $absolute_urls With absolute URLs
      *
-     * @return  string                  The content.
+     * @return string the content
      */
     public function getContent(bool $absolute_urls = false): string
     {
@@ -405,9 +386,9 @@ class RsExtPost extends RsExtend
      * Returns post excerpt. If <var>$absolute_urls</var> is true, appends full
      * blog URL to each relative post URLs.
      *
-     * @param   bool    $absolute_urls  With absolute URLs
+     * @param bool $absolute_urls With absolute URLs
      *
-     * @return  string                  The excerpt.
+     * @return string the excerpt
      */
     public function getExcerpt(bool $absolute_urls = false): string
     {
@@ -419,9 +400,9 @@ class RsExtPost extends RsExtend
     /**
      * Returns post media count using a subquery.
      *
-     * @param   mixed   $link_type  The link type
+     * @param mixed $link_type The link type
      *
-     * @return  int                 Number of media.
+     * @return int number of media
      */
     public function countMedia(mixed $link_type = null): int
     {
@@ -435,18 +416,18 @@ class RsExtPost extends RsExtend
             $strReq .= "AND link_type = '" . dotclear()->con()->escape($link_type) . "'";
         }
 
-        $res = dotclear()->con()->select($strReq)->fInt();
+        $res                                 = dotclear()->con()->select($strReq)->fInt();
         $this->_nb_media[$this->rs->index()] = $res;
 
         return $res;
     }
 
     /**
-     * Returns true if current category if in given cat_url subtree
+     * Returns true if current category if in given cat_url subtree.
      *
-     * @param   string      $cat_url    The cat url
+     * @param string $cat_url The cat url
      *
-     * @return  bool                    true if current cat is in given cat subtree
+     * @return bool true if current cat is in given cat subtree
      */
     public function underCat(string $cat_url): bool
     {

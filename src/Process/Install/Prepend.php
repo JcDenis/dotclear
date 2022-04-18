@@ -2,8 +2,7 @@
 /**
  * @brief Dotclear install core prepend class
  *
- * @package Dotclear
- * @subpackage Install
+ * @ingroup  Install
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,23 +16,21 @@ use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Process\Admin\Resource\Resource;
 use Dotclear\Process\Admin\Favorite\Favorite;
-use Dotclear\Process\Install\Install;
-use Dotclear\Process\Install\Wizard;
 
 class Prepend extends Core
 {
-    /** @var    Favorite   Favorite instance */
+    /** @var Favorite Favorite instance */
     private $favorite;
 
-    /** @var    Resource   Resource instance */
+    /** @var resource Resource instance */
     private $resource;
 
     protected $process = 'Install';
 
     /**
-     * Get favorite instance
+     * Get favorite instance.
      *
-     * @return  Favorite   Favorite instance
+     * @return Favorite Favorite instance
      */
     public function favorite(): Favorite
     {
@@ -45,9 +42,9 @@ class Prepend extends Core
     }
 
     /**
-     * Get resource instance
+     * Get resource instance.
      *
-     * @return  Resource   Resource instance
+     * @return resource Resource instance
      */
     public function resource(): Resource
     {
@@ -60,18 +57,19 @@ class Prepend extends Core
 
     protected function process(string $_ = null): void
     {
-        /* Serve a file (css, png, ...) */
+        // Serve a file (css, png, ...)
         if (!empty($_GET['df'])) {
             Files::serveFile($_GET['df'], [Path::implodeRoot('Process', 'Admin', 'resources')]);
+
             exit;
         }
 
-        /* Load parent (or part of) to get some constants */
+        // Load parent (or part of) to get some constants
         if (!defined('DOTCLEAR_CONFIG_PATH')) {
             parent::process();
         }
 
-        /* No configuration ? start installalation process */
+        // No configuration ? start installalation process
         if (!is_file(\DOTCLEAR_CONFIG_PATH)) {
             new Wizard();
         } else {

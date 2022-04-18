@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\ImportExport\Admin\Lib\Module\ImportFeed
+ * @note Dotclear\Plugin\ImportExport\Admin\Lib\Module\ImportFeed
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginImportExport
+ * @ingroup  PluginImportExport
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -20,6 +19,7 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Network\Feed\Reader;
 use Dotclear\Plugin\ImportExport\Admin\Lib\Module;
+use Exception;
 
 class ImportFeed extends Module
 {
@@ -35,12 +35,13 @@ class ImportFeed extends Module
         // otherwise returns false
 
         $dns = $this->gethostbynamel6($host, $try_a);
-        if ($dns == false) {
+        if (false == $dns) {
             return false;
         }
 
         return $dns[0];
     }
+
     private function gethostbynamel6($host, $try_a = false)
     {
         // get AAAA records for $host,
@@ -49,7 +50,7 @@ class ImportFeed extends Module
         // otherwise returns false
 
         $dns6 = dns_get_record($host, DNS_AAAA);
-        if ($try_a == true) {
+        if (true == $try_a) {
             $dns4 = dns_get_record($host, DNS_A);
             $dns  = array_merge($dns4, $dns6);
         } else {
@@ -58,15 +59,15 @@ class ImportFeed extends Module
         $ip6 = [];
         $ip4 = [];
         foreach ($dns as $record) {
-            if ($record['type'] == 'A') {
+            if ('A' == $record['type']) {
                 $ip4[] = $record['ip'];
             }
-            if ($record['type'] == 'AAAA') {
+            if ('AAAA' == $record['type']) {
                 $ip6[] = $record['ipv6'];
             }
         }
         if (count($ip6) < 1) {
-            if ($try_a == true) {
+            if (true == $try_a) {
                 if (count($ip4) < 1) {
                     return false;
                 }
@@ -89,7 +90,7 @@ class ImportFeed extends Module
 
     public function process($do)
     {
-        if ($do == 'ok') {
+        if ('ok' == $do) {
             $this->status = true;
 
             return;
@@ -138,7 +139,7 @@ class ImportFeed extends Module
         }
 
         $feed = Reader::quickParse($this->feed_url);
-        if ($feed === false) {
+        if (false === $feed) {
             throw new ModuleException(__('Cannot retrieve feed URL.'));
         }
         if (count($feed->items) == 0) {
@@ -158,7 +159,7 @@ class ImportFeed extends Module
 
             try {
                 $post_id = dotclear()->blog()->addPost($cur);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->con()->rollback();
 
                 throw $e;
@@ -179,8 +180,7 @@ class ImportFeed extends Module
             dotclear()->notice()->success(__('Content successfully imported.'));
         }
 
-        echo
-        '<form action="' . $this->getURL(true) . '" method="post">' .
+        echo '<form action="' . $this->getURL(true) . '" method="post">' .
         '<p>' . sprintf(__('Add a feed content to the current blog: <strong>%s</strong>.'), Html::escapeHTML(dotclear()->blog()->name)) . '</p>' .
 
         '<p><label for="feed_url">' . __('Feed URL:') . '</label>' .

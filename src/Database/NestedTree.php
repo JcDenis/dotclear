@@ -1,13 +1,12 @@
 <?php
 /**
- * @class Dotclear\Database\NestedTree
+ * @note Dotclear\Database\NestedTree
  * @brief Database helper to construct nested tree
  *
  * nestedTree class is based on excellent work of Kuzma Feskov
  * (http://php.russofile.ru/ru/authors/sql/nestedsets01/)
  *
- * @package Dotclear
- * @subpackage Database
+ * @ingroup  Database
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,10 +15,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Database;
 
-use Dotclear\Database\AbstractConnection;
-use Dotclear\Database\Cursor;
-use Dotclear\Database\Record;
 use Dotclear\Exception\DatabaseException;
+use Exception;
 
 abstract class NestedTree
 {
@@ -35,7 +32,7 @@ abstract class NestedTree
     /**
      * Constructs a new instance.
      *
-     * @param      AbstractConnection  $con    The con
+     * @param AbstractConnection $con The con
      */
     public function __construct(protected AbstractConnection $con)
     {
@@ -44,12 +41,12 @@ abstract class NestedTree
     /**
      * Gets the children.
      *
-     * @param   int         $start      The start
-     * @param   int|null    $id         The identifier
-     * @param   string      $sort       The sort
-     * @param   array       $fields     The fields
+     * @param int      $start  The start
+     * @param null|int $id     The identifier
+     * @param string   $sort   The sort
+     * @param array    $fields The fields
      *
-     * @return  Record                  The children.
+     * @return Record the children
      */
     public function getChildren(int $start = 0, ?int $id = null, string $sort = 'asc', array $fields = []): Record
     {
@@ -64,7 +61,7 @@ abstract class NestedTree
         . $this->getCondition('AND', 'C1.')
         . 'GROUP BY C2.' . $this->f_id . ', C2.' . $this->f_left . ', C2.' . $this->f_right . ' ' . $fields . ' '
         . ' %s '
-        . 'ORDER BY C2.' . $this->f_left . ' ' . ($sort == 'asc' ? 'ASC' : 'DESC') . ' ';
+        . 'ORDER BY C2.' . $this->f_left . ' ' . ('asc' == $sort ? 'ASC' : 'DESC') . ' ';
 
         $from = $where = '';
         if (0 < $start) {
@@ -86,10 +83,10 @@ abstract class NestedTree
     /**
      * Gets the parents.
      *
-     * @param   int     $id         The identifier
-     * @param   array   $fields     The fields
+     * @param int   $id     The identifier
+     * @param array $fields The fields
      *
-     * @return  Record              The parents.
+     * @return Record the parents
      */
     public function getParents(int $id, array $fields = []): Record
     {
@@ -110,10 +107,10 @@ abstract class NestedTree
     /**
      * Gets the parent.
      *
-     * @param   int     $id         The identifier
-     * @param   array   $fields     The fields
+     * @param int   $id     The identifier
+     * @param array $fields The fields
      *
-     * @return  Record              The parent.
+     * @return Record the parent
      */
     public function getParent(int $id, array $fields = []): Record
     {
@@ -138,12 +135,10 @@ abstract class NestedTree
     /**
      * Adds a node.
      *
-     * @param   mixed   $data       The data
-     * @param   int     $target     The target
+     * @param mixed $data   The data
+     * @param int   $target The target
      *
-     * @throws  DatabaseException
-     *
-     * @return  int|false
+     * @throws DatabaseException
      */
     public function addNode(mixed $data, int $target = 0): int|false
     {
@@ -160,7 +155,7 @@ abstract class NestedTree
             unset($D);
         }
 
-        # We want to put it at the end
+        // We want to put it at the end
         $this->con->writeLock($this->table);
 
         try {
@@ -174,8 +169,8 @@ abstract class NestedTree
             );
             $last = $rs->fInt('n_r') == 0 ? 1 : $rs->fInt('n_r');
 
-            $data->setField($this->f_id, $id + 1);
-            $data->setField($this->f_left, $last + 1);
+            $data->setField($this->f_id, $id      + 1);
+            $data->setField($this->f_left, $last  + 1);
             $data->setField($this->f_right, $last + 2);
 
             $data->insert();
@@ -186,8 +181,8 @@ abstract class NestedTree
 
                 return $data->getField($this->f_id);
             } catch (DatabaseException) {
-            } # We don't mind error in this case
-        } catch (\Exception $e) {
+            } // We don't mind error in this case
+        } catch (Exception $e) {
             $this->con->unlock();
 
             throw $e;
@@ -197,15 +192,15 @@ abstract class NestedTree
     }
 
     /**
-     * Update position
+     * Update position.
      *
-     * @param   int     $id     The identifier
-     * @param   int     $left   The left
-     * @param   int     $right  The right
+     * @param int $id    The identifier
+     * @param int $left  The left
+     * @param int $right The right
      */
     public function updatePosition(int $id, int $left, int $right): void
     {
-        $sql        = 'UPDATE ' . $this->table . ' SET '
+        $sql = 'UPDATE ' . $this->table . ' SET '
         . $this->f_left . ' = ' . $left . ', '
         . $this->f_right . ' = ' . $right
         . ' WHERE ' . $this->f_id . ' = ' . $id
@@ -216,7 +211,7 @@ abstract class NestedTree
         try {
             $this->con->execute($sql);
             $this->con->commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->con->rollback();
 
             throw $e;
@@ -224,12 +219,12 @@ abstract class NestedTree
     }
 
     /**
-     * Delete a node
+     * Delete a node.
      *
-     * @param   int     $node           The node
-     * @param   bool    $keep_children  keep children
+     * @param int  $node          The node
+     * @param bool $keep_children keep children
      *
-     * @throws  DatabaseException
+     * @throws DatabaseException
      */
     public function deleteNode(int $node, bool $keep_children = true): void
     {
@@ -285,7 +280,7 @@ abstract class NestedTree
             }
 
             $this->con->commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->con->rollback();
 
             throw $e;
@@ -293,7 +288,7 @@ abstract class NestedTree
     }
 
     /**
-     * Reset order
+     * Reset order.
      */
     public function resetOrder(): void
     {
@@ -318,7 +313,7 @@ abstract class NestedTree
                 );
             }
             $this->con->commit();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->con->rollback();
 
             throw $e;
@@ -328,10 +323,10 @@ abstract class NestedTree
     /**
      * Sets the node parent.
      *
-     * @param   int     $node       The node
-     * @param   int     $target     The target
+     * @param int $node   The node
+     * @param int $target The target
      *
-     * @throws  DatabaseException
+     * @throws DatabaseException
      */
     public function setNodeParent(int $node, int $target = 0): void
     {
@@ -347,7 +342,7 @@ abstract class NestedTree
         $node_right = $rs->fInt($this->f_right);
         $node_level = $rs->fInt('level');
 
-        if ($target > 0) {
+        if (0 < $target) {
             $rs = $this->getChildren(0, $target);
         } else {
             $rs = $this->con->select(
@@ -362,24 +357,24 @@ abstract class NestedTree
 
         if ($node_left == $target_left
             || ($target_left >= $node_left && $target_left <= $node_right)
-            || ($node_level == $target_level + 1 && $node_left > $target_left && $node_right < $target_right)
+            || ($target_level + 1 == $node_level && $node_left > $target_left && $node_right < $target_right)
         ) {
             throw new DatabaseException('Cannot move tree');
         }
 
-        if ($target_left < $node_left && $target_right > $node_right && $target_level < $node_level - 1) {
+        if ($target_left < $node_left && $target_right > $node_right && $node_level - 1 > $target_level) {
             $sql = 'UPDATE ' . $this->table . ' SET '
             . $this->f_right . ' = CASE '
-            . 'WHEN ' . $this->f_right . ' BETWEEN ' . ($node_right + 1) . ' AND ' . ($target_right - 1) . ' '
-            . 'THEN ' . $this->f_right . '-(' . ($node_right - $node_left + 1) . ') '
+            . 'WHEN ' . $this->f_right . ' BETWEEN ' . ($node_right       + 1) . ' AND ' . ($target_right - 1) . ' '
+            . 'THEN ' . $this->f_right . '-(' . ($node_right                                              - $node_left + 1) . ') '
             . 'WHEN ' . $this->f_left . ' BETWEEN ' . $node_left . ' AND ' . $node_right . ' '
             . 'THEN ' . $this->f_right . '+' . ((($target_right - $node_right - $node_level + $target_level) / 2) * 2 + $node_level - $target_level - 1) . ' '
             . 'ELSE '
             . $this->f_right . ' '
             . 'END, '
             . $this->f_left . ' = CASE '
-            . 'WHEN ' . $this->f_left . ' BETWEEN ' . ($node_right + 1) . ' AND ' . ($target_right - 1) . ' '
-            . 'THEN ' . $this->f_left . '-(' . ($node_right - $node_left + 1) . ') '
+            . 'WHEN ' . $this->f_left . ' BETWEEN ' . ($node_right       + 1) . ' AND ' . ($target_right - 1) . ' '
+            . 'THEN ' . $this->f_left . '-(' . ($node_right                                              - $node_left + 1) . ') '
             . 'WHEN ' . $this->f_left . ' BETWEEN ' . $node_left . ' AND ' . $node_right . ' '
             . 'THEN ' . $this->f_left . '+' . ((($target_right - $node_right - $node_level + $target_level) / 2) * 2 + $node_level - $target_level - 1) . ' '
             . 'ELSE ' . $this->f_left . ' '
@@ -389,7 +384,7 @@ abstract class NestedTree
             $sql = 'UPDATE ' . $this->table . ' SET '
             . $this->f_left . ' = CASE '
             . 'WHEN ' . $this->f_left . ' BETWEEN ' . $target_right . ' AND ' . ($node_left - 1) . ' '
-            . 'THEN ' . $this->f_left . '+' . ($node_right - $node_left + 1) . ' '
+            . 'THEN ' . $this->f_left . '+' . ($node_right                                  - $node_left + 1) . ' '
             . 'WHEN ' . $this->f_left . ' BETWEEN ' . $node_left . ' AND ' . $node_right . ' '
             . 'THEN ' . $this->f_left . '-(' . ($node_left - $target_right) . ') '
             . 'ELSE ' . $this->f_left . ' '
@@ -413,8 +408,8 @@ abstract class NestedTree
             . 'ELSE ' . $this->f_left . ' '
             . 'END, '
             . $this->f_right . ' = CASE '
-            . 'WHEN ' . $this->f_right . ' BETWEEN ' . ($node_right + 1) . ' AND ' . ($target_right - 1) . ' '
-            . 'THEN ' . $this->f_right . '-' . ($node_right - $node_left + 1) . ' '
+            . 'WHEN ' . $this->f_right . ' BETWEEN ' . ($node_right      + 1) . ' AND ' . ($target_right - 1) . ' '
+            . 'THEN ' . $this->f_right . '-' . ($node_right                                              - $node_left + 1) . ' '
             . 'WHEN ' . $this->f_right . ' BETWEEN ' . $node_left . ' AND ' . $node_right . ' '
             . 'THEN ' . $this->f_right . '+' . ($target_right - 1 - $node_right) . ' '
             . 'ELSE ' . $this->f_right . ' '
@@ -431,11 +426,11 @@ abstract class NestedTree
     /**
      * Sets the node position.
      *
-     * @param   int     $nodeA      The node a
-     * @param   int     $nodeB      The node b
-     * @param   string  $position   The position
+     * @param int    $nodeA    The node a
+     * @param int    $nodeB    The node b
+     * @param string $position The position
      *
-     * @throws  DatabaseException
+     * @throws DatabaseException
      */
     public function setNodePosition(int $nodeA, int $nodeB, string $position = 'after'): void
     {
@@ -468,36 +463,36 @@ abstract class NestedTree
             throw new DatabaseException('Cannot change position');
         }
 
-        if ($position == 'before') {
+        if ('before' == $position) {
             if ($A_left > $B_left) {
                 $sql = 'UPDATE ' . $this->table . ' SET '
                 . $this->f_right . ' = CASE WHEN ' . $this->f_left . ' BETWEEN ' . $A_left . ' AND ' . $A_right . ' THEN ' . $this->f_right . ' - (' . ($A_left - $B_left) . ') '
-                . 'WHEN ' . $this->f_left . ' BETWEEN ' . $B_left . ' AND ' . ($A_left - 1) . ' THEN ' . $this->f_right . ' +  ' . ($A_right - $A_left + 1) . ' ELSE ' . $this->f_right . ' END, '
-                . $this->f_left . ' = CASE WHEN ' . $this->f_left . ' BETWEEN ' . $A_left . ' AND ' . $A_right . ' THEN ' . $this->f_left . ' - (' . ($A_left - $B_left) . ') '
-                . 'WHEN ' . $this->f_left . ' BETWEEN ' . $B_left . ' AND ' . ($A_left - 1) . ' THEN ' . $this->f_left . ' + ' . ($A_right - $A_left + 1) . ' ELSE ' . $this->f_left . ' END '
+                . 'WHEN ' . $this->f_left . ' BETWEEN ' . $B_left . ' AND ' . ($A_left                                                                          - 1) . ' THEN ' . $this->f_right . ' +  ' . ($A_right                                                                          - $A_left + 1) . ' ELSE ' . $this->f_right . ' END, '
+                . $this->f_left . ' = CASE WHEN ' . $this->f_left . ' BETWEEN ' . $A_left . ' AND ' . $A_right . ' THEN ' . $this->f_left . ' - (' . ($A_left   - $B_left) . ') '
+                . 'WHEN ' . $this->f_left . ' BETWEEN ' . $B_left . ' AND ' . ($A_left                                                                          - 1) . ' THEN ' . $this->f_left . ' + ' . ($A_right                                                                          - $A_left + 1) . ' ELSE ' . $this->f_left . ' END '
                 . 'WHERE ' . $this->f_left . ' BETWEEN ' . $B_left . ' AND ' . $A_right;
             } else {
                 $sql = 'UPDATE ' . $this->table . ' SET '
-                . $this->f_right . ' = CASE WHEN ' . $this->f_left . ' BETWEEN ' . $A_left . ' AND ' . $A_right . ' THEN ' . $this->f_right . ' + ' . (($B_left - $A_left) - ($A_right - $A_left + 1)) . ' '
-                . 'WHEN ' . $this->f_left . ' BETWEEN ' . ($A_right + 1) . ' AND ' . ($B_left - 1) . ' THEN ' . $this->f_right . ' - (' . (($A_right - $A_left + 1)) . ') ELSE ' . $this->f_right . ' END, '
-                . $this->f_left . ' = CASE WHEN ' . $this->f_left . ' BETWEEN ' . $A_left . ' AND ' . $A_right . ' THEN ' . $this->f_left . ' + ' . (($B_left - $A_left) - ($A_right - $A_left + 1)) . ' '
-                . 'WHEN ' . $this->f_left . ' BETWEEN ' . ($A_right + 1) . ' AND ' . ($B_left - 1) . ' THEN ' . $this->f_left . ' - (' . ($A_right - $A_left + 1) . ') ELSE ' . $this->f_left . ' END '
-                . 'WHERE ' . $this->f_left . ' BETWEEN ' . $A_left . ' AND ' . ($B_left - 1);
+                . $this->f_right . ' = CASE WHEN ' . $this->f_left . ' BETWEEN ' . $A_left . ' AND ' . $A_right . ' THEN ' . $this->f_right . ' + ' . (($B_left                                                            - $A_left)                                                            - ($A_right                                                            - $A_left + 1)) . ' '
+                . 'WHEN ' . $this->f_left . ' BETWEEN ' . ($A_right                                                                                                                              + 1) . ' AND ' . ($B_left - 1) . ' THEN ' . $this->f_right . ' - (' . (($A_right - $A_left                                                                                                                              + 1)) . ') ELSE ' . $this->f_right . ' END, '
+                . $this->f_left . ' = CASE WHEN ' . $this->f_left . ' BETWEEN ' . $A_left . ' AND ' . $A_right . ' THEN ' . $this->f_left . ' + ' . (($B_left                                                              - $A_left)                                                              - ($A_right                                                              - $A_left   + 1)) . ' '
+                . 'WHEN ' . $this->f_left . ' BETWEEN ' . ($A_right                                                                                                                              + 1) . ' AND ' . ($B_left - 1) . ' THEN ' . $this->f_left . ' - (' . ($A_right - $A_left                                                                                                                              + 1) . ') ELSE ' . $this->f_left . ' END '
+                . 'WHERE ' . $this->f_left . ' BETWEEN ' . $A_left . ' AND ' . ($B_left                                                                                                                                    - 1);
             }
         } else {
             if ($A_left > $B_left) {
                 $sql = 'UPDATE ' . $this->table . ' SET '
-                . $this->f_right . ' = CASE WHEN ' . $this->f_left . ' BETWEEN ' . $A_left . ' AND ' . $A_right . ' THEN ' . $this->f_right . ' - (' . ($A_left - $B_left - ($B_right - $B_left + 1)) . ') '
-                . 'WHEN ' . $this->f_left . ' BETWEEN ' . ($B_right + 1) . ' AND ' . ($A_left - 1) . ' THEN ' . $this->f_right . ' +  ' . ($A_right - $A_left + 1) . ' ELSE ' . $this->f_right . ' END, '
-                . $this->f_left . ' = CASE WHEN ' . $this->f_left . ' BETWEEN ' . $A_left . ' AND ' . $A_right . ' THEN ' . $this->f_left . ' - (' . ($A_left - $B_left - ($B_right - $B_left + 1)) . ') '
-                . 'WHEN ' . $this->f_left . ' BETWEEN ' . ($B_right + 1) . ' AND ' . ($A_left - 1) . ' THEN ' . $this->f_left . ' + ' . ($A_right - $A_left + 1) . ' ELSE ' . $this->f_left . ' END '
-                . 'WHERE ' . $this->f_left . ' BETWEEN ' . ($B_right + 1) . ' AND ' . $A_right;
+                . $this->f_right . ' = CASE WHEN ' . $this->f_left . ' BETWEEN ' . $A_left . ' AND ' . $A_right . ' THEN ' . $this->f_right . ' - (' . ($A_left                                                           - $B_left                                                           - ($B_right                                                           - $B_left + 1)) . ') '
+                . 'WHEN ' . $this->f_left . ' BETWEEN ' . ($B_right                                                                                                                             + 1) . ' AND ' . ($A_left - 1) . ' THEN ' . $this->f_right . ' +  ' . ($A_right - $A_left                                                                                                                             + 1) . ' ELSE ' . $this->f_right . ' END, '
+                . $this->f_left . ' = CASE WHEN ' . $this->f_left . ' BETWEEN ' . $A_left . ' AND ' . $A_right . ' THEN ' . $this->f_left . ' - (' . ($A_left                                                             - $B_left                                                             - ($B_right                                                             - $B_left   + 1)) . ') '
+                . 'WHEN ' . $this->f_left . ' BETWEEN ' . ($B_right                                                                                                                             + 1) . ' AND ' . ($A_left - 1) . ' THEN ' . $this->f_left . ' + ' . ($A_right - $A_left                                                                                                                             + 1) . ' ELSE ' . $this->f_left . ' END '
+                . 'WHERE ' . $this->f_left . ' BETWEEN ' . ($B_right                                                                                                                            + 1) . ' AND ' . $A_right;
             } else {
                 $sql = 'UPDATE ' . $this->table . ' SET '
                 . $this->f_right . ' = CASE WHEN ' . $this->f_left . ' BETWEEN ' . $A_left . ' AND ' . $A_right . ' THEN ' . $this->f_right . ' + ' . ($B_right - $A_right) . ' '
-                . 'WHEN ' . $this->f_left . ' BETWEEN ' . ($A_right + 1) . ' AND ' . $B_right . ' THEN ' . $this->f_right . ' - (' . (($A_right - $A_left + 1)) . ') ELSE ' . $this->f_right . ' END, '
-                . $this->f_left . ' = CASE WHEN ' . $this->f_left . ' BETWEEN ' . $A_left . ' AND ' . $A_right . ' THEN ' . $this->f_left . ' + ' . ($B_right - $A_right) . ' '
-                . 'WHEN ' . $this->f_left . ' BETWEEN ' . ($A_right + 1) . ' AND ' . $B_right . ' THEN ' . $this->f_left . ' - (' . ($A_right - $A_left + 1) . ') ELSE ' . $this->f_left . ' END '
+                . 'WHEN ' . $this->f_left . ' BETWEEN ' . ($A_right + 1) . ' AND ' . $B_right . ' THEN ' . $this->f_right . ' - (' . (($A_right                 - $A_left + 1)) . ') ELSE ' . $this->f_right . ' END, '
+                . $this->f_left . ' = CASE WHEN ' . $this->f_left . ' BETWEEN ' . $A_left . ' AND ' . $A_right . ' THEN ' . $this->f_left . ' + ' . ($B_right   - $A_right) . ' '
+                . 'WHEN ' . $this->f_left . ' BETWEEN ' . ($A_right + 1) . ' AND ' . $B_right . ' THEN ' . $this->f_left . ' - (' . ($A_right                   - $A_left + 1) . ') ELSE ' . $this->f_left . ' END '
                 . 'WHERE ' . $this->f_left . ' BETWEEN ' . $A_left . ' AND ' . $B_right;
             }
         }
@@ -509,10 +504,10 @@ abstract class NestedTree
     /**
      * Gets the condition.
      *
-     * @param   string  $start      The start
-     * @param   string  $prefix     The prefix
+     * @param string $start  The start
+     * @param string $prefix The prefix
      *
-     * @return  string              The condition.
+     * @return string the condition
      */
     protected function getCondition(string $start = 'AND', string $prefix = ''): string
     {

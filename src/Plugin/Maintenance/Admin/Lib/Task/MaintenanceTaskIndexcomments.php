@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskIndexcomments
+ * @note Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskIndexcomments
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginMaintenance
+ * @ingroup  PluginMaintenance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -62,19 +61,20 @@ class MaintenanceTaskIndexcomments extends MaintenanceTask
     /**
      * Recreates comments search engine index.
      *
-     * @param  int|null     $start  The start comment index
-     * @param  int|null     $limit  The limit of comment to index
+     * @param null|int $start The start comment index
+     * @param null|int $limit The limit of comment to index
      *
-     * @return int|null     Sum of <var>$start</var> and <var>$limit</var>
+     * @return null|int Sum of <var>$start</var> and <var>$limit</var>
      */
     public function indexAllComments(?int $start = null, ?int $limit = null): ?int
     {
-        $sql = new SelectStatement(__METHOD__);
+        $sql   = new SelectStatement(__METHOD__);
         $count = $sql
             ->column($sql->count('comment_id'))
             ->from(dotclear()->prefix . 'comment')
             ->select()
-            ->fInt();
+            ->fInt()
+        ;
 
         if (null !== $start && null !== $limit) {
             $sql->limit([$start, $limit]);
@@ -84,17 +84,20 @@ class MaintenanceTaskIndexcomments extends MaintenanceTask
             ->columns([
                 'comment_id',
                 'comment_content',
-            ], true) # Re-use statement
-            ->select();
+            ], true) // Re-use statement
+            ->select()
+        ;
 
         $sql = UpdateStatement::init(__METHOD__)
-            ->from(dotclear()->prefix . 'comment');
+            ->from(dotclear()->prefix . 'comment')
+        ;
 
         while ($rs->fetch()) {
             $sql
                 ->set('comment_words = ' . $sql->quote(implode(' ', Text::splitWords($rs->f('comment_content')))), true)
                 ->where('comment_id = ' . $rs->fInt('comment_id'), true)
-                ->update();
+                ->update()
+            ;
         }
 
         return $start + $limit > $count ? null : $start + $limit;

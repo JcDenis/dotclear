@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\ImportExport\Admin\Lib\Module
+ * @note Dotclear\Plugin\ImportExport\Admin\Lib\Module
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginImportExport
+ * @ingroup  PluginImportExport
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -40,7 +39,7 @@ abstract class Module
             $this->name = get_class($this);
         }
 
-        $this->id  = get_class($this); //join('', array_slice(explode('\\', get_class($this)), -1));;
+        $this->id  = get_class($this); // join('', array_slice(explode('\\', get_class($this)), -1));;
         $this->url = dotclear()->adminurl()->get('admin.plugin.ImportExport', ['type' => $this->type, 'module' => $this->id], '&');
     }
 
@@ -62,7 +61,7 @@ abstract class Module
     protected function progressBar($percent)
     {
         $percent = ceil($percent);
-        if ($percent > 100) {
+        if (100 < $percent) {
             $percent = 100;
         }
 

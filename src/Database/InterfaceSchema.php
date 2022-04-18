@@ -1,12 +1,11 @@
 <?php
 /**
- * @class Dotclear\Database\InterfaceSchema
+ * @note Dotclear\Database\InterfaceSchema
  * @brief PHP interface for database Schema
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
- * @package Dotclear
- * @subpackage Database
+ * @ingroup  Database
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -20,55 +19,52 @@ interface InterfaceSchema
     /**
      * This method should return an array of all tables in database for the current connection.
      *
-     * @return     array<string>
+     * @return array<string>
      */
     public function db_get_tables(): array;
 
     /**
      * This method should return an associative array of columns in given table
      * <var>$table</var> with column names in keys. Each line value is an array
-     * with following values:
+     * with following values:.
      *
      * - [type] data type (string)
      * - [len] data length (integer or null)
      * - [null] is null? (bool)
      * - [default] default value (string)
      *
-     * @param      string $table Table name
-     * @return     array
+     * @param string $table Table name
      */
     public function db_get_columns(string $table): array;
 
     /**
      * This method should return an array of keys in given table
-     * <var>$table</var>. Each line value is an array with following values:
+     * <var>$table</var>. Each line value is an array with following values:.
      *
      * - [name] index name (string)
      * - [primary] primary key (bool)
      * - [unique] unique key (bool)
      * - [cols] columns (array)
      *
-     * @param      string $table Table name
-     * @return     array
+     * @param string $table Table name
      */
     public function db_get_keys(string $table): array;
 
     /**
      * This method should return an array of indexes in given table
-     * <var>$table</var>. Each line value is an array with following values:
+     * <var>$table</var>. Each line value is an array with following values:.
      *
      * - [name] index name (string)
      * - [type] index type (string)
      * - [cols] columns (array)
      *
-     * @param      string $table Table name
-     * @return     array
+     * @param string $table Table name
      */
     public function db_get_indexes(string $table): array;
 
     /**
      * This method should return an array of foreign keys in given table
-     * <var>$table</var>. Each line value is an array with following values:
+     * <var>$table</var>. Each line value is an array with following values:.
      *
      * - [name] key name (string)
      * - [c_cols] child columns (array)
@@ -77,8 +73,7 @@ interface InterfaceSchema
      * - [update] on update statement (string)
      * - [delete] on delete statement (string)
      *
-     * @param      string $table Table name
-     * @return     array
+     * @param string $table Table name
      */
     public function db_get_references(string $table): array;
 

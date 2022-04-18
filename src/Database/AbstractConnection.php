@@ -1,12 +1,11 @@
 <?php
 /**
- * @class Dotclear\Database\AbstractConnection
+ * @note Dotclear\Database\AbstractConnection
  * @brief Database connector
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
- * @package Dotclear
- * @subpackage Database
+ * @ingroup  Database
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,63 +14,59 @@ declare(strict_types=1);
 
 namespace Dotclear\Database;
 
-use Dotclear\Database\InterfaceConnection;
-
 abstract class AbstractConnection implements InterfaceConnection
 {
-    /** @var    string  Drvier name */
-    protected $__driver  = null;
+    /** @var string Drvier name */
+    protected $__driver;
 
-    /** @var    string  SQL syntax name */
-    protected $__syntax  = null;
+    /** @var string SQL syntax name */
+    protected $__syntax;
 
-    /** @var    string  SQL syntax name */
-    protected $__version = null;
+    /** @var string SQL syntax name */
+    protected $__version;
 
-    /** @var    object|false    Database resource link */
+    /** @var false|object Database resource link */
     protected $__link = false;
 
-    /** @var    object|bool     Last result resource link */
+    /** @var bool|object Last result resource link */
     protected $__last_result = false;
 
-    /** @var    string  Database name */
-    protected $__database = null;
+    /** @var string Database name */
+    protected $__database;
 
-    /** @var    bool    Enables weak locks for some drivers if true */
+    /** @var bool Enables weak locks for some drivers if true */
     public static $weak_locks = true;
 
-
     /**
-     * Start connection
+     * Start connection.
      *
      * Static function to use to init database layer. Returns a object extending
      * dbLayer.
      *
-     * @param   string  $driver         Driver name
-     * @param   string  $host           Database hostname
-     * @param   string  $database       Database name
-     * @param   string  $user           User ID
-     * @param   string  $password       Password
-     * @param   bool    $persistent     Persistent connection
-     * 
-     * @return  AbstractConnection
+     * @param string $driver     Driver name
+     * @param string $host       Database hostname
+     * @param string $database   Database name
+     * @param string $user       User ID
+     * @param string $password   Password
+     * @param bool   $persistent Persistent connection
      */
     public static function init(string $driver, string $host, string $database, string $user = '', string $password = '', bool $persistent = false): AbstractConnection
     {
         $parent = __CLASS__;
         $class  = '';
 
-        # Set full namespace of distributed database driver
+        // Set full namespace of distributed database driver
         if (in_array($driver, ['mysqli', 'mysqlimb4', 'pgsql', 'sqlite'])) {
             $class = __NAMESPACE__ . '\\Driver\\' . ucfirst($driver) . '\\Connection';
         }
 
-        # You can set \DOTCLEAR_CON_CLASS to whatever you want.
-        # Your new class *should* inherits Dotclear\Database\AbstractConnection class.
+        // You can set \DOTCLEAR_CON_CLASS to whatever you want.
+        // Your new class *should* inherits Dotclear\Database\AbstractConnection class.
         $class = defined('DOTCLEAR_CON_CLASS') ? \DOTCLEAR_CON_CLASS : $class;
 
         if (!class_exists($class) || !is_subclass_of($class, $parent)) {
             trigger_error(sprintf('Database connection class %s does not exist or does not inherit %s', $class, $parent));
+
             exit(1);
         }
 
@@ -79,12 +74,11 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
     /**
-     * @param   string  $host           Database hostname
-     * @param   string  $database       Database name
-     * @param   string  $user           User ID
-     * @param   string  $password       Password
-     * 
-     * @param   bool    $persistent     Persistent connection
+     * @param string $host       Database hostname
+     * @param string $database   Database name
+     * @param string $user       User ID
+     * @param string $password   Password
+     * @param bool   $persistent Persistent connection
      */
     public function __construct(string $host, string $database, string $user = '', string $password = '', bool $persistent = false)
     {
@@ -107,9 +101,7 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
     /**
-     * Returns database driver name
-     *
-     * @return  string
+     * Returns database driver name.
      */
     public function driver(): string
     {
@@ -117,9 +109,7 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
     /**
-     * Returns database SQL syntax name
-     *
-     * @return  string
+     * Returns database SQL syntax name.
      */
     public function syntax(): string
     {
@@ -127,9 +117,7 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
     /**
-     * Returns database driver version
-     *
-     * @return  string
+     * Returns database driver version.
      */
     public function version(): string
     {
@@ -137,9 +125,7 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
     /**
-     * Returns current database name
-     *
-     * @return  string
+     * Returns current database name.
      */
     public function database(): string
     {
@@ -147,9 +133,9 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
     /**
-     * Returns link resource
+     * Returns link resource.
      *
-     * @return  mixed   The resource
+     * @return mixed The resource
      */
     public function link(): mixed
     {
@@ -157,13 +143,11 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
     /**
-     * Run query and get results
+     * Run query and get results.
      *
      * Executes a query and return a {@link Record} object.
      *
-     * @param   string  $sql    SQL query
-     * 
-     * @return  Record
+     * @param string $sql SQL query
      */
     public function select(string $sql): Record
     {
@@ -171,13 +155,13 @@ abstract class AbstractConnection implements InterfaceConnection
 
         $this->__last_result = &$result;
 
-        $info        = [];
-        $info['con'] = &$this;
+        $info         = [];
+        $info['con']  = &$this;
         $info['cols'] = $this->db_num_fields($result);
         $info['rows'] = $this->db_num_rows($result);
         $info['info'] = [];
 
-        for ($i = 0; $i < $info['cols']; $i++) {
+        for ($i = 0; $i < $info['cols']; ++$i) {
             $info['info']['name'][] = $this->db_field_name($result, $i);
             $info['info']['type'][] = $this->db_field_type($result, $i);
         }
@@ -186,11 +170,9 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
     /**
-     * Return an empty record
+     * Return an empty record.
      *
      * Return an empty {@link Record} object (without any information).
-     *
-     * @return Record
      */
     public function nullRecord(): Record
     {
@@ -206,13 +188,13 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
     /**
-     * Run query
+     * Run query.
      *
      * Executes a query and return true if succeed
      *
-     * @param   string  $sql    SQL query
-     * 
-     * @return  bool            True
+     * @param string $sql SQL query
+     *
+     * @return bool True
      */
     public function execute(string $sql): bool
     {
@@ -224,7 +206,7 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
     /**
-     * Begin transaction
+     * Begin transaction.
      *
      * Begins a transaction. Transaction should be {@link commit() commited}
      * or {@link rollback() rollbacked}.
@@ -235,7 +217,7 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
     /**
-     * Commit transaction
+     * Commit transaction.
      *
      * Commits a previoulsy started transaction.
      */
@@ -245,7 +227,7 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
     /**
-     * Rollback transaction
+     * Rollback transaction.
      *
      * Rollbacks a previously started transaction.
      */
@@ -255,11 +237,11 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
     /**
-     * Aquiere write lock
+     * Aquiere write lock.
      *
      * This method lock the given table in write access.
      *
-     * @param   string  $table  Table name
+     * @param string $table Table name
      */
     public function writeLock(string $table): void
     {
@@ -267,7 +249,7 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
     /**
-     * Release lock
+     * Release lock.
      *
      * This method releases an acquiered lock.
      */
@@ -279,7 +261,7 @@ abstract class AbstractConnection implements InterfaceConnection
     /**
      * Vacuum the table given in argument.
      *
-     * @param   string  $table Table name
+     * @param string $table Table name
      */
     public function vacuum(string $table): void
     {
@@ -287,12 +269,10 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
     /**
-     * Changed rows
+     * Changed rows.
      *
      * Returns the number of lines affected by the last DELETE, INSERT or UPDATE
      * query.
-     *
-     * @return  int
      */
     public function changes(): int
     {
@@ -300,11 +280,9 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
     /**
-     * Last error
+     * Last error.
      *
      * Returns the last database error or false if no error.
-     *
-     * @return  string|false
      */
     public function error(): string|false
     {
@@ -312,7 +290,7 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
     /**
-     * Date formatting
+     * Date formatting.
      *
      * Returns a query fragment with date formater.
      *
@@ -325,28 +303,23 @@ abstract class AbstractConnection implements InterfaceConnection
      * - %S : Seconds (00..59)
      * - %Y : Year, numeric, four digits
      *
-     * @param   string  $field      Field name
-     * @param   string  $pattern    Date format
-     * 
-     * @return  string
+     * @param string $field   Field name
+     * @param string $pattern Date format
      */
     public function dateFormat(string $field, string $pattern): string
     {
-        return
-        'TO_CHAR(' . $field . ',' . "'" . $this->escape($pattern) . "') ";
+        return 'TO_CHAR(' . $field . ',' . "'" . $this->escape($pattern) . "') ";
     }
 
     /**
-     * Query Limit
+     * Query Limit.
      *
      * Returns a LIMIT query fragment. <var>$arg1</var> could be an array of
      * offset and limit or an integer which is only limit. If <var>$arg2</var>
      * is given and <var>$arg1</var> is an integer, it would become limit.
      *
-     * @param   array|int   $arg1   array or integer with limit intervals
-     * @param   array|null  $arg2   integer or null
-     * 
-     * @return  string
+     * @param array|int  $arg1 array or integer with limit intervals
+     * @param null|array $arg2 integer or null
      */
     public function limit(array|int $arg1, array|null $arg2 = null): string
     {
@@ -356,7 +329,7 @@ abstract class AbstractConnection implements InterfaceConnection
             $arg1 = $arg1[0];
         }
 
-        if ($arg2 === null) {
+        if (null === $arg2) {
             $sql = ' LIMIT ' . (int) $arg1 . ' ';
         } else {
             $sql = ' LIMIT ' . (int) $arg2 . ' OFFSET ' . (int) $arg1 . ' ';
@@ -366,22 +339,22 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
     /**
-     * IN fragment
+     * IN fragment.
      *
      * Returns a IN query fragment where $in could be an array, a string,
      * an integer or null
      *
-     * @param   array|string|int|null   $in     "IN" values
-     * 
-     * @return  string
+     * @param null|array|int|string $in "IN" values
      */
     public function in(array|string|int|null $in): string
     {
         if (is_null($in)) {
             return ' IN (NULL) ';
-        } elseif (is_string($in)) {
+        }
+        if (is_string($in)) {
             return " IN ('" . $this->escape($in) . "') ";
-        } elseif (is_array($in)) {
+        }
+        if (is_array($in)) {
             foreach ($in as $i => $v) {
                 if (is_null($v)) {
                     $in[$i] = 'NULL';
@@ -397,7 +370,7 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
     /**
-     * ORDER BY fragment
+     * ORDER BY fragment.
      *
      * Returns a ORDER BY query fragment where arguments could be an array or a string
      *
@@ -408,8 +381,6 @@ abstract class AbstractConnection implements InterfaceConnection
      *    order    : ASC or DESC (string) (Ascending order / Descending order)
      *
      * string param field name (Binary ascending order)
-     *
-     * @return  string
      */
     public function orderBy(): string
     {
@@ -431,14 +402,12 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
     /**
-     * Field name(s) fragment (using generic UTF8 collating sequence if available else using SQL LOWER function)
+     * Field name(s) fragment (using generic UTF8 collating sequence if available else using SQL LOWER function).
      *
      * Returns a fields list where args could be an array or a string
      *
      * array param: list of field names
      * string param: field name
-     *
-     * @return  string
      */
     public function lexFields(): string
     {
@@ -447,7 +416,7 @@ abstract class AbstractConnection implements InterfaceConnection
             if (is_string($v)) {
                 $res[] = sprintf($fmt, $v);
             } elseif (is_array($v)) {
-                $res = array_map(function ($i) use ($fmt) {return sprintf($fmt, $i);}, $v);
+                $res = array_map(fn ($i) => sprintf($fmt, $i), $v);
             }
         }
 
@@ -455,12 +424,10 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
     /**
-     * Concat strings
+     * Concat strings.
      *
      * Returns SQL concatenation of methods arguments. Theses arguments
      * should be properly escaped when needed.
-     *
-     * @return  string
      */
     public function concat(): string
     {
@@ -470,13 +437,11 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
     /**
-     * Escape string
+     * Escape string.
      *
      * Returns SQL protected string or array values.
      *
-     * @param   string|array|null    $i        String or array to protect
-     * 
-     * @return  string|array|null
+     * @param null|array|string $i String or array to protect
      */
     public function escape(string|array|null $i): string|array|null
     {
@@ -492,13 +457,11 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
     /**
-     * System escape string
+     * System escape string.
      *
      * Returns SQL system protected string.
      *
-     * @param   string  $str    String to protect
-     * 
-     * @return  string
+     * @param string $str String to protect
      */
     public function escapeSystem(string $str): string
     {
@@ -506,14 +469,12 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
     /**
-     * Cursor object
+     * Cursor object.
      *
      * Returns a new instance of {@link Cursor} class on <var>$table</var> for
      * the current connection.
      *
-     * @param   string  $table  Target table
-     * 
-     * @return  Cursor
+     * @param string $table Target table
      */
     public function openCursor(string $table): Cursor
     {

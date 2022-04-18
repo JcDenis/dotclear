@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Antispam\Common\Spamfilter
+ * @note Dotclear\Plugin\Antispam\Common\Spamfilter
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginAntispam
+ * @ingroup  PluginAntispam
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -24,7 +23,7 @@ class Spamfilter
     public $active      = true;
     public $order       = 100;
     public $auto_delete = false;
-    public $help        = null;
+    public $help;
 
     protected $has_gui = false;
     protected $gui_url = false;
@@ -47,8 +46,8 @@ class Spamfilter
     }
 
     /**
-    This method is called by the constructor and allows you to change some
-    object properties without overloading object constructor.
+     * This method is called by the constructor and allows you to change some
+     * object properties without overloading object constructor.
      */
     protected function setInfo(): void
     {
@@ -63,16 +62,16 @@ class Spamfilter
      * Your filter should also fill $status variable with its own information if
      * comment is a spam.
      *
-     * @param      string  $type     The comment type (comment / trackback)
-     * @param      string  $author   The comment author
-     * @param      string  $email    The comment author email
-     * @param      string  $site     The comment author site
-     * @param      string  $ip       The comment author IP
-     * @param      string  $content  The comment content
-     * @param      integer $post_id  The comment post_id
-     * @param      integer $status   The comment status
+     * @param string $type    The comment type (comment / trackback)
+     * @param string $author  The comment author
+     * @param string $email   The comment author email
+     * @param string $site    The comment author site
+     * @param string $ip      The comment author IP
+     * @param string $content The comment content
+     * @param int    $post_id The comment post_id
+     * @param int    $status  The comment status
      *
-     * @return  bool    Status
+     * @return bool Status
      */
     public function isSpam(string $type, string $author, string $email, string $site, string $ip, string $content, int $post_id, ?int &$status): ?bool
     {
@@ -80,17 +79,17 @@ class Spamfilter
     }
 
     /**
-     * { function_description }
+     * { function_description }.
      *
-     * @param      string  $status   The comment status
-     * @param      string  $filter   The filter
-     * @param      string  $type     The comment type
-     * @param      string  $author   The comment author
-     * @param      string  $email    The comment author email
-     * @param      string  $site     The comment author site
-     * @param      string  $ip       The comment author IP
-     * @param      string  $content  The comment content
-     * @param      Record  $rs       The comment record
+     * @param string $status  The comment status
+     * @param string $filter  The filter
+     * @param string $type    The comment type
+     * @param string $author  The comment author
+     * @param string $email   The comment author email
+     * @param string $site    The comment author site
+     * @param string $ip      The comment author IP
+     * @param string $content The comment content
+     * @param Record $rs      The comment record
      */
     public function trainFilter(string $status, string $filter, string $type, string $author, string $email, string $site, string $ip, string $content, Record $rs): void
     {
@@ -101,10 +100,10 @@ class Spamfilter
      * return a custom message. Message is shown in comment details and in
      * comments list.
      *
-     * @param      string  $status      The status
-     * @param      integer $comment_id  The comment identifier
+     * @param string $status     The status
+     * @param int    $comment_id The comment identifier
      *
-     * @return     string  The status message.
+     * @return string the status message
      */
     public function getStatusMessage(string $status, int $comment_id): string
     {
@@ -115,7 +114,7 @@ class Spamfilter
      * This method is called when you enter filter configuration. Your class should
      * have $has_gui property set to "true" to enable GUI.
      *
-     * @param      string  $url    The GUI url
+     * @param string $url The GUI url
      */
     public function gui(string $url): string
     {
@@ -147,12 +146,10 @@ class Spamfilter
     /**
      * Returns a link to filter GUI if exists or only filter name if has_gui
      * property is false.
-     *
-     * @return     string
      */
     public function guiLink(): string
     {
-        if (($url = $this->guiURL()) !== false) {
+        if (false !== ($url = $this->guiURL())) {
             $url  = Html::escapeHTML($url);
             $link = '<a href="%2$s">%1$s</a>';
         } else {

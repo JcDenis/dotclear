@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Filter\Filter\BlogFilter
+ * @note Dotclear\Process\Admin\Filter\Filter\BlogFilter
  * @brief class for admin blog list filters form
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @since 2.20
  *
@@ -17,7 +16,6 @@ namespace Dotclear\Process\Admin\Filter\Filter;
 
 use ArrayObject;
 use Dotclear\Process\Admin\Filter\Filter;
-use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 
 class BlogFilter extends Filter
 {
@@ -28,10 +26,10 @@ class BlogFilter extends Filter
         $filters = new ArrayObject([
             $this->getPageFilter(),
             $this->getSearchFilter(),
-            $this->getBlogStatusFilter()
+            $this->getBlogStatusFilter(),
         ]);
 
-        # --BEHAVIOR-- adminBlogFilter
+        // --BEHAVIOR-- adminBlogFilter
         dotclear()->behavior()->call('adminBlogFilter', $filters);
 
         $filters = $filters->getArrayCopy();
@@ -40,7 +38,7 @@ class BlogFilter extends Filter
     }
 
     /**
-     * Blog status select
+     * Blog status select.
      */
     public function getBlogStatusFilter(): DefaultFilter
     {
@@ -51,6 +49,7 @@ class BlogFilter extends Filter
                 ['-' => ''],
                 dotclear()->combo()->getBlogStatusesCombo()
             ))
-            ->prime(true);
+            ->prime(true)
+        ;
     }
 }

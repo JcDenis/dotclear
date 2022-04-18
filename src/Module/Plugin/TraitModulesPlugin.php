@@ -1,9 +1,8 @@
 <?php
 /**
- * @class Dotclear\Module\Plugin\TraitModulesPlugin
+ * @note Dotclear\Module\Plugin\TraitModulesPlugin
  *
- * @package Dotclear
- * @subpackage Module
+ * @ingroup  Module
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -25,7 +24,7 @@ trait TraitModulesPlugin
     {
         $paths = dotclear()->config()->get('plugin_dirs');
 
-        # If a plugin directory is set for current blog, it will be added to the end of paths
+        // If a plugin directory is set for current blog, it will be added to the end of paths
         if (dotclear()->blog()) {
             $path = trim((string) dotclear()->blog()->settings()->get('system')->get('module_plugin_dir'));
             if (!empty($path) && false !== ($dir = Path::real(str_starts_with('\\', $path) ? $path : Path::implodeRoot($path), true))) {

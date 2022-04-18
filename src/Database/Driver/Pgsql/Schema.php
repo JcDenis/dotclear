@@ -1,12 +1,11 @@
 <?php
 /**
- * @class Dotclear\Database\Driver\Pgsql\Schema
+ * @note Dotclear\Database\Driver\Pgsql\Schema
  * @brief Pgsql schema driver
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
- * @package Dotclear
- * @subpackage Database
+ * @ingroup  Database
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -24,7 +23,7 @@ class Schema extends AbstractSchema
         'r' => 'restrict',
         'c' => 'cascade',
         'n' => 'set null',
-        'd' => 'set default'
+        'd' => 'set default',
     ];
 
     public function dbt2udt(string $type, ?int &$len, mixed &$default): string
@@ -90,7 +89,7 @@ class Schema extends AbstractSchema
                 'type'    => $type,
                 'len'     => $len,
                 'null'    => $null,
-                'default' => $default
+                'default' => $default,
             ];
         }
 
@@ -123,10 +122,10 @@ class Schema extends AbstractSchema
                 'name'    => $rs->f('idxname'),
                 'primary' => (bool) $rs->f('indisprimary'),
                 'unique'  => (bool) $rs->f('indisunique'),
-                'cols'    => []
+                'cols'    => [],
             ];
 
-            for ($i = 1; $i <= (int) $rs->f('indnatts'); $i++) {
+            for ($i = 1; (int) $rs->f('indnatts') >= $i; ++$i) {
                 $cols        = $this->con->select('SELECT pg_get_indexdef(' . $rs->f('oid') . '::oid, ' . $i . ', true);');
                 $k['cols'][] = $cols->f(0);
             }
@@ -162,10 +161,10 @@ class Schema extends AbstractSchema
             $k = [
                 'name' => $rs->f('idxname'),
                 'type' => $rs->f('amname'),
-                'cols' => []
+                'cols' => [],
             ];
 
-            for ($i = 1; $i <= (int) $rs->f('indnatts'); $i++) {
+            for ($i = 1; (int) $rs->f('indnatts') >= $i; ++$i) {
                 $cols        = $this->con->select('SELECT pg_get_indexdef(' . $rs->f('oid') . '::oid, ' . $i . ', true);');
                 $k['cols'][] = $cols->f(0);
             }
@@ -208,7 +207,7 @@ class Schema extends AbstractSchema
                 'p_table' => $rs->f('reftab'),
                 'p_cols'  => [],
                 'update'  => $this->ref_actions_map[$rs->f('confupdtype')],
-                'delete'  => $this->ref_actions_map[$rs->f('confdeltype')]
+                'delete'  => $this->ref_actions_map[$rs->f('confdeltype')],
             ];
 
             $cols = $this->con->select(sprintf($cols_sql, $rs->f('conrelid'), $conkey, $rs->f('confrelid'), $confkey));
@@ -234,12 +233,12 @@ class Schema extends AbstractSchema
             $null    = $f['null'];
 
             $type = $this->udt2dbt($type, $len, $default);
-            $len  = $len > 0 ? '(' . $len . ')' : '';
+            $len  = 0 < $len ? '(' . $len . ')' : '';
             $null = $null ? 'NULL' : 'NOT NULL';
 
-            if ($default === null) {
+            if (null === $default) {
                 $default = 'DEFAULT NULL';
-            } elseif ($default !== false) {
+            } elseif (false !== $default) {
                 $default = 'DEFAULT ' . $default . ' ';
             } else {
                 $default = '';
@@ -260,15 +259,15 @@ class Schema extends AbstractSchema
     {
         $type = $this->udt2dbt($type, $len, $default);
 
-        if ($default === null) {
+        if (null === $default) {
             $default = 'DEFAULT NULL';
-        } elseif ($default !== false) {
+        } elseif (false !== $default) {
             $default = 'DEFAULT ' . $default . ' ';
         } else {
             $default = '';
         }
 
-        $sql = 'ALTER TABLE ' . $table . ' ADD COLUMN ' . $name . ' ' . $type . ($len > 0 ? '(' . $len . ')' : '') . ' ' . ($null ? 'NULL' : 'NOT NULL') . ' ' . $default;
+        $sql = 'ALTER TABLE ' . $table . ' ADD COLUMN ' . $name . ' ' . $type . (0 < $len ? '(' . $len . ')' : '') . ' ' . ($null ? 'NULL' : 'NOT NULL') . ' ' . $default;
 
         $this->con->execute($sql);
     }
@@ -319,12 +318,12 @@ class Schema extends AbstractSchema
     {
         $type = $this->udt2dbt($type, $len, $default);
 
-        $sql = 'ALTER TABLE ' . $table . ' ALTER COLUMN ' . $name . ' TYPE ' . $type . ($len > 0 ? '(' . $len . ')' : '');
+        $sql = 'ALTER TABLE ' . $table . ' ALTER COLUMN ' . $name . ' TYPE ' . $type . (0 < $len ? '(' . $len . ')' : '');
         $this->con->execute($sql);
 
-        if ($default === null) {
+        if (null === $default) {
             $default = 'SET DEFAULT NULL';
-        } elseif ($default !== false) {
+        } elseif (false !== $default) {
             $default = 'SET DEFAULT ' . $default;
         } else {
             $default = 'DROP DEFAULT';

@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\ImportExport\Admin\Lib\Module\ImportWp
+ * @note Dotclear\Plugin\ImportExport\Admin\Lib\Module\ImportWp
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginImportExport
+ * @ingroup  PluginImportExport
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -22,11 +21,12 @@ use Dotclear\Helper\Network\Http;
 use Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 use Dotclear\Helper\Crypt;
 use Dotclear\Helper\Text;
+use Exception;
 
 class ImportWp extends Module
 {
-    protected $action = null;
-    protected $step   = 1;
+    protected $action;
+    protected $step = 1;
 
     protected $post_offset = 0;
     protected $post_limit  = 20;
@@ -80,7 +80,7 @@ class ImportWp extends Module
         }
         $this->vars = &$_SESSION['wp_import_vars'];
 
-        if ($this->vars['post_limit'] > 0) {
+        if (0 < $this->vars['post_limit']) {
             $this->post_limit = $this->vars['post_limit'];
         }
 
@@ -98,8 +98,8 @@ class ImportWp extends Module
         $this->action = $do;
     }
 
-    # We handle process in another way to always display something to
-    # user
+    // We handle process in another way to always display something to
+    // user
     protected function guiprocess($do)
     {
         switch ($do) {
@@ -122,6 +122,7 @@ class ImportWp extends Module
                 echo $this->progressBar(1);
 
                 break;
+
             case 'step2':
                 $this->step = 2;
                 $this->importUsers();
@@ -129,6 +130,7 @@ class ImportWp extends Module
                 echo $this->progressBar(3);
 
                 break;
+
             case 'step3':
                 $this->step = 3;
                 $this->importCategories();
@@ -141,6 +143,7 @@ class ImportWp extends Module
                 }
 
                 break;
+
             case 'step4':
                 $this->step = 4;
                 $this->importLinks();
@@ -148,6 +151,7 @@ class ImportWp extends Module
                 echo $this->progressBar(7);
 
                 break;
+
             case 'step5':
                 $this->step        = 5;
                 $this->post_offset = !empty($_REQUEST['offset']) ? abs((int) $_REQUEST['offset']) : 0;
@@ -158,6 +162,7 @@ class ImportWp extends Module
                 }
 
                 break;
+
             case 'ok':
                 $this->resetVars();
                 dotclear()->blog()->triggerBlog();
@@ -172,14 +177,13 @@ class ImportWp extends Module
     {
         try {
             $this->guiprocess($this->action);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error($e);
         }
 
         switch ($this->step) {
             case 1:
-                echo
-                '<p>' . sprintf(
+                echo '<p>' . sprintf(
                     __('This will import your WordPress content as new content in the current blog: %s.'),
                     '<strong>' . Html::escapeHTML(dotclear()->blog()->name) . '</strong>'
                 ) . '</p>' .
@@ -240,6 +244,7 @@ class ImportWp extends Module
                 );
 
                 break;
+
             case 2:
                 printf(
                     $this->imForm(2, __('Importing users')),
@@ -247,6 +252,7 @@ class ImportWp extends Module
                 );
 
                 break;
+
             case 3:
                 printf(
                     $this->imForm(3, __('Importing categories')),
@@ -254,6 +260,7 @@ class ImportWp extends Module
                 );
 
                 break;
+
             case 4:
                 printf(
                     $this->imForm(4, __('Importing blogroll')),
@@ -261,6 +268,7 @@ class ImportWp extends Module
                 );
 
                 break;
+
             case 5:
                 $t = sprintf(
                     __('Importing entries from %d to %d / %d'),
@@ -275,9 +283,9 @@ class ImportWp extends Module
                 );
 
                 break;
+
             case 6:
-                echo
-                '<p class="message">' . __('Every newly imported user has received a random password ' .
+                echo '<p class="message">' . __('Every newly imported user has received a random password ' .
                     'and will need to ask for a new one by following the "I forgot my password" link on the login page ' .
                     '(Their registered email address has to be valid.)') . '</p>' .
                 $this->congratMessage();
@@ -286,7 +294,7 @@ class ImportWp extends Module
         }
     }
 
-    # Simple form for step by step process
+    // Simple form for step by step process
     protected function imForm($step, $legend, $submit_value = null)
     {
         if (!$submit_value) {
@@ -306,14 +314,14 @@ class ImportWp extends Module
             '</form>';
     }
 
-    # Error display
+    // Error display
     protected function error($e)
     {
         echo '<div class="error"><strong>' . __('Errors:') . '</strong>' .
         '<p>' . $e->getMessage() . '</p></div>';
     }
 
-    # Database init
+    // Database init
     protected function db()
     {
         $db = AbstractConnection::init('mysqli', $this->vars['db_host'], $this->vars['db_name'], $this->vars['db_user'], $this->vars['db_pwd']);
@@ -327,7 +335,7 @@ class ImportWp extends Module
             $this->has_table[$rs->f(0)] = true;
         }
 
-        # Set this to read data as they were written
+        // Set this to read data as they were written
         try {
             $db->execute('SET NAMES DEFAULT');
         } catch (\Exception) {
@@ -352,7 +360,7 @@ class ImportWp extends Module
         return Text::cleanUTF8(@Text::toUTF8($str));
     }
 
-    # Users import
+    // Users import
     protected function importUsers()
     {
         $db     = $this->db();
@@ -363,7 +371,7 @@ class ImportWp extends Module
             dotclear()->con()->begin();
 
             while ($rs->fetch()) {
-                $user_login                      = preg_replace('/[^A-Za-z0-9@._-]/', '-', $rs->f('user_login'));
+                $user_login                           = preg_replace('/[^A-Za-z0-9@._-]/', '-', $rs->f('user_login'));
                 $this->vars['user_ids'][$rs->f('ID')] = $user_login;
                 if (!dotclear()->users()->userExists($user_login)) {
                     $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'user');
@@ -384,40 +392,47 @@ class ImportWp extends Module
                                 $cur->setField('user_firstname', $this->cleanStr($rs_meta->f('meta_value')));
 
                                 break;
+
                             case 'last_name':
                                 $cur->setField('user_name', $this->cleanStr($rs_meta->f('meta_value')));
 
                                 break;
+
                             case 'description':
                                 $cur->setField('user_desc', $this->cleanStr($rs_meta->f('meta_value')));
 
                                 break;
+
                             case 'rich_editing':
                                 $cur->setField('user_options', new ArrayObject([
                                     'enable_wysiwyg' => 'true' == $rs_meta->f('meta_value') ? true : false,
                                 ]));
 
                                 break;
+
                             case 'wp_user_level':
                                 switch ($rs_meta->f('meta_value')) {
-                                    case '0': # Subscriber
+                                    case '0': // Subscriber
                                         $cur->setField('user_status', 0);
 
                                         break;
-                                    case '1': # Contributor
+
+                                    case '1': // Contributor
                                         $permissions['usage']   = true;
                                         $permissions['publish'] = true;
                                         $permissions['delete']  = true;
 
                                         break;
-                                    case '2': # Author
+
+                                    case '2': // Author
                                     case '3':
                                     case '4':
                                         $permissions['contentadmin'] = true;
                                         $permissions['media']        = true;
 
                                         break;
-                                    case '5': # Editor
+
+                                    case '5': // Editor
                                     case '6':
                                     case '7':
                                         $permissions['contentadmin'] = true;
@@ -427,7 +442,8 @@ class ImportWp extends Module
                                         $permissions['blogroll']     = true;
 
                                         break;
-                                    case '8': # Administrator
+
+                                    case '8': // Administrator
                                     case '9':
                                     case '10':
                                         $permissions['admin'] = true;
@@ -448,7 +464,7 @@ class ImportWp extends Module
             }
             dotclear()->con()->commit();
             $db->close();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             dotclear()->con()->rollback();
             $db->close();
 
@@ -456,7 +472,7 @@ class ImportWp extends Module
         }
     }
 
-    # Categories import
+    // Categories import
     protected function importCategories()
     {
         $db     = $this->db();
@@ -493,14 +509,14 @@ class ImportWp extends Module
             }
 
             $db->close();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $db->close();
 
             throw $e;
         }
     }
 
-    # Blogroll import
+    // Blogroll import
     protected function importLinks()
     {
         $db     = $this->db();
@@ -527,14 +543,14 @@ class ImportWp extends Module
             }
 
             $db->close();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $db->close();
 
             throw $e;
         }
     }
 
-    # Entries import
+    // Entries import
     protected function importPosts(&$percent)
     {
         $db     = $this->db();
@@ -568,7 +584,7 @@ class ImportWp extends Module
             }
 
             $db->close();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $db->close();
 
             throw $e;
@@ -668,7 +684,7 @@ class ImportWp extends Module
         $cur->setField('post_type', $rs->f('post_type'));
         $cur->setField('post_password', $rs->f('post_password') ?: null);
         $cur->setField('post_open_comment', $rs->f('comment_status') == 'open' ? 1 : 0);
-        $cur->setField('post_open_tb', $rs->f('ping_status') == 'open' ? 1 : 0);
+        $cur->setField('post_open_tb', $rs->f('ping_status')         == 'open' ? 1 : 0);
 
         $cur->setField('post_words', implode(' ', Text::splitWords(
             $cur->getField('post_title') . ' ' .
@@ -686,7 +702,7 @@ class ImportWp extends Module
         $this->importComments($rs->fInt('ID'), $cur->getField('post_id'), $db);
         $this->importPings($rs->fInt('ID'), $cur->getField('post_id'), $db);
 
-        # Create tags
+        // Create tags
         $this->importTags($rs->fInt('ID'), $cur->getField('post_id'), $db);
 
         if (isset($old_cat_ids)) {
@@ -699,7 +715,7 @@ class ImportWp extends Module
         }
     }
 
-    # Comments import
+    // Comments import
     protected function importComments($post_id, $new_post_id, $db)
     {
         $count_c = $count_t = 0;
@@ -737,13 +753,13 @@ class ImportWp extends Module
             $cur->insert();
 
             if ($cur->getField('comment_trackback') && 1 == $cur->getField('comment_status')) {
-                $count_t++;
+                ++$count_t;
             } elseif (1 == $cur->getField('comment_status')) {
-                $count_c++;
+                ++$count_c;
             }
         }
 
-        if ($count_t > 0 || $count_c > 0) {
+        if (0 < $count_t || 0 < $count_c) {
             dotclear()->con()->execute(
                 'UPDATE ' . dotclear()->prefix . 'post SET ' .
                 'nb_comment = ' . $count_c . ', ' .
@@ -753,7 +769,7 @@ class ImportWp extends Module
         }
     }
 
-    # Pings import
+    // Pings import
     protected function importPings($post_id, $new_post_id, $db)
     {
         $urls  = [];
@@ -781,7 +797,7 @@ class ImportWp extends Module
         }
     }
 
-    # Meta import
+    // Meta import
     protected function importTags($post_id, $new_post_id, $db)
     {
         $rs = $db->select(

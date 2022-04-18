@@ -1,9 +1,8 @@
 <?php
 /**
- * @class Dotclear\Module\Store\DefineStore
+ * @note Dotclear\Module\Store\DefineStore
  *
- * @package Dotclear
- * @subpackage Module
+ * @ingroup  Module
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only

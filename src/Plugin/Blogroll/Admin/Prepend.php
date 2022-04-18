@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Blogroll\Admin\Prepend
+ * @note Dotclear\Plugin\Blogroll\Admin\Prepend
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginBlogroll
+ * @ingroup  PluginBlogroll
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -24,11 +23,11 @@ class Prepend extends AbstractPrepend
 
     public function loadModule(): void
     {
-        # Menu and favs
+        // Menu and favs
         $this->addStandardMenu('Blog');
         $this->addStandardFavorites('usage,contentadmin');
 
-        # Manage user permissions
+        // Manage user permissions
         dotclear()->behavior()->add(
             'adminUsersActionsHeaders',
             fn () => dotclear()->resource()->load('_users_actions.js', 'Plugin', 'Blogroll')
@@ -36,7 +35,7 @@ class Prepend extends AbstractPrepend
 
         dotclear()->user()->setPermissionType('blogroll', __('manage blogroll'));
 
-        # Widgets
+        // Widgets
         if (dotclear()->adminurl()->is('admin.plugin.Widgets')) {
             new BlogrollWidgets();
         }
@@ -62,7 +61,7 @@ class Prepend extends AbstractPrepend
         $s->table('link')->index('idx_link_blog_id', 'btree', 'blog_id');
         $s->table('link')->reference('fk_link_blog', 'blog_id', 'blog', 'blog_id', 'cascade', 'cascade');
 
-        # Schema installation
+        // Schema installation
         $si      = new Structure(dotclear()->con(), dotclear()->prefix);
         $changes = $si->synchronize($s);
 

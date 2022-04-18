@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat\FlatExport
+ * @note Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat\FlatExport
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginImportExport
+ * @ingroup  PluginImportExport
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,7 +15,6 @@ namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat;
 use Dotclear\Database\Record;
 use Dotclear\Database\AbstractSchema;
 use Dotclear\Exception\ModuleException;
-use Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat\FlatBackupItem;
 
 class FlatExport
 {
@@ -27,7 +25,7 @@ class FlatExport
 
     public function __construct($out = 'php://output')
     {
-        if (($this->fp = fopen($out, 'w')) === false) {
+        if (false === ($this->fp = fopen($out, 'w'))) {
             throw new ModuleException(__('Unable to create output file.'));
         }
         @set_time_limit(300);

@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskZipmedia
+ * @note Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskZipmedia
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginMaintenance
+ * @ingroup  PluginMaintenance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -55,6 +54,7 @@ class MaintenanceTaskZipmedia extends MaintenanceTask
         header('Content-Type: application/x-zip');
         $zip->write();
         unset($zip);
+
         exit(1);
     }
 }

@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Prepend
- * @brief Dotclear admin prepend
+ * @note Dotclear\Process\Admin\Prepend
+ * @brief admin process prepend
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,8 +11,6 @@
 declare(strict_types=1);
 
 namespace Dotclear\Process\Admin;
-
-use ArrayObject;
 
 use Dotclear\Core\Core;
 use Dotclear\Helper\L10n;
@@ -33,55 +30,56 @@ use Dotclear\Process\Admin\ListOption\ListOption;
 use Dotclear\Process\Admin\Notice\Notice;
 use Dotclear\Process\Admin\Menu\Summary;
 use Dotclear\Process\Admin\Resource\Resource;
+use Exception;
 
 class Prepend extends Core
 {
-    /** @var    AdminUrl    AdminUrl instance */
+    /** @var AdminUrl AdminUrl instance */
     private $adminurl;
 
-    /** @var    Combo   Combo instance */
+    /** @var Combo Combo instance */
     private $combo;
 
-    /** @var    Favorite    Favorite instance */
+    /** @var Favorite Favorite instance */
     private $favorite;
 
-    /** @var    Help    Help instance */
+    /** @var Help Help instance */
     public $help;
 
-    /** @var    ListOption  ListOption instance */
+    /** @var ListOption ListOption instance */
     private $listoption;
 
-    /** @var    Notice   Notice instance */
+    /** @var Notice Notice instance */
     private $notice;
 
-    /** @var    Summary     Summary instance */
+    /** @var Summary Summary instance */
     private $summary;
 
-    /** @var    Resource    Resource instance */
+    /** @var resource Resource instance */
     private $resource;
 
-    /** @var    ModulesPlugin|null    ModulesPlugin instance */
-    private $plugins = null;
+    /** @var null|ModulesPlugin ModulesPlugin instance */
+    private $plugins;
 
-    /** @var    ModulesIconset|null    ModulesIconset instance */
-    private $iconsets = null;
+    /** @var null|ModulesIconset ModulesIconset instance */
+    private $iconsets;
 
-    /** @var    ModulesTheme|null    ModulesTheme instance */
-    private $themes = null;
+    /** @var null|ModulesTheme ModulesTheme instance */
+    private $themes;
 
-    /** @var    string  Current Process */
+    /** @var string Current Process */
     protected $process = 'Admin';
 
     /**
-     * Get adminurl instance
+     * Get adminurl instance.
      *
-     * @return  AdminUrl   AdminUrl instance
+     * @return AdminUrl AdminUrl instance
      */
     public function adminurl(): AdminUrl
     {
         if (!($this->adminurl instanceof AdminUrl)) {
             $this->adminurl = new AdminUrl();
-            # Register default admin URLs
+            // Register default admin URLs
             $this->adminurl->setup();
         }
 
@@ -89,9 +87,9 @@ class Prepend extends Core
     }
 
     /**
-     * Get combo instance
+     * Get combo instance.
      *
-     * @return  Combo   Combo instance
+     * @return Combo Combo instance
      */
     public function combo(): Combo
     {
@@ -103,9 +101,9 @@ class Prepend extends Core
     }
 
     /**
-     * Get favorite instance
+     * Get favorite instance.
      *
-     * @return  Favorite   Favorite instance
+     * @return Favorite Favorite instance
      */
     public function favorite(): Favorite
     {
@@ -118,9 +116,9 @@ class Prepend extends Core
     }
 
     /**
-     * Get help instance
+     * Get help instance.
      *
-     * @return  Help   Help instance
+     * @return Help Help instance
      */
     public function help(): Help
     {
@@ -132,9 +130,9 @@ class Prepend extends Core
     }
 
     /**
-     * Get resource instance
+     * Get resource instance.
      *
-     * @return  Resource    Resource instance
+     * @return resource Resource instance
      */
     public function resource(): Resource
     {
@@ -146,9 +144,9 @@ class Prepend extends Core
     }
 
     /**
-     * Get summary (menus) instance
+     * Get summary (menus) instance.
      *
-     * @return  Summary   Summary instance
+     * @return Summary Summary instance
      */
     public function summary(): Summary
     {
@@ -161,9 +159,9 @@ class Prepend extends Core
     }
 
     /**
-     * Get notice instance
+     * Get notice instance.
      *
-     * @return  Notice   Notice instance
+     * @return Notice Notice instance
      */
     public function notice(): Notice
     {
@@ -175,9 +173,9 @@ class Prepend extends Core
     }
 
     /**
-     * Get listoption instance
+     * Get listoption instance.
      *
-     * @return  ListOption   ListOption instance
+     * @return ListOption ListOption instance
      */
     public function listoption(): ListOption
     {
@@ -188,53 +186,84 @@ class Prepend extends Core
         return $this->listoption;
     }
 
+    /**
+     * Get iconsets instance.
+     *
+     * @return null|ModulesIconset Iconsets instance
+     */
     public function iconsets(): ?ModulesIconset
     {
+        if (!($this->iconsets instanceof ModulesIconset) && !empty($this->config()->get('iconset_dirs'))) {
+            $this->iconsets = new ModulesIconset($this->lang);
+            $this->adminLoadModulesResources($this->iconsets);
+        }
+
         return $this->iconsets;
     }
 
+    /**
+     * Get plguins instance.
+     *
+     * @return null|ModulesPlugin Plugins instance
+     */
     public function plugins(): ?ModulesPlugin
     {
+        if (!($this->plugins instanceof ModulesPlugin) && !empty($this->config()->get('plugin_dirs'))) {
+            $this->plugins = new ModulesPlugin($this->lang);
+            $this->adminLoadModulesResources($this->plugins);
+        }
+
         return $this->plugins;
     }
 
+    /**
+     * Get themes instance.
+     *
+     * @return null|ModulesTheme Themes instance
+     */
     public function themes(): ?ModulesTheme
     {
+        if (!($this->themes instanceof ModulesTheme) && !empty($this->config()->get('theme_dirs'))) {
+            $this->themes = new ModulesTheme($this->lang);
+            $this->adminLoadModulesResources($this->themes);
+        }
+
         return $this->themes;
     }
 
     /**
-     * Start Dotclear Admin process
+     * Start Dotclear Admin process.
      */
     protected function process(string $_ = null): void
     {
-        # Load core prepend and so on
+        // Load core prepend and so on
         parent::process();
 
-        # Set header without cache for admin pages
+        // Set header without cache for admin pages
         header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
-        header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0'); # HTTP/1.1
-        header('Pragma: no-cache'); # HTTP/1.0
+        header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0'); // HTTP/1.1
+        header('Pragma: no-cache'); // HTTP/1.0
 
-        # csp report do not need extra stuff
+        // csp report do not need extra stuff
         if ($this->adminurl()->is('admin.cspreport')) {
             $this->adminLoadPage();
+
             exit;
         }
 
-        # Check user session
+        // Check user session
         if (defined('DOTCLEAR_AUTH_SESS_ID') && defined('DOTCLEAR_AUTH_SESS_UID')) {
-            # We have session information in constants
+            // We have session information in constants
             $_COOKIE[$this->config()->get('session_name')] = \DOTCLEAR_AUTH_SESS_ID;
 
             if (!$this->user()->checkSession(\DOTCLEAR_AUTH_SESS_UID)) {
                 $this->throwException(__('Invalid session data.'), '', 625);
             }
 
-            # Check nonce from POST requests
+            // Check nonce from POST requests
             if (!empty($_POST)) {
                 if (empty($_POST['xd_check']) || !$this->nonce()->check($_POST['xd_check'])) {
-                $this->throwException(__('Precondition Failed.'), '', 625);
+                    $this->throwException(__('Precondition Failed.'), '', 625);
                 }
             }
 
@@ -242,7 +271,7 @@ class Prepend extends Core
                 $this->throwException(__('Permission denied.'), '', 625);
             }
 
-            # Loading locales
+            // Loading locales
             $this->adminLoadLocales();
 
             $this->setBlog($_SESSION['sess_blog_id']);
@@ -250,22 +279,23 @@ class Prepend extends Core
                 $this->throwException(__('Permission denied.'), '', 625);
             }
         } elseif ($this->user()->sessionExists()) {
-            # If we have a session we launch it now
+            // If we have a session we launch it now
             try {
                 if (!$this->user()->checkSession()) {
-                    # Avoid loop caused by old cookie
+                    // Avoid loop caused by old cookie
                     $p    = $this->session()->getCookieParameters(false, -600);
                     $p[3] = '/';
                     call_user_func_array('setcookie', $p);
 
                     $this->adminurl()->redirect('admin.auth');
+
                     exit;
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->throwException(__('There seems to be no Session table in your database. Is Dotclear completly installed?'), '', 620, $e);
             }
 
-            # Check nonce from POST requests
+            // Check nonce from POST requests
             if (!empty($_POST)) {
                 if (empty($_POST['xd_check']) || !$this->nonce()->check($_POST['xd_check'])) {
                     $this->throwException(__('Precondition Failed.'), '', 412);
@@ -283,19 +313,20 @@ class Prepend extends Core
                 }
 
                 if (!empty($_REQUEST['redir'])) {
-                    # Keep context as far as possible
+                    // Keep context as far as possible
                     $redir = $_REQUEST['redir'];
                 } else {
-                # Removing switchblog from URL
+                    // Removing switchblog from URL
                     $redir = $_SERVER['REQUEST_URI'];
                     $redir = preg_replace('/switchblog=(.*?)(\&|$)/', '', $redir);
                     $redir = preg_replace('/\&$/', '', $redir);
                 }
                 Http::redirect($redir);
+
                 exit;
             }
 
-            # Check blog to use and log out if no result
+            // Check blog to use and log out if no result
             if (isset($_SESSION['sess_blog_id'])) {
                 if (false === $this->user()->getPermissions($_SESSION['sess_blog_id'])) {
                     unset($_SESSION['sess_blog_id']);
@@ -307,7 +338,7 @@ class Prepend extends Core
                 }
             }
 
-            # Loading locales
+            // Loading locales
             $this->adminLoadLocales();
 
             if (isset($_SESSION['sess_blog_id'])) {
@@ -315,72 +346,73 @@ class Prepend extends Core
             } else {
                 $this->session()->destroy();
                 $this->adminurl()->redirect('admin.auth');
+
                 exit;
             }
         }
 
-        # Serve modules file (mf)
+        // Serve modules file (mf)
         $this->resource()->serve();
 
-        # User session exists
+        // User session exists
         if (!empty($this->user()->userID()) && $this->blog() !== null) {
-
-            # Load resources
+            // Load resources
             $this->adminLoadResources($this->config()->get('l10n_dir'));
 
-            # Load modules
-            $types = [
-                [&$this->iconsets, $this->config()->get('iconset_dirs'), '\\Dotclear\\Module\\Iconset\\Admin\\ModulesIconset'],
-                [&$this->plugins, $this->config()->get('plugin_dirs'), '\\Dotclear\\Module\\Plugin\\Admin\\ModulesPlugin'],
-                [&$this->themes, $this->config()->get('theme_dirs'), '\\Dotclear\\Module\\Theme\\Admin\\ModulesTheme'],
-            ];
-            foreach($types as $t) {
-                # Modules directories
-                if (!empty($t[1])) {
-                    # Load Modules instance
-                    $t[0] = new $t[2]($this->lang);
-                    # Load lang resources for each module
-                    foreach($t[0]->getModules() as $module) {
-                        $this->adminLoadResources($module->root() . '/locales', false);
-                    }
-                }
+            // Load modules (by calling them a first time)
+            try {
+                $this->iconsets();
+                $this->plugins();
+                $this->themes();
+            } catch (Exception $e) {
+                // $this->throwException(__('Unable to load modules.'), $e->getMessage(), 640, $e);
             }
 
-            # Stop if no themes found
+            // Stop if no themes found
             if (!$this->themes) {
                 $this->throwException(__('There seems to be no valid Theme directory set in configuration file.'), '', 611);
             }
 
-            # Add default top menus
+            // Add default top menus
             if (!$this->user()->preference()->get('interface')->get('nofavmenu')) {
                 $this->favorite()->appendMenu($this->summary());
             }
 
-        # No user session and not on auth page, go on
+            // No user session and not on auth page, go on
         } elseif (!$this->adminurl()->is('admin.auth')) {
             $this->adminurl()->redirect('admin.auth');
+
             exit;
         }
 
-        # Load requested admin page
+        // Load requested admin page
         $this->adminLoadPage();
     }
 
+    /**
+     * Load core locales.
+     */
     private function adminLoadLocales(): void
     {
         $this->lang($this->user()->getInfo('user_lang'));
 
-        if (L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang, 'date')) === false && $this->lang != 'en') {
+        if (L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang, 'date')) === false && 'en' != $this->lang) {
             L10n::set(Path::implode($this->config()->get('l10n_dir'), 'en', 'date'));
         }
         L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang, 'main'));
         L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang, 'public'));
         L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang, 'plugins'));
 
-        # Set lexical lang
+        // Set lexical lang
         Lexical::setLexicalLang('admin', $this->lang);
     }
 
+    /**
+     * Load core locales resources.
+     *
+     * @param string $dir          Locales directory path
+     * @param bool   $load_default Load default lang reousources
+     */
     private function adminLoadResources(string $dir, bool $load_default = true): void
     {
         $this->lang($this->user()->getInfo('user_lang'));
@@ -401,35 +433,52 @@ class Prepend extends Core
         }
         unset($hfiles);
 
-        # Contextual help flag
+        // Contextual help flag
         $this->help()->flag(false);
     }
 
+    /**
+     * Load modules locales resources.
+     *
+     * @param AbstractModules $modules Modules instance
+     */
+    private function adminLoadModulesResources(AbstractModules $modules): void
+    {
+        // Load lang resources for each module
+        foreach ($modules->getModules() as $module) {
+            $this->adminLoadResources($module->root() . '/locales', false);
+        }
+    }
+
+    /**
+     * Load admin page.
+     *
+     * @param null|string $handler Force specific handler
+     */
     private function adminLoadPage(?string $handler = null): void
     {
-        # no handler, go to admin home page
-        if ($handler === null) {
+        // no handler, go to admin home page
+        if (null === $handler) {
             $handler = $_REQUEST['handler'] ?? 'admin.home';
         }
 
-        # Create page instance
+        // Create page instance
         try {
-
-            # --BEHAVIOR-- adminPrepend
+            // --BEHAVIOR-- adminPrepend
             $this->behavior()->call('adminPrepend');
 
             $class = $this->adminurl()->getBase($handler);
-            if (!is_subclass_of($class, 'Dotclear\\Process\\Admin\\Page\\Page')) {
-                throw new \Exception(sprintf(__('URL for handler not found for %s.</p>'), $handler));
+            if (!is_subclass_of($class, 'Dotclear\\Process\\Admin\\Page\\AbstractPage')) {
+                throw new Exception(sprintf(__('URL for handler not found for %s.</p>'), $handler));
             }
             $page = new $class($handler);
 
-            # Process page
+            // Process page
             try {
                 ob_start();
                 $page->pageProcess();
                 ob_end_flush();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 ob_end_clean();
 
                 $this->throwException(
@@ -439,7 +488,7 @@ class Prepend extends Core
                     $e
                 );
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->throwException(
                 $e->getMessage(),
                 '',

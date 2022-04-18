@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Action\Action\BlogAction
+ * @note Dotclear\Process\Admin\Action\Action\BlogAction
  * @brief Dotclear admin handler for action page on selected entries
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,7 +15,7 @@ namespace Dotclear\Process\Admin\Action\Action;
 use ArrayObject;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\Form;
-use Dotclear\Process\Admin\Action\Action\DefaultBlogAction;
+use Exception;
 
 class BlogAction extends DefaultBlogAction
 {
@@ -24,23 +23,24 @@ class BlogAction extends DefaultBlogAction
     {
         parent::__construct($uri, $redirect_args);
 
-        # Action setup
+        // Action setup
         $this->redirect_fields = ['status', 'sortby', 'order', 'page', 'nb'];
         $this->field_entries   = 'blogs';
         $this->cb_title        = __('Blogs');
         $this->loadDefaults();
         dotclear()->behavior()->call('adminBlogsActionsPage', $this);
 
-        # Page setup
+        // Page setup
         $this
             ->setPageTitle(__('Blogs'))
             ->setPageType($this->in_plugin ? 'plugin' : 'full')
             ->setPageHead(dotclear()->resource()->load('_blogs_actions.js'))
             ->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog()->name) => '',
-                __('Blogs')                               => dotclear()->adminurl()->get('admin.blogs'),
-                __('Blogs actions')                       => ''
-            ]);
+                __('Blogs')                                => dotclear()->adminurl()->get('admin.blogs'),
+                __('Blogs actions')                        => '',
+            ])
+        ;
     }
 
     protected function loadDefaults(): void
@@ -48,7 +48,7 @@ class BlogAction extends DefaultBlogAction
         $this->loadBlogsAction($this);
     }
 
-    public function error(\Exception $e): void
+    public function error(Exception $e): void
     {
         dotclear()->error()->add($e->getMessage());
         $this->setPageContent('<p><a class="back" href="' . $this->getRedirection(true) . '">' . __('Back to blogs list') . '</a></p>');
@@ -59,10 +59,13 @@ class BlogAction extends DefaultBlogAction
         $ret = '';
         foreach ($this->entries as $id => $res) {
             $ret .= '<tr>' .
-            '<td class="minimal">' . Form::checkbox([$this->field_entries . '[]'], $id,
+            '<td class="minimal">' . Form::checkbox(
+                [$this->field_entries . '[]'],
+                $id,
                 [
-                    'checked' => true
-                ]) .
+                    'checked' => true,
+                ]
+            ) .
                 '</td>' .
                 '<td>' . $res['blog'] . '</td>' .
                 '<td>' . $res['name'] . '</td>' .
@@ -86,7 +89,7 @@ class BlogAction extends DefaultBlogAction
         while ($bl->fetch()) {
             $this->entries[$bl->blog_id] = [
                 'blog' => $bl->blog_id,
-                'name' => $bl->blog_name
+                'name' => $bl->blog_name,
             ];
         }
         $this->rs = $bl;

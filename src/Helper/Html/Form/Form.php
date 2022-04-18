@@ -1,12 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Html\Form\Form
- * @brief HTML Forms form creation helpers
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
  * @package Dotclear
- * @subpackage html.form
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,8 +9,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html\Form;
 
-use Dotclear\Helper\Html\Form\Component;
-
+/**
+ * HTML Forms form creation helpers.
+ *
+ * \Dotclear\Helper\Html\Form\Form
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Helper Html Form
+ */
 class Form extends Component
 {
     private const DEFAULT_ELEMENT = 'form';
@@ -24,23 +25,22 @@ class Form extends Component
     /**
      * Constructs a new instance.
      *
-     * @param      null|string  $id       The identifier
-     * @param      null|string  $element  The element
+     * @param null|string $id      The identifier
+     * @param null|string $element The element
      */
     public function __construct(?string $id = null, ?string $element = null)
     {
         parent::__construct(__CLASS__, $element ?? self::DEFAULT_ELEMENT);
-        if ($id !== null) {
+        if (null !== $id) {
             $this
                 ->set('id', $id)
-                ->set('name', $id);
+                ->set('name', $id)
+            ;
         }
     }
 
     /**
      * Renders the HTML component.
-     *
-     * @return     string
      */
     public function render(?string $fieldFormat = null): string
     {
@@ -69,7 +69,7 @@ class Form extends Component
     /**
      * Gets the default element.
      *
-     * @return     string  The default element.
+     * @return string the default element
      */
     public function getDefaultElement(): string
     {

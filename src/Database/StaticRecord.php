@@ -1,12 +1,11 @@
 <?php
 /**
- * @class Dotclear\Database\StaticRecord
+ * @note Dotclear\Database\StaticRecord
  * @brief Database static record
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
- * @package Dotclear
- * @subpackage Database
+ * @ingroup  Database
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,20 +18,20 @@ use Dotclear\Helper\Lexical;
 
 class StaticRecord extends Record
 {
-    /** @var    array   $__data     The record data */
+    /** @var array The record data */
     public $__data = [];
 
-    /** @var    string|null     $__sortfield    The sort field */
+    /** @var null|string The sort field */
     private $__sortfield;
 
-    /** @var    int|null    $__sortsign     The sort order */
+    /** @var null|int The sort order */
     private $__sortsign;
 
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param   mixed   $__result   Resource result or result array
-     * @param   array   $__info     Information array
+     * @param mixed $__result Resource result or result array
+     * @param array $__info   Information array
      */
     public function __construct(mixed $__result, array $__info)
     {
@@ -48,13 +47,11 @@ class StaticRecord extends Record
     }
 
     /**
-     * Static record from array
+     * Static record from array.
      *
      * Returns a new instance of object from an associative array.
      *
-     * @param   array|null  $data   Data array
-     * 
-     * @return  StaticRecord
+     * @param null|array $data Data array
      */
     public static function newFromArray(?array $data): StaticRecord
     {
@@ -92,11 +89,11 @@ class StaticRecord extends Record
 
     public function index(int $row = null): int|bool
     {
-        if ($row === null) {
+        if (null === $row) {
             return $this->__index;
         }
 
-        if ($row < 0 || $row + 1 > $this->__info['rows']) {
+        if (0 > $row || $row + 1 > $this->__info['rows']) {
             return false;
         }
 
@@ -113,14 +110,14 @@ class StaticRecord extends Record
     /**
      * Changes value of a given field in the current row.
      *
-     * @param   string  $n  Field name
-     * @param   mixed   $v  Field value
-     * 
-     * @return  bool        Success
+     * @param string $n Field name
+     * @param mixed  $v Field value
+     *
+     * @return bool Success
      */
     public function set(string $n, mixed $v): bool
     {
-        if ($this->__index === null) {
+        if (null === $this->__index) {
             return false;
         }
 
@@ -132,10 +129,10 @@ class StaticRecord extends Record
     /**
      * Sorts values by a field in a given order.
      *
-     * @param   string  $field  Field name
-     * @param   string  $order  Sort type (asc or desc)
-     * 
-     * @return  bool            Success
+     * @param string $field Field name
+     * @param string $order Sort type (asc or desc)
+     *
+     * @return bool Success
      */
     public function sort(string $field, string $order = 'asc'): bool
     {
@@ -159,8 +156,8 @@ class StaticRecord extends Record
         $a = $a[$this->__sortfield];
         $b = $b[$this->__sortfield];
 
-        # Integer values
-        if ($a == (string) (int) $a && $b == (string) (int) $b) {
+        // Integer values
+        if ((string) (int) $a == $a && (string) (int) $b == $b) {
             $a = (int) $a;
             $b = (int) $b;
 
@@ -173,8 +170,8 @@ class StaticRecord extends Record
     /**
      * Lexically sort.
      *
-     * @param   string  $field  The field
-     * @param   string  $order  The order
+     * @param string $field The field
+     * @param string $order The order
      */
     public function lexicalSort(string $field, string $order = 'asc'): void
     {
@@ -188,12 +185,7 @@ class StaticRecord extends Record
     }
 
     /**
-     * Lexical sort field
-     * 
-     * @param   array   $a
-     * @param   array   $b
-     * 
-     * @return  int
+     * Lexical sort field.
      */
     private function lexicalSortCallback(array $a, array $b): int
     {
@@ -204,8 +196,8 @@ class StaticRecord extends Record
         $a = $a[$this->__sortfield];
         $b = $b[$this->__sortfield];
 
-        # Integer values
-        if ($a == (string) (int) $a && $b == (string) (int) $b) {
+        // Integer values
+        if ((string) (int) $a == $a && (string) (int) $b == $b) {
             $a = (int) $a;
             $b = (int) $b;
 

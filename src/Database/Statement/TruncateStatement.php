@@ -1,12 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Dotclear\Database\Statement;
 
-use Dotclear\Database\Statement\SqlStatement;
-
 /**
- * Truncate Statement : small utility to build truncate queries
+ * Truncate Statement : small utility to build truncate queries.
  */
 class TruncateStatement extends SqlStatement
 {
@@ -16,13 +15,13 @@ class TruncateStatement extends SqlStatement
     }
 
     /**
-     * Returns the truncate statement
+     * Returns the truncate statement.
      *
      * @return string the statement
      */
     public function statement(): string
     {
-        # --BEHAVIOR-- coreBeforeInsertStatement
+        // --BEHAVIOR-- coreBeforeInsertStatement
         dotclear()->behavior()->call('coreBeforeTruncateStatement', $this);
 
         // Check if source given
@@ -38,16 +37,14 @@ class TruncateStatement extends SqlStatement
 
         $query = trim($query);
 
-        # --BEHAVIOR-- coreAfertInsertStatement
+        // --BEHAVIOR-- coreAfertInsertStatement
         dotclear()->behavior()->call('coreAfterTruncateStatement', $this, $query);
 
         return $query;
     }
 
     /**
-     * Run the SQL select query and return result
-     *
-     * @return     bool
+     * Run the SQL select query and return result.
      */
     public function truncate(): bool
     {
@@ -59,9 +56,7 @@ class TruncateStatement extends SqlStatement
     }
 
     /**
-     * truncate() alias
-     *
-     * @return     bool
+     * truncate() alias.
      */
     public function run(): bool
     {

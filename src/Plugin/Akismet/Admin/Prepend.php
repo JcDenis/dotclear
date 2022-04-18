@@ -1,10 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Akismet\Admin\Prepend
- * @brief Dotclear Plugins class
- *
  * @package Dotclear
- * @subpackage PluginAkismet
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,6 +13,13 @@ use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 use Dotclear\Plugin\Akismet\Common\AkismetBehavior;
 
+/**
+ * Admin prepend for plugin Akismet.
+ *
+ * \Dotclear\Plugin\Akismet\Admin\Prepend
+ *
+ * @ingroup  Plugin Akismet
+ */
 class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;

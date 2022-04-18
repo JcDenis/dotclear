@@ -1,12 +1,11 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Favorite\Favorite
+ * @note Dotclear\Process\Admin\Favorite\Favorite
  * @brief Dotclear admin favorites handling facilities class
  *
  * Accessible from dotclear()->favorite()->
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -21,41 +20,41 @@ use Dotclear\Process\Admin\Menu\Summary;
 
 class Favorite
 {
-    /** @var    ArrayObject     list of favorite definitions  */
+    /** @var ArrayObject list of favorite definitions */
     protected $fav_defs;
 
-    /** @var    Workspace   current favorite landing workspace */
+    /** @var Workspace current favorite landing workspace */
     protected $ws;
 
-    /** @var    array   list of user-defined favorite ids */
+    /** @var array list of user-defined favorite ids */
     protected $local_prefs = [];
 
-    /** @var    array   list of globally-defined favorite ids */
+    /** @var array list of globally-defined favorite ids */
     protected $global_prefs = [];
 
-    /** @var    array   list of user preferences (either one of the 2 above, or not!) */
+    /** @var array list of user preferences (either one of the 2 above, or not!) */
     protected $user_prefs = [];
 
-    /** @var    array  Default favorites values */
+    /** @var array Default favorites values */
     protected $default_favorites = [
-        # favorite title (localized)
-        'title'        => '',
-        # favorite URL
-        'url'          => '',
-        # favorite small icon (for menu)
-        'small-icon'   => 'images/menu/no-icon.svg',
-        # favorite large icon (for dashboard)
-        'large-icon'   => 'images/menu/no-icon.svg',
-        # (optional) comma-separated list of permissions for thie fav, if not set : no restriction
-        'permissions'  => '',
-        # (optional) callback to modify title if dynamic, if not set : title is taken as is
+        // favorite title (localized)
+        'title' => '',
+        // favorite URL
+        'url' => '',
+        // favorite small icon (for menu)
+        'small-icon' => 'images/menu/no-icon.svg',
+        // favorite large icon (for dashboard)
+        'large-icon' => 'images/menu/no-icon.svg',
+        // (optional) comma-separated list of permissions for thie fav, if not set : no restriction
+        'permissions' => '',
+        // (optional) callback to modify title if dynamic, if not set : title is taken as is
         'dashboard_cb' => '',
-        #  (optional) callback to tell whether current page matches favorite or not, for complex pages
-        'active_cb'    => '',
+        //  (optional) callback to tell whether current page matches favorite or not, for complex pages
+        'active_cb' => '',
     ];
 
     /**
-     * Class constructor
+     * Class constructor.
      */
     public function __construct()
     {
@@ -77,7 +76,7 @@ class Favorite
     }
 
     /**
-     * Sets up favorites
+     * Sets up favorites.
      *
      * Fetch user favorites (against his permissions)
      * This method is to be called after loading plugins
@@ -90,13 +89,13 @@ class Favorite
     }
 
     /**
-     * Get Favorite
+     * Get Favorite.
      *
      * Retrieves a favorite (complete description) from its id.
      *
-     * @param   string|array    $p  The favorite id, or an array having 1 key 'name' set to id, ther keys are merged to favorite.
+     * @param array|string $p the favorite id, or an array having 1 key 'name' set to id, ther keys are merged to favorite
      *
-     * @return  array               The favorite
+     * @return array The favorite
      */
     public function getFavorite(string|array $p): array
     {
@@ -130,13 +129,13 @@ class Favorite
     }
 
     /**
-     * Get Favorites
+     * Get Favorites.
      *
      * Retrieves a list of favorites.
      *
-     * @param   array   $ids    An array of ids, as defined in getFavorite.
+     * @param array $ids an array of ids, as defined in getFavorite
      *
-     * @return  array           The favorites, can be empty if ids are not found (or not permitted)
+     * @return array The favorites, can be empty if ids are not found (or not permitted)
      */
     public function getFavorites(array $ids): array
     {
@@ -152,7 +151,7 @@ class Favorite
     }
 
     /**
-     * Set user prefs
+     * Set user prefs.
      *
      * Get user favorites from settings.
      * These are complete favorites, not ids only
@@ -171,27 +170,27 @@ class Favorite
         if (empty($this->user_prefs)) {
             $this->user_prefs = $this->getFavorites(['new_post']);
         }
-        # Loop over prefs to enable active favorites
+        // Loop over prefs to enable active favorites
         foreach ($this->user_prefs as $k => &$v) {
-            # Use callback if defined to match whether favorite is active or not
+            // Use callback if defined to match whether favorite is active or not
             if (!empty($v['active_cb']) && is_callable($v['active_cb'])) {
                 $v['active'] = call_user_func($v['active_cb']);
-            # Or use called handler
+            // Or use called handler
             } else {
                 parse_str(parse_url($v['url'], PHP_URL_QUERY), $url);
-                $handler = $url['handler'] ?: null;
+                $handler     = $url['handler'] ?: null;
                 $v['active'] = dotclear()->adminurl()->is($handler);
             }
         }
     }
 
     /**
-     * Get user favorites
+     * Get user favorites.
      *
      * Returns favorites that correspond to current user
      * (may be local, global, or failback favorites)
      *
-     * @return  array   Array of favorites (enriched)
+     * @return array Array of favorites (enriched)
      */
     public function getUserFavorites(): array
     {
@@ -199,14 +198,14 @@ class Favorite
     }
 
     /**
-     * Get Favorite IDs
+     * Get Favorite IDs.
      *
      * Returns user-defined or global favorites ids list
      * shall not be called outside Admin\Page\UserPrefs
      *
-     * @param   bool    $global     If true, retrieve global favs, user favs otherwise
+     * @param bool $global If true, retrieve global favs, user favs otherwise
      *
-     * @return  array               Array of favorites ids (only ids, not enriched)
+     * @return array Array of favorites ids (only ids, not enriched)
      */
     public function getFavoriteIDs(bool $global = false): array
     {
@@ -214,13 +213,13 @@ class Favorite
     }
 
     /**
-     * Set Favorite IDs
+     * Set Favorite IDs.
      *
      * Stores user-defined or global favorites ids list
      * shall not be called outside Admin\Page\UserPrefs
      *
-     * @param   array   $ids        List of fav ids
-     * @param   bool    $global     If true, retrieve global favs, user favs otherwise
+     * @param array $ids    List of fav ids
+     * @param bool  $global If true, retrieve global favs, user favs otherwise
      */
     public function setFavoriteIDs(array $ids, bool $global = false): void
     {
@@ -228,11 +227,11 @@ class Favorite
     }
 
     /**
-     * Get Available Favorites IDs
+     * Get Available Favorites IDs.
      *
      * Returns all available fav ids
      *
-     * @return  array   Array of favorites ids (only ids, not enriched)
+     * @return array Array of favorites ids (only ids, not enriched)
      */
     public function getAvailableFavoritesIDs(): array
     {
@@ -240,12 +239,12 @@ class Favorite
     }
 
     /**
-     * Append Menu Title
+     * Append Menu Title.
      *
      * Adds favorites section title to sidebar menu
      * shall not be called outside Admin\Prepend...
      *
-     * @param   Summary   $menu   Summary instance
+     * @param Summary $menu Summary instance
      */
     public function appendMenuTitle(Summary $menu): void
     {
@@ -253,12 +252,12 @@ class Favorite
     }
 
     /**
-     * Append Menu
+     * Append Menu.
      *
      * Adds favorites items title to sidebar menu
      * shall not be called outside Admin\Prepend...
      *
-     * @param   Summary   $menu   Summary instance
+     * @param Summary $menu Summary instance
      */
     public function appendMenu(Summary $menu): void
     {
@@ -277,12 +276,12 @@ class Favorite
     }
 
     /**
-     * Append Dashboard Icons
+     * Append Dashboard Icons.
      *
      * Adds favorites icons to index page
      * shall not be called outside Admin\Page\Home
      *
-     * @param   ArrayObject     $icons  Dashboard icon list to enrich
+     * @param ArrayObject $icons Dashboard icon list to enrich
      */
     public function appendDashboardIcons(ArrayObject $icons): void
     {
@@ -297,14 +296,14 @@ class Favorite
     }
 
     /**
-     * Register
+     * Register.
      *
      * Registers a new favorite definition
      *
-     * @param   string  $id     Favorite id
-     * @param   array   $data   Favorite information. @see self::$default_favorites
+     * @param string $id   Favorite id
+     * @param array  $data Favorite information. @see self::$default_favorites
      *
-     * @return  Favorite        Favorite instance
+     * @return Favorite Favorite instance
      */
     public function register(string $id, array $data): Favorite
     {
@@ -314,15 +313,15 @@ class Favorite
     }
 
     /**
-     * Register Multiple
+     * Register Multiple.
      *
      * Registers a list of favorites definition
      *
      * @see self::register()
      *
-     * @param   array   $data   An array defining all favorites key is the id, value is the data.
+     * @param array $data an array defining all favorites key is the id, value is the data
      *
-     * @return  Favorite        Favorite instance
+     * @return Favorite Favorite instance
      */
     public function registerMultiple(array $data): Favorite
     {
@@ -334,13 +333,13 @@ class Favorite
     }
 
     /**
-     * Exists
+     * Exists.
      *
      * Tells whether a fav definition exists or not
      *
-     * @param   string  $id     The fav id to test
+     * @param string $id The fav id to test
      *
-     * @return  bool            true if the fav definition exists, false otherwise
+     * @return bool true if the fav definition exists, false otherwise
      */
     public function exists(string $id): bool
     {
@@ -382,8 +381,8 @@ class Favorite
             'search' => [
                 'title'       => __('Search'),
                 'url'         => dotclear()->adminurl()->get('admin.search'),
-                'small-icon'  => ['images/menu/search.svg','images/menu/search-dark.svg'],
-                'large-icon'  => ['images/menu/search.svg','images/menu/search-dark.svg'],
+                'small-icon'  => ['images/menu/search.svg', 'images/menu/search-dark.svg'],
+                'large-icon'  => ['images/menu/search.svg', 'images/menu/search-dark.svg'],
                 'permissions' => 'usage,contentadmin', ],
             'categories' => [
                 'title'       => __('Categories'),
@@ -394,8 +393,8 @@ class Favorite
             'blog_pref' => [
                 'title'       => __('Blog settings'),
                 'url'         => dotclear()->adminurl()->get('admin.blog.pref'),
-                'small-icon'  => ['images/menu/blog-pref.svg','images/menu/blog-pref-dark.svg'],
-                'large-icon'  => ['images/menu/blog-pref.svg','images/menu/blog-pref-dark.svg'],
+                'small-icon'  => ['images/menu/blog-pref.svg', 'images/menu/blog-pref-dark.svg'],
+                'large-icon'  => ['images/menu/blog-pref.svg', 'images/menu/blog-pref-dark.svg'],
                 'permissions' => 'admin', ],
             'blogs' => [
                 'title'       => __('Blogs'),
@@ -417,12 +416,13 @@ class Favorite
                 'title'      => __('Global help'),
                 'url'        => dotclear()->adminurl()->get('admin.help'),
                 'small-icon' => 'images/menu/help.svg',
-                'large-icon' => 'images/menu/help.svg', ]
+                'large-icon' => 'images/menu/help.svg', ],
         ]);
 
         if (dotclear()->blog()->public_path) {
             $this->register(
-                'media', [
+                'media',
+                [
                     'title'       => __('Media manager'),
                     'url'         => dotclear()->adminurl()->get('admin.media'),
                     'small-icon'  => ['images/menu/media.svg', 'images/menu/media-dark.svg'],
@@ -434,9 +434,9 @@ class Favorite
     }
 
     /**
-     * Helper for posts icon on dashboard
+     * Helper for posts icon on dashboard.
      *
-     * @param   ArrayObject     $v  Favicon object
+     * @param ArrayObject $v Favicon object
      */
     public function cbPostsDashboard(ArrayObject $v): void
     {
@@ -446,11 +446,11 @@ class Favorite
     }
 
     /**
-     * Helper for new post active menu
+     * Helper for new post active menu.
      *
      * Take account of post edition (if id is set)
      *
-     * @return  bool    Active
+     * @return bool Active
      */
     public function cbNewpostActive(): bool
     {
@@ -458,9 +458,9 @@ class Favorite
     }
 
     /**
-     * Helper for comments icon on dashboard
+     * Helper for comments icon on dashboard.
      *
-     * @param   ArrayObject     $v  Favicon object
+     * @param ArrayObject $v Favicon object
      */
     public function cbCommentsDashboard(ArrayObject $v): void
     {

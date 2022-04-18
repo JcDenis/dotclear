@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Handler\UserAction
+ * @note Dotclear\Process\Admin\Handler\UserAction
  * @brief Dotclear admin user action page
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,13 +12,14 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
-use Dotclear\Process\Admin\Page\Page;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
+use Exception;
 
-class UserAction extends Page
+class UserAction extends AbstractPage
 {
     private $user_action = '';
     private $user_redir  = '';
@@ -70,22 +70,22 @@ class UserAction extends Page
                 dotclear()->error()->add(__('No blog or user given.'));
             }
 
-            # --BEHAVIOR-- adminUsersActions
+            // --BEHAVIOR-- adminUsersActions
             dotclear()->behavior()->call('adminUsersActions', $this->users, $this->blogs, $this->user_action, $this->user_redir);
 
-            # Delete users
-            if ($this->user_action == 'deleteuser' && !empty($this->users)) {
+            // Delete users
+            if ('deleteuser' == $this->user_action && !empty($this->users)) {
                 foreach ($this->users as $u) {
                     try {
-                        if ($u == dotclear()->user()->userID()) {
+                        if (dotclear()->user()->userID() == $u) {
                             throw new AdminException(__('You cannot delete yourself.'));
                         }
 
-                        # --BEHAVIOR-- adminBeforeUserDelete
+                        // --BEHAVIOR-- adminBeforeUserDelete
                         dotclear()->behavior()->call('adminBeforeUserDelete', $u);
 
                         dotclear()->users()->delUser($u);
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         dotclear()->error()->add($e->getMessage());
                     }
                 }
@@ -95,8 +95,8 @@ class UserAction extends Page
                 }
             }
 
-            # Update users perms
-            if ($this->user_action == 'updateperm' && !empty($this->users) && !empty($this->blogs)) {
+            // Update users perms
+            if ('updateperm' == $this->user_action && !empty($this->users) && !empty($this->blogs)) {
                 try {
                     if (empty($_POST['your_pwd']) || !dotclear()->user()->checkPassword($_POST['your_pwd'])) {
                         throw new AdminException(__('Password verification failed'));
@@ -117,7 +117,7 @@ class UserAction extends Page
                             dotclear()->users()->setUserBlogPermissions($u, $b, $set_perms, true);
                         }
                     }
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     dotclear()->error()->add($e->getMessage());
                 }
                 if (!dotclear()->error()->flag()) {
@@ -127,17 +127,17 @@ class UserAction extends Page
             }
         }
 
-        if (!empty($this->users) && empty($this->blogs) && $this->user_action == 'blogs') {
+        if (!empty($this->users) && empty($this->blogs) && 'blogs' == $this->user_action) {
             $this->setPageBreadcrumb([
                 __('System')      => '',
                 __('Users')       => dotclear()->adminurl()->get('admin.users'),
-                __('Permissions') => ''
+                __('Permissions') => '',
             ]);
         } else {
             $this->setPageBreadcrumb([
                 __('System')  => '',
                 __('Users')   => dotclear()->adminurl()->get('admin.users'),
-                __('Actions') => ''
+                __('Actions') => '',
             ]);
         }
 
@@ -146,7 +146,7 @@ class UserAction extends Page
             ->setPageHelp('core_users')
             ->setPageHead(
                 dotclear()->resource()->load('_users_actions.js') .
-                # --BEHAVIOR-- adminUsersActionsHeaders
+                // --BEHAVIOR-- adminUsersActionsHeaders
                 dotclear()->behavior()->call('adminUsersActionsHeaders')
             )
         ;
@@ -170,19 +170,19 @@ class UserAction extends Page
         } else {
             $hidden_fields .=
             Form::hidden(['q'], Html::escapeHTML($_POST['q'] ?? '')) .
-            Form::hidden(['sortby'], $_POST['sortby'] ?? '') .
-            Form::hidden(['order'], $_POST['order'] ?? '') .
-            Form::hidden(['page'], $_POST['page'] ?? '') .
-            Form::hidden(['nb'], $_POST['nb'] ?? '');
+            Form::hidden(['sortby'], $_POST['sortby']        ?? '') .
+            Form::hidden(['order'], $_POST['order']          ?? '') .
+            Form::hidden(['page'], $_POST['page']            ?? '') .
+            Form::hidden(['nb'], $_POST['nb']                ?? '');
         }
 
         echo '<p><a class="back" href="' . Html::escapeURL($this->user_redir) . '">' . __('Back to user profile') . '</a></p>';    // @phpstan-ignore-line
 
-        # --BEHAVIOR-- adminUsersActionsContent
+        // --BEHAVIOR-- adminUsersActionsContent
         dotclear()->behavior()->call('adminUsersActionsContent', $this->user_action, $hidden_fields);
 
-        # Blog list where to set permissions
-        if (!empty($this->users) && empty($this->blogs) && $this->user_action == 'blogs') {
+        // Blog list where to set permissions
+        if (!empty($this->users) && empty($this->blogs) && 'blogs' == $this->user_action) {
             $rs        = null;
             $nb_blog   = 0;
             $user_list = [];
@@ -197,17 +197,15 @@ class UserAction extends Page
                 $user_list[] = '<a href="' . dotclear()->adminurl()->get('admin.user', ['id' => $u]) . '">' . $u . '</a>';
             }
 
-            echo
-            '<p>' . sprintf(
+            echo '<p>' . sprintf(
                 __('Choose one or more blogs to which you want to give permissions to users %s.'),
                 implode(', ', $user_list)
             ) . '</p>';
 
-            if ($nb_blog == 0) {
+            if (0 == $nb_blog) {
                 echo '<p><strong>' . __('No blog') . '</strong></p>';
             } else {
-                echo
-                '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-blogs">' .
+                echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-blogs">' .
                 '<div class="table-outer clear">' .
                 '<table><tr>' .
                 '<th class="nowrap" colspan="2">' . __('Blog ID') . '</th>' .
@@ -222,13 +220,15 @@ class UserAction extends Page
                     $txt_status = dotclear()->blogs()->getBlogStatus($rs->fInt('blog_status'));
                     $img_status = sprintf('<img src="?df=images/%1$s.png" alt="%2$s" title="%2$s" />', $img_status, $txt_status);
 
-                    echo
-                    '<tr class="line">' .
+                    echo '<tr class="line">' .
                     '<td class="nowrap">' .
-                    Form::checkbox(['blogs[]'], $rs->f('blog_id'),
+                    Form::checkbox(
+                        ['blogs[]'],
+                        $rs->f('blog_id'),
                         [
-                            'extra_html' => 'title="' . __('select') . ' ' . $rs->f('blog_id') . '"'
-                        ]) .
+                            'extra_html' => 'title="' . __('select') . ' ' . $rs->f('blog_id') . '"',
+                        ]
+                    ) .
                     '</td>' .
                     '<td class="nowrap">' . $rs->f('blog_id') . '</td>' .
                     '<td class="maximal">' . Html::escapeHTML($rs->f('blog_name')) . '</td>' .
@@ -239,8 +239,7 @@ class UserAction extends Page
                         '</tr>';
                 }
 
-                echo
-                '</table></div>' .
+                echo '</table></div>' .
                 '<p class="checkboxes-helpers"></p>' .
                 '<p><input id="do-action" type="submit" value="' . __('Set permissions') . '" />' .
                 $hidden_fields .
@@ -248,8 +247,8 @@ class UserAction extends Page
                     '</form>';
             }
 
-        # Permissions list for each selected blogs
-        } elseif (!empty($this->blogs) && !empty($this->users) && $this->user_action == 'perms') {
+            // Permissions list for each selected blogs
+        } elseif (!empty($this->blogs) && !empty($this->users) && 'perms' == $this->user_action) {
             $user_perm = $user_list = [];
             if (count($this->users) == 1) {
                 $user_perm = dotclear()->users()->getUserPermissions($this->users[0]);
@@ -259,8 +258,7 @@ class UserAction extends Page
                 $user_list[] = '<a href="' . dotclear()->adminurl()->get('admin.user', ['id' => $u]) . '">' . $u . '</a>';
             }
 
-            echo
-            '<p>' . sprintf(
+            echo '<p>' . sprintf(
                 __('You are about to change permissions on the following blogs for users %s.'),
                 implode(', ', $user_list)
             ) . '</p>' .
@@ -280,40 +278,45 @@ class UserAction extends Page
                         unset($unknown_perms[$b]['p'][$perm_id]);
                     }
 
-                    echo
-                    '<p><label for="perm' . Html::escapeHTML($b) . Html::escapeHTML($perm_id) . '" class="classic">' .
-                    Form::checkbox(['perm[' . Html::escapeHTML($b) . '][' . Html::escapeHTML($perm_id) . ']', 'perm' . Html::escapeHTML($b) . Html::escapeHTML($perm_id)],
-                        1, $checked) . ' ' .
+                    echo '<p><label for="perm' . Html::escapeHTML($b) . Html::escapeHTML($perm_id) . '" class="classic">' .
+                    Form::checkbox(
+                        ['perm[' . Html::escapeHTML($b) . '][' . Html::escapeHTML($perm_id) . ']', 'perm' . Html::escapeHTML($b) . Html::escapeHTML($perm_id)],
+                        1,
+                        $checked
+                    ) . ' ' .
                     __($perm) . '</label></p>';
                 }
                 if (isset($unknown_perms[$b])) {
                     foreach ($unknown_perms[$b]['p'] as $perm_id => $v) {
                         $checked = isset($user_perm[$b]['p'][$perm_id]) && $user_perm[$b]['p'][$perm_id];
-                        echo
-                        '<p><label for="perm' . Html::escapeHTML($b) . Html::escapeHTML($perm_id) . '" class="classic">' .
+                        echo '<p><label for="perm' . Html::escapeHTML($b) . Html::escapeHTML($perm_id) . '" class="classic">' .
                         Form::checkbox(
                             ['perm[' . Html::escapeHTML($b) . '][' . Html::escapeHTML($perm_id) . ']',
-                                'perm' . Html::escapeHTML($b) . Html::escapeHTML($perm_id)],
-                            1, $checked) . ' ' .
+                                'perm' . Html::escapeHTML($b) . Html::escapeHTML($perm_id), ],
+                            1,
+                            $checked
+                        ) . ' ' .
                         sprintf(__('[%s] (unreferenced permission)'), $perm_id) . '</label></p>';
                     }
                 }
             }
 
-            echo
-            '<p class="checkboxes-helpers"></p>' .
+            echo '<p class="checkboxes-helpers"></p>' .
             '<div class="fieldset">' .
             '<h3>' . __('Validate permissions') . '</h3>' .
             '<p><label for="your_pwd" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Your password:') . '</label>' .
-            Form::password('your_pwd', 20, 255,
+            Form::password(
+                'your_pwd',
+                20,
+                255,
                 [
                     'extra_html'   => 'required placeholder="' . __('Password') . '"',
-                    'autocomplete' => 'current-password'
+                    'autocomplete' => 'current-password',
                 ]
             ) . '</p>' .
             '<p><input type="submit" accesskey="s" value="' . __('Save') . '" />' .
             $hidden_fields .
-            dotclear()->adminurl()->getHiddenFormFields('admin.user.actions', ['action' => 'updateperm'], true) .  '</p>' .
+            dotclear()->adminurl()->getHiddenFormFields('admin.user.actions', ['action' => 'updateperm'], true) . '</p>' .
                 '</div>' .
                 '</form>';
         }

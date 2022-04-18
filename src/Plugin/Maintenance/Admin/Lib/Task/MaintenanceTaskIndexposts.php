@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskIndexposts
+ * @note Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskIndexposts
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginMaintenance
+ * @ingroup  PluginMaintenance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -62,19 +61,20 @@ class MaintenanceTaskIndexposts extends MaintenanceTask
     /**
      * Recreates entries search engine index.
      *
-     * @param   int|null    $start  The start entry index
-     * @param   int|null    $limit  The limit of entry to index
+     * @param null|int $start The start entry index
+     * @param null|int $limit The limit of entry to index
      *
-     * @return  int|null    Sum of <var>$start</var> and <var>$limit</var>
+     * @return null|int Sum of <var>$start</var> and <var>$limit</var>
      */
     public function indexAllPosts(?int $start = null, ?int $limit = null): ?int
     {
-        $sql = new SelectStatement(__METHOD__);
+        $sql   = new SelectStatement(__METHOD__);
         $count = $sql
             ->column($sql->count('post_id'))
             ->from(dotclear()->prefix . 'post')
             ->select()
-            ->fInt();
+            ->fInt()
+        ;
 
         if (null !== $start && null !== $limit) {
             $sql->limit([$start, $limit]);
@@ -86,22 +86,25 @@ class MaintenanceTaskIndexposts extends MaintenanceTask
                 'post_title',
                 'post_excerpt_xhtml',
                 'post_content_xhtml',
-            ], true) # Re-use statement
-            ->select();
+            ], true) // Re-use statement
+            ->select()
+        ;
 
         $sql = UpdateStatement::init(__METHOD__)
-            ->from(dotclear()->prefix . 'post');
+            ->from(dotclear()->prefix . 'post')
+        ;
 
         while ($rs->fetch()) {
-            $words = 
-                $rs->f('post_title') . ' ' . 
-                $rs->f('post_excerpt_xhtml') . ' ' . 
+            $words =
+                $rs->f('post_title') . ' ' .
+                $rs->f('post_excerpt_xhtml') . ' ' .
                 $rs->f('post_content_xhtml');
 
             $sql
                 ->set('post_words = ' . $sql->quote(implode(' ', Text::splitWords($words))), true)
                 ->where('post_id = ' . $rs->fInt('post_id'), true)
-                ->update();
+                ->update()
+            ;
         }
 
         return $start + $limit > $count ? null : $start + $limit;

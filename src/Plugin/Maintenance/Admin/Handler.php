@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Maintenance\Admin\Handler
+ * @note Dotclear\Plugin\Maintenance\Admin\Handler
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginMaintenance
+ * @ingroup  PluginMaintenance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,14 +17,15 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
 use Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance;
 use Dotclear\Helper\Dt;
+use Exception;
 
 class Handler extends AbstractPage
 {
     private $m_maintenance;
-    private $m_tasks = null;
-    private $m_task  = null;
-    private $m_code  = null;
-    private $m_tab   = '';
+    private $m_tasks;
+    private $m_task;
+    private $m_code;
+    private $m_tab = '';
 
     protected function getPermissions(): string|null|false
     {
@@ -39,23 +39,23 @@ class Handler extends AbstractPage
         $this->m_code        = empty($_POST['code']) ? 0 : (int) $_POST['code'];
         $this->m_tab         = empty($_REQUEST['tab']) ? '' : $_REQUEST['tab'];
 
-        # Get task object
+        // Get task object
         if (!empty($_REQUEST['task'])) {
             $this->m_task = $this->m_maintenance->getTask($_REQUEST['task']);
 
-            if ($this->m_task === null) {
+            if (null === $this->m_task) {
                 dotclear()->error()->add('Unknown task ID');
             }
 
             $this->m_task->code($this->m_code);
         }
 
-        # Execute task
+        // Execute task
         if ($this->m_task && !empty($_POST['task']) && $this->m_task->id() == $_POST['task']) {
             try {
                 $this->m_code = $this->m_task->execute();
                 if (false === $this->m_code) {
-                    throw new \Exception($this->m_task->error());
+                    throw new Exception($this->m_task->error());
                 }
                 if (true === $this->m_code) {
                     $this->m_maintenance->setLog($this->m_task->id());
@@ -63,12 +63,12 @@ class Handler extends AbstractPage
                     dotclear()->notice()->addSuccessNotice($this->m_task->success());
                     dotclear()->adminurl()->redirect('admin.plugin.Maintenance', ['task' => $this->m_task->id(), 'tab' => $this->m_tab], '#' . $this->m_tab);
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Save settings
+        // Save settings
         if (!empty($_POST['save_settings'])) {
             try {
                 dotclear()->blog()->settings()->get('maintenance')->put(
@@ -85,7 +85,7 @@ class Handler extends AbstractPage
                         continue;
                     }
 
-                    if (!empty($_POST['settings_recall_type']) && $_POST['settings_recall_type'] == 'all') {
+                    if (!empty($_POST['settings_recall_type']) && 'all' == $_POST['settings_recall_type']) {
                         $ts = $_POST['settings_recall_time'];
                     } else {
                         $ts = empty($_POST['settings_ts_' . $t->id()]) ? 0 : $_POST['settings_ts_' . $t->id()];
@@ -102,12 +102,12 @@ class Handler extends AbstractPage
 
                 dotclear()->notice()->addSuccessNotice(__('Maintenance plugin has been successfully configured.'));
                 dotclear()->adminurl()->redirect('admin.plugin.Maintenance', ['tab' => $this->m_tab], '#' . $this->m_tab);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Save system settings
+        // Save system settings
         if (!empty($_POST['save_system'])) {
             try {
                 // Default (global) settings
@@ -126,19 +126,19 @@ class Handler extends AbstractPage
                 }
 
                 dotclear()->adminurl()->redirect('admin.plugin.Maintenance', ['tab' => $this->m_tab], '#' . $this->m_tab);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Page setup
+        // Page setup
         $this
             ->setPageTitle(__('Maintenance'))
             ->setPageHelp('maintenance', 'maintenancetasks')
             ->setPageBreadcrumb(
                 [
                     __('Plugins')     => '',
-                    __('Maintenance') => ''
+                    __('Maintenance') => '',
                 ]
             )
             ->setPageHead(
@@ -156,13 +156,12 @@ class Handler extends AbstractPage
 
         $this->setPageHead($this->m_maintenance->getHeaders());
 
-
-        if ($this->m_task && ($res = $this->m_task->step()) !== null) {
+        if ($this->m_task && null !== ($res = $this->m_task->step())) {
             $this->setPageBreadcrumb(
                 [
                     __('Plugins')                                                                                             => '',
                     '<a href="' . dotclear()->adminurl()->get('admin.plugin.Maintenance') . '">' . __('Maintenance') . '</a>' => '',
-                    Html::escapeHTML($this->m_task->name())                                                                   => ''
+                    Html::escapeHTML($this->m_task->name())                                                                   => '',
                 ]
             );
         }
@@ -172,32 +171,30 @@ class Handler extends AbstractPage
 
     protected function getPageContent(): void
     {
-        # Combos
+        // Combos
         $combo_ts = [
             __('Never')            => 0,
             __('Every week')       => 604800,
             __('Every two weeks')  => 1209600,
             __('Every month')      => 2592000,
-            __('Every two months') => 5184000
+            __('Every two months') => 5184000,
         ];
 
-        # Check if there is something to display according to user permissions
+        // Check if there is something to display according to user permissions
         if (empty($this->m_tasks)) {
             echo '<p class="warn">' . __('You have not sufficient permissions to view this page.') . '</p>';
 
             return;
         }
 
-        if ($this->m_task && ($res = $this->m_task->step()) !== null) {
-
-            # content
+        if ($this->m_task && null !== ($res = $this->m_task->step())) {
+            // content
             if (substr($res, 0, 1) != '<') {
                 $res = sprintf('<p class="step-msg">%s</p>', $res);
             }
 
-            # Intermediate task (task required several steps)
-            echo
-            '<div class="step-box" id="' . $this->m_task->id() . '">' .
+            // Intermediate task (task required several steps)
+            echo '<div class="step-box" id="' . $this->m_task->id() . '">' .
             '<p class="step-back">' .
             '<a class="back" href="' . dotclear()->adminurl()->get('admin.plugin.Maintenance', ['tab' => $this->m_task->tab()]) . '#' . $this->m_task->tab() . '">' . __('Back') . '</a>' .
             '</p>' .
@@ -211,7 +208,7 @@ class Handler extends AbstractPage
                 '</form>' .
                 '</div>';
         } else {
-            # Simple task (with only a button to start it)
+            // Simple task (with only a button to start it)
             foreach ($this->m_maintenance->getTabs() as $this->m_tab_obj) {
                 $res_group = '';
                 foreach ($this->m_maintenance->getGroups() as $group_obj) {
@@ -229,8 +226,8 @@ class Handler extends AbstractPage
 
                         // Expired task alert message
                         $ts = $t->expired();
-                        if (dotclear()->blog()->settings()->get('maintenance')->get('plugin_message') && $ts !== false) {
-                            if ($ts === null) {
+                        if (dotclear()->blog()->settings()->get('maintenance')->get('plugin_message') && false !== $ts) {
+                            if (null === $ts) {
                                 $res_task .= '<br /> <span class="warn">' .
                                 __('This task has never been executed.') . ' ' .
                                 __('You should execute it now.') . '</span>';
@@ -256,8 +253,7 @@ class Handler extends AbstractPage
                 }
 
                 if (!empty($res_group)) {
-                    echo
-                    '<div id="' . $this->m_tab_obj->id() . '" class="multi-part" title="' . $this->m_tab_obj->name() . '">' .
+                    echo '<div id="' . $this->m_tab_obj->id() . '" class="multi-part" title="' . $this->m_tab_obj->name() . '">' .
                     '<h3>' . $this->m_tab_obj->name() . '</h3>' .
                     // ($this->m_tab_obj->option('summary') ? '<p>'.$this->m_tab_obj->option('summary').'</p>' : '').
                     '<form action="' . dotclear()->adminurl()->root() . '" method="post">' .
@@ -271,14 +267,13 @@ class Handler extends AbstractPage
                 }
             }
 
-            # Advanced tasks (that required a tab)
+            // Advanced tasks (that required a tab)
             foreach ($this->m_tasks as $t) {
                 if (!$t->id() || $t->group() !== null) {
                     continue;
                 }
 
-                echo
-                '<div id="' . $t->id() . '" class="multi-part" title="' . $t->name() . '">' .
+                echo '<div id="' . $t->id() . '" class="multi-part" title="' . $t->name() . '">' .
                 '<h3>' . $t->name() . '</h3>' .
                 '<form action="' . dotclear()->adminurl()->root() . '" method="post">' .
                 $t->content() .
@@ -289,9 +284,8 @@ class Handler extends AbstractPage
                     '</div>';
             }
 
-            # Settings
-            echo
-            '<div id="settings" class="multi-part" title="' . __('Alert settings') . '">' .
+            // Settings
+            echo '<div id="settings" class="multi-part" title="' . __('Alert settings') . '">' .
             '<h3>' . __('Alert settings') . '</h3>' .
             '<form action="' . dotclear()->adminurl()->root() . '" method="post">' .
 
@@ -323,8 +317,7 @@ class Handler extends AbstractPage
                 if (!$t->id()) {
                     continue;
                 }
-                echo
-                '<div class="two-boxes">' .
+                echo '<div class="two-boxes">' .
 
                 '<p class="field wide"><label for="settings_ts_' . $t->id() . '">' . $t->task() . '</label>' .
                 Form::combo('settings_ts_' . $t->id(), $combo_ts, $t->ts(), 'recall-per-task') .
@@ -333,22 +326,19 @@ class Handler extends AbstractPage
                     '</div>';
             }
 
-            echo
-            '<p class="field wide"><input type="submit" value="' . __('Save') . '" /> ' .
+            echo '<p class="field wide"><input type="submit" value="' . __('Save') . '" /> ' .
             ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
             dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Maintenance', ['tab' => 'settings', 'save_settings' => 1], true) . '</p>' .
                 '</form>' .
                 '</div>';
 
-            # System tab
+            // System tab
             if (dotclear()->user()->isSuperAdmin()) {
-                echo
-                '<div id="system" class="multi-part" title="' . __('System') . '">' .
+                echo '<div id="system" class="multi-part" title="' . __('System') . '">' .
                 '<h3>' . __('System settings') . '</h3>' .
                     '<form action="' . dotclear()->adminurl()->root() . '" method="post">';
 
-                echo
-                '<div class="fieldset two-cols clearfix">' .
+                echo '<div class="fieldset two-cols clearfix">' .
                 '<h4 class="pretty-title">' . __('Content-Security-Policy') . '</h4>' .
 
                 '<div class="col">' .
@@ -373,8 +363,7 @@ class Handler extends AbstractPage
                 '</div>' .
                 '</div>';
 
-                echo
-                '<p class="field wide"><input type="submit" value="' . __('Save') . '" /> ' .
+                echo '<p class="field wide"><input type="submit" value="' . __('Save') . '" /> ' .
                 ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
                 dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Maintenance', ['tab' => 'system', 'save_system' => 1], true) . '</p>' .
                     '</form>' .

@@ -1,21 +1,20 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Dotclear\Database\Statement;
 
-use Dotclear\Database\Statement\SqlStatement;
-
 /**
- * Join (sub)Statement : small utility to build join query fragments
+ * Join (sub)Statement : small utility to build join query fragments.
  */
 class JoinStatement extends SqlStatement
 {
     protected $type;
 
     /**
-     * Class constructor
+     * Class constructor.
      *
-     * @param mixed     $ctx    optional context
+     * @param mixed $ctx optional context
      */
     public function __construct($ctx = null)
     {
@@ -30,9 +29,8 @@ class JoinStatement extends SqlStatement
     }
 
     /**
-     * Defines the type for join
+     * Defines the type for join.
      *
-     * @param string $type
      * @return self instance, enabling to chain calls
      */
     public function type(string $type = ''): JoinStatement
@@ -43,13 +41,13 @@ class JoinStatement extends SqlStatement
     }
 
     /**
-     * Returns the join fragment
+     * Returns the join fragment.
      *
      * @return string the fragment
      */
     public function statement(): string
     {
-        # --BEHAVIOR-- coreBeforeDeleteStatement
+        // --BEHAVIOR-- coreBeforeDeleteStatement
         dotclear()->behavior()->call('coreBeforeJoinStatement', $this);
 
         // Check if source given
@@ -85,7 +83,7 @@ class JoinStatement extends SqlStatement
 
         $query = trim($query);
 
-        # --BEHAVIOR-- coreAfertSelectStatement
+        // --BEHAVIOR-- coreAfertSelectStatement
         dotclear()->behavior()->call('coreAfterJoinStatement', $this, $query);
 
         return $query;

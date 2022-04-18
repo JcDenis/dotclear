@@ -1,12 +1,11 @@
 <?php
 /**
- * @class Dotclear\Database\Driver\Mysqli\Schema
+ * @note Dotclear\Database\Driver\Mysqli\Schema
  * @brief Mysql schema driver
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
- * @package Dotclear
- * @subpackage Database
+ * @ingroup  Database
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -26,40 +25,47 @@ class Schema extends AbstractSchema
         switch ($type) {
             case 'float':
                 return 'real';
+
             case 'double':
                 return 'float';
+
             case 'datetime':
-                # DATETIME real type is TIMESTAMP
-                if ($default == "'1970-01-01 00:00:00'") {
-                    # Bad hack
+                // DATETIME real type is TIMESTAMP
+                if ("'1970-01-01 00:00:00'" == $default) {
+                    // Bad hack
                     $default = 'now()';
                 }
 
                 return 'timestamp';
+
             case 'integer':
             case 'mediumint':
-                if ($len == 11) {
+                if (11 == $len) {
                     $len = 0;
                 }
 
                 return 'integer';
+
             case 'bigint':
-                if ($len == 20) {
+                if (20 == $len) {
                     $len = 0;
                 }
 
                 break;
+
             case 'tinyint':
             case 'smallint':
-                if ($len == 6) {
+                if (6 == $len) {
                     $len = 0;
                 }
 
                 return 'smallint';
+
             case 'numeric':
                 $len = 0;
 
                 break;
+
             case 'tinytext':
             case 'longtext':
                 return 'text';
@@ -75,15 +81,18 @@ class Schema extends AbstractSchema
         switch ($type) {
             case 'real':
                 return 'float';
+
             case 'float':
                 return 'double';
+
             case 'timestamp':
-                if ($default == 'now()') {
-                    # MySQL does not support now() default value...
+                if ('now()' == $default) {
+                    // MySQL does not support now() default value...
                     $default = "'1970-01-01 00:00:00'";
                 }
 
                 return 'datetime';
+
             case 'text':
                 $len = 0;
 
@@ -127,7 +136,7 @@ class Schema extends AbstractSchema
             // $default from db is a string and is NULL in schema so upgrade failed.
             if (strtoupper((string) $default) == 'NULL') {
                 $default = null;
-            } elseif ($default != '' && !is_numeric($default)) {
+            } elseif ('' != $default && !is_numeric($default)) {
                 $default = "'" . $default . "'";
             }
 
@@ -135,7 +144,7 @@ class Schema extends AbstractSchema
                 'type'    => $type,
                 'len'     => $len,
                 'null'    => $null,
-                'default' => $default
+                'default' => $default,
             ];
         }
 
@@ -155,7 +164,7 @@ class Schema extends AbstractSchema
             $seq      = $rs->f('Seq_in_index');
             $col_name = $rs->f('Column_name');
 
-            if ($key_name == 'PRIMARY' || $unique) {
+            if ('PRIMARY' == $key_name || $unique) {
                 $t[$key_name]['cols'][$seq] = $col_name;
                 $t[$key_name]['unique']     = $unique;
             }
@@ -166,9 +175,9 @@ class Schema extends AbstractSchema
 
             $res[] = [
                 'name'    => $name,
-                'primary' => $name == 'PRIMARY',
+                'primary' => 'PRIMARY' == $name,
                 'unique'  => $idx['unique'],
-                'cols'    => array_values($idx['cols'])
+                'cols'    => array_values($idx['cols']),
             ];
         }
 
@@ -189,7 +198,7 @@ class Schema extends AbstractSchema
             $col_name = $rs->f('Column_name');
             $type     = $rs->f('Index_type');
 
-            if ($key_name != 'PRIMARY' && !$unique) {
+            if ('PRIMARY' != $key_name && !$unique) {
                 $t[$key_name]['cols'][$seq] = $col_name;
                 $t[$key_name]['type']       = $type;
             }
@@ -201,7 +210,7 @@ class Schema extends AbstractSchema
             $res[] = [
                 'name' => $name,
                 'type' => $idx['type'],
-                'cols' => $idx['cols']
+                'cols' => $idx['cols'],
             ];
         }
 
@@ -218,19 +227,19 @@ class Schema extends AbstractSchema
         $res = [];
 
         $n = preg_match_all('/^\s*CONSTRAINT\s+`(.+?)`\s+FOREIGN\s+KEY\s+\((.+?)\)\s+REFERENCES\s+`(.+?)`\s+\((.+?)\)(.*?)$/msi', $s, $match);
-        if ($n > 0) {
+        if (0 < $n) {
             foreach ($match[1] as $i => $name) {
-                # Columns transformation
+                // Columns transformation
                 $t_cols = str_replace('`', '', $match[2][$i]);
                 $t_cols = explode(',', $t_cols);
                 $r_cols = str_replace('`', '', $match[4][$i]);
                 $r_cols = explode(',', $r_cols);
 
-                # ON UPDATE|DELETE
+                // ON UPDATE|DELETE
                 $on        = trim($match[5][$i], ', ');
                 $on_delete = null;
                 $on_update = null;
-                if ($on != '') {
+                if ('' != $on) {
                     if (preg_match('/ON DELETE (.+?)(?:\s+ON|$)/msi', $on, $m)) {
                         $on_delete = strtolower(trim($m[1]));
                     }
@@ -245,7 +254,7 @@ class Schema extends AbstractSchema
                     'p_table' => $match[3][$i],
                     'p_cols'  => $r_cols,
                     'update'  => $on_update,
-                    'delete'  => $on_delete
+                    'delete'  => $on_delete,
                 ];
             }
         }
@@ -264,12 +273,12 @@ class Schema extends AbstractSchema
             $null    = $f['null'];
 
             $type = $this->udt2dbt($type, $len, $default);
-            $len  = $len > 0 ? '(' . $len . ')' : '';
+            $len  = 0 < $len ? '(' . $len . ')' : '';
             $null = $null ? 'NULL' : 'NOT NULL';
 
-            if ($default === null) {
+            if (null === $default) {
                 $default = 'DEFAULT NULL';
-            } elseif ($default !== false) {
+            } elseif (false !== $default) {
                 $default = 'DEFAULT ' . $default . ' ';
             } else {
                 $default = '';
@@ -290,9 +299,9 @@ class Schema extends AbstractSchema
     {
         $type = $this->udt2dbt($type, $len, $default);
 
-        if ($default === null) {
+        if (null === $default) {
             $default = 'DEFAULT NULL';
-        } elseif ($default !== false) {
+        } elseif (false !== $default) {
             $default = 'DEFAULT ' . $default;
         } else {
             $default = '';
@@ -375,16 +384,16 @@ class Schema extends AbstractSchema
     {
         $type = $this->udt2dbt($type, $len, $default);
 
-        if ($default === null) {
+        if (null === $default) {
             $default = 'DEFAULT NULL';
-        } elseif ($default !== false) {
+        } elseif (false !== $default) {
             $default = 'DEFAULT ' . $default;
         } else {
             $default = '';
         }
 
         $sql = 'ALTER TABLE ' . $this->con->escapeSystem($table) . ' ' .
-        'CHANGE COLUMN ' . $this->con->escapeSystem($name) . ' ' . $this->con->escapeSystem($name) . ' ' . $type . ($len > 0 ? '(' . $len . ')' : '') . ' ' . ($null ? 'NULL' : 'NOT NULL') . ' ' . $default;
+        'CHANGE COLUMN ' . $this->con->escapeSystem($name) . ' ' . $this->con->escapeSystem($name) . ' ' . $type . (0 < $len ? '(' . $len . ')' : '') . ' ' . ($null ? 'NULL' : 'NOT NULL') . ' ' . $default;
 
         $this->con->execute($sql);
     }

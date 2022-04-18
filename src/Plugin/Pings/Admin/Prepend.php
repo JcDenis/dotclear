@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Pings\Admin\Prepend
+ * @note Dotclear\Plugin\Pings\Admin\Prepend
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginPings
+ * @ingroup  PluginPings
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,7 +14,6 @@ namespace Dotclear\Plugin\Pings\Admin;
 
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
-use Dotclear\Plugin\Pings\Admin\PingsBehavior;
 use Dotclear\Plugin\Pings\Common\PingsCore;
 
 class Prepend extends AbstractPrepend
@@ -24,11 +22,11 @@ class Prepend extends AbstractPrepend
 
     public function loadModule(): void
     {
-        # Menu and favs
+        // Menu and favs
         $this->addStandardMenu('Blog', null);
         $this->addStandardFavorites(null);
 
-        # Behaviors
+        // Behaviors
         new PingsCore();
         new PingsBehavior();
     }

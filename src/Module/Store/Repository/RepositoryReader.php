@@ -1,12 +1,11 @@
 <?php
 /**
- * @class Dotclear\Module\Store\Repository\RepositoryReader
+ * @note Dotclear\Module\Store\Repository\RepositoryReader
  * @brief Repository modules XML feed reader
  *
  * Provides an object to parse XML feed of modules from repository.
  *
- * @package Dotclear
- * @subpackage Core
+ * @ingroup  Module
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,30 +15,29 @@ declare(strict_types=1);
 namespace Dotclear\Module\Store\Repository;
 
 use Dotclear\Helper\File\Files;
-use Dotclear\Module\Store\Repository\RepositoryParser;
 use Dotclear\Helper\Network\NetHttp\NetHttp;
 
 class RepositoryReader extends NetHttp
 {
-    /** @var    string    User agent used to query repository */
+    /** @var string User agent used to query repository */
     protected $user_agent = 'DotClear.org RepoBrowser/0.1';
 
-    /** @var    array     HTTP Cache validators */
-    protected $validators = null;
+    /** @var array HTTP Cache validators */
+    protected $validators;
 
-    /** @var    mixed     Cache temporary directory */
-    protected $cache_dir = null;
+    /** @var mixed Cache temporary directory */
+    protected $cache_dir;
 
-    /** @var    string    Cache file prefix */
+    /** @var string Cache file prefix */
     protected $cache_file_prefix = 'dcrepo';
 
-    /** @var    string    Cache TTL */
+    /** @var string Cache TTL */
     protected $cache_ttl = '-1440 minutes';
 
-    /** @var    boolean    'Cache' TTL on server failed */
+    /** @var bool 'Cache' TTL on server failed */
     protected $cache_touch_on_fail = true;
 
-    /** @var    boolean    Force query server */
+    /** @var bool Force query server */
     protected $force = false;
 
     /**
@@ -57,9 +55,9 @@ class RepositoryReader extends NetHttp
     /**
      * Parse modules feed.
      *
-     * @param   string  $url                XML feed URL
+     * @param string $url XML feed URL
      *
-     * @return  RepositoryParser|false     RepositoryParser instance
+     * @return false|RepositoryParser RepositoryParser instance
      */
     public function parse(string $url): RepositoryParser|false
     {
@@ -67,7 +65,8 @@ class RepositoryReader extends NetHttp
 
         if ($this->cache_dir) {
             return $this->withCache($url);
-        } elseif (!$this->getModulesXML($url) || $this->getStatus() != '200') {
+        }
+        if (!$this->getModulesXML($url) || $this->getStatus() != '200') {
             return false;
         }
 
@@ -77,11 +76,11 @@ class RepositoryReader extends NetHttp
     /**
      * Quick parse modules feed.
      *
-     * @param   string  $url                XML feed URL
-     * @param   string  $cache_dir          Cache directoy or null for no cache
-     * @param   bool    $force              Force query repository
+     * @param string $url       XML feed URL
+     * @param string $cache_dir Cache directoy or null for no cache
+     * @param bool   $force     Force query repository
      *
-     * @return  RepositoryParser|false     RepositoryParser instance
+     * @return false|RepositoryParser RepositoryParser instance
      */
     public static function quickParse(string $url, ?string $cache_dir = null, bool $force = false): RepositoryParser|false
     {
@@ -99,9 +98,9 @@ class RepositoryReader extends NetHttp
     /**
      * Set cache directory.
      *
-     * @param   string  $dir    Cache directory
+     * @param string $dir Cache directory
      *
-     * @return  bool            True if cache dierctory is useable
+     * @return bool True if cache dierctory is useable
      */
     public function setCacheDir(string $dir): bool
     {
@@ -119,7 +118,7 @@ class RepositoryReader extends NetHttp
     /**
      * Set cache TTL.
      *
-     * @param   string  $str    Cache TTL
+     * @param string $str Cache TTL
      */
     public function setCacheTTL(string $str): void
     {
@@ -133,7 +132,7 @@ class RepositoryReader extends NetHttp
     /**
      * Set force query repository.
      *
-     * @param   bool    $force  True to force query
+     * @param bool $force True to force query
      */
     public function setForce(bool $force): void
     {
@@ -145,9 +144,9 @@ class RepositoryReader extends NetHttp
      *
      * send content to ouput.
      *
-     * @param   string  $url    XML feed URL
+     * @param string $url XML feed URL
      *
-     * @return  bool            Success
+     * @return bool Success
      */
     protected function getModulesXML(string $url): bool
     {
@@ -161,7 +160,7 @@ class RepositoryReader extends NetHttp
         try {
             return $this->get($path);
         } catch (\Exception) {
-            //! @todo Log error when repository query fail
+            // ! @todo Log error when repository query fail
             return false;
         }
     }
@@ -169,9 +168,9 @@ class RepositoryReader extends NetHttp
     /**
      * Get repository modules list using cache.
      *
-     * @param   string  $url                XML feed URL
+     * @param string $url XML feed URL
      *
-     * @return  RepositoryParser|false     Feed content or False on fail
+     * @return false|RepositoryParser Feed content or False on fail
      */
     protected function withCache(string $url): RepositoryParser|false
     {
@@ -187,39 +186,39 @@ class RepositoryReader extends NetHttp
 
         $may_use_cached = false;
 
-        # Use cache file ?
+        // Use cache file ?
         if (@file_exists($cached_file) && !$this->force) {
             $may_use_cached = true;
             $ts             = @filemtime($cached_file);
-            if ($ts > strtotime($this->cache_ttl)) {
-                # Direct cache
+            if (strtotime($this->cache_ttl) < $ts) {
+                // Direct cache
                 return unserialize(file_get_contents($cached_file));
             }
             $this->setValidator('IfModifiedSince', $ts);
         }
 
-        # Query repository
+        // Query repository
         if (!$this->getModulesXML($url)) {
             if ($may_use_cached) {
-                # Touch cache TTL even if query failed ?
+                // Touch cache TTL even if query failed ?
                 if ($this->cache_touch_on_fail) {
                     @Files::touch($cached_file);
                 }
-                # Connection failed - fetched from cache
+                // Connection failed - fetched from cache
                 return unserialize(file_get_contents($cached_file));
             }
 
             return false;
         }
 
-        # Parse response
+        // Parse response
         switch ($this->getStatus()) {
-            # Not modified, use cache
+            // Not modified, use cache
             case '304':
                 @Files::touch($cached_file);
 
                 return unserialize(file_get_contents($cached_file));
-            # Ok, parse feed
+            // Ok, parse feed
             case '200':
                 $modules = new RepositoryParser($this->getContent());
 
@@ -244,13 +243,13 @@ class RepositoryReader extends NetHttp
     /**
      * Prepare query.
      *
-     * @return  array   Query headers
+     * @return array Query headers
      */
     protected function buildRequest(): array
     {
         $headers = parent::buildRequest();
 
-        # Cache validators
+        // Cache validators
         if (!empty($this->validators)) {
             if (isset($this->validators['IfModifiedSince'])) {
                 $headers[] = 'If-Modified-Since: ' . $this->validators['IfModifiedSince'];
@@ -271,12 +270,12 @@ class RepositoryReader extends NetHttp
     /**
      * Tweak query cache validator.
      *
-     * @param   string  $key    Validator key
-     * @param   mixed   $value  Validator value
+     * @param string $key   Validator key
+     * @param mixed  $value Validator value
      */
     private function setValidator(string $key, mixed $value): void
     {
-        if ($key == 'IfModifiedSince') {
+        if ('IfModifiedSince' == $key) {
             $value = gmdate('D, d M Y H:i:s', $value) . ' GMT';
         }
 

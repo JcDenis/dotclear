@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\CKEditor\Admin\Handler
+ * @note Dotclear\Plugin\CKEditor\Admin\Handler
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginCKEditor
+ * @ingroup  PluginCKEditor
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,10 +15,11 @@ namespace Dotclear\Plugin\CKEditor\Admin;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
+use Exception;
 
 class Handler extends AbstractPage
 {
-    /** @var    array     CKEditor settings */
+    /** @var array CKEditor settings */
     private $ckes;
 
     protected function getPermissions(): string|null|false
@@ -29,7 +29,7 @@ class Handler extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        $s = dotclear()->blog()->settings()->get('dcckeditor');
+        $s          = dotclear()->blog()->settings()->get('dcckeditor');
         $this->ckes = [
             'is_admin'                    => dotclear()->user()->check('admin,contentadmin', dotclear()->blog()->id) || dotclear()->user()->isSuperAdmin(),
             'active'                      => $s->get('active'),
@@ -54,7 +54,7 @@ class Handler extends AbstractPage
                 $this->ckes['active'] = (empty($_POST['dcckeditor_active'])) ? false : true;
                 dotclear()->blog()->settings()->get('dcckeditor')->put('active', $this->ckes['active'], 'boolean');
 
-                # change other settings only if they were in html page
+                // change other settings only if they were in html page
                 if ($this->ckes['was_actived']) {
                     $this->ckes['alignment_buttons'] = (empty($_POST['dcckeditor_alignment_buttons'])) ? false : true;
                     $s->put('alignment_buttons', $this->ckes['alignment_buttons'], 'boolean');
@@ -80,7 +80,7 @@ class Handler extends AbstractPage
                     $this->ckes['format_select'] = (empty($_POST['dcckeditor_format_select'])) ? false : true;
                     $s->put('format_select', $this->ckes['format_select'], 'boolean');
 
-                    # default tags : p;h1;h2;h3;h4;h5;h6;pre;address
+                    // default tags : p;h1;h2;h3;h4;h5;h6;pre;address
                     $this->ckes['format_tags'] = 'p;h1;h2;h3;h4;h5;h6;pre;address';
                     $allowed_tags              = explode(';', $this->ckes['format_tags']);
                     if (!empty($_POST['dcckeditor_format_tags'])) {
@@ -111,16 +111,16 @@ class Handler extends AbstractPage
                     $this->ckes['disable_native_spellchecker'] = (empty($_POST['dcckeditor_disable_native_spellchecker'])) ? false : true;
                     $s->put('disable_native_spellchecker', $this->ckes['disable_native_spellchecker'], 'boolean');
                 }
-                dotclear()->blog()->triggerBlog(); //!
+                dotclear()->blog()->triggerBlog(); // !
 
                 dotclear()->notice()->addSuccessNotice(__('The configuration has been updated.'));
                 dotclear()->adminurl()->redirect('admin.plugin.CKEditor');
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Page setup
+        // Page setup
         $this
             ->setPageTitle('CKEditor')
             ->setPageHelp('dcCKEditor')
@@ -194,7 +194,7 @@ class Handler extends AbstractPage
                 <p class="clear form-note">' . __('Default formats are p;h1;h2;h3;h4;h5;h6;pre;address') . '</p>
                 <p>' .
                 Form::checkbox('dcckeditor_table_button', 1, $this->ckes['table_button']) . '
-                <label class="classic" for="dcckeditor_table_button">' . __('Add table button') .'</label>
+                <label class="classic" for="dcckeditor_table_button">' . __('Add table button') . '</label>
                 </p>
                 <p>' .
                 Form::checkbox('dcckeditor_clipboard_buttons', 1, $this->ckes['clipboard_buttons']) . '

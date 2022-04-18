@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Action\Action\DefaultBlogAction
+ * @note Dotclear\Process\Admin\Action\Action\DefaultBlogAction
  * @brief Dotclear admin handler for action page on selected entries
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -30,13 +29,13 @@ abstract class DefaultBlogAction extends Action
             [__('Status') => [
                 __('Set online')     => 'online',
                 __('Set offline')    => 'offline',
-                __('Set as removed') => 'remove'
+                __('Set as removed') => 'remove',
             ]],
             [$this, 'doChangeBlogStatus']
         );
         $ap->addAction(
             [__('Delete') => [
-                __('Delete') => 'delete']],
+                __('Delete') => 'delete', ]],
             [$this, 'doDeleteBlog']
         );
     }
@@ -63,9 +62,10 @@ abstract class DefaultBlogAction extends Action
         $sql
             ->from(dotclear()->prefix . 'blog')
             ->set('blog_status = ' . $sql->quote($status))
-            //->set('blog_upddt = ' . $sql->quote(date('Y-m-d H:i:s')))
+            // ->set('blog_upddt = ' . $sql->quote(date('Y-m-d H:i:s')))
             ->where('blog_id' . $sql->in($ids))
-            ->update();
+            ->update()
+        ;
 
         dotclear()->notice()->addSuccessNotice(__('Selected blogs have been successfully updated.'));
         $ap->redirect(true);
@@ -88,7 +88,7 @@ abstract class DefaultBlogAction extends Action
 
         $ids = [];
         foreach ($ap_ids as $id) {
-            if ($id == dotclear()->blog()->id) {
+            if (dotclear()->blog()->id == $id) {
                 dotclear()->notice()->addWarningNotice(__('The current blog cannot be deleted.'));
             } else {
                 $ids[] = $id;
@@ -96,20 +96,22 @@ abstract class DefaultBlogAction extends Action
         }
 
         if (!empty($ids)) {
-            # --BEHAVIOR-- adminBeforeBlogsDelete
+            // --BEHAVIOR-- adminBeforeBlogsDelete
             dotclear()->behavior()->call('adminBeforeBlogsDelete', $ids);
 
             foreach ($ids as $id) {
                 dotclear()->blogs()->delBlog($id);
             }
 
-            dotclear()->notice()->addSuccessNotice(sprintf(
-                __(
-                    '%d blog has been successfully deleted',
-                    '%d blogs have been successfully deleted',
+            dotclear()->notice()->addSuccessNotice(
+                sprintf(
+                    __(
+                        '%d blog has been successfully deleted',
+                        '%d blogs have been successfully deleted',
+                        count($ids)
+                    ),
                     count($ids)
-                ),
-                count($ids))
+                )
             );
         }
         $ap->redirect(false);

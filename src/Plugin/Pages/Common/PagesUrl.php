@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Pages\Common\PagesUrl
+ * @note Dotclear\Plugin\Pages\Common\PagesUrl
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginPages
+ * @ingroup  PluginPages
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -20,6 +19,7 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\HtmlFilter;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Text;
+use Exception;
 
 class PagesUrl extends Url
 {
@@ -33,8 +33,8 @@ class PagesUrl extends Url
 
     public function pages(string $args): void
     {
-        if ($args == '') {
-            # No page was specified.
+        if ('' == $args) {
+            // No page was specified.
             dotclear()->url()->p404();
         } else {
             dotclear()->blog()->withoutPassword(false);
@@ -60,18 +60,18 @@ class PagesUrl extends Url
             dotclear()->blog()->withoutPassword(true);
 
             if (dotclear()->context()->get('posts')->isEmpty()) {
-                # The specified page does not exist.
+                // The specified page does not exist.
                 dotclear()->url()->p404();
             } else {
                 $post_id       = dotclear()->context()->get('posts')->fInt('post_id');
                 $post_password = dotclear()->context()->get('posts')->f('post_password');
 
-                # Password protected entry
-                if ($post_password != '' && !dotclear()->context()->get('preview')) {
-                    # Get passwords cookie
+                // Password protected entry
+                if ('' != $post_password && !dotclear()->context()->get('preview')) {
+                    // Get passwords cookie
                     if (isset($_COOKIE['dc_passwd'])) {
                         $pwd_cookie = json_decode($_COOKIE['dc_passwd']);
-                        if ($pwd_cookie === null) {
+                        if (null === $pwd_cookie) {
                             $pwd_cookie = [];
                         } else {
                             $pwd_cookie = (array) $pwd_cookie;
@@ -80,9 +80,9 @@ class PagesUrl extends Url
                         $pwd_cookie = [];
                     }
 
-                    # Check for match
-                    # Note: We must prefix post_id key with '#'' in pwd_cookie array in order to avoid integer conversion
-                    # because MyArray["12345"] is treated as MyArray[12345]
+                    // Check for match
+                    // Note: We must prefix post_id key with '#'' in pwd_cookie array in order to avoid integer conversion
+                    // because MyArray["12345"] is treated as MyArray[12345]
                     if ((!empty($_POST['password']) && $_POST['password'] == $post_password)
                         || (isset($pwd_cookie['#' . $post_id]) && $pwd_cookie['#' . $post_id] == $post_password)) {
                         $pwd_cookie['#' . $post_id] = $post_password;
@@ -94,16 +94,16 @@ class PagesUrl extends Url
                     }
                 }
 
-                $post_comment = isset($_POST['c_name']) && isset($_POST['c_mail']) && isset($_POST['c_site']) && isset($_POST['c_content']) && dotclear()->context()->get('posts')->commentsActive();
+                $post_comment = isset($_POST['c_name'], $_POST['c_mail'], $_POST['c_site'], $_POST['c_content']) && dotclear()->context()->get('posts')->commentsActive();
 
-                # Posting a comment
+                // Posting a comment
                 if ($post_comment) {
-                    # Spam trap
+                    // Spam trap
                     if (!empty($_POST['f_mail'])) {
                         Http::head(412, 'Precondition Failed');
                         header('Content-Type: text/plain');
                         echo 'So Long, and Thanks For All the Fish';
-                        # Exits immediately the application to preserve the server.
+                        // Exits immediately the application to preserve the server.
                         exit;
                     }
 
@@ -113,10 +113,10 @@ class PagesUrl extends Url
                     $content = $_POST['c_content'];
                     $preview = !empty($_POST['preview']);
 
-                    if ($content != '') {
-                        # --BEHAVIOR-- publicBeforeCommentTransform
+                    if ('' != $content) {
+                        // --BEHAVIOR-- publicBeforeCommentTransform
                         $buffer = dotclear()->behavior()->call('publicBeforeCommentTransform', $content);
-                        if ($buffer != '') {
+                        if ('' != $buffer) {
                             $content = $buffer;
                         } else {
                             if (dotclear()->blog()->settings()->get('system')->get('wiki_comments')) {
@@ -129,7 +129,7 @@ class PagesUrl extends Url
                         $content = new HtmlFilter($content);
                     }
 
-                    $cp = dotclear()->context()->get('comment_preview');
+                    $cp               = dotclear()->context()->get('comment_preview');
                     $cp['content']    = $content;
                     $cp['rawcontent'] = $_POST['c_content'];
                     $cp['name']       = $name;
@@ -137,12 +137,12 @@ class PagesUrl extends Url
                     $cp['site']       = $site;
 
                     if ($preview) {
-                        # --BEHAVIOR-- publicBeforeCommentPreview
+                        // --BEHAVIOR-- publicBeforeCommentPreview
                         dotclear()->behavior()->call('publicBeforeCommentPreview', $cp);
 
                         $cp['preview'] = true;
                     } else {
-                        # Post the comment
+                        // Post the comment
                         $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
                         $cur->setField('comment_author', $name);
                         $cur->setField('comment_site', Html::clean($site));
@@ -160,12 +160,12 @@ class PagesUrl extends Url
                                 throw new AdminException(__('You must provide a valid email address.'));
                             }
 
-                            # --BEHAVIOR-- publicBeforeCommentCreate
+                            // --BEHAVIOR-- publicBeforeCommentCreate
                             dotclear()->behavior()->call('publicBeforeCommentCreate', $cur);
                             if ($cur->getField('post_id')) {
                                 $comment_id = dotclear()->blog()->comments()->addComment($cur);
 
-                                # --BEHAVIOR-- publicAfterCommentCreate
+                                // --BEHAVIOR-- publicAfterCommentCreate
                                 dotclear()->behavior()->call('publicAfterCommentCreate', $cur, $comment_id);
                             }
 
@@ -176,19 +176,19 @@ class PagesUrl extends Url
                             }
 
                             header('Location: ' . $redir . $redir_arg);
-                        } catch (\Exception $e) {
+                        } catch (Exception $e) {
                             dotclear()->context()->set('form_error', $e->getMessage());
                         }
                     }
                     dotclear()->context()->set('comment_preview', $cp);
                 }
 
-                # The entry
+                // The entry
                 if (dotclear()->context()->get('posts')->trackbacksActive()) {
                     header('X-Pingback: ' . dotclear()->blog()->getURLFor('xmlrpc', dotclear()->blog()->id));
                 }
 
-                # Serve page
+                // Serve page
                 dotclear()->url()->serveDocument('page.html');
             }
         }
@@ -197,14 +197,14 @@ class PagesUrl extends Url
     public function pagespreview(string $args): void
     {
         if (!preg_match('#^(.+?)/([0-9a-z]{40})/(.+?)$#', $args, $m)) {
-            # The specified Preview URL is malformed.
+            // The specified Preview URL is malformed.
             dotclear()->url()->p404();
         } else {
             $user_id  = $m[1];
             $user_key = $m[2];
             $post_url = $m[3];
             if (!dotclear()->user()->checkUser($user_id, null, $user_key)) {
-                # The user has no access to the entry.
+                // The user has no access to the entry.
                 dotclear()->url()->p404();
             } else {
                 dotclear()->user()->preview = true;

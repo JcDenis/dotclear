@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Inventory\Inventory\MediaInventory
+ * @note Dotclear\Process\Admin\Inventory\Inventory\MediaInventory
  * @brief Dotclear admin list helper
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -26,12 +25,12 @@ use Dotclear\Process\Admin\Page\Pager;
 class MediaInventory extends Inventory
 {
     /**
-     * Display a media list
+     * Display a media list.
      *
-     * @param   MediaFilter     $filters        The filters
-     * @param   string          $enclose_block  The enclose block
-     * @param   bool            $query          If it's a query or not
-     * @param   string          $page_adminurl  Page URL
+     * @param MediaFilter $filters       The filters
+     * @param string      $enclose_block The enclose block
+     * @param bool        $query         If it's a query or not
+     * @param string      $page_adminurl Page URL
      */
     public function display(MediaFilter $filters, string $enclose_block = '', bool $query = false, string $page_adminurl = 'admin.media'): void
     {
@@ -40,7 +39,7 @@ class MediaInventory extends Inventory
 
         if ($filters->get('q') && !$query) {
             echo '<p><strong>' . __('No file matches the filter') . '</strong></p>';
-        } elseif ($nb_items < 1) {
+        } elseif (1 > $nb_items) {
             echo '<p><strong>' . __('No file.') . '</strong></p>';
         }
 
@@ -50,7 +49,7 @@ class MediaInventory extends Inventory
             $items = $this->rs->rows();
             foreach ($items as $item) {
                 if ($item->d) {
-                    $nb_folders++;
+                    ++$nb_folders;
                 }
             }
             $nb_files = $nb_items - $nb_folders;
@@ -95,15 +94,15 @@ class MediaInventory extends Inventory
     }
 
     /**
-     * Get a media line
+     * Get a media line.
      *
-     * @param   MediaFilter     $filters        The filters
-     * @param   Item            $f              The current media item
-     * @param   int             $i              The current index
-     * @param   bool            $query          If it's a query or not
-     * @param   string          $page_adminurl  Page URL
+     * @param MediaFilter $filters       The filters
+     * @param Item        $f             The current media item
+     * @param int         $i             The current index
+     * @param bool        $query         If it's a query or not
+     * @param string      $page_adminurl Page URL
      *
-     * @return  string                          The line
+     * @return string The line
      */
     public function mediaLine(MediaFilter $filters, Item $f, int $i, bool $query = false, string $page_adminurl = 'admin.media'): string
     {
@@ -208,7 +207,7 @@ class MediaInventory extends Inventory
                 $lst .= '<li>' . Media::audioPlayer($f->type, $f->file_url, null, null, false, false) . '</li>';
             }
 
-            $res .= ($lst != '' ? '<ul>' . $lst . '</ul>' : '');
+            $res .= ('' != $lst ? '<ul>' . $lst . '</ul>' : '');
             $res .= '</div>';
         } else {
             $res = '<tr class="' . $class . '">';

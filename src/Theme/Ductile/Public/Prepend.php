@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Theme\Ductile\Public\Prepend
+ * @note Dotclear\Theme\Ductile\Public\Prepend
  * @brief Dotclear Theme class
  *
- * @package Dotclear
- * @subpackage ThemeDuctile
+ * @ingroup  ThemeDuctile
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,8 +14,6 @@ namespace Dotclear\Theme\Ductile\Public;
 
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
-use Dotclear\Theme\Ductile\Public\DuctileBehavior;
-use Dotclear\Theme\Ductile\Public\DuctileTemplate;
 
 class Prepend extends AbstractPrepend
 {

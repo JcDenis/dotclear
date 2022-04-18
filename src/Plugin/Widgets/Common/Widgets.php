@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Widgets\Common\Widgets
+ * @note Dotclear\Plugin\Widgets\Common\Widgets
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginWidgets
+ * @ingroup  PluginWidgets
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,20 +13,16 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Widgets\Common;
 
 use Dotclear\Helper\Lexical;
-use Dotclear\Plugin\Widgets\Common\WidgetsStack;
-use Dotclear\Plugin\Widgets\Common\Widget;
 
 class Widgets
 {
-    /** @var    array<string, Widget>   Widgets */
+    /** @var array<string, Widget>   Widgets */
     private $__widgets = [];
 
     /**
-     * Load Widgets from serialized content
-     * 
-     * @param   string|null     $s  serialized widgets
-     * 
-     * @return  Widgets|null
+     * Load Widgets from serialized content.
+     *
+     * @param null|string $s serialized widgets
      */
     public function load(?string $s): ?Widgets
     {
@@ -37,9 +32,7 @@ class Widgets
     }
 
     /**
-     * Store widgets in serialized content
-     * 
-     * @return  string
+     * Store widgets in serialized content.
      */
     public function store(): string
     {
@@ -52,15 +45,13 @@ class Widgets
     }
 
     /**
-     * Create a Widget
-     * 
-     * @param   string  $id                 Widget id
-     * @param   string  $name               Widget name
-     * @param   mixed   $callback           Widget callback function
-     * @param   mixed   $append_callback    Additonnal a callback
-     * @param   string  $desc               Widget description
-     * 
-     * @return  Widget
+     * Create a Widget.
+     *
+     * @param string $id              Widget id
+     * @param string $name            Widget name
+     * @param mixed  $callback        Widget callback function
+     * @param mixed  $append_callback Additonnal a callback
+     * @param string $desc            Widget description
      */
     public function create(string $id, string $name, mixed $callback, mixed $append_callback = null, string $desc = ''): Widget
     {
@@ -71,22 +62,20 @@ class Widgets
     }
 
     /**
-     * Call additionnal callback function
-     * 
-     * @param   Widget  $widget     The widget
+     * Call additionnal callback function.
+     *
+     * @param Widget $widget The widget
      */
     public function append(Widget $widget): void
     {
         if (is_callable($widget->append_callback)) {
             call_user_func($widget->append_callback, $widget);
         }
-            $this->__widgets[] = $widget;
+        $this->__widgets[] = $widget;
     }
 
     /**
-     * Check if there are widgets
-     * 
-     * @return  bool
+     * Check if there are widgets.
      */
     public function isEmpty(): bool
     {
@@ -94,11 +83,11 @@ class Widgets
     }
 
     /**
-     * Get widgets
-     * 
-     * @param   bool    $sorted     Sort widgets
-     * 
-     * @return  array   The widgets
+     * Get widgets.
+     *
+     * @param bool $sorted Sort widgets
+     *
+     * @return array The widgets
      */
     public function elements(bool $sorted = false): array
     {
@@ -110,19 +99,17 @@ class Widgets
     }
 
     /**
-     * Get a widget
-     * 
-     * @param   string  $id     Widget id
-     * 
-     * @return Widget|null
+     * Get a widget.
+     *
+     * @param string $id Widget id
      */
     public function get(string $id): ?Widget
     {
-        return isset($this->__widgets[$id]) ? $this->__widgets[$id] : null;
+        return $this->__widgets[$id] ?? null;
     }
 
     /**
-     * Magic wakeup method
+     * Magic wakeup method.
      */
     public function __wakeup(): void
     {
@@ -134,12 +121,10 @@ class Widgets
     }
 
     /**
-     * Load widgets (settings) form an array
-     * 
-     * @param   array       $A          widgets array with settings
-     * @param   Widgets     $widgets    instanciated widgets
-     * 
-     * @return  Widgets
+     * Load widgets (settings) form an array.
+     *
+     * @param array   $A       widgets array with settings
+     * @param Widgets $widgets instanciated widgets
      */
     public function loadArray(array $A, Widgets $widgets): Widgets
     {
@@ -150,7 +135,7 @@ class Widgets
             if ($widgets->get($v['id']) != null) {
                 $w = clone $widgets->get($v['id']);
 
-                # Settings
+                // Settings
                 unset($v['id'], $v['order']);
 
                 foreach ($v as $sid => $s) {
@@ -165,12 +150,7 @@ class Widgets
     }
 
     /**
-     * Comparison of widgets
-     * 
-     * @param   array   $a
-     * @param   array   $b
-     * 
-     * @return  int
+     * Comparison of widgets.
      */
     private function arraySort(array $a, array $b): int
     {
@@ -181,14 +161,8 @@ class Widgets
         return $a['order'] > $b['order'] ? 1 : -1;
     }
 
-
     /**
-     * Lexical comparison of widgets
-     * 
-     * @param   Widget  $a
-     * @param   Widget  $b
-     * 
-     * @return  int
+     * Lexical comparison of widgets.
      */
     private function sort(Widget $a, Widget $b): int
     {

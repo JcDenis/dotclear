@@ -1,18 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Network\Feed\Reader
- * @brief Feed Reader
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
- * Features:
- *
- * - Reads RSS 1.0 (rdf), RSS 2.0 and Atom feeds.
- * - HTTP cache negociation support
- * - Cache TTL.
- *
  * @package Dotclear
- * @subpackage Network
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -22,27 +10,41 @@ declare(strict_types=1);
 namespace Dotclear\Helper\Network\Feed;
 
 use Dotclear\Helper\File\Files;
-use Dotclear\Helper\Network\Feed\Parser;
 use Dotclear\Helper\Network\NetHttp\NetHttp;
 
+/**
+ * Feed Reader.
+ *
+ * \Dotclear\Helper\Network\Feed\Reader
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * Features:
+ *
+ * - Reads RSS 1.0 (rdf), RSS 2.0 and Atom feeds.
+ * - HTTP cache negociation support
+ * - Cache TTL.
+ *
+ * @ingroup  Helper Network Feed
+ */
 class Reader extends NetHttp
 {
-    /** @var    string  $user_agent     User agent */
+    /** @var string User agent */
     protected $user_agent = 'Clearbricks Feed Reader/0.2';
 
-    /** @var    int     $timeout    Query timeout */
+    /** @var int Query timeout */
     protected $timeout = 5;
 
-    /** @var    array|null  $validators     HTTP Cache validators */
-    protected $validators = null;
+    /** @var null|array HTTP Cache validators */
+    protected $validators;
 
-    /** @var    string|null     $cache_dir  Cache directory path */
-    protected $cache_dir = null;
+    /** @var null|string Cache directory path */
+    protected $cache_dir;
 
-    /** @var    string  $cache_file_prefix  Cache file prefix */
+    /** @var string Cache file prefix */
     protected $cache_file_prefix = 'cbfeed';
 
-    /** @var    string  $cache_ttl  Cache time to live */
+    /** @var string Cache time to live */
     protected $cache_ttl = '-30 minutes';
 
     /**
@@ -56,14 +58,12 @@ class Reader extends NetHttp
     }
 
     /**
-     * Parse Feed
+     * Parse Feed.
      *
      * Returns a new Parser instance for given URL or false if source URL is
      * not a valid feed.
      *
-     * @param   string  $url    Feed URL
-     * 
-     * @return  Parser|false
+     * @param string $url Feed URL
      */
     public function parse(string $url): Parser|false
     {
@@ -83,15 +83,13 @@ class Reader extends NetHttp
     }
 
     /**
-     * Quick Parse
+     * Quick Parse.
      *
      * This static method returns a new {@link Parser} instance for given URL. If a
      * <var>$cache_dir</var> is specified, cache will be activated.
      *
-     * @param   string          $url        Feed URL
-     * @param   string|null     $cache_dir  Cache directory
-     * 
-     * @return  Parser|false
+     * @param string      $url       Feed URL
+     * @param null|string $cache_dir Cache directory
      */
     public static function quickParse(string $url, ?string $cache_dir = null): Parser|false
     {
@@ -104,14 +102,12 @@ class Reader extends NetHttp
     }
 
     /**
-     * Set Cache Directory
+     * Set Cache Directory.
      *
      * Returns true and sets {@link $cache_dir} property if <var>$dir</var> is
      * a writable directory. Otherwise, returns false.
      *
-     * @param   string  $dir    Cache directory
-     * 
-     * @return  bool
+     * @param string $dir Cache directory
      */
     public function setCacheDir(string $dir): bool
     {
@@ -127,12 +123,12 @@ class Reader extends NetHttp
     }
 
     /**
-     * Set Cache TTL
+     * Set Cache TTL.
      *
      * Sets cache TTL. <var>$str</var> is a interval readable by strtotime
      * (-3 minutes, -2 hours, etc.)
      *
-     * @param   string  $str    TTL
+     * @param string $str TTL
      */
     public function setCacheTTL(string $str)
     {
@@ -146,13 +142,11 @@ class Reader extends NetHttp
     }
 
     /**
-     * Feed Content
+     * Feed Content.
      *
      * Returns feed content for given URL.
      *
-     * @param   string  $url    Feed URL
-     * 
-     * @return  string|bool
+     * @param string $url Feed URL
      */
     protected function getFeed(string $url): string|bool
     {
@@ -167,14 +161,12 @@ class Reader extends NetHttp
     }
 
     /**
-     * Cache content
+     * Cache content.
      *
      * Returns Parser object from cache if present or write it to cache and
      * returns result.
      *
-     * @param   string  $url    Feed URL
-     * 
-     * @return  Parser|false
+     * @param string $url Feed URL
      */
     protected function withCache(string $url): Parser|false
     {
@@ -193,8 +185,8 @@ class Reader extends NetHttp
         if (@file_exists($cached_file)) {
             $may_use_cached = true;
             $ts             = @filemtime($cached_file);
-            if ($ts > strtotime($this->cache_ttl)) {
-                # Direct cache
+            if (strtotime($this->cache_ttl) < $ts) {
+                // Direct cache
                 return unserialize(file_get_contents($cached_file));
             }
             $this->setValidator('IfModifiedSince', $ts);
@@ -202,7 +194,7 @@ class Reader extends NetHttp
 
         if (!$this->getFeed($url)) {
             if ($may_use_cached) {
-                # connection failed - fetched from cache
+                // connection failed - fetched from cache
                 return unserialize(file_get_contents($cached_file));
             }
 
@@ -214,6 +206,7 @@ class Reader extends NetHttp
                 @Files::touch($cached_file);
 
                 return unserialize(file_get_contents($cached_file));
+
             case '200':
                 $feed = new Parser($this->getContent());
 
@@ -232,7 +225,7 @@ class Reader extends NetHttp
     }
 
     /**
-     * Build request
+     * Build request.
      *
      * Adds HTTP cache headers to common headers.
      *
@@ -242,7 +235,7 @@ class Reader extends NetHttp
     {
         $headers = parent::buildRequest();
 
-        # Cache validators
+        // Cache validators
         if (!empty($this->validators)) {
             if (isset($this->validators['IfModifiedSince'])) {
                 $headers[] = 'If-Modified-Since: ' . $this->validators['IfModifiedSince'];
@@ -262,7 +255,7 @@ class Reader extends NetHttp
 
     private function setValidator(string $key, int $value): void
     {
-        if ($key == 'IfModifiedSince') {
+        if ('IfModifiedSince' == $key) {
             $value = gmdate('D, d M Y H:i:s', $value) . ' GMT';
         }
 

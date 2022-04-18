@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Blogroll\Public\BlogrollTemplate
+ * @note Dotclear\Plugin\Blogroll\Public\BlogrollTemplate
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginBlogroll
+ * @ingroup  PluginBlogroll
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -51,7 +50,7 @@ class BlogrollTemplate
 
         return
             '<?php ' .
-            "echo " . __CLASS__ . "::getList('" . $category . "','" . $block . "','" . $item . "'," . $only_cat . '); ' .
+            'echo ' . __CLASS__ . "::getList('" . $category . "','" . $block . "','" . $item . "'," . $only_cat . '); ' .
             '?>';
     }
 
@@ -64,7 +63,7 @@ class BlogrollTemplate
     {
         try {
             $blogroll = new Blogroll();
-            $links = $blogroll->getLinks();
+            $links    = $blogroll->getLinks();
         } catch (\Exception) {
             return '';
         }
@@ -95,7 +94,7 @@ class BlogrollTemplate
     {
         $list = '';
 
-        # Find current link item if any
+        // Find current link item if any
         $current      = -1;
         $current_size = 0;
         $self_uri     = Http::getSelfURI();

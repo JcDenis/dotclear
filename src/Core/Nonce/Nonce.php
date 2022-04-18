@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Core\Nonce\Nonce
+ * @note Dotclear\Core\Nonce\Nonce
  * @brief Dotclear core nonce class
  *
- * @package Dotclear
- * @subpackage Instance
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -20,7 +19,7 @@ class Nonce
     /**
      * Gets the nonce.
      *
-     * @return  string  The nonce.
+     * @return string the nonce
      */
     public function get(): string
     {
@@ -28,21 +27,21 @@ class Nonce
     }
 
     /**
-     * Check the nonce
+     * Check the nonce.
      *
-     * @param   string  $secret     The nonce
+     * @param string $secret The nonce
      *
-     * @return  bool    The success
+     * @return bool The success
      */
     public function check(string $secret): bool
     {
-        return preg_match('/^([0-9a-f]{40,})$/i', $secret) ? $secret == $this->get() : false;
+        return preg_match('/^([0-9a-f]{40,})$/i', $secret) ? $this->get() == $secret : false;
     }
 
     /**
-     * Get the nonce HTML code
+     * Get the nonce HTML code.
      *
-     * @return  string|null     HTML hidden form for nonce
+     * @return null|string HTML hidden form for nonce
      */
     public function form(): ?string
     {

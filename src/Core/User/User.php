@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Core\User\User
+ * @note Dotclear\Core\User\User
  * @brief Dotclear core auth class
  *
- * @package Dotclear
- * @subpackage Core
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,7 +12,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\User;
 
-use Dotclear\Container\UserContainer;
 use Dotclear\Core\RsExt\RsExtUser;
 use Dotclear\Core\User\Preference\Preference;
 use Dotclear\Database\Statement\SelectStatement;
@@ -22,45 +20,46 @@ use Dotclear\Database\Cursor;
 use Dotclear\Exception\CoreException;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Crypt;
+use Exception;
 
 class User
 {
-    /** @var    UserContainer   Container instance */
+    /** @var UserContainer Container instance */
     protected $container;
 
-    /** @var    Preference  Preference instance */
+    /** @var Preference Preference instance */
     protected $preference;
 
-    /** @var    string  User table name */
+    /** @var string User table name */
     protected $user_table = 'user';
 
-    /** @var    string  Perm table name */
+    /** @var string Perm table name */
     protected $perm_table = 'permissions';
 
-    /** @var    string  Blog table name */
+    /** @var string Blog table name */
     protected $blog_table = 'blog';
 
-    /** @var    array   Permissions for each blog */
+    /** @var array Permissions for each blog */
     protected $permissions = [];
 
-    /** @var    bool    User can change its password */
+    /** @var bool User can change its password */
     protected $allow_pass_change = true;
 
-    /** @var    array   List of blogs on which the user has permissions */
+    /** @var array List of blogs on which the user has permissions */
     protected $blogs = [];
 
-    /** @var    array   Permission types */
+    /** @var array Permission types */
     protected $perm_types = [];
 
-    /** @var    int     Count of user blogs */
-    public $blog_count = null;
+    /** @var int Count of user blogs */
+    public $blog_count;
 
     /**
      * Class constructor. Takes Core object as single argument.
      */
     public function __construct()
     {
-        $this->container  = new UserContainer();
+        $this->container = new UserContainer();
 
         $this->perm_types = [
             'admin'        => __('administrator'),
@@ -74,32 +73,31 @@ class User
         ];
     }
 
-    /// @name Credentials and user permissions
-    //@{
+    // / @name Credentials and user permissions
+    // @{
     /**
      * Checks if user exists and can log in. <var>$pwd</var> argument is optionnal
      * while you may need to check user without password. This method will create
      * credentials and populate all needed object properties.
      *
-     * @param   string  $user_id        User ID
-     * @param   string  $pwd            User password
-     * @param   string  $user_key       User key check
-     * @param   bool    $check_blog     Checks if user is associated to a blog or not.
-     *
-     * @return  bool
+     * @param string $user_id    User ID
+     * @param string $pwd        User password
+     * @param string $user_key   User key check
+     * @param bool   $check_blog checks if user is associated to a blog or not
      */
     public function checkUser(string $user_id, ?string $pwd = null, ?string $user_key = null, bool $check_blog = true): bool
     {
-        # Check user and password
+        // Check user and password
         $sql = new SelectStatement(__METHOD__);
         $sql
             ->columns(array_keys($this->container->row()))
             ->from(dotclear()->prefix . $this->user_table)
-            ->where('user_id = ' . $sql->quote($user_id));
+            ->where('user_id = ' . $sql->quote($user_id))
+        ;
 
         try {
             $rs = $sql->select();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $err = $e->getMessage();
 
             return false;
@@ -115,7 +113,7 @@ class User
 
         if ('' != $pwd) {
             $user_pwd = $rs->f('user_pwd');
-            $rehash = false;
+            $rehash   = false;
             if (password_verify($pwd, $rs->f('user_pwd'))) {
                 // User password ok
                 if (password_needs_rehash($rs->f('user_pwd'), PASSWORD_DEFAULT)) {
@@ -127,7 +125,7 @@ class User
                 $ret = password_get_info($rs->f('user_pwd'));
                 if (is_array($ret) && isset($ret['algo']) && 0 == $ret['algo']) {
                     // hash not done with password_hash() function, check by old fashion way
-                    if ($user_pwd == Crypt::hmac(dotclear()->config()->get('master_key'), $pwd, dotclear()->config()->get('crypt_algo'))) {
+                    if (Crypt::hmac(dotclear()->config()->get('master_key'), $pwd, dotclear()->config()->get('crypt_algo')) == $user_pwd) {
                         // Password Ok, need to store it in new fashion way
                         $user_pwd = $this->crypt($pwd);
                         $rehash   = true;
@@ -151,7 +149,8 @@ class User
                     ->set('user_pwd = ' . $sql->quote($user_pwd))
                     ->from(dotclear()->prefix . $this->user_table)
                     ->where('user_id = ' . $sql->quote($rs->f('user_id')))
-                    ->update();
+                    ->update()
+                ;
             }
         } elseif ('' != $user_key) {
             // Avoid time attacks by measuring server response time during comparison
@@ -163,14 +162,14 @@ class User
         $this->container->fromRecord($rs);
         $this->preference = new Preference($this->container->get('user_id'));
 
-        # Get permissions on blogs
+        // Get permissions on blogs
         return !($check_blog && false === $this->findUserBlog());
     }
 
     /**
-     * Get user preference instance
+     * Get user preference instance.
      *
-     * @return  Preference|null   Preference instance
+     * @return null|Preference Preference instance
      */
     public function preference(): ?Preference
     {
@@ -204,9 +203,7 @@ class User
     /**
      * This method only check current user password.
      *
-     * @param string    $pwd            User password
-     *
-     * @return bool
+     * @param string $pwd User password
      */
     public function checkPassword(string $pwd): bool
     {
@@ -214,9 +211,7 @@ class User
     }
 
     /**
-     * This method checks if user session cookie exists
-     *
-     * @return bool
+     * This method checks if user session cookie exists.
      */
     public function sessionExists(): bool
     {
@@ -225,21 +220,19 @@ class User
 
     /**
      * This method checks user session validity.
-     *
-     * @return bool
      */
     public function checkSession(?string $uid = null): bool
     {
         dotclear()->session()->start();
 
-        # If session does not exist, logout.
+        // If session does not exist, logout.
         if (!isset($_SESSION['sess_user_id'])) {
             dotclear()->session()->destroy();
 
             return false;
         }
 
-        # Check here for user and IP address
+        // Check here for user and IP address
         $this->checkUser($_SESSION['sess_user_id']);
         $uid = $uid ?: Http::browserUID(dotclear()->config()->get('master_key'));
 
@@ -256,8 +249,6 @@ class User
 
     /**
      * Checks if user must change his password in order to login.
-     *
-     * @return bool
      */
     public function mustChangePassword(): bool
     {
@@ -265,9 +256,7 @@ class User
     }
 
     /**
-     * Checks if user is super admin
-     *
-     * @return bool
+     * Checks if user is super admin.
      */
     public function isSuperAdmin(): bool
     {
@@ -279,10 +268,8 @@ class User
      * <var>$blog_id</var>. <var>$permissions</var> is a coma separated list of
      * permissions.
      *
-     * @param string    $permissions    Permissions list
-     * @param string    $blog_id        Blog ID
-     *
-     * @return bool
+     * @param string $permissions Permissions list
+     * @param string $blog_id     Blog ID
      */
     public function check(string $permissions, string $blog_id): bool
     {
@@ -310,22 +297,20 @@ class User
 
     /**
      * Returns true if user is allowed to change its password.
-     *
-     * @return    bool
      */
     public function allowPassChange(): bool
     {
         return $this->allow_pass_change;
     }
-    //@}
+    // @}
 
-    /// @name Sudo
-    //@{
+    // / @name Sudo
+    // @{
     /**
      * Calls $f function with super admin rights.
      * Returns the function result.
      *
-     * @param callable    $f            Callback function
+     * @param callable $f Callback function
      *
      * @return mixed
      */
@@ -343,7 +328,7 @@ class User
             try {
                 $res = call_user_func_array($f, $args);
                 $this->container->set('user_super', false);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->container->set('user_super', false);
 
                 throw $e;
@@ -352,20 +337,18 @@ class User
 
         return $res;
     }
-    //@}
+    // @}
 
-    /// @name User information and options
-    //@{
+    // / @name User information and options
+    // @{
     /**
-     * Returns user permissions for a blog as an array which looks like:
+     * Returns user permissions for a blog as an array which looks like:.
      *
      *  - [blog_id]
      *    - [permission] => true
      *    - ...
      *
-     * @param string    $blog_id        Blog ID
-     *
-     * @return array|false
+     * @param string $blog_id Blog ID
      */
     public function getPermissions(string $blog_id): array|false
     {
@@ -375,11 +358,12 @@ class User
 
         if ($this->container->get('user_super')) {
             $sql = new SelectStatement(__METHOD__);
-            $rs = $sql
+            $rs  = $sql
                 ->column('blog_id')
                 ->from(dotclear()->prefix . $this->blog_table)
                 ->where('blog_id = ' . $sql->quote($blog_id))
-                ->select();
+                ->select()
+            ;
 
             $this->blogs[$blog_id] = $rs->isEmpty() ? false : ['admin' => true];
 
@@ -387,7 +371,7 @@ class User
         }
 
         $sql = new SelectStatement(__METHOD__);
-        $rs = $sql
+        $rs  = $sql
             ->column('permissions')
             ->from(dotclear()->prefix . $this->perm_table)
             ->where('user_id = ' . $sql->quote($this->container->get('user_id')))
@@ -397,7 +381,8 @@ class User
                 $sql->like('permissions', '%|admin|%'),
                 $sql->like('permissions', '%|contentadmin|%'),
             ]))
-            ->select();
+            ->select()
+        ;
 
         $this->blogs[$blog_id] = $rs->isEmpty() ? false : $this->parsePermissions($rs->f('permissions'));
 
@@ -407,7 +392,7 @@ class User
     /**
      * Gets the blog count.
      *
-     * @return     int  The blog count.
+     * @return int the blog count
      */
     public function getBlogCount(): int
     {
@@ -421,9 +406,7 @@ class User
     /**
      * Finds an user blog.
      *
-     * @param      string|null  $blog_id  The blog identifier
-     *
-     * @return     string|false
+     * @param null|string $blog_id The blog identifier
      */
     public function findUserBlog(?string $blog_id = null): string|false
     {
@@ -438,7 +421,8 @@ class User
                 ->column('blog_id')
                 ->from(dotclear()->prefix . $this->blog_table)
                 ->order('blog_id ASC')
-                ->limit(1);
+                ->limit(1)
+            ;
         } else {
             $sql
                 ->column('P.blog_id')
@@ -455,7 +439,8 @@ class User
                 ]))
                 ->and('blog_status >= 0')
                 ->order('P.blog_id ASC')
-                ->limit(1);
+                ->limit(1)
+            ;
         }
 
         $rs = $sql->select();
@@ -464,9 +449,7 @@ class User
     }
 
     /**
-     * Returns current user ID
-     *
-     * @return string
+     * Returns current user ID.
      */
     public function userID(): string
     {
@@ -486,7 +469,7 @@ class User
     /**
      * Returns information about a user .
      *
-     * @param string    $n            Information name
+     * @param string $n Information name
      *
      * @return mixed
      */
@@ -496,9 +479,9 @@ class User
     }
 
     /**
-     * Returns a specific user option
+     * Returns a specific user option.
      *
-     * @param string    $n            Option name
+     * @param string $n Option name
      *
      * @return mixed
      */
@@ -509,23 +492,19 @@ class User
 
     /**
      * Returns all user options in an associative array.
-     *
-     * @return array
      */
     public function getOptions(): array
     {
         return $this->container->getOptions();
     }
-    //@}
+    // @}
 
-    /// @name Permissions
-    //@{
+    // / @name Permissions
+    // @{
     /**
-     * Returns an array with permissions parsed from the string <var>$level</var>
+     * Returns an array with permissions parsed from the string <var>$level</var>.
      *
-     * @param string|null    $level        Permissions string
-     *
-     * @return array
+     * @param null|string $level Permissions string
      */
     public function parsePermissions(?string $level): array
     {
@@ -543,8 +522,6 @@ class User
 
     /**
      * Returns <var>perm_types</var> property content.
-     *
-     * @return array
      */
     public function getPermissionsTypes(): array
     {
@@ -554,35 +531,34 @@ class User
     /**
      * Adds a new permission type.
      *
-     * @param string    $name        Permission name
-     * @param string    $title        Permission title
+     * @param string $name  Permission name
+     * @param string $title Permission title
      */
     public function setPermissionType(string $name, string $title): void
     {
         $this->perm_types[$name] = $title;
     }
-    //@}
+    // @}
 
-    /// @name Password recovery
-    //@{
+    // / @name Password recovery
+    // @{
     /**
      * Add a recover key to a specific user identified by its email and
      * password.
      *
-     * @param string    $user_id        User ID
-     * @param string    $user_email    User Email
-     *
-     * @return string
+     * @param string $user_id    User ID
+     * @param string $user_email User Email
      */
     public function setRecoverKey(string $user_id, string $user_email): string
     {
         $sql = new SelectStatement(__METHOD__);
-        $rs = $sql
+        $rs  = $sql
             ->column('user_id')
             ->from(dotclear()->prefix . $this->user_table)
             ->where('user_id = ' . $sql->quote($user_id))
             ->and('user_email = ' . $sql->quote($user_email))
-            ->select();
+            ->select()
+        ;
 
         if ($rs->isEmpty()) {
             throw new CoreException(__('That user does not exist in the database.'));
@@ -595,30 +571,30 @@ class User
             ->set('user_recover_key = ' . $sql->quote($key))
             ->from(dotclear()->prefix . $this->user_table)
             ->where('user_id = ' . $sql->quote($user_id))
-            ->update();
+            ->update()
+        ;
 
         return $key;
     }
 
     /**
-     * Creates a new user password using recovery key. Returns an array:
+     * Creates a new user password using recovery key. Returns an array:.
      *
      * - user_email
      * - user_id
      * - new_pass
      *
-     * @param string    $recover_key    Recovery key
-     *
-     * @return array
+     * @param string $recover_key Recovery key
      */
     public function recoverUserPassword(string $recover_key): array
     {
         $sql = new SelectStatement(__METHOD__);
-        $rs = $sql
+        $rs  = $sql
             ->columns(['user_id', 'user_email'])
             ->from(dotclear()->prefix . $this->user_table)
             ->where('user_recover_key = ' . $sql->quote($recover_key))
-            ->select();
+            ->select()
+        ;
 
         if ($rs->isEmpty()) {
             throw new CoreException(__('That key does not exist in the database.'));
@@ -633,50 +609,54 @@ class User
             ->set('user_change_pwd = 1') // User will have to change this temporary password at next login
             ->from(dotclear()->prefix . $this->user_table)
             ->where('user_recover_key = ' . $sql->quote($recover_key))
-            ->update();
+            ->update()
+        ;
 
         return ['user_email' => $rs->f('user_email'), 'user_id' => $rs->f('user_id'), 'new_pass' => $new_pass];
     }
-    //@}
+    // @}
 
     /** @name User management callbacks
-    This 3 functions only matter if you extend this class and use
-    \DOTCLEAR_USER_CLASS constant.
-    These are called after core user management functions.
-    Could be useful if you need to add/update/remove stuff in your
-    LDAP directory    or other third party authentication database.
+     * This 3 functions only matter if you extend this class and use
+     * \DOTCLEAR_USER_CLASS constant.
+     * These are called after core user management functions.
+     * Could be useful if you need to add/update/remove stuff in your
+     * LDAP directory    or other third party authentication database.
      */
-    //@{
+    // @{
 
     /**
-     * Called after core->addUser
+     * Called after core->addUser.
+     *
      * @see Core::addUser
      *
-     * @param Cursor    $cur            User cursor
+     * @param Cursor $cur User cursor
      */
     public function afterAddUser(Cursor $cur): void
     {
     }
 
     /**
-     * Called after core->updUser
+     * Called after core->updUser.
+     *
      * @see Core::updUser
      *
-     * @param string    $id            User ID
-     * @param cursor    $cur            User cursor
+     * @param string $id  User ID
+     * @param cursor $cur User cursor
      */
     public function afterUpdUser(string $id, Cursor $cur): void
     {
     }
 
     /**
-     * Called after core->delUser
+     * Called after core->delUser.
+     *
      * @see Core::delUser
      *
-     * @param string    $id            User ID
+     * @param string $id User ID
      */
     public function afterDelUser(string $id): void
     {
     }
-    //@}
+    // @}
 }

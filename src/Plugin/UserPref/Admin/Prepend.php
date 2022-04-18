@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\UserPref\Admin\Prepend
+ * @note Dotclear\Plugin\UserPref\Admin\Prepend
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PlugniUserPref
+ * @ingroup  PlugniUserPref
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only

@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskLogs
+ * @note Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskLogs
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginMaintenance
+ * @ingroup  PluginMaintenance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -37,7 +36,8 @@ class MaintenanceTaskLogs extends MaintenanceTask
             DeleteStatement::init(__METHOD__)
                 ->from(dotclear()->prefix . 'log')
                 ->where("log_table <> 'maintenance'")
-                ->delete();
+                ->delete()
+            ;
         } else {
             dotclear()->log()->delete(null, true);
         }

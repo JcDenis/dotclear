@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Module\Iconset\Admin\HandlerIconset
+ * @note Dotclear\Module\Iconset\Admin\HandlerIconset
  * @brief Dotclear admin icon set page
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Module
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,17 +15,18 @@ namespace Dotclear\Module\Iconset\Admin;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
+use Exception;
 
 class HandlerIconset extends AbstractPage
 {
-    /** @var    array       freashly installed modules */
+    /** @var array freashly installed modules */
     private $modules_install = [];
 
     private $from_configuration = false;
 
     protected function getPermissions(): string|null|false
     {
-        # Super admin
+        // Super admin
         return null;
     }
 
@@ -35,19 +35,19 @@ class HandlerIconset extends AbstractPage
         if (dotclear()->iconsets()?->disableModulesDependencies(dotclear()->adminurl()->get('admin.iconset'))) {
             exit;
         }
-        # -- Execute actions --
+        // -- Execute actions --
         try {
             dotclear()->iconsets()->doActions();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             dotclear()->error()->add($e->getMessage());
         }
 
-        # -- Plugin install --
+        // -- Plugin install --
         if (!dotclear()->error()->flag()) {
             $this->modules_install = dotclear()->iconsets()->installModules();
         }
 
-        # Page setup
+        // Page setup
         $this
             ->setPageTitle(__('Iconset management'))
             ->setPageHelp('core_iconset')
@@ -55,7 +55,7 @@ class HandlerIconset extends AbstractPage
                 dotclear()->resource()->load('_plugins.js') .
                 dotclear()->resource()->pageTabs() .
 
-                # --BEHAVIOR-- modulesToolsHeaders
+                // --BEHAVIOR-- modulesToolsHeaders
                 (string) dotclear()->behavior()->call('modulesToolsHeaders', false)
             )
             ->setPageBreadcrumb([
@@ -69,28 +69,25 @@ class HandlerIconset extends AbstractPage
 
     protected function getPageContent(): void
     {
-        # Modules install messages
+        // Modules install messages
         if (!empty($this->modules_install['success'])) {
             echo '<div class="static-msg">' . __('Following modules have been installed:') . '<ul>';
 
             foreach ($this->modules_install['success'] as $k => $v) {
                 $info = implode(' - ', dotclear()->iconsets()->getSettingsUrls($k, true));
-                echo '<li>' . $k . ($info !== '' ? ' → ' . $info : '') . '</li>';
+                echo '<li>' . $k . ('' !== $info ? ' → ' . $info : '') . '</li>';
             }
 
             echo '</ul></div>';
         }
         if (!empty($this->modules_install['failure'])) {
-            echo
-            '<div class="error">' . __('Following modules have not been installed:') . '<ul>';
+            echo '<div class="error">' . __('Following modules have not been installed:') . '<ul>';
 
             foreach ($this->modules_install['failure'] as $k => $v) {
-                echo
-                    '<li>' . $k . ' (' . $v . ')</li>';
+                echo '<li>' . $k . ' (' . $v . ')</li>';
             }
 
-            echo
-                '</ul></div>';
+            echo '</ul></div>';
         }
 
         if ($this->from_configuration) {
@@ -99,7 +96,7 @@ class HandlerIconset extends AbstractPage
             return;
         }
 
-        # -- Display modules lists --
+        // -- Display modules lists --
         if (dotclear()->user()->isSuperAdmin()) {
             if (!dotclear()->error()->flag()) {
                 if (!empty($_GET['nocache'])) {
@@ -107,11 +104,10 @@ class HandlerIconset extends AbstractPage
                 }
             }
 
-            # Updated modules from repo
+            // Updated modules from repo
             $modules = dotclear()->iconsets()->store->get(true);
             if (!empty($modules)) {
-                echo
-                '<div class="multi-part" id="update" title="' . Html::escapeHTML(__('Update modules')) . '">' .
+                echo '<div class="multi-part" id="update" title="' . Html::escapeHTML(__('Update modules')) . '">' .
                 '<h3>' . Html::escapeHTML(__('Update modules')) . '</h3>' .
                 '<p>' . sprintf(
                     __('There is one module to update available from repository.', 'There are %s modules to update available from repository.', count($modules)),
@@ -123,12 +119,14 @@ class HandlerIconset extends AbstractPage
                     ->setTab('update')
                     ->setData($modules)
                     ->displayData(
-                        /*cols */['checkbox', 'icon', 'name', 'author', 'version', 'repository', 'current_version', 'desc'],
-                        /* actions */['update']
-                    );
+                        // cols
+                        ['checkbox', 'icon', 'name', 'author', 'version', 'repository', 'current_version', 'desc'],
+                        // actions
+                        ['update']
+                    )
+                ;
 
-                echo
-                '<p class="info vertical-separator">' . sprintf(
+                echo '<p class="info vertical-separator">' . sprintf(
                     __('Visit %s repository, the resources center for Dotclear.'),
                     '<a href="https://iconset.dotaddict.org/dc2/">Dotaddict</a>'
                 ) .
@@ -136,8 +134,7 @@ class HandlerIconset extends AbstractPage
 
                     '</div>';
             } else {
-                echo
-                '<form action="' . dotclear()->iconsets()->getURL('', false) . '" method="get">' .
+                echo '<form action="' . dotclear()->iconsets()->getURL('', false) . '" method="get">' .
                 '<p><input type="hidden" name="nocache" value="1" />' .
                 '<input type="submit" value="' . __('Force checking update of modules') . '" />' .
                 Form::hidden(['handler'], dotclear()->adminurl()->called()) .
@@ -145,14 +142,12 @@ class HandlerIconset extends AbstractPage
             }
         }
 
-        echo
-        '<div class="multi-part" id="modules" title="' . __('Installed modules') . '">';
+        echo '<div class="multi-part" id="modules" title="' . __('Installed modules') . '">';
 
-        # Activated modules
+        // Activated modules
         $modules = dotclear()->iconsets()->getModules();
         if (!empty($modules)) {
-            echo
-            '<h3>' . (dotclear()->user()->isSuperAdmin() ? __('Activated modules') : __('Installed modules')) . '</h3>' .
+            echo '<h3>' . (dotclear()->user()->isSuperAdmin() ? __('Activated modules') : __('Installed modules')) . '</h3>' .
             '<p class="more-info">' . __('You can configure and manage installed modules from this list.') . '</p>';
 
             dotclear()->iconsets()
@@ -162,15 +157,15 @@ class HandlerIconset extends AbstractPage
                 ->displayData(
                     ['icon', 'name', 'author', 'version', 'description', 'distrib', 'deps'],
                     ['deactivate', 'delete', 'behavior']
-                );
+                )
+            ;
         }
 
-        # Deactivated modules
+        // Deactivated modules
         if (dotclear()->user()->isSuperAdmin()) {
             $modules = dotclear()->iconsets()->getDisabledModules();
             if (!empty($modules)) {
-                echo
-                '<h3>' . __('Deactivated modules') . '</h3>' .
+                echo '<h3>' . __('Deactivated modules') . '</h3>' .
                 '<p class="more-info">' . __('Deactivated modules are installed but not usable. You can activate them from here.') . '</p>';
 
                 dotclear()->iconsets()
@@ -180,22 +175,20 @@ class HandlerIconset extends AbstractPage
                     ->displayData(
                         ['icon', 'name', 'version', 'description', 'distrib'],
                         ['activate', 'delete']
-                    );
+                    )
+                ;
             }
         }
 
-        echo
-            '</div>';
+        echo '</div>';
 
         if (dotclear()->user()->isSuperAdmin() && dotclear()->iconsets()->isWritablePath()) {
-
-            # New modules from repo
+            // New modules from repo
             $search  = dotclear()->iconsets()->getSearch();
             $modules = $search ? dotclear()->iconsets()->store->search($search) : dotclear()->iconsets()->store->get();
 
             if (!empty($search) || !empty($modules)) {
-                echo
-                '<div class="multi-part" id="new" title="' . __('Add modules') . '">' .
+                echo '<div class="multi-part" id="new" title="' . __('Add modules') . '">' .
                 '<h3>' . __('Add modules from repository') . '</h3>';
 
                 dotclear()->iconsets()
@@ -208,10 +201,10 @@ class HandlerIconset extends AbstractPage
                         ['name', 'score', 'version', 'desc', 'deps'],
                         ['install'],
                         true
-                    );
+                    )
+                ;
 
-                echo
-                '<p class="info vertical-separator">' . sprintf(
+                echo '<p class="info vertical-separator">' . sprintf(
                     __('Visit %s repository, the resources center for Dotclear.'),
                     '<a href="https://iconset.dotaddict.org/dc2/">Dotaddict</a>'
                 ) .
@@ -220,25 +213,22 @@ class HandlerIconset extends AbstractPage
                     '</div>';
             }
 
-            # Add a new module
-            echo
-            '<div class="multi-part" id="addmodule" title="' . __('Install or upgrade manually') . '">' .
+            // Add a new module
+            echo '<div class="multi-part" id="addmodule" title="' . __('Install or upgrade manually') . '">' .
             '<h3>' . __('Add modules from a package') . '</h3>' .
             '<p class="more-info">' . __('You can install modules by uploading or downloading zip files.') . '</p>';
 
             dotclear()->iconsets()->displayManualForm();
 
-            echo
-                '</div>';
+            echo '</div>';
         }
 
-        # --BEHAVIOR-- modulesToolsTabs
+        // --BEHAVIOR-- modulesToolsTabs
         dotclear()->behavior()->call('modulesToolsTabs');
 
-        # -- Notice for super admin --
+        // -- Notice for super admin --
         if (dotclear()->user()->isSuperAdmin() && !dotclear()->iconsets()->isWritablePath()) {
-            echo
-            '<p class="warning">' . __('Some functions are disabled, please give write access to your modules directory to enable them.') . '</p>';
+            echo '<p class="warning">' . __('Some functions are disabled, please give write access to your modules directory to enable them.') . '</p>';
         }
     }
 }

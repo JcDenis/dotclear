@@ -1,9 +1,8 @@
 <?php
 /**
- * @class Dotclear\Module\Theme\TraitModulesTheme
+ * @note Dotclear\Module\Theme\TraitModulesTheme
  *
- * @package Dotclear
- * @subpackage Module
+ * @ingroup  Module
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -25,7 +24,7 @@ trait TraitModulesTheme
     {
         $paths = dotclear()->config()->get('theme_dirs');
 
-        # If a theme directory is set for current blog, it will be added to the end of paths
+        // If a theme directory is set for current blog, it will be added to the end of paths
         if (dotclear()->blog()) {
             $path = trim((string) dotclear()->blog()->settings()->get('system')->get('module_theme_dir'));
             if (!empty($path) && false !== ($dir = Path::real(str_starts_with('\\', $path) ? $path : Path::implodeRoot($path), true))) {
@@ -52,19 +51,20 @@ trait TraitModulesTheme
     }
 
     /**
-     * Get current theme path
+     * Get current theme path.
      *
      * Return an array of theme and parent theme paths
      *
-     * @param   string|null     $suffix     Optionnal sub folder
-     * @return  array                       List of theme path
+     * @param null|string $suffix Optionnal sub folder
+     *
+     * @return array List of theme path
      */
     public function getThemePath(?string $suffix = null): array
     {
         $suffix = $suffix ? '/' . $suffix : '';
-        $path = [];
+        $path   = [];
 
-        if(null !== dotclear()->blog()) {
+        if (null !== dotclear()->blog()) {
             $theme = $this->getModule((string) dotclear()->blog()->settings()->get('system')->get('theme'));
             if (!$theme) {
                 $theme = $this->getModule('Berlin');

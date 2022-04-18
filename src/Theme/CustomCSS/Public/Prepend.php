@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Theme\CustomCSS\Admin\Prepend
+ * @note Dotclear\Theme\CustomCSS\Admin\Prepend
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage ThemeCustomCSS
+ * @ingroup  ThemeCustomCSS
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -26,9 +25,8 @@ class Prepend extends AbstractPrepend
             return;
         }
 
-        dotclear()->behavior()->add('publicHeadContent', function(): void {
-            echo
-                '<link rel="stylesheet" type="text/css" href="' .
+        dotclear()->behavior()->add('publicHeadContent', function (): void {
+            echo '<link rel="stylesheet" type="text/css" href="' .
                 dotclear()->blog()->public_url .
                 '/custom_style.css" media="screen">' . "\n";
         });

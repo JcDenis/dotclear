@@ -1,10 +1,11 @@
 <?php
 /**
- * @class Dotclear\Process\Public\Template\Engine\TplNodeBlock
+ * @note Dotclear\Process\Public\Template\Engine\TplNodeBlock
  * @brief Block node, for all <tpl:Tag>...</tpl:Tag>
  *
- * @package Clearbricks
- * @subpackage Template
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Template
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,26 +15,27 @@ declare(strict_types=1);
 namespace Dotclear\Process\Public\Template\Engine;
 
 use ArrayObject;
-use Dotclear\Process\Public\Template\Engine\Template;
-use Dotclear\Process\Public\Template\Engine\TplNode;
 
 class TplNodeBlock extends TplNode
 {
-    protected $closed = false;
+    protected $closed  = false;
     protected $content = '';
 
     public function __construct(protected string $tag, protected array $attr)
     {
         parent::__construct();
     }
+
     public function setClosing()
     {
         $this->closed = true;
     }
+
     public function isClosed()
     {
         return $this->closed;
     }
+
     public function compile(Template $tpl): string
     {
         if ($this->closed) {
@@ -44,6 +46,7 @@ class TplNodeBlock extends TplNode
         // if tag has not been closed, silently ignore its content...
         return '';
     }
+
     public function getTag()
     {
         return $this->tag;

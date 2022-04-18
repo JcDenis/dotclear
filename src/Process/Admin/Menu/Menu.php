@@ -1,12 +1,11 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Menu\Menu
+ * @note Dotclear\Process\Admin\Menu\Menu
  * @brief Dotclear admin menu helper
  *
  * Accessible from dotclear()->summary()['a_menu_id']
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -23,11 +22,11 @@ class Menu
     protected $items  = [];
 
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param   string  $id         The identifier
-     * @param   string  $title      The title
-     * @param   string  $itemSpace  The item space
+     * @param string $id        The identifier
+     * @param string $title     The title
+     * @param string $itemSpace The item space
      */
     public function __construct(private string $id, protected string $title, protected string $itemSpace = '')
     {
@@ -36,14 +35,14 @@ class Menu
     /**
      * Adds an item.
      *
-     * @param   string          $title      The title
-     * @param   string|array    $url        The url
-     * @param   string|array    $img        The image
-     * @param   bool            $active     The active flag
-     * @param   bool            $show       The show flag
-     * @param   string|null     $id         The identifier
-     * @param   string|null     $class      The class
-     * @param   bool            $pinned     The pinned flag
+     * @param string       $title  The title
+     * @param array|string $url    The url
+     * @param array|string $img    The image
+     * @param bool         $active The active flag
+     * @param bool         $show   The show flag
+     * @param null|string  $id     The identifier
+     * @param null|string  $class  The class
+     * @param bool         $pinned The pinned flag
      */
     public function addItem(string $title, string|array $url, string|array $img, bool $active = false, bool $show = true, ?string $id = null, ?string $class = null, bool $pinned = false): void
     {
@@ -60,14 +59,14 @@ class Menu
     /**
      * Prepends an item.
      *
-     * @param   string          $title      The title
-     * @param   string|array    $url        The url
-     * @param   string|array    $img        The image
-     * @param   bool            $active     The active flag
-     * @param   bool            $show       The show flag
-     * @param   string|null     $id         The identifier
-     * @param   string|null     $class      The class
-     * @param   bool            $pinned     The pinned flag
+     * @param string       $title  The title
+     * @param array|string $url    The url
+     * @param array|string $img    The image
+     * @param bool         $active The active flag
+     * @param bool         $show   The show flag
+     * @param null|string  $id     The identifier
+     * @param null|string  $class  The class
+     * @param bool         $pinned The pinned flag
      */
     public function prependItem(string $title, string|array $url, string|array $img, bool $active = false, bool $show = true, ?string $id = null, ?string $class = null, bool $pinned = false): void
     {
@@ -82,13 +81,13 @@ class Menu
     }
 
     /**
-     * Draw a menu
+     * Draw a menu.
      *
-     * @return  string  The forged menu
+     * @return string The forged menu
      */
     public function draw(): string
     {
-        if (0== count($this->items) + count($this->pinned)) {
+        if (0 == count($this->items) + count($this->pinned)) {
             return '';
         }
 
@@ -97,7 +96,7 @@ class Menu
             '<ul>' . "\n";
 
         // 1. Display pinned items (unsorted)
-        for ($i = 0; $i < count($this->pinned); $i++) {
+        for ($i = 0; count($this->pinned) > $i; ++$i) {
             if ($i + 1 < count($this->pinned) && '' != $this->itemSpace) {
                 $res .= preg_replace('|</li>$|', $this->itemSpace . '</li>', $this->pinned[$i]);
                 $res .= "\n";
@@ -116,7 +115,7 @@ class Menu
             } else {
                 $res .= $item . "\n";
             }
-            $i++;
+            ++$i;
         }
 
         $res .= '</ul></div>' . "\n";
@@ -125,16 +124,16 @@ class Menu
     }
 
     /**
-     * Get a menu item HTML code
+     * Get a menu item HTML code.
      *
-     * @param   string          $title      The title
-     * @param   string|array    $url        The url
-     * @param   string|array    $img        The image
-     * @param   bool            $active     The active flag
-     * @param   string|null     $id         The identifier
-     * @param   string|null     $class      The class
+     * @param string       $title  The title
+     * @param array|string $url    The url
+     * @param array|string $img    The image
+     * @param bool         $active The active flag
+     * @param null|string  $id     The identifier
+     * @param null|string  $class  The class
      *
-     * @return  string                      The forged menu item
+     * @return string The forged menu item
      */
     protected function itemDef(string $title, string|array $url, string|array $img, bool $active = false, ?string $id = null, ?string $class = null): string
     {

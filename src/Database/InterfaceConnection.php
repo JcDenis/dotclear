@@ -1,13 +1,11 @@
 <?php
 /**
- * @class
- * @class Dotclear\Database\InterfaceConnection
+ * @note Dotclear\Database\InterfaceConnection
  * @brief PHP Interface for connector
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
- * @package Dotclear
- * @subpackage Database
+ * @ingroup  Database
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,208 +17,180 @@ namespace Dotclear\Database;
 interface InterfaceConnection
 {
     /**
-     * Open connection
+     * Open connection.
      *
      * This method should open a database connection and return a new resource
      * link.
      *
-     * @param   string  $host       Database server host
-     * @param   string  $user       Database user name
-     * @param   string  $password   Database password
-     * @param   string  $database   Database name
-     * 
-     * @return  mixed
+     * @param string $host     Database server host
+     * @param string $user     Database user name
+     * @param string $password Database password
+     * @param string $database Database name
      */
     public function db_connect(string $host, string $user, string $password, string $database): mixed;
 
     /**
-     * Open persistent connection
+     * Open persistent connection.
      *
      * This method should open a persistent database connection and return a new
      * resource link.
      *
-     * @param   string  $host       Database server host
-     * @param   string  $user       Database user name
-     * @param   string  $password   Database password
-     * @param   string  $database   Database name
-     * 
-     * @return  mixed
+     * @param string $host     Database server host
+     * @param string $user     Database user name
+     * @param string $password Database password
+     * @param string $database Database name
      */
     public function db_pconnect(string $host, string $user, string $password, string $database): mixed;
 
     /**
-     * Close connection
+     * Close connection.
      *
      * This method should close resource link.
      *
-     * @param   mixed   $handle     Resource link
+     * @param mixed $handle Resource link
      */
     public function db_close(mixed $handle): void;
 
     /**
-     * Database version
+     * Database version.
      *
      * This method should return database version number.
      *
-     * @param   mixed   $handle     Resource link
-     * 
-     * @return  string
+     * @param mixed $handle Resource link
      */
     public function db_version(mixed $handle): string;
 
     /**
-     * Database query
+     * Database query.
      *
      * This method should run an SQL query and return a resource result.
      *
-     * @param   mixed   $handle     Resource link
-     * @param   string  $query      SQL query string
-     * 
-     * @return  mixed
+     * @param mixed  $handle Resource link
+     * @param string $query  SQL query string
      */
     public function db_query(mixed $handle, string $query): mixed;
 
     /**
-     * Database exec query
+     * Database exec query.
      *
      * This method should run an SQL query and return a resource result.
      *
-     * @param   mixed    $handle        Resource link
-     * @param   string    $query        SQL query string
-     * 
-     * @return  mixed
+     * @param mixed  $handle Resource link
+     * @param string $query  SQL query string
      */
     public function db_exec(mixed $handle, string $query): mixed;
 
     /**
-     * Result columns count
+     * Result columns count.
      *
      * This method should return the number of fields in a result.
      *
-     * @param   mixed    $res   Resource result
-     * 
-     * @return  int
+     * @param mixed $res Resource result
      */
     public function db_num_fields(mixed $res): int;
 
     /**
-     * Result rows count
+     * Result rows count.
      *
      * This method should return the number of rows in a result.
      *
-     * @param   mixed    $res   Resource result
-     * 
-     * @return  int
+     * @param mixed $res Resource result
      */
     public function db_num_rows(mixed $res): int;
 
     /**
-     * Field name
+     * Field name.
      *
      * This method should return the name of the field at the given position
      * <var>$position</var>.
      *
-     * @param   mixed   $res        Resource result
-     * @param   int     $position   Field position
-     * 
-     * @return  string
+     * @param mixed $res      Resource result
+     * @param int   $position Field position
      */
     public function db_field_name(mixed $res, int $position): string;
 
     /**
-     * Field type
+     * Field type.
      *
      * This method should return the field type a the given position
      * <var>$position</var>.
      *
-     * @param   mixed   $res        Resource result
-     * @param   int     $position   Field position
-     * 
-     * @return  string
+     * @param mixed $res      Resource result
+     * @param int   $position Field position
      */
     public function db_field_type(mixed $res, int $position): string;
 
     /**
-     * Fetch result
+     * Fetch result.
      *
      * This method should fetch one line of result and return an associative array
      * with field name as key and field value as value.
      *
-     * @param   mixed   $res    Resource result
-     * 
-     * @return  array|false
+     * @param mixed $res Resource result
      */
     public function db_fetch_assoc(mixed $res): array|false;
 
     /**
-     * Move result cursor
+     * Move result cursor.
      *
      * This method should move result cursor on given row position <var>$row</var>
      * and return true on success.
      *
-     * @param   mixed   $res    Resource result
-     * @param   int     $row    Row position
-     * 
-     * @return  bool
+     * @param mixed $res Resource result
+     * @param int   $row Row position
      */
     public function db_result_seek(mixed $res, int $row): bool;
 
     /**
-     * Affected rows
+     * Affected rows.
      *
      * This method should return number of rows affected by INSERT, UPDATE or
      * DELETE queries.
      *
-     * @param   mixed   $handle     Resource link
-     * @param   mixed   $res        Resource result
-     * 
-     * @return  int
+     * @param mixed $handle Resource link
+     * @param mixed $res    Resource result
      */
     public function db_changes(mixed $handle, mixed $res): int;
 
     /**
-     * Last error
+     * Last error.
      *
      * This method should return the last error string for the current connection.
      *
-     * @param   mixed   $handle     Resource link
-     * 
-     * @return  string|false
+     * @param mixed $handle Resource link
      */
     public function db_last_error(mixed $handle): string|false;
 
     /**
-     * Escape string
+     * Escape string.
      *
      * This method should return an escaped string for the current connection.
      *
-     * @param   string|null     $str        String to escape
-     * @param   mixed           $handle     Resource link
-     * 
-     * @return  string
+     * @param null|string $str    String to escape
+     * @param mixed       $handle Resource link
      */
     public function db_escape_string(?string $str, mixed $handle = null): string;
 
     /**
-     * Acquiere Write lock
+     * Acquiere Write lock.
      *
      * This method should lock the given table in write access.
      *
-     * @param   string  $table  Table name
+     * @param string $table Table name
      */
     public function db_write_lock(string $table): void;
 
     /**
-     * Release lock
+     * Release lock.
      *
      * This method should releases an acquiered lock.
      */
     public function db_unlock(): void;
 
     /**
-     * Vaccum a table
+     * Vaccum a table.
      *
-     * @param   string  $table  Table name
+     * @param string $table Table name
      */
     public function db_vacuum(string $table): void;
 }

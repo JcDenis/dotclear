@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Theme\Blowup\Admin\Handler
+ * @note Dotclear\Theme\Blowup\Admin\Handler
  * @brief Dotclear Theme class
  *
- * @package Dotclear
- * @subpackage ThemeBlowup
+ * @ingroup  ThemeBlowup
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,12 +18,13 @@ use Dotclear\Helper\File\Files;
 use Dotclear\Module\AbstractPage;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Theme\Blowup\Common\BlowupConfig;
+use Exception;
 
 class Handler extends AbstractPage
 {
     private $Blowup_can_write_images = false;
-    private $Blowup_notices = '';
-    private $Blowup_user = [
+    private $Blowup_notices          = '';
+    private $Blowup_user             = [
         'body_bg_c' => null,
         'body_bg_g' => 'light',
 
@@ -82,7 +82,7 @@ class Handler extends AbstractPage
         'footer_l_c'  => null,
         'footer_bg_c' => null,
 
-        'extra_css' => null
+        'extra_css' => null,
     ];
 
     protected $Blowup_config;
@@ -98,7 +98,7 @@ class Handler extends AbstractPage
             __('Light linear gradient')  => 'light',
             __('Medium linear gradient') => 'medium',
             __('Dark linear gradient')   => 'dark',
-            __('Solid color')            => 'solid'
+            __('Solid color')            => 'solid',
         ];
     }
 
@@ -119,7 +119,7 @@ class Handler extends AbstractPage
         }
 
         $Blowup_style = (string) dotclear()->blog()->settings()->get('themes')->get('Blowup_style');
-        $Blowup_user = @unserialize($Blowup_style);
+        $Blowup_user  = @unserialize($Blowup_style);
         if (is_array($Blowup_user)) {
             $this->Blowup_user = array_merge($this->Blowup_user, $Blowup_user);
         }
@@ -132,7 +132,7 @@ class Handler extends AbstractPage
                 $this->Blowup_user['body_line_height'] = $this->Blowup_config->utils->adjustFontSize($_POST['body_line_height']);
 
                 $this->Blowup_user['blog_title_hide'] = (int) !empty($_POST['blog_title_hide']);
-                $update_blog_title              = !$this->Blowup_user['blog_title_hide'] && (
+                $update_blog_title                    = !$this->Blowup_user['blog_title_hide'] && (
                     !empty($_POST['blog_title_f']) || !empty($_POST['blog_title_s']) || !empty($_POST['blog_title_c']) || !empty($_POST['blog_title_a']) || !empty($_POST['blog_title_p'])
                 );
 
@@ -162,7 +162,7 @@ class Handler extends AbstractPage
                 $this->Blowup_user['sidebar_link_f_c'] = $this->Blowup_config->utils->adjustColor($_POST['sidebar_link_f_c']);
                 $this->Blowup_user['sidebar_link_v_c'] = $this->Blowup_config->utils->adjustColor($_POST['sidebar_link_v_c']);
 
-                $this->Blowup_user['sidebar_position'] = ($_POST['sidebar_position'] ?? '') == 'left' ? 'left' : null;
+                $this->Blowup_user['sidebar_position'] = 'left' == ($_POST['sidebar_position'] ?? '') ? 'left' : null;
 
                 $this->Blowup_user['date_title_f'] = ($_POST['date_title_f'] ?? null);
                 $this->Blowup_user['date_title_s'] = $this->Blowup_config->utils->adjustFontSize($_POST['date_title_s']);
@@ -190,7 +190,7 @@ class Handler extends AbstractPage
 
                     if (!empty($_FILES['upfile']) && !empty($_FILES['upfile']['name'])) {
                         Files::uploadStatus($_FILES['upfile']);
-                        $uploaded                = $this->Blowup_config->uploadImage($_FILES['upfile']);
+                        $uploaded                      = $this->Blowup_config->uploadImage($_FILES['upfile']);
                         $this->Blowup_user['uploaded'] = basename($uploaded);
                     }
 
@@ -213,13 +213,12 @@ class Handler extends AbstractPage
 
                 dotclear()->notice()->addSuccessNotice(__('Theme configuration has been successfully updated.'));
                 dotclear()->adminurl()->redirect('admin.plugin.Blowup');
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-
-        # Page setup
+        // Page setup
         $this
             ->setPageTitle(__('Blowup configuration'))
             ->setPageHelp('BlowupConfig')
@@ -230,14 +229,14 @@ class Handler extends AbstractPage
                         'predefined_styles'      => __('Predefined styles'),
                         'apply_code'             => __('Apply code'),
                         'predefined_style_title' => __('Choose a predefined style'),
-                    ]
+                    ],
                 ]) .
                 dotclear()->resource()->load('config.js', 'Theme', 'Blowup')
             )
             ->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog()->name) => '',
-                __('Blog appearance')               => dotclear()->adminurl()->get('admin.blog.theme'),
-                __('Blowup configuration')          => ''
+                __('Blog appearance')                      => dotclear()->adminurl()->get('admin.blog.theme'),
+                __('Blowup configuration')                 => '',
             ])
         ;
 
@@ -246,13 +245,14 @@ class Handler extends AbstractPage
 
     protected function getPageContent(): void
     {
-        echo
-        '<p><a class="back" href="' . dotclear()->adminurl()->get('admin.blog.theme') . '">' . __('Back to Blog appearance') . '</a></p>';
+        echo '<p><a class="back" href="' . dotclear()->adminurl()->get('admin.blog.theme') . '">' . __('Back to Blog appearance') . '</a></p>';
 
         if (!$this->Blowup_can_write_images) {
             dotclear()->notice()->message(
                 __('For the following reasons, images cannot be created. You won\'t be able to change some background properties.') .
-                $this->Blowup_notices, false, true
+                $this->Blowup_notices,
+                false,
+                true
             );
         }
 
@@ -262,16 +262,14 @@ class Handler extends AbstractPage
         '<h4>' . __('General') . '</h4>';
 
         if ($this->Blowup_can_write_images) {
-            echo
-            '<p class="field"><label for="body_bg_c">' . __('Background color:') . '</label> ' .
+            echo '<p class="field"><label for="body_bg_c">' . __('Background color:') . '</label> ' .
             form::color('body_bg_c', ['default' => $this->Blowup_user['body_bg_c']]) . '</p>' .
 
             '<p class="field"><label for="body_bg_g">' . __('Background color fill:') . '</label> ' .
             form::combo('body_bg_g', $this->BlowupGradientTypesCombo(), $this->Blowup_user['body_bg_g']) . '</p>';
         }
 
-        echo
-        '<p class="field"><label for="body_txt_f">' . __('Main text font:') . '</label> ' .
+        echo '<p class="field"><label for="body_txt_f">' . __('Main text font:') . '</label> ' .
         form::combo('body_txt_f', $this->Blowup_config->fontsList(), $this->Blowup_user['body_txt_f']) . '</p>' .
 
         '<p class="field"><label for="body_txt_s">' . __('Main text font size:') . '</label> ' .
@@ -296,13 +294,11 @@ class Handler extends AbstractPage
         '<h4 class="border-top">' . __('Page top') . '</h4>';
 
         if ($this->Blowup_can_write_images) {
-            echo
-            '<p class="field"><label for="prelude_c">' . __('Prelude color:') . '</label> ' .
+            echo '<p class="field"><label for="prelude_c">' . __('Prelude color:') . '</label> ' .
             form::color('prelude_c', ['default' => $this->Blowup_user['prelude_c']]) . '</p>';
         }
 
-        echo
-        '<p class="field"><label for="blog_title_hide">' . __('Hide main title') . '</label> ' .
+        echo '<p class="field"><label for="blog_title_hide">' . __('Hide main title') . '</label> ' .
         form::checkbox('blog_title_hide', 1, $this->Blowup_user['blog_title_hide']) . '</p>' .
 
         '<p class="field"><label for="blog_title_f">' . __('Main title font:') . '</label> ' .
@@ -321,14 +317,13 @@ class Handler extends AbstractPage
         form::field('blog_title_p', 7, 7, $this->Blowup_user['blog_title_p']) . '</p>';
 
         if ($this->Blowup_can_write_images) {
-            if ($this->Blowup_user['top_image'] == 'custom' && $this->Blowup_user['uploaded']) {
+            if ('custom' == $this->Blowup_user['top_image'] && $this->Blowup_user['uploaded']) {
                 $preview_image = Http::concatURL(dotclear()->blog()->url, $this->Blowup_config->imagesURL() . '/page-t.png');
             } else {
                 $preview_image = '?df=Theme/Blowup/Common/resources/alpha-img/page-t/' . $this->Blowup_user['top_image'] . '.png';
             }
 
-            echo
-            '<h5 class="pretty-title">' . __('Top image') . '</h5>' .
+            echo '<h5 class="pretty-title">' . __('Top image') . '</h5>' .
             '<p class="field"><label for="top_image">' . __('Top image') . '</label> ' .
             form::combo('top_image', $this->BlowupTopImagesCombo(), ($this->Blowup_user['top_image'] ?: 'default')) . '</p>' .
             '<p>' . __('Choose "Custom..." to upload your own image.') . '</p>' .
@@ -344,8 +339,7 @@ class Handler extends AbstractPage
                 '</div>';
         }
 
-        echo
-        '<h4 class="border-top">' . __('Sidebar') . '</h4>' .
+        echo '<h4 class="border-top">' . __('Sidebar') . '</h4>' .
         '<p class="field"><label for="sidebar_position">' . __('Sidebar position:') . '</label> ' .
         form::combo('sidebar_position', [__('right') => 'right', __('left') => 'left'], $this->Blowup_user['sidebar_position']) . '</p>' .
 
@@ -408,23 +402,19 @@ class Handler extends AbstractPage
         form::color('post_title_c', ['default' => $this->Blowup_user['post_title_c']]) . '</p>';
 
         if ($this->Blowup_can_write_images) {
-            echo
-            '<p class="field"><label for="post_comment_bg_c">' . __('Comment background color:') . '</label> ' .
+            echo '<p class="field"><label for="post_comment_bg_c">' . __('Comment background color:') . '</label> ' .
             form::color('post_comment_bg_c', ['default' => $this->Blowup_user['post_comment_bg_c']]) . '</p>';
         }
 
-        echo
-        '<p class="field"><label for="post_comment_c">' . __('Comment text color:') . '</label> ' .
+        echo '<p class="field"><label for="post_comment_c">' . __('Comment text color:') . '</label> ' .
         form::color('post_comment_c', ['default' => $this->Blowup_user['post_comment_c']]) . '</p>';
 
         if ($this->Blowup_can_write_images) {
-            echo
-            '<p class="field"><label for="post_commentmy_bg_c">' . __('My comment background color:') . '</label> ' .
+            echo '<p class="field"><label for="post_commentmy_bg_c">' . __('My comment background color:') . '</label> ' .
             form::color('post_commentmy_bg_c', ['default' => $this->Blowup_user['post_commentmy_bg_c']]) . '</p>';
         }
 
-        echo
-        '<p class="field"><label for="post_commentmy_c">' . __('My comment text color:') . '</label> ' .
+        echo '<p class="field"><label for="post_commentmy_c">' . __('My comment text color:') . '</label> ' .
         form::color('post_commentmy_c', ['default' => $this->Blowup_user['post_commentmy_c']]) . '</p>' .
 
         '<h4 class="border-top">' . __('Footer') . '</h4>' .
@@ -443,13 +433,12 @@ class Handler extends AbstractPage
         '<p class="field"><label for="footer_bg_c">' . __('Footer background color:') . '</label> ' .
         form::color('footer_bg_c', ['default' => $this->Blowup_user['footer_bg_c']]) . '</p>';
 
-        echo
-        '<h4 class="border-top">' . __('Additional CSS') . '</h4>' .
+        echo '<h4 class="border-top">' . __('Additional CSS') . '</h4>' .
         '<p><label for="extra_css">' . __('Any additional CSS styles (must be written using the CSS syntax):') . '</label> ' .
         form::textarea('extra_css', 72, 5, [
             'default'    => Html::escapeHTML($this->Blowup_user['extra_css']),
             'class'      => 'maximal',
-            'extra_html' => 'title="' . __('Additional CSS') . '"'
+            'extra_html' => 'title="' . __('Additional CSS') . '"',
         ]) .
             '</p>' .
             '</div>';
@@ -457,7 +446,7 @@ class Handler extends AbstractPage
         // Import / Export configuration
         $tmp_array   = [];
         $tmp_exclude = ['uploaded', 'top_height'];
-        if ($this->Blowup_user['top_image'] == 'custom') {
+        if ('custom' == $this->Blowup_user['top_image']) {
             $tmp_exclude[] = 'top_image';
         }
         foreach ($this->Blowup_user as $k => $v) {
@@ -465,23 +454,20 @@ class Handler extends AbstractPage
                 $tmp_array[] = $k . ':' . '"' . $v . '"';
             }
         }
-        echo
-        '<div class="fieldset">' .
+        echo '<div class="fieldset">' .
         '<h3 id="bu_export">' . __('Configuration import / export') . '</h3>' .
         '<div id="bu_export_content">' .
         '<p>' . __('You can share your configuration using the following code. To apply a configuration, paste the code, click on "Apply code" and save.') . '</p>' .
         '<p>' . form::textarea('export_code', 72, 5, [
             'default'    => implode('; ', $tmp_array),
             'class'      => 'maximal',
-            'extra_html' => 'title="' . __('Copy this code:') . '"'
+            'extra_html' => 'title="' . __('Copy this code:') . '"',
         ]) . '</p>' .
             '</div>' .
             '</div>';
 
-        echo
-        '<p class="clear"><input type="submit" value="' . __('Save') . '" />' .
+        echo '<p class="clear"><input type="submit" value="' . __('Save') . '" />' .
         dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Blowup', [], true) . '</p>' .
             '</form>';
-
     }
 }

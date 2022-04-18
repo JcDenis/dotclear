@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Core\RsExt\RsExtUser
+ * @note Dotclear\Core\RsExt\RsExtUser
  * @brief Dotclear user record helpers.
  *
- * @package Dotclear
- * @subpackage Core
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,7 +12,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\RsExt;
 
-use Dotclear\Core\RsExt\RsExtend;
 use Dotclear\Database\StaticRecord;
 
 class RsExtUser extends RsExtend
@@ -21,37 +19,33 @@ class RsExtUser extends RsExtend
     /**
      * Returns a user option.
      *
-     * @param   string  $name     The name of option
-     *
-     * @return  mixed
+     * @param string $name The name of option
      */
     public function option(string $name): mixed
     {
         $options = $this->options();
 
-        return isset($options[$name]) ? $options[$name] : null;
+        return $options[$name] ?? null;
     }
 
     /**
      * Returns all user options.
-     *
-     * @return  array
      */
     public function options(): array
     {
         $options = @unserialize($this->rs->f('user_options'));
-        
+
         return is_array($options) ? $options : [];
     }
 
     /**
      * Converts this record to a {@link StaticRecord} instance.
      *
-     * @return  StaticRecord  The extent static record.
+     * @return StaticRecord the extent static record
      */
     public function toExtStatic(): StaticRecord
     {
-        return ($this->rs instanceof StaticRecord) ? 
+        return ($this->rs instanceof StaticRecord) ?
             $this->rs :
             $this->rs->toStatic();
     }

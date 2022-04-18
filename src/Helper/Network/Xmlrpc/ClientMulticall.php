@@ -1,7 +1,18 @@
 <?php
 /**
- * @class Dotclear\Helper\Network\Xmlrpc\ClientMulticall
- * @brief Multicall XML-RPC Client
+ * @package Dotclear
+ *
+ * @copyright Olivier Meunier & Association Dotclear
+ * @copyright GPL-2.0-only
+ */
+declare(strict_types=1);
+
+namespace Dotclear\Helper\Network\Xmlrpc;
+
+/**
+ * Multicall XML-RPC Client.
+ *
+ * \Dotclear\Helper\Network\Xmlrpc\ClientMulticall
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
@@ -11,24 +22,14 @@
  *
  * Multicall client using system.multicall method of server.
  *
- * @package Dotclear
- * @subpackage Network
- *
- * @copyright Olivier Meunier & Association Dotclear
- * @copyright GPL-2.0-only
+ * @ingroup  Helper Network Xmlrpc
  */
-declare(strict_types=1);
-
-namespace Dotclear\Helper\Network\Xmlrpc;
-
-use Dotclear\Helper\Network\Xmlrpc\Client;
-
 class ClientMulticall extends Client
 {
-    protected $calls = []; ///< array
+    protected $calls = []; // /< array
 
     /**
-     * Add call to stack
+     * Add call to stack.
      *
      * This method adds a method call for the given query (first argument) to
      * calls stack.
@@ -43,9 +44,6 @@ class ClientMulticall extends Client
      * $r = $o->query();
      * ?>
      * </code>
-     *
-     * @param   string  $method
-     * @param   mixed   $args
      */
     public function addCall(string $method, mixed ...$args): void
     {
@@ -58,19 +56,19 @@ class ClientMulticall extends Client
     }
 
     /**
-     * XML-RPC Query
+     * XML-RPC Query.
      *
      * This method sends calls stack to XML-RPC system.multicall method.
      * See {@link Server::multiCall()} for details and links about it.
      *
-     * @param   string  $method     (not used, use ::addCall() before invoking ::query())
-     * @param   mixed   $args       (see above)
+     * @param string $method (not used, use ::addCall() before invoking ::query())
+     * @param mixed  $args   (see above)
      *
-     * @return  mixed               (array)
+     * @return mixed (array)
      */
     public function query(string $method = null, mixed ...$args): mixed
     {
-        # Prepare multicall, then call the parent::query() method
+        // Prepare multicall, then call the parent::query() method
         return parent::query('system.multicall', $this->calls);
     }
 }

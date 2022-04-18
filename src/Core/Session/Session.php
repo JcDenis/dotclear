@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Core\Session\Session
+ * @note Dotclear\Core\Session\Session
  * @brief Dotclear core session class
  *
- * @package Dotclear
- * @subpackage Core
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -20,29 +19,29 @@ use Dotclear\Database\Statement\UpdateStatement;
 
 class Session
 {
-    /** @var    string  $table  Session table name */
+    /** @var string Session table name */
     private $table;
 
-    /** @var    string  $cookie_name    Session cookie name */
+    /** @var string Session cookie name */
     private $cookie_name;
 
-    /** @var    string  $cookie_path    Session cookie path */
+    /** @var string Session cookie path */
     private $cookie_path;
 
-    /** @var    string  $cookie_domain  Session cookie domani */
+    /** @var string Session cookie domani */
     private $cookie_domain;
 
-    /** @var    string  $cookie_secure  Session cookie is secure */
+    /** @var string Session cookie is secure */
     private $cookie_secure;
 
-    /** @var    string  $ttl    Session time to live */
+    /** @var string Session time to live */
     private $ttl = '-120 minutes';
 
-    /** @var    bool    $transient  Session transient */
+    /** @var bool Session transient */
     private $transient = false;
 
     /**
-     * Constructor
+     * Constructor.
      *
      * This method creates an instance of sessionDB class.
      */
@@ -67,11 +66,11 @@ class Session
     }
 
     /**
-     * Get session ttl
+     * Get session ttl.
      */
     private function getTTL(): void
     {
-        # Session time
+        // Session time
         $ttl = dotclear()->config()->get('session_ttl');
         if (!is_null($ttl)) {
             $tll = (string) $ttl;
@@ -86,7 +85,7 @@ class Session
     }
 
     /**
-     * Destructor
+     * Destructor.
      *
      * This method calls session_write_close PHP function.
      */
@@ -98,7 +97,7 @@ class Session
     }
 
     /**
-     * Session Start
+     * Session Start.
      */
     public function start(): void
     {
@@ -124,7 +123,7 @@ class Session
     }
 
     /**
-     * Session Destroy
+     * Session Destroy.
      *
      * This method destroies all session data and removes cookie.
      */
@@ -137,11 +136,11 @@ class Session
     }
 
     /**
-     * Session Transient
+     * Session Transient.
      *
      * This method set the transient flag of the session
      *
-     * @param   bool    $transient  Session transient flag
+     * @param bool $transient Session transient flag
      */
     public function setTransientSession(bool $transient = false): void
     {
@@ -149,14 +148,14 @@ class Session
     }
 
     /**
-     * Session Cookie
+     * Session Cookie.
      *
      * This method returns an array of all session cookie parameters.
      *
-     * @param   mixed   $value      Cookie value
-     * @param   int     $expire     Cookie expiration timestamp
-     * 
-     * @return  array               All cookie params
+     * @param mixed $value  Cookie value
+     * @param int   $expire Cookie expiration timestamp
+     *
+     * @return array All cookie params
      */
     public function getCookieParameters(mixed $value = null, int $expire = 0): array
     {
@@ -188,7 +187,8 @@ class Session
             ->columns(['ses_value'])
             ->from($this->table)
             ->where("ses_id = '" . $this->checkID($ses_id) . "'")
-            ->select();
+            ->select()
+        ;
 
         return $rs->isEmpty() ? '' : $rs->f('ses_value');
     }
@@ -201,7 +201,8 @@ class Session
             ->columns(['ses_id'])
             ->from($this->table)
             ->where("ses_id = '" . $ses_id . "'")
-            ->select();
+            ->select()
+        ;
 
         if (!$rs->isEmpty()) {
             $sql = new UpdateStatement(__METHOD__);
@@ -210,7 +211,8 @@ class Session
                 ->where('ses_id = ' . $sql->quote($ses_id))
                 ->set('ses_time = ' . time())
                 ->set('ses_value = ' . $sql->quote($data))
-                ->update();
+                ->update()
+            ;
         } else {
             $sql = new InsertStatement(__METHOD__);
             $sql
@@ -227,7 +229,8 @@ class Session
                     time(),
                     $sql->quote($data),
                 ]])
-                ->insert();
+                ->insert()
+            ;
         }
 
         return true;
@@ -238,7 +241,8 @@ class Session
         DeleteStatement::init(__METHOD__)
             ->from($this->table)
             ->where("ses_id = '" . $this->checkID($ses_id) . "'")
-            ->delete();
+            ->delete()
+        ;
 
         if (!$this->transient) {
             $this->_optimize();
@@ -252,7 +256,8 @@ class Session
         DeleteStatement::init(__METHOD__)
             ->from($this->table)
             ->where('ses_time < ' . strtotime($this->ttl))
-            ->delete();
+            ->delete()
+        ;
 
         if (0 < dotclear()->con()->changes()) {
             $this->_optimize();

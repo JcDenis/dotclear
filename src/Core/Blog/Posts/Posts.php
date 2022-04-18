@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Core\Blog\Posts\Posts
+ * @note Dotclear\Core\Blog\Posts\Posts
  * @brief Dotclear core posts class
  *
- * @package Dotclear
- * @subpackage Instance
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -24,12 +23,13 @@ use Dotclear\Exception\CoreException;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Dt;
 use Dotclear\Helper\Text;
+use Exception;
 
 class Posts
 {
     /**
      * Retrieves entries. <b>$params</b> is an array taking the following
-     * optionnal parameters:
+     * optionnal parameters:.
      *
      * - no_content: Don't retrieve entry content (excerpt and content)
      * - post_type: Get only entries with given type (default "post", array for many types and '' for no type)
@@ -59,17 +59,17 @@ class Posts
      * Please note that on every cat_id or cat_url, you can add ?not to exclude
      * the category and ?sub to get subcategories.
      *
-     * @param   array               $params         Parameters
-     * @param   bool                $count_only     Only counts results
-     * @param   SelectStatement     $sql            Optional SelectStatement instance
+     * @param array           $params     Parameters
+     * @param bool            $count_only Only counts results
+     * @param SelectStatement $sql        Optional SelectStatement instance
      *
-     * @return  string|Record                       A record with some more capabilities or the SQL request
+     * @return Record|string A record with some more capabilities or the SQL request
      */
     public function getPosts(ArrayObject|array $params = [], bool $count_only = false, ?SelectStatement $sql = null): string|Record
     {
         $params = new ArrayObject($params);
 
-        # --BEHAVIOR-- coreBlogBeforeGetPosts ArrayObject
+        // --BEHAVIOR-- coreBlogBeforeGetPosts ArrayObject
         dotclear()->behavior()->call('coreBlogBeforeGetPosts', $params);
 
         if (!$sql) {
@@ -144,7 +144,8 @@ class Posts
                     ->from(dotclear()->prefix . 'category C')
                     ->on('P.cat_id = C.cat_id')
                     ->statement()
-            );
+            )
+        ;
 
         if (!empty($params['join'])) {
             $sql->join($params['join']);
@@ -155,7 +156,7 @@ class Posts
         }
 
         if (!empty($params['where'])) {
-            # Cope with legacy code
+            // Cope with legacy code
             $sql->where($params['where']);
         } else {
             $sql->where('P.blog_id = ' . $sql->quote(dotclear()->blog()->id, true));
@@ -175,7 +176,7 @@ class Posts
             $sql->and($sql->orGroup($or));
         }
 
-        # Adding parameters
+        // Adding parameters
         if (isset($params['post_type'])) {
             if (is_array($params['post_type']) || '' != $params['post_type']) {
                 $sql->and('post_type' . $sql->in($params['post_type']));
@@ -186,7 +187,11 @@ class Posts
 
         if (isset($params['post_id']) && '' !== $params['post_id']) {
             if (is_array($params['post_id'])) {
-                array_walk($params['post_id'], function (&$v, $k) { if (null !== $v) {$v = (int) $v;}});
+                array_walk($params['post_id'], function (&$v, $k) {
+                    if (null !== $v) {
+                        $v = (int) $v;
+                    }
+                });
             } else {
                 $params['post_id'] = [(int) $params['post_id']];
             }
@@ -195,7 +200,11 @@ class Posts
 
         if (isset($params['exclude_post_id']) && '' !== $params['exclude_post_id']) {
             if (is_array($params['exclude_post_id'])) {
-                array_walk($params['exclude_post_id'], function (&$v, $k) { if (null !== $v) {$v = (int) $v;}});
+                array_walk($params['exclude_post_id'], function (&$v, $k) {
+                    if (null !== $v) {
+                        $v = (int) $v;
+                    }
+                });
             } else {
                 $params['exclude_post_id'] = [(int) $params['exclude_post_id']];
             }
@@ -215,7 +224,9 @@ class Posts
                 $params['cat_id'] = [$params['cat_id']];
             }
             if (!empty($params['cat_id_not'])) {
-                array_walk($params['cat_id'], function (&$v, $k) {$v = $v . ' ?not';});
+                array_walk($params['cat_id'], function (&$v, $k) {
+                    $v = $v . ' ?not';
+                });
             }
 
             $sql->and($this->getPostsCategoryFilter($params['cat_id'], 'cat_id'));
@@ -224,13 +235,15 @@ class Posts
                 $params['cat_url'] = [$params['cat_url']];
             }
             if (!empty($params['cat_url_not'])) {
-                array_walk($params['cat_url'], function (&$v, $k) {$v = $v . ' ?not';});
+                array_walk($params['cat_url'], function (&$v, $k) {
+                    $v = $v . ' ?not';
+                });
             }
 
             $sql->and($this->getPostsCategoryFilter($params['cat_url'], 'cat_url'));
         }
 
-        # Other filters
+        // Other filters
         if (isset($params['post_status'])) {
             $sql->and('post_status = ' . (int) $params['post_status']);
         }
@@ -263,7 +276,7 @@ class Posts
             $words = Text::splitWords($params['search']);
 
             if (!empty($words)) {
-                # --BEHAVIOR-- corePostSearch
+                // --BEHAVIOR-- corePostSearch
                 if (dotclear()->behavior()->has('corePostSearch')) {
                     dotclear()->behavior()->call('corePostSearch', [&$words, &$params, $sql]);
                 }
@@ -279,13 +292,14 @@ class Posts
             $sqlExists = SelectStatement::init(__METHOD__)
                 ->from(dotclear()->prefix . 'post_media M')
                 ->column('M.post_id')
-                ->where('M.post_id = P.post_id');
+                ->where('M.post_id = P.post_id')
+            ;
 
             if (isset($params['link_type'])) {
                 $sqlExists->and('M.link_type' . $sqlExists->in($params['link_type']));
             }
 
-            $sql->and(($params['media'] == '0' ? 'NOT ' : '') . 'EXISTS (' . $sqlExists->statement() . ')');
+            $sql->and(('0' == $params['media'] ? 'NOT ' : '') . 'EXISTS (' . $sqlExists->statement() . ')');
         }
 
         if (!empty($params['sql'])) {
@@ -311,14 +325,14 @@ class Posts
         $rs = $sql->select();
         $rs->extend(new RsExtPost());
 
-        # --BEHAVIOR-- coreBlogGetPosts
+        // --BEHAVIOR-- coreBlogGetPosts
         dotclear()->behavior()->call('coreBlogGetPosts', $rs);
 
         $alt = new ArrayObject(['rs' => $rs, 'params' => $params, 'count_only' => $count_only]);
 
-        # --BEHAVIOR-- coreBlogAfterGetPosts
+        // --BEHAVIOR-- coreBlogAfterGetPosts
         dotclear()->behavior()->call('coreBlogAfterGetPosts', $rs, $alt);
-        
+
         return isset($alt['rs']) && $alt['rs'] instanceof Record ? $alt['rs'] : $rs;
     }
 
@@ -327,19 +341,19 @@ class Posts
      * according to the post ID.
      * $dir could be 1 (next post) or -1 (previous post).
      *
-     * @param   Record  $post                   The post Record
-     * @param   int     $dir                    The search direction
-     * @param   bool    $restrict_to_category   Restrict to same category
-     * @param   bool    $restrict_to_lang       Restrict to same language
+     * @param Record $post                 The post Record
+     * @param int    $dir                  The search direction
+     * @param bool   $restrict_to_category Restrict to same category
+     * @param bool   $restrict_to_lang     Restrict to same language
      *
-     * @return  null|Record                     The next post.
+     * @return null|Record the next post
      */
     public function getNextPost(Record $post, int $dir, bool $restrict_to_category = false, bool $restrict_to_lang = false): ?Record
     {
         $dt      = $post->f('post_dt');
         $post_id = $post->fInt('post_id');
 
-        if ($dir > 0) {
+        if (0 < $dir) {
             $sign  = '>';
             $order = 'ASC';
         } else {
@@ -371,15 +385,15 @@ class Posts
     /**
      * Retrieves different languages and post count on blog, based on post_lang
      * field. <var>$params</var> is an array taking the following optionnal
-     * parameters:
+     * parameters:.
      *
      * - post_type: Get only entries with given type (default "post", '' for no type)
      * - lang: retrieve post count for selected lang
      * - order: order statement (default post_lang DESC)
      *
-     * @param   array|ArrayObject   $params     The parameters
+     * @param array|ArrayObject $params The parameters
      *
-     * @return  Record              The langs.
+     * @return Record the langs
      */
     public function getLangs(array|ArrayObject $params = []): Record
     {
@@ -405,7 +419,7 @@ class Posts
         }
 
         if (isset($params['post_type'])) {
-            if ($params['post_type'] != '') {
+            if ('' != $params['post_type']) {
                 $strReq .= "AND post_type = '" . dotclear()->con()->escape($params['post_type']) . "' ";
             }
         } else {
@@ -429,7 +443,7 @@ class Posts
 
     /**
      * Returns a record with all distinct blog dates and post count.
-     * <var>$params</var> is an array taking the following optionnal parameters:
+     * <var>$params</var> is an array taking the following optionnal parameters:.
      *
      * - type: (day|month|year) Get days, months or years
      * - year: (int) Get dates for given year
@@ -442,19 +456,19 @@ class Posts
      * - previous: Get date before match
      * - order: Sort by date "ASC" or "DESC"
      *
-     * @param   array   $params     The parameters
+     * @param array $params The parameters
      *
-     * @return  Record              The dates.
+     * @return Record the dates
      */
     public function getDates(array $params = []): Record
     {
         $dt_f  = '%Y-%m-%d';
         $dt_fc = '%Y%m%d';
         if (isset($params['type'])) {
-            if ($params['type'] == 'year') {
+            if ('year' == $params['type']) {
                 $dt_f  = '%Y-01-01';
                 $dt_fc = '%Y0101';
-            } elseif ($params['type'] == 'month') {
+            } elseif ('month' == $params['type']) {
                 $dt_f  = '%Y-%m-01';
                 $dt_fc = '%Y%m01';
             }
@@ -516,7 +530,7 @@ class Posts
             $strReq .= 'AND ' . dotclear()->con()->dateFormat('post_dt', '%d') . " = '" . sprintf('%02d', $params['day']) . "' ";
         }
 
-        # Get next or previous date
+        // Get next or previous date
         if (!empty($params['next']) || !empty($params['previous'])) {
             if (!empty($params['next'])) {
                 $pdir            = ' > ';
@@ -553,11 +567,9 @@ class Posts
     /**
      * Creates a new entry. Takes a cursor as input and returns the new entry ID.
      *
-     * @param   Cursor  $cur    The post cursor
+     * @param Cursor $cur The post cursor
      *
-     * @throws  CoreException
-     *
-     * @return  int
+     * @throws CoreException
      */
     public function addPost(Cursor $cur): int
     {
@@ -568,7 +580,7 @@ class Posts
         dotclear()->con()->writeLock(dotclear()->prefix . 'post');
 
         try {
-            # Get ID
+            // Get ID
             $rs = dotclear()->con()->select(
                 'SELECT MAX(post_id) ' .
                 'FROM ' . dotclear()->prefix . 'post '
@@ -580,7 +592,7 @@ class Posts
             $cur->setField('post_upddt', date('Y-m-d H:i:s'));
             $cur->setField('post_tz', dotclear()->user()->getInfo('user_tz'));
 
-            # Post excerpt and content
+            // Post excerpt and content
             $this->getPostContent($cur, $cur->getField('post_id'));
             $this->getPostCursor($cur);
 
@@ -590,18 +602,18 @@ class Posts
                 $cur->setField('post_status', -2);
             }
 
-            # --BEHAVIOR-- coreBeforePostCreate, Dotclear\Core\Blog, Dotclear\Database\Cursor
+            // --BEHAVIOR-- coreBeforePostCreate, Dotclear\Core\Blog, Dotclear\Database\Cursor
             dotclear()->behavior()->call('coreBeforePostCreate', $this, $cur);
 
             $cur->insert();
             dotclear()->con()->unlock();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             dotclear()->con()->unlock();
 
             throw $e;
         }
 
-        # --BEHAVIOR-- coreAfterPostCreate, Dotclear\Core\Blog, Dotclear\Database\Cursor
+        // --BEHAVIOR-- coreAfterPostCreate, Dotclear\Core\Blog, Dotclear\Database\Cursor
         dotclear()->behavior()->call('coreAfterPostCreate', $this, $cur);
 
         dotclear()->blog()->triggerBlog();
@@ -614,10 +626,10 @@ class Posts
     /**
      * Updates an existing post.
      *
-     * @param   int     $id     The post identifier
-     * @param   Cursor  $cur    The post cursor
+     * @param int    $id  The post identifier
+     * @param Cursor $cur The post cursor
      *
-     * @throws  CoreException
+     * @throws CoreException
      */
     public function updPost(int $id, Cursor $cur): void
     {
@@ -629,7 +641,7 @@ class Posts
             throw new CoreException(__('No such entry ID'));
         }
 
-        # Post excerpt and content
+        // Post excerpt and content
         $this->getPostContent($cur, $id);
         $this->getPostCursor($cur);
 
@@ -643,7 +655,7 @@ class Posts
 
         $cur->setField('post_upddt', date('Y-m-d H:i:s'));
 
-        #If user is only "usage", we need to check the post's owner
+        // If user is only "usage", we need to check the post's owner
         if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
             $strReq = 'SELECT post_id ' .
             'FROM ' . dotclear()->prefix . 'post ' .
@@ -657,12 +669,12 @@ class Posts
             }
         }
 
-        # --BEHAVIOR-- coreBeforePostUpdate, Dotclear\Core\Blog, Dotclear\Database\Cursor
+        // --BEHAVIOR-- coreBeforePostUpdate, Dotclear\Core\Blog, Dotclear\Database\Cursor
         dotclear()->behavior()->call('coreBeforePostUpdate', $this, $cur);
 
         $cur->update('WHERE post_id = ' . $id . ' ');
 
-        # --BEHAVIOR-- coreBeforePostUpdate, Dotclear\Core\Blog, Dotclear\Database\Cursor
+        // --BEHAVIOR-- coreBeforePostUpdate, Dotclear\Core\Blog, Dotclear\Database\Cursor
         dotclear()->behavior()->call('coreBeforePostUpdate', $this, $cur);
 
         dotclear()->blog()->triggerBlog();
@@ -673,8 +685,8 @@ class Posts
     /**
      * Update post status.
      *
-     * @param   int     $id         The identifier
-     * @param   int     $status     The status
+     * @param int $id     The identifier
+     * @param int $status The status
      */
     public function updPostStatus(int $id, int $status): void
     {
@@ -684,10 +696,10 @@ class Posts
     /**
      * Updates posts status.
      *
-     * @param   array|ArrayObject   $ids        The identifiers
-     * @param   int                 $status     The status
+     * @param array|ArrayObject $ids    The identifiers
+     * @param int               $status The status
      *
-     * @throws  CoreException
+     * @throws CoreException
      */
     public function updPostsStatus(array|ArrayObject $ids, int $status): void
     {
@@ -700,7 +712,7 @@ class Posts
         $strReq = "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
         'AND post_id' . dotclear()->con()->in($posts_ids);
 
-        #If user can only publish, we need to check the post's owner
+        // If user can only publish, we need to check the post's owner
         if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
             $strReq .= "AND user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "' ";
         }
@@ -719,8 +731,8 @@ class Posts
     /**
      * Updates post selection.
      *
-     * @param   int     $id         The identifier
-     * @param   bool    $selected   The selected flag
+     * @param int  $id       The identifier
+     * @param bool $selected The selected flag
      */
     public function updPostSelected(int $id, bool $selected): void
     {
@@ -730,10 +742,10 @@ class Posts
     /**
      * Updates posts selection.
      *
-     * @param   array|ArrayObject   $ids        The identifiers
-     * @param   bool                $selected   The selected flag
+     * @param array|ArrayObject $ids      The identifiers
+     * @param bool              $selected The selected flag
      *
-     * @throws  CoreException
+     * @throws CoreException
      */
     public function updPostsSelected(array|ArrayObject $ids, bool $selected): void
     {
@@ -746,7 +758,7 @@ class Posts
         $strReq = "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
         'AND post_id' . dotclear()->con()->in($posts_ids);
 
-        # If user is only usage, we need to check the post's owner
+        // If user is only usage, we need to check the post's owner
         if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
             $strReq .= "AND user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "' ";
         }
@@ -763,8 +775,8 @@ class Posts
     /**
      * Updates post category. <var>$cat_id</var> can be null.
      *
-     * @param   int         $id         The identifier
-     * @param   int|null    $cat_id     The cat identifier
+     * @param int      $id     The identifier
+     * @param null|int $cat_id The cat identifier
      */
     public function updPostCategory(int $id, int|null $cat_id): void
     {
@@ -774,10 +786,10 @@ class Posts
     /**
      * Updates posts category. <var>$cat_id</var> can be null.
      *
-     * @param   array|ArrayObject   $ids        The identifiers
-     * @param   int|null            $cat_id     The cat identifier
+     * @param array|ArrayObject $ids    The identifiers
+     * @param null|int          $cat_id The cat identifier
      *
-     * @throws  CoreException
+     * @throws CoreException
      */
     public function updPostsCategory(array|ArrayObject $ids, int|null $cat_id): void
     {
@@ -790,7 +802,7 @@ class Posts
         $strReq = "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
         'AND post_id' . dotclear()->con()->in($posts_ids);
 
-        # If user is only usage, we need to check the post's owner
+        // If user is only usage, we need to check the post's owner
         if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
             $strReq .= "AND user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "' ";
         }
@@ -807,10 +819,10 @@ class Posts
     /**
      * Updates posts category. <var>$new_cat_id</var> can be null.
      *
-     * @param   int         $old_cat_id     The old cat identifier
-     * @param   int|null    $new_cat_id     The new cat identifier
+     * @param int      $old_cat_id The old cat identifier
+     * @param null|int $new_cat_id The new cat identifier
      *
-     * @throws  CoreException
+     * @throws CoreException
      */
     public function changePostsCategory(int $old_cat_id, ?int $new_cat_id): void
     {
@@ -833,7 +845,7 @@ class Posts
     /**
      * Deletes a post.
      *
-     * @param   int     $id     The post identifier
+     * @param int $id The post identifier
      */
     public function delPost(int $id): void
     {
@@ -843,9 +855,9 @@ class Posts
     /**
      * Deletes multiple posts.
      *
-     * @param   array|ArrayObject   $ids    The posts identifiers
+     * @param array|ArrayObject $ids The posts identifiers
      *
-     * @throws  CoreException
+     * @throws CoreException
      */
     public function delPosts(array|ArrayObject $ids): void
     {
@@ -863,7 +875,7 @@ class Posts
         "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
         'AND post_id' . dotclear()->con()->in($posts_ids);
 
-        #If user can only delete, we need to check the post's owner
+        // If user can only delete, we need to check the post's owner
         if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
             $strReq .= "AND user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "' ";
         }
@@ -892,20 +904,19 @@ class Posts
         }
 
         while ($rs->fetch()) {
-            # Now timestamp with post timezone
+            // Now timestamp with post timezone
             $now_tz = $now + Dt::getTimeOffset($rs->f('post_tz'), $now);
 
-            # Post timestamp
+            // Post timestamp
             $post_ts = strtotime($rs->f('post_dt'));
 
-            # If now_tz >= post_ts, we publish the entry
+            // If now_tz >= post_ts, we publish the entry
             if ($now_tz >= $post_ts) {
                 $to_change[] = $rs->fInt('post_id');
             }
         }
         if (count($to_change)) {
-
-            # --BEHAVIOR-- coreBeforeScheduledEntriesPublish, Dotclear\Core\Blog, array
+            // --BEHAVIOR-- coreBeforeScheduledEntriesPublish, Dotclear\Core\Blog, array
             dotclear()->behavior()->call('coreBeforeScheduledEntriesPublish', $this, $to_change);
 
             $strReq = 'UPDATE ' . dotclear()->prefix . 'post SET ' .
@@ -915,7 +926,7 @@ class Posts
             dotclear()->con()->execute($strReq);
             dotclear()->blog()->triggerBlog();
 
-            # --BEHAVIOR-- coreAfterScheduledEntriesPublish, Dotclear\Core\Blog, array
+            // --BEHAVIOR-- coreAfterScheduledEntriesPublish, Dotclear\Core\Blog, array
             dotclear()->behavior()->call('coreAfterScheduledEntriesPublish', $this, $to_change);
 
             $this->firstPublicationEntries($to_change);
@@ -923,9 +934,9 @@ class Posts
     }
 
     /**
-     * First publication mecanism (on post create, update, publish, status)
+     * First publication mecanism (on post create, update, publish, status).
      *
-     * @param   int|array|ArrayObject   $ids    The posts identifiers
+     * @param array|ArrayObject|int $ids The posts identifiers
      */
     public function firstPublicationEntries(int|array|ArrayObject $ids): void
     {
@@ -947,7 +958,7 @@ class Posts
             'AND post_id' . dotclear()->con()->in((array) $to_change) . ' ';
             dotclear()->con()->execute($strReq);
 
-            # --BEHAVIOR-- coreFirstPublicationEntries, Dotclear\Core\Blog\Posts\Posts, array
+            // --BEHAVIOR-- coreFirstPublicationEntries, Dotclear\Core\Blog\Posts\Posts, array
             dotclear()->behavior()->call('coreFirstPublicationEntries', $this, $to_change);
         }
     }
@@ -955,9 +966,7 @@ class Posts
     /**
      * Retrieves all users having posts on current blog.
      *
-     * @param   string  $post_type  post_type filter (post)
-     *
-     * @return  Record
+     * @param string $post_type post_type filter (post)
      */
     public function getPostsUsers(string $post_type = 'post'): Record
     {
@@ -977,16 +986,13 @@ class Posts
     }
 
     /**
-     * Parse category query part
-     * 
-     * @param   array   $arr 
-     * @param   string  $field
-     * 
-     * @return  string  The category query part
+     * Parse category query part.
+     *
+     * @return string The category query part
      */
     private function getPostsCategoryFilter(array $arr, string $field = 'cat_id'): string
     {
-        $field = $field == 'cat_id' ? 'cat_id' : 'cat_url';
+        $field = 'cat_id' == $field ? 'cat_id' : 'cat_url';
 
         $sub     = [];
         $not     = [];
@@ -1027,10 +1033,10 @@ class Posts
             }
         }
 
-        # Create queries
+        // Create queries
         $sql = [
-            0 => [], # wanted categories
-            1 => [], # excluded categories
+            0 => [], // wanted categories
+            1 => [], // excluded categories
         ];
 
         foreach ($queries as $id => $q) {
@@ -1058,10 +1064,10 @@ class Posts
     /**
      * Gets the post cursor.
      *
-     * @param   Cursor  $cur        The post cursor
-     * @param   int     $post_id    The post identifier
+     * @param Cursor $cur     The post cursor
+     * @param int    $post_id The post identifier
      *
-     * @throws  CoreException
+     * @throws CoreException
      */
     private function getPostCursor(Cursor $cur, int $post_id = null): void
     {
@@ -1089,8 +1095,8 @@ class Posts
             throw new CoreException(__('No entry content'));
         }
 
-        # Words list
-        if (null !== $cur->getField('post_title') 
+        // Words list
+        if (null !== $cur->getField('post_title')
             && null !== $cur->getField('post_excerpt_xhtml')
             && null !== $cur->getField('post_content_xhtml')
         ) {
@@ -1109,8 +1115,8 @@ class Posts
     /**
      * Gets the post content.
      *
-     * @param   Cursor  $cur        The post cursor
-     * @param   int     $post_id    The post identifier
+     * @param Cursor $cur     The post cursor
+     * @param int    $post_id The post identifier
      */
     private function getPostContent(Cursor $cur, int $post_id): void
     {
@@ -1138,13 +1144,13 @@ class Posts
     /**
      * Creates post HTML content, taking format and lang into account.
      *
-     * @param   int|null        $post_id        The post identifier
-     * @param   string          $format         The format
-     * @param   string          $lang           The language
-     * @param   string|null     $excerpt        The excerpt
-     * @param   string|null     $excerpt_xhtml  The excerpt xhtml
-     * @param   string          $content        The content
-     * @param   string          $content_xhtml  The content xhtml
+     * @param null|int    $post_id       The post identifier
+     * @param string      $format        The format
+     * @param string      $lang          The language
+     * @param null|string $excerpt       The excerpt
+     * @param null|string $excerpt_xhtml The excerpt xhtml
+     * @param string      $content       The content
+     * @param string      $content_xhtml The content xhtml
      */
     public function setPostContent(?int $post_id, string $format, string $lang, ?string &$excerpt, ?string &$excerpt_xhtml, string &$content, string &$content_xhtml): void
     {
@@ -1152,8 +1158,8 @@ class Posts
             dotclear()->wiki()->initWikiPost();
             dotclear()->wiki()->setOpt('note_prefix', 'pnote-' . ($post_id ?? ''));
             $tag = match (dotclear()->blog()->settings()->get('system')->get('note_title_tag')) {
-                1 => 'h3',
-                2 => 'p',
+                1       => 'h3',
+                2       => 'p',
                 default => 'h4',
             };
             dotclear()->wiki()->setOpt('note_str', '<div class="footnotes"><' . $tag . ' class="footnotes-title">' .
@@ -1179,7 +1185,7 @@ class Posts
             $content_xhtml = '';
         }
 
-        # --BEHAVIOR-- coreAfterPostContentFormat, array
+        // --BEHAVIOR-- coreAfterPostContentFormat, array
         dotclear()->behavior()->call('coreAfterPostContentFormat', [
             'excerpt'       => &$excerpt,
             'content'       => &$content,
@@ -1192,12 +1198,12 @@ class Posts
      * Returns URL for a post according to blog setting <var>post_url_format</var>.
      * It will try to guess URL and append some figures if needed.
      *
-     * @param   string|null     $url            The url
-     * @param   string|null     $post_dt        The post dt
-     * @param   string|null     $post_title     The post title
-     * @param   int|null        $post_id        The post identifier
+     * @param null|string $url        The url
+     * @param null|string $post_dt    The post dt
+     * @param null|string $post_title The post title
+     * @param null|int    $post_id    The post identifier
      *
-     * @return  string                          The post url.
+     * @return string the post url
      */
     public function getPostURL(?string $url, ?string $post_dt, ?string $post_title, ?int $post_id): string
     {
@@ -1211,9 +1217,9 @@ class Posts
             '{id}' => (int) $post_id,
         ];
 
-        # If URL is empty, we create a new one
-        if ($url == '') {
-            # Transform with format
+        // If URL is empty, we create a new one
+        if ('' == $url) {
+            // Transform with format
             $url = str_replace(
                 array_keys($url_patterns),
                 array_values($url_patterns),
@@ -1223,7 +1229,7 @@ class Posts
             $url = Text::tidyURL($url);
         }
 
-        # Let's check if URL is taken...
+        // Let's check if URL is taken...
         $strReq = 'SELECT post_url FROM ' . dotclear()->prefix . 'post ' .
         "WHERE post_url = '" . dotclear()->con()->escape($url) . "' " .
         'AND post_id <> ' . (int) $post_id . ' ' .
@@ -1266,8 +1272,8 @@ class Posts
             return $url . ($i + 1);
         }
 
-        # URL is empty?
-        if ($url == '') {
+        // URL is empty?
+        if ('' == $url) {
             throw new CoreException(__('Empty entry URL'));
         }
 

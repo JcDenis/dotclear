@@ -1,14 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Network\Socket\Socket
- * @brief Network base
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
- * This class handles network socket through an iterator.
- *
  * @package Dotclear
- * @subpackage Network
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,19 +10,29 @@ declare(strict_types=1);
 namespace Dotclear\Helper\Network\Socket;
 
 use Dotclear\Exception\NetworkException;
-use Dotclear\Helper\Network\Socket\Iterator;
 
+/**
+ * Network base.
+ *
+ * \Dotclear\Helper\Network\Socket\Socket
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * This class handles network socket through an iterator.
+ *
+ * @ingroup  Helper Network
+ */
 class Socket
 {
-    protected $_transport = ''; ///< string: Server transport
-    protected $_handle;         ///< resource: Resource handler
+    protected $_transport = ''; // /< string: Server transport
+    protected $_handle;         // /< resource: Resource handler
 
     /**
-     * Class constructor
+     * Class constructor.
      *
-     * @param   string  $_host      Server host
-     * @param   int     $_port      Server port
-     * @param   int     $_timeout   Connection timeout
+     * @param string $_host    Server host
+     * @param int    $_port    Server port
+     * @param int    $_timeout Connection timeout
      */
     public function __construct(protected string $_host, protected int $_port, protected int $_timeout = 10)
     {
@@ -39,7 +41,7 @@ class Socket
     }
 
     /**
-     * Object destructor
+     * Object destructor.
      *
      * Calls {@link close()} method
      */
@@ -49,14 +51,12 @@ class Socket
     }
 
     /**
-     * Get / Set host
+     * Get / Set host.
      *
      * If <var>$host</var> is set, set {@link $_host} and returns true.
      * Otherwise, returns {@link $_host} value.
      *
-     * @param   string|null     $host   Server host
-     * 
-     * @return  string|bool
+     * @param null|string $host Server host
      */
     public function host(?string $host = null): string|bool
     {
@@ -70,14 +70,14 @@ class Socket
     }
 
     /**
-     * Get / Set port
+     * Get / Set port.
      *
      * If <var>$port</var> is set, set {@link $_port} and returns true.
      * Otherwise, returns {@link $_port} value.
      *
-     * @param   int|null    $port   Server port
-     * 
-     * @return  int|true
+     * @param null|int $port Server port
+     *
+     * @return int|true
      */
     public function port(?int $port = null): int|bool
     {
@@ -91,14 +91,12 @@ class Socket
     }
 
     /**
-     * Get / Set timeout
+     * Get / Set timeout.
      *
      * If <var>$timeout</var> is set, set {@link $_timeout} and returns true.
      * Otherwise, returns {@link $_timeout} value.
      *
-     * @param   int|null    $timeout    Connection timeout
-     * 
-     * @return  int|bool
+     * @param null|int $timeout Connection timeout
      */
     public function timeout(?int $timeout = null): int|bool
     {
@@ -112,12 +110,11 @@ class Socket
     }
 
     /**
-     * Set blocking
+     * Set blocking.
      *
      * Sets blocking or non-blocking mode on the socket.
      *
-     * @param   int     $i  1 for yes, 0 for no
-     * @return  bool
+     * @param int $i 1 for yes, 0 for no
      */
     public function setBlocking(int $i): bool
     {
@@ -133,8 +130,6 @@ class Socket
      *
      * Opens socket connection and Returns an object of type {@link Iterator}
      * which can be iterate with a simple foreach loop.
-     *
-     * @return  Iterator|bool
      */
     public function open(): Iterator|bool
     {
@@ -148,7 +143,7 @@ class Socket
     }
 
     /**
-     * Closes socket connection
+     * Closes socket connection.
      */
     public function close(): void
     {
@@ -159,7 +154,7 @@ class Socket
     }
 
     /**
-     * Send data
+     * Send data.
      *
      * Sends data to current socket and returns an object of type
      * {@link netSocketIterator} which can be iterate with a simple foreach loop.
@@ -182,8 +177,7 @@ class Socket
      * ?>
      * </code>
      *
-     * @param   string|array    $data   Data to send
-     * @return  Iterator|false
+     * @param array|string $data Data to send
      */
     public function write(array|string $data): Iterator|false
     {
@@ -201,11 +195,9 @@ class Socket
     }
 
     /**
-     * Flush buffer
+     * Flush buffer.
      *
      * Flushes socket write buffer.
-     * 
-     * @return  bool
      */
     public function flush(): bool
     {
@@ -219,9 +211,7 @@ class Socket
     }
 
     /**
-     * Iterator
-     *
-     * @return  Iterator|false
+     * Iterator.
      */
     protected function iterator(): Iterator|false
     {
@@ -233,11 +223,9 @@ class Socket
     }
 
     /**
-     * Is open
+     * Is open.
      *
      * Returns true if socket connection is open.
-     *
-     * @return  bool
      */
     public function isOpen(): bool
     {

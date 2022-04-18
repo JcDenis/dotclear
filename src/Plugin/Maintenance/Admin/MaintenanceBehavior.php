@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Maintenance\Admin\MaintenanceBehavior
+ * @note Dotclear\Plugin\Maintenance\Admin\MaintenanceBehavior
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginMaintenance
+ * @ingroup  PluginMaintenance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -34,7 +33,7 @@ class MaintenanceBehavior
     /**
      * Register default tasks.
      *
-     * @param   Maintenance     $maintenance    Maintenance instance
+     * @param Maintenance $maintenance Maintenance instance
      */
     public function behaviorDcMaintenanceInit(Maintenance $maintenance): void
     {
@@ -68,9 +67,9 @@ class MaintenanceBehavior
     }
 
     /**
-     * Favorites
+     * Favorites.
      *
-     * @param   Favorite   $favs   Favorite instance
+     * @param Favorite $favs Favorite instance
      */
     public function behaviorAdminDashboardFavorites(Favorite $favs): void
     {
@@ -81,7 +80,7 @@ class MaintenanceBehavior
             'large-icon'   => ['?df=Plugin/Maintenance/icon.svg', '?df=Plugin/Maintenance/icon-dark.svg'],
             'permissions'  => 'admin',
             'active_cb'    => dotclear()->adminurl()->is('admin.plugin.Maintenance'),
-            'dashboard_cb' => [$this, 'behaviorAdminDashboardFavoritesCallback']
+            'dashboard_cb' => [$this, 'behaviorAdminDashboardFavoritesCallback'],
         ]);
     }
 
@@ -91,21 +90,21 @@ class MaintenanceBehavior
      * This updates maintenance fav icon text
      * if there are tasks required maintenance.
      *
-     * @param   ArrayObject     $fav    The fav
+     * @param ArrayObject $fav The fav
      */
     public function behaviorAdminDashboardFavoritesCallback(ArrayObject $fav): void
     {
-        # Check user option
+        // Check user option
         if (!dotclear()->user()->preference()->get('maintenance')->get('dashboard_icon')) {
             return;
         }
 
-        # Check expired tasks
+        // Check expired tasks
         $maintenance = new Maintenance();
         $count       = 0;
         foreach ($maintenance->getTasks() as $t) {
             if (false !== $t->expired()) {
-                $count++;
+                ++$count;
             }
         }
 
@@ -120,7 +119,7 @@ class MaintenanceBehavior
     /**
      * Dashboard items stack.
      *
-     * @param   ArrayObject     $items  The items
+     * @param ArrayObject $items The items
      */
     public function behaviorAdminDashboardItems(ArrayObject $items): void
     {
@@ -137,10 +136,12 @@ class MaintenanceBehavior
                 continue;
             }
 
-            $lines[] = '<li title="' . (null === $ts ?
+            $lines[] = '<li title="' . (
+                null === $ts ?
                 __('This task has never been executed.')
                 :
-                sprintf(__('Last execution of this task was on %s.'),
+                sprintf(
+                    __('Last execution of this task was on %s.'),
                     Dt::dt2str(dotclear()->blog()->settings()->get('system')->get('date_format'), (string) $ts) . ' ' .
                     Dt::dt2str(dotclear()->blog()->settings()->get('system')->get('time_format'), (string) $ts)
                 )
@@ -157,7 +158,7 @@ class MaintenanceBehavior
             '<p class="warning no-margin">' . sprintf(__('There is a task to execute.', 'There are %s tasks to execute.', count($lines)), count($lines)) . '</p>' .
             '<ul>' . implode('', $lines) . '</ul>' .
             '<p><a href="' . dotclear()->adminurl()->get('admin.plugin.Maintenance') . '">' . __('Manage tasks') . '</a></p>' .
-            '</div>'
+            '</div>',
         ]);
     }
 
@@ -169,8 +170,7 @@ class MaintenanceBehavior
      */
     public function behaviorAdminDashboardOptionsForm(): void
     {
-        echo
-        '<div class="fieldset">' .
+        echo '<div class="fieldset">' .
         '<h4>' . __('Maintenance') . '</h4>' .
 
         '<p><label for="maintenance_dashboard_icon" class="classic">' .
@@ -187,7 +187,7 @@ class MaintenanceBehavior
     /**
      * User preferences update.
      *
-     * @param   string  $user_id    The user identifier
+     * @param string $user_id The user identifier
      */
     public function behaviorAdminAfterDashboardOptionsUpdate(string $user_id = null): void
     {
@@ -208,7 +208,7 @@ class MaintenanceBehavior
      * but keep it for exemple of how to use behavior adminPageHelpBlock.
      * Cheers, JC
      *
-     * @param   ArrayObject     $blocks     The blocks
+     * @param ArrayObject $blocks The blocks
      */
     public function behaviorAdminPageHelpBlock(ArrayObject $blocks): void
     {
@@ -236,7 +236,7 @@ class MaintenanceBehavior
                         || $t->tab() != $tab_obj->id()) {
                         continue;
                     }
-                    if (($desc = $t->description()) != '') {
+                    if ('' != ($desc = $t->description())) {
                         $res_task .= '<dt>' . $t->task() . '</dt>' .
                             '<dd>' . $desc . '</dd>';
                     }
@@ -258,9 +258,9 @@ class MaintenanceBehavior
             }
         }
         if (!empty($res_tab)) {
-            $res          = new ArrayObject();
+            $res = new ArrayObject();
             $res->offsetSet('content', $res_tab);
-            $blocks[]     = $res;
+            $blocks[] = $res;
         }
     }
 }

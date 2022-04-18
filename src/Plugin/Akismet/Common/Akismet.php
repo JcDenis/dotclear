@@ -1,10 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Akismet\Common\Akismet
- * @brief Dotclear Plugins class
- *
  * @package Dotclear
- * @subpackage PluginAkismet
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,7 +11,15 @@ namespace Dotclear\Plugin\Akismet\Common;
 
 use Dotclear\Helper\Network\NetHttp\NetHttp;
 use Dotclear\Helper\Network\Http;
+use Exception;
 
+/**
+ * Akismet management.
+ *
+ * \Dotclear\Plugin\Akismet\Common\Akismet
+ *
+ * @ingroup  Plugin Akismet
+ */
 class Akismet extends NetHttp
 {
     protected $base_host  = 'rest.akismet.com';
@@ -38,7 +42,7 @@ class Akismet extends NetHttp
 
         $data = [
             'key'  => $this->ak_key,
-            'blog' => $this->blog_url
+            'blog' => $this->blog_url,
         ];
 
         if ($this->post($path, $data, 'UTF-8')) {
@@ -81,7 +85,7 @@ class Akismet extends NetHttp
         $ua      = $info['HTTP_USER_AGENT'] ?? '';
         $referer = $info['HTTP_REFERER']    ?? '';
 
-        # Prepare comment data
+        // Prepare comment data
         $data = [
             'blog'                 => $this->blog_url,
             'user_ip'              => Http::realIP(),
@@ -92,7 +96,7 @@ class Akismet extends NetHttp
             'comment_author'       => $author,
             'comment_author_email' => $email,
             'comment_author_url'   => $url,
-            'comment_content'      => $content
+            'comment_content'      => $content,
         ];
 
         $data = array_merge($data, $info);
@@ -101,7 +105,7 @@ class Akismet extends NetHttp
         $path       = sprintf($this->ak_path, $function);
 
         if (!$this->post($path, $data, 'UTF-8')) {
-            throw new \Exception('HTTP error: ' . $this->getError());    // @phpstan-ignore-line
+            throw new Exception('HTTP error: ' . $this->getError());    // @phpstan-ignore-line
         }
 
         return 'true' == $this->getContent();

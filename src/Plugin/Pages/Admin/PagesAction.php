@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Pages\Admin\PagesAction
+ * @note Dotclear\Plugin\Pages\Admin\PagesAction
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginPages
+ * @ingroup  PluginPages
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,6 +18,7 @@ use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Action\Action\PostAction;
+use Exception;
 
 class PagesAction extends PostAction
 {
@@ -28,7 +28,7 @@ class PagesAction extends PostAction
         $this->redirect_fields = [];
         $this->caller_title    = __('Pages');
 
-        # Page setup
+        // Page setup
         $this
             ->setPageTitle(__('Blogs'))
             ->setPageType($this->in_plugin ? 'plugin' : 'full')
@@ -36,11 +36,12 @@ class PagesAction extends PostAction
             ->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog()->name) => '',
                 __('Pages')                                => $this->getRedirection(true),
-                __('Pages actions')                        => ''
-            ]);
+                __('Pages actions')                        => '',
+            ])
+        ;
     }
 
-    public function error(\Exception $e): void
+    public function error(Exception $e): void
     {
         dotclear()->error()->add($e->getMessage());
         $this->setPageContent('<p><a class="back" href="' . $this->getRedirection(true) . '">' . __('Back to pages list') . '</a></p>');
@@ -99,7 +100,7 @@ class PagesAction extends PostAction
 
             $sql = new UpdateStatement(__METHOD__);
 
-            #If user can only publish, we need to check the post's owner
+            // If user can only publish, we need to check the post's owner
             if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
                 $sql->and('user_id = ' . $sql->quote(dotclear()->user()->userID()));
             }
@@ -107,12 +108,13 @@ class PagesAction extends PostAction
             $sql
                 ->sets([
                     'post_position = ' . ((int) $value - 1),
-                    'post_upddt = ' .  $sql->quote(date('Y-m-d H:i:s')),
+                    'post_upddt = ' . $sql->quote(date('Y-m-d H:i:s')),
                 ])
                 ->where('blog_id = ' . $sql->quote(dotclear()->blog()->id))
                 ->and('post_id' . $sql->in($post_id))
                 ->from(dotclear()->prefix . 'post')
-                ->update();
+                ->update()
+            ;
 
             dotclear()->blog()->triggerBlog();
         }

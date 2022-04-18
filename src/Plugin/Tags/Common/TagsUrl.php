@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Tags\Common\TagsUrl
+ * @note Dotclear\Plugin\Tags\Common\TagsUrl
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginTags
+ * @ingroup  PluginTags
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -28,10 +27,10 @@ class TagsUrl extends Url
     {
         $n = dotclear()->url()->getPageNumber($args);
 
-        if ($args == '' && !$n) {
+        if ('' == $args && !$n) {
             dotclear()->url()->p404();
         } elseif (preg_match('%(.*?)/feed/(rss2|atom)?$%u', $args, $m)) {
-            $type     = $m[2] == 'atom' ? 'atom' : 'rss2';
+            $type     = 'atom' == $m[2] ? 'atom' : 'rss2';
             $mime     = 'application/xml';
             $comments = !empty($m[3]);
 
@@ -46,7 +45,7 @@ class TagsUrl extends Url
             } else {
                 $tpl = $type;
 
-                if ($type == 'atom') {
+                if ('atom' == $type) {
                     $mime = 'application/atom+xml';
                 }
 
@@ -92,12 +91,12 @@ class TagsUrl extends Url
             ));
 
             if (dotclear()->context()->get('meta')->isEmpty()) {
-                # The specified tag does not exist.
+                // The specified tag does not exist.
                 dotclear()->url()->p404();
             } else {
                 dotclear()->context()->set('feed_subtitle', ' - ' . __('Tag') . ' - ' . dotclear()->context()->get('meta')->f('meta_id'));
 
-                if ($type == 'atom') {
+                if ('atom' == $type) {
                     $mime = 'application/atom+xml';
                 } else {
                     $mime = 'application/xml';

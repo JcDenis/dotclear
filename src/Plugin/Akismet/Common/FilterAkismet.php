@@ -1,10 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Akismet\Common\FilterAkismet
- * @brief Dotclear Plugins class
- *
  * @package Dotclear
- * @subpackage PluginAkismet
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,12 +10,19 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Akismet\Common;
 
 use Dotclear\Database\Record;
-Use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
-use Dotclear\Plugin\Akismet\Common\Akismet;
 use Dotclear\Plugin\Antispam\Common\Spamfilter;
+use Exception;
 
+/**
+ * Akismet antispam filter.
+ *
+ * \Dotclear\Plugin\Akismet\Common\FilterAkismet
+ *
+ * @ingroup  Plugin Akismet
+ */
 class FilterAkismet extends Spamfilter
 {
     public $name    = 'Akismet';
@@ -81,14 +84,14 @@ class FilterAkismet extends Spamfilter
                 }
             }
         } catch (\Exception) {
-        } # If http or akismet is dead, we don't need to know it
+        } // If http or akismet is dead, we don't need to know it
 
         return null;
     }
 
     public function trainFilter(string $status, string $filter, string $type, string $author, string $email, string $site, string $ip, string $content, Record $rs): void
     {
-        # We handle only false positive from akismet
+        // We handle only false positive from akismet
         if ('spam' == $status && 'dcFilterAkismet' != $filter) {
             return;
         }
@@ -104,7 +107,7 @@ class FilterAkismet extends Spamfilter
                 $ak->{$f}($rs->call('getPostURL'), $type, $author, $email, $site, $content);
             }
         } catch (\Exception) {
-        } # If http or akismet is dead, we don't need to know it
+        } // If http or akismet is dead, we don't need to know it
     }
 
     public function gui(string $url): string
@@ -120,7 +123,7 @@ class FilterAkismet extends Spamfilter
 
                 dotclear()->notice()->addSuccessNotice(__('Filter configuration have been successfully saved.'));
                 Http::redirect($url);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
@@ -129,7 +132,7 @@ class FilterAkismet extends Spamfilter
             try {
                 $ak          = new Akismet(dotclear()->blog()->url, dotclear()->blog()->settings()->get('akismet')->get('ak_key'));
                 $ak_verified = $ak->verify();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }

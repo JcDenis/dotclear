@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Core\Url\Url
+ * @note Dotclear\Core\Url\Url
  * @brief Dotclear core url handler (public) class
  *
- * @package Dotclear
- * @subpackage Core
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -23,42 +22,43 @@ use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Text;
+use Exception;
 
 class Url
 {
-    /** @var    array   $types  URL registered types */
+    /** @var array URL registered types */
     protected $types = [];
 
-    /** @var    string|array|Closure  $default_handler    Default URL handler callback */
+    /** @var array|Closure|string Default URL handler callback */
     protected $default_handler;
 
-    /** @var    array   $error_handlers     Error URL handler */
+    /** @var array Error URL handler */
     protected $error_handlers = [];
 
-    /** @var    string  $mode   URL mode */
+    /** @var string URL mode */
     public $mode = 'path_info';
 
-    /** @var    string  $type   URL handler current type */
+    /** @var string URL handler current type */
     public $type = 'default';
 
-    /** @var    array   $mod_files  List of script used files */
+    /** @var array List of script used files */
     public $mod_files = [];
 
-    /** @var    array   $mod_ts     List of timestamp */
+    /** @var array List of timestamp */
     public $mod_ts = [];
 
-    /** @var    string  $args   URL args */
+    /** @var string URL args */
     public $args;
 
-    /** @var    string  $search_string  Search string */
-    public $search_string = null;
+    /** @var string Search string */
+    public $search_string;
 
-    /** @var    int     $search_count   Search count */
-    public $search_count = null;
+    /** @var int Search count */
+    public $search_count;
 
     /**
-     * Constructor
-     * 
+     * Constructor.
+     *
      * Do not change 'resources' handler as css and js use hard coded resources urls
      */
     public function __construct()
@@ -80,9 +80,9 @@ class Url
     }
 
     /**
-     * Get home type
-     * 
-     * @return  string  Home type
+     * Get home type.
+     *
+     * @return string Home type
      */
     protected function getHomeType(): string
     {
@@ -90,28 +90,28 @@ class Url
     }
 
     /**
-     * Is current URL is home
-     * 
-     * @param   string  $type   The type
-     * 
-     * @return  bool    True if type correspond
+     * Is current URL is home.
+     *
+     * @param string $type The type
+     *
+     * @return bool True if type correspond
      */
     public function isHome(string $type): bool
     {
-        return $type == $this->getHomeType();
+        return $this->getHomeType() == $type;
     }
 
     /**
-     * Get URL for given type and optionnal value
-     * 
-     * @param   string      $type   The type
-     * @param   string|int  $value  The value
-     * 
-     * @return  string              The URL
+     * Get URL for given type and optionnal value.
+     *
+     * @param string     $type  The type
+     * @param int|string $value The value
+     *
+     * @return string The URL
      */
     public function getURLFor(string $type, string|int $value = ''): string
     {
-        $url  = dotclear()->behavior()->call('publicGetURLFor', $type, $value);
+        $url = dotclear()->behavior()->call('publicGetURLFor', $type, $value);
         if (!$url) {
             $url = $this->getBase($type);
             if ('' !== $value) {
@@ -126,12 +126,12 @@ class Url
     }
 
     /**
-     * Register a URL
-     * 
-     * @param   string                  $type           The type
-     * @param   string                  $url            The URL
-     * @param   string                  $representation The representation
-     * @param   string|array|Closure    $handler        The URL handler callback
+     * Register a URL.
+     *
+     * @param string               $type           The type
+     * @param string               $url            The URL
+     * @param string               $representation The representation
+     * @param array|Closure|string $handler        The URL handler callback
      */
     public function register(string $type, string $url, string $representation, string|array|Closure $handler): void
     {
@@ -147,19 +147,19 @@ class Url
     }
 
     /**
-     * Register default handler
-     * 
-     * @param   string|array|Closure    $handler    The handler
+     * Register default handler.
+     *
+     * @param array|Closure|string $handler The handler
      */
-    public function registerDefault(string|array|Closure  $handler): void
+    public function registerDefault(string|array|Closure $handler): void
     {
         $this->default_handler = $handler;
     }
 
     /**
-     * Register an error handler
-     * 
-     * @param   string|array|Closure    $handler    The handler
+     * Register an error handler.
+     *
+     * @param array|Closure|string $handler The handler
      */
     public function registerError(string|array|Closure $handler): void
     {
@@ -167,9 +167,9 @@ class Url
     }
 
     /**
-     * Unregister a URL type
-     * 
-     * @param   string  $type   The type
+     * Unregister a URL type.
+     *
+     * @param string $type The type
      */
     public function unregister(string $type): void
     {
@@ -179,9 +179,9 @@ class Url
     }
 
     /**
-     * Get registered tyeps
-     * 
-     * @return  array   The types
+     * Get registered tyeps.
+     *
+     * @return array The types
      */
     public function getTypes(): array
     {
@@ -189,11 +189,11 @@ class Url
     }
 
     /**
-     * Get base URL for a type
-     * 
-     * @param   string  $type   The type
-     * 
-     * @return  string|null     The base URL
+     * Get base URL for a type.
+     *
+     * @param string $type The type
+     *
+     * @return null|string The base URL
      */
     public function getBase(string $type): ?string
     {
@@ -201,11 +201,11 @@ class Url
     }
 
     /**
-     * Get current patge number
-     * 
-     * @param   string|null     $args   Url args
-     * 
-     * @return  int|false               The page number or false
+     * Get current patge number.
+     *
+     * @param null|string $args Url args
+     *
+     * @return false|int The page number or false
      */
     protected function getPageNumber(?string &$args): int|false
     {
@@ -222,12 +222,12 @@ class Url
     }
 
     /**
-     * Serve document
-     * 
-     * @param   string  $tpl            The template name to serve
-     * @param   string  $content_type   The content type (as of HTTP header)
-     * @param   bool    $http_cache     Use HTTP cache  
-     * @param   bool    $http_etag      Use HTTP etag
+     * Serve document.
+     *
+     * @param string $tpl          The template name to serve
+     * @param string $content_type The content type (as of HTTP header)
+     * @param bool   $http_cache   Use HTTP cache
+     * @param bool   $http_etag    Use HTTP etag
      */
     protected function serveDocument(string $tpl, string $content_type = 'text/html', bool $http_cache = true, bool $http_etag = true): void
     {
@@ -266,7 +266,7 @@ class Url
         $result['blogupddt']    = dotclear()->blog()->upddt;
         $result['headers']      = headers_list();
 
-        # --BEHAVIOR-- urlHandlerServeDocument
+        // --BEHAVIOR-- urlHandlerServeDocument
         dotclear()->behavior()->call('urlHandlerServeDocument', $result);
 
         if (dotclear()->context()->get('http_cache') && dotclear()->context()->get('http_etag')) {
@@ -276,8 +276,8 @@ class Url
     }
 
     /**
-     * Get document
-     * 
+     * Get document.
+     *
      * Parse URL query and search registered URL handler
      */
     public function getDocument(): void
@@ -290,7 +290,7 @@ class Url
             $part = '';
             $qs   = $this->parseQueryString();
 
-            # Recreates some _GET and _REQUEST pairs
+            // Recreates some _GET and _REQUEST pairs
             if (!empty($qs)) {
                 foreach ($_GET as $k => $v) {
                     if (isset($_REQUEST[$k])) {
@@ -315,7 +315,7 @@ class Url
 
         $this->getArgs($part, $type, $this->args);
 
-        # --BEHAVIOR-- urlHandlerGetArgsDocument
+        // --BEHAVIOR-- urlHandlerGetArgsDocument
         dotclear()->behavior()->call('urlHandlerGetArgsDocument', $this);
 
         if (!$type) {
@@ -328,11 +328,11 @@ class Url
     }
 
     /**
-     * Parse URL arguments
-     * 
-     * @param   string|null     $part   The part
-     * @param   string|null     $type   The type
-     * @param   string|null     $args   The arguments
+     * Parse URL arguments.
+     *
+     * @param null|string $part The part
+     * @param null|string $type The type
+     * @param null|string $args The arguments
      */
     public function getArgs(?string $part, ?string &$type, ?string &$args): void
     {
@@ -352,7 +352,8 @@ class Url
                 $args = null;
 
                 return;
-            } elseif (preg_match('#' . $repr . '#', (string) $part, $m)) {
+            }
+            if (preg_match('#' . $repr . '#', (string) $part, $m)) {
                 $type = $k;
                 $args = $m[1] ?? null;
 
@@ -360,15 +361,15 @@ class Url
             }
         }
 
-        # No type, pass args to default
+        // No type, pass args to default
         $args = $part;
     }
 
     /**
-     * Call URL handler
-     * 
-     * @param   string          $type   The type
-     * @param   string|null     $args   The arguments
+     * Call URL handler.
+     *
+     * @param string      $type The type
+     * @param null|string $args The arguments
      */
     public function callHandler(string $type, ?string $args): void
     {
@@ -389,15 +390,15 @@ class Url
                     return;
                 }
             }
-            # propagate CoreException, as it has not been processed by handlers
+            // propagate CoreException, as it has not been processed by handlers
             throw $e;
         }
     }
 
     /**
-     * Call default URL handler
-     * 
-     * @param   string|null     $args   The arguments
+     * Call default URL handler.
+     *
+     * @param null|string $args The arguments
      */
     public function callDefaultHandler(?string $args): void
     {
@@ -413,15 +414,15 @@ class Url
                     return;
                 }
             }
-            # propagate CoreException, as it has not been processed by handlers
+            // propagate CoreException, as it has not been processed by handlers
             throw $e;
         }
     }
 
     /**
-     * Parse query string
-     * 
-     * @return  array   The arguments
+     * Parse query string.
+     *
+     * @return array The arguments
      */
     protected function parseQueryString(): array
     {
@@ -431,7 +432,7 @@ class Url
             foreach ($q as $v) {
                 $t = explode('=', $v, 2);
 
-                $t[0] = rawurldecode($t[0]);
+                $t[0]     = rawurldecode($t[0]);
                 $T[$t[0]] = isset($t[1]) ? urldecode($t[1]) : null;
             }
 
@@ -442,7 +443,7 @@ class Url
     }
 
     /**
-     * Sort types
+     * Sort types.
      */
     protected function sortTypes(): void
     {
@@ -454,7 +455,7 @@ class Url
     }
 
     /**
-     * Get page 404
+     * Get page 404.
      */
     public function p404(): void
     {
@@ -462,13 +463,12 @@ class Url
     }
 
     /**
-     * Get default page 404
-     * 
-     * @param   string|null     $args   The arguments
-     * @param   string|null     $type   The type
-     * @param   \Exception       $e
+     * Get default page 404.
+     *
+     * @param null|string $args The arguments
+     * @param null|string $type The type
      */
-    public function default404(?string $args, ?string $type, \Exception $e): void
+    public function default404(?string $args, ?string $type, Exception $e): void
     {
         if ($e->getCode() != 404) {
             throw $e;
@@ -476,22 +476,22 @@ class Url
 
         header('Content-Type: text/html; charset=UTF-8');
         Http::head(404, 'Not Found');
-        dotclear()->url()->type    = '404';
+        dotclear()->url()->type = '404';
         dotclear()->context()->set('current_tpl', '404.html');
         dotclear()->context()->set('content_type', 'text/html');
 
         echo dotclear()->template()->getData(dotclear()->context()->set('current_tpl'));
 
-        # --BEHAVIOR-- publicAfterDocument
+        // --BEHAVIOR-- publicAfterDocument
         dotclear()->behavior()->call('publicAfterDocument');
 
         exit;
     }
 
     /**
-     * Get home page
-     * 
-     * @param   string|null     $args   The arguments
+     * Get home page.
+     *
+     * @param null|string $args The arguments
      */
     public function home(?string $args): void
     {
@@ -499,8 +499,8 @@ class Url
         $n = $args ? $this->getPageNumber($args) : dotclear()->context()->page_number();
 
         if ($args && !$n) {
-            # Then specified URL went unrecognized by all URL handlers and
-            # defaults to the home page, but is not a page number.
+            // Then specified URL went unrecognized by all URL handlers and
+            // defaults to the home page, but is not a page number.
             $this->p404();
         } else {
             dotclear()->url()->type = 'default';
@@ -524,9 +524,9 @@ class Url
     }
 
     /**
-     * Get static home page
-     * 
-     * @param   string|null     $args   The arguments
+     * Get static home page.
+     *
+     * @param null|string $args The arguments
      */
     public function static_home(?string $args): void
     {
@@ -541,13 +541,12 @@ class Url
     }
 
     /**
-     * Get search page
+     * Get search page.
      */
     public function search(): void
     {
         if (dotclear()->blog()->settings()->get('system')->get('no_search')) {
-
-            # Search is disabled for this blog.
+            // Search is disabled for this blog.
             $this->p404();
         } else {
             dotclear()->url()->type = 'search';
@@ -564,9 +563,9 @@ class Url
     }
 
     /**
-     * Get lang page
-     * 
-     * @param   string  $args   The lang
+     * Get lang page.
+     *
+     * @param string $args The lang
      */
     public function lang(string $args): void
     {
@@ -578,7 +577,7 @@ class Url
         dotclear()->context()->set('langs', dotclear()->blog()->posts()->getLangs($params));
 
         if (dotclear()->context()->get('langs')->isEmpty()) {
-            # The specified language does not exist.
+            // The specified language does not exist.
             $this->p404();
         } else {
             if ($n) {
@@ -590,29 +589,29 @@ class Url
     }
 
     /**
-     * Get category page
-     * 
-     * @param   string     $args   The category
+     * Get category page.
+     *
+     * @param string $args The category
      */
     public function category(string $args): void
     {
         $n = $this->getPageNumber($args);
 
         if ('' == $args && !$n) {
-            # No category was specified.
+            // No category was specified.
             $this->p404();
         } else {
             $params = new ArrayObject([
                 'cat_url'       => $args,
                 'post_type'     => 'post',
-                'without_empty' => false]);
+                'without_empty' => false, ]);
 
             dotclear()->behavior()->call('publicCategoryBeforeGetCategories', $params, $args);
 
             dotclear()->context()->set('categories', dotclear()->blog()->categories()->getCategories($params));
 
             if (dotclear()->context()->get('categories')->isEmpty()) {
-                # The specified category does no exist.
+                // The specified category does no exist.
                 $this->p404();
             } else {
                 if ($n) {
@@ -624,52 +623,52 @@ class Url
     }
 
     /**
-     * Get archive page
-     * 
-     * @param   string|null     $args   The arguments
+     * Get archive page.
+     *
+     * @param null|string $args The arguments
      */
     public function archive(?string $args): void
     {
-        # Nothing or year and month
+        // Nothing or year and month
         if ('' == $args) {
             $this->serveDocument('archive.html');
         } elseif (preg_match('|^/([0-9]{4})/([0-9]{2})$|', $args, $m)) {
             $params = new ArrayObject([
                 'year'  => $m[1],
                 'month' => $m[2],
-                'type'  => 'month']);
+                'type'  => 'month', ]);
 
             dotclear()->behavior()->call('publicArchiveBeforeGetDates', $params, $args);
 
             dotclear()->context()->set('archives', dotclear()->blog()->posts()->getDates($params->getArrayCopy()));
 
             if (dotclear()->context()->get('archives')->isEmpty()) {
-                # There is no entries for the specified period.
+                // There is no entries for the specified period.
                 $this->p404();
             } else {
                 $this->serveDocument('archive_month.html');
             }
         } else {
-            # The specified URL is not a date.
+            // The specified URL is not a date.
             $this->p404();
         }
     }
 
     /**
-     * Get post page
-     * 
-     * @param   string  $args   The post URL
+     * Get post page.
+     *
+     * @param string $args The post URL
      */
     public function post(string $args): void
     {
         if ('' == $args) {
-            # No entry was specified.
+            // No entry was specified.
             $this->p404();
         } else {
             dotclear()->blog()->withoutPassword(false);
 
             $params = new ArrayObject([
-                'post_url' => $args]);
+                'post_url' => $args, ]);
 
             dotclear()->behavior()->call('publicPostBeforeGetPosts', $params, $args);
 
@@ -684,22 +683,22 @@ class Url
             $cp['preview']    = false;
             $cp['remember']   = false;
             dotclear()->context()->set('comment_preview', $cp);
-            
+
             dotclear()->blog()->withoutPassword(true);
 
             if (dotclear()->context()->get('posts')->isEmpty()) {
-                # The specified entry does not exist.
+                // The specified entry does not exist.
                 $this->p404();
             } else {
                 $post_id       = dotclear()->context()->get('posts')->f('post_id');
                 $post_password = dotclear()->context()->get('posts')->f('post_password');
 
-                # Password protected entry
-                if ($post_password != '' && !dotclear()->context()->get('preview')) {
-                    # Get passwords cookie
+                // Password protected entry
+                if ('' != $post_password && !dotclear()->context()->get('preview')) {
+                    // Get passwords cookie
                     if (isset($_COOKIE['dc_passwd'])) {
                         $pwd_cookie = json_decode($_COOKIE['dc_passwd']);
-                        if ($pwd_cookie === null) {
+                        if (null === $pwd_cookie) {
                             $pwd_cookie = [];
                         } else {
                             $pwd_cookie = (array) $pwd_cookie;
@@ -708,9 +707,9 @@ class Url
                         $pwd_cookie = [];
                     }
 
-                    # Check for match
-                    # Note: We must prefix post_id key with '#'' in pwd_cookie array in order to avoid integer conversion
-                    # because MyArray["12345"] is treated as MyArray[12345]
+                    // Check for match
+                    // Note: We must prefix post_id key with '#'' in pwd_cookie array in order to avoid integer conversion
+                    // because MyArray["12345"] is treated as MyArray[12345]
                     if (!empty($_POST['password']) && $_POST['password'] == $post_password
                         || isset($pwd_cookie['#' . $post_id]) && $pwd_cookie['#' . $post_id] == $post_password
                     ) {
@@ -723,16 +722,16 @@ class Url
                     }
                 }
 
-                $post_comment = isset($_POST['c_name']) && isset($_POST['c_mail']) && isset($_POST['c_site']) && isset($_POST['c_content']) && dotclear()->context()->get('posts')->commentsActive();
+                $post_comment = isset($_POST['c_name'], $_POST['c_mail'], $_POST['c_site'], $_POST['c_content']) && dotclear()->context()->get('posts')->commentsActive();
 
-                # Posting a comment
+                // Posting a comment
                 if ($post_comment) {
-                    # Spam trap
+                    // Spam trap
                     if (!empty($_POST['f_mail'])) {
                         Http::head(412, 'Precondition Failed');
                         header('Content-Type: text/plain');
                         echo 'So Long, and Thanks For All the Fish';
-                        # Exits immediately the application to preserve the server.
+                        // Exits immediately the application to preserve the server.
                         exit;
                     }
 
@@ -743,7 +742,7 @@ class Url
                     $preview = !empty($_POST['preview']);
 
                     if ('' != $content) {
-                        # --BEHAVIOR-- publicBeforeCommentTransform
+                        // --BEHAVIOR-- publicBeforeCommentTransform
                         $buffer = dotclear()->behavior()->call('publicBeforeCommentTransform', $content);
                         if ('' != $buffer) {
                             $content = $buffer;
@@ -758,7 +757,7 @@ class Url
                         $content = Html::filter($content);
                     }
 
-                    $cp = dotclear()->context()->get('comment_preview');
+                    $cp               = dotclear()->context()->get('comment_preview');
                     $cp['content']    = $content;
                     $cp['rawcontent'] = $_POST['c_content'];
                     $cp['name']       = $name;
@@ -766,12 +765,12 @@ class Url
                     $cp['site']       = $site;
 
                     if ($preview) {
-                        # --BEHAVIOR-- publicBeforeCommentPreview
+                        // --BEHAVIOR-- publicBeforeCommentPreview
                         dotclear()->behavior()->call('publicBeforeCommentPreview', $cp);
 
                         $cp['preview'] = true;
                     } else {
-                        # Post the comment
+                        // Post the comment
                         $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
                         $cur->setField('comment_author', $name);
                         $cur->setField('comment_site', Html::clean($site));
@@ -789,12 +788,12 @@ class Url
                                 throw new CoreException(__('You must provide a valid email address.'));
                             }
 
-                            # --BEHAVIOR-- publicBeforeCommentCreate
+                            // --BEHAVIOR-- publicBeforeCommentCreate
                             dotclear()->behavior()->call('publicBeforeCommentCreate', $cur);
                             if ($cur->getField('post_id')) {
                                 $comment_id = dotclear()->blog()->comments()->addComment($cur);
 
-                                # --BEHAVIOR-- publicAfterCommentCreate
+                                // --BEHAVIOR-- publicAfterCommentCreate
                                 dotclear()->behavior()->call('publicAfterCommentCreate', $cur, $comment_id);
                             }
 
@@ -807,14 +806,14 @@ class Url
                             $redir_arg .= filter_var(dotclear()->behavior()->call('publicBeforeCommentRedir', $cur), FILTER_SANITIZE_URL);
 
                             header('Location: ' . $redir . $redir_arg);
-                        } catch (\Exception $e) {
+                        } catch (Exception $e) {
                             dotclear()->context()->set('form_error', $e->getMessage());
                         }
                     }
                     dotclear()->context()->set('comment_preview', $cp);
                 }
 
-                # The entry
+                // The entry
                 if (dotclear()->context()->get('posts')->trackbacksActive()) {
                     header('X-Pingback: ' . dotclear()->blog()->getURLFor('xmlrpc', dotclear()->blog()->id));
                     header('Link: <' . dotclear()->blog()->getURLFor('webmention') . '>; rel="webmention"');
@@ -825,21 +824,21 @@ class Url
     }
 
     /**
-     * Get preview page (for admin)
-     * 
-     * @param   string  $args   The preview URL
+     * Get preview page (for admin).
+     *
+     * @param string $args The preview URL
      */
     public function preview(string $args): void
     {
         if (!preg_match('#^(.+?)/([0-9a-z]{40})/(.+?)$#', $args, $m)) {
-            # The specified Preview URL is malformed.
+            // The specified Preview URL is malformed.
             $this->p404();
         } else {
             $user_id  = $m[1];
             $user_key = $m[2];
             $post_url = $m[3];
             if (!dotclear()->user()->checkUser($user_id, null, $user_key)) {
-                # The user has no access to the entry.
+                // The user has no access to the entry.
                 $this->p404();
             } else {
                 dotclear()->context()->set('preview', true);
@@ -852,9 +851,9 @@ class Url
     }
 
     /**
-     * Get feed page
-     * 
-     * @param   string     $args   The arguments
+     * Get feed page.
+     *
+     * @param string $args The arguments
      */
     public function feed(string $args): void
     {
@@ -876,7 +875,7 @@ class Url
             dotclear()->context()->set('langs', dotclear()->blog()->posts()->getLangs($params));
 
             if (dotclear()->context()->get('langs')->isEmpty()) {
-                # The specified language does not exist.
+                // The specified language does not exist.
                 $this->p404();
 
                 return;
@@ -885,25 +884,26 @@ class Url
         }
 
         if (preg_match('#^rss2/xslt$#', $args, $m)) {
-            # RSS XSLT stylesheet
+            // RSS XSLT stylesheet
             Http::$cache_max_age = 60 * 60;
             $this->serveDocument('rss2.xsl', 'text/xml');
 
             return;
-        } elseif (preg_match('#^(atom|rss2)/comments/([0-9]+)$#', $args, $m)) {
-            # Post comments feed
+        }
+        if (preg_match('#^(atom|rss2)/comments/([0-9]+)$#', $args, $m)) {
+            // Post comments feed
             $type     = $m[1];
             $comments = true;
             $post_id  = (int) $m[2];
         } elseif (preg_match('#^(?:category/(.+)/)?(atom|rss2)(/comments)?$#', $args, $m)) {
-            # All posts or comments feed
+            // All posts or comments feed
             $type     = $m[2];
             $comments = !empty($m[3]);
             if (!empty($m[1])) {
                 $cat_url = $m[1];
             }
         } else {
-            # The specified Feed URL is malformed.
+            // The specified Feed URL is malformed.
             $this->p404();
 
             return;
@@ -912,14 +912,14 @@ class Url
         if ($cat_url) {
             $params = new ArrayObject([
                 'cat_url'   => $cat_url,
-                'post_type' => 'post']);
+                'post_type' => 'post', ]);
 
             dotclear()->behavior()->call('publicFeedBeforeGetCategories', $params, $args);
 
             dotclear()->context()->set('categories', dotclear()->blog()->categories()->getCategories($params));
 
             if (dotclear()->context()->get('categories')->isEmpty()) {
-                # The specified category does no exist.
+                // The specified category does no exist.
                 $this->p404();
 
                 return;
@@ -929,14 +929,14 @@ class Url
         } elseif ($post_id) {
             $params = new ArrayObject([
                 'post_id'   => $post_id,
-                'post_type' => '']);
+                'post_type' => '', ]);
 
             dotclear()->behavior()->call('publicFeedBeforeGetPosts', $params, $args);
 
             dotclear()->context()->set('posts', dotclear()->blog()->posts()->getPosts($params));
 
             if (dotclear()->context()->get('posts')->isEmpty()) {
-                # The specified post does not exist.
+                // The specified post does not exist.
                 $this->p404();
 
                 return;
@@ -969,24 +969,24 @@ class Url
     }
 
     /**
-     * Get trackback action page
-     * 
-     * @param   string     $args   The trackback id
+     * Get trackback action page.
+     *
+     * @param string $args The trackback id
      */
     public function trackback(string $args): void
     {
         if (!preg_match('/^[0-9]+$/', $args)) {
-            # The specified trackback URL is not an number
+            // The specified trackback URL is not an number
             $this->p404();
         } else {
             // Save locally post_id from args
             $post_id = (int) $args;
 
-            $args = [];
+            $args            = [];
             $args['post_id'] = $post_id;
             $args['type']    = 'trackback';
 
-            # --BEHAVIOR-- publicBeforeReceiveTrackback
+            // --BEHAVIOR-- publicBeforeReceiveTrackback
             dotclear()->behavior()->call('publicBeforeReceiveTrackback', $args);
 
             $trackback = new Trackback();
@@ -995,15 +995,15 @@ class Url
     }
 
     /**
-     * Get webmention action page
-     * 
-     * @param   string|null     $args   The arguments
+     * Get webmention action page.
+     *
+     * @param null|string $args The arguments
      */
     public function webmention(?string $args): void
     {
         $args = ['type' => 'webmention'];
 
-        # --BEHAVIOR-- publicBeforeReceiveTrackback
+        // --BEHAVIOR-- publicBeforeReceiveTrackback
         dotclear()->behavior()->call('publicBeforeReceiveTrackback', $args);
 
         $trackback = new Trackback();
@@ -1011,17 +1011,16 @@ class Url
     }
 
     /**
-     * Get rsd page
-     * 
-     * @param   string|null     $args   The arguments
+     * Get rsd page.
+     *
+     * @param null|string $args The arguments
      */
     public function rsd(?string $args): void
     {
         Http::cache($this->mod_files, $this->mod_ts);
 
         header('Content-Type: text/xml; charset=UTF-8');
-        echo
-        '<?xml version="1.0" encoding="UTF-8"?>' . "\n" .
+        echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n" .
         '<rsd version="1.0" xmlns="http://archipelago.phrasewise.com/rsd">' . "\n" .
         "<service>\n" .
         "  <engineName>Dotclear</engineName>\n" .
@@ -1031,8 +1030,7 @@ class Url
         if (dotclear()->blog()->settings()->get('system')->get('enable_xmlrpc')) {
             $u = sprintf(dotclear()->config()->get('xmlrpc_url'), dotclear()->blog()->url, dotclear()->blog()->id);
 
-            echo
-                "  <apis>\n" .
+            echo "  <apis>\n" .
                 '    <api name="WordPress" blogID="1" preferred="true" apiLink="' . $u . '"/>' . "\n" .
                 '    <api name="Movable Type" blogID="1" preferred="false" apiLink="' . $u . '"/>' . "\n" .
                 '    <api name="MetaWeblog" blogID="1" preferred="false" apiLink="' . $u . '"/>' . "\n" .
@@ -1040,27 +1038,26 @@ class Url
                 "  </apis>\n";
         }
 
-        echo
-            "</service>\n" .
+        echo "</service>\n" .
             "</rsd>\n";
     }
 
     /**
-     * Get xml rpc page
-     * 
-     * @param   string  $args   The blog id
+     * Get xml rpc page.
+     *
+     * @param string $args The blog id
      */
     public function xmlrpc(string $args): void
     {
         $blog_id = preg_replace('#^([^/]*).*#', '$1', $args);
-        $xmlrpc = new Xmlrpc($blog_id);
+        $xmlrpc  = new Xmlrpc($blog_id);
         $xmlrpc->serve();
     }
 
     /**
-     * Get resource
-     * 
-     * @param   string     $args   The arguments
+     * Get resource.
+     *
+     * @param string $args The arguments
      */
     public function resources(string $args): void
     {
@@ -1070,7 +1067,7 @@ class Url
 
         $dirs = [];
 
-        # Check if it in Var path
+        // Check if it in Var path
         $var_args = explode('/', $args);
         $var_path = dotclear()->config()->get('var_dir');
         if (1 < count($var_args) && 'var' == array_shift($var_args) && !empty($var_path) && is_dir($var_path)) {
@@ -1078,20 +1075,20 @@ class Url
             $args   = implode('/', $var_args);
         }
 
-        # Try to find module id and type
+        // Try to find module id and type
         if (empty($dirs)) {
-            # Public url should be resources/ModuleType/ModuleId/a_sub_folder/a_file.ext
+            // Public url should be resources/ModuleType/ModuleId/a_sub_folder/a_file.ext
             $module_args = explode('/', $args);
             if (2 < count($module_args)) {
                 $module_type = array_shift($module_args);
                 $module_id   = array_shift($module_args);
 
-                # Check module type
+                // Check module type
                 $modules_class = 'Dotclear\\Module\\' . $module_type . '\\Public\\Modules' . $module_type;
                 if (is_subclass_of($modules_class, 'Dotclear\\Module\\AbstractModules')) {
                     $modules = new $modules_class(null, true);
-                    # Chek if module path exists
-                    foreach($modules->getModulesPath() as $modules_path) {
+                    // Chek if module path exists
+                    foreach ($modules->getModulesPath() as $modules_path) {
                         if (is_dir(Path::implode($modules_path, $module_id))) {
                             $dirs[] = Path::implode($modules_path, $module_id, 'Public', 'resources');
                             $dirs[] = Path::implode($modules_path, $module_id, 'Common', 'resources');
@@ -1104,7 +1101,7 @@ class Url
             }
         }
 
-        # Current Theme paths
+        // Current Theme paths
         if (empty($dirs) && dotclear()->themes()) {
             $dirs = array_merge(
                 array_values(dotclear()->themes()->getThemePath('Public/resources')),
@@ -1112,17 +1109,17 @@ class Url
             );
         }
 
-        # Blog public path
+        // Blog public path
         if (dotclear()->blog()) {
             $dirs[] = dotclear()->blog()->public_path;
         }
 
-        # List other available file paths
+        // List other available file paths
         $dirs[] = Path::implodeRoot('Process', 'Public', 'resources');
         $dirs[] = Path::implodeRoot('Core', 'resources', 'css');
         $dirs[] = Path::implodeRoot('Core', 'resources', 'js');
 
-        # Search file
+        // Search file
         if (!($file = Files::serveFile($args, $dirs, dotclear()->config()->get('file_sever_type'), false, true))) {
             $this->p404();
         }
@@ -1141,7 +1138,7 @@ class Url
     }
 
     /**
-     * Get additionnal headers
+     * Get additionnal headers.
      */
     protected function additionalHeaders()
     {
@@ -1161,7 +1158,7 @@ class Url
             $headers->append($header);
         }
 
-        # --BEHAVIOR-- urlHandlerServeDocumentHeaders
+        // --BEHAVIOR-- urlHandlerServeDocumentHeaders
         dotclear()->behavior()->call('urlHandlerServeDocumentHeaders', $headers);
 
         // Send additional headers if any

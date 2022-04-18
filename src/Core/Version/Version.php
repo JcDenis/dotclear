@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Core\Version\Version
+ * @note Dotclear\Core\Version\Version
  * @brief Dotclear core version class
  *
- * @package Dotclear
- * @subpackage Instance
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,27 +18,28 @@ use Dotclear\Database\Statement\DeleteStatement;
 
 class Version
 {
-    /** @var    string  The version table name */
+    /** @var string The version table name */
     protected $table = 'version';
 
-    /** @var    array<string, string>   The versions stack */
-    protected $stack = null;
+    /** @var array<string, string>   The versions stack */
+    protected $stack;
 
     /**
      * Get the version of a module.
      *
-     * @param   string  $module     The module
+     * @param string $module The module
      *
-     * @return  string|null         The version.
+     * @return null|string the version
      */
     public function get(string $module = 'core'): ?string
     {
-        # Fetch versions if needed
+        // Fetch versions if needed
         if (!is_array($this->stack)) {
             $rs = SelectStatement::init(__METHOD__)
                 ->columns(['module', 'version'])
                 ->from(dotclear()->prefix . $this->table)
-                ->select();
+                ->select()
+            ;
 
             while ($rs->fetch()) {
                 $this->stack[$rs->f('module')] = $rs->f('version');
@@ -52,8 +52,8 @@ class Version
     /**
      * Set the version of a module.
      *
-     * @param   string  $module     The module
-     * @param   string  $version    The version
+     * @param string $module  The module
+     * @param string $version The version
      */
     public function set(string $module, string $version): void
     {
@@ -64,29 +64,31 @@ class Version
         $sql = new InsertStatement(__METHOD__);
         $sql->from(dotclear()->prefix . $this->table)
             ->columns([
-                'module', 
+                'module',
                 'version',
             ])
             ->line([[
-                $sql->quote($module), 
+                $sql->quote($module),
                 $sql->quote($version),
             ]])
-            ->insert();
+            ->insert()
+        ;
 
         $this->stack[$module] = $version;
     }
 
     /**
-     * Remove a module version entry
+     * Remove a module version entry.
      *
-     * @param   string  $module     The module
+     * @param string $module The module
      */
     public function delete(string $module): void
     {
         $sql = new DeleteStatement(__METHOD__);
         $sql->from(dotclear()->prefix . $this->table)
             ->where('module = ' . $sql->quote($module))
-            ->delete();
+            ->delete()
+        ;
 
         if (is_array($this->stack)) {
             unset($this->stack[$module]);
@@ -96,12 +98,12 @@ class Version
     /**
      * Compare two versions with option of using only main numbers.
      *
-     * @param   string  $current_version    Current version
-     * @param   string  $required_version   Required version
-     * @param   string  $operator           Comparison operand
-     * @param   bool    $strict             Use full version
+     * @param string $current_version  Current version
+     * @param string $required_version Required version
+     * @param string $operator         Comparison operand
+     * @param bool   $strict           Use full version
      *
-     * @return  bool                        True if comparison success
+     * @return bool True if comparison success
      */
     public function compare(string $current_version, string $required_version, string $operator = '>=', bool $strict = true): bool
     {

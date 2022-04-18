@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Tags\Common\TagsWidgets
+ * @note Dotclear\Plugin\Tags\Common\TagsWidgets
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginTags
+ * @ingroup  PluginTags
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,7 +12,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Tags\Common;
 
-use ArrayObject;
 use Dotclear\Database\Record;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Plugin\Widgets\Common\Widget;
@@ -59,7 +57,8 @@ class TagsWidgets
             ->addHomeOnly()
             ->addContentOnly()
             ->addClass()
-            ->addOffline();
+            ->addOffline()
+        ;
     }
 
     public function initDefaultWidgets(Widgets $w, array $d): void
@@ -138,9 +137,9 @@ class TagsWidgets
         }
 
         return $widget->renderDiv(
-            $widget->get('content_only'), 
-            'tags ' . $widget->get('class'), 
-            '', 
+            $widget->get('content_only'),
+            'tags ' . $widget->get('class'),
+            '',
             $widget->renderTitle() . $res
         );
     }

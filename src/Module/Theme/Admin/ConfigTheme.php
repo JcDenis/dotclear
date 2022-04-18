@@ -1,13 +1,13 @@
 <?php
 /**
- * @class Dotclear\Module\Theme\Admin\ConfigTheme
+ * @note Dotclear\Module\Theme\Admin\ConfigTheme
  * @brief Helper for theme configurators.
+ *
  * @since 2.7
  *
  * Provides helper tools for theme configurators.
  *
- * @package Dotclear
- * @subpackage Theme
+ * @ingroup  Module
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,33 +17,32 @@ declare(strict_types=1);
 namespace Dotclear\Module\Theme\Admin;
 
 use Dotclear\Exception\ModuleException;
-
-use Dotclear\Core\Media;
-
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Files;
+use Exception;
+use ArrayObject;
 
 class ConfigTheme
 {
     /**
-     * Compute contrast ratio between two colors
+     * Compute contrast ratio between two colors.
      *
-     * @param  string $color      text color
-     * @param  string $background background color
+     * @param string $color      text color
+     * @param string $background background color
      *
-     * @return float             computed ratio
+     * @return float computed ratio
      */
     public function computeContrastRatio($color, $background)
     {
         // Compute contrast ratio between two colors
 
         $color = $this->adjustColor($color);
-        if (($color == '') || (strlen($color) != 7)) {
+        if (('' == $color) || (strlen($color) != 7)) {
             return 0;
         }
 
         $background = $this->adjustColor($background);
-        if (($background == '') || (strlen($background) != 7)) {
+        if (('' == $background) || (strlen($background) != 7)) {
             return 0;
         }
 
@@ -61,17 +60,17 @@ class ConfigTheme
     }
 
     /**
-     * Compute WCAG contrast ration level
+     * Compute WCAG contrast ration level.
      *
-     * @param  float  $ratio computed ratio between foreground and backround color
-     * @param  string  $size  font size as defined in CSS
-     * @param  boolean $bold  true if bold font
+     * @param float  $ratio computed ratio between foreground and backround color
+     * @param string $size  font size as defined in CSS
+     * @param bool   $bold  true if bold font
      *
-     * @return string         WCAG contrast ratio level (AAA, AA or <nothing>)
+     * @return string WCAG contrast ratio level (AAA, AA or <nothing>)
      */
     public function contrastRatioLevel($ratio, $size, $bold = false)
     {
-        if ($size == '') {
+        if ('' == $size) {
             return '';
         }
 
@@ -84,27 +83,30 @@ class ConfigTheme
             return '';
         }
         $s = match ($m[2]) {
-            '%'  => (float) $m[1] / 100,
-            'pt' => (float) $m[1] / 12,
-            'px' => (float) $m[1] / 16,
-            'em' => (float) $m[1],
-            'ex' => (float) $m[1] / 2,
+            '%'     => (float) $m[1] / 100,
+            'pt'    => (float) $m[1] / 12,
+            'px'    => (float) $m[1] / 16,
+            'em'    => (float) $m[1],
+            'ex'    => (float) $m[1] / 2,
             default => false,
         };
         if (false === $s) {
             return '';
         }
 
-        $large = ((($s > 1.5) && ($bold == false)) || (($s > 1.2) && ($bold == true)));
+        $large = (((1.5 < $s) && (false == $bold)) || ((1.2 < $s) && (true == $bold)));
 
         // Check ratio
-        if ($ratio > 7) {
+        if (7 < $ratio) {
             return 'AAA';
-        } elseif (($ratio > 4.5) && $large) {
+        }
+        if ((4.5 < $ratio) && $large) {
             return 'AAA';
-        } elseif ($ratio > 4.5) {
+        }
+        if (4.5 < $ratio) {
             return 'AA';
-        } elseif (($ratio > 3) && $large) {
+        }
+        if ((3 < $ratio) && $large) {
             return 'AA';
         }
 
@@ -112,35 +114,35 @@ class ConfigTheme
     }
 
     /**
-     * Return full information about constrat ratio
+     * Return full information about constrat ratio.
      *
-     * @param  string  $color      text color
-     * @param  string  $background background color
-     * @param  string  $size       font size
-     * @param  boolean $bold       bold font
+     * @param string $color      text color
+     * @param string $background background color
+     * @param string $size       font size
+     * @param bool   $bold       bold font
      *
-     * @return string              contrast ratio including WCAG level
+     * @return string contrast ratio including WCAG level
      */
     public function contrastRatio($color, $background, $size = '', $bold = false)
     {
-        if (($color != '') && ($background != '')) {
+        if (('' != $color) && ('' != $background)) {
             $ratio = $this->computeContrastRatio($color, $background);
             $level = $this->contrastRatioLevel($ratio, $size, $bold);
 
             return
             sprintf(__('ratio %.1f'), $ratio) .
-                ($level != '' ? ' ' . sprintf(__('(%s)'), $level) : '');
+                ('' != $level ? ' ' . sprintf(__('(%s)'), $level) : '');
         }
 
         return '';
     }
 
     /**
-     * Check font size
+     * Check font size.
      *
-     * @param  string $s font size
+     * @param string $s font size
      *
-     * @return mixed    checked font size
+     * @return mixed checked font size
      */
     public function adjustFontSize($s)
     {
@@ -158,11 +160,11 @@ class ConfigTheme
     }
 
     /**
-     * Check object position, should be x:y
+     * Check object position, should be x:y.
      *
-     * @param  string $p position
+     * @param string $p position
      *
-     * @return mixed    checked position
+     * @return mixed checked position
      */
     public function adjustPosition($p)
     {
@@ -179,11 +181,11 @@ class ConfigTheme
     }
 
     /**
-     * Check a CSS color
+     * Check a CSS color.
      *
-     * @param  string $c CSS color
+     * @param string $c CSS color
      *
-     * @return string    checked CSS color
+     * @return string checked CSS color
      */
     public function adjustColor($c)
     {
@@ -207,11 +209,11 @@ class ConfigTheme
     }
 
     /**
-     * Check and clean CSS
+     * Check and clean CSS.
      *
-     * @param  string $css CSS to be checked
+     * @param string $css CSS to be checked
      *
-     * @return string      checked CSS
+     * @return string checked CSS
      */
     public function cleanCSS($css)
     {
@@ -220,11 +222,11 @@ class ConfigTheme
     }
 
     /**
-     * Return real path of a user defined CSS
+     * Return real path of a user defined CSS.
      *
-     * @param  string $folder CSS folder
+     * @param string $folder CSS folder
      *
-     * @return string         real path of CSS
+     * @return string real path of CSS
      */
     public function cssPath($folder)
     {
@@ -232,11 +234,11 @@ class ConfigTheme
     }
 
     /**
-     * Retirn URL of a user defined CSS
+     * Retirn URL of a user defined CSS.
      *
-     * @param  string $folder CSS folder
+     * @param string $folder CSS folder
      *
-     * @return string         CSS URL
+     * @return string CSS URL
      */
     public function cssURL($folder)
     {
@@ -244,12 +246,12 @@ class ConfigTheme
     }
 
     /**
-     * Check if user defined CSS may be written
+     * Check if user defined CSS may be written.
      *
-     * @param  string  $folder CSS folder
-     * @param  boolean $create create CSS folder if necessary
+     * @param string $folder CSS folder
+     * @param bool   $create create CSS folder if necessary
      *
-     * @return boolean          true if CSS folder exists and may be written, else false
+     * @return bool true if CSS folder exists and may be written, else false
      */
     public function canWriteCss($folder, $create = false)
     {
@@ -285,12 +287,12 @@ class ConfigTheme
     }
 
     /**
-     * Store CSS property value in associated array
+     * Store CSS property value in associated array.
      *
-     * @param  \ArrayObject $css       CSS associated array
-     * @param  string $selector selector
-     * @param  string $prop     property
-     * @param  string $value    value
+     * @param ArrayObject $css      CSS associated array
+     * @param string      $selector selector
+     * @param string      $prop     property
+     * @param string      $value    value
      */
     public function prop($css, $selector, $prop, $value)
     {
@@ -300,13 +302,13 @@ class ConfigTheme
     }
 
     /**
-     * Store background image property in CSS associated array
+     * Store background image property in CSS associated array.
      *
-     * @param  string $folder   image folder
-     * @param  array $css       CSS associated array
-     * @param  string $selector selector
-     * @param  boolean $value   false for default, true if image should be set
-     * @param  string $image    image filename
+     * @param string $folder   image folder
+     * @param array  $css      CSS associated array
+     * @param string $selector selector
+     * @param bool   $value    false for default, true if image should be set
+     * @param string $image    image filename
      */
     public function backgroundImg($folder, &$css, $selector, $value, $image)
     {
@@ -317,11 +319,11 @@ class ConfigTheme
     }
 
     /**
-     * Write CSS file
+     * Write CSS file.
      *
-     * @param  string $folder CSS folder
-     * @param  string $theme  CSS filename
-     * @param  string $css    CSS file content
+     * @param string $folder CSS folder
+     * @param string $theme  CSS filename
+     * @param string $css    CSS file content
      */
     public function writeCss($folder, $theme, $css)
     {
@@ -329,10 +331,10 @@ class ConfigTheme
     }
 
     /**
-     * Delete CSS file
+     * Delete CSS file.
      *
-     * @param  string $folder CSS folder
-     * @param  string $theme  CSS filename to be removed
+     * @param string $folder CSS folder
+     * @param string $theme  CSS filename to be removed
      */
     public function dropCss($folder, $theme)
     {
@@ -346,11 +348,11 @@ class ConfigTheme
     }
 
     /**
-     * Return public URL of user defined CSS
+     * Return public URL of user defined CSS.
      *
-     * @param  string $folder CSS folder
+     * @param string $folder CSS folder
      *
-     * @return mixed         CSS file URL
+     * @return mixed CSS file URL
      */
     public function publicCssUrlHelper($folder)
     {
@@ -364,11 +366,11 @@ class ConfigTheme
     }
 
     /**
-     * Return real path of folder images
+     * Return real path of folder images.
      *
-     * @param  string $folder images folder
+     * @param string $folder images folder
      *
-     * @return string         real path of folder
+     * @return string real path of folder
      */
     public function imagesPath($folder)
     {
@@ -376,11 +378,11 @@ class ConfigTheme
     }
 
     /**
-     * Return URL of images folder
+     * Return URL of images folder.
      *
-     * @param  string $folder images folder
+     * @param string $folder images folder
      *
-     * @return string         URL of images folder
+     * @return string URL of images folder
      */
     public function imagesURL($folder)
     {
@@ -388,12 +390,12 @@ class ConfigTheme
     }
 
     /**
-     * Check if images folder exists and may be written
+     * Check if images folder exists and may be written.
      *
-     * @param  string  $folder images folder
-     * @param  boolean $create create the folder if not exists
+     * @param string $folder images folder
+     * @param bool   $create create the folder if not exists
      *
-     * @return boolean          true if folder exists and may be written
+     * @return bool true if folder exists and may be written
      */
     public function canWriteImages($folder, $create = false)
     {
@@ -436,13 +438,13 @@ class ConfigTheme
     }
 
     /**
-     * Upload an image in images folder
+     * Upload an image in images folder.
      *
-     * @param  string $folder images folder
-     * @param  array  $f      selected image file (as $_FILES[<file input fieldname>])
-     * @param  int    $width  check accurate width of uploaded image if <> 0
+     * @param string $folder images folder
+     * @param array  $f      selected image file (as $_FILES[<file input fieldname>])
+     * @param int    $width  check accurate width of uploaded image if <> 0
      *
-     * @return string         full pathname of uploaded image
+     * @return string full pathname of uploaded image
      */
     public function uploadImage($folder, $f, $width = 0)
     {
@@ -453,13 +455,13 @@ class ConfigTheme
         $name = $f['name'];
         $type = Files::getMimeType($name);
 
-        if ($type != 'image/jpeg' && $type != 'image/png') {
+        if ('image/jpeg' != $type && 'image/png' != $type) {
             throw new ModuleException(__('Invalid file type.'));
         }
 
-        $dest = $this->imagesPath($folder) . '/uploaded' . ($type == 'image/png' ? '.png' : '.jpg');
+        $dest = $this->imagesPath($folder) . '/uploaded' . ('image/png' == $type ? '.png' : '.jpg');
 
-        if (@move_uploaded_file($f['tmp_name'], $dest) === false) {
+        if (false === @move_uploaded_file($f['tmp_name'], $dest)) {
             throw new ModuleException(__('An error occurred while writing the file.'));
         }
 
@@ -474,10 +476,10 @@ class ConfigTheme
     }
 
     /**
-     * Delete an image from images folder (with its thumbnails if any)
+     * Delete an image from images folder (with its thumbnails if any).
      *
-     * @param  string $folder images folder
-     * @param  string $img    image filename
+     * @param string $folder images folder
+     * @param string $img    image filename
      */
     public function dropImage($folder, $img)
     {
@@ -493,7 +495,7 @@ class ConfigTheme
                 // Delete thumbnails if any
                 try {
                     dotclear()->media()->imageThumbRemove($img);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     dotclear()->error()->add($e->getMessage());
                 }
             }

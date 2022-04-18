@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Breadcrumb\Admin\Prepend
+ * @note Dotclear\Plugin\Breadcrumb\Admin\Prepend
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginBreadcrumb
+ * @ingroup  PluginBreadcrumb
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,7 +14,6 @@ namespace Dotclear\Plugin\Breadcrumb\Admin;
 
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
-use Dotclear\Plugin\Breadcrumb\Admin\BreadcrumbBehavior;
 
 class Prepend extends AbstractPrepend
 {

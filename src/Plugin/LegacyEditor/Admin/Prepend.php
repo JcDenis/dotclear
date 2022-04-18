@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\LegacyEditor\Admin\Prepend
+ * @note Dotclear\Plugin\LegacyEditor\Admin\Prepend
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginLegacyEditor
+ * @ingroup  PluginLegacyEditor
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,8 +14,6 @@ namespace Dotclear\Plugin\LegacyEditor\Admin;
 
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
-use Dotclear\Plugin\LegacyEditor\Admin\LegacyEditorBehavior;
-use Dotclear\Plugin\LegacyEditor\Admin\LegacyEditorRest;
 
 class Prepend extends AbstractPrepend
 {
@@ -25,7 +22,6 @@ class Prepend extends AbstractPrepend
     public function loadModule(): void
     {
         if (!dotclear()->blog()->settings()->get('LegacyEditor')->get('active')) {
-
             return;
         }
 

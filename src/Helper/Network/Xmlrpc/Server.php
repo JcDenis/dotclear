@@ -1,7 +1,21 @@
 <?php
 /**
- * @class Dotclear\Helper\Network\Xmlrpc\Server
- * @brief Basic XML-RPC Server
+ * @package Dotclear
+ *
+ * @copyright Olivier Meunier & Association Dotclear
+ * @copyright GPL-2.0-only
+ */
+declare(strict_types=1);
+
+namespace Dotclear\Helper\Network\Xmlrpc;
+
+use Dotclear\Exception\NetworkException;
+use Exception;
+
+/**
+ * Basic XML-RPC Server.
+ *
+ * \Dotclear\Helper\Network\Xmlrpc\Server
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
@@ -15,44 +29,31 @@
  * - system.listMethods
  * - system.multicall
  *
- * @package Dotclear
- * @subpackage Network
- *
- * @copyright Olivier Meunier & Association Dotclear
- * @copyright GPL-2.0-only
+ * @ingroup  Helper Network Xmlrpc
  */
-declare(strict_types=1);
-
-namespace Dotclear\Helper\Network\Xmlrpc;
-
-use Dotclear\Exception\NetworkException;
-use Dotclear\Helper\Network\Xmlrpc\Message;
-use Dotclear\Helper\Network\Xmlrpc\Value;
-use Dotclear\Helper\Network\Xmlrpc\XmlrpcException;
-
 class Server
 {
-    /** @var    array   $callbacks  Server methods */
+    /** @var array Server methods */
     protected $callbacks = [];
 
-    /** @var    string  $data   Received data */
+    /** @var string Received data */
     protected $data;
 
-    /** @var    Message     $message    Xmlrpc returned message */
+    /** @var Message Xmlrpc returned message */
     protected $message;
 
-    /** @var    array   $capabilities   Server capabilities */
+    /** @var array Server capabilities */
     protected $capabilities;
 
-    /** @var    bool    $strict_check   Strict XML-RPC checks */
+    /** @var bool Strict XML-RPC checks */
     public $strict_check = false;
 
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param   array|false     $callbacks  Server callbacks
-     * @param   mixed           $data       Server data
-     * @param   string          $encoding   Server encoding
+     * @param array|false $callbacks Server callbacks
+     * @param mixed       $data      Server data
+     * @param string      $encoding  Server encoding
      */
     public function __construct(array|false $callbacks = false, mixed $data = false, protected string $encoding = 'UTF-8')
     {
@@ -65,25 +66,25 @@ class Server
     }
 
     /**
-     * Start XML-RPC Server
+     * Start XML-RPC Server.
      *
      * This method starts the XML-RPC Server. It could take a data argument
      * which should be a valid XML-RPC raw stream. If data is not specified, it
      * take values from raw POST data.
      *
-     * @param   mixed   $data   XML-RPC raw stream
+     * @param mixed $data XML-RPC raw stream
      */
     public function serve(mixed $data = false): void
     {
         $result = null;
         if (!$data) {
             try {
-                # Check HTTP Method
-                if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+                // Check HTTP Method
+                if ('POST' != $_SERVER['REQUEST_METHOD']) {
                     throw new NetworkException('XML-RPC server accepts POST requests only.', 405);
                 }
 
-                # Check HTTP_HOST
+                // Check HTTP_HOST
                 if (!isset($_SERVER['HTTP_HOST'])) {
                     throw new NetworkException('No Host Specified', 400);
                 }
@@ -97,24 +98,24 @@ class Server
                 }
 
                 if ($this->strict_check) {
-                    # Check USER_AGENT
+                    // Check USER_AGENT
                     if (!isset($_SERVER['HTTP_USER_AGENT'])) {
                         throw new NetworkException('No User Agent Specified', 400);
                     }
 
-                    # Check CONTENT_TYPE
+                    // Check CONTENT_TYPE
                     if (!isset($_SERVER['CONTENT_TYPE']) || !str_starts_with($_SERVER['CONTENT_TYPE'], 'text/xml')) {
                         throw new NetworkException('Invalid Content-Type', 400);
                     }
 
-                    # Check CONTENT_LENGTH
-                    if (!isset($_SERVER['CONTENT_LENGTH']) || $_SERVER['CONTENT_LENGTH'] != strlen($HTTP_RAW_POST_DATA)) {
+                    // Check CONTENT_LENGTH
+                    if (!isset($_SERVER['CONTENT_LENGTH']) || strlen($HTTP_RAW_POST_DATA) != $_SERVER['CONTENT_LENGTH']) {
                         throw new NetworkException('Invalid Content-Lenth', 400);
                     }
                 }
 
                 $data = $HTTP_RAW_POST_DATA;
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 if ($e->getCode() == 400) {
                     $this->head(400, 'Bad Request');
                 } elseif ($e->getCode() == 405) {
@@ -124,6 +125,7 @@ class Server
 
                 header('Content-Type: text/plain');
                 echo $e->getMessage();
+
                 exit;
             }
         }
@@ -133,20 +135,20 @@ class Server
         try {
             $this->message->parse();
 
-            if ($this->message->messageType != 'methodCall') {
+            if ('methodCall' != $this->message->messageType) {
                 throw new XmlrpcException('Server error. Invalid xml-rpc. not conforming to spec. Request must be a methodCall', -32600);
             }
 
             $result = $this->call($this->message->methodName, $this->message->params);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error($e);
         }
 
-        # Encode the result
+        // Encode the result
         $r         = new Value($result);
         $resultxml = $r->getXml();
 
-        # Create the XML
+        // Create the XML
         $xml = "<methodResponse>\n" .
             "<params>\n" .
             "<param>\n" .
@@ -157,17 +159,17 @@ class Server
             "</params>\n" .
             '</methodResponse>';
 
-        # Send it
+        // Send it
         $this->output($xml);
     }
 
     /**
-     * Send HTTP Headers
+     * Send HTTP Headers.
      *
      * This method sends a HTTP Header
      *
-     * @param   int     $code   HTTP Status Code
-     * @param   string  $msg    Header message
+     * @param int    $code HTTP Status Code
+     * @param string $msg  Header message
      */
     protected function head(int $code, string $msg): void
     {
@@ -181,14 +183,12 @@ class Server
     }
 
     /**
-     * Method call
+     * Method call.
      *
      * This method calls the given XML-RPC method with arguments.
      *
-     * @param   string  $methodname     Method name
-     * @param   array   $args           Method arguments
-     * 
-     * @return  mixed
+     * @param string $methodname Method name
+     * @param array  $args       Method arguments
      */
     protected function call(string $methodname, array $args): mixed
     {
@@ -198,7 +198,7 @@ class Server
 
         $method = $this->callbacks[$methodname];
 
-        # Perform the callback and send the response
+        // Perform the callback and send the response
         if (!is_callable($method)) {
             throw new XmlrpcException('server error. internal requested function for "' . $methodname . '" does not exist.', -32601);
         }
@@ -207,15 +207,15 @@ class Server
     }
 
     /**
-     * XML-RPC Error
+     * XML-RPC Error.
      *
      * This method create an XML-RPC error message from a PHP Exception object.
      * You should avoid using this in your own method and throw exceptions
      * instead.
      *
-     * @param   \Exception  $e  Exception object
+     * @param Exception $e Exception object
      */
-    protected function error(\Exception $e): void
+    protected function error(Exception $e): void
     {
         $msg = $e->getMessage();
 
@@ -240,11 +240,11 @@ class Server
     }
 
     /**
-     * Output response
+     * Output response.
      *
      * This method sends the whole XML-RPC response through HTTP.
      *
-     * @param   string  $xml    XML Content
+     * @param string $xml XML Content
      */
     protected function output(string $xml): void
     {
@@ -255,6 +255,7 @@ class Server
         header('Content-Type: text/xml');
         header('Date: ' . date('r'));
         echo $xml;
+
         exit;
     }
 
@@ -263,9 +264,7 @@ class Server
      *
      * Returns true if the server has the given method <var>$method</var>
      *
-     * @param   string  $method     Method name
-     * 
-     * @return  bool
+     * @param string $method Method name
      */
     protected function hasMethod(string $method): bool
     {
@@ -273,7 +272,7 @@ class Server
     }
 
     /**
-     * Server Capabilities
+     * Server Capabilities.
      *
      * This method initiates the server capabilities:
      * - xmlrpc
@@ -282,7 +281,7 @@ class Server
      */
     protected function setCapabilities(): void
     {
-        # Initialises capabilities array
+        // Initialises capabilities array
         $this->capabilities = [
             'xmlrpc' => [
                 'specUrl'     => 'http://www.xmlrpc.com/spec',
@@ -300,7 +299,7 @@ class Server
     }
 
     /**
-     * Server Methods
+     * Server Methods.
      *
      * This method creates the three main server's methods:
      * - system.getCapabilities
@@ -319,11 +318,9 @@ class Server
     }
 
     /**
-     * Server Capabilities
+     * Server Capabilities.
      *
      * Returns server capabilities
-     *
-     * @return  array
      */
     protected function getCapabilities(): array
     {
@@ -331,29 +328,25 @@ class Server
     }
 
     /**
-     * Server methods
+     * Server methods.
      *
      * Returns all server methods
-     *
-     * @return  array
      */
     protected function listMethods(): array
     {
-        # Returns a list of methods - uses array_reverse to ensure user defined
-        # methods are listed before server defined methods
+        // Returns a list of methods - uses array_reverse to ensure user defined
+        // methods are listed before server defined methods
         return array_reverse(array_keys($this->callbacks));
     }
 
     /**
-     * Multicall
+     * Multicall.
      *
      * This method handles a multi-methods call
      *
      *  @see http://www.xmlrpc.com/discuss/msgReader$1208
      *
-     * @param   array   $methodcalls    Array of methods
-     * 
-     * @return  array
+     * @param array $methodcalls Array of methods
      */
     protected function multiCall(array $methodcalls): array
     {
@@ -363,13 +356,13 @@ class Server
             $params = $call['params'];
 
             try {
-                if ($method == 'system.multicall') {
+                if ('system.multicall' == $method) {
                     throw new XmlrpcException('Recursive calls to system.multicall are forbidden', -32600);
                 }
 
                 $result   = $this->call($method, $params);
                 $return[] = [$result];
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $return[] = [
                     'faultCode'   => $e->getCode(),
                     'faultString' => $e->getMessage(),

@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Core\Blog\Settings\Settings
+ * @note Dotclear\Core\Blog\Settings\Settings
  * @brief Dotclear core blog settings class
  *
- * @package Dotclear
- * @subpackage Core
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,7 +12,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Blog\Settings;
 
-use Dotclear\Core\Blog\Settings\Settingspace;
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\SelectStatement;
@@ -22,13 +20,13 @@ use Dotclear\Exception\CoreException;
 
 class Settings
 {
-    /** @var    string  Setting table name */
+    /** @var string Setting table name */
     protected $table;
 
-    /** @var    array   Associative namespaces array */
+    /** @var array Associative namespaces array */
     protected $namespaces = [];
 
-    /** @var    string  Current namespace */
+    /** @var string Current namespace */
     protected $ns;
 
     protected const NS_NAME_SCHEMA = '/^[a-zA-Z][a-zA-Z0-9]+$/';
@@ -39,7 +37,7 @@ class Settings
      * Retrieves blog settings and puts them in $namespaces
      * array. Local (blog) settings have a highest priority than global settings.
      *
-     * @param   string|null     $blog_id    The blog identifier
+     * @param null|string $blog_id The blog identifier
      */
     public function __construct(protected string|null $blog_id)
     {
@@ -48,7 +46,7 @@ class Settings
     }
 
     /**
-     * Retrieves all namespaces
+     * Retrieves all namespaces.
      *
      * (and their settings) from database, with one query.
      */
@@ -56,9 +54,9 @@ class Settings
     {
         try {
             $sql = new SelectStatement(__METHOD__);
-            $rs = $sql
+            $rs  = $sql
                 ->columns([
-                    'blog_id', 
+                    'blog_id',
                     'setting_id',
                     'setting_value',
                     'setting_type',
@@ -69,12 +67,13 @@ class Settings
                 ->where('blog_id = ' . $sql->quote($this->blog_id))
                 ->or('blog_id IS NULL')
                 ->order(['setting_ns ASC', 'setting_id DESC'])
-                ->select();
+                ->select()
+            ;
         } catch (\Exception) {
             trigger_error(__('Unable to retrieve namespaces:') . ' ' . dotclear()->con()->error(), E_USER_ERROR);
         }
 
-        # Prevent empty tables (install phase, for instance)
+        // Prevent empty tables (install phase, for instance)
         if ($rs->isEmpty()) {
             return;
         }
@@ -82,8 +81,8 @@ class Settings
         do {
             $ns = trim($rs->f('setting_ns'));
             if (!$rs->isStart()) {
-                # we have to go up 1 step, since namespaces construction performs 
-                # a fetch() at very first time
+                // we have to go up 1 step, since namespaces construction performs
+                // a fetch() at very first time
                 $rs->movePrev();
             }
             $this->namespaces[$ns] = new Settingspace($this->blog_id, $ns, $rs);
@@ -95,9 +94,7 @@ class Settings
      *
      * If the namespace already exists, return it without modification.
      *
-     * @param   string  $ns     Namespace name
-     *
-     * @return  Settingspace
+     * @param string $ns Namespace name
      */
     public function addNamespace(string $ns): Settingspace
     {
@@ -111,12 +108,12 @@ class Settings
     /**
      * Rename a namespace.
      *
-     * @param   string  $oldNs  The old ns
-     * @param   string  $newNs  The new ns
+     * @param string $oldNs The old ns
+     * @param string $newNs The new ns
      *
-     * @throws  CoreException
+     * @throws CoreException
      *
-     * @return  bool            Return true if no error, else false
+     * @return bool Return true if no error, else false
      */
     public function renNamespace(string $oldNs, string $newNs): bool
     {
@@ -128,16 +125,17 @@ class Settings
             throw new CoreException(sprintf(__('Invalid setting namespace: %s'), $newNs));
         }
 
-        # Rename the namespace in the namespace array
+        // Rename the namespace in the namespace array
         $this->namespaces[$newNs] = $this->namespaces[$oldNs];
         unset($this->namespaces[$oldNs]);
 
-        # Rename the namespace in the database
+        // Rename the namespace in the database
         $sql = new UpdateStatement(__METHOD__);
         $sql->from($this->table)
             ->set('setting_ns = ' . $sql->quote($newNs))
             ->where('setting_ns = ' . $sql->quote($oldNs))
-            ->update();
+            ->update()
+        ;
 
         return true;
     }
@@ -145,9 +143,7 @@ class Settings
     /**
      * Delete a whole namespace with all settings pertaining to it.
      *
-     * @param   string  $ns     Namespace name
-     *
-     * @return  bool
+     * @param string $ns Namespace name
      */
     public function delNamespace(string $ns): bool
     {
@@ -155,14 +151,15 @@ class Settings
             return false;
         }
 
-        # Remove the namespace from the namespace array
+        // Remove the namespace from the namespace array
         unset($this->namespaces[$ns]);
 
-        # Delete all settings from the namespace in the database
+        // Delete all settings from the namespace in the database
         $sql = new DeleteStatement(__METHOD__);
         $sql->from($this->table)
             ->where('setting_ns = ' . $sql->quote($ns))
-            ->delete();
+            ->delete()
+        ;
 
         return true;
     }
@@ -170,9 +167,7 @@ class Settings
     /**
      * Returns full namespace with all settings pertaining to it.
      *
-     * @param   string  $ns     Namespace name
-     *
-     * @return  Settingspace
+     * @param string $ns Namespace name
      */
     public function get(string $ns): Settingspace
     {
@@ -180,11 +175,9 @@ class Settings
     }
 
     /**
-     * Check if a namespace exists
+     * Check if a namespace exists.
      *
-     * @param   string  $ns     Namespace name
-     *
-     * @return  bool
+     * @param string $ns Namespace name
      */
     public function exists(string $ns): bool
     {
@@ -193,8 +186,6 @@ class Settings
 
     /**
      * Dumps namespaces.
-     *
-     * @return  array
      */
     public function dump(): array
     {
@@ -209,9 +200,9 @@ class Settings
      * - ns : retrieve setting from given namespace
      * - id : retrieve only settings corresponding to the given id
      *
-     * @param   array   $params     The parameters
+     * @param array $params The parameters
      *
-     * @return  Record              The global settings.
+     * @return Record the global settings
      */
     public function getGlobalSettings(array $params = []): Record
     {
@@ -219,7 +210,8 @@ class Settings
             ->from($this->table)
             ->column('*')
             ->where('1 = 1')
-            ->order('blog_id');
+            ->order('blog_id')
+        ;
 
         if (!empty($params['ns'])) {
             $sql->and('setting_ns = ' . $sql->quote($params['ns']));
@@ -228,7 +220,8 @@ class Settings
             $sql->and('setting_id = ' . $sql->quote($params['id']));
         }
         if (isset($params['blog_id'])) {
-            $sql->and(empty($params['blog_id']) ?
+            $sql->and(
+                empty($params['blog_id']) ?
                 'blog_id IS NULL' :
                 'blog_id = ' . $sql->quote($params['blog_id'])
             );
@@ -240,7 +233,7 @@ class Settings
     /**
      * Updates a setting from a given record.
      *
-     * @param   Record  $rs     The setting to update
+     * @param Record $rs The setting to update
      */
     public function updateSetting(Record $rs): void
     {
@@ -250,36 +243,41 @@ class Settings
             ->setField('setting_type', $rs->f('setting_type'))
             ->setField('setting_label', $rs->f('setting_label'))
             ->setField('blog_id', $rs->f('blog_id'))
-            ->setField('setting_ns', $rs->f('setting_ns'));
+            ->setField('setting_ns', $rs->f('setting_ns'))
+        ;
 
         $sql = new UpdateStatement(__METHOD__);
-        $sql->where(null == $cur->getField('blog_id') ?
+        $sql->where(
+            null == $cur->getField('blog_id') ?
                 'blog_id IS NULL' :
                 'blog_id = ' . $sql->quote($cur->getField('blog_id'))
-            )
+        )
             ->and('setting_id = ' . $sql->quote($cur->getField('setting_id')))
             ->and('setting_ns = ' . $sql->quote($cur->getField('setting_ns')))
-            ->update($cur);
+            ->update($cur)
+        ;
     }
 
     /**
      * Drops a setting from a given record.
      *
-     * @param   Record  $rs     The setting to drop
+     * @param Record $rs The setting to drop
      *
-     * @return  int             Number of deleted records (0 if setting does not exist)
+     * @return int Number of deleted records (0 if setting does not exist)
      */
     public function dropSetting(Record $rs): int
     {
         $sql = new DeleteStatement(__METHOD__);
         $sql->from($this->table)
-            ->where(null == $rs->f('blog_id') ?
+            ->where(
+                null == $rs->f('blog_id') ?
                 'blog_id IS NULL' :
                 'blog_id = ' . $sql->quote($rs->f('blog_id'))
             )
             ->and('setting_id = ' . $sql->quote($rs->f('setting_id')))
             ->and('setting_ns = ' . $sql->quote($rs->f('setting_ns')))
-            ->delete();
+            ->delete()
+        ;
 
         return dotclear()->con()->changes();
     }

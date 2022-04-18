@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Core\Formater\Formater
+ * @note Dotclear\Core\Formater\Formater
  * @brief Dotclear core Formater class
  *
- * @package Dotclear
- * @subpackage Instance
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,23 +16,23 @@ use Closure;
 
 class Formater
 {
-    /** @var array              formaters container */
-    private $formaters  = [];
+    /** @var array formaters container */
+    private $formaters = [];
 
     /**
-     * Add editor formater
+     * Add editor formater.
      *
      * Adds a new text formater which will call the function <var>$callback</var> to
      * transform text. The function must be a valid callback and takes one
      * argument: the string to transform. It returns the transformed string.
      *
-     * @param   string                  $editor     The editor identifier (LegacyEditor, dcCKEditor, ...)
-     * @param   string                  $formater   The formater name
-     * @param   string|array|Closure    $callback   The function to use, must be a valid and callable callback
+     * @param string               $editor   The editor identifier (LegacyEditor, dcCKEditor, ...)
+     * @param string               $formater The formater name
+     * @param array|Closure|string $callback The function to use, must be a valid and callable callback
      */
     public function addEditorFormater(string $editor, string $formater, string|array|Closure $callback): void
     {
-        # Silently failed non callable function
+        // Silently failed non callable function
         if (is_callable($callback)) {
             $this->formaters[$editor][$formater] = $callback;
         }
@@ -42,7 +41,7 @@ class Formater
     /**
      * Gets the editors list.
      *
-     * @return  array   The editors.
+     * @return array the editors
      */
     public function getEditors(): array
     {
@@ -68,9 +67,9 @@ class Formater
      * return empty() array if editor is not active.
      * It can happens when a user choose an editor and admin deactivate that editor later
      *
-     * @param   string  $editor     The editor identifier (LegacyEditor, dcCKEditor, ...)
+     * @param string $editor The editor identifier (LegacyEditor, dcCKEditor, ...)
      *
-     * @return  array   The formaters.
+     * @return array the formaters
      */
     public function getFormaters(string $editor = ''): array
     {
@@ -90,20 +89,20 @@ class Formater
     }
 
     /**
-     * Call editor formater. (format a string)
+     * Call editor formater. (format a string).
      *
      * If <var>$formater</var> is a valid formater, it returns <var>$str</var>
      * transformed using that formater.
      *
-     * @param   string  $editor     The editor identifier (LegacyEditor, dcCKEditor, ...)
-     * @param   string  $formater   The formater name
-     * @param   string  $str        The string to transform
+     * @param string $editor   The editor identifier (LegacyEditor, dcCKEditor, ...)
+     * @param string $formater The formater name
+     * @param string $str      The string to transform
      *
-     * @return  string  The formated string
+     * @return string The formated string
      */
     public function callEditorFormater(string $editor, string $formater, string $str): string
     {
-        if (isset($this->formaters[$editor]) && isset($this->formaters[$editor][$formater])) {
+        if (isset($this->formaters[$editor], $this->formaters[$editor][$formater])) {
             return call_user_func($this->formaters[$editor][$formater], $str);
         }
 

@@ -1,12 +1,11 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Menu\Summary
+ * @note Dotclear\Process\Admin\Menu\Summary
  * @brief Dotclear admin menu handling facilities class
  *
  * Accessible from dotclear()->summary()->
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,7 +17,6 @@ namespace Dotclear\Process\Admin\Menu;
 use ArrayObject;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
-use Dotclear\Process\Admin\Menu\Menu;
 
 class Summary extends ArrayObject
 {
@@ -43,14 +41,13 @@ class Summary extends ArrayObject
     }
 
     /**
-     * Add a menu
+     * Add a menu.
      *
      * This create a Menu instance
      *
-     * @param   string  $name       The menu name
-     * @param   string  $id         The menu id
-     * @param   string  $title      The menu title
-     * @param   string  $itemSpace
+     * @param string $name  The menu name
+     * @param string $id    The menu id
+     * @param string $title The menu title
      */
     public function add(string $name, string $id, string $title, string $itemSpace = ''): void
     {
@@ -60,13 +57,13 @@ class Summary extends ArrayObject
     /**
      * Add a menu item.
      *
-     * @param   string  $section    The section
-     * @param   string  $desc       The description
-     * @param   string  $adminurl   The adminurl
-     * @param   mixed   $icon       The icon(s)
-     * @param   mixed   $perm       The permission
-     * @param   bool    $pinned     The pinned
-     * @param   bool    $strict     The strict
+     * @param string $section  The section
+     * @param string $desc     The description
+     * @param string $adminurl The adminurl
+     * @param mixed  $icon     The icon(s)
+     * @param mixed  $perm     The permission
+     * @param bool   $pinned   The pinned
+     * @param bool   $strict   The strict
      */
     public function register($section, $desc, $adminurl, $icon, $perm, $pinned = false, $strict = false): void
     {
@@ -88,14 +85,15 @@ class Summary extends ArrayObject
     }
 
     /**
-     * Compose HTML icon markup for favorites, menu, … depending on theme (light, dark)
+     * Compose HTML icon markup for favorites, menu, … depending on theme (light, dark).
      *
-     * @param   mixed   $img        string (default) or array (0 : light, 1 : dark)
-     * @param   bool    $fallback   use fallback image if none given
-     * @param   string  $alt        alt attribute
-     * @param   string  $title      title attribute
+     * @param mixed  $img      string (default) or array (0 : light, 1 : dark)
+     * @param bool   $fallback use fallback image if none given
+     * @param string $alt      alt attribute
+     * @param string $title    title attribute
+     * @param mixed  $class
      *
-     * @return  string
+     * @return string
      */
     public function getIconTheme($img, $fallback = true, $alt = '', $title = '', $class = '')
     {
@@ -103,7 +101,7 @@ class Summary extends ArrayObject
         $dark_img    = '';
         if (is_array($img)) {
             $light_img = $img[0] ?: ($fallback ? $unknown_img : '');   // Fallback to no icon if necessary
-            if (isset($img[1]) && $img[1] !== '') {
+            if (isset($img[1]) && '' !== $img[1]) {
                 $dark_img = $img[1];
             }
         } else {
@@ -127,21 +125,20 @@ class Summary extends ArrayObject
     }
 
     /**
-     * Parse icon path and url from Iconset
+     * Parse icon path and url from Iconset.
      *
      * This can't call "Iconset" nor behaviors as modules are not loaded yet.
      * This use self::$iconset that content full path to iconset icons.
      *
-     * @param   string  $img    Image path
+     * @param string $img Image path
      *
-     * @return  string          New image path
+     * @return string New image path
      */
     public function getIconURL(string|array $img): string
     {
         $allow_types = ['svg', 'png', 'webp', 'jpg', 'jpeg', 'gif'];
         if (!empty(self::$iconset) && !empty($img)) {
-
-            # Extract module name from path
+            // Extract module name from path
             $split  = explode('/', self::$iconset);
             $module = array_pop($split);
             if ((preg_match('/^images\/menu\/(.+)(\..*)$/', $img, $m)) || (preg_match('/\?df=(.+)(\..*)$/', $img, $m))) {
@@ -150,12 +147,12 @@ class Summary extends ArrayObject
                 if ('' !== $name && '' !== $ext) {
                     $icon = Path::real(self::$iconset . '/resources/' . $name . $ext, true);
                     if (false !== $icon) {
-                        # Find same (name and extension)
+                        // Find same (name and extension)
                         if (is_file($icon) && is_readable($icon) && in_array(Files::getExtension($icon), $allow_types)) {
                             return '?df=Iconset/' . $module . '/resources/' . $name . $ext;
                         }
                     }
-                    # Look for other extensions
+                    // Look for other extensions
                     foreach ($allow_types as $ext) {
                         $icon = Path::real(self::$iconset . '/resources/' . $name . '.' . $ext, true);
                         if (false !== $icon) {
@@ -164,18 +161,17 @@ class Summary extends ArrayObject
                             }
                         }
                     }
-                    /*
-                    # Not in iconset nor in Dotclear
-                    $icon = Path::implodeRoot('Process', 'Admin', 'resources', $img);
-                    if (false === $icon || !is_file($icon) || !is_readable($icon)) {
-                        $img = 'images/menu/no-icon.svg';
-                    }
-                    //*/
+
+                    // Not in iconset nor in Dotclear
+                    // $icon = Path::implodeRoot('Process', 'Admin', 'resources', $img);
+                    // if (false === $icon || !is_file($icon) || !is_readable($icon)) {
+                    //    $img = 'images/menu/no-icon.svg';
+                    // }
                 }
             }
         }
 
-        # By default use Dotclear Admin files
+        // By default use Dotclear Admin files
         if (!str_contains($img, '?')) {
             $img = '?df=' . $img;
         }
@@ -191,7 +187,7 @@ class Summary extends ArrayObject
 
     protected function initDefaultMenus()
     {
-        # add fefault items to menu
+        // add fefault items to menu
         $this->register(
             'Blog',
             __('Blog settings'),
@@ -219,7 +215,7 @@ class Summary extends ArrayObject
             'Blog',
             __('Search'),
             'admin.search',
-            ['images/menu/search.svg','images/menu/search-dark.svg'],
+            ['images/menu/search.svg', 'images/menu/search-dark.svg'],
             dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id)
         );
         $this->register(
@@ -240,7 +236,7 @@ class Summary extends ArrayObject
             'Blog',
             __('New post'),
             'admin.post',
-             ['images/menu/edit.svg', 'images/menu/edit-dark.svg'],
+            ['images/menu/edit.svg', 'images/menu/edit-dark.svg'],
             dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id),
             true,
             true

@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Pages\Admin\Prepend
+ * @note Dotclear\Plugin\Pages\Admin\Prepend
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginPages
+ * @ingroup  PluginPages
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -26,19 +25,19 @@ class Prepend extends AbstractPrepend
 
     public function loadModule(): void
     {
-        # Add pages permissions
+        // Add pages permissions
         dotclear()->user()->setPermissionType('pages', __('manage pages'));
 
-        # Add admin url (only page detail, the other one was auto created by Module)
+        // Add admin url (only page detail, the other one was auto created by Module)
         dotclear()->adminurl()->register(
             'admin.plugin.Page',
             'Dotclear\\Plugin\\Pages\\Admin\\HandlerEdit'
         );
 
-        # Add menu
+        // Add menu
         $this->addStandardMenu('Blog');
 
-        # Add favorites
+        // Add favorites
         dotclear()->behavior()->add('adminDashboardFavorites', function (Favorite $favs): void {
             $favs->register('pages', [
                 'title'        => __('Pages'),
@@ -49,7 +48,7 @@ class Prepend extends AbstractPrepend
                 'dashboard_cb' => function (ArrayObject $v): void {
                     $page_count = dotclear()->blog()->posts()->getPosts(['post_type' => 'page'], true)->fInt();
                     if (0 < $page_count) {
-                        $str_pages  = (1 < $page_count) ? __('%d pages') : __('%d page');
+                        $str_pages = (1 < $page_count) ? __('%d pages') : __('%d page');
                         $v['title'] = sprintf($str_pages, $page_count);
                     }
                 },
@@ -60,17 +59,17 @@ class Prepend extends AbstractPrepend
                 'small-icon'  => ['?df=Plugin/Pages/icon-np.svg', '?df=Plugin/Pages/icon-np-dark.svg'],
                 'large-icon'  => ['?df=Plugin/Pages/icon-np.svg', '?df=Plugin/Pages/icon-np-dark.svg'],
                 'permissions' => 'contentadmin,pages',
-                'active_cb'   => fn () => dotclear()->adminurl()->is('admin.plugin.Page') && empty($_REQUEST['id']),
+                'active_cb'   => fn ()   => dotclear()->adminurl()->is('admin.plugin.Page') && empty($_REQUEST['id']),
             ]);
         });
 
-        # Add headers
+        // Add headers
         dotclear()->behavior()->add(
             'adminUsersActionsHeaders',
             fn () => dotclear()->resource()->load('_users_actions.js', 'Plugin', 'Pages')
         );
 
-        # Add user pref list columns
+        // Add user pref list columns
         dotclear()->behavior()->add('adminColumnsLists', function (ArrayObject $cols): void {
             // Set optional columns in pages lists
             $cols['pages'] = [__('Pages'), [
@@ -81,7 +80,7 @@ class Prepend extends AbstractPrepend
             ]];
         });
 
-        # Add user pref list filters
+        // Add user pref list filters
         dotclear()->behavior()->add('adminFiltersLists', function (ArrayObject $sorts): void {
             $sorts['pages'] = [
                 __('Pages'),
@@ -92,10 +91,10 @@ class Prepend extends AbstractPrepend
             ];
         });
 
-        # Urls
+        // Urls
         new PagesUrl();
 
-        # Widgets
+        // Widgets
         if (dotclear()->adminurl()->is('admin.plugin.Widgets')) {
             new PagesWidgets();
         }
@@ -127,7 +126,7 @@ class Prepend extends AbstractPrepend
             $cur->setField('post_open_comment', 0);
             $cur->setField('post_open_tb', 0);
 
-            # Magic tweak :)
+            // Magic tweak :)
             $old_url_format = dotclear()->blog()->settings()->get('system')->get('post_url_format');
             dotclear()->blog()->settings()->get('system')->set('post_url_format', '{t}');
 

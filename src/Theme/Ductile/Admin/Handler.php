@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Theme\Ductile\Admin\Handler
+ * @note Dotclear\Theme\Ductile\Admin\Handler
  * @brief Dotclear Theme class
  *
- * @package Dotclear
- * @subpackage ThemeBlowup
+ * @ingroup  ThemeBlowup
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,13 +17,12 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\File\Files;
 use Dotclear\Module\AbstractPage;
 use Dotclear\Module\Theme\Admin\ConfigTheme;
-use Dotclear\Helper\Network\Http;
-use Dotclear\Helper\L10n;
+use Exception;
 
 class Handler extends AbstractPage
 {
     private $Ductile_list_types = [];
-    private $Ductile_user = [
+    private $Ductile_user       = [
         // HTML
         'subtitle_hidden'       => null,
         'logo_src'              => null,
@@ -110,14 +108,14 @@ class Handler extends AbstractPage
             __('Full')  => 'full',
         ];
 
-        # Get all _entry-*.html in tpl folder of theme
-        $list_types_templates = Files::scandir( __DIR__ . '/../templates/tpl/', true, false);
+        // Get all _entry-*.html in tpl folder of theme
+        $list_types_templates = Files::scandir(__DIR__ . '/../templates/tpl/', true, false);
         if (is_array($list_types_templates)) {
             foreach ($list_types_templates as $v) {
                 if (preg_match('/^_entry\-(.*)\.html$/', $v, $m)) {
                     if (isset($m[1])) {
                         if (!in_array($m[1], $this->Ductile_list_types)) {
-                            # template not already in full list
+                            // template not already in full list
                             $this->Ductile_list_types[__($m[1])] = $m[1];
                         }
                     }
@@ -146,7 +144,7 @@ class Handler extends AbstractPage
         $this->Ductile_stickers = [[
             'label' => __('Subscribe'),
             'url'   => dotclear()->blog()->getURLFor('feed', 'atom'),
-            'image' => 'sticker-feed.png'
+            'image' => 'sticker-feed.png',
         ]];
 
         $ductile_stickers = (string) dotclear()->blog()->settings()->get('themes')->get(dotclear()->blog()->settings()->get('system')->get('theme') . '_stickers');
@@ -160,7 +158,7 @@ class Handler extends AbstractPage
             $ductile_stickers_full[] = $v['image'];
         }
 
-        $ductile_stickers_images = Files::scandir( __DIR__ . '/../Public/resources/img/', true, false);
+        $ductile_stickers_images = Files::scandir(__DIR__ . '/../Public/resources/img/', true, false);
         if (is_array($ductile_stickers_images)) {
             foreach ($ductile_stickers_images as $v) {
                 if (preg_match('/^sticker\-(.*)\.png$/', $v)) {
@@ -169,7 +167,7 @@ class Handler extends AbstractPage
                         $this->Ductile_stickers[] = [
                             'label' => null,
                             'url'   => null,
-                            'image' => $v];
+                            'image' => $v, ];
                     }
                 }
             }
@@ -179,18 +177,18 @@ class Handler extends AbstractPage
 
         if (!empty($_POST)) {
             try {
-                # HTML
-                if ($this->Ductile_conf_tab == 'html') {
+                // HTML
+                if ('html' == $this->Ductile_conf_tab) {
                     $this->Ductile_user['subtitle_hidden']       = (int) !empty($_POST['subtitle_hidden']);
                     $this->Ductile_user['logo_src']              = $_POST['logo_src'];
                     $this->Ductile_user['preview_not_mandatory'] = (int) !empty($_POST['preview_not_mandatory']);
 
                     $this->Ductile_stickers = [];
-                    for ($i = 0; $i < count($_POST['sticker_image']); $i++) {
+                    for ($i = 0; count($_POST['sticker_image']) > $i; ++$i) {
                         $this->Ductile_stickers[] = [
                             'label' => $_POST['sticker_label'][$i],
                             'url'   => $_POST['sticker_url'][$i],
-                            'image' => $_POST['sticker_image'][$i]
+                            'image' => $_POST['sticker_image'][$i],
                         ];
                     }
 
@@ -206,23 +204,23 @@ class Handler extends AbstractPage
                             $new_ductile_stickers[] = [
                                 'label' => $this->Ductile_stickers[$k]['label'],
                                 'url'   => $this->Ductile_stickers[$k]['url'],
-                                'image' => $this->Ductile_stickers[$k]['image']
+                                'image' => $this->Ductile_stickers[$k]['image'],
                             ];
                         }
                         $this->Ductile_stickers = $new_ductile_stickers;
                     }
 
-                    for ($i = 0; $i < count($_POST['list_type']); $i++) {
+                    for ($i = 0; count($_POST['list_type']) > $i; ++$i) {
                         $this->Ductile_lists[$_POST['list_ctx'][$i]] = $_POST['list_type'][$i];
                     }
 
-                    for ($i = 0; $i < count($_POST['count_nb']); $i++) {
+                    for ($i = 0; count($_POST['count_nb']) > $i; ++$i) {
                         $this->Ductile_counts[$_POST['count_ctx'][$i]] = $_POST['count_nb'][$i];
                     }
                 }
 
-                # CSS
-                if ($this->Ductile_conf_tab == 'css') {
+                // CSS
+                if ('css' == $this->Ductile_conf_tab) {
                     $this->Ductile_user['body_font']           = $_POST['body_font'];
                     $this->Ductile_user['body_webfont_family'] = $_POST['body_webfont_family'];
                     $this->Ductile_user['body_webfont_url']    = $_POST['body_webfont_url'];
@@ -265,12 +263,12 @@ class Handler extends AbstractPage
                 dotclear()->emptyTemplatesCache();
 
                 dotclear()->notice()->addSuccessNotice(__('Theme configuration upgraded.'));
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Page setup
+        // Page setup
         $this
             ->setPageTitle(__('Ductile configuration'))
             ->setPageHelp('ductile')
@@ -278,7 +276,7 @@ class Handler extends AbstractPage
             ->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog()->name) => '',
                 __('Blog appearance')                      => dotclear()->adminurl()->get('admin.blog.theme'),
-                __('Ductile configuration')                => ''
+                __('Ductile configuration')                => '',
             ])
         ;
 
@@ -326,7 +324,7 @@ class Handler extends AbstractPage
 
         $img_url = dotclear()->blog()->url . 'resources/img/';
 
-        # HTML Tab
+        // HTML Tab
 
         echo '<div class="multi-part" id="themes-list-html" title="' . __('Content') . '">' .
         '<h3>' . __('Content') . '</h3>';
@@ -340,14 +338,15 @@ class Handler extends AbstractPage
         echo '<p class="field"><label for="logo_src">' . __('Logo URL:') . '</label> ' .
         Form::field('logo_src', 40, 255, $this->Ductile_user['logo_src']) . '</p>';
         if (dotclear()->plugins()->hasModule('SimpleMenu')) {
-            echo '<p>' . sprintf(__('To configure the top menu go to the <a href="%s">Simple Menu administration page</a>.'),
-                dotclear()->adminurl()->get('admin.plugin.SimpleMenu')) . '</p>';
+            echo '<p>' . sprintf(
+                __('To configure the top menu go to the <a href="%s">Simple Menu administration page</a>.'),
+                dotclear()->adminurl()->get('admin.plugin.SimpleMenu')
+            ) . '</p>';
         }
 
         echo '<h4 class="border-top pretty-title">' . __('Stickers') . '</h4>';
 
-        echo
-        '<div class="table-outer">' .
+        echo '<div class="table-outer">' .
         '<table class="dragable">' . '<caption>' . __('Stickers (footer)') . '</caption>' .
         '<thead>' .
         '<tr>' .
@@ -360,14 +359,13 @@ class Handler extends AbstractPage
             '<tbody id="stickerslist">';
         $count = 0;
         foreach ($this->Ductile_stickers as $i => $v) {
-            $count++;
-            echo
-            '<tr class="line" id="l_' . $i . '">' .
+            ++$count;
+            echo '<tr class="line" id="l_' . $i . '">' .
             '<td class="handle minimal">' . Form::number(['order[' . $i . ']'], [
                 'min'     => 0,
                 'max'     => count($this->Ductile_stickers),
                 'default' => $count,
-                'class'   => 'position'
+                'class'   => 'position',
             ]) .
             Form::hidden(['dynorder[]', 'dynorder-' . $i], $i) . '</td>' .
             '<td>' . Form::hidden(['sticker_image[]'], $v['image']) . '<img src="' . $img_url . $v['image'] . '" alt="' . $v['image'] . '" /> ' . '</td>' .
@@ -375,8 +373,7 @@ class Handler extends AbstractPage
             '<td>' . Form::field(['sticker_url[]', 'dsu-' . $i], 40, 255, $v['url']) . '</td>' .
                 '</tr>';
         }
-        echo
-            '</tbody>' .
+        echo '</tbody>' .
             '</table></div>';
 
         echo '<h4 class="border-top pretty-title">' . __('Entries list types and limits') . '</h4>';
@@ -391,24 +388,21 @@ class Handler extends AbstractPage
             '</thead>' .
             '<tbody>';
         foreach ($this->Ductile_lists as $k => $v) {
-            echo
-            '<tr>' .
+            echo '<tr>' .
             '<td scope="row">' . $contexts[$k] . '</td>' .
             '<td>' . Form::hidden(['list_ctx[]'], $k) . Form::combo(['list_type[]'], $this->Ductile_list_types, $v) . '</td>';
             if (array_key_exists($k, $this->Ductile_counts)) {
                 echo '<td>' . Form::hidden(['count_ctx[]'], $k) . Form::number(['count_nb[]'], [
                     'min'     => 0,
                     'max'     => 999,
-                    'default' => $this->Ductile_counts[$k]
+                    'default' => $this->Ductile_counts[$k],
                 ]) . '</td>';
             } else {
                 echo '<td></td>';
             }
-            echo
-                '</tr>';
+            echo '</tr>';
         }
-        echo
-            '</tbody>' .
+        echo '</tbody>' .
             '</table>';
 
         echo '<h4 class="border-top pretty-title">' . __('Miscellaneous options') . '</h4>';
@@ -422,7 +416,7 @@ class Handler extends AbstractPage
 
         echo '</div>'; // Close tab
 
-        # CSS tab
+        // CSS tab
 
         echo '<div class="multi-part" id="themes-list-css' . '" title="' . __('Presentation') . '">';
 
@@ -435,8 +429,7 @@ class Handler extends AbstractPage
 
         echo '<div class="two-cols">';
         echo '<div class="col">';
-        echo
-        '<h5>' . __('Main text') . '</h5>' .
+        echo '<h5>' . __('Main text') . '</h5>' .
         '<p class="field"><label for="body_font">' . __('Main font:') . '</label> ' .
         Form::combo('body_font', $fonts, $this->Ductile_user['body_font']) .
         (!empty($this->Ductile_user['body_font']) ? ' ' . $this->fontDef($this->Ductile_user['body_font']) : '') .
@@ -450,8 +443,7 @@ class Handler extends AbstractPage
         Form::combo('body_webfont_api', $webfont_apis, $this->Ductile_user['body_webfont_api']) . '</p>';
         echo '</div>';
         echo '<div class="col">';
-        echo
-        '<h5>' . __('Secondary text') . '</h5>' .
+        echo '<h5>' . __('Secondary text') . '</h5>' .
         '<p class="field"><label for="alternate_font">' . __('Secondary font:') . '</label> ' .
         Form::combo('alternate_font', $fonts, $this->Ductile_user['alternate_font']) .
         (!empty($this->Ductile_user['alternate_font']) ? ' ' . $this->fontDef($this->Ductile_user['alternate_font']) : '') .
@@ -478,9 +470,12 @@ class Handler extends AbstractPage
 
         '<p class="field picker"><label for="blog_title_c">' . __('Color:') . '</label> ' .
         Form::color('blog_title_c', ['default' => $this->Ductile_user['blog_title_c']]) .
-        $this->Ductile_config->contrastRatio($this->Ductile_user['blog_title_c'], '#ffffff',
+        $this->Ductile_config->contrastRatio(
+            $this->Ductile_user['blog_title_c'],
+            '#ffffff',
             (!empty($this->Ductile_user['blog_title_s']) ? $this->Ductile_user['blog_title_s'] : '2em'),
-            $this->Ductile_user['blog_title_w']) .
+            $this->Ductile_user['blog_title_w']
+        ) .
             '</p>';
 
         echo '</div>';
@@ -495,9 +490,12 @@ class Handler extends AbstractPage
 
         '<p class="field picker"><label for="post_title_c">' . __('Color:') . '</label> ' .
         Form::color('post_title_c', ['default' => $this->Ductile_user['post_title_c']]) .
-        $this->Ductile_config->contrastRatio($this->Ductile_user['post_title_c'], '#ffffff',
+        $this->Ductile_config->contrastRatio(
+            $this->Ductile_user['post_title_c'],
+            '#ffffff',
             (!empty($this->Ductile_user['post_title_s']) ? $this->Ductile_user['post_title_s'] : '2.5em'),
-            $this->Ductile_user['post_title_w']) .
+            $this->Ductile_user['post_title_w']
+        ) .
             '</p>';
 
         echo '</div>';
@@ -507,9 +505,12 @@ class Handler extends AbstractPage
 
         '<p class="field picker"><label for="post_simple_title_c">' . __('Color:') . '</label> ' .
         Form::color('post_simple_title_c', ['default' => $this->Ductile_user['post_simple_title_c']]) .
-        $this->Ductile_config->contrastRatio($this->Ductile_user['post_simple_title_c'], '#ffffff',
+        $this->Ductile_config->contrastRatio(
+            $this->Ductile_user['post_simple_title_c'],
+            '#ffffff',
             '1.1em', // H5 minimum size
-            false) .
+            false
+        ) .
             '</p>';
 
         echo '<h4 class="border-top pretty-title">' . __('Inside posts links') . '</h4>' .
@@ -518,16 +519,22 @@ class Handler extends AbstractPage
 
         '<p class="field picker"><label for="post_link_v_c">' . __('Normal and visited links color:') . '</label> ' .
         Form::color('post_link_v_c', ['default' => $this->Ductile_user['post_link_v_c']]) .
-        $this->Ductile_config->contrastRatio($this->Ductile_user['post_link_v_c'], '#ffffff',
+        $this->Ductile_config->contrastRatio(
+            $this->Ductile_user['post_link_v_c'],
+            '#ffffff',
             '1em',
-            $this->Ductile_user['post_link_w']) .
+            $this->Ductile_user['post_link_w']
+        ) .
         '</p>' .
 
         '<p class="field picker"><label for="post_link_f_c">' . __('Active, hover and focus links color:') . '</label> ' .
         Form::color('post_link_f_c', ['default' => $this->Ductile_user['post_link_f_c']]) .
-        $this->Ductile_config->contrastRatio($this->Ductile_user['post_link_f_c'], '#ebebee',
+        $this->Ductile_config->contrastRatio(
+            $this->Ductile_user['post_link_f_c'],
+            '#ebebee',
             '1em',
-            $this->Ductile_user['post_link_w']) .
+            $this->Ductile_user['post_link_w']
+        ) .
             '</p>';
 
         echo '<h3 class="border-top">' . __('Mobile specific settings') . '</h3>';
@@ -544,9 +551,12 @@ class Handler extends AbstractPage
 
         '<p class="field picker"><label for="blog_title_c_m">' . __('Color:') . '</label> ' .
         Form::color('blog_title_c_m', ['default' => $this->Ductile_user['blog_title_c_m']]) .
-        $this->Ductile_config->contrastRatio($this->Ductile_user['blog_title_c_m'], '#d7d7dc',
+        $this->Ductile_config->contrastRatio(
+            $this->Ductile_user['blog_title_c_m'],
+            '#d7d7dc',
             (!empty($this->Ductile_user['blog_title_s_m']) ? $this->Ductile_user['blog_title_s_m'] : '1.8em'),
-            $this->Ductile_user['blog_title_w_m']) .
+            $this->Ductile_user['blog_title_w_m']
+        ) .
             '</p>';
 
         echo '</div>';
@@ -561,9 +571,12 @@ class Handler extends AbstractPage
 
         '<p class="field picker"><label for="post_title_c_m">' . __('Color:') . '</label> ' .
         Form::color('post_title_c_m', ['default' => $this->Ductile_user['post_title_c_m']]) .
-        $this->Ductile_config->contrastRatio($this->Ductile_user['post_title_c_m'], '#ffffff',
+        $this->Ductile_config->contrastRatio(
+            $this->Ductile_user['post_title_c_m'],
+            '#ffffff',
             (!empty($this->Ductile_user['post_title_s_m']) ? $this->Ductile_user['post_title_s_m'] : '1.5em'),
-            $this->Ductile_user['post_title_w_m']) .
+            $this->Ductile_user['post_title_w_m']
+        ) .
             '</p>';
 
         echo '</div>';

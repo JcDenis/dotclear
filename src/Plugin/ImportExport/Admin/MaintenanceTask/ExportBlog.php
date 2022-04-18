@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\ImportExport\Admin\MaintenanceTask\ExportBlog
+ * @note Dotclear\Plugin\ImportExport\Admin\MaintenanceTask\ExportBlog
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginImportExport
+ * @ingroup  PluginImportExport
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,10 +12,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\ImportExport\Admin\MaintenanceTask;
 
-use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Plugin\ImportExport\Admin\MaintenanceTask\ExportFlat;
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
 class ExportBlog extends MaintenanceTask
@@ -55,16 +52,14 @@ class ExportBlog extends MaintenanceTask
             exit(1);
         }
         // Go to step and show form
-        else {
-            return 1;
-        }
+
+        return 1;
     }
 
     public function step(): ?string
     {
         // Download zip file
         if (isset($_SESSION['export_file']) && file_exists($_SESSION['export_file'])) {
-
             // Log task execution here as we sent file and stop script
             $this->log();
 
@@ -72,10 +67,11 @@ class ExportBlog extends MaintenanceTask
             $ie = new ExportFlat();
             $ie->setURL($this->id);
             $ie->process('ok');
-            
+
             exit(1);
-        } else {
-            return
+        }
+
+        return
             '<p><label for="file_name">' . __('File name:') . '</label>' .
             Form::field('file_name', 50, 255, date('Y-m-d-H-i-') . $this->export_name) .
             '</p>' .
@@ -94,6 +90,5 @@ class ExportBlog extends MaintenanceTask
                     'autocomplete' => 'current-password',
                 ]
             ) . '</p>';
-        }
     }
 }

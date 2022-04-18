@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Handler\Comment
+ * @note Dotclear\Process\Admin\Handler\Comment
  * @brief Dotclear admin comment page
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,27 +12,28 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
-use Dotclear\Process\Admin\Page\Page;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Dt;
+use Exception;
 
-class Comment extends Page
+class Comment extends AbstractPage
 {
-    private $comment_id          = null;
-    private $comment_dt          = '';
-    private $comment_author      = '';
-    private $comment_email       = '';
-    private $comment_site        = '';
-    private $comment_content     = '';
-    private $comment_ip          = '';
-    private $comment_status      = '';
-    private $post_url            = '';
-    private $can_edit            = false;
-    private $can_delete          = false;
-    private $can_publish         = false;
+    private $comment_id;
+    private $comment_dt      = '';
+    private $comment_author  = '';
+    private $comment_email   = '';
+    private $comment_site    = '';
+    private $comment_content = '';
+    private $comment_ip      = '';
+    private $comment_status  = '';
+    private $post_url        = '';
+    private $can_edit        = false;
+    private $can_delete      = false;
+    private $can_publish     = false;
 
     protected function getPermissions(): string|null|false
     {
@@ -42,7 +42,7 @@ class Comment extends Page
 
     protected function getPagePrepend(): ?bool
     {
-        # Adding comment (comming from post form, comments tab)
+        // Adding comment (comming from post form, comments tab)
         if (!empty($_POST['add']) && !empty($_POST['post_id'])) {
             try {
                 $rs = dotclear()->blog()->posts()->getPosts(['post_id' => $_POST['post_id'], 'post_type' => '']);
@@ -59,16 +59,16 @@ class Comment extends Page
                 $cur->setField('comment_content', Html::filter($_POST['comment_content']));
                 $cur->setField('post_id', (int) $_POST['post_id']);
 
-                # --BEHAVIOR-- adminBeforeCommentCreate
+                // --BEHAVIOR-- adminBeforeCommentCreate
                 dotclear()->behavior()->call('adminBeforeCommentCreate', $cur);
 
                 $this->comment_id = dotclear()->blog()->comments()->addComment($cur);
 
-                # --BEHAVIOR-- adminAfterCommentCreate
+                // --BEHAVIOR-- adminAfterCommentCreate
                 dotclear()->behavior()->call('adminAfterCommentCreate', $cur, $this->comment_id);
 
                 dotclear()->notice()->addSuccessNotice(__('Comment has been successfully created.'));
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
             Http::redirect(dotclear()->posttype()->getPostAdminURL($rs->f('post_type'), $rs->f('post_id'), false) . '&co=1');
@@ -80,23 +80,22 @@ class Comment extends Page
         $post_title = '';
 
         if (!empty($_REQUEST['id'])) {
-
             try {
                 $rs = dotclear()->blog()->comments()->getComments(['comment_id' => $_REQUEST['id']]);
                 if (!$rs->isEmpty()) {
-                    $this->comment_id        = $rs->fInt('comment_id');
-                    $post_id                 = $rs->fInt('post_id');
-                    $post_type               = $rs->f('post_type');
-                    $post_title              = $rs->f('post_title');
-                    $this->comment_dt        = $rs->f('comment_dt');
-                    $this->comment_author    = $rs->f('comment_author');
-                    $this->comment_email     = $rs->f('comment_email');
-                    $this->comment_site      = $rs->f('comment_site');
-                    $this->comment_content   = $rs->f('comment_content');
-                    $this->comment_ip        = $rs->f('comment_ip');
-                    $this->comment_status    = $rs->fInt('comment_status');
+                    $this->comment_id      = $rs->fInt('comment_id');
+                    $post_id               = $rs->fInt('post_id');
+                    $post_type             = $rs->f('post_type');
+                    $post_title            = $rs->f('post_title');
+                    $this->comment_dt      = $rs->f('comment_dt');
+                    $this->comment_author  = $rs->f('comment_author');
+                    $this->comment_email   = $rs->f('comment_email');
+                    $this->comment_site    = $rs->f('comment_site');
+                    $this->comment_content = $rs->f('comment_content');
+                    $this->comment_ip      = $rs->f('comment_ip');
+                    $this->comment_status  = $rs->fInt('comment_status');
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
@@ -119,7 +118,7 @@ class Comment extends Page
                 }
             }
 
-            # update comment
+            // update comment
             if (!empty($_POST['update']) && $this->can_edit) {
                 $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
 
@@ -133,31 +132,31 @@ class Comment extends Page
                 }
 
                 try {
-                    # --BEHAVIOR-- adminBeforeCommentUpdate
+                    // --BEHAVIOR-- adminBeforeCommentUpdate
                     dotclear()->behavior()->call('adminBeforeCommentUpdate', $cur, $this->comment_id);
 
                     dotclear()->blog()->comments()->updComment($this->comment_id, $cur);
 
-                    # --BEHAVIOR-- adminAfterCommentUpdate
+                    // --BEHAVIOR-- adminAfterCommentUpdate
                     dotclear()->behavior()->call('adminAfterCommentUpdate', $cur, $this->comment_id);
 
                     dotclear()->notice()->addSuccessNotice(__('Comment has been successfully updated.'));
                     dotclear()->adminurl()->redirect('admin.comment', ['id' => $this->comment_id]);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     dotclear()->error()->add($e->getMessage());
                 }
             }
 
             if (!empty($_POST['delete']) && $this->can_delete) {
                 try {
-                    # --BEHAVIOR-- adminBeforeCommentDelete
+                    // --BEHAVIOR-- adminBeforeCommentDelete
                     dotclear()->behavior()->call('adminBeforeCommentDelete', $this->comment_id);
 
                     dotclear()->blog()->comments()->delComment($this->comment_id);
 
                     dotclear()->notice()->addSuccessNotice(__('Comment has been successfully deleted.'));
                     Http::redirect(dotclear()->posttype()->getPostAdminURL($rs->f('post_type'), $rs->f('post_id')) . '&co=1');
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     dotclear()->error()->add($e->getMessage());
                 }
             }
@@ -171,7 +170,7 @@ class Comment extends Page
             $this->post_url = $rs->getPostURL();
         }
 
-        # Page setup
+        // Page setup
         $comment_editor = dotclear()->user()->getOption('editor');
 
         $this
@@ -182,13 +181,13 @@ class Comment extends Page
                 dotclear()->resource()->load('_comment.js') .
                 dotclear()->behavior()->call('adminPostEditor', $comment_editor['xhtml'], 'comment', ['#comment_content'], 'xhtml') .
 
-                # --BEHAVIOR-- adminCommentHeaders
+                // --BEHAVIOR-- adminCommentHeaders
                 dotclear()->behavior()->call('adminCommentHeaders')
             )
             ->setPageBreadcrumb([
                 Html::escapeHTML(dotclear()->blog()->name) => '',
-                Html::escapeHTML($post_title)          => dotclear()->posttype()->getPostAdminURL($post_type, $post_id) . ($this->comment_id ? '&amp;co=1#c' . $this->comment_id : ''),
-                __('Edit comment')                     => ''
+                Html::escapeHTML($post_title)              => dotclear()->posttype()->getPostAdminURL($post_type, $post_id) . ($this->comment_id ? '&amp;co=1#c' . $this->comment_id : ''),
+                __('Edit comment')                         => '',
             ])
         ;
 
@@ -205,7 +204,7 @@ class Comment extends Page
             dotclear()->notice()->success(__('Comment has been successfully updated.'));
         }
 
-        # Status combo
+        // Status combo
         $status_combo = dotclear()->combo()->getCommentStatusesCombo();
 
         $comment_mailto = '';
@@ -217,20 +216,17 @@ class Comment extends Page
             . '">' . __('Send an e-mail') . '</a>';
         }
 
-        echo
-        '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="comment-form">' .
+        echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="comment-form">' .
         '<div class="fieldset">' .
         '<h3>' . __('Information collected') . '</h3>';
 
         $show_ip = dotclear()->user()->check('contentadmin', dotclear()->blog()->id);
         if ($show_ip) {
-            echo
-            '<p>' . __('IP address:') . ' ' .
+            echo '<p>' . __('IP address:') . ' ' .
             '<a href="' . dotclear()->adminurl()->get('admin.comments', ['ip' => $this->comment_ip]) . '">' . $this->comment_ip . '</a></p>';
         }
 
-        echo
-        '<p>' . __('Date:') . ' ' .
+        echo '<p>' . __('Date:') . ' ' .
         Dt::dt2str(__('%Y-%m-%d %H:%M'), $this->comment_dt) . '</p>' .
         '</div>' .
 
@@ -238,7 +234,7 @@ class Comment extends Page
         '<p><label for="comment_author" class="required"><abbr title="' . __('Required field') . '">*</abbr>' . __('Author:') . '</label>' .
         Form::field('comment_author', 30, 255, [
             'default'    => Html::escapeHTML($this->comment_author),
-            'extra_html' => 'required placeholder="' . __('Author') . '"'
+            'extra_html' => 'required placeholder="' . __('Author') . '"',
         ]) .
         '</p>' .
 
@@ -252,19 +248,26 @@ class Comment extends Page
         '</p>' .
 
         '<p><label for="comment_status">' . __('Status:') . '</label>' .
-        Form::combo('comment_status', $status_combo,
-            ['default' => $this->comment_status, 'disabled' => !$this->can_publish]) .
+        Form::combo(
+            'comment_status',
+            $status_combo,
+            ['default' => $this->comment_status, 'disabled' => !$this->can_publish]
+        ) .
         '</p>' .
 
-        # --BEHAVIOR-- adminAfterCommentDesc
-        //!dotclear()->behavior()->call('adminAfterCommentDesc', $rs) .
+        // --BEHAVIOR-- adminAfterCommentDesc
+        // !dotclear()->behavior()->call('adminAfterCommentDesc', $rs) .
 
         '<p class="area"><label for="comment_content">' . __('Comment:') . '</label> ' .
-        Form::textarea('comment_content', 50, 10,
+        Form::textarea(
+            'comment_content',
+            50,
+            10,
             [
                 'default'    => Html::escapeHTML($this->comment_content),
-                'extra_html' => 'lang="' . dotclear()->user()->getInfo('user_lang') . '" spellcheck="true"'
-            ]) .
+                'extra_html' => 'lang="' . dotclear()->user()->getInfo('user_lang') . '" spellcheck="true"',
+            ]
+        ) .
         '</p>' .
 
         '<p>' . Form::hidden('id', $this->comment_id) .
@@ -275,8 +278,7 @@ class Comment extends Page
         if ($this->can_delete) {
             echo ' <input type="submit" class="delete" name="delete" value="' . __('Delete') . '" />';
         }
-        echo
-            '</p>' .
+        echo '</p>' .
             '</form>';
     }
 }

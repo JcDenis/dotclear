@@ -1,12 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Html\Form\Textarea
- * @brief HTML Forms textarea creation helpers
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
  * @package Dotclear
- * @subpackage html.form
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,8 +9,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html\Form;
 
-use Dotclear\Helper\Html\Form\Component;
-
+/**
+ * HTML Forms textarea creation helpers.
+ *
+ * \Dotclear\Helper\Html\Form\Textarea
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Helper Html Form
+ */
 class Textarea extends Component
 {
     private const DEFAULT_ELEMENT = 'textarea';
@@ -24,17 +25,18 @@ class Textarea extends Component
     /**
      * Constructs a new instance.
      *
-     * @param      string  $id     The identifier
+     * @param string $id The identifier
      */
     public function __construct(?string $id = null, ?string $value = null)
     {
         parent::__construct(__CLASS__, self::DEFAULT_ELEMENT);
-        if ($id !== null) {
+        if (null !== $id) {
             $this
                 ->set('id', $id)
-                ->set('name', $id);
+                ->set('name', $id)
+            ;
         }
-        if ($value !== null) {
+        if (null !== $value) {
             $this->set('value', $value);
         }
     }
@@ -42,9 +44,7 @@ class Textarea extends Component
     /**
      * Renders the HTML component (including the associated label if any).
      *
-     * @param      null|string  $extra  The extra
-     *
-     * @return     string
+     * @param null|string $extra The extra
      */
     public function render(?string $extra = null): string
     {
@@ -56,7 +56,7 @@ class Textarea extends Component
             ($this->exists('cols') ? ' cols="' . strval((int) $this->get('cols')) . '"' : '') .
             ($this->exists('rows') ? ' rows="' . strval((int) $this->get('rows')) . '"' : '') .
             '>' .
-            ($this->get('value') ?? '') .
+            ($this->get('value')        ?? '') .
             '</' . ($this->getElement() ?? self::DEFAULT_ELEMENT) . '>' . "\n";
 
         if ($this->exists('label') && $this->exists('id')) {
@@ -70,7 +70,7 @@ class Textarea extends Component
     /**
      * Gets the default element.
      *
-     * @return     string  The default element.
+     * @return string the default element
      */
     public function getDefaultElement(): string
     {

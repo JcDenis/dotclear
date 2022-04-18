@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Widgets\Admin\Prepend
+ * @note Dotclear\Plugin\Widgets\Admin\Prepend
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginWidgets
+ * @ingroup  PluginWidgets
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -25,11 +24,11 @@ class Prepend extends AbstractPrepend
 
     public function loadModule(): void
     {
-        # Menu and Favorties
+        // Menu and Favorties
         $this->addStandardMenu('Blog');
         $this->addStandardFavorites();
 
-        # Load widgets stack only on widget admin page
+        // Load widgets stack only on widget admin page
         if (dotclear()->adminurl()->is('admin.plugin.Widgets')) {
             dotclear()->behavior()->add('adminRteFlags', function (ArrayObject $rte): void {
                 $rte['widgets_text'] = [true, __('Widget\'s textareas')];

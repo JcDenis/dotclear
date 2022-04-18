@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Handler\Help
+ * @note Dotclear\Process\Admin\Handler\Help
  * @brief Dotclear admin help page
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,10 +12,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
-use Dotclear\Process\Admin\Page\Page;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Helper\Html\Html;
 
-class Help extends Page
+class Help extends AbstractPage
 {
     private $help_title   = '';
     private $help_content = '';
@@ -31,14 +30,14 @@ class Help extends Page
         $help_page = !empty($_GET['page']) ? Html::escapeHTML($_GET['page']) : 'index';
 
         $this->getHelpContent($help_page);
-        if (($this->help_content == '') || ($help_page == 'index')) {
+        if (('' == $this->help_content) || ('index' == $help_page)) {
             $this->getHelpContent('index');
         }
 
-        if ($this->help_title != '') {
+        if ('' != $this->help_title) {
             $this->setPageBreadcrumb([
-                __('Global help')       => dotclear()->adminurl()->get('admin.help'),
-                $this->help_title => ''
+                __('Global help') => dotclear()->adminurl()->get('admin.help'),
+                $this->help_title => '',
             ]);
         } else {
             $this->setPageBreadcrumb([__('Global help') => '']);
@@ -56,7 +55,7 @@ class Help extends Page
     {
         echo $this->help_content;
 
-        # Prevents global help link display
+        // Prevents global help link display
         dotclear()->help()->flag(true);
     }
 
@@ -93,9 +92,8 @@ class Help extends Page
 
         if (trim($this->help_content) == '') {
             $this->help_content = $this->help_title = '';
+
             return;
         }
-
-        return;
     }
 }

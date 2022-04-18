@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Maintenance\Admin\Prepend
+ * @note Dotclear\Plugin\Maintenance\Admin\Prepend
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginMaintenance
+ * @ingroup  PluginMaintenance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,8 +14,6 @@ namespace Dotclear\Plugin\Maintenance\Admin;
 
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
-use Dotclear\Plugin\Maintenance\Admin\MaintenanceBehavior;
-use Dotclear\Plugin\Maintenance\Admin\MaintenanceRest;
 
 class Prepend extends AbstractPrepend
 {
@@ -24,10 +21,10 @@ class Prepend extends AbstractPrepend
 
     public function loadModule(): void
     {
-        # Menu
+        // Menu
         $this->addStandardMenu('Plugins');
 
-        # Behaviors
+        // Behaviors
         new MaintenanceRest();
         new MaintenanceBehavior();
     }

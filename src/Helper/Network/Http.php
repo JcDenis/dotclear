@@ -1,12 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Network\Http
- * @brief Basic Http tool
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
  * @package Dotclear
- * @subpackage Utils
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,30 +9,36 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Network;
 
-use Dotclear\Exception\UtilsException;
-
+use Dotclear\Exception\HelperException;
 use Dotclear\Helper\Crypt;
 
+/**
+ * Basic Http tool.
+ *
+ * \Dotclear\Helper\Network\Http
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Helper Network
+ */
 class Http
 {
-    public static $https_scheme_on_443 = false; ///< boolean: Force HTTPS scheme on server port 443 in {@link getHost()}
-    public static $cache_max_age       = 0;     ///< integer: Cache max age for {@link cache()}
-    public static $reverse_proxy       = false; ///< bolean: use X-FORWARD headers on getHost();
+    public static $https_scheme_on_443 = false; // /< boolean: Force HTTPS scheme on server port 443 in {@link getHost()}
+    public static $cache_max_age       = 0;     // /< integer: Cache max age for {@link cache()}
+    public static $reverse_proxy       = false; // /< bolean: use X-FORWARD headers on getHost();
 
     /**
-     * Self root URI
+     * Self root URI.
      *
      * Returns current scheme, host and port.
-     *
-     * @return string
      */
     public static function getHost(): string
     {
         if (self::$reverse_proxy && isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            //admin have choose to allow a reverse proxy,
-            //and HTTP_X_FORWARDED_FOR header means it's beeing using
+            // admin have choose to allow a reverse proxy,
+            // and HTTP_X_FORWARDED_FOR header means it's beeing using
             if (!isset($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
-                throw new UtilsException('Reverse proxy parametter is setted, header HTTP_X_FORWARDED_FOR is found but not the X-Forwarded-Proto. Please check your reverse proxy server settings');
+                throw new HelperException('Reverse proxy parametter is setted, header HTTP_X_FORWARDED_FOR is found but not the X-Forwarded-Proto. Please check your reverse proxy server settings');
             }
 
             $scheme = $_SERVER['HTTP_X_FORWARDED_PROTO'];
@@ -55,7 +55,7 @@ class Http
             $server_name = $name_port_array[0];
 
             $port = isset($name_port_array[1]) ? ':' . $name_port_array[1] : '';
-            if (($port == ':80' && $scheme == 'http') || ($port == ':443' && $scheme == 'https')) {
+            if ((':80' == $port && 'http' == $scheme) || (':443' == $port && 'https' == $scheme)) {
                 $port = '';
             }
 
@@ -70,28 +70,26 @@ class Http
             $server_name = $_SERVER['SERVER_NAME'];
         }
 
-        if (self::$https_scheme_on_443 && $_SERVER['SERVER_PORT'] == '443') {
+        if (self::$https_scheme_on_443 && '443' == $_SERVER['SERVER_PORT']) {
             $scheme = 'https';
             $port   = '';
-        } elseif (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
+        } elseif (!empty($_SERVER['HTTPS']) && 'on' == $_SERVER['HTTPS']) {
             $scheme = 'https';
             $port   = !in_array($_SERVER['SERVER_PORT'], ['80', '443']) ? ':' . $_SERVER['SERVER_PORT'] : '';
         } else {
             $scheme = 'http';
-            $port   = ($_SERVER['SERVER_PORT'] != '80') ? ':' . $_SERVER['SERVER_PORT'] : '';
+            $port   = ('80' != $_SERVER['SERVER_PORT']) ? ':' . $_SERVER['SERVER_PORT'] : '';
         }
 
         return $scheme . '://' . $server_name . $port;
     }
 
     /**
-     * Self root URI
+     * Self root URI.
      *
      * Returns current scheme and host from a static URL.
      *
-     * @param string    $url URL to retrieve the host from.
-     *
-     * @return string
+     * @param string $url URL to retrieve the host from
      */
     public static function getHostFromURL(string $url): string
     {
@@ -102,11 +100,9 @@ class Http
     }
 
     /**
-     * Self URI
+     * Self URI.
      *
      * Returns current URI with full hostname.
-     *
-     * @return string
      */
     public static function getSelfURI(): string
     {
@@ -118,10 +114,11 @@ class Http
     }
 
     /**
-     * Prepare a full redirect URI from a relative or absolute URL
+     * Prepare a full redirect URI from a relative or absolute URL.
      *
-     * @param      string $page Relative URL
-     * @return     string full URI
+     * @param string $page Relative URL
+     *
+     * @return string full URI
      */
     protected static function prepareRedirect(string $page): string
     {
@@ -137,7 +134,7 @@ class Http
                 if (substr($dir, -1) == '/') {
                     $dir = substr($dir, 0, -1);
                 }
-                if ($dir == '.') {
+                if ('.' == $dir) {
                     $dir = '';
                 }
                 $redir = $host . $dir . '/' . $page;
@@ -148,32 +145,32 @@ class Http
     }
 
     /**
-     * Redirect
+     * Redirect.
      *
      * Performs a conforming HTTP redirect for a relative URL.
      *
-     * @param string    $page        Relative URL
+     * @param string $page Relative URL
      */
     public static function redirect(string $page): string
     {
-        # Close session if exists
+        // Close session if exists
         if (session_id()) {
             session_write_close();
         }
 
         header('Location: ' . self::prepareRedirect($page));
+
         exit;
     }
 
     /**
-     * Concat URL and path
+     * Concat URL and path.
      *
      * Appends a path to a given URL. If path begins with "/" it will replace the
      * original URL path.
      *
-     * @param string    $url        URL
-     * @param string    $path    Path to append
-     * @return string
+     * @param string $url  URL
+     * @param string $path Path to append
      */
     public static function concatURL(string $url, string $path): string
     {
@@ -189,7 +186,7 @@ class Http
     }
 
     /**
-     * Real IP
+     * Real IP.
      *
      * Returns the real client IP (or tries to do its best).
      *
@@ -201,12 +198,11 @@ class Http
     }
 
     /**
-     * Client unique ID
+     * Client unique ID.
      *
      * Returns a "almost" safe client unique ID.
      *
-     * @param string    $key        HMAC key
-     * @return string
+     * @param string $key HMAC key
      */
     public static function browserUID(string $key): string
     {
@@ -218,11 +214,9 @@ class Http
     }
 
     /**
-     * Client language
+     * Client language.
      *
      * Returns a two letters language code take from HTTP_ACCEPT_LANGUAGE.
-     *
-     * @return string
      */
     public static function getAcceptLanguage(): string
     {
@@ -237,18 +231,15 @@ class Http
     }
 
     /**
-     * Client languages
+     * Client languages.
      *
      * Returns an array of accepted langages ordered by priority.
      * can be a two letters language code or a xx-xx variant.
-     *
-     * @return array
      */
     public static function getAcceptLanguages(): array
     {
         $langs = [];
         if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-
             // break up string into pieces (languages and q factors)
             preg_match_all(
                 '/([a-z]{1,8}(-[a-z]{1,8})?)\s*(;\s*q\s*=\s*(1|0\.[0-9]+))?/i',
@@ -262,7 +253,7 @@ class Http
 
                 // set default to 1 for any without q factor
                 foreach ($langs as $lang => $val) {
-                    if ($val === '') {
+                    if ('' === $val) {
                         $langs[$lang] = 1;
                     }
                 }
@@ -277,13 +268,13 @@ class Http
     }
 
     /**
-     * HTTP Cache
+     * HTTP Cache.
      *
      * Sends HTTP cache headers (304) according to a list of files and an optionnal.
      * list of timestamps.
      *
-     * @param array        $files        Files on which check mtime
-     * @param array        $mod_ts        List of timestamps
+     * @param array $files  Files on which check mtime
+     * @param array $mod_ts List of timestamps
      */
     public static function cache(array $files, array $mod_ts = []): void
     {
@@ -309,7 +300,7 @@ class Http
             $since = ($since <= $now) ? $since : null;
         }
 
-        # Common headers list
+        // Common headers list
         $headers[] = 'Last-Modified: ' . gmdate('D, d M Y H:i:s', $ts) . ' GMT';
         $headers[] = 'Cache-Control: must-revalidate, max-age=' . abs((int) self::$cache_max_age);
         $headers[] = 'Pragma:';
@@ -319,6 +310,7 @@ class Http
             foreach ($headers as $v) {
                 header($v);
             }
+
             exit;
         }
         header('Date: ' . gmdate('D, d M Y H:i:s', $now) . ' GMT');
@@ -328,13 +320,13 @@ class Http
     }
 
     /**
-     * HTTP Etag
+     * HTTP Etag.
      *
      * Sends HTTP cache headers (304) according to a list of etags in client request.
      */
     public static function etag(): void
     {
-        # We create an etag from all arguments
+        // We create an etag from all arguments
         $args = func_get_args();
         if (empty($args)) {
             return;
@@ -345,11 +337,12 @@ class Http
 
         header('ETag: ' . $etag);
 
-        # Do we have a previously sent content?
+        // Do we have a previously sent content?
         if (!empty($_SERVER['HTTP_IF_NONE_MATCH'])) {
             foreach (explode(',', $_SERVER['HTTP_IF_NONE_MATCH']) as $i) {
                 if (stripslashes(trim($i)) == $etag) {
                     self::head(304, 'Not Modified');
+
                     exit;
                 }
             }
@@ -357,12 +350,12 @@ class Http
     }
 
     /**
-     * HTTP Header
+     * HTTP Header.
      *
      * Sends an HTTP code and message to client.
      *
-     * @param int    $code        HTTP code
-     * @param string    $msg            Message
+     * @param int    $code HTTP code
+     * @param string $msg  Message
      */
     public static function head(int $code, $msg = null): void
     {
@@ -409,7 +402,7 @@ class Http
                 502 => 'Bad Gateway',
                 503 => 'Service Unavailable',
                 504 => 'Gateway Timeout',
-                505 => 'HTTP Version Not Supported'
+                505 => 'HTTP Version Not Supported',
             ];
 
             $msg = $msg_codes[$code] ?? '-';
@@ -423,7 +416,7 @@ class Http
     }
 
     /**
-     * Trim request
+     * Trim request.
      *
      * Trims every value in GET, POST, REQUEST and COOKIE vars.
      * Removes magic quotes if magic_quote_gpc is on.

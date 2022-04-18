@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\UserPref\Admin\Handler
+ * @note Dotclear\Plugin\UserPref\Admin\Handler
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginUserPref
+ * @ingroup  PluginUserPref
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,28 +15,31 @@ namespace Dotclear\Plugin\UserPref\Admin;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
+use Exception;
 
 class Handler extends AbstractPage
 {
     protected function getPermissions(): string|null|false
     {
-        # Super admin
+        // Super admin
         return null;
     }
 
     protected function getPagePrepend(): ?bool
     {
-        # Local navigation
+        // Local navigation
         if (!empty($_POST['gp_nav'])) {
             dotclear()->adminurl()->redirect('admin.plugin.UserPref', [], $_POST['gp_nav']);
+
             exit;
         }
         if (!empty($_POST['lp_nav'])) {
             dotclear()->adminurl()->redirect('admin.plugin.UserPref', [], $_POST['lp_nav']);
+
             exit;
         }
 
-        # Local prefs update
+        // Local prefs update
         if (!empty($_POST['s']) && is_array($_POST['s'])) {
             try {
                 foreach ($_POST['s'] as $ws => $s) {
@@ -51,12 +53,12 @@ class Handler extends AbstractPage
 
                 dotclear()->notice()->addSuccessNotice(__('Preferences successfully updated'));
                 dotclear()->adminurl()->redirect('admin.plugin.UserPref');
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Global prefs update
+        // Global prefs update
         if (!empty($_POST['gs']) && is_array($_POST['gs'])) {
             try {
                 foreach ($_POST['gs'] as $ws => $s) {
@@ -70,23 +72,23 @@ class Handler extends AbstractPage
 
                 dotclear()->notice()->addSuccessNotice(__('Preferences successfully updated'));
                 dotclear()->adminurl()->redirect('admin.plugin.UserPref', ['part' => 'global']);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Page setup
+        // Page setup
         $this
             ->setPageTitle(__('user:preferences'))
             ->setPageHelp('UserPref')
             ->setPageHead(
-                dotclear()->resource()->pageTabs(!empty($_GET['part']) && $_GET['part'] == 'global' ? 'global' : 'local') .
+                dotclear()->resource()->pageTabs(!empty($_GET['part']) && 'global' == $_GET['part'] ? 'global' : 'local') .
                 dotclear()->resource()->load('index.js', 'Plugin', 'UserPref')
             )
             ->setPageBreadcrumb([
                 __('System')                                   => '',
                 Html::escapeHTML(dotclear()->user()->userID()) => '',
-                __('user:preferences')                         => ''
+                __('user:preferences')                         => '',
             ])
         ;
 
@@ -95,8 +97,7 @@ class Handler extends AbstractPage
 
     protected function getPageContent(): void
     {
-        echo
-        '<div id="local" class="multi-part" title="' . __('User preferences') . '">' .
+        echo '<div id="local" class="multi-part" title="' . __('User preferences') . '">' .
         '<h3 class="out-of-screen-if-js">' . __('User preferences') . '</h3>';
 
         $prefs = [];
@@ -145,12 +146,11 @@ class Handler extends AbstractPage
 
     private function prefMenu(array $combo, bool $global): void
     {
-        echo
-        '<form action="' . dotclear()->adminurl()->root() . '" method="post" class="anchor-nav-sticky">' .
+        echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" class="anchor-nav-sticky">' .
         '<p class="anchor-nav">' .
-        '<label for="' . ($global ? 'g' : 'l') .'p_nav" class="classic">' . __('Goto:') . '</label> ' .
-        Form::combo(($global ? 'g' : 'l') .'p_nav', $combo, ['class' => 'navigation']) .
-        ' <input type="submit" value="' . __('Ok') . '" id="' . ($global ? 'g' : 'l') .'p_submit" />' .
+        '<label for="' . ($global ? 'g' : 'l') . 'p_nav" class="classic">' . __('Goto:') . '</label> ' .
+        Form::combo(($global ? 'g' : 'l') . 'p_nav', $combo, ['class' => 'navigation']) .
+        ' <input type="submit" value="' . __('Ok') . '" id="' . ($global ? 'g' : 'l') . 'p_submit" />' .
         dotclear()->adminurl()->getHiddenFormFields('admin.plugin.UserPref', [], true) . '</p></form>';
     }
 
@@ -179,8 +179,7 @@ class Handler extends AbstractPage
             echo $table_footer;
         }
 
-        echo
-        '<p><input type="submit" value="' . __('Save') . '" />' .
+        echo '<p><input type="submit" value="' . __('Save') . '" />' .
         '<input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
         dotclear()->adminurl()->getHiddenFormFields('admin.plugin.UserPref', [], true) . '</p>' .
         '</form>';
@@ -189,36 +188,34 @@ class Handler extends AbstractPage
     private function prefLine(string $id, array $s, string $ws, string $field_name, bool $strong_label): string
     {
         $field = match ($s['type']) {
-            'boolean' => 
-                Form::combo(
-                    [$field_name . '[' . $ws . '][' . $id . ']', $field_name . '_' . $ws . '_' . $id],
-                    [__('yes') => 1, __('no') => 0],
-                    $s['value'] ? 1 : 0
-                ),
-            'array' => 
-                Form::field(
-                    [$field_name . '[' . $ws . '][' . $id . ']', $field_name . '_' . $ws . '_' . $id],
-                    40,
-                    null,
-                    Html::escapeHTML(json_encode($s['value']))
-                ),
-            'integer' =>
-                Form::number(
-                    [$field_name . '[' . $ws . '][' . $id . ']', $field_name . '_' . $ws . '_' . $id],
-                    null,
-                    null,
-                    Html::escapeHTML((string) $s['value'])
-                ),
-            default => 
-                Form::field(
-                    [$field_name . '[' . $ws . '][' . $id . ']', $field_name . '_' . $ws . '_' . $id],
-                    40,
-                    null,
-                    Html::escapeHTML($s['value'])
-                ),
+            'boolean' => Form::combo(
+                [$field_name . '[' . $ws . '][' . $id . ']', $field_name . '_' . $ws . '_' . $id],
+                [__('yes') => 1, __('no') => 0],
+                $s['value'] ? 1 : 0
+            ),
+            'array' => Form::field(
+                [$field_name . '[' . $ws . '][' . $id . ']', $field_name . '_' . $ws . '_' . $id],
+                40,
+                null,
+                Html::escapeHTML(json_encode($s['value']))
+            ),
+            'integer' => Form::number(
+                [$field_name . '[' . $ws . '][' . $id . ']', $field_name . '_' . $ws . '_' . $id],
+                null,
+                null,
+                Html::escapeHTML((string) $s['value'])
+            ),
+            default => Form::field(
+                [$field_name . '[' . $ws . '][' . $id . ']', $field_name . '_' . $ws . '_' . $id],
+                40,
+                null,
+                Html::escapeHTML($s['value'])
+            ),
         };
-        $type = Form::hidden([$field_name . '_type' . '[' . $ws . '][' . $id . ']', $field_name . '_' . $ws . '_' . $id . '_type'],
-            Html::escapeHTML($s['type']));
+        $type = Form::hidden(
+            [$field_name . '_type' . '[' . $ws . '][' . $id . ']', $field_name . '_' . $ws . '_' . $id . '_type'],
+            Html::escapeHTML($s['type'])
+        );
 
         $slabel = $strong_label ? '<strong>%s</strong>' : '%s';
 
@@ -229,6 +226,5 @@ class Handler extends AbstractPage
         '<td>' . $s['type'] . $type . '</td>' .
         '<td>' . Html::escapeHTML($s['label']) . '</td>' .
             '</tr>';
-
     }
 }

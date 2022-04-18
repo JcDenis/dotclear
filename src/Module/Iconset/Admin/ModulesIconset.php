@@ -1,9 +1,8 @@
 <?php
 /**
- * @class Dotclear\Module\Iconset\Admin\ModulesIconset
+ * @note Dotclear\Module\Iconset\Admin\ModulesIconset
  *
- * @package Dotclear
- * @subpackage Module
+ * @ingroup  Module
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,7 +17,8 @@ use Dotclear\Module\Iconset\TraitModulesIconset;
 
 class ModulesIconset extends AbstractModules
 {
-    use TraitModulesAdmin, TraitModulesIconset;
+    use TraitModulesAdmin;
+    use TraitModulesIconset;
 
     protected function register(): bool
     {
@@ -37,7 +37,7 @@ class ModulesIconset extends AbstractModules
             'title'      => __('Iconsets management'),
             'url'        => dotclear()->adminurl()->get('admin.iconset'),
             'small-icon' => 'images/menu/no-icon.svg',
-            'large-icon' => 'images/menu/no-icon.svg'
+            'large-icon' => 'images/menu/no-icon.svg',
         ]);
 
         return dotclear()->adminurl()->is('admin.iconset');
@@ -52,11 +52,11 @@ class ModulesIconset extends AbstractModules
     {
         return dotclear()->adminurl()->get('admin.iconset.' . $id, $param);
     }
-/*
-    public function displayModules(array $cols = ['name', 'version', 'desc'], array $actions = [], bool $nav_limit = false): static
-    {
+    /*
+        public function displayModules(array $cols = ['name', 'version', 'desc'], array $actions = [], bool $nav_limit = false): static
+        {
 
-        return $this;
-    }
-*/
+            return $this;
+        }
+    */
 }

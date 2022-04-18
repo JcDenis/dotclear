@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskSynchpostsmeta
+ * @note Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskSynchpostsmeta
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginMaintenance
+ * @ingroup  PluginMaintenance
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -61,29 +60,34 @@ class MaintenanceTaskSynchpostsmeta extends MaintenanceTask
     protected function synchronizeAllPostsmeta(?int $start = null, ?int $limit = null): ?int
     {
         $sql = SelectStatement::init(__METHOD__)
-            ->from(dotclear()->prefix . 'post');
+            ->from(dotclear()->prefix . 'post')
+        ;
 
         $sql_mid = SelectStatement::init(__METHOD__)
-            ->from(dotclear()->prefix . 'meta');
+            ->from(dotclear()->prefix . 'meta')
+        ;
 
         $sql_upd = UpdateStatement::init(__METHOD__)
-            ->from(dotclear()->prefix . 'post');
+            ->from(dotclear()->prefix . 'post')
+        ;
 
-        # Get number of posts
+        // Get number of posts
         $count = $sql
             ->column($sql->count('post_id'))
             ->select()
-            ->fInt();
+            ->fInt()
+        ;
 
-        # Get posts ids to update
+        // Get posts ids to update
         if (null !== $start && null !== $limit) {
             $sql->limit([$start, $limit]);
         }
         $rs = $sql
-            ->column('post_id', true) # re-use statement
-            ->select();
+            ->column('post_id', true) // re-use statement
+            ->select()
+        ;
 
-        # Update posts meta
+        // Update posts meta
         while ($rs->fetch()) {
             $rs_meta = $sql_mid
                 ->columns([
@@ -91,7 +95,8 @@ class MaintenanceTaskSynchpostsmeta extends MaintenanceTask
                     'meta_type',
                 ], true)
                 ->where('post_id = ' . $rs->fInt('post_id'), true)
-                ->select();
+                ->select()
+            ;
 
             $meta = [];
             while ($rs_meta->fetch()) {
@@ -101,11 +106,12 @@ class MaintenanceTaskSynchpostsmeta extends MaintenanceTask
             $sql_upd
                 ->set('post_meta = ' . $sql->quote(serialize($meta)), true)
                 ->where('post_id = ' . $rs->fInt('post_id'), true)
-                ->update();
+                ->update()
+            ;
         }
         dotclear()->blog()->triggerBlog();
 
-        # Return next step
+        // Return next step
         return $start + $limit > $count ? null : $start + $limit;
     }
 }

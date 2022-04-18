@@ -1,7 +1,18 @@
 <?php
 /**
- * @class Dotclear\Helper\Network\Xmlrpc\IntrospectionServer
- * @brief XML-RPC Introspection Server
+ * @package Dotclear
+ *
+ * @copyright Olivier Meunier & Association Dotclear
+ * @copyright GPL-2.0-only
+ */
+declare(strict_types=1);
+
+namespace Dotclear\Helper\Network\Xmlrpc;
+
+/**
+ * XML-RPC Introspection Server.
+ *
+ * \Dotclear\Helper\Network\Xmlrpc\IntrospectionServer
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
@@ -16,36 +27,23 @@
  * - system.methodHelp
  * - system.multicall
  *
- * @package Dotclear
- * @subpackage Network
- *
- * @copyright Olivier Meunier & Association Dotclear
- * @copyright GPL-2.0-only
+ * @ingroup  Helper Network Xmlrpc
  */
-declare(strict_types=1);
-
-namespace Dotclear\Helper\Network\Xmlrpc;
-
-use Dotclear\Helper\Network\Xmlrpc\Server;
-use Dotclear\Helper\Network\Xmlrpc\Date;
-use Dotclear\Helper\Network\Xmlrpc\Base64;
-use Dotclear\Helper\Network\Xmlrpc\XmlrpcException;
-
 class IntrospectionServer extends Server
 {
-    /** @var    array   $signatures     ... */
+    /** @var array ... */
     protected $signatures;
 
-    /** @var    array   $help   ... */
+    /** @var array ... */
     protected $help;
 
     /**
-     * Constructor
+     * Constructor.
      *
      * This method should be inherited to add new callbacks with
      * {@link addCallback()}.
      *
-     * @param   string  $encoding   Server encoding
+     * @param string $encoding Server encoding
      */
     public function __construct(protected string $encoding = 'UTF-8')
     {
@@ -94,15 +92,15 @@ class IntrospectionServer extends Server
     }
 
     /**
-     * Add Server Callback
+     * Add Server Callback.
      *
      * This method creates a new XML-RPC method which references a class
      * callback. <var>$callback</var> should be a valid PHP callback.
      *
-     * @param   string      $method     Method name
-     * @param   callable    $callback   Method callback
-     * @param   array       $args       Array of arguments type. The first is the returned one.
-     * @param   string      $help       Method help string
+     * @param string   $method   Method name
+     * @param callable $callback Method callback
+     * @param array    $args     Array of arguments type. The first is the returned one.
+     * @param string   $help     Method help string
      */
     protected function addCallback(string $method, $callback, array $args, string $help): void
     {
@@ -112,24 +110,22 @@ class IntrospectionServer extends Server
     }
 
     /**
-     * Method call
+     * Method call.
      *
      * This method calls the callbacks function or method for the given XML-RPC
      * method <var>$methodname</var> with arguments in <var>$args</var> array.
      *
-     * @param   string  $methodname     Method name
-     * @param   mixed   $args           Arguments
-     * 
-     * @return  mixed
+     * @param string $methodname Method name
+     * @param mixed  $args       Arguments
      */
     protected function call(string $methodname, mixed $args): mixed
     {
-        # Make sure it's in an array
+        // Make sure it's in an array
         if ($args && !is_array($args)) {
             $args = [$args];
         }
 
-        # Over-rides default call method, adds signature check
+        // Over-rides default call method, adds signature check
         if (!$this->hasMethod($methodname)) {
             throw new XmlrpcException('Server error. Requested method "' . $methodname . '" not specified.', -32601);
         }
@@ -143,33 +139,31 @@ class IntrospectionServer extends Server
 
         $return_type = array_shift($signature);
 
-        # Check the number of arguments
+        // Check the number of arguments
         if (count($args) > count($signature)) {
             throw new XmlrpcException('Server error. Wrong number of method parameters', -32602);
         }
 
-        # Check the argument types
+        // Check the argument types
         if (!$this->checkArgs($args, $signature)) {
             throw new XmlrpcException('Server error. Invalid method parameters', -32602);
         }
 
-        # It passed the test - run the "real" method call
+        // It passed the test - run the "real" method call
         return parent::call($methodname, $args);
     }
 
     /**
-     * Method Arguments Check
+     * Method Arguments Check.
      *
      * This method checks the validity of method arguments.
      *
-     * @param   array   $args       Method given arguments
-     * @param   array   $signature  Method defined arguments
-     * 
-     * @return  bool
+     * @param array $args      Method given arguments
+     * @param array $signature Method defined arguments
      */
     protected function checkArgs(array $args, array $signature): bool
     {
-        for ($i = 0, $j = count($args); $i < $j; $i++) {
+        for ($i = 0, $j = count($args); $i < $j; ++$i) {
             $arg  = array_shift($args);
             $type = array_shift($signature);
 
@@ -181,6 +175,7 @@ class IntrospectionServer extends Server
                     }
 
                     break;
+
                 case 'base64':
                 case 'string':
                     if (!is_string($arg)) {
@@ -188,12 +183,14 @@ class IntrospectionServer extends Server
                     }
 
                     break;
+
                 case 'boolean':
-                    if ($arg !== false && $arg !== true) {
+                    if (false !== $arg && true !== $arg) {
                         return false;
                     }
 
                     break;
+
                 case 'float':
                 case 'double':
                     if (!is_float($arg)) {
@@ -201,6 +198,7 @@ class IntrospectionServer extends Server
                     }
 
                     break;
+
                 case 'date':
                 case 'dateTime.iso8601':
                     if (!($arg instanceof Date)) {
@@ -215,13 +213,11 @@ class IntrospectionServer extends Server
     }
 
     /**
-     * Method Signature
+     * Method Signature.
      *
      * This method return given XML-RPC method signature.
      *
-     * @param   string  $method     Method name
-     * 
-     * @return  array
+     * @param string $method Method name
      */
     protected function methodSignature(string $method): array
     {
@@ -229,7 +225,7 @@ class IntrospectionServer extends Server
             throw new XmlrpcException('Server error. Requested method "' . $method . '" not specified.', -32601);
         }
 
-        # We should be returning an array of types
+        // We should be returning an array of types
         $types  = $this->signatures[$method];
         $return = [];
 
@@ -239,31 +235,38 @@ class IntrospectionServer extends Server
                     $return[] = 'string';
 
                     break;
+
                 case 'int':
                 case 'i4':
                     $return[] = 42;
 
                     break;
+
                 case 'double':
                     $return[] = 3.1415;
 
                     break;
+
                 case 'dateTime.iso8601':
                     $return[] = new Date(time());
 
                     break;
+
                 case 'boolean':
                     $return[] = true;
 
                     break;
+
                 case 'base64':
                     $return[] = new Base64('base64');
 
                     break;
+
                 case 'array':
                     $return[] = ['array'];
 
                     break;
+
                 case 'struct':
                     $return[] = ['struct' => 'struct'];
 
@@ -275,13 +278,11 @@ class IntrospectionServer extends Server
     }
 
     /**
-     * Method Help
+     * Method Help.
      *
      * This method return given XML-RPC method help string.
      *
-     * @param   string  $method     Method name
-     * 
-     * @return  string
+     * @param string $method Method name
      */
     protected function methodHelp(string $method): string
     {

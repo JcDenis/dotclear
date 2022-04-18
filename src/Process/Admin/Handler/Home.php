@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Handler\Home
+ * @note Dotclear\Process\Admin\Handler\Home
  * @brief Dotclear admin home page
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,12 +13,12 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 use ArrayObject;
-
-use Dotclear\Process\Admin\Page\Page;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
+use Exception;
 
-class Home extends Page
+class Home extends AbstractPage
 {
     private $dragndrop_msg = ['dashboard', 'toggles', 'accessibility'];
 
@@ -27,17 +26,17 @@ class Home extends Page
 
     protected function getPermissions(): string|null|false
     {
-        # Set default blog
+        // Set default blog
         if (!empty($_GET['default_blog'])) {
             try {
                 dotclear()->users()->setUserDefaultBlog(dotclear()->user()->userID(), dotclear()->blog()->id);
                 dotclear()->adminurl()->redirect('admin.home');
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Logout
+        // Logout
         if (!empty($_GET['logout'])) {
             dotclear()->session()->destroy();
             if (isset($_COOKIE['dc_admin'])) {
@@ -45,6 +44,7 @@ class Home extends Page
                 setcookie('dc_admin', '', -600, '', '', dotclear()->config()->get('admin_ssl'));
             }
             dotclear()->adminurl()->redirect('admin.auth');
+
             exit;
         }
 
@@ -53,12 +53,12 @@ class Home extends Page
 
     protected function getPagePrepend(): ?bool
     {
-        $this->dragndrop_msg  = [
+        $this->dragndrop_msg = [
             'dragndrop_off' => __("Dashboard area's drag and drop is disabled"),
-            'dragndrop_on'  => __("Dashboard area's drag and drop is enabled")
+            'dragndrop_on'  => __("Dashboard area's drag and drop is enabled"),
         ];
 
-        # Module Plugin //! move this to Modules Plugin
+        // Module Plugin //! move this to Modules Plugin
         if (dotclear()->plugins()) {
             if (dotclear()->plugins()->disableModulesDependencies(dotclear()->adminurl()->get('admin.home'))) {
                 exit;
@@ -67,7 +67,7 @@ class Home extends Page
             $this->plugins_install = dotclear()->plugins()->installModules();
         }
 
-        # Check dashboard module prefs
+        // Check dashboard module prefs
         if (!dotclear()->user()->preference()->get('dashboard')->prefExists('doclinks')) {
             if (!dotclear()->user()->preference()->get('dashboard')->prefExists('doclinks', true)) {
                 dotclear()->user()->preference()->get('dashboard')->put('doclinks', true, 'boolean', '', null, true);
@@ -98,7 +98,7 @@ class Home extends Page
             dotclear()->user()->preference()->get('toggles')->put('unfolded_sections', '', 'string', 'Folded sections in admin', null, true);
         }
 
-        # Editor stuff
+        // Editor stuff
         $admin_post_behavior = '';
         if (dotclear()->user()->preference()->get('dashboard')->get('quickentry')) {
             if (dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id)) {
@@ -111,7 +111,7 @@ class Home extends Page
             }
         }
 
-        # Dashboard drag'n'drop switch for its elements
+        // Dashboard drag'n'drop switch for its elements
         $dragndrop_head = '';
         if (!dotclear()->user()->preference()->get('accessibility')->get('nodragdrop')) {
             $dragndrop_head = dotclear()->resource()->json('dotclear_dragndrop', $this->dragndrop_msg);
@@ -128,7 +128,7 @@ class Home extends Page
         );
         $this->setPageBreadcrumb(
             [
-                __('Dashboard') . ' : ' . Html::escapeHTML(dotclear()->blog()->name) => ''
+                __('Dashboard') . ' : ' . Html::escapeHTML(dotclear()->blog()->name) => '',
             ],
             ['home_link' => false]
         );
@@ -138,18 +138,18 @@ class Home extends Page
 
     protected function getPageContent(): void
     {
-        # Dashboard icons
+        // Dashboard icons
         $__dashboard_icons = new ArrayObject();
 
         dotclear()->favorite()->getUserFavorites();
         dotclear()->favorite()->appendDashboardIcons($__dashboard_icons);
 
-        # Latest news for dashboard
+        // Latest news for dashboard
         $__dashboard_items = new ArrayObject([new ArrayObject(), new ArrayObject()]);
 
         $dashboardItem = 0;
 
-        # Documentation links
+        // Documentation links
         if (dotclear()->user()->preference()->get('dashboard')->get('doclinks')) {
             if (!empty(dotclear()->help()->doc())) {
                 $doc_links = '<div class="box small dc-box" id="doc-and-support"><h3>' . __('Documentation and support') . '</h3><ul>';
@@ -161,19 +161,19 @@ class Home extends Page
 
                 $doc_links .= '</ul></div>';
                 $__dashboard_items[$dashboardItem][] = $doc_links;
-                $dashboardItem++;
+                ++$dashboardItem;
             }
         }
 
         dotclear()->behavior()->call('adminDashboardItems', $__dashboard_items);
 
-        # Dashboard content
-        $__dashboard_contents = new ArrayObject([new ArrayObject, new ArrayObject]);
+        // Dashboard content
+        $__dashboard_contents = new ArrayObject([new ArrayObject(), new ArrayObject()]);
         dotclear()->behavior()->call('adminDashboardContents', $__dashboard_contents);
 
-        $dragndrop      = '';
+        $dragndrop = '';
         if (!dotclear()->user()->preference()->get('accessibility')->get('nodragdrop')) {
-            $dragndrop      = '<input type="checkbox" id="dragndrop" class="sr-only" title="' . $this->dragndrop_msg['dragndrop_off'] . '" />' .
+            $dragndrop = '<input type="checkbox" id="dragndrop" class="sr-only" title="' . $this->dragndrop_msg['dragndrop_off'] . '" />' .
                 '<label for="dragndrop">' .
                 '<svg aria-hidden="true" focusable="false" class="dragndrop-svg">' .
                 '<use xlink:href="?df=images/dragndrop.svg#mask"></use>' .
@@ -183,8 +183,7 @@ class Home extends Page
         }
 
         if (dotclear()->user()->getInfo('user_default_blog') != dotclear()->blog()->id && dotclear()->user()->getBlogCount() > 1) {
-            echo
-            '<p><a href="' . dotclear()->adminurl()->get('admin.home', ['default_blog' => 1]) . '" class="button">' . __('Make this blog my default blog') . '</a></p>';
+            echo '<p><a href="' . dotclear()->adminurl()->get('admin.home', ['default_blog' => 1]) . '" class="button">' . __('Make this blog my default blog') . '</a></p>';
         }
 
         if (dotclear()->blog()->status == 0) {
@@ -194,16 +193,14 @@ class Home extends Page
         }
 
         if (!dotclear()->config()->get('admin_url')) {
-            echo
-            '<p class="static-msg">' .
+            echo '<p class="static-msg">' .
             sprintf(__('%s is not defined, you should edit your configuration file.'), 'admin_url') .
             ' ' . __('See <a href="https://dotclear.org/documentation/2.0/admin/config">documentation</a> for more information.') .
                 '</p>';
         }
 
         if (!dotclear()->config()->get('admin_mailform')) {
-            echo
-            '<p class="static-msg">' .
+            echo '<p class="static-msg">' .
             sprintf(__('%s is not defined, you should edit your configuration file.'), 'admin_mailform') .
             ' ' . __('See <a href="https://dotclear.org/documentation/2.0/admin/config">documentation</a> for more information.') .
                 '</p>';
@@ -211,7 +208,7 @@ class Home extends Page
 
         $err = [];
 
-        # Check cache directory
+        // Check cache directory
         if (dotclear()->user()->isSuperAdmin()) {
             if (!is_dir(dotclear()->config()->get('cache_dir')) || !is_writable(dotclear()->config()->get('cache_dir'))) {
                 $err[] = '<p>' . __('The cache directory does not exist or is not writable. You must create this directory with sufficient rights and affect this location to "cache_dir" in config.php file.') . '</p>';
@@ -222,7 +219,7 @@ class Home extends Page
             }
         }
 
-        # Check public directory
+        // Check public directory
         if (dotclear()->user()->isSuperAdmin()) {
             if (!dotclear()->blog()->public_path || !is_dir(dotclear()->blog()->public_path) || !is_writable(dotclear()->blog()->public_path)) {
                 $err[] = '<p>' . __('There is no writable directory /public/ at the location set in about:config "public_path". You must create this directory with sufficient rights (or change this setting).') . '</p>';
@@ -233,20 +230,20 @@ class Home extends Page
             }
         }
 
-        # Error list
+        // Error list
         if (count($err) > 0) {
             echo '<div class="error"><p><strong>' . __('Error:') . '</strong></p>' .
             '<ul><li>' . implode('</li><li>', $err) . '</li></ul></div>';
         }
 
-        # Module Plugin
+        // Module Plugin
         if (dotclear()->plugins()) {
-            # Plugins install messages
+            // Plugins install messages
             if (!empty($this->plugins_install['success'])) {
                 echo '<div class="success">' . __('Following plugins have been installed:') . '<ul>';
                 foreach ($this->plugins_install['success'] as $k => $v) {
                     $info = implode(' - ', dotclear()->plugins()->getSettingsUrls($k, true));
-                    echo '<li>' . $k . ($info !== '' ? ' → ' . $info : '') . '</li>';
+                    echo '<li>' . $k . ('' !== $info ? ' → ' . $info : '') . '</li>';
                 }
                 echo '</ul></div>';
             }
@@ -258,53 +255,52 @@ class Home extends Page
                 echo '</ul></div>';
             }
 
-            # Errors modules notifications
+            // Errors modules notifications
             if (dotclear()->user()->isSuperAdmin()) {
                 if (dotclear()->plugins()->error()->flag()) {
-                    echo
-                    '<div class="error" id="module-errors" class="error"><p>' . __('Errors have occured with following plugins:') . '</p> ' .
+                    echo '<div class="error" id="module-errors" class="error"><p>' . __('Errors have occured with following plugins:') . '</p> ' .
                     '<ul><li>' . implode("</li>\n<li>", dotclear()->plugins()->error()->dump()) . '</li></ul></div>';
                 }
             }
         }
 
-        # Get current main orders
+        // Get current main orders
         $main_order = dotclear()->user()->preference()->get('dashboard')->get('main_order');
-        $main_order = ($main_order != '' ? explode(',', $main_order) : []);
+        $main_order = ('' != $main_order ? explode(',', $main_order) : []);
 
-        # Get current boxes orders
+        // Get current boxes orders
         $boxes_order = dotclear()->user()->preference()->get('dashboard')->get('boxes_order');
-        $boxes_order = ($boxes_order != '' ? explode(',', $boxes_order) : []);
+        $boxes_order = ('' != $boxes_order ? explode(',', $boxes_order) : []);
 
-        # Get current boxes items orders
+        // Get current boxes items orders
         $boxes_items_order = dotclear()->user()->preference()->get('dashboard')->get('boxes_items_order');
-        $boxes_items_order = ($boxes_items_order != '' ? explode(',', $boxes_items_order) : []);
+        $boxes_items_order = ('' != $boxes_items_order ? explode(',', $boxes_items_order) : []);
 
-        # Get current boxes contents orders
+        // Get current boxes contents orders
         $boxes_contents_order = dotclear()->user()->preference()->get('dashboard')->get('boxes_contents_order');
-        $boxes_contents_order = ($boxes_contents_order != '' ? explode(',', $boxes_contents_order) : []);
+        $boxes_contents_order = ('' != $boxes_contents_order ? explode(',', $boxes_contents_order) : []);
 
-        # Compose dashboard items (doc, …)
+        // Compose dashboard items (doc, …)
         $dashboardItems = $this->composeItems($boxes_items_order, $__dashboard_items);
-        # Compose dashboard contents (plugin's modules)
+        // Compose dashboard contents (plugin's modules)
         $dashboardContents = $this->composeItems($boxes_contents_order, $__dashboard_contents);
 
         $__dashboard_boxes = [];
-        if ($dashboardItems != '') {
+        if ('' != $dashboardItems) {
             $__dashboard_boxes[] = '<div class="db-items" id="db-items">' . $dashboardItems . '</div>';
         }
-        if ($dashboardContents != '') {
+        if ('' != $dashboardContents) {
             $__dashboard_boxes[] = '<div class="db-contents" id="db-contents">' . $dashboardContents . '</div>';
         }
         $dashboardBoxes = $this->composeItems($boxes_order, $__dashboard_boxes, true);
 
-        # Compose main area
+        // Compose main area
         $__dashboard_main = [];
         if (!dotclear()->user()->preference()->get('dashboard')->get('nofavicons')) {
-            # Dashboard icons
+            // Dashboard icons
             $dashboardIcons = '<div id="icons">';
             foreach ($__dashboard_icons as $dib => $i) {
-                $dashboardIcons .= '<p id="db-icon-'. $dib . '"><a href="' . $i[1] . '">' . dotclear()->summary()->getIconTheme($i[2]) .
+                $dashboardIcons .= '<p id="db-icon-' . $dib . '"><a href="' . $i[1] . '">' . dotclear()->summary()->getIconTheme($i[2]) .
                     '<br /><span class="db-icon-title">' . $i[0] . '</span></a></p>';
             }
             $dashboardIcons .= '</div>';
@@ -312,7 +308,7 @@ class Home extends Page
         }
         if (dotclear()->user()->preference()->get('dashboard')->get('quickentry')) {
             if (dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id)) {
-                # Getting categories
+                // Getting categories
                 $categories_combo = dotclear()->combo()->getCategoriesCombo(
                     dotclear()->blog()->categories()->getCategories([])
                 );
@@ -324,7 +320,7 @@ class Home extends Page
                 '<p class="col"><label for="post_title" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Title:') . '</label>' .
                 Form::field('post_title', 20, 255, [
                     'class'      => 'maximal',
-                    'extra_html' => 'required placeholder="' . __('Title') . '"'
+                    'extra_html' => 'required placeholder="' . __('Title') . '"',
                 ]) .
                 '</p>' .
                 '<div class="area"><label class="required" ' .
@@ -360,7 +356,7 @@ class Home extends Page
                 $__dashboard_main[] = $dashboardQuickEntry;
             }
         }
-        if ($dashboardBoxes != '') {
+        if ('' != $dashboardBoxes) {
             $__dashboard_main[] = '<div id="dashboard-boxes">' . $dashboardBoxes . '</div>';
         }
         $dashboardMain = $this->composeItems($main_order, $__dashboard_main, true);
@@ -383,40 +379,40 @@ class Home extends Page
             }
         }
 
-        # First loop to find ordered indexes
+        // First loop to find ordered indexes
         $order = [];
         $index = 0;
         foreach ($items as $v) {
             if (preg_match('/<div.*?id="([^"].*?)".*?>/ms', $v, $match)) {
                 $id       = $match[1];
                 $position = array_search($id, $list, true);
-                if ($position !== false) {
+                if (false !== $position) {
                     $order[$position] = $index;
                 }
             }
-            $index++;
+            ++$index;
         }
 
-        # Second loop to combine ordered items
+        // Second loop to combine ordered items
         $index = 0;
         foreach ($items as $v) {
             $position = array_search($index, $order, true);
-            if ($position !== false) {
+            if (false !== $position) {
                 $ret[$position] = $v;
             }
-            $index++;
+            ++$index;
         }
-        # Reorder items on their position (key)
+        // Reorder items on their position (key)
         ksort($ret);
 
-        # Third loop to combine unordered items
+        // Third loop to combine unordered items
         $index = 0;
         foreach ($items as $v) {
             $position = array_search($index, $order, true);
-            if ($position === false) {
+            if (false === $position) {
                 $ret[count($ret)] = $v;
             }
-            $index++;
+            ++$index;
         }
 
         return join('', $ret);

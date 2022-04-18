@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Handler\Posts
+ * @note Dotclear\Process\Admin\Handler\Posts
  * @brief Dotclear admin posts list page
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,14 +12,14 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
-use Dotclear\Process\Admin\Page\Page;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Action\Action\PostAction;
 use Dotclear\Process\Admin\Inventory\Inventory\PostInventory;
 use Dotclear\Process\Admin\Filter\Filter\PostFilter;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 
-class Posts extends Page
+class Posts extends AbstractPage
 {
     protected function getPermissions(): string|null|false
     {
@@ -39,18 +38,18 @@ class Posts extends Page
 
     protected function getInventoryInstance(): ?PostInventory
     {
-        # get list params
+        // get list params
         $params = $this->filter->params();
 
-        # lexical sort
+        // lexical sort
         $sortby_lex = [
             // key in sorty_combo (see above) => field in SQL request
             'post_title' => 'post_title',
             'cat_title'  => 'cat_title',
-            'user_id'    => 'P.user_id'];
+            'user_id'    => 'P.user_id', ];
 
-        # --BEHAVIOR-- adminPostsSortbyLexCombo
-        dotclear()->behavior()->call('adminPostsSortbyLexCombo', [& $sortby_lex]);
+        // --BEHAVIOR-- adminPostsSortbyLexCombo
+        dotclear()->behavior()->call('adminPostsSortbyLexCombo', [&$sortby_lex]);
 
         $params['order'] = (array_key_exists($this->filter->get('sortby'), $sortby_lex) ?
             dotclear()->con()->lexFields($sortby_lex[$this->filter->get('sortby')]) :
@@ -74,7 +73,7 @@ class Posts extends Page
         );
         $this->setPageBreadcrumb([
             Html::escapeHTML(dotclear()->blog()->name) => '',
-            __('Posts')                               => ''
+            __('Posts')                                => '',
         ]);
 
         return true;
@@ -90,11 +89,13 @@ class Posts extends Page
         if (!dotclear()->error()->flag()) {
             echo '<p class="top-add"><a class="button add" href="' . dotclear()->adminurl()->get('admin.post') . '">' . __('New post') . '</a></p>';
 
-            # filters
+            // filters
             $this->filter->display('admin.posts');
 
-            # Show posts
-            $this->inventory->display($this->filter->get('page'), $this->filter->get('nb'),
+            // Show posts
+            $this->inventory->display(
+                $this->filter->get('page'),
+                $this->filter->get('nb'),
                 '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-entries">' .
 
                 '%s' .

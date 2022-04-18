@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\ThemeEditor\Admin\Prepend
+ * @note Dotclear\Plugin\ThemeEditor\Admin\Prepend
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginThemeEditor
+ * @ingroup  PluginThemeEditor
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,13 +12,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\ThemeEditor\Admin;
 
-use Dotclear\Process\Admin\Page\Page;
 use Dotclear\Database\Cursor;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\File\Path;
 use Dotclear\Module\AbstractDefine;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
+use Exception;
 
 class Prepend extends AbstractPrepend
 {
@@ -53,9 +52,11 @@ class Prepend extends AbstractPrepend
         // Get and store user's prefs for plugin options
         try {
             dotclear()->user()->preference()->get('interface')->put('colorsyntax', !empty($_POST['colorsyntax']), 'boolean');
-            dotclear()->user()->preference()->get('interface')->put('colorsyntax_theme',
-                (!empty($_POST['colorsyntax_theme']) ? $_POST['colorsyntax_theme'] : ''));
-        } catch (\Exception $e) {
+            dotclear()->user()->preference()->get('interface')->put(
+                'colorsyntax_theme',
+                (!empty($_POST['colorsyntax_theme']) ? $_POST['colorsyntax_theme'] : '')
+            );
+        } catch (Exception $e) {
             dotclear()->error()->add($e->getMessage());
         }
     }
@@ -70,22 +71,22 @@ class Prepend extends AbstractPrepend
             $themes_combo[$theme] = $theme;
         }
 
-        echo
-        '<div class="fieldset two-cols clearfix">' .
+        echo '<div class="fieldset two-cols clearfix">' .
         '<h5 id="themeEditor_prefs">' . __('Syntax highlighting') . '</h5>';
-        echo
-        '<div class="col">' .
+        echo '<div class="col">' .
         '<p><label for="colorsyntax" class="classic">' .
         Form::checkbox('colorsyntax', 1, (int) dotclear()->user()->preference()->get('interface')->get('colorsyntax')) . '</label>' .
         __('Syntax highlighting in theme editor') .
             '</p>';
         if (1 < count($themes_combo)) {
-            echo
-            '<p><label for="colorsyntax_theme" class="classic">' . __('Theme:') . '</label> ' .
-            Form::combo('colorsyntax_theme', $themes_combo,
+            echo '<p><label for="colorsyntax_theme" class="classic">' . __('Theme:') . '</label> ' .
+            Form::combo(
+                'colorsyntax_theme',
+                $themes_combo,
                 [
-                    'default' => $current_theme
-                ]) .
+                    'default' => $current_theme,
+                ]
+            ) .
                 '</p>';
         } else {
             echo Form::hidden('colorsyntax_theme', '');
@@ -110,8 +111,7 @@ function findSequence(goal) {
   }
   return find(1, "1");
 }</textarea>';
-        echo
-        dotclear()->resource()->json('theme_editor_current', ['theme' => $current_theme]) .
+        echo dotclear()->resource()->json('theme_editor_current', ['theme' => $current_theme]) .
         dotclear()->resource()->load('theme.js', 'Plugin', 'ThemeEditor');
         echo '</div>';
         echo '</div>';

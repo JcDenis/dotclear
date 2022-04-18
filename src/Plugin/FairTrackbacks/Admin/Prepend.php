@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\FairTrackbacks\Admin\Prepend
+ * @note Dotclear\Plugin\FairTrackbacks\Admin\Prepend
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginFairTrackbacks
+ * @ingroup  PluginFairTrackbacks
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only

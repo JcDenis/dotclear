@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat\FlatBackup
+ * @note Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat\FlatBackup
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginImportExport
+ * @ingroup  PluginImportExport
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,7 +13,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat;
 
 use Dotclear\Exception\ModuleException;
-use Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat\FlatBackupItem;
 
 class FlatBackup
 {
@@ -49,7 +47,7 @@ class FlatBackup
 
     public function getLine()
     {
-        if (($line = $this->nextLine()) === false) {
+        if (false === ($line = $this->nextLine())) {
             return false;
         }
 
@@ -60,7 +58,8 @@ class FlatBackup
             $this->line_cols = explode(',', $line);
 
             return $this->getLine();
-        } elseif (substr($line, 0, 1) == '"') {
+        }
+        if (substr($line, 0, 1) == '"') {
             $line = preg_replace('/^"|"$/', '', $line);
             $line = preg_split('/(^"|","|(?<!\\\)\"$)/m', $line);
 
@@ -70,7 +69,7 @@ class FlatBackup
 
             $res = [];
 
-            for ($i = 0; $i < count($line); $i++) {
+            for ($i = 0; count($line) > $i; ++$i) {
                 $res[$this->line_cols[$i]] = preg_replace(array_keys($this->replacement), array_values($this->replacement), $line[$i]);
             }
 
@@ -85,7 +84,7 @@ class FlatBackup
         if (feof($this->fp)) {
             return false;
         }
-        $this->line_num++;
+        ++$this->line_num;
 
         $line = fgets($this->fp);
         $line = trim((string) $line);

@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Handler\Services
+ * @note Dotclear\Process\Admin\Handler\Services
  * @brief Dotclear admin rest service page
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,10 +12,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
-use Dotclear\Process\Admin\Page\Page;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Service\RestMethods;
 
-class Services extends Page
+class Services extends AbstractPage
 {
     protected function getPermissions(): string|null|false
     {

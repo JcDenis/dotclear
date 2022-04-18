@@ -1,15 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Network\Feed\Parser
- * @brief Feed parser
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
- * This class can read RSS 1.0, RSS 2.0, Atom 0.3 and Atom 1.0 feeds. Works with
- * {@link Dotclear\Helper\Network\Feed\Reader}
- *
  * @package Dotclear
- * @subpackage Network
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,33 +9,45 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Network\Feed;
 
-use \stdClass;
-use \SimpleXMLElement;
+use stdClass;
+use SimpleXMLElement;
 
+/**
+ * Feed parser.
+ *
+ * \Dotclear\Helper\Network\Feed\Parser
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * This class can read RSS 1.0, RSS 2.0, Atom 0.3 and Atom 1.0 feeds. Works with
+ * {@link Dotclear\Helper\Network\Feed\Reader}
+ *
+ * @ingroup  Helper Network Feed
+ */
 class Parser
 {
-    /** @var    string  $feed_type   Feed type */
+    /** @var string Feed type */
     public $feed_type;
 
-    /** @var    string  $title  Feed title */
+    /** @var string Feed title */
     public $title;
 
-    /** @var    string  $link   Feed link */
+    /** @var string Feed link */
     public $link;
 
-    /** @var    string  $description    Feed description */
+    /** @var string Feed description */
     public $description;
 
-    /** @var    string  $pubdate    Feed publication date */
+    /** @var string Feed publication date */
     public $pubdate;
 
-    /** @var    string  $generator   Feed generator */
+    /** @var string Feed generator */
     public $generator;
 
-    /** @var    array   $items  Feed items */
+    /** @var array Feed items */
     public $items = [];
 
-    /** @var    SimpleXMLElement   $xml   Feed XML content */
+    /** @var SimpleXMLElement Feed XML content */
     protected $xml;
 
     /**
@@ -54,7 +57,7 @@ class Parser
      * not a valid XML stream. If everything's fine, feed is parsed and items
      * are in {@link $items} property.
      *
-     * @param   string  $data   XML stream
+     * @param string $data XML stream
      */
     public function __construct(string $data)
     {
@@ -89,7 +92,7 @@ class Parser
         $this->description = (string) $this->xml->channel->description;
         $this->pubdate     = (string) $this->xml->channel->children('http://purl.org/dc/elements/1.1/')->date;
 
-        # Feed generator agent
+        // Feed generator agent
         $g = $this->xml->channel->children('http://webns.net/mvcb/')->generatorAgent;
         if ($g) {
             $g               = $g->attributes('http://www.w3.org/1999/02/22-rdf-syntax-ns#');
@@ -121,7 +124,7 @@ class Parser
     }
 
     /**
-     * RSS 2.0 parser
+     * RSS 2.0 parser.
      */
     protected function parseRSS(): void
     {
@@ -139,7 +142,7 @@ class Parser
         }
 
         foreach ($this->xml->channel->item as $i) {
-            $item              = new \stdClass();
+            $item              = new stdClass();
             $item->title       = (string) $i->title;
             $item->link        = (string) $i->link;
             $item->creator     = (string) $i->children('http://purl.org/dc/elements/1.1/')->creator;
@@ -168,7 +171,7 @@ class Parser
     }
 
     /**
-     * Atom 0.3 parser
+     * Atom 0.3 parser.
      */
     protected function parseAtom03(): void
     {
@@ -181,7 +184,7 @@ class Parser
         $this->generator = (string) $this->xml->generator;
 
         foreach ($this->xml->link as $link) {
-            if ($link['rel'] == 'alternate' && ($link['type'] == 'text/html' || $link['type'] == 'application/xhtml+xml')) {
+            if ('alternate' == $link['rel'] && ('text/html' == $link['type'] || 'application/xhtml+xml' == $link['type'])) {
                 $this->link = (string) $link['href'];
 
                 break;
@@ -193,10 +196,10 @@ class Parser
         }
 
         foreach ($this->xml->entry as $i) {
-            $item = new \stdClass();
+            $item = new stdClass();
 
             foreach ($i->link as $link) {
-                if ($link['rel'] == 'alternate' && ($link['type'] == 'text/html' || $link['type'] == 'application/xhtml+xml')) {
+                if ('alternate' == $link['rel'] && ('text/html' == $link['type'] || 'application/xhtml+xml' == $link['type'])) {
                     $item->link = (string) $link['href'];
 
                     break;
@@ -218,7 +221,7 @@ class Parser
     }
 
     /**
-     * Atom 1.0 parser
+     * Atom 1.0 parser.
      */
     protected function parseAtom10(): void
     {
@@ -231,7 +234,7 @@ class Parser
         $this->generator = (string) $this->xml->generator;
 
         foreach ($this->xml->link as $link) {
-            if ($link['rel'] == 'alternate' && ($link['type'] == 'text/html' || $link['type'] == 'application/xhtml+xml')) {
+            if ('alternate' == $link['rel'] && ('text/html' == $link['type'] || 'application/xhtml+xml' == $link['type'])) {
                 $this->link = (string) $link['href'];
 
                 break;
@@ -243,10 +246,10 @@ class Parser
         }
 
         foreach ($this->xml->entry as $i) {
-            $item = new \stdClass();
+            $item = new stdClass();
 
             foreach ($i->link as $link) {
-                if ($link['rel'] == 'alternate' && ($link['type'] == 'text/html' || $link['type'] == 'application/xhtml+xml')) {
+                if ('alternate' == $link['rel'] && ('text/html' == $link['type'] || 'application/xhtml+xml' == $link['type'])) {
                     $item->link = (string) $link['href'];
 
                     break;
@@ -268,13 +271,11 @@ class Parser
     }
 
     /**
-     * SimpleXML to array
+     * SimpleXML to array.
      *
      * Converts a SimpleXMLElement to an array.
      *
-     * @param   SimpleXMLElement    $node    SimpleXML Node
-     * 
-     * @return  array
+     * @param SimpleXMLElement $node SimpleXML Node
      */
     protected function nodes2array(SimpleXMLElement &$node): array
     {

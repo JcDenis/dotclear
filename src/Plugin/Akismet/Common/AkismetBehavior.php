@@ -1,10 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\Akismet\Common\AkismetBehavior
- * @brief Dotclear Plugins class
- *
  * @package Dotclear
- * @subpackage PluginAkismet
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,11 +11,18 @@ namespace Dotclear\Plugin\Akismet\Common;
 
 use ArrayObject;
 
+/**
+ * Akismet behaviors.
+ *
+ * \Dotclear\Plugin\Akismet\Common\AkismetBehavior
+ *
+ * @ingroup  Plugin Akismet
+ */
 class AkismetBehavior
 {
     public function __construct()
     {
-        dotclear()->behavior()->add('antispamInitFilters', function(ArrayObject $spamfilters): void {
+        dotclear()->behavior()->add('antispamInitFilters', function (ArrayObject $spamfilters): void {
             $spamfilters[] = __NAMESPACE__ . '\\FilterAkismet';
         });
     }

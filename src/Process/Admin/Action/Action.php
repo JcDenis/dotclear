@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Action\Action
+ * @note Dotclear\Process\Admin\Action\Action
  * @brief Dotclear admin handler for action page on selected entries
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,9 +18,10 @@ use Dotclear\Database\Record;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\FormSelectOption;
 use Dotclear\Helper\Network\Http;
-use Dotclear\Process\Admin\Page\Page;
+use Dotclear\Process\Admin\Page\AbstractPage;
+use Exception;
 
-abstract class Action extends Page
+abstract class Action extends AbstractPage
 {
     /** @var array action combo box */
     protected $combo = [];
@@ -35,16 +35,16 @@ abstract class Action extends Page
     /** @var Record record that challenges ids against permissions */
     protected $rs;
 
-    /** @var array list of $_POST fields used to build the redirection  */
+    /** @var array list of fields used to build the redirection */
     protected $redirect_fields = [];
 
-    /** @var string redirection anchor if any  */
+    /** @var string redirection anchor if any */
     protected $redir_anchor = '';
 
     /** @var string current action, if any */
     protected $caction = '';
 
-    /** @var ArrayObject list of url parameters (usually $_POST) */
+    /** @var ArrayObject list of url parameters (usually) */
     protected $from;
 
     /** @var string form field name for "entries" (usually "entries") */
@@ -56,17 +56,17 @@ abstract class Action extends Page
     /** @var string title for caller page title */
     protected $caller_title = '';
 
-    /** @var bool   true if we are acting inside a plugin (different handling of begin/endpage) */
+    /** @var bool true if we are acting inside a plugin (different handling of begin/endpage) */
     protected $in_plugin = false;
 
-    /** @var bool   true if we enable to keep selection when redirecting */
+    /** @var bool true if we enable to keep selection when redirecting */
     protected $enable_redir_selection = false;
 
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param   string  $uri            Form URI
-     * @param   array   $redir_args     Redirect arguments
+     * @param string $uri        Form URI
+     * @param array  $redir_args Redirect arguments
      */
     public function __construct(protected string $uri, protected array $redir_args = [])
     {
@@ -93,12 +93,12 @@ abstract class Action extends Page
     }
 
     /**
-     * Enable redir selection
+     * Enable redir selection.
      *
      * define whether to keep selection when redirecting
      * Can be usefull to be disabled to preserve some compatibility.
      *
-     * @param   bool    $enable     True to enable, false otherwise
+     * @param bool $enable True to enable, false otherwise
      */
     public function setEnableRedirSelection(bool $enable): void
     {
@@ -106,18 +106,18 @@ abstract class Action extends Page
     }
 
     /**
-     * Zdds an action
+     * Zdds an action.
      *
-     * @param   array                   $actions    the actions names as if it was a standalone combo array.
-     *                                              It will be merged with other actions.
-     *                                              Can be bound to multiple values, if the same callback is to be called
-     * @param   string|array|Closure    $callback   The callback for the action.
+     * @param array                $actions  the actions names as if it was a standalone combo array.
+     *                                       It will be merged with other actions.
+     *                                       Can be bound to multiple values, if the same callback is to be called
+     * @param array|Closure|string $callback the callback for the action
      *
-     * @return  Action                              The actions page itself, enabling to chain addAction().
+     * @return Action the actions page itself, enabling to chain addAction()
      */
     public function addAction(array $actions, string|array|Closure $callback): Action
     {
-        # Silently failed non callable function
+        // Silently failed non callable function
         if (!is_callable($callback)) {
             return $this;
         }
@@ -148,9 +148,9 @@ abstract class Action extends Page
     }
 
     /**
-     * Return the actions combo, useable through Form::combo
+     * Return the actions combo, useable through Form::combo.
      *
-     * @return  array   The actions combo
+     * @return array The actions combo
      */
     public function getCombo(): array
     {
@@ -158,9 +158,9 @@ abstract class Action extends Page
     }
 
     /**
-     * Return the list of selected entries
+     * Return the list of selected entries.
      *
-     * @return  array   The list
+     * @return array The list
      */
     public function getIDs(): array
     {
@@ -168,9 +168,9 @@ abstract class Action extends Page
     }
 
     /**
-     * Return the list of selected entries as HTML hidden fields string
+     * Return the list of selected entries as HTML hidden fields string.
      *
-     * @return  string  The HTML code for hidden fields
+     * @return string The HTML code for hidden fields
      */
     public function getIDsHidden(): string
     {
@@ -183,11 +183,11 @@ abstract class Action extends Page
     }
 
     /**
-     * Return all redirection parameters as HTML hidden fields
+     * Return all redirection parameters as HTML hidden fields.
      *
-     * @param   bool    $with_ids   If true, also include ids in HTML code
+     * @param bool $with_ids If true, also include ids in HTML code
      *
-     * @return  string              The HTML code for hidden fields
+     * @return string The HTML code for hidden fields
      */
     public function getHiddenFields(bool $with_ids = false): string
     {
@@ -203,9 +203,9 @@ abstract class Action extends Page
     }
 
     /**
-     * Get record from DB Query containing requested IDs
+     * Get record from DB Query containing requested IDs.
      *
-     * @return  Record the HTML code for hidden fields
+     * @return Record the HTML code for hidden fields
      */
     public function getRS(): Record
     {
@@ -213,12 +213,12 @@ abstract class Action extends Page
     }
 
     /**
-     * Setup redirection arguments
+     * Setup redirection arguments.
      *
      * by default, $_POST fields as defined in redirect_fields attributes
      * are set into redirect_args.
      *
-     * @param   array|ArrayObject   $from   Input to parse fields from (usually $_POST)
+     * @param array|ArrayObject $from Input to parse fields from (usually $_POST)
      */
     protected function setupRedir(array|ArrayObject $from): void
     {
@@ -230,14 +230,14 @@ abstract class Action extends Page
     }
 
     /**
-     * Return redirection URL
+     * Return redirection URL.
      *
-     * @param   bool    $with_selected_entries  If true, add selected entries in url
-     * @param   array   $params                 Extra parameters to append to redirection
-     *                                          must be an array : each key is the name,
-     *                                          each value is the wanted value
+     * @param bool  $with_selected_entries If true, add selected entries in url
+     * @param array $params                Extra parameters to append to redirection
+     *                                     must be an array : each key is the name,
+     *                                     each value is the wanted value
      *
-     * @return  string                          The redirection url
+     * @return string The redirection url
      */
     public function getRedirection(bool $with_selected_entries = false, array $params = []): string
     {
@@ -254,20 +254,21 @@ abstract class Action extends Page
     }
 
     /**
-     * Redirects to redirection page
+     * Redirects to redirection page.
      *
      * @see     getRedirection  for arguments details
      */
     public function redirect(bool $with_selected_entries = false, array $params = []): void
     {
         Http::redirect($this->getRedirection($with_selected_entries, $params));
+
         exit;
     }
 
     /**
-     * Returns current form URI, if any
+     * Returns current form URI, if any.
      *
-     * @return  string  The form URI
+     * @return string The form URI
      */
     public function getURI(): string
     {
@@ -275,9 +276,9 @@ abstract class Action extends Page
     }
 
     /**
-     * Return current form URI, if any
+     * Return current form URI, if any.
      *
-     * @return  string  The form URI
+     * @return string The form URI
      */
     public function getCallerTitle(): string
     {
@@ -285,9 +286,9 @@ abstract class Action extends Page
     }
 
     /**
-     * Return current action, if any
+     * Return current action, if any.
      *
-     * @return  string  The action
+     * @return string The action
      */
     public function getAction(): string
     {
@@ -296,9 +297,7 @@ abstract class Action extends Page
 
     /**
      * Force no check permissions for Action page
-     * each Action manages their own perms
-     *
-     * @return  string|null|false
+     * each Action manages their own perms.
      */
     protected function getPermissions(): string|null|false
     {
@@ -306,13 +305,11 @@ abstract class Action extends Page
     }
 
     /**
-     * Proceeds action handling, if any
+     * Proceeds action handling, if any.
      *
      * This method may issue an exit() if
      * an action is being processed. If it
      * returns, no action has been performed
-     *
-     * @return  bool|null
      */
     public function getPagePrepend(): ?bool
     {
@@ -332,8 +329,9 @@ abstract class Action extends Page
                 if ($performed) {
                     return true;
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
+
                 return false;
             }
         }
@@ -343,9 +341,9 @@ abstract class Action extends Page
 
     /**
      * Return html code for selected entries
-     * as a table containing entries checkboxes
+     * as a table containing entries checkboxes.
      *
-     * @return  string  The html code for checkboxes
+     * @return string The html code for checkboxes
      */
     public function getCheckboxes(): string
     {
@@ -355,7 +353,7 @@ abstract class Action extends Page
         foreach ($this->entries as $id => $title) {
             $ret .= '<tr><td class="minimal">' .
             Form::checkbox([$this->field_entries . '[]'], $id, [
-                'checked' => true
+                'checked' => true,
             ]) .
                 '</td>' .
                 '<td>' . $title . '</td></tr>';
@@ -366,14 +364,14 @@ abstract class Action extends Page
     }
 
     /**
-     * Fill-in information by requesting into db
+     * Fill-in information by requesting into db.
      *
      * This method may setup the following attributes
      *   * entries : list of entries (checked against permissions)
      *      entries ids are array keys, values contain entry description (if relevant)
      *   * rs : record given by db request
      *
-     * @param   ArrayObject     $from   Entries from
+     * @param ArrayObject $from Entries from
      */
     abstract protected function fetchEntries(ArrayObject $from): void;
 }

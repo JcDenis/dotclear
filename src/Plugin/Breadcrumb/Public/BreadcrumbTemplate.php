@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Breadcrumb\Public\BreadcrumbTemplate
+ * @note Dotclear\Plugin\Breadcrumb\Public\BreadcrumbTemplate
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginBreadcrumb
+ * @ingroup  PluginBreadcrumb
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -24,7 +23,7 @@ class BreadcrumbTemplate
         dotclear()->template()->addValue('Breadcrumb', [$this, 'tplValueBreadcrumb']);
     }
 
-    # Template function
+    // Template function
     public function tplValueBreadcrumb(ArrayObject $attr): string
     {
         $separator = $attr['separator'] ?? '';
@@ -38,12 +37,12 @@ class BreadcrumbTemplate
     {
         $ret = '';
 
-        # Check if breadcrumb enabled for the current blog
+        // Check if breadcrumb enabled for the current blog
         if (!dotclear()->blog()->settings()->get('breadcrumb')->get('breadcrumb_enabled')) {
             return $ret;
         }
 
-        if ($separator == '') {
+        if ('' == $separator) {
             $separator = ' &rsaquo; ';
         }
 
@@ -51,7 +50,6 @@ class BreadcrumbTemplate
         $page = dotclear()->context()->page_number();
 
         switch (dotclear()->url()->type) {
-
             case 'static':
                 // Static home
                 $ret = '<span id="bc-home">' . __('Home') . '</span>';
@@ -96,7 +94,7 @@ class BreadcrumbTemplate
                 while ($categories->fetch()) {
                     $ret .= $separator . '<a href="' . dotclear()->blog()->getURLFor('category', $categories->f('cat_url')) . '">' . $categories->f('cat_title') . '</a>';
                 }
-                if ($page == 0) {
+                if (0 == $page) {
                     $ret .= $separator . dotclear()->context()->get('categories')->f('cat_title');
                 } else {
                     $ret .= $separator . '<a href="' . dotclear()->blog()->getURLFor('category', dotclear()->context()->get('categories')->f('cat_url')) . '">' . dotclear()->context()->get('categories')->f('cat_title') . '</a>';
@@ -162,7 +160,7 @@ class BreadcrumbTemplate
                 // Tag
                 $ret = '<a id="bc-home" href="' . dotclear()->blog()->url . '">' . __('Home') . '</a>';
                 $ret .= $separator . '<a href="' . dotclear()->blog()->getURLFor('tags') . '">' . __('All tags') . '</a>';
-                if ($page == 0) {
+                if (0 == $page) {
                     $ret .= $separator . dotclear()->context()->get('meta')->f('meta_id');
                 } else {
                     $ret .= $separator . '<a href="' . dotclear()->blog()->getURLFor('tag', rawurlencode(dotclear()->context()->get('meta')->f('meta_id'))) . '">' . dotclear()->context()->get('meta')->f('meta_id') . '</a>';
@@ -174,7 +172,7 @@ class BreadcrumbTemplate
             case 'search':
                 // Search
                 $ret = '<a id="bc-home" href="' . dotclear()->blog()->url . '">' . __('Home') . '</a>';
-                if ($page == 0) {
+                if (0 == $page) {
                     $ret .= $separator . __('Search:') . ' ' . dotclear()->url()->search_string;
                 } else {
                     $ret .= $separator . '<a href="' . dotclear()->blog()->url . '?q=' . rawurlencode(dotclear()->url()->search_string) . '">' . __('Search:') . ' ' . dotclear()->url()->search_string . '</a>';
@@ -192,8 +190,8 @@ class BreadcrumbTemplate
 
             default:
                 $ret = '<a id="bc-home" href="' . dotclear()->blog()->url . '">' . __('Home') . '</a>';
-                # --BEHAVIOR-- publicBreadcrumb
-                # Should specific breadcrumb if any, will be added after home page url
+                // --BEHAVIOR-- publicBreadcrumb
+                // Should specific breadcrumb if any, will be added after home page url
                 $special = dotclear()->behavior()->call('publicBreadcrumb', dotclear()->url()->type, $separator);
                 if ($special) {
                     $ret .= $separator . $special;
@@ -202,7 +200,7 @@ class BreadcrumbTemplate
                 break;
         }
 
-        # Encapsulate breadcrumb in <p>…</p>
+        // Encapsulate breadcrumb in <p>…</p>
         if (!dotclear()->blog()->settings()->get('breadcrumb')->get('breadcrumb_alone')) {
             $ret = '<p id="breadcrumb">' . $ret . '</p>';
         }

@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Core\RsExt\RsExtCommentPublic
+ * @note Dotclear\Core\RsExt\RsExtCommentPublic
  * @brief Dotclear comment record public helpers.
  *
- * @package Dotclear
- * @subpackage Core
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,8 +11,6 @@
 declare(strict_types=1);
 
 namespace Dotclear\Core\RsExt;
-
-use Dotclear\Core\RsExt\RsExtComment;
 
 class RsExtCommentPublic extends RsExtComment
 {

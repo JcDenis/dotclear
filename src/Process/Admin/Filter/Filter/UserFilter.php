@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Filter\Filter\UserFilter
+ * @note Dotclear\Process\Admin\Filter\Filter\UserFilter
  * @brief class for admin user list filters form
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @since 2.20
  *
@@ -26,10 +25,10 @@ class UserFilter extends Filter
 
         $filters = new arrayObject([
             $this->getPageFilter(),
-            $this->getSearchFilter()
+            $this->getSearchFilter(),
         ]);
 
-        # --BEHAVIOR-- adminUserFilter
+        // --BEHAVIOR-- adminUserFilter
         dotclear()->behavior()->call('adminUserFilter', $filters);
 
         $filters = $filters->getArrayCopy();

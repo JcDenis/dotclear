@@ -1,12 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Text
- * @brief Basic text handling tool
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
  * @package Dotclear
- * @subpackage Utils
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,30 +11,36 @@ namespace Dotclear\Helper;
 
 use Dotclear\Helper\Html\Html;
 
+/**
+ * Basic text handling tool.
+ *
+ * \Dotclear\Helper\Text
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Helper Text
+ */
 class Text
 {
     /**
-     * Check email address
+     * Check email address.
      *
      * Returns true if $email is a valid email address.
      *
-     * @param   string  $email  Email string
-     * @return  bool
+     * @param string $email Email string
      */
     public static function isEmail(string $email): bool
     {
-        return (filter_var($email, FILTER_VALIDATE_EMAIL) !== false);
+        return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
     }
 
     /**
-     * Accents replacement
+     * Accents replacement.
      *
      * Replaces some occidental accentuated characters by their ASCII
      * representation.
      *
-     * @param   string  $str    String to deaccent
-     * 
-     * @return  string
+     * @param string $str String to deaccent
      */
     public static function deaccent(string $str): string
     {
@@ -82,14 +82,12 @@ class Text
     }
 
     /**
-     * String to URL
+     * String to URL.
      *
      * Transforms a string to a proper URL.
      *
-     * @param   string  $str            String to transform
-     * @param   bool    $with_slashes   Keep slashes in URL
-     * 
-     * @return  string
+     * @param string $str          String to transform
+     * @param bool   $with_slashes Keep slashes in URL
      */
     public static function str2URL(string $str, bool $with_slashes = true): string
     {
@@ -100,13 +98,11 @@ class Text
     }
 
     /**
-     * URL cleanup
+     * URL cleanup.
      *
-     * @param   string  $str            URL to tidy
-     * @param   bool    $keep_slashes   Keep slashes in URL
-     * @param   bool    $keep_spaces    Keep spaces in URL
-     * 
-     * @return string
+     * @param string $str          URL to tidy
+     * @param bool   $keep_slashes Keep slashes in URL
+     * @param bool   $keep_spaces  Keep spaces in URL
      */
     public static function tidyURL(string $str, bool $keep_slashes = true, bool $keep_spaces = false): string
     {
@@ -125,22 +121,19 @@ class Text
 
         $str = preg_replace('/[-]+/', '-', $str);
 
-        # Remove path changes in URL
+        // Remove path changes in URL
         $str = preg_replace('%^/%', '', $str);
-        $str = preg_replace('%\.+/%', '', $str);
 
-        return $str;
+        return preg_replace('%\.+/%', '', $str);
     }
 
     /**
-     * Cut string
+     * Cut string.
      *
      * Returns a cuted string on spaced at given length $l.
      *
-     * @param   string  $str    String to cut
-     * @param   int     $l      Length to keep
-     * 
-     * @return  string
+     * @param string $str String to cut
+     * @param int    $l   Length to keep
      */
     public static function cutString(string $str, int $l): string
     {
@@ -166,13 +159,11 @@ class Text
     }
 
     /**
-     * Split words
+     * Split words.
      *
      * Returns an array of words from a given string.
      *
-     * @param   string  $str    Words to split
-     * 
-     * @return  array
+     * @param string $str Words to split
      */
     public static function splitWords(string $str): array
     {
@@ -189,13 +180,11 @@ class Text
     }
 
     /**
-     * Encoding detection
+     * Encoding detection.
      *
      * Returns the encoding (in lowercase) of given $str.
      *
-     * @param   string  $str    String
-     * 
-     * @return  string
+     * @param string $str String
      */
     public static function detectEncoding(string $str): string
     {
@@ -208,15 +197,13 @@ class Text
     }
 
     /**
-     * UTF8 conversions
+     * UTF8 conversions.
      *
      * Returns an UTF-8 converted string. If $encoding is not specified, the
      * function will try to detect encoding.
      *
-     * @param   string  $str        String to convert
-     * @param   string  $encoding   Optionnal "from" encoding
-     * 
-     * @return  string
+     * @param string $str      String to convert
+     * @param string $encoding Optionnal "from" encoding
      */
     public static function toUTF8(string $str, ?string $encoding = null): string
     {
@@ -224,7 +211,7 @@ class Text
             $encoding = self::detectEncoding($str);
         }
 
-        if ($encoding != 'utf-8') {
+        if ('utf-8' != $encoding) {
             $str = iconv($encoding, 'UTF-8', $str);
         }
 
@@ -232,7 +219,7 @@ class Text
     }
 
     /**
-     * Find bad UTF8 tokens
+     * Find bad UTF8 tokens.
      *
      * Locates the first bad byte in a UTF-8 string returning it's
      * byte index in the string
@@ -242,21 +229,19 @@ class Text
      *
      * @copyright Harry Fuecks (http://phputf8.sourceforge.net <a href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html">GNU LGPL 2.1</a>)
      *
-     * @param   string  $str    String to search
-     * 
-     * @return  int|false
+     * @param string $str String to search
      */
     public static function utf8badFind(string $str): int|false
     {
-        $UTF8_BAD = '([\x00-\x7F]' . # ASCII (including control chars)
-        '|[\xC2-\xDF][\x80-\xBF]' . # non-overlong 2-byte
-        '|\xE0[\xA0-\xBF][\x80-\xBF]' . # excluding overlongs
-        '|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}' . # straight 3-byte
-        '|\xED[\x80-\x9F][\x80-\xBF]' . # excluding surrogates
-        '|\xF0[\x90-\xBF][\x80-\xBF]{2}' . # planes 1-3
-        '|[\xF1-\xF3][\x80-\xBF]{3}' . # planes 4-15
-        '|\xF4[\x80-\x8F][\x80-\xBF]{2}' . # plane 16
-        '|(.{1}))'; # invalid byte
+        $UTF8_BAD = '([\x00-\x7F]' . // ASCII (including control chars)
+        '|[\xC2-\xDF][\x80-\xBF]' . // non-overlong 2-byte
+        '|\xE0[\xA0-\xBF][\x80-\xBF]' . // excluding overlongs
+        '|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}' . // straight 3-byte
+        '|\xED[\x80-\x9F][\x80-\xBF]' . // excluding surrogates
+        '|\xF0[\x90-\xBF][\x80-\xBF]{2}' . // planes 1-3
+        '|[\xF1-\xF3][\x80-\xBF]{3}' . // planes 4-15
+        '|\xF4[\x80-\x8F][\x80-\xBF]{2}' . // plane 16
+        '|(.{1}))'; // invalid byte
         $pos     = 0;
         $badList = [];
 
@@ -273,20 +258,18 @@ class Text
     }
 
     /**
-     * UTF8 cleanup
+     * UTF8 cleanup.
      *
      * Replaces non utf8 bytes in $str by $repl.
      *
      * @copyright Harry Fuecks (http://phputf8.sourceforge.net <a href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html">GNU LGPL 2.1</a>)
      *
-     * @param   string  $str    String to clean
-     * @param   string  $repl   Replacement string
-     * 
-     * @return  string
+     * @param string $str  String to clean
+     * @param string $repl Replacement string
      */
     public static function cleanUTF8(string $str, string $repl = '?'): string
     {
-        while (($bad_index = self::utf8badFind($str)) !== false) {
+        while (false !== ($bad_index = self::utf8badFind($str))) {
             $str = substr_replace($str, $repl, $bad_index, 1);
         }
 
@@ -294,13 +277,11 @@ class Text
     }
 
     /**
-     * BOM removal
+     * BOM removal.
      *
      * Removes BOM from the begining of a string if present.
      *
-     * @param   string  $str    String to clean
-     * 
-     * @return  string
+     * @param string $str String to clean
      */
     public static function removeBOM(string $str): string
     {
@@ -312,13 +293,11 @@ class Text
     }
 
     /**
-     * Quoted printable conversion
+     * Quoted printable conversion.
      *
      * Encodes given str to quoted printable
      *
-     * @param   string  $str    String to encode
-     * 
-     * @return  string
+     * @param string $str String to encode
      */
     public static function QPEncode(string $str): string
     {
@@ -331,7 +310,7 @@ class Text
             foreach ($m[0] as $c) {
                 $a = ord($c);
 
-                if ($a < 32 || $a == 61 || $a > 126) {
+                if (32 > $a || 61 == $a || 126 < $a) {
                     $c = sprintf('=%02X', $a);
                 }
 

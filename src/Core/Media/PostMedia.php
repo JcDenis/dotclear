@@ -1,12 +1,11 @@
 <?php
 /**
- * @class Dotclear\Core\Media\PostMedia
+ * @note Dotclear\Core\Media\PostMedia
  * @brief Dotclear core post media class
  *
  * This class handles Dotclear media items.
  *
- * @package Dotclear
- * @subpackage Core
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -23,15 +22,15 @@ use Dotclear\Database\Statement\SelectStatement;
 
 class PostMedia
 {
-    /** @var    string  Post media table name */
+    /** @var string Post media table name */
     protected $table = 'post_media';
 
     /**
      * Returns media items attached to a blog post.
      *
-     * @param   array   $params     The parameters
+     * @param array $params The parameters
      *
-     * @return  Record              The post media.
+     * @return Record the post media
      */
     public function getPostMedia(array $params = []): Record
     {
@@ -56,7 +55,8 @@ class PostMedia
                     ->from(dotclear()->prefix . $this->table . ' PM')
                     ->on('M.media_id = PM.media_id')
                     ->statement()
-            );
+            )
+        ;
 
         if (!empty($params['columns']) && is_array($params['columns'])) {
             $sql->columns($params['columns']);
@@ -92,9 +92,9 @@ class PostMedia
     /**
      * Attaches a media to a post.
      *
-     * @param   int     $post_id    The post identifier
-     * @param   int     $media_id   The media identifier
-     * @param   string  $link_type  The link type (default: attachment)
+     * @param int    $post_id   The post identifier
+     * @param int    $media_id  The media identifier
+     * @param string $link_type The link type (default: attachment)
      */
     public function addPostMedia(int $post_id, int $media_id, string $link_type = 'attachment'): void
     {
@@ -107,16 +107,17 @@ class PostMedia
         $sql = new InsertStatement(__METHOD__);
         $sql->from(dotclear()->prefix . $this->table)
             ->columns([
-                'post_id', 
-                'media_id', 
+                'post_id',
+                'media_id',
                 'link_type',
             ])
             ->line([[
-                $post_id, 
-                $media_id, 
+                $post_id,
+                $media_id,
                 $sql->quote($link_type),
             ]])
-            ->insert();
+            ->insert()
+        ;
 
         dotclear()->blog()->triggerBlog();
     }
@@ -124,16 +125,17 @@ class PostMedia
     /**
      * Detaches a media from a post.
      *
-     * @param   int             $post_id    The post identifier
-     * @param   int             $media_id   The media identifier
-     * @param   string|null     $link_type  The link type
+     * @param int         $post_id   The post identifier
+     * @param int         $media_id  The media identifier
+     * @param null|string $link_type The link type
      */
     public function removePostMedia(int $post_id, int $media_id, ?string $link_type = null): void
     {
         $sql = DeleteStatement::init(__METHOD__)
             ->from(dotclear()->prefix . $this->table)
             ->where('post_id = ' . $post_id)
-            ->and('media_id = ' . $media_id);
+            ->and('media_id = ' . $media_id)
+        ;
 
         if (null != $link_type) {
             $sql->and('link_type = ' . $sql->quote($link_type, true));

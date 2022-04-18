@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Handler\Users
+ * @note Dotclear\Process\Admin\Handler\Users
  * @brief Dotclear admin users list page
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,15 +13,13 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 use ArrayObject;
-
 use Dotclear\Core\RsExt\RsExtUser;
-use Dotclear\Process\Admin\Page\Page;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Inventory\Inventory\UserInventory;
 use Dotclear\Process\Admin\Filter\Filter\UserFilter;
 use Dotclear\Helper\Html\Form;
-use Dotclear\Helper\Html\Html;
 
-class Users extends Page
+class Users extends AbstractPage
 {
     protected function getPermissions(): string|null|false
     {
@@ -38,16 +35,16 @@ class Users extends Page
     {
         $params = $this->filter->params();
 
-        # lexical sort
+        // lexical sort
         $sortby_lex = [
             // key in sorty_combo (see above) => field in SQL request
             'user_id'          => 'U.user_id',
             'user_name'        => 'user_name',
             'user_firstname'   => 'user_firstname',
-            'user_displayname' => 'user_displayname'];
+            'user_displayname' => 'user_displayname', ];
 
-        # --BEHAVIOR-- adminUsersSortbyLexCombo
-        dotclear()->behavior()->call('adminUsersSortbyLexCombo', [& $sortby_lex]);
+        // --BEHAVIOR-- adminUsersSortbyLexCombo
+        dotclear()->behavior()->call('adminUsersSortbyLexCombo', [&$sortby_lex]);
 
         $params['order'] = (array_key_exists($this->filter->get('sortby'), $sortby_lex) ?
             dotclear()->con()->lexFields($sortby_lex[$this->filter->get('sortby')]) :
@@ -55,7 +52,7 @@ class Users extends Page
 
         $params = new ArrayObject($params);
 
-        # --BEHAVIOR-- adminGetUsers
+        // --BEHAVIOR-- adminGetUsers
         dotclear()->behavior()->call('adminGetUsers', $params);
 
         $rs       = dotclear()->users()->getUsers($params);
@@ -64,7 +61,7 @@ class Users extends Page
         if ('nb_post' != $this->filter->get('sortby')) {
             // Sort user list using lexical order if necessary
             $rsStatic->extend(new RsExtUser());
-            //$rsStatic = $rsStatic->toExtStatic();
+            // $rsStatic = $rsStatic->toExtStatic();
             $rsStatic->lexicalSort($this->filter->get('sortby'), $this->filter->get('order'));
         }
 
@@ -79,7 +76,7 @@ class Users extends Page
             ->setPageHead(dotclear()->resource()->load('_users.js') . $this->filter->js())
             ->setPageBreadcrumb([
                 __('System') => '',
-                __('Users')  => ''
+                __('Users')  => '',
             ])
         ;
 
@@ -101,17 +98,17 @@ class Users extends Page
 
         $combo_action = [
             __('Set permissions') => 'blogs',
-            __('Delete')          => 'deleteuser'
+            __('Delete')          => 'deleteuser',
         ];
 
-        # --BEHAVIOR-- adminUsersActionsCombo
-        dotclear()->behavior()->call('adminUsersActionsCombo', [& $combo_action]);
+        // --BEHAVIOR-- adminUsersActionsCombo
+        dotclear()->behavior()->call('adminUsersActionsCombo', [&$combo_action]);
 
         echo '<p class="top-add"><strong><a class="button add" href="' . dotclear()->adminurl()->get('admin.user') . '">' . __('New user') . '</a></strong></p>';
 
         $this->filter->display('admin.users');
 
-        # Show users
+        // Show users
         $this->inventory->display(
             $this->filter->get('page'),
             $this->filter->get('nb'),

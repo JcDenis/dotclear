@@ -1,12 +1,11 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Notice\Notice
+ * @note Dotclear\Process\Admin\Notice\Notice
  * @brief Dotclear backend notices handling facilities
  *
  * Accessible from dotclear()->notice()->
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -21,32 +20,33 @@ use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Dt;
+use Exception;
 
 class Notice
 {
-    /** @var    string  notices table prefix */
+    /** @var string notices table prefix */
     protected $prefix;
 
-    /** @var    string  notices table */
+    /** @var string notices table */
     protected $table_name = 'notice';
 
-    /** @var    string  notices table prefixed */
+    /** @var string notices table prefixed */
     protected $table;
 
-    /** @var    array   notices types */
+    /** @var array notices types */
     private $N_TYPES = [
         // id → CSS class
         'success' => 'success',
         'warning' => 'warning-msg',
         'error'   => 'error',
         'message' => 'message',
-        'static'  => 'static-msg'];
+        'static'  => 'static-msg', ];
 
-    /** @var    bool    is displayed error */
+    /** @var bool is displayed error */
     private $error_displayed = false;
 
     /**
-     * Class constructor
+     * Class constructor.
      */
     public function __construct()
     {
@@ -54,9 +54,9 @@ class Notice
     }
 
     /**
-     * Get notice table name
+     * Get notice table name.
      *
-     * @return  string  The table name
+     * @return string The table name
      */
     public function table(): string
     {
@@ -64,7 +64,7 @@ class Notice
     }
 
     /**
-     * Get notices
+     * Get notices.
      *
      * Parameters can be :
      * - ses_id => (string) session id
@@ -74,15 +74,17 @@ class Notice
      * - limit
      * - sql
      *
-     * @param   array   $params         The params
-     * @param   bool    $count_only     Count only
-     * @return  Record                  Notices record
+     * @param array $params     The params
+     * @param bool  $count_only Count only
+     *
+     * @return Record Notices record
      */
     public function get(array $params = [], bool $count_only = false): Record
     {
         $sql = new SelectStatement(__METHOD__);
         $sql
-            ->from($this->table);
+            ->from($this->table)
+        ;
 
         // Return a recordset of notices
         if ($count_only) {
@@ -99,12 +101,16 @@ class Notice
             ]);
         }
 
-        $session_id = isset($params['ses_id']) && $params['ses_id'] !== '' ? (string) $params['ses_id'] : (string) session_id();
+        $session_id = isset($params['ses_id']) && '' !== $params['ses_id'] ? (string) $params['ses_id'] : (string) session_id();
         $sql->where('ses_id = ' . $sql->quote($session_id));
 
-        if (isset($params['notice_id']) && $params['notice_id'] !== '') {
+        if (isset($params['notice_id']) && '' !== $params['notice_id']) {
             if (is_array($params['notice_id'])) {
-                array_walk($params['notice_id'], function (&$v, $k) { if ($v !== null) {$v = (int) $v;}});
+                array_walk($params['notice_id'], function (&$v, $k) {
+                    if (null !== $v) {
+                        $v = (int) $v;
+                    }
+                });
             } else {
                 $params['notice_id'] = [(int) $params['notice_id']];
             }
@@ -135,73 +141,74 @@ class Notice
             $sql->limit($params['limit']);
         }
 
-        $rs = $sql->select();
-
-        return $rs;
+        return $sql->select();
     }
 
     /**
-     * Add a notice
+     * Add a notice.
      *
-     * @param   Cursor  $cur    The cursor
+     * @param Cursor $cur The cursor
      */
     public function add(Cursor $cur): int
     {
         dotclear()->con()->writeLock($this->table);
 
         try {
-            # Get ID
+            // Get ID
             $sql = new SelectStatement(__METHOD__);
-            $rs = $sql
+            $rs  = $sql
                 ->column($sql->max('notice_id'))
                 ->from($this->table)
-                ->select();
+                ->select()
+            ;
 
             $cur->setField('notice_id', $rs->fInt() + 1);
             $cur->setField('ses_id', (string) session_id());
 
             $this->cursor($cur, $cur->getField('notice_id'));
 
-            # --BEHAVIOR-- coreBeforeNoticeCreate
+            // --BEHAVIOR-- coreBeforeNoticeCreate
             dotclear()->behavior()->call('adminBeforeNoticeCreate', $this, $cur);
 
             $cur->insert();
             dotclear()->con()->unlock();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             dotclear()->con()->unlock();
 
             throw $e;
         }
 
-        # --BEHAVIOR-- coreAfterNoticeCreate
+        // --BEHAVIOR-- coreAfterNoticeCreate
         dotclear()->behavior()->call('adminAfterNoticeCreate', $this, $cur);
 
         return $cur->getField('notice_id');
     }
 
     /**
-     * Delete a notice
+     * Delete a notice.
      *
-     * @param   int|null    $notice_id      The notice id
-     * @param   bool        $delete_all     Delete all notices
+     * @param null|int $notice_id  The notice id
+     * @param bool     $delete_all Delete all notices
      */
     public function del(?int $notice_id, bool $delete_all = false): void
     {
         $sql = new DeleteStatement(__METHOD__);
         $sql
             ->from($this->table)
-            ->where($delete_all ? 
+            ->where(
+                $delete_all ?
                 'ses_id = ' . $sql->quote((string) session_id()) :
                 'notice_id' . $sql->in($notice_id)
             )
-            ->delete();
+            ->delete()
+        ;
     }
 
     /**
-     * Get notices cursor
+     * Get notices cursor.
      *
-     * @param   Cursor      $cur        The cursor
-     * @param   int|null    $notice_id  The notice id
+     * @param Cursor   $cur       The cursor
+     * @param null|int $notice_id The notice id
      */
     private function cursor(Cursor $cur, int $notice_id = null): void
     {
@@ -223,16 +230,15 @@ class Notice
     /**
      * Gets the HTML code of notices.
      *
-     * @return  string  The notices.
+     * @return string the notices
      */
     public function getNotices(): string
     {
         $res = '';
 
-        # Return error messages if any
+        // Return error messages if any
         if (dotclear()->error()->flag() && !$this->error_displayed) {
-
-            # --BEHAVIOR-- adminPageNotificationError
+            // --BEHAVIOR-- adminPageNotificationError
             $notice_error = dotclear()->behavior()->call('adminPageNotificationError');
 
             if (isset($notice_error) && !empty($notice_error)) {
@@ -249,19 +255,19 @@ class Notice
             $this->error_displayed = false;
         }
 
-        # Return notices if any
-        # Should retrieve static notices first, then others
+        // Return notices if any
+        // Should retrieve static notices first, then others
         $step = 2;
         do {
             if (2 == $step) {
                 // Static notifications
                 $params = [
-                    'notice_type' => 'static'
+                    'notice_type' => 'static',
                 ];
             } else {
                 // Normal notifications
                 $params = [
-                    'sql' => "AND notice_type != 'static'"
+                    'sql' => "AND notice_type != 'static'",
                 ];
             }
             $counter = $this->get($params, true)->fInt();
@@ -278,12 +284,12 @@ class Notice
                         'class'  => $class,
                         'ts'     => $lines->f('notice_ts'),
                         'text'   => $lines->f('notice_msg'),
-                        'format' => $lines->f('notice_format')
+                        'format' => $lines->f('notice_format'),
                     ];
                     if (null !== $lines->f('notice_options')) {
                         $notifications = array_merge($notification, @json_decode($lines->f('notice_options'), true));
                     }
-                    # --BEHAVIOR-- adminPageNotification, array
+                    // --BEHAVIOR-- adminPageNotification, array
                     $notice = dotclear()->behavior()->call('adminPageNotification', $notification);
 
                     $res .= !empty($notice) ? $notice : $this->getNotification($notification);
@@ -291,7 +297,7 @@ class Notice
             }
         } while (--$step);
 
-        # Delete returned notices
+        // Delete returned notices
         $this->del(null, true);
 
         return $res;
@@ -300,9 +306,9 @@ class Notice
     /**
      * Adds a notice.
      *
-     * @param   string  $type       The type
-     * @param   string  $message    The message
-     * @param   array   $options    The options
+     * @param string $type    The type
+     * @param string $message The message
+     * @param array  $options The options
      */
     public function addNotice(string $type, string $message, array $options = []): void
     {
@@ -326,8 +332,8 @@ class Notice
     /**
      * Adds a success notice.
      *
-     * @param   string  $message    The message
-     * @param   array   $options    The options
+     * @param string $message The message
+     * @param array  $options The options
      */
     public function addSuccessNotice(string $message, array $options = []): void
     {
@@ -337,8 +343,8 @@ class Notice
     /**
      * Adds a warning notice.
      *
-     * @param   string  $message    The message
-     * @param   array   $options    The options
+     * @param string $message The message
+     * @param array  $options The options
      */
     public function addWarningNotice(string $message, array $options = []): void
     {
@@ -348,8 +354,8 @@ class Notice
     /**
      * Adds an error notice.
      *
-     * @param   string  $message    The message
-     * @param   array   $options    The options
+     * @param string $message The message
+     * @param array  $options The options
      */
     public function addErrorNotice(string $message, array $options = []): void
     {
@@ -359,41 +365,38 @@ class Notice
     /**
      * Gets the notification.
      *
-     * @param   array   $notification   The notification
+     * @param array $notification The notification
      *
-     * @return  string  The notification.
+     * @return string the notification
      */
     private function getNotification(array $notification): string
     {
-        $tag = isset($notification['format']) && $notification['format'] === 'html' ? 'div' : 'p';
+        $tag = isset($notification['format']) && 'html' === $notification['format'] ? 'div' : 'p';
         $ts  = '';
-        if (!isset($notification['with_ts']) || ($notification['with_ts'] == true)) {
+        if (!isset($notification['with_ts']) || (true == $notification['with_ts'])) {
             $ts = sprintf(
                 '<span class="notice-ts"><time datetime="%s">%s</time></span>',
                 Dt::iso8601(strtotime($notification['ts']), dotclear()->user()->getInfo('user_tz')),
                 Dt::dt2str(__('%H:%M:%S'), $notification['ts'], dotclear()->user()->getInfo('user_tz')),
             );
         }
-        $res = '<' . $tag . ' class="' . $notification['class'] . '" role="alert">' . $ts . $notification['text'] . '</' . $tag . '>';
 
-        return $res;
+        return '<' . $tag . ' class="' . $notification['class'] . '" role="alert">' . $ts . $notification['text'] . '</' . $tag . '>';
     }
 
     /**
-     * Direct messages, usually immediately displayed
+     * Direct messages, usually immediately displayed.
      *
-     * @param   string  $msg        The message
-     * @param   bool    $timestamp  With the timestamp
-     * @param   bool    $div        Inside a div (else in a p)
-     * @param   bool    $echo       Display the message?
-     * @param   string  $class      The class of block (div/p)
-     *
-     * @return  string
+     * @param string $msg       The message
+     * @param bool   $timestamp With the timestamp
+     * @param bool   $div       Inside a div (else in a p)
+     * @param bool   $echo      Display the message?
+     * @param string $class     The class of block (div/p)
      */
     public function message(string $msg, bool $timestamp = true, bool $div = false, bool $echo = true, string $class = 'message'): string
     {
         $res = '';
-        if ($msg != '') {
+        if ('' != $msg) {
             $ts = '';
             if ($timestamp) {
                 $ts = sprintf(
@@ -414,14 +417,12 @@ class Notice
     }
 
     /**
-     * Display a success message
+     * Display a success message.
      *
-     * @param   string  $msg        The message
-     * @param   bool    $timestamp  With the timestamp
-     * @param   bool    $div        Inside a div (else in a p)
-     * @param   bool    $echo       Display the message?
-     *
-     * @return  string
+     * @param string $msg       The message
+     * @param bool   $timestamp With the timestamp
+     * @param bool   $div       Inside a div (else in a p)
+     * @param bool   $echo      Display the message?
      */
     public function success(string $msg, bool $timestamp = true, bool $div = false, bool $echo = true): string
     {
@@ -429,14 +430,12 @@ class Notice
     }
 
     /**
-     * Display a warning message
+     * Display a warning message.
      *
-     * @param   string  $msg        The message
-     * @param   bool    $timestamp  With the timestamp
-     * @param   bool    $div        Inside a div (else in a p)
-     * @param   bool    $echo       Display the message?
-     *
-     * @return  string
+     * @param string $msg       The message
+     * @param bool   $timestamp With the timestamp
+     * @param bool   $div       Inside a div (else in a p)
+     * @param bool   $echo      Display the message?
      */
     public function warning(string $msg, bool $timestamp = true, bool $div = false, bool $echo = true): string
     {

@@ -1,9 +1,8 @@
 <?php
 /**
- * @class Dotclear\Module\Iconset\TraitModulesIconset
+ * @note Dotclear\Module\Iconset\TraitModulesIconset
  *
- * @package Dotclear
- * @subpackage Module
+ * @ingroup  Module
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only

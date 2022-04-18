@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat\FlatImport
+ * @note Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat\FlatImport
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginImportExport
+ * @ingroup  PluginImportExport
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,7 +14,7 @@ namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat;
 
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat\FlatBackup;
+use Exception;
 
 class FlatImport extends FlatBackup
 {
@@ -25,7 +24,7 @@ class FlatImport extends FlatBackup
 
     private $blog_id;
 
-    //private $users = [];
+    // private $users = [];
 
     private $cur_blog;
     private $cur_category;
@@ -42,7 +41,7 @@ class FlatImport extends FlatBackup
     private $cur_ping;
     private $cur_comment;
     private $cur_spamrule;
-    //private $cur_version;
+    // private $cur_version;
 
     public $old_ids = [
         'category' => [],
@@ -81,7 +80,7 @@ class FlatImport extends FlatBackup
         }
 
         $this->mode = isset($l[2]) ? strtolower(trim((string) $l[2])) : 'single';
-        if ($this->mode != 'full' && $this->mode != 'single') {
+        if ('full' != $this->mode && 'single' != $this->mode) {
             $this->mode = 'single';
         }
 
@@ -106,9 +105,9 @@ class FlatImport extends FlatBackup
         $this->cur_ping        = dotclear()->con()->openCursor(dotclear()->prefix . 'ping');
         $this->cur_comment     = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
         $this->cur_spamrule    = dotclear()->con()->openCursor(dotclear()->prefix . 'spamrule');
-        //$this->cur_version     = dotclear()->con()->openCursor(dotclear()->prefix . 'version');
+        // $this->cur_version     = dotclear()->con()->openCursor(dotclear()->prefix . 'version');
 
-        # --BEHAVIOR-- importInit
+        // --BEHAVIOR-- importInit
         dotclear()->behavior()->call('importInit', $this);
     }
 
@@ -119,7 +118,7 @@ class FlatImport extends FlatBackup
 
     public function importSingle()
     {
-        if ($this->mode != 'single') {
+        if ('single' != $this->mode) {
             throw new ModuleException(__('File is not a single blog export.'));
         }
 
@@ -135,12 +134,12 @@ class FlatImport extends FlatBackup
             "WHERE blog_id = '" . dotclear()->con()->escape($this->blog_id) . "' "
         );
 
-        $this->stack['cat_id']     = dotclear()->con()->select('SELECT MAX(cat_id) FROM ' . dotclear()->prefix . 'category')->fInt() + 1;
-        $this->stack['link_id']    = dotclear()->con()->select('SELECT MAX(link_id) FROM ' . dotclear()->prefix . 'link')->fInt() + 1;
-        $this->stack['post_id']    = dotclear()->con()->select('SELECT MAX(post_id) FROM ' . dotclear()->prefix . 'post')->fInt() + 1;
-        $this->stack['media_id']   = dotclear()->con()->select('SELECT MAX(media_id) FROM ' . dotclear()->prefix . 'media')->fInt() + 1;
+        $this->stack['cat_id']     = dotclear()->con()->select('SELECT MAX(cat_id) FROM ' . dotclear()->prefix . 'category')->fInt()    + 1;
+        $this->stack['link_id']    = dotclear()->con()->select('SELECT MAX(link_id) FROM ' . dotclear()->prefix . 'link')->fInt()       + 1;
+        $this->stack['post_id']    = dotclear()->con()->select('SELECT MAX(post_id) FROM ' . dotclear()->prefix . 'post')->fInt()       + 1;
+        $this->stack['media_id']   = dotclear()->con()->select('SELECT MAX(media_id) FROM ' . dotclear()->prefix . 'media')->fInt()     + 1;
         $this->stack['comment_id'] = dotclear()->con()->select('SELECT MAX(comment_id) FROM ' . dotclear()->prefix . 'comment')->fInt() + 1;
-        $this->stack['log_id']     = dotclear()->con()->select('SELECT MAX(log_id) FROM ' . dotclear()->prefix . 'log')->fInt() + 1;
+        $this->stack['log_id']     = dotclear()->con()->select('SELECT MAX(log_id) FROM ' . dotclear()->prefix . 'log')->fInt()         + 1;
 
         $rs = dotclear()->con()->select(
             'SELECT MAX(cat_rgt) AS cat_rgt FROM ' . dotclear()->prefix . 'category ' .
@@ -148,7 +147,7 @@ class FlatImport extends FlatBackup
         );
 
         if ((int) $rs->cat_rgt > 0) {
-            $this->has_categories                          = true;
+            $this->has_categories                           = true;
             $this->stack['cat_lft'][dotclear()->blog()->id] = (int) $rs->cat_rgt + 1;
         }
 
@@ -160,15 +159,15 @@ class FlatImport extends FlatBackup
             $last_line_name = '';
             $constrained    = ['post', 'meta', 'post_media', 'ping', 'comment'];
 
-            while (($line = $this->getLine()) !== false) {
-                # import DC 1.2.x, we fix lines before insert
-                if ($this->dc_major_version == '1.2') {
+            while (false !== ($line = $this->getLine())) {
+                // import DC 1.2.x, we fix lines before insert
+                if ('1.2' == $this->dc_major_version) {
                     $this->prepareDC12line($line);
                 }
 
                 if ($last_line_name != $line->__name) {
                     if (in_array($last_line_name, $constrained)) {
-                        # UNDEFER
+                        // UNDEFER
                         if (dotclear()->con()->syntax() == 'mysql') {
                             dotclear()->con()->execute('SET foreign_key_checks = 1');
                         }
@@ -179,7 +178,7 @@ class FlatImport extends FlatBackup
                     }
 
                     if (in_array($line->__name, $constrained)) {
-                        # DEFER
+                        // DEFER
                         if (dotclear()->con()->syntax() == 'mysql') {
                             dotclear()->con()->execute('SET foreign_key_checks = 0');
                         }
@@ -204,7 +203,7 @@ class FlatImport extends FlatBackup
                     default      => '',
                 };
 
-                # --BEHAVIOR-- importSingle
+                // --BEHAVIOR-- importSingle
                 dotclear()->behavior()->call('importSingle', $line, $this);
             }
 
@@ -215,7 +214,7 @@ class FlatImport extends FlatBackup
             if (dotclear()->con()->syntax() == 'postgresql') {
                 dotclear()->con()->execute('SET CONSTRAINTS ALL DEFERRED');
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             @fclose($this->fp);
             dotclear()->con()->rollback();
 
@@ -227,7 +226,7 @@ class FlatImport extends FlatBackup
 
     public function importFull()
     {
-        if ($this->mode != 'full') {
+        if ('full' != $this->mode) {
             throw new ModuleException(__('File is not a full export.'));
         }
 
@@ -245,7 +244,7 @@ class FlatImport extends FlatBackup
         $line = false;
 
         try {
-            while (($line = $this->getLine()) !== false) {
+            while (false !== ($line = $this->getLine())) {
                 match ($line->__name) {
                     'blog'        => $this->insertBlog($line),
                     'category'    => $this->insertCategory($line),
@@ -264,10 +263,10 @@ class FlatImport extends FlatBackup
                     'spamrule'    => $this->insertSpamRule($line),
                     default       => '',
                 };
-                # --BEHAVIOR-- importFull
+                // --BEHAVIOR-- importFull
                 dotclear()->behavior()->call('importFull', $line, $this);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             @fclose($this->fp);
             dotclear()->con()->rollback();
 
@@ -566,7 +565,7 @@ class FlatImport extends FlatBackup
         $m = $this->searchCategory($this->stack['categories'], $category->cat_url);
 
         $old_id = $category->cat_id;
-        if ($m !== false) {
+        if (false !== $m) {
             $cat_id = $m;
         } else {
             $cat_id            = $this->stack['cat_id'];
@@ -574,7 +573,7 @@ class FlatImport extends FlatBackup
             $category->blog_id = $this->blog_id;
 
             $this->insertCategory($category);
-            $this->stack['cat_id']++;
+            ++$this->stack['cat_id'];
         }
 
         $this->old_ids['category'][(int) $old_id] = $cat_id;
@@ -586,7 +585,7 @@ class FlatImport extends FlatBackup
         $link->link_id = $this->stack['link_id'];
 
         $this->insertLink($link);
-        $this->stack['link_id']++;
+        ++$this->stack['link_id'];
     }
 
     private function insertPostSingle($post)
@@ -609,7 +608,7 @@ class FlatImport extends FlatBackup
             );
 
             $this->insertPost($post);
-            $this->stack['post_id']++;
+            ++$this->stack['post_id'];
         } else {
             $this->throwIdError($post->__name, $post->__line, 'category');
         }
@@ -635,13 +634,13 @@ class FlatImport extends FlatBackup
         $media->user_id    = $this->getUserId($media->user_id);
 
         $this->insertMedia($media);
-        $this->stack['media_id']++;
+        ++$this->stack['media_id'];
         $this->old_ids['media'][(int) $old_id] = $media_id;
     }
 
     private function insertPostMediaSingle($post_media)
     {
-        if (isset($this->old_ids['media'][(int) $post_media->media_id]) && isset($this->old_ids['post'][(int) $post_media->post_id])) {
+        if (isset($this->old_ids['media'][(int) $post_media->media_id], $this->old_ids['post'][(int) $post_media->post_id])) {
             $post_media->media_id = $this->old_ids['media'][(int) $post_media->media_id];
             $post_media->post_id  = $this->old_ids['post'][(int) $post_media->post_id];
 
@@ -673,7 +672,7 @@ class FlatImport extends FlatBackup
             $comment->post_id    = $this->old_ids['post'][(int) $comment->post_id];
 
             $this->insertComment($comment);
-            $this->stack['comment_id']++;
+            ++$this->stack['comment_id'];
         } else {
             $this->throwIdError($comment->__name, $comment->__line, 'post');
         }
@@ -704,11 +703,11 @@ class FlatImport extends FlatBackup
     {
         if (!$this->userExists($user_id)) {
             if (dotclear()->user()->isSuperAdmin()) {
-                # Sanitizes user_id and create a lambda user
+                // Sanitizes user_id and create a lambda user
                 $user_id = preg_replace('/[^A-Za-z0-9]$/', '', $user_id);
                 $user_id .= strlen($user_id) < 2 ? '-a' : '';
 
-                # We change user_id, we need to check again
+                // We change user_id, we need to check again
                 if (!$this->userExists($user_id)) {
                     $this->cur_user->clean();
                     $this->cur_user->user_id  = (string) $user_id;
@@ -719,7 +718,7 @@ class FlatImport extends FlatBackup
                     $this->stack['users'][$user_id] = true;
                 }
             } else {
-                # Returns current user id
+                // Returns current user id
                 $user_id = dotclear()->user()->userID();
             }
         }
@@ -788,6 +787,7 @@ class FlatImport extends FlatBackup
                 $line->blog_id = 'default';
 
                 break;
+
             case 'link':
                 $line->substitute('href', 'link_href');
                 $line->substitute('label', 'link_title');
@@ -798,16 +798,17 @@ class FlatImport extends FlatBackup
                 $line->blog_id = 'default';
 
                 break;
+
             case 'post':
                 $line->substitute('post_titre', 'post_title');
                 $line->post_title         = html::decodeEntities($line->post_title);
                 $line->post_url           = date('Y/m/d/', strtotime($line->post_dt)) . $line->post_id . '-' . $line->post_titre_url;
                 $line->post_url           = substr($line->post_url, 0, 255);
-                $line->post_format        = $line->post_content_wiki == '' ? 'xhtml' : 'wiki';
+                $line->post_format        = '' == $line->post_content_wiki ? 'xhtml' : 'wiki';
                 $line->post_content_xhtml = $line->post_content;
                 $line->post_excerpt_xhtml = $line->post_chapo;
 
-                if ($line->post_format == 'wiki') {
+                if ('wiki' == $line->post_format) {
                     $line->post_content = $line->post_content_wiki;
                     $line->post_excerpt = $line->post_chapo_wiki;
                 } else {
@@ -822,6 +823,7 @@ class FlatImport extends FlatBackup
                 $line->drop('post_titre_url', 'post_content_wiki', 'post_chapo', 'post_chapo_wiki', 'post_pub');
 
                 break;
+
             case 'post_meta':
                 $line->drop('meta_id');
                 $line->substitute('meta_key', 'meta_type');
@@ -830,9 +832,10 @@ class FlatImport extends FlatBackup
                 $line->blog_id = 'default';
 
                 break;
+
             case 'comment':
                 $line->substitute('comment_auteur', 'comment_author');
-                if ($line->comment_site != '' && !preg_match('!^http(s)?://.*$!', $line->comment_site, $m)) {
+                if ('' != $line->comment_site && !preg_match('!^http(s)?://.*$!', $line->comment_site, $m)) {
                     $line->comment_site = 'http://' . $line->comment_site;
                 }
                 $line->comment_status = (int) $line->comment_pub;
@@ -841,7 +844,7 @@ class FlatImport extends FlatBackup
                 break;
         }
 
-        # --BEHAVIOR-- importPrepareDC12
+        // --BEHAVIOR-- importPrepareDC12
         dotclear()->behavior()->call('importPrepareDC12', $line, $this);
     }
 }

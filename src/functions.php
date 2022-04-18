@@ -1,55 +1,62 @@
 <?php
 /**
- * @brief Dotclear root functions
+ * Global functions.
+ * 
+ * @file \src\functions.php
  *
  * @package Dotclear
- * @subpackage Process
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
 declare(strict_types=1);
 
+namespace { 
+
+// @cond ONCE
 if (!function_exists('dotclear_run')) {
+    // @endcond
 
     /**
-     * Run process
+     * Root function to run process.
      *
-     * @param  string   $process    The process (admin,install,public...)
-     * @param  string   $blog_id    The blog id for public process
+     * \dotclear_run()
+     *
+     * @param string $process The process (admin,install,public...)
+     * @param string $blog_id The blog id for public process
      */
     function dotclear_run(string $process, ?string $blog_id = null): void
     {
-        # Define Dotclear root directory
+        // Define Dotclear root directory
         if (!defined('DOTCLEAR_ROOT_DIR')) {
             define('DOTCLEAR_ROOT_DIR', __DIR__);
         }
 
-        # Third party autoload (PSR-4 compliant)
+        // Third party autoload (PSR-4 compliant)
         $file = __DIR__ . '/../vendor/autoload.php';
         if (file_exists($file)) {
             require $file;
-        # Dotclear autoload
+        // Dotclear autoload
         } else {
             require_once implode(DIRECTORY_SEPARATOR, [\DOTCLEAR_ROOT_DIR, 'Helper', 'Autoload.php']);
             $autoload = new Dotclear\Helper\Autoload();
             $autoload->addNamespace('Dotclear', \DOTCLEAR_ROOT_DIR);
         }
 
-        # Find process (Admin|Public|Install|...)
+        // Find process (Admin|Public|Install|...)
         $class = 'Dotclear\\Process\\' . ucfirst(strtolower($process)) . '\\Prepend';
         if (!is_subclass_of($class, 'Dotclear\\Core\\Core')) {
             dotclear_error('No process found', 'Something went wrong while trying to start process.');
         }
 
-        # Execute Process
+        // Execute Process
         try {
             ob_start();
             $class::singleton($blog_id);
             ob_end_flush();
 
-        # Try to display unexpected Exceptions as much cleaned as we can
-        } catch (\Exception | \Error $e) {
+            // Try to display unexpected Exceptions as much cleaned as we can
+        } catch (\Exception|\Error $e) {
             ob_end_clean();
 
             try {
@@ -61,20 +68,26 @@ if (!function_exists('dotclear_run')) {
                         array_unshift($traces, ['file' => $previous->getFile(), 'line' => $previous->getLine()]);
                     }
                 }
-               dotclear_error(get_class($e), $e->getMessage(), $e->getCode(), $traces);
-            } catch (\Exception | \Error) {
+                dotclear_error(get_class($e), $e->getMessage(), $e->getCode(), $traces);
+            } catch (\Exception|\Error) {
             }
             dotclear_error('Unexpected error', 'Sorry, execution of the script is halted.', $e->getCode());
         }
     }
+    // @cond ONCE
 }
+// @endcond
 
+// @cond ONCE
 if (!function_exists('dotclear')) {
+    // @endcond
 
     /**
-     * Singleton Dotclear Core
+     * Root function to call singleton core.
      *
-     * @return  object|null     Singleton core instance
+     * \dotclear()
+     *
+     * @return null|object Singleton core instance
      */
     function dotclear(): ?object
     {
@@ -86,39 +99,45 @@ if (!function_exists('dotclear')) {
 
         return null;
     }
+    // @cond ONCE
 }
+// @endcond
 
+// @cond ONCE
 if (!function_exists('dotclear_error')) {
+    // @endcond
 
     /**
-     * Error page
+     * Root function to display errors.
      *
-     * @param   string  $message    The message
-     * @param   string  $detail     The detail
-     * @param   int     $code       The code
+     * \dotclear_error()
+     *
+     * @param string $message The message
+     * @param string $detail  The detail
+     * @param int    $code    The code
      */
     function dotclear_error(string $message, string $detail = '', int $code = 0, ?array $traces = null): void
     {
         @ob_clean();
 
-        # Display message only in CLI mode
+        // Display message only in CLI mode
         if (PHP_SAPI == 'cli') {
             trigger_error($message, E_USER_ERROR);
 
-        # Display error through a plateform custom error page
+        // Display error through a plateform custom error page
         } elseif (defined('DOTCLEAR_ERROR_FILE') && is_file(\DOTCLEAR_ERROR_FILE)) {
             include \DOTCLEAR_ERROR_FILE;
 
-        # Display error through an internal error page
+        // Display error through an internal error page
         } else {
             if (!empty($traces)) {
                 $res = '';
-                foreach($traces as $i => $line) {
+                foreach ($traces as $i => $line) {
                     $res .=
-                        '#' . $i .' ' .
+                        '#' . $i . ' ' .
                         (!empty($line['class']) ? $line['class'] . '::' : '') .
                         (!empty($line['function']) ? $line['function'] . ' -- ' : '') .
-                        (!empty($line['file']) ? $line['file'] . ":" : '') .
+                        (!empty($line['file']) ? $line['file'] . ':' : '') .
                         (!empty($line['line']) ? $line['line'] : '') .
                         "\n";
                 }
@@ -128,8 +147,7 @@ if (!function_exists('dotclear_error')) {
             $detail = str_replace("\n", '<br />', $detail);
 
             header('Content-Type: text/html; charset=utf-8');
-            header('HTTP/1.0 ' . $code . ' ' . $message);
-?>
+            header('HTTP/1.0 ' . $code . ' ' . $message); ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -184,4 +202,8 @@ if (!function_exists('dotclear_error')) {
             exit(0);
         }
     }
+    // @cond ONCE
+}
+// @endcond
+
 }

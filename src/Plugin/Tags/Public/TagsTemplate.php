@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Tags\Public\TagsTemplate
+ * @note Dotclear\Plugin\Tags\Public\TagsTemplate
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginTags
+ * @ingroup  PluginTags
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,7 +13,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Tags\Public;
 
 use ArrayObject;
-use Dotclear\Helper\Html\Html;
 
 class TagsTemplate
 {
@@ -33,7 +31,7 @@ class TagsTemplate
         dotclear()->template()->addValue('TagCloudURL', [$this, 'TagCloudURL']);
         dotclear()->template()->addValue('TagFeedURL', [$this, 'TagFeedURL']);
 
-        # Kept for backward compatibility (for now)
+        // Kept for backward compatibility (for now)
         dotclear()->template()->addBlock('MetaData', [$this, 'Tags']);
         dotclear()->template()->addBlock('MetaDataHeader', [$this, 'TagsHeader']);
         dotclear()->template()->addBlock('MetaDataFooter', [$this, 'TagsFooter']);
@@ -59,14 +57,14 @@ class TagsTemplate
         }
 
         $order = 'asc';
-        if (isset($attr['order']) && $attr['order'] == 'desc') {
+        if (isset($attr['order']) && 'desc' == $attr['order']) {
             $order = 'desc';
         }
 
         $res = "<?php\n" .
             "dotclear()->context()->set('meta', dotclear()->meta()->computeMetaStats(dotclear()->meta()->getMetadata(['meta_type'=>'"
             . $type . "','limit'=>" . $limit .
-            ($sortby != 'meta_id_lower' ? ",'order'=>'" . $sortby . ' ' . ($order == 'asc' ? 'ASC' : 'DESC') . "'" : '') .
+            ('meta_id_lower' != $sortby ? ",'order'=>'" . $sortby . ' ' . ('asc' == $order ? 'ASC' : 'DESC') . "'" : '') .
             ']))); ' .
             "dotclear()->context()->get('meta')->sort('" . $sortby . "','" . $order . "'); " .
             '?>';
@@ -105,7 +103,7 @@ class TagsTemplate
         }
 
         $order = 'asc';
-        if (isset($attr['order']) && $attr['order'] == 'desc') {
+        if (isset($attr['order']) && 'desc' == $attr['order']) {
             $order = 'desc';
         }
 

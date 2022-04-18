@@ -1,18 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Network\Xmlrpc\Client
- * @brief XML-RPC Client
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
- * XML-RPC Client
- *
- * This class library is fully based on Simon Willison's IXR library (http://scripts.incutio.com/xmlrpc/).
- *
- * Basic XML-RPC Client.
- *
  * @package Dotclear
- * @subpackage Network
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -23,21 +11,33 @@ namespace Dotclear\Helper\Network\Xmlrpc;
 
 use Dotclear\Exception\NetworkException;
 use Dotclear\Helper\Network\NetHttp\NetHttp;
-use Dotclear\Helper\Network\Xmlrpc\XmlrpcException;
-use Dotclear\Helper\Network\Xmlrpc\Message;
-use Dotclear\Helper\Network\Xmlrpc\Request;
 
+/**
+ * XML-RPC Client.
+ *
+ * \Dotclear\Helper\Network\Xmlrpc\Client
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * XML-RPC Client
+ *
+ * This class library is fully based on Simon Willison's IXR library (http://scripts.incutio.com/xmlrpc/).
+ *
+ * Basic XML-RPC Client.
+ *
+ * @ingroup  Helper Network Xmlrpc
+ */
 class Client extends NetHttp
 {
-    protected $request; ///< Request XML-RPC Request object
-    protected $message; ///< Message XML-RPC Message object
+    protected $request; // /< Request XML-RPC Request object
+    protected $message; // /< Message XML-RPC Message object
 
     /**
-     * Constructor
+     * Constructor.
      *
      * Creates a new instance. <var>$url</var> is the XML-RPC Server end point.
      *
-     * @param   string  $url    Service URL
+     * @param string $url Service URL
      */
     public function __construct(string $url)
     {
@@ -54,7 +54,7 @@ class Client extends NetHttp
     }
 
     /**
-     * XML-RPC Query
+     * XML-RPC Query.
      *
      * This method calls the given query (first argument) on XML-RPC Server.
      * All other arguments of this method are XML-RPC method arguments.
@@ -68,11 +68,6 @@ class Client extends NetHttp
      * $r = $o->query('method1','hello','world');
      * ?>
      * </code>
-     *
-     * @param   string  $method
-     * @param   mixed   $args
-     *
-     * @return mixed
      */
     public function query(string $method, mixed ...$args): mixed
     {
@@ -80,16 +75,16 @@ class Client extends NetHttp
 
         $this->doRequest();
 
-        if ($this->status != 200) {
+        if (200 != $this->status) {
             throw new NetworkException('HTTP Error. ' . $this->status . ' ' . $this->status_string);
         }
 
-        # Now parse what we've got back
+        // Now parse what we've got back
         $this->message = new Message($this->content);
         $this->message->parse();
 
-        # Is the message a fault?
-        if ($this->message->messageType == 'fault') {
+        // Is the message a fault?
+        if ('fault' == $this->message->messageType) {
             throw new XmlrpcException($this->message->faultString, $this->message->faultCode);
         }
 
@@ -99,8 +94,6 @@ class Client extends NetHttp
     /**
      * Overloading Http::buildRequest method
      * We don't need all the stuff of HTTP client.
-     * 
-     * @return  array
      */
     protected function buildRequest(): array
     {

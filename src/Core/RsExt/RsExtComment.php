@@ -1,16 +1,15 @@
 <?php
 /**
- * @class Dotclear\Core\RsExt\RsExtComment
+ * @note Dotclear\Core\RsExt\RsExtComment
  * @brief Dotclear comment record helpers.
-
+ *
  * This class adds new methods to database comment results.
  * You can call them on every record comming from dcBlog::getComments and similar
  * methods.
-
+ *
  * @warning You should not give the first argument (usualy $rs) of every described
  *
- * @package Dotclear
- * @subpackage Core
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,7 +18,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\RsExt;
 
-use Dotclear\Core\RsExt\RsExtend;
 use Dotclear\Core\User\Preference\Preference;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Dt;
@@ -30,10 +28,10 @@ class RsExtComment extends RsExtend
      * Returns comment date with <var>$format</var> as formatting pattern. If
      * format is empty, uses <var>date_format</var> blog setting.
      *
-     * @param   string  $format     The date format pattern
-     * @param   string  $type       The type, (dt|upddt) defaults to comment_dt
+     * @param string $format The date format pattern
+     * @param string $type   The type, (dt|upddt) defaults to comment_dt
      *
-     * @return  string              The date.
+     * @return string the date
      */
     public function getDate(string $format, string $type = ''): string
     {
@@ -50,10 +48,10 @@ class RsExtComment extends RsExtend
      * Returns comment time with <var>$format</var> as formatting pattern. If
      * format is empty, uses <var>time_format</var> blog setting.
      *
-     * @param   string  $format     The date format pattern
-     * @param   string  $type       The type, (dt|upddt) defaults to comment_dt
+     * @param string $format The date format pattern
+     * @param string $type   The type, (dt|upddt) defaults to comment_dt
      *
-     * @return  string              The time.
+     * @return string the time
      */
     public function getTime(string $format, string $type = ''): string
     {
@@ -69,9 +67,9 @@ class RsExtComment extends RsExtend
     /**
      * Returns comment timestamp.
      *
-     * @param   string  $type   The type, (dt|upddt) defaults to comment_dt
+     * @param string $type The type, (dt|upddt) defaults to comment_dt
      *
-     * @return  int             The timestamp.
+     * @return int the timestamp
      */
     public function getTS(string $type = ''): int
     {
@@ -83,9 +81,9 @@ class RsExtComment extends RsExtend
     /**
      * Returns comment date formating according to the ISO 8601 standard.
      *
-     * @param   string  $type   The type, (dt|upddt) defaults to comment_dt
+     * @param string $type The type, (dt|upddt) defaults to comment_dt
      *
-     * @return  string          The iso 8601 date.
+     * @return string the iso 8601 date
      */
     public function getISO8601Date(string $type = ''): string
     {
@@ -97,9 +95,9 @@ class RsExtComment extends RsExtend
     /**
      * Returns comment date formating according to RFC 822.
      *
-     * @param   string  $type   The type, (dt|upddt) defaults to comment_dt
+     * @param string $type The type, (dt|upddt) defaults to comment_dt
      *
-     * @return  string          The rfc 822 date.
+     * @return string the rfc 822 date
      */
     public function getRFC822Date(string $type = ''): string
     {
@@ -112,9 +110,9 @@ class RsExtComment extends RsExtend
      * Returns comment content. If <var>$absolute_urls</var> is true, appends full
      * blog URL to each relative post URLs.
      *
-     * @param   bool    $absolute_urls  With absolute URLs
+     * @param bool $absolute_urls With absolute URLs
      *
-     * @return  string                  The content.
+     * @return string the content
      */
     public function getContent(bool $absolute_urls = false): string
     {
@@ -140,7 +138,7 @@ class RsExtComment extends RsExtend
     /**
      * Returns comment author link to his website if he specified one.
      *
-     * @return  string          The author url.
+     * @return string the author url
      */
     public function getAuthorURL(): string
     {
@@ -150,19 +148,20 @@ class RsExtComment extends RsExtend
     /**
      * Returns comment post full URL.
      *
-     * @return  string          The comment post url.
+     * @return string the comment post url
      */
     public function getPostURL(): string
     {
         return dotclear()->blog()->url . dotclear()->posttype()->getPostPublicURL(
-            $this->rs->f('post_type'), Html::sanitizeURL($this->rs->f('post_url'))
+            $this->rs->f('post_type'),
+            Html::sanitizeURL($this->rs->f('post_url'))
         );
     }
 
     /**
      * Returns comment author name in a link to his website if he specified one.
      *
-     * @return  string          The author link.
+     * @return string the author link
      */
     public function getAuthorLink(): string
     {
@@ -184,9 +183,9 @@ class RsExtComment extends RsExtend
      * Returns comment author e-mail address. If <var>$encoded</var> is true,
      * "@" sign is replaced by "%40" and "." by "%2e".
      *
-     * @param   bool    $encoded    Encode address
+     * @param bool $encoded Encode address
      *
-     * @return  string              The email.
+     * @return string the email
      */
     public function getEmail(bool $encoded = true): string
     {
@@ -196,7 +195,7 @@ class RsExtComment extends RsExtend
     /**
      * Returns trackback site title if comment is a trackback.
      *
-     * @return  string          The trackback title.
+     * @return string the trackback title
      */
     public function getTrackbackTitle(): string
     {
@@ -207,18 +206,18 @@ class RsExtComment extends RsExtend
     /**
      * Returns trackback content if comment is a trackback.
      *
-     * @return  string          The trackback content.
+     * @return string the trackback content
      */
     public function getTrackbackContent(): string
     {
-        return 1 == $this->rs->f('comment_trackback') ? 
+        return 1 == $this->rs->f('comment_trackback') ?
             preg_replace('|<p><strong>.*?</strong></p>|msU', '', $this->rs->f('comment_content')) : '';
     }
 
     /**
      * Returns comment feed unique ID.
      *
-     * @return  string          The feed id.
+     * @return string the feed id
      */
     public function getFeedID(): string
     {
@@ -228,11 +227,11 @@ class RsExtComment extends RsExtend
     /**
      * Determines whether the specified comment is from the post author.
      *
-     * @return  bool            True if the specified comment is from the post author, False otherwise.
+     * @return bool true if the specified comment is from the post author, False otherwise
      */
     public function isMe(): bool
     {
-        $user_prefs = new Preference($this->rs->f('user_id'), 'profile');
+        $user_prefs         = new Preference($this->rs->f('user_id'), 'profile');
         $user_profile_mails = $user_prefs->get('profile')->get('mails') ?
             array_map('trim', explode(',', $user_prefs->get('profile')->get('mails'))) :
             [];
@@ -242,7 +241,7 @@ class RsExtComment extends RsExtend
 
         return
             ($this->rs->f('comment_email') && $this->rs->f('comment_site'))
-            && ($this->rs->f('comment_email') == $this->rs->f('user_email') || in_array($this->rs->f('comment_email'), $user_profile_mails))
-            && ($this->rs->f('comment_site') == $this->rs->f('user_url') || in_array($this->rs->f('comment_site'), $user_profile_urls));
+                                           && ($this->rs->f('comment_email') == $this->rs->f('user_email') || in_array($this->rs->f('comment_email'), $user_profile_mails))
+                                           && ($this->rs->f('comment_site')  == $this->rs->f('user_url')    || in_array($this->rs->f('comment_site'), $user_profile_urls));
     }
 }

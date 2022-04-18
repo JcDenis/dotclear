@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\LegacyEditor\Admin\Config
+ * @note Dotclear\Plugin\LegacyEditor\Admin\Config
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginLegacyEditor
+ * @ingroup  PluginLegacyEditor
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -28,8 +27,7 @@ class Config extends AbstractConfig
 
     public function getConfiguration(): void
     {
-        echo
-        '<div class="fieldset">' .
+        echo '<div class="fieldset">' .
         '<h3>' . __('Plugin activation') . '</h3>' .
 
         '<p><label class="classic" for="LegacyEditor_active">' .

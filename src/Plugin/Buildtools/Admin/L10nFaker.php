@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Buildtools\Admin\L10nFaker
+ * @note Dotclear\Plugin\Buildtools\Admin\L10nFaker
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginBuildtools
+ * @ingroup  PluginBuildtools
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,12 +12,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Buildtools\Admin;
 
-use Dotclear\Core\Media;
 use Dotclear\Plugin\Widgets\Common\WidgetsStack;
 
-
 /**
- * Do not use l10nFaker with \DOTCLEAR_RUN_VERBOSE as generate uncomplete fake plugin
+ * Do not use l10nFaker with \DOTCLEAR_RUN_VERBOSE as generate uncomplete fake plugin.
  */
 class L10nFaker
 {
@@ -33,6 +30,7 @@ class L10nFaker
     {
         return sprintf('__("%s");' . "\n", str_replace('"', '\\"', $str));
     }
+
     public function generate_file()
     {
         $widgets_stack = new WidgetsStack();

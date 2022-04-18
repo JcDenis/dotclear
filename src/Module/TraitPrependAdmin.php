@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Module\TraitPrependAdmin
+ * @note Dotclear\Module\TraitPrependAdmin
  * @brief Dotclear Module public trait Prepend
  *
- * @package Dotclear
- * @subpackage Module
+ * @ingroup  Module
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,11 +16,12 @@ use Dotclear\Process\Admin\Favorite\Favorite;
 
 trait TraitPrependAdmin
 {
-    /** @var    array   Module Favorites */
+    /** @var array Module Favorites */
     private $favorites = [];
 
     /**
-     * Module check is optionnal on Admin process
+     * Module check is optionnal on Admin process.
+     *
      * @see Dotclear\Module\AbstractModules::loadModules()
      */
     public function checkModule(): bool
@@ -30,7 +30,8 @@ trait TraitPrependAdmin
     }
 
     /**
-     * Module install is optionnal on Admin process
+     * Module install is optionnal on Admin process.
+     *
      * @see Dotclear\Module\AbstractModules::loadModules()
      */
     public function installModule(): ?bool
@@ -40,15 +41,15 @@ trait TraitPrependAdmin
 
     /**
      * Helper to add a standard admin menu item
-     * according to module define properties
+     * according to module define properties.
      *
      * $permissions can be:
      *  * null = superAdmin,
      *  * string = commaseparated list of permissions,
      *  * empty string = follow module define permissions
      *
-     * @param   string|null     $menu           The menu name
-     * @param   string|null     $permissions    The permissions
+     * @param null|string $menu        The menu name
+     * @param null|string $permissions The permissions
      */
     protected function addStandardMenu(?string $menu = null, ?string $permissions = ''): void
     {
@@ -58,7 +59,7 @@ trait TraitPrependAdmin
         if (!$menu || !isset(dotclear()->summary()[$menu])) {
             $menu = 'Plugins';
         }
-        if ($permissions === '') {
+        if ('' === $permissions) {
             $permissions = $this->define()->permissions();
         }
 
@@ -70,16 +71,16 @@ trait TraitPrependAdmin
                 '?df=' . $this->define()->type() . '/' . $this->define()->id() . '/icon-dark.svg',
             ],
             dotclear()->adminurl()->is('admin.plugin.' . $this->define()->id()),
-            $permissions === null ? dotclear()->user()->isSuperAdmin() : dotclear()->user()->check($permissions, dotclear()->blog()->id)
+            null === $permissions ? dotclear()->user()->isSuperAdmin() : dotclear()->user()->check($permissions, dotclear()->blog()->id)
         );
     }
 
     /**
-     * Helper to add a standard admin favorites item
+     * Helper to add a standard admin favorites item.
      *
      * If permissions is not set, defined module permissions are used
      *
-     * @param   string|null     $permissions    Special permissions to show Favorite
+     * @param null|string $permissions Special permissions to show Favorite
      */
     protected function addStandardFavorites(?string $permissions = null): void
     {

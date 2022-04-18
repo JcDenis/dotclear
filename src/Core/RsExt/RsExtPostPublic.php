@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Core\RsExt\RsExtPostPublic
+ * @note Dotclear\Core\RsExt\RsExtPostPublic
  * @brief Dotclear post record public helpers.
  *
- * @package Dotclear
- * @subpackage Core
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,24 +12,21 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\RsExt;
 
-use Dotclear\Core\RsExt\RsExtPost;
 use Dotclear\Helper\Html\Html;
 
 class RsExtPostPublic extends RsExtPost
 {
     public function getContent(bool $absolute_urls = false): string
     {
-        # Not very nice hack but it does the job :)
+        // Not very nice hack but it does the job :)
         if (true === dotclear()->context()?->get('short_feed_items')) {
-            $c    = parent::getContent($absolute_urls);
-            $c    = dotclear()->context()->remove_html($c);
-            $c    = dotclear()->context()->cut_string($c, 350);
+            $c = parent::getContent($absolute_urls);
+            $c = dotclear()->context()->remove_html($c);
+            $c = dotclear()->context()->cut_string($c, 350);
 
-            $c = '<p>' . $c . '... ' .
+            return '<p>' . $c . '... ' .
             '<a href="' . $this->getURL() . '"><em>' . __('Read') . '</em> ' .
             Html::escapeHTML($this->rs->f('post_title')) . '</a></p>';
-
-            return $c;
         }
 
         return dotclear()->blog()->settings()->get('system')->get('use_smilies') ?

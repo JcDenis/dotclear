@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Tags\Admin\TagsBehavior
+ * @note Dotclear\Plugin\Tags\Admin\TagsBehavior
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginTags
+ * @ingroup  PluginTags
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -57,13 +56,13 @@ class TagsBehavior
                 ],
             ]) .
             dotclear()->resource()->load('legacy-post.js', 'Plugin', 'tags');
-        } else {
-            return
+        }
+
+        return
             dotclear()->resource()->json('ck_editor_tags', [
                 'tag_title' => __('Tag'),
                 'tag_url'   => $tag_url,
             ]);
-        }
     }
 
     public function ckeditorExtraPlugins(ArrayObject $extraPlugins, string $context): void
@@ -138,7 +137,7 @@ class TagsBehavior
             $tags  = dotclear()->meta()->splitMetaValues($post['new_tags']);
             $posts = $ap->getRS();
             while ($posts->fetch()) {
-                # Get tags for post
+                // Get tags for post
                 $post_meta = dotclear()->meta()->getMetadata([
                     'meta_type' => 'tag',
                     'post_id'   => $posts->fInt('post_id'), ]);
@@ -187,8 +186,8 @@ class TagsBehavior
             $ap->setPageBreadcrumb(
                 [
                     Html::escapeHTML(dotclear()->blog()->name) => '',
-                    __('Entries')                       => $ap->getRedirection(true),
-                    __('Add tags to this selection')    => '',
+                    __('Entries')                              => $ap->getRedirection(true),
+                    __('Add tags to this selection')           => '',
                 ]
             );
             $ap->setPageHead(
@@ -242,7 +241,7 @@ class TagsBehavior
                     'post_id'   => (int) $id, ])->toStatic()->rows();
                 foreach ($post_tags as $v) {
                     if (isset($tags[$v['meta_id']])) {
-                        $tags[$v['meta_id']]++;
+                        ++$tags[$v['meta_id']];
                     } else {
                         $tags[$v['meta_id']] = 1;
                     }
@@ -253,7 +252,7 @@ class TagsBehavior
             }
             $ap->setPageBreadcrumb(
                 [
-                    Html::escapeHTML(dotclear()->blog()->name)            => '',
+                    Html::escapeHTML(dotclear()->blog()->name)     => '',
                     __('Entries')                                  => 'posts.php',
                     __('Remove selected tags from this selection') => '',
                 ]
@@ -338,8 +337,7 @@ class TagsBehavior
 
         $value = array_key_exists('tag_list_format', $opts) ? $opts['tag_list_format'] : 'more';
 
-        echo
-        '<div class="fieldset"><h5 id="tags_prefs">' . __('Tags') . '</h5>' .
+        echo '<div class="fieldset"><h5 id="tags_prefs">' . __('Tags') . '</h5>' .
         '<p><label for="user_tag_list_format" class="classic">' . __('Tags list format:') . '</label> ' .
         Form::combo('user_tag_list_format', $combo, $value) .
             '</p></div>';
@@ -348,7 +346,7 @@ class TagsBehavior
     public function setTagListFormat(Cursor $cur, ?int $user_id = null): void
     {
         if (!is_null($user_id)) {
-            $opt = $cur->getField('user_options');
+            $opt                    = $cur->getField('user_options');
             $opt['tag_list_format'] = $_POST['user_tag_list_format'];
             $cur->setField('user_options', $opt);
         }

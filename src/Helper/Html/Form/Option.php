@@ -1,12 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Html\Form\Option
- * @brief HTML Forms option creation helpers
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
  * @package Dotclear
- * @subpackage html.form
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,8 +9,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html\Form;
 
-use Dotclear\Helper\Html\Form\Component;
-
+/**
+ * HTML Forms option creation helpers.
+ *
+ * \Dotclear\Helper\Html\Form\Option
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Helper Html Form
+ */
 class Option extends Component
 {
     private const DEFAULT_ELEMENT = 'option';
@@ -24,24 +25,23 @@ class Option extends Component
     /**
      * Constructs a new instance.
      *
-     * @param      string       $name     The option name
-     * @param      string|int   $value    The option value
-     * @param      null|string  $element  The element
+     * @param string      $name    The option name
+     * @param int|string  $value   The option value
+     * @param null|string $element The element
      */
     public function __construct(string $name, string|int $value, ?string $element = null)
     {
         parent::__construct(__CLASS__, $element ?? self::DEFAULT_ELEMENT);
         $this
             ->set('text', $name)
-            ->set('value', $value);
+            ->set('value', $value)
+        ;
     }
 
     /**
      * Renders the HTML component.
      *
-     * @param      null|string  $default   The default value
-     *
-     * @return     string
+     * @param null|string $default The default value
      */
     public function render(?string $default = null): string
     {
@@ -61,7 +61,7 @@ class Option extends Component
     /**
      * Gets the default element.
      *
-     * @return     string  The default element.
+     * @return string the default element
      */
     public function getDefaultElement(): string
     {

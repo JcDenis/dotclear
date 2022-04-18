@@ -1,12 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Html\FormSelectOption
- * @brief HTML Forms creation helpers
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
  * @package Dotclear
- * @subpackage Html
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,30 +9,39 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html;
 
+/**
+ * HTML Forms creation helpers.
+ *
+ * \Dotclear\Helper\Html\FormSelectOption
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Helper Html Form
+ */
 class FormsSelectOption
 {
-    public $name;       ///< string Option name
-    public $value;      ///< mixed  Option value
-    public $class_name; ///< string Element class name
-    public $extra;      ///< string Extra HTML attributes
+    public $name;       // /< string Option name
+    public $value;      // /< mixed  Option value
+    public $class_name; // /< string Element class name
+    public $extra;      // /< string Extra HTML attributes
 
     /**
-     * sprintf template for option
-     * @var string $option
-     * @access private
+     * sprintf template for option.
+     *
+     * @var string
      */
     private $option = '<option value="%1$s"%3$s>%2$s</option>' . "\n";
 
     /**
-     * Option constructor
+     * Option constructor.
      *
-     * @param array   $params       Parameters
-     *      $params = [
-     *          'name'          => string option name (required).
-     *          'value'         => string option value (required).
-     *          'class_name'    => string class name.
-     *          'extra'         => string extra HTML attributes.
-     *      ]
+     * @param array $params Parameters
+     *                      $params = [
+     *                      'name'          => string option name (required).
+     *                      'value'         => string option value (required).
+     *                      'class_name'    => string class name.
+     *                      'extra'         => string extra HTML attributes.
+     *                      ]
      */
     public function __construct(array $params)
     {
@@ -49,12 +52,11 @@ class FormsSelectOption
     }
 
     /**
-     * Option renderer
+     * Option renderer.
      *
      * Returns option HTML code
      *
-     * @param string  $default  Value of selected option
-     * @return string
+     * @param string $default Value of selected option
      */
     public function render(?string $default): string
     {

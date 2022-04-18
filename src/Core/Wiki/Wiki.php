@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Core\Wiki\Wiki
+ * @note Dotclear\Core\Wiki\Wiki
  * @brief Dotclear trait error
  *
- * @package Dotclear
- * @subpackage Instance
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,18 +12,17 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Wiki;
 
-use Dotclear\Core\Wiki\Wiki2xhtml;
 use Dotclear\Helper\Html\Html;
 
 class Wiki
 {
-    /** @var    Wiki2xhtml   Wiki2xhtml instance */
+    /** @var Wiki2xhtml Wiki2xhtml instance */
     private $wiki2xhtml;
 
     /**
-     * Get instance
+     * Get instance.
      *
-     * @return  Wiki2xhtml   Wiki2xhtml instance
+     * @return Wiki2xhtml Wiki2xhtml instance
      */
     public function wiki2xhtml(): Wiki2xhtml
     {
@@ -38,9 +36,7 @@ class Wiki
     /**
      * Returns a transformed string with wiki2xhtml.
      *
-     * @param   string  $str    The string
-     *
-     * @return  string
+     * @param string $str The string
      */
     public function wikiTransform(string $str): string
     {
@@ -90,12 +86,12 @@ class Wiki
             'first_title_level'   => 3,
             'note_prefix'         => 'wiki-footnote',
             'note_str'            => '<div class="footnotes"><h4>Notes</h4>%s</div>',
-            'img_style_center'    => 'display:table; margin:0 auto;'
+            'img_style_center'    => 'display:table; margin:0 auto;',
         ]);
 
         $this->wiki2xhtml()->registerFunction('url:post', [$this, 'wikiPostLink']);
 
-        # --BEHAVIOR-- coreInitWikiPost, Wiki2xhtml
+        // --BEHAVIOR-- coreInitWikiPost, Wiki2xhtml
         dotclear()->behavior()->call('coreInitWikiPost', $this->wiki2xhtml);
     }
 
@@ -139,10 +135,10 @@ class Wiki
             'active_i'            => 0,
             'active_span'         => 0,
             'parse_pre'           => 0,
-            'active_fr_syntax'    => 0
+            'active_fr_syntax'    => 0,
         ]);
 
-        # --BEHAVIOR-- coreInitWikiSimpleComment, Dotclear\Helper\Html\Wiki2xhtml
+        // --BEHAVIOR-- coreInitWikiSimpleComment, Dotclear\Helper\Html\Wiki2xhtml
         dotclear()->behavior()->call('coreInitWikiSimpleComment', $this->wiki2xhtml);
     }
 
@@ -185,20 +181,18 @@ class Wiki
             'active_i'            => 1,
             'active_span'         => 0,
             'parse_pre'           => 0,
-            'active_fr_syntax'    => 0
+            'active_fr_syntax'    => 0,
         ]);
 
-        # --BEHAVIOR-- coreInitWikiComment, Dotclear\Helper\Html\Wiki2xhtml
+        // --BEHAVIOR-- coreInitWikiComment, Dotclear\Helper\Html\Wiki2xhtml
         dotclear()->behavior()->call('coreInitWikiComment', $this->wiki2xhtml);
     }
 
     /**
-     * Get info about a post:id wiki macro
+     * Get info about a post:id wiki macro.
      *
-     * @param   string  $url        The post url
-     * @param   string  $content    The content
-     *
-     * @return  array
+     * @param string $url     The post url
+     * @param string $content The content
      */
     public function wikiPostLink(string $url, string $content): array
     {
@@ -216,7 +210,7 @@ class Wiki
             return [];
         }
 
-        $res        = ['url' => $rs->getURL()];
+        $res = ['url' => $rs->getURL()];
 
         if ($url != $content) {
             $res['title'] = Html::escapeHTML($rs->f('post_title'));

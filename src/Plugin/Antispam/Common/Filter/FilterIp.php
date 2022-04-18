@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Antispam\Common\Filter\FilterIp
+ * @note Dotclear\Plugin\Antispam\Common\Filter\FilterIp
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginAntispam
+ * @ingroup  PluginAntispam
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,9 +18,10 @@ use Dotclear\Database\Statement\InsertStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Helper\Html\Html;
-Use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Plugin\Antispam\Common\Spamfilter;
+use Exception;
 
 class FilterIp extends Spamfilter
 {
@@ -54,12 +54,12 @@ class FilterIp extends Spamfilter
             return null;
         }
 
-        # White list check
+        // White list check
         if (false !== $this->checkIP($ip, 'white')) {
             return false;
         }
 
-        # Black list check
+        // Black list check
         if (false !== ($s = $this->checkIP($ip, 'black'))) {
             $status = $s;
 
@@ -71,14 +71,14 @@ class FilterIp extends Spamfilter
 
     public function gui(string $url): string
     {
-        # Set current type and tab
+        // Set current type and tab
         $ip_type = 'black';
         if (!empty($_REQUEST['ip_type']) && 'white' == $_REQUEST['ip_type']) {
             $ip_type = 'white';
         }
         $this->tab = 'tab_' . $ip_type;
 
-        # Add IP to list
+        // Add IP to list
         if (!empty($_POST['addip'])) {
             try {
                 $global = !empty($_POST['globalip']) && dotclear()->user()->isSuperAdmin();
@@ -86,18 +86,18 @@ class FilterIp extends Spamfilter
                 $this->addIP($ip_type, $_POST['addip'], $global);
                 dotclear()->notice()->addSuccessNotice(__('IP address has been successfully added.'));
                 Http::redirect($url . '&ip_type=' . $ip_type);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Remove IP from list
+        // Remove IP from list
         if (!empty($_POST['delip']) && is_array($_POST['delip'])) {
             try {
                 $this->removeRule($_POST['delip']);
                 dotclear()->notice()->addSuccessNotice(__('IP addresses have been successfully removed.'));
                 Http::redirect($url . '&ip_type=' . $ip_type);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
@@ -160,9 +160,11 @@ class FilterIp extends Spamfilter
                 }
 
                 $item = '<p class="' . $p_style . '"><label class="classic" for="' . $type . '-ip-' . $rs->f('rule_id') . '">' .
-                form::checkbox(['delip[]', $type . '-ip-' . $rs->f('rule_id')], $rs->f('rule_id'),
+                form::checkbox(
+                    ['delip[]', $type . '-ip-' . $rs->f('rule_id')],
+                    $rs->f('rule_id'),
                     [
-                        'disabled' => $disabled_ip
+                        'disabled' => $disabled_ip,
                     ]
                 ) . ' ' .
                 html::escapeHTML($pattern) .
@@ -170,13 +172,13 @@ class FilterIp extends Spamfilter
 
                 if ($rs->f('blog_id')) {
                     // local list
-                    if ($res_local == '') {
+                    if ('' == $res_local) {
                         $res_local = '<h4>' . __('Local IPs (used only for this blog)') . '</h4>';
                     }
                     $res_local .= $item;
                 } else {
                     // global list
-                    if ($res_global == '') {
+                    if ('' == $res_global) {
                         $res_global = '<h4>' . __('Global IPs (used for all blogs)') . '</h4>';
                     }
                     $res_global .= $item;
@@ -201,20 +203,20 @@ class FilterIp extends Spamfilter
     {
         $bits = explode('/', $pattern);
 
-        # Set IP
+        // Set IP
         $bits[0] .= str_repeat('.0', 3 - substr_count($bits[0], '.'));
 
         if (!filter_var($bits[0], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-            throw new \Exception('Invalid IPv4 address');
+            throw new Exception('Invalid IPv4 address');
         }
 
         $ip = ip2long($bits[0]);
 
         if (!$ip || -1 == $ip) {
-            throw new \Exception('Invalid IP address');
+            throw new Exception('Invalid IP address');
         }
 
-        # Set mask
+        // Set mask
         if (!isset($bits[1])) {
             $mask = -1;
         } elseif (strpos($bits[1], '.')) {
@@ -243,7 +245,7 @@ class FilterIp extends Spamfilter
                     'rule_id',
                     'rule_type',
                     'rule_content',
-                    'blog_id'
+                    'blog_id',
                 ])
                 ->line([[
                     SelectStatement::init(__METHOD__)
@@ -256,7 +258,8 @@ class FilterIp extends Spamfilter
                     $global && dotclear()->user()->isSuperAdmin() ? 'NULL' : $sql->quote(dotclear()->blog()->id),
                 ]])
                 ->from($this->table)
-                ->insert();
+                ->insert()
+            ;
         } else {
             $sql = new UpdateStatement(__METHOD__);
             $sql
@@ -264,7 +267,8 @@ class FilterIp extends Spamfilter
                 ->set('rule_content = ' . $sql->quote($content))
                 ->where('rule_id = ' . $old->fInt('rule_id'))
                 ->from($this->table)
-                ->update();
+                ->update()
+            ;
         }
     }
 
@@ -286,10 +290,11 @@ class FilterIp extends Spamfilter
             ]))
             ->order([
                 'blog_id ASC',
-                'rule_content ASC'
+                'rule_content ASC',
             ])
             ->from($this->table)
-            ->select();
+            ->select()
+        ;
     }
 
     private function getRuleCIDR(string $type, bool $global, $ip, $mask): Record
@@ -299,19 +304,21 @@ class FilterIp extends Spamfilter
         return $sql
             ->column('*')
             ->where('rule_type = ' . $sql->quote($type))
-            ->and($sql->like('rule_content',  "%:" . (int) $ip . ':' . (int) $mask))
-            ->and($global ?
+            ->and($sql->like('rule_content', '%:' . (int) $ip . ':' . (int) $mask))
+            ->and(
+                $global ?
                 'blog_id IS NULL' :
                 'blog_id = ' . $sql->quote(dotclear()->blog()->id)
             )
             ->from($this->table)
-            ->select();
+            ->select()
+        ;
     }
 
     private function checkIP(string $cip, string $type): string|false
     {
         $sql = new SelectStatement(__METHOD__);
-        $rs = $sql
+        $rs  = $sql
             ->distinct()
             ->column('rule_content')
             ->where('rule_type = ' . $sql->quote($type))
@@ -321,10 +328,11 @@ class FilterIp extends Spamfilter
             ]))
             ->order('rule_content ASC')
             ->from($this->table)
-            ->select();
+            ->select()
+        ;
 
         while ($rs->fetch()) {
-            list($pattern, $ip, $mask) = explode(':', $rs->f('rule_content'));
+            [$pattern, $ip, $mask] = explode(':', $rs->f('rule_content'));
             if ((ip2long($cip) & (int) $mask) == ((int) $ip & (int) $mask)) {
                 return $pattern;
             }
@@ -352,6 +360,7 @@ class FilterIp extends Spamfilter
 
         $sql
             ->from($this->table)
-            ->delete();
+            ->delete()
+        ;
     }
 }

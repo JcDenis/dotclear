@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Antispam\Admin\Prepend
+ * @note Dotclear\Plugin\Antispam\Admin\Prepend
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginAntispam
+ * @ingroup  PluginAntispam
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,12 +12,9 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Admin;
 
-use ArrayObject;
-
 use Dotclear\Database\Structure;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
-use Dotclear\Plugin\Antispam\Admin\AntispamBehavior;
 use Dotclear\Plugin\Antispam\Common\Antispam;
 use Dotclear\Plugin\Antispam\Common\AntispamUrl;
 use Dotclear\Plugin\Antispam\Common\Filter\FilterWords;
@@ -33,7 +29,7 @@ class Prepend extends AbstractPrepend
             define('DC_ANTISPAM_CONF_SUPER', false);
         }
 
-        # Menu and favs
+        // Menu and favs
         $this->addStandardMenu('Plugins');
         $this->addStandardFavorites('admin');
 
@@ -67,11 +63,11 @@ class Prepend extends AbstractPrepend
             $s->table('spamrule')->index('idx_spamrule_blog_id_null', 'btree', '(blog_id IS NULL)');
         }
 
-        # Schema installation
+        // Schema installation
         $si      = new Structure(dotclear()->con(), dotclear()->prefix);
         $changes = $si->synchronize($s);
 
-        # Creating default wordslist
+        // Creating default wordslist
         if (null === dotclear()->version()->get('Antispam')) {
             $_o = new FilterWords();
             $_o->defaultWordsList();

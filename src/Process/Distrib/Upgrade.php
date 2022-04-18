@@ -1,12 +1,11 @@
 <?php
 /**
- * @class Dotclear\Process\Distrib\Upgrade
+ * @note Dotclear\Process\Distrib\Upgrade
  * @brief Dotclear distribution upgrade class
  *
  * @todo no files remove < dcns as entire structure change
  *
- * @package Dotclear
- * @subpackage Distrib
+ * @ingroup  Distrib
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,10 +15,8 @@ declare(strict_types=1);
 namespace Dotclear\Process\Distrib;
 
 use Dotclear\Database\Structure;
-use Dotclear\Process\Distrib\Distrib;
 use Dotclear\Exception\DistribException;
-use Dotclear\Helper\File\Files;
-use Dotclear\Helper\File\Path;
+use Exception;
 
 if (!defined('DOTCLEAR_OLD_ROOT_DIR')) {
     define('DOTCLEAR_OLD_ROOT_DIR', \DOTCLEAR_ROOT_DIR . '/../');
@@ -31,7 +28,7 @@ class Upgrade
     {
         $version = dotclear()->version()->get('core');
 
-        if ($version === null) {
+        if (null === $version) {
             return false;
         }
 
@@ -41,7 +38,7 @@ class Upgrade
                     return false; // Need to find a way to upgrade sqlite database
                 }
 
-                # Database upgrade
+                // Database upgrade
                 $_s = new Structure(dotclear()->con(), dotclear()->prefix);
                 Distrib::getDatabaseStructure($_s);
 
@@ -52,32 +49,32 @@ class Upgrade
                 ------------------------------------ */
                 $cleanup_sessions = $this->growUp($version);
 
-                # Drop content from session table if changes or if needed
-                if ($changes != 0 || $cleanup_sessions) {
+                // Drop content from session table if changes or if needed
+                if (0 != $changes || $cleanup_sessions) {
                     dotclear()->con()->execute('DELETE FROM ' . dotclear()->prefix . 'session ');
                 }
 
-                # Empty templates cache directory
+                // Empty templates cache directory
                 try {
                     dotclear()->emptyTemplatesCache();
                 } catch (\Exception) {
                 }
 
                 return $changes;
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 throw new DistribException(
                     __('Something went wrong with auto upgrade:') . ' ' . $e->getMessage()
                 );
             }
         }
 
-        # No upgrade?
+        // No upgrade?
         return false;
     }
 
     public function growUp(?string $version): bool
     {
-        if ($version === null) {
+        if (null === $version) {
             return false;
         }
 

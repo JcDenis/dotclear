@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Handler\Update
+ * @note Dotclear\Process\Admin\Handler\Update
  * @brief Dotclear admin update page
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,11 +17,12 @@ use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Zip\Unzip;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Process\Admin\Page\Page;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Service\Updater;
 use Dotclear\Helper\ErrorTrait;
+use Exception;
 
-class Update extends Page
+class Update extends AbstractPage
 {
     use ErrorTrait;
 
@@ -43,17 +43,19 @@ class Update extends Page
             ->setPageHelp('core_update')
             ->setPageBreadcrumb([
                 __('System')          => '',
-                __('Dotclear update') => ''
+                __('Dotclear update') => '',
             ])
         ;
 
         if (!is_dir(dotclear()->config()->get('backup_dir'))) {
             $this->error()->add(__('Backup directory does not exist'));
+
             return true;
         }
 
         if (!is_readable(dotclear()->config()->get('digests_dir'))) {
             $this->error()->add(__('Access denied'));
+
             return true;
         }
 
@@ -61,7 +63,7 @@ class Update extends Page
         $this->upd_new_version = $this->upd_updater->check(dotclear()->config()->get('core_version'), !empty($_GET['nocache']));
         $zip_file              = $this->upd_new_version ? dotclear()->config()->get('backup_dir') . '/' . basename($this->upd_updater->getFileURL()) : '';
 
-        # Hide "update me" message
+        // Hide "update me" message
         if (!empty($_GET['hide_msg'])) {
             $this->upd_updater->setNotify(false);
             dotclear()->adminurl()->redirect('admin.home');
@@ -93,7 +95,7 @@ class Update extends Page
             );
         }
 
-        # Revert or delete backup file
+        // Revert or delete backup file
         if (!empty($_POST['backup_file']) && in_array($_POST['backup_file'], $this->upd_archives)) {
             $b_file = $_POST['backup_file'];
 
@@ -111,12 +113,12 @@ class Update extends Page
                     @unlink(dotclear()->config()->get('backup_dir') . '/' . $b_file);
                     dotclear()->adminurl()->redirect('admin.update', ['tab' => 'files']);
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Upgrade process
+        // Upgrade process
         if ($this->upd_new_version && $this->upd_step) {
             try {
                 $this->upd_updater->setForcedFiles(dotclear()->config()->get('digests_dir'));
@@ -127,12 +129,13 @@ class Update extends Page
                         dotclear()->adminurl()->redirect('admin.update', ['step' => 'download']);
 
                         break;
+
                     case 'download':
                         $this->upd_updater->download($zip_file);
                         if (!$this->upd_updater->checkDownload($zip_file)) {
                             throw new AdminException(
                                 sprintf(__('Downloaded Dotclear archive seems to be corrupted. ' .
-                                    'Try <a %s>download it</a> again.'), 'href="' . dotclear()->adminurl()->get('admin.update', ['step' => 'download']) .'"') .
+                                    'Try <a %s>download it</a> again.'), 'href="' . dotclear()->adminurl()->get('admin.update', ['step' => 'download']) . '"') .
                                 ' ' .
                                 __('If this problem persists try to ' .
                                     '<a href="https://dotclear.org/download">update manually</a>.')
@@ -141,6 +144,7 @@ class Update extends Page
                         dotclear()->adminurl()->redirect('admin.update', ['step' => 'backup']);
 
                         break;
+
                     case 'backup':
                         $this->upd_updater->backup(
                             $zip_file,
@@ -152,6 +156,7 @@ class Update extends Page
                         dotclear()->adminurl()->redirect('admin.update', ['step' => 'unzip']);
 
                         break;
+
                     case 'unzip':
                         $this->upd_updater->performUpgrade(
                             $zip_file,
@@ -163,7 +168,7 @@ class Update extends Page
 
                         break;
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $msg = $e->getMessage();
 
                 if ($e->getCode() == Updater::ERR_FILES_CHANGED) {
@@ -232,19 +237,16 @@ class Update extends Page
             } else {
                 $version_info = $this->upd_updater->getInfoURL();
 
-                echo
-                '<p class="static-msg">' . sprintf(__('Dotclear %s is available.'), $this->upd_new_version) .
+                echo '<p class="static-msg">' . sprintf(__('Dotclear %s is available.'), $this->upd_new_version) .
                     ($version_info ? ' <a href="' . $version_info . '" class="outgoing" title="' . __('Information about this version') . '">(' .
                     __('Information about this version') . ')&nbsp;<img src="?df=images/outgoing-link.svg" alt=""/></a>' : '') .
                     '</p>';
                 if (version_compare(phpversion(), $this->upd_updater->getPHPVersion()) < 0) {
-                    echo
-                    '<p class="warning-msg">' . sprintf(__('PHP version is %s (%s or earlier needed).'), phpversion(), $this->upd_updater->getPHPVersion()) . '</p>';
+                    echo '<p class="warning-msg">' . sprintf(__('PHP version is %s (%s or earlier needed).'), phpversion(), $this->upd_updater->getPHPVersion()) . '</p>';
                 } else {
-                    echo
-                    '<p>' . __('To upgrade your Dotclear installation simply click on the following button. ' .
+                    echo '<p>' . __('To upgrade your Dotclear installation simply click on the following button. ' .
                         'A backup file of your current installation will be created in your root directory.') . '</p>' .
-                    '<form action="' . dotclear()->adminurl()->get('admin.update', [], '&')  . '" method="get">' .
+                    '<form action="' . dotclear()->adminurl()->get('admin.update', [], '&') . '" method="get">' .
                     '<p><input type="hidden" name="step" value="check" />' .
                     '<input type="submit" value="' . __('Update Dotclear') . '" /></p>' .
                         '</form>';
@@ -255,20 +257,17 @@ class Update extends Page
             if (!empty($this->upd_archives)) {
                 echo '<div class="multi-part" id="files" title="' . __('Manage backup files') . '">';
 
-                echo
-                '<h3>' . __('Update backup files') . '</h3>' .
+                echo '<h3>' . __('Update backup files') . '</h3>' .
                 '<p>' . __('The following files are backups of previously updates. ' .
                     'You can revert your previous installation or delete theses files.') . '</p>';
 
-                echo '<form action="' . dotclear()->adminurl()->get('admin.update', [], '&')  . '" method="post">';
+                echo '<form action="' . dotclear()->adminurl()->get('admin.update', [], '&') . '" method="post">';
                 foreach ($this->upd_archives as $v) {
-                    echo
-                    '<p><label class="classic">' . Form::radio(['backup_file'], Html::escapeHTML($v)) . ' ' .
+                    echo '<p><label class="classic">' . Form::radio(['backup_file'], Html::escapeHTML($v)) . ' ' .
                     Html::escapeHTML($v) . '</label></p>';
                 }
 
-                echo
-                '<p><strong>' . __('Please note that reverting your Dotclear version may have some ' .
+                echo '<p><strong>' . __('Please note that reverting your Dotclear version may have some ' .
                     'unwanted side-effects. Consider reverting only if you experience strong issues with this new version.') . '</strong> ' .
                 sprintf(__('You should not revert to version prior to last one (%s).'), end($this->upd_archives)) .
                 '</p>' .
@@ -279,9 +278,8 @@ class Update extends Page
 
                 echo '</div>';
             }
-        } elseif ($this->upd_step == 'unzip' && !dotclear()->error()->flag()) {
-            echo
-            '<p class="message">' .
+        } elseif ('unzip' == $this->upd_step && !dotclear()->error()->flag()) {
+            echo '<p class="message">' .
             __("Congratulations, you're one click away from the end of the update.") .
             ' <strong><a href="' . dotclear()->adminurl()->get('admin.home', ['logout' => 1], '&') . '" class="button submit">' . __('Finish the update.') . '</a></strong>' .
                 '</p>';

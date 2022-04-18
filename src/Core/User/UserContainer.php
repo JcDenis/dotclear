@@ -1,50 +1,53 @@
 <?php
 /**
- * @class Dotclear\Container\UserContainer
- * @brief Dotclear simple User container
- *
  * @package Dotclear
- * @subpackage Container
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
 declare(strict_types=1);
 
-namespace Dotclear\Container;
+namespace Dotclear\Core\User;
 
-use Dotclear\Container\AbstractContainer;
 use Dotclear\Database\Record;
+use Dotclear\Helper\AbstractContainer;
 
+/**
+ * Container to acces user properties with fixed type.
+ *
+ * \Dotclear\Core\User\UserContainer
+ *
+ * @ingroup  Core User Container
+ */
 class UserContainer extends AbstractContainer
 {
     protected $id = 'user';
 
-    /** @var    array<string, mixed>    $info   User properties */
+    /** @var array<string, mixed>      User properties */
     protected $info = [
-        'user_id' => '',
-        'user_super' =>  0,
-        'user_pwd'=> '',
-        'user_change_pwd' => 0,
-        'user_name' => '',
-        'user_firstname' => '',
-        'user_displayname' => '',
-        'user_email' => '',
-        'user_url' => '',
-        'user_lang' => 'en',
-        'user_tz' => 'Europe/London',
-        'user_post_status' => -2,
-        'user_creadt' => '',
-        'user_upddt' => '',
+        'user_id'           => '',
+        'user_super'        => 0,
+        'user_pwd'          => '',
+        'user_change_pwd'   => 0,
+        'user_name'         => '',
+        'user_firstname'    => '',
+        'user_displayname'  => '',
+        'user_email'        => '',
+        'user_url'          => '',
+        'user_lang'         => 'en',
+        'user_tz'           => 'Europe/London',
+        'user_post_status'  => -2,
+        'user_creadt'       => '',
+        'user_upddt'        => '',
         'user_default_blog' => 'default',
-        'user_options' => ''
+        'user_options'      => '',
     ];
 
     public function fromRecord(Record $rs = null): void
     {
         parent::fromRecord($rs);
 
-        # Use custom method for user options
+        // Use custom method for user options
         if (null != $rs && $rs->exists('user_options')) {
             $this->setOptions($rs->call('options'));
         }
@@ -55,12 +58,12 @@ class UserContainer extends AbstractContainer
      * <var>user_id</var>, <var>user_name</var>, <var>user_firstname</var> and
      * <var>user_displayname</var>.
      *
-     * @param      string       $user_id           The user identifier
-     * @param      string|null  $user_name         The user name
-     * @param      string|null  $user_firstname    The user firstname
-     * @param      string|null  $user_displayname  The user displayname
+     * @param string      $user_id          The user identifier
+     * @param null|string $user_name        The user name
+     * @param null|string $user_firstname   The user firstname
+     * @param null|string $user_displayname The user displayname
      *
-     * @return     string  The user cn.
+     * @return string the user cn
      */
     public static function getUserCN(string $user_id, ?string $user_name, ?string $user_firstname, ?string $user_displayname): string
     {
@@ -74,7 +77,8 @@ class UserContainer extends AbstractContainer
             }
 
             return $user_name;
-        } elseif (!empty($user_firstname)) {
+        }
+        if (!empty($user_firstname)) {
             return $user_firstname;
         }
 
@@ -84,7 +88,7 @@ class UserContainer extends AbstractContainer
     /**
      * Returns user default settings in an associative array with setting names in keys.
      *
-     * @return  array<string, mixed>    User default options.
+     * @return array<string, mixed> user default options
      */
     public static function defaultOptions(): array
     {
@@ -98,11 +102,11 @@ class UserContainer extends AbstractContainer
     }
 
     /**
-     * Set user options
-     * 
-     * @param   array<string, mixed>    $arg    User options
-     * 
-     * @return  array<string, mixed>            User options
+     * Set user options.
+     *
+     * @param array<string, mixed> $arg User options
+     *
+     * @return array<string, mixed> User options
      */
     private function setOptions(array $arg): array
     {
@@ -112,9 +116,9 @@ class UserContainer extends AbstractContainer
     }
 
     /**
-     * Get user options
+     * Get user options.
      *
-     * @return  array<string, mixed>    User options.
+     * @return array<string, mixed> user options
      */
     public function getOptions(): array
     {
@@ -122,12 +126,12 @@ class UserContainer extends AbstractContainer
     }
 
     /**
-     * Set a user option
-     * 
-     * @param   string  $key    Option key
-     * @param   mixed   $val    Option value
-     * 
-     * @return  mixed           Option value
+     * Set a user option.
+     *
+     * @param string $key Option key
+     * @param mixed  $val Option value
+     *
+     * @return mixed Option value
      */
     public function setOption(string $key, mixed $val): mixed
     {
@@ -137,16 +141,16 @@ class UserContainer extends AbstractContainer
     }
 
     /**
-     * Get a user option
-     * 
-     * @param   string  $key    Option key
-     * 
-     * @return  mixed           Option value
+     * Get a user option.
+     *
+     * @param string $key Option key
+     *
+     * @return mixed Option value
      */
     public function getOption(string $key): mixed
     {
         $opt = $this->getOptions();
 
-        return isset($opt[$key]) ? $opt[$key] : null;
+        return $opt[$key] ?? null;
     }
 }

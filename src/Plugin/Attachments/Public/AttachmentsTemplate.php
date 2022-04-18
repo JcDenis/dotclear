@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Attachments\Public\AttachmentsTemplate
+ * @note Dotclear\Plugin\Attachments\Public\AttachmentsTemplate
  * @brief Dotclear Plugin class
  *
- * @package Dotclear
- * @subpackage PluginAttachments
+ * @ingroup  PluginAttachments
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -41,7 +40,7 @@ class AttachmentsTemplate
      */
     public function Attachments(ArrayObject $attr, string $content): string
     {
-        $res = "<?php\n" .
+        return "<?php\n" .
             'if (dotclear()->context()->get("posts") !== null) {' . "\n" .
             'dotclear()->context()->set("attachments", new ArrayObject(dotclear()->media()->getPostMedia(dotclear()->context()->get("posts")->fInt("post_id"),null,"attachment")));' . "\n" .
             "?>\n" .
@@ -53,8 +52,6 @@ class AttachmentsTemplate
             '<?php endforeach; dotclear()->context()->set("attachments", null); unset($attach_i,$attach_f); dotclear()->context()->set("file_url", null); ?>' .
 
             "<?php } ?>\n";
-
-        return $res;
     }
 
     /*dtd
@@ -125,7 +122,7 @@ class AttachmentsTemplate
             // Since 2.15 .flv media are no more considered as video (Flash is obsolete)
             $sign = (bool) $attr['is_video'] ? '==' : '!=';
             $test = '$attach_f->type_prefix ' . $sign . ' "video"';
-            if ($sign == '==') {
+            if ('==' == $sign) {
                 $test .= ' && $attach_f->type != "video/x-flv"';
             } else {
                 $test .= ' || $attach_f->type == "video/x-flv"';
@@ -172,7 +169,9 @@ class AttachmentsTemplate
      */
     public function AttachmentSize(ArrayObject $attr): string
     {
-        return '<?php echo ' . sprintf(dotclear()->template()->getFilters($attr), empty($attr['full']) ?
+        return '<?php echo ' . sprintf(
+            dotclear()->template()->getFilters($attr),
+            empty($attr['full']) ?
             'Dotclear\Helper\File\Files::size($attach_f->size)' :
             '$attach_f->size'
         ) . '; ?>';
@@ -227,7 +226,7 @@ class AttachmentsTemplate
             [
                 'none' => 'no attachments',
                 'one'  => 'one attachment',
-                'more' => '%d attachments'
+                'more' => '%d attachments',
             ],
             $attr,
             false

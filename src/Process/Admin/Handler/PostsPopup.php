@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Handler\PostsPopup
+ * @note Dotclear\Process\Admin\Handler\PostsPopup
  * @brief Dotclear admin posts popup list page
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,17 +12,17 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
-use Dotclear\Process\Admin\Page\Page;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Inventory\Inventory\PostMiniInventory;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 
-class PostsPopup extends Page
+class PostsPopup extends AbstractPage
 {
     private $plugin_id = '';
-    private $q = '';
-    private $page = 1;
-    private $type = null;
+    private $q         = '';
+    private $page      = 1;
+    private $type;
     private $type_combo = [];
 
     protected function getPermissions(): string|null|false
@@ -77,7 +76,7 @@ class PostsPopup extends Page
             )
         ;
 
-        if ($this->plugin_id == 'admin.blog.pref') { //! ?
+        if ('admin.blog.pref' == $this->plugin_id) { // ! ?
             $this->setPageHead(
                 dotclear()->resource()->json('admin.blog.pref', ['base_url' => dotclear()->blog()->url]) .
                 dotclear()->resource()->load('_blog_pref_popup_posts.js')
@@ -89,8 +88,7 @@ class PostsPopup extends Page
 
     protected function getPageContent(): void
     {
-        echo
-        '<h2 class="page-title">' . __('Add a link to an entry') . '</h2>' .
+        echo '<h2 class="page-title">' . __('Add a link to an entry') . '</h2>' .
 
         '<form action="' . dotclear()->adminurl()->get('admin.posts.popup') . '" method="get">' .
         '<p><label for="type" class="classic">' . __('Entry type:') . '</label> ' . Form::combo('type', $this->type_combo, $this->type) . '' .
@@ -105,7 +103,7 @@ class PostsPopup extends Page
         Form::hidden('type', Html::escapeHTML($this->type)) .
         '</p></form>' .
 
-        '<div id="form-entries">'; # I know it's not a form but we just need the ID
+        '<div id="form-entries">'; // I know it's not a form but we just need the ID
         $this->inventory->display($this->page, 10);
         '</div>' .
 

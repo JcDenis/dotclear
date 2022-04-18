@@ -1,12 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Html\HtmlFilter
- * @brief Html filter
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
  * @package Dotclear
- * @subpackage Utils
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,26 +9,35 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html;
 
-use \tidy;
-use \XMLParser;
+use tidy;
+use XMLParser;
 
+/**
+ * Html filter.
+ *
+ * \Dotclear\Helper\Html\HtmlFilter
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Helper Html
+ */
 class HtmlFilter
 {
-    /** @var    XMLParser   $parser     XML parser */
+    /** @var XMLParser XML parser */
     private $parser;
 
-    /** @var    string  $content    Parsed content */
+    /** @var string Parsed content */
     public $content;
 
-    /** @var    string  $tag    A tag */
+    /** @var string A tag */
     private $tag;
 
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param   bool    $keep_aria  Keep aria
-     * @param   bool    $keep_data  Keep data
-     * @param   bool    $keep_js    Keep js
+     * @param bool $keep_aria Keep aria
+     * @param bool $keep_data Keep data
+     * @param bool $keep_js   Keep js
      */
     public function __construct(bool $keep_aria = false, bool $keep_data = false, bool $keep_js = false)
     {
@@ -85,7 +88,7 @@ class HtmlFilter
     }
 
     /**
-     * Append hosts
+     * Append hosts.
      *
      * Appends hosts to remove from URI. Each method argument is a host. Example:
      *
@@ -104,7 +107,7 @@ class HtmlFilter
     }
 
     /**
-     * Append tags
+     * Append tags.
      *
      * Appends tags to remove. Each method argument is a tag. Example:
      *
@@ -123,7 +126,7 @@ class HtmlFilter
     }
 
     /**
-     * Append attributes
+     * Append attributes.
      *
      * Appends attributes to remove. Each method argument is an attribute. Example:
      *
@@ -142,7 +145,7 @@ class HtmlFilter
     }
 
     /**
-     * Append array of attributes
+     * Append array of attributes.
      *
      * Appends attributes to remove. Example:
      *
@@ -161,7 +164,7 @@ class HtmlFilter
     }
 
     /**
-     * Append attribute patterns
+     * Append attribute patterns.
      *
      * Appends attribute patterns to remove. Each method argument is an attribute pattern. Example:
      *
@@ -180,7 +183,7 @@ class HtmlFilter
     }
 
     /**
-     * Append attributes for tags
+     * Append attributes for tags.
      *
      * Appends attributes to remove from specific tags. Each method argument is
      * an array of tags with attributes. Example:
@@ -202,11 +205,11 @@ class HtmlFilter
     }
 
     /**
-     * Known tags
+     * Known tags.
      *
      * Creates a list of known tags.
      *
-     * @param array        $t        Tags array
+     * @param array $t Tags array
      */
     public function setTags(array $t): void
     {
@@ -216,15 +219,15 @@ class HtmlFilter
     }
 
     /**
-     * Apply filter
+     * Apply filter.
      *
      * This method applies filter on given <var>$str</var> string. It will first
      * try to use tidy extension if exists and then apply the filter.
      *
-     * @param string    $str        String to filter
-     * @param boolean   $tidy       Use tidy extension if present
+     * @param string $str  String to filter
+     * @param bool   $tidy Use tidy extension if present
      *
-     * @return string               Filtered string
+     * @return string Filtered string
      */
     public function apply(string $str, bool $tidy = true): string
     {
@@ -248,7 +251,7 @@ class HtmlFilter
             $tidy->parseString($str, $config, 'utf8');
             $tidy->cleanRepair();
 
-            /* @phpstan-ignore-next-line */
+            // @phpstan-ignore-next-line
             $str = (string) $tidy;
 
             $str = preg_replace('#^<p>tt</p>\s?#', '', $str);
@@ -256,13 +259,13 @@ class HtmlFilter
             $str = $this->miniTidy($str);
         }
 
-        # Removing open comments, open CDATA and processing instructions
+        // Removing open comments, open CDATA and processing instructions
         $str = preg_replace('%<!--.*?-->%msu', '', $str);
         $str = str_replace('<!--', '', $str);
         $str = preg_replace('%<!\[CDATA\[.*?\]\]>%msu', '', $str);
         $str = str_replace('<![CDATA[', '', $str);
 
-        # Transform processing instructions
+        // Transform processing instructions
         $str = str_replace('<?', '&gt;?', $str);
         $str = str_replace('?>', '?&lt;', $str);
 
@@ -276,20 +279,18 @@ class HtmlFilter
 
     private function miniTidy(string $str)
     {
-        $str = preg_replace_callback('%(<(?!(\s*?/|!)).*?>)%msu', [$this, 'miniTidyFixTag'], $str);
-
-        return $str;
+        return preg_replace_callback('%(<(?!(\s*?/|!)).*?>)%msu', [$this, 'miniTidyFixTag'], $str);
     }
 
     private function miniTidyFixTag(array $m)
     {
-        # Non quoted attributes
+        // Non quoted attributes
         return preg_replace_callback('%(=")(.*?)(")%msu', [$this, 'miniTidyFixAttr'], $m[1]);
     }
 
     private function miniTidyFixAttr(array $m)
     {
-        # Escape entities in attributes value
+        // Escape entities in attributes value
         return $m[1] . Html::escapeHTML(Html::decodeEntities($m[2])) . $m[3];
     }
 
@@ -311,7 +312,7 @@ class HtmlFilter
     {
         $this->tag = strtolower($tag);
 
-        if ($this->tag == 'all') {
+        if ('all' == $this->tag) {
             return;
         }
 
@@ -397,10 +398,10 @@ class HtmlFilter
             return false;
         }
 
-        if (!isset($this->tags[$tag]) || (!in_array($attr, $this->tags[$tag]) && // Not in tag allowed attributes
-                !in_array($attr, $this->gen_attrs) && // Not in allowed generic attributes
-                !in_array($attr, $this->event_attrs) && // Not in allowed event attributes
-                !$this->allowedPatternAttr($attr))) {     // Not in allowed grep attributes
+        if (!isset($this->tags[$tag]) || (!in_array($attr, $this->tags[$tag]) // Not in tag allowed attributes
+                && !in_array($attr, $this->gen_attrs) // Not in allowed generic attributes
+                && !in_array($attr, $this->event_attrs) // Not in allowed event attributes
+                && !$this->allowedPatternAttr($attr))) {     // Not in allowed grep attributes
             return false;
         }
 

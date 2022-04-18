@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\LegacyEditor\Admin\LegacyEditorBehavior
+ * @note Dotclear\Plugin\LegacyEditor\Admin\LegacyEditorBehavior
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginLegacyEditor
+ * @ingroup  PluginLegacyEditor
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -26,14 +25,12 @@ class LegacyEditorBehavior
     }
 
     /**
-     * adminPostEditor add javascript to the DOM to load legacy editor depending on context
+     * adminPostEditor add javascript to the DOM to load legacy editor depending on context.
      *
-     * @param      string  $editor   The wanted editor
-     * @param      string  $context  The page context (post,page,comment,event,...)
-     * @param      array   $tags     The array of ids to inject editor
-     * @param      string  $syntax   The wanted syntax (wiki,markdown,...)
-     *
-     * @return     string
+     * @param string $editor  The wanted editor
+     * @param string $context The page context (post,page,comment,event,...)
+     * @param array  $tags    The array of ids to inject editor
+     * @param string $syntax  The wanted syntax (wiki,markdown,...)
      */
     public function adminPostEditor(string $editor = '', string $context = '', array $tags = [], string $syntax = ''): string
     {
@@ -78,7 +75,7 @@ class LegacyEditorBehavior
                 margin: 0;
                 padding: 2px;
                 border: none;
-                $rtl
+                {$rtl}
             }
             code {
                 color: #666;

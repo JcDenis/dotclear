@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Pings\Admin\PingsBehavior
+ * @note Dotclear\Plugin\Pings\Admin\PingsBehavior
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginPings
+ * @ingroup  PluginPings
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -29,11 +28,11 @@ class PingsBehavior
         dotclear()->behavior()->add('adminAfterPostCreate', [$this, 'doPings']);
         dotclear()->behavior()->add('adminAfterPostUpdate', [$this, 'doPings']);
 
-        # Admin help
+        // Admin help
         dotclear()->behavior()->add('adminPageHelpBlock', function (ArrayObject $blocks): void {
             $found = false;
             foreach ($blocks as $block) {
-                if ($block == 'core_post') {
+                if ('core_post' == $block) {
                     $found = true;
 
                     break;
@@ -74,7 +73,7 @@ class PingsBehavior
             $item .= '<p class="ping-services"><label for="pings_do-' . $i . '" class="classic">' .
             Form::checkbox(['pings_do[]', 'pings_do-' . $i], Html::escapeHTML($v), in_array($v, $pings_do), 'check-ping-services') . ' ' .
             Html::escapeHTML($k) . '</label></p>';
-            $i++;
+            ++$i;
         }
         $sidebar['options-box']['items']['pings'] = $item;
     }

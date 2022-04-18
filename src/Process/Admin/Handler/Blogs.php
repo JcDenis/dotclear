@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Handler\Blogs
+ * @note Dotclear\Process\Admin\Handler\Blogs
  * @brief Dotclear admin blogs list page
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,13 +14,13 @@ namespace Dotclear\Process\Admin\Handler;
 
 use ArrayObject;
 use Dotclear\Core\RsExt\RsExtUser;
-use Dotclear\Process\Admin\Page\Page;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Action\Action\BlogAction;
 use Dotclear\Process\Admin\Inventory\Inventory\BlogInventory;
 use Dotclear\Process\Admin\Filter\Filter\BlogFilter;
 use Dotclear\Helper\Html\Form;
 
-class Blogs extends Page
+class Blogs extends AbstractPage
 {
     protected function getPermissions(): string|null|false
     {
@@ -43,7 +42,7 @@ class Blogs extends Page
         $params = $this->filter->params();
         $params = new ArrayObject($params);
 
-        # --BEHAVIOR-- adminGetBlogs, ArrayObject
+        // --BEHAVIOR-- adminGetBlogs, ArrayObject
         dotclear()->behavior()->call('adminGetBlogs', $params);
 
         $counter  = dotclear()->blogs()->getBlogs($params, true);
@@ -51,9 +50,9 @@ class Blogs extends Page
         $nb_blog  = $counter->fInt();
         $rsStatic = $rs->toStatic();
         if (($this->filter->get('sortby') != 'blog_upddt') && ($this->filter->get('sortby') != 'blog_status')) {
-            # Sort blog list using lexical order if necessary
+            // Sort blog list using lexical order if necessary
             $rsStatic->extend(new RsExtUser());
-            //$rsStatic = $rsStatic->toExtStatic();
+            // $rsStatic = $rsStatic->toExtStatic();
             $rsStatic->lexicalSort(($this->filter->get('sortby') == 'UPPER(blog_name)' ? 'blog_name' : 'blog_id'), $this->filter->get('order'));
         }
 
@@ -71,7 +70,7 @@ class Blogs extends Page
             )
             ->setPageBreadcrumb([
                 __('System')        => '',
-                __('List of blogs') => ''
+                __('List of blogs') => '',
             ])
         ;
 
@@ -90,8 +89,10 @@ class Blogs extends Page
 
         $this->filter->display('admin.blogs');
 
-        # Show blogs
-        $this->inventory->display($this->filter->get('page'), $this->filter->get('nb'),
+        // Show blogs
+        $this->inventory->display(
+            $this->filter->get('page'),
+            $this->filter->get('nb'),
             (dotclear()->user()->isSuperAdmin() ?
                 '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-blogs">' : '') .
 
@@ -102,8 +103,11 @@ class Blogs extends Page
                 '<p class="col checkboxes-helpers"></p>' .
 
                 '<p class="col right"><label for="action" class="classic">' . __('Selected blogs action:') . '</label> ' .
-                Form::combo('action', $this->action->getCombo(),
-                    ['class' => 'online', 'extra_html' => 'title="' . __('Actions') . '"']) .
+                Form::combo(
+                    'action',
+                    $this->action->getCombo(),
+                    ['class' => 'online', 'extra_html' => 'title="' . __('Actions') . '"']
+                ) .
                 '<input id="do-action" type="submit" value="' . __('ok') . '" /></p>' .
                 '</div>' .
 

@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Pages\Admin\Handler
+ * @note Dotclear\Plugin\Pages\Admin\Handler
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginPages
+ * @ingroup  PluginPages
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,8 +15,6 @@ namespace Dotclear\Plugin\Pages\Admin;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Module\AbstractPage;
-use Dotclear\Plugin\Pages\Admin\PagesAction;
-use Dotclear\Plugin\Pages\Admin\PagesInventory;
 use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Inventory\Inventory;
 
@@ -71,8 +68,8 @@ class Handler extends AbstractPage
                 dotclear()->resource()->load('list.js', 'Plugin', 'Pages')
             )
             ->setPageBreadcrumb([
-                  Html::escapeHTML(dotclear()->blog()->name) => '',
-                  __('Pages')                                => '',
+                Html::escapeHTML(dotclear()->blog()->name) => '',
+                __('Pages')                                => '',
             ])
         ;
 
@@ -89,11 +86,10 @@ class Handler extends AbstractPage
             dotclear()->notice()->success(__('Selected pages have been successfully reordered.'));
         }
 
-        echo
-        '<p class="top-add"><a class="button add" href="' . dotclear()->adminurl()->get('admin.plugin.Page') . '">' . __('New page') . '</a></p>';
+        echo '<p class="top-add"><a class="button add" href="' . dotclear()->adminurl()->get('admin.plugin.Page') . '">' . __('New page') . '</a></p>';
 
         if (!dotclear()->error()->flag()) {
-            # Show pages
+            // Show pages
             $this->inventory->display(
                 $this->p_page,
                 $this->p_nbbp,

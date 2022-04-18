@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Breadcrumb\Admin\BreadcrumbBehavior
+ * @note Dotclear\Plugin\Breadcrumb\Admin\BreadcrumbBehavior
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginBreadcrumb
+ * @ingroup  PluginBreadcrumb
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -26,8 +25,7 @@ class BreadcrumbBehavior
 
     public function behaviorAdminBlogPreferencesForm(Settings $settings): void
     {
-        echo
-        '<div class="fieldset"><h4 id="breadcrumb_params">' . __('Breadcrumb') . '</h4>' .
+        echo '<div class="fieldset"><h4 id="breadcrumb_params">' . __('Breadcrumb') . '</h4>' .
         '<p><label class="classic">' .
         Form::checkbox('breadcrumb_enabled', '1', $settings->get('breadcrumb')->get('breadcrumb_enabled')) .
         __('Enable breadcrumb for this blog') . '</label></p>' .

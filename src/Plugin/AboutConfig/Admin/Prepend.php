@@ -1,10 +1,6 @@
 <?php
 /**
- * @class Dotclear\Plugin\AboutConfig\Admin\Prepend
- * @brief Dotclear Plugins class
- *
  * @package Dotclear
- * @subpackage PlugniAboutConfig
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,6 +12,13 @@ namespace Dotclear\Plugin\AboutConfig\Admin;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
+/**
+ * Admin prepend for plugin AboutConfig.
+ *
+ * \Dotclear\Plugin\AboutConfig\Admin\Prepend
+ *
+ * @ingroup  Plugin AboutConfig
+ */
 class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;

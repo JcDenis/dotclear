@@ -1,12 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Dotclear\Database\Statement;
 
-use Dotclear\Database\Statement\SqlStatement;
-
 /**
- * Select Statement : small utility to build select queries
+ * Select Statement : small utility to build select queries.
  */
 class SelectStatement extends SqlStatement
 {
@@ -19,9 +18,9 @@ class SelectStatement extends SqlStatement
     protected $distinct;
 
     /**
-     * Class constructor
+     * Class constructor.
      *
-     * @param mixed     $ctx    optional context
+     * @param mixed $ctx optional context
      */
     public function __construct($ctx = null)
     {
@@ -40,10 +39,10 @@ class SelectStatement extends SqlStatement
     }
 
     /**
-     * Adds JOIN clause(s) (applied on first from item only)
+     * Adds JOIN clause(s) (applied on first from item only).
      *
-     * @param mixed     $c      the join clause(s)
-     * @param boolean   $reset  reset previous join(s) first
+     * @param mixed $c     the join clause(s)
+     * @param bool  $reset reset previous join(s) first
      *
      * @return self instance, enabling to chain calls
      */
@@ -62,10 +61,10 @@ class SelectStatement extends SqlStatement
     }
 
     /**
-     * Adds HAVING clause(s)
+     * Adds HAVING clause(s).
      *
-     * @param mixed     $c      the clause(s)
-     * @param boolean   $reset  reset previous having(s) first
+     * @param mixed $c     the clause(s)
+     * @param bool  $reset reset previous having(s) first
      *
      * @return self instance, enabling to chain calls
      */
@@ -84,10 +83,10 @@ class SelectStatement extends SqlStatement
     }
 
     /**
-     * Adds ORDER BY clause(s)
+     * Adds ORDER BY clause(s).
      *
-     * @param mixed     $c      the clause(s)
-     * @param boolean   $reset  reset previous order(s) first
+     * @param mixed $c     the clause(s)
+     * @param bool  $reset reset previous order(s) first
      *
      * @return self instance, enabling to chain calls
      */
@@ -106,10 +105,10 @@ class SelectStatement extends SqlStatement
     }
 
     /**
-     * Adds GROUP BY clause(s)
+     * Adds GROUP BY clause(s).
      *
-     * @param mixed     $c      the clause(s)
-     * @param boolean   $reset  reset previous group(s) first
+     * @param mixed $c     the clause(s)
+     * @param bool  $reset reset previous group(s) first
      *
      * @return self instance, enabling to chain calls
      */
@@ -128,9 +127,10 @@ class SelectStatement extends SqlStatement
     }
 
     /**
-     * Defines the LIMIT for select
+     * Defines the LIMIT for select.
      *
      * @param mixed $limit
+     *
      * @return self instance, enabling to chain calls
      */
     public function limit($limit): SelectStatement
@@ -149,7 +149,7 @@ class SelectStatement extends SqlStatement
             }
         }
         $this->limit = $limit;
-        if ($offset !== null) {
+        if (null !== $offset) {
             $this->offset = $offset;
         }
 
@@ -157,9 +157,8 @@ class SelectStatement extends SqlStatement
     }
 
     /**
-     * Defines the OFFSET for select
+     * Defines the OFFSET for select.
      *
-     * @param integer $offset
      * @return self instance, enabling to chain calls
      */
     public function offset(int $offset): SelectStatement
@@ -170,9 +169,8 @@ class SelectStatement extends SqlStatement
     }
 
     /**
-     * Defines the DISTINCT flag for select
+     * Defines the DISTINCT flag for select.
      *
-     * @param boolean $distinct
      * @return self instance, enabling to chain calls
      */
     public function distinct(bool $distinct = true): SelectStatement
@@ -183,13 +181,13 @@ class SelectStatement extends SqlStatement
     }
 
     /**
-     * Returns the select statement
+     * Returns the select statement.
      *
      * @return string the statement
      */
     public function statement(): string
     {
-        # --BEHAVIOR-- coreBeforeSelectStatement
+        // --BEHAVIOR-- coreBeforeSelectStatement
         dotclear()->behavior()->call('coreBeforeSelectStatement', $this);
 
         // Check if source given
@@ -248,27 +246,27 @@ class SelectStatement extends SqlStatement
         }
 
         // Limit clause
-        if ($this->limit !== null) {
+        if (null !== $this->limit) {
             $query .= 'LIMIT ' . $this->limit . ' ';
         }
 
         // Offset clause
-        if ($this->offset !== null) {
+        if (null !== $this->offset) {
             $query .= 'OFFSET ' . $this->offset . ' ';
         }
 
         $query = trim($query);
 
-        # --BEHAVIOR-- coreAfertSelectStatement
+        // --BEHAVIOR-- coreAfertSelectStatement
         dotclear()->behavior()->call('coreAfterSelectStatement', $this, $query);
 
         return $query;
     }
 
     /**
-     * Run the SQL select query and return result
+     * Run the SQL select query and return result.
      *
-     * @return     mixed  record or staticRecord (for sqlite)
+     * @return mixed record or staticRecord (for sqlite)
      */
     public function select()
     {
@@ -280,9 +278,7 @@ class SelectStatement extends SqlStatement
     }
 
     /**
-     * select() alias
-     *
-     * @return     bool
+     * select() alias.
      */
     public function run(): bool
     {

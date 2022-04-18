@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Buildtools\Admin\Prepend
+ * @note Dotclear\Plugin\Buildtools\Admin\Prepend
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginBuildtools
+ * @ingroup  PluginBuildtools
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,7 +14,6 @@ namespace Dotclear\Plugin\Buildtools\Admin;
 
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
-
 use Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance;
 
 class Prepend extends AbstractPrepend
@@ -24,7 +22,7 @@ class Prepend extends AbstractPrepend
 
     public function loadModule(): void
     {
-        dotclear()->behavior()->add('dcMaintenanceInit', function(Maintenance $maintenance): void {
+        dotclear()->behavior()->add('dcMaintenanceInit', function (Maintenance $maintenance): void {
             $maintenance->addTask('Dotclear\\Plugin\\Buildtools\\Admin\\MaintenanceTaskBuildtools');
         });
     }

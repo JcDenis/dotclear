@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Tags\Common\TagsXmlrpc
+ * @note Dotclear\Plugin\Tags\Common\TagsXmlrpc
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginTags
+ * @ingroup  PluginTags
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -41,10 +40,10 @@ class TagsXmlrpc
         $res['mt_keywords'] = implode(', ', $m);
     }
 
-    # Same function for newPost and editPost
+    // Same function for newPost and editPost
     public function editPost(Xmlrpc $x, int $post_id, Cursor $cur, string $content, array $struct, int $publish): void
     {
-        # Check if we have mt_keywords in struct
+        // Check if we have mt_keywords in struct
         if (isset($struct['mt_keywords'])) {
             dotclear()->meta()->delPostMeta($post_id, 'tag');
 

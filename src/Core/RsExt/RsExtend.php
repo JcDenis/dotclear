@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Core\RsExtend
+ * @note Dotclear\Core\RsExtend
  * @brief Database record extension
  *
- * @package Dotclear
- * @subpackage Core
+ * @ingroup  Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,5 +16,4 @@ use Dotclear\Database\RecordExtend;
 
 abstract class RsExtend extends RecordExtend
 {
-    
 }

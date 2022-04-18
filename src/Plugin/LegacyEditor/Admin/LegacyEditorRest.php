@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\LegacyEditor\Admin\LegacyEditorRest
+ * @note Dotclear\Plugin\LegacyEditor\Admin\LegacyEditorRest
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginLegacyEditor
+ * @ingroup  PluginLegacyEditor
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only

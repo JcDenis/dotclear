@@ -1,12 +1,11 @@
 <?php
 /**
- * @class Dotclear\Database\AbstractSchema
+ * @note Dotclear\Database\AbstractSchema
  * @brief Database schema manipulator
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
- * @package Dotclear
- * @subpackage Database
+ * @ingroup  Database
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,26 +14,21 @@ declare(strict_types=1);
 
 namespace Dotclear\Database;
 
-use Dotclear\Database\AbstractConnection;
-use Dotclear\Database\InterfaceSchema;
-
 abstract class AbstractSchema implements InterfaceSchema
 {
     /**
-     * Constructor
-     * 
-     * @param   AbstractConnection  $con    database connection instance
+     * Constructor.
+     *
+     * @param AbstractConnection $con database connection instance
      */
     public function __construct(protected AbstractConnection $con)
     {
     }
 
     /**
-     * Initialize database schema handler
-     * 
-     * @param   AbstractConnection  $con    database connection instance
-     * 
-     * @return  AbstractSchema
+     * Initialize database schema handler.
+     *
+     * @param AbstractConnection $con database connection instance
      */
     public static function init(AbstractConnection $con): AbstractSchema
     {
@@ -42,17 +36,18 @@ abstract class AbstractSchema implements InterfaceSchema
         $parent = __CLASS__;
         $class  = '';
 
-        /* Set full namespace of distributed database driver */
+        // Set full namespace of distributed database driver
         if (in_array($driver, ['mysqli', 'mysqlimb4', 'pgsql', 'sqlite'])) {
             $class = 'Dotclear\\Database\\Driver\\' . ucfirst($driver) . '\\Schema';
         }
 
-        # You can set \DOTCLEAR_SCH_CLASS to whatever you want.
-        # Your new class *should* inherits Dotclear\Database\Schema class.
+        // You can set \DOTCLEAR_SCH_CLASS to whatever you want.
+        // Your new class *should* inherits Dotclear\Database\Schema class.
         $class = defined('DOTCLEAR_SCH_CLASS') ? \DOTCLEAR_SCH_CLASS : $class;
 
         if (!class_exists($class) || !is_subclass_of($class, $parent)) {
             trigger_error('Database schema class ' . $class . ' does not exist or does not inherit ' . $parent);
+
             exit(1);
         }
 
@@ -66,11 +61,9 @@ abstract class AbstractSchema implements InterfaceSchema
     /**
      * Database data type to universal data type conversion.
      *
-     * @param   string  $type       Type name
-     * @param   int     $len        Field length (in/out)
-     * @param   mixed   $default    Default field value (in/out)
-     * 
-     * @return  string
+     * @param string $type    Type name
+     * @param int    $len     Field length (in/out)
+     * @param mixed  $default Default field value (in/out)
      */
     public function dbt2udt(string $type, ?int &$len, mixed &$default): string
     {
@@ -85,20 +78,18 @@ abstract class AbstractSchema implements InterfaceSchema
             'float8'            => 'float',
             'decimal'           => 'numeric',
             'character varying' => 'varchar',
-            'character'         => 'char'
+            'character'         => 'char',
         ];
 
-        return isset($c[$type]) ? $c[$type] : $type;
+        return $c[$type] ?? $type;
     }
 
     /**
      * Universal data type to database data tye conversion.
      *
-     * @param   string  $type       Type name
-     * @param   int     $len        Field length (in/out)
-     * @param   mixed   $default    Default field value (in/out)
-     * 
-     * @return  string
+     * @param string $type    Type name
+     * @param int    $len     Field length (in/out)
+     * @param mixed  $default Default field value (in/out)
      */
     public function udt2dbt(string $type, ?int &$len, mixed &$default): string
     {
@@ -109,8 +100,6 @@ abstract class AbstractSchema implements InterfaceSchema
      * Returns an array of all table names.
      *
      * @see     interfaceSchema::db_get_tables
-     * 
-     * @return  array
      */
     public function getTables(): array
     {
@@ -122,9 +111,7 @@ abstract class AbstractSchema implements InterfaceSchema
      *
      * @see     interfaceSchema::db_get_columns
      *
-     * @param   string  $table  Table name
-     * 
-     * @return  array
+     * @param string $table Table name
      */
     public function getColumns(string $table): array
     {
@@ -136,9 +123,7 @@ abstract class AbstractSchema implements InterfaceSchema
      *
      * @see     interfaceSchema::db_get_keys
      *
-     * @param   string  $table  Table name
-     * 
-     * @return  array
+     * @param string $table Table name
      */
     public function getKeys(string $table): array
     {
@@ -150,9 +135,7 @@ abstract class AbstractSchema implements InterfaceSchema
      *
      * @see     interfaceSchema::db_get_index
      *
-     * @param   string  $table  Table name
-     * 
-     * @return  array
+     * @param string $table Table name
      */
     public function getIndexes(string $table): array
     {
@@ -164,9 +147,7 @@ abstract class AbstractSchema implements InterfaceSchema
      *
      * @see     interfaceSchema::db_get_references
      *
-     * @param   string  $table  Table name
-     * 
-     * @return  array
+     * @param string $table Table name
      */
     public function getReferences(string $table): array
     {

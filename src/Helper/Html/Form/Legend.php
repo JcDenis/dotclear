@@ -1,12 +1,6 @@
 <?php
 /**
- * @class Dotclear\Helper\Html\Form\Legend
- * @brief HTML Forms legend creation helpers
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
  * @package Dotclear
- * @subpackage html.form
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,8 +9,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html\Form;
 
-use Dotclear\Helper\Html\Form\Component;
-
+/**
+ * HTML Forms legend creation helpers.
+ *
+ * \Dotclear\Helper\Html\Form\Legend
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Helper Html Form
+ */
 class Legend extends Component
 {
     private const DEFAULT_ELEMENT = 'legend';
@@ -24,25 +25,24 @@ class Legend extends Component
     /**
      * Constructs a new instance.
      *
-     * @param      string       $text     The text
-     * @param      null|string  $id       The identifier
-     * @param      null|string  $element  The element
+     * @param string      $text    The text
+     * @param null|string $id      The identifier
+     * @param null|string $element The element
      */
     public function __construct(string $text = '', ?string $id = null, ?string $element = null)
     {
         parent::__construct(__CLASS__, $element ?? self::DEFAULT_ELEMENT);
         $this->set('text', $text);
-        if ($id !== null) {
+        if (null !== $id) {
             $this
                 ->set('id', $id)
-                ->set('name', $id);
+                ->set('name', $id)
+            ;
         }
     }
 
     /**
      * Renders the HTML component.
-     *
-     * @return     string
      */
     public function render(): string
     {
@@ -58,7 +58,7 @@ class Legend extends Component
     /**
      * Gets the default element.
      *
-     * @return     string  The default element.
+     * @return string the default element
      */
     public function getDefaultElement(): string
     {

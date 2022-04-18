@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Process\Admin\Handler\Xmlrpc
+ * @note Dotclear\Process\Admin\Handler\Xmlrpc
  * @brief Dotclear admin xmlrpc page
  *
- * @package Dotclear
- * @subpackage Admin
+ * @ingroup  Admin
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,11 +12,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
-use Dotclear\Process\Admin\Page\Page;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Core\Xmlrpc\Xmlrpc as CoreXmlrpc;
 use Dotclear\Helper\Network\Http;
 
-class Xmlrpc extends Page
+class Xmlrpc extends AbstractPage
 {
     protected function getPermissions(): string|null|false
     {
@@ -41,10 +40,10 @@ class Xmlrpc extends Page
             return null;
         }
 
-        # Avoid plugins warnings, set a default blog
+        // Avoid plugins warnings, set a default blog
         dotclear()->setBlog($blog_id);
 
-        # Start XML-RPC server
+        // Start XML-RPC server
         $xmlrpc = new CoreXmlrpc($blog_id);
         $xmlrpc->serve();
 

@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Pings\Public\Prepend
+ * @note Dotclear\Plugin\Pings\Public\Prepend
  * @brief Dotclear Plugin class
  *
- * @package Dotclear
- * @subpackage PluginPings
+ * @ingroup  PluginPings
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only

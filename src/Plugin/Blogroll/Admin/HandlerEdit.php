@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Plugin\Blogroll\Admin\HandlerEdit
+ * @note Dotclear\Plugin\Blogroll\Admin\HandlerEdit
  * @brief Dotclear Plugins class
  *
- * @package Dotclear
- * @subpackage PluginBlogroll
+ * @ingroup  PluginBlogroll
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -13,15 +12,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Blogroll\Admin;
 
-use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
 use Dotclear\Plugin\Blogroll\Common\Blogroll;
+use Exception;
 
 class HandlerEdit extends AbstractPage
 {
-    /** @var    Blogroll    Blogroll instance */
+    /** @var Blogroll Blogroll instance */
     private $br_blogroll;
     private $br_id         = 0;
     private $br_has_rs     = false;
@@ -40,15 +39,15 @@ class HandlerEdit extends AbstractPage
     protected function getPagePrepend(): ?bool
     {
         $this->br_blogroll = new Blogroll();
-        $this->br_id = (int) $_REQUEST['id'];
+        $this->br_id       = (int) $_REQUEST['id'];
 
         $rs = null;
 
         try {
-            $rs = $this->br_blogroll->getLink($this->br_id);
+            $rs              = $this->br_blogroll->getLink($this->br_id);
             $this->br_has_rs = !$rs->isEmpty();
             $this->br_is_cat = (bool) $rs->fInt('is_cat');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             dotclear()->error()->add($e->getMessage());
         }
 
@@ -62,7 +61,7 @@ class HandlerEdit extends AbstractPage
             dotclear()->error()->add(__('No such link or title'));
         }
 
-        # Update a link
+        // Update a link
         if ($this->br_has_rs && !$this->br_is_cat && !empty($_POST['edit_link'])) {
             $this->br_link_title = Html::escapeHTML($_POST['link_title']);
             $this->br_link_href  = Html::escapeHTML($_POST['link_href']);
@@ -98,12 +97,12 @@ class HandlerEdit extends AbstractPage
                 $this->br_blogroll->updateLink($this->br_id, $this->br_link_title, $this->br_link_href, $this->br_link_desc, $this->br_link_lang, trim((string) $this->br_link_xfn));
                 dotclear()->notice()->addSuccessNotice(__('Link has been successfully updated'));
                 dotclear()->adminurl()->redirect('admin.plugin.Blogroll', ['edit' => 1, 'id' => $this->br_id]);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Update a category
+        // Update a category
         if ($this->br_has_rs && $this->br_is_cat && !empty($_POST['edit_cat'])) {
             $this->br_link_desc = Html::escapeHTML($_POST['link_desc']);
 
@@ -111,12 +110,12 @@ class HandlerEdit extends AbstractPage
                 $this->br_blogroll->updateCategory($this->br_id, $this->br_link_desc);
                 dotclear()->notice()->addSuccessNotice(__('Category has been successfully updated'));
                 dotclear()->adminurl()->redirect('admin.plugin.Blogroll', ['edit' => 1, 'id' => $this->br_id]);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
-        # Page setup
+        // Page setup
         $this
             ->setPageTitle(__('Blogroll'))
             ->setPageHelp('blogroll')
@@ -131,15 +130,14 @@ class HandlerEdit extends AbstractPage
 
     protected function getPageContent(): void
     {
-        # Languages combo
+        // Languages combo
         $links      = $this->br_blogroll->getLangs(['order' => 'asc']);
         $lang_combo = dotclear()->combo()->getLangsCombo($links, true);
 
         echo '<p><a class="back" href="' . dotclear()->adminurl()->get('admin.plugin.Blogroll') . '">' . __('Return to blogroll') . '</a></p>';
 
         if ($this->br_has_rs && $this->br_is_cat) {
-            echo
-            '<form action="' . dotclear()->adminurl()->root() . '" method="post">' .
+            echo '<form action="' . dotclear()->adminurl()->root() . '" method="post">' .
             '<h3>' . __('Edit category') . '</h3>' .
 
             '<p><label for="link_desc" class="required classic"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Title:') . '</label> ' .
@@ -155,8 +153,7 @@ class HandlerEdit extends AbstractPage
                 '</form>';
         }
         if ($this->br_has_rs && !$this->br_is_cat) {
-            echo
-            '<form action="' . dotclear()->adminurl()->root() . '" method="post" class="two-cols fieldset">' .
+            echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" class="two-cols fieldset">' .
 
             '<div class="col30 first-col">' .
             '<h3>' . __('Edit link') . '</h3>' .
@@ -193,7 +190,7 @@ class HandlerEdit extends AbstractPage
 
             '</div>' .
 
-            # XFN nightmare
+            // XFN nightmare
             '<div class="col70 last-col">' .
             '<h3>' . __('XFN information') . '</h3>' .
             '<p class="clear form-note">' . __('More information on <a href="https://en.wikipedia.org/wiki/XHTML_Friends_Network">Wikipedia</a> website') . '</p>' .
@@ -204,7 +201,7 @@ class HandlerEdit extends AbstractPage
             '<tr class="line">' .
             '<th>' . __('_xfn_Me') . '</th>' .
             '<td><p>' . '<label class="classic">' .
-            Form::checkbox(['identity'], 'me', ($this->br_link_xfn == 'me')) . ' ' .
+            Form::checkbox(['identity'], 'me', ('me' == $this->br_link_xfn)) . ' ' .
             __('_xfn_Another link for myself') . '</label></p></td>' .
             '</tr>' .
 

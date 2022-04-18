@@ -1,10 +1,9 @@
 <?php
 /**
- * @class Dotclear\Module\Store\Repository\Repository
+ * @note Dotclear\Module\Store\Repository\Repository
  * @brief Repository modules manager
  *
- * @package Dotclear
- * @subpackage Core
+ * @ingroup  Module
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,14 +13,13 @@ declare(strict_types=1);
 namespace Dotclear\Module\Store\Repository;
 
 use Dotclear\Exception\ModuleException;
-use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Network\NetHttp\NetHttp;
 use Dotclear\Module\AbstractModules;
-use Dotclear\Module\Store\Repository\RepositoryReader;
+use Exception;
 
 class Repository
 {
-    /** @var    array    Modules fields to search on and their weighting */
+    /** @var array Modules fields to search on and their weighting */
     public static $weighting = [
         'id'     => 10,
         'name'   => 8,
@@ -30,18 +28,18 @@ class Repository
         'author' => 2,
     ];
 
-    /** @var    string    User agent used to query repository */
+    /** @var string User agent used to query repository */
     protected $user_agent = 'DotClear.org RepoBrowser/0.1';
 
-    /** @var    array    Array of new/update modules from repository */
+    /** @var array Array of new/update modules from repository */
     protected $data = ['new' => [], 'update' => []];
 
     /**
      * Constructor.
      *
-     * @param   AbstractModules     $modules    Modules instance
-     * @param   string              $xml_url    XML feed URL
-     * @param   bool                $force      Force query repository
+     * @param AbstractModules $modules Modules instance
+     * @param string          $xml_url XML feed URL
+     * @param bool            $force   Force query repository
      */
     public function __construct(public AbstractModules $modules, protected string $xml_url, bool $force = false)
     {
@@ -53,9 +51,9 @@ class Repository
     /**
      * Check repository.
      *
-     * @param   bool        $force      Force query repository
+     * @param bool $force Force query repository
      *
-     * @return  bool                    True if get feed or cache
+     * @return bool True if get feed or cache
      */
     public function check(bool $force = false): bool
     {
@@ -82,31 +80,30 @@ class Repository
 
         $updates = [];
         foreach ($this->modules->getModules() as $id => $module) {
-            # non privileged user has no info //! todo: check new perms
+            // non privileged user has no info //! todo: check new perms
             if (!is_array($module)) {
-                //continue;
+                // continue;
             }
-            # main repository
+            // main repository
             if (isset($raw_datas[$id])) {
                 if ($this->compare($raw_datas[$id]['version'], $module->version(), '>')) {
-                    $updates[$id]                    = $raw_datas[$id];
+                    $updates[$id] = $raw_datas[$id];
                 }
                 unset($raw_datas[$id]);
             }
-            # per module third-party repository
+            // per module third-party repository
             if (!empty($module->repository()) && dotclear()->config()->get('store_allow_repo')) {
                 try {
-                    ;
                     if (false !== ($dcs_parser = RepositoryReader::quickParse($module->repository(), dotclear()->config()->get('cache_dir'), $force))) {
                         $dcs_raw_datas = $dcs_parser->getModules();
                         if (isset($dcs_raw_datas[$id]) && $this->compare($dcs_raw_datas[$id]['version'], $module->version(), '>')) {
                             if (!isset($updates[$id]) || $this->compare($dcs_raw_datas[$id]['version'], $raw_datas[$id]['version']['version'], '>')) {
                                 $dcs_raw_datas[$id]['repository'] = true;
-                                $updates[$id]                    = $dcs_raw_datas[$id];
+                                $updates[$id]                     = $dcs_raw_datas[$id];
                             }
                         }
                     }
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                 }
             }
 
@@ -116,7 +113,7 @@ class Repository
                 $updates[$id]['root_writable']   = $module->writable();
                 $updates[$id]['current_version'] = $module->version();
 
-                $class = 'Dotclear\\Module\\' . $this->modules->getModulesType() . '\\Define' . $this->modules->getModulesType();
+                $class        = 'Dotclear\\Module\\' . $this->modules->getModulesType() . '\\Define' . $this->modules->getModulesType();
                 $updates[$id] = new $class($id, []);
 
                 if (!empty($updates[$id]->error()->flag())) {
@@ -125,11 +122,11 @@ class Repository
             }
         }
 
-        # Convert new modules from array to Define object
-        foreach($raw_datas as $id => $properties) {
+        // Convert new modules from array to Define object
+        foreach ($raw_datas as $id => $properties) {
             $properties['type'] = $this->modules->getModulesType();
-            $class = 'Dotclear\\Module\\' . $this->modules->getModulesType() . '\\Define' . $this->modules->getModulesType();
-            $raw_datas[$id] = new $class($id, $properties);
+            $class              = 'Dotclear\\Module\\' . $this->modules->getModulesType() . '\\Define' . $this->modules->getModulesType();
+            $raw_datas[$id]     = new $class($id, $properties);
 
             if (!empty($raw_datas[$id]->error()->flag())) {
                 unset($raw_datas[$id]);
@@ -147,9 +144,9 @@ class Repository
     /**
      * Get a list of modules.
      *
-     * @param   bool    $update     True to get update modules, false for new ones
+     * @param bool $update True to get update modules, false for new ones
      *
-     * @return  array               List of update/new modules
+     * @return array List of update/new modules
      */
     public function get(bool $update = false): array
     {
@@ -167,54 +164,53 @@ class Repository
      * Every time a part of query is find on module,
      * result accuracy grow. Result is sorted by accuracy.
      *
-     * @param   string  $pattern    String to search
+     * @param string $pattern String to search
      *
-     * @return  array               Match modules
+     * @return array Match modules
      */
     public function search(string $pattern): array
     {
         $result = [];
         $sorter = [];
 
-        # Split query into small clean words
+        // Split query into small clean words
         if (!($patterns = $this->patternize($pattern))) {
             return $result;
         }
 
-        # For each modules
+        // For each modules
         foreach ($this->data['new'] as $id => $module) {
             $properties = $module->properties();
 
-            # Loop through required module fields
+            // Loop through required module fields
             foreach (self::$weighting as $field => $weight) {
-
-                # Skip fields which not exsist on module
+                // Skip fields which not exsist on module
                 if (empty($properties[$field])) {
                     continue;
                 }
 
-                # Split field value into small clean word
+                // Split field value into small clean word
                 if (!($subjects = $this->patternize($properties[$field]))) {
                     continue;
                 }
 
-                # Check contents
+                // Check contents
                 if (!($nb = preg_match_all('/(' . implode('|', $patterns) . ')/', implode(' ', $subjects), $_))) {
                     continue;
                 }
 
-                # Add module to result
+                // Add module to result
                 if (!isset($sorter[$id])) {
                     $sorter[$id] = 0;
                     $result[$id] = $module;
                 }
 
-                # Increment score by matches count * field weight
+                // Increment score by matches count * field weight
                 $sorter[$id] += $nb * $weight;
                 $result[$id]->setScore($sorter[$id]);
             }
         }
-        # Sort response by matches count
+        // Sort response by matches count
         if (!empty($result)) {
             array_multisort($sorter, SORT_DESC, $result);
         }
@@ -225,10 +221,10 @@ class Repository
     /**
      * Quick download and install module.
      *
-     * @param   string  $url    Module package URL
-     * @param   string  $dest   Path to install module
+     * @param string $url  Module package URL
+     * @param string $dest Path to install module
      *
-     * @return  int             1 = installed, 2 = update
+     * @return int 1 = installed, 2 = update
      */
     public function process(string $url, string $dest): int
     {
@@ -240,8 +236,8 @@ class Repository
     /**
      * Download a module.
      *
-     * @param   string  $url    Module package URL
-     * @param   string  $dest   Path to put module package
+     * @param string $url  Module package URL
+     * @param string $dest Path to put module package
      */
     public function download(string $url, string $dest): void
     {
@@ -271,9 +267,9 @@ class Repository
     /**
      * Install a previously downloaded module.
      *
-     * @param   string  $path   Path to module package
+     * @param string $path Path to module package
      *
-     * @return  int             1 = installed, 2 = update
+     * @return int 1 = installed, 2 = update
      */
     public function install(string $path): int
     {
@@ -283,7 +279,7 @@ class Repository
     /**
      * User Agent String.
      *
-     * @param   string  $str    User agent string
+     * @param string $str User agent string
      */
     public function agent(string $str): void
     {
@@ -293,9 +289,9 @@ class Repository
     /**
      * Split and clean pattern.
      *
-     * @param   string|array  $str    String to sanitize
+     * @param array|string $str String to sanitize
      *
-     * @return  array           Array of cleaned pieces of string or false if none
+     * @return array Array of cleaned pieces of string or false if none
      */
     public function patternize(string|array $str): array
     {
@@ -317,11 +313,11 @@ class Repository
     /**
      * Compare version.
      *
-     * @param   string  $v1     Version
-     * @param   string  $v2     Version
-     * @param   string  $op     Comparison operator
+     * @param string $v1 Version
+     * @param string $v2 Version
+     * @param string $op Comparison operator
      *
-     * @return  bool            True is comparison is true, dude!
+     * @return bool True is comparison is true, dude!
      */
     private function compare(string $v1, string $v2, string $op): bool
     {
@@ -335,9 +331,8 @@ class Repository
     /**
      * Sort modules list.
      *
-     * @param   array   $a      A module
-     * @param   array   $b      A module
-     * @return  int
+     * @param array $a A module
+     * @param array $b A module
      */
     private function sort(array $a, array $b): int
     {

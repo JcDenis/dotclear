@@ -1,12 +1,11 @@
 <?php
 /**
- * @class Dotclear\Module\Store\Repository\RepositoryParser
+ * @note Dotclear\Module\Store\Repository\RepositoryParser
  * @brief Repository modules XML feed parse
  *
  * Provides an object to parse XML feed of modules from repository.
  *
- * @package Dotclear
- * @subpackage Core
+ * @ingroup  Module
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,24 +15,23 @@ declare(strict_types=1);
 namespace Dotclear\Module\Store\Repository;
 
 use SimpleXMLElement;
-
 use Dotclear\Exception\CoreException;
 
 class RepositoryParser
 {
-    /** @var    SimpleXMLElement|false  XML object of feed contents */
+    /** @var false|SimpleXMLElement XML object of feed contents */
     protected $xml = false;
 
-    /** @var    array    Array of feed contents */
+    /** @var array Array of feed contents */
     protected $items = [];
 
-    /** @var    string    XML bloc tag */
+    /** @var string XML bloc tag */
     protected static $bloc = 'http://dotaddict.org/da/';
 
     /**
      * Constructor.
      *
-     * @param    string|null    $data        Feed content
+     * @param null|string $data Feed content
      */
     public function __construct(?string $data)
     {
@@ -43,7 +41,7 @@ class RepositoryParser
 
         try {
             $this->xml = simplexml_load_string($data);
-        } catch(\Exception) {
+        } catch (\Exception) {
             $this->xml = false;
         }
 
@@ -57,7 +55,7 @@ class RepositoryParser
     }
 
     /**
-     * Parse XML into array
+     * Parse XML into array.
      */
     protected function _parse(): void
     {
@@ -70,15 +68,15 @@ class RepositoryParser
 
             $item = [];
 
-            # DC/DA shared markers
-            $item['id']             = (string) $attrs['id'];
-            $item['file']           = (string) $i->file;
-            $item['name']           = (string) $i->name;
-            $item['version']        = (string) $i->version;
-            $item['author']         = (string) $i->author;
-            $item['description']    = (string) $i->desc;
+            // DC/DA shared markers
+            $item['id']          = (string) $attrs['id'];
+            $item['file']        = (string) $i->file;
+            $item['name']        = (string) $i->name;
+            $item['version']     = (string) $i->version;
+            $item['author']      = (string) $i->author;
+            $item['description'] = (string) $i->desc;
 
-            # DA specific markers
+            // DA specific markers
             $item['dc_min']     = (string) $i->children(self::$bloc)->dcmin;
             $item['details']    = (string) $i->children(self::$bloc)->details;
             $item['section']    = (string) $i->children(self::$bloc)->section;
@@ -91,7 +89,7 @@ class RepositoryParser
             }
             $item['tags'] = $tags;
 
-            # First filter right now. If level is DEVELOPMENT, all modules are parse
+            // First filter right now. If level is DEVELOPMENT, all modules are parse
             if (!dotclear()->production()
                 || dotclear()->version()->compare(dotclear()->config()->get('core_version'), $item['dc_min'], '>=', false)
                 && dotclear()->version()->compare(dotclear()->config()->get('core_version_break'), $item['dc_min'], '<=', false)
@@ -104,7 +102,7 @@ class RepositoryParser
     /**
      * Get modules.
      *
-     * @return  array   Modules list
+     * @return array Modules list
      */
     public function getModules(): array
     {
