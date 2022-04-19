@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Buildtools\Admin\L10nFaker
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginBuildtools
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,7 +12,15 @@ namespace Dotclear\Plugin\Buildtools\Admin;
 use Dotclear\Plugin\Widgets\Common\WidgetsStack;
 
 /**
- * Do not use l10nFaker with \DOTCLEAR_RUN_VERBOSE as generate uncomplete fake plugin.
+ * Buildtools L10n faker.
+ *
+ * \Dotclear\Plugin\Buildtools\Admin\L10nFaker
+ *
+ * @warning
+ * Do not use l10nFaker without production mode ON
+ * or it results on generate uncomplete fake plugin.
+ *
+ * @ingroup  Plugin Buildtools Localisation
  */
 class L10nFaker
 {

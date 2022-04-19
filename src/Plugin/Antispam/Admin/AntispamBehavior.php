@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Antispam\Admin\AntispamBehavior
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginAntispam
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,6 +15,13 @@ use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\XmlTag;
 use Dotclear\Plugin\Antispam\Common\Antispam;
 
+/**
+ * Admin behaviors for plugin Antispam.
+ *
+ * \Dotclear\Plugin\Antispam\Admin\AntispamBehavior
+ *
+ * @ingroup  Plugin Antispam Behavior
+ */
 class AntispamBehavior
 {
     public function __construct()

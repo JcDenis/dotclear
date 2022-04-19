@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Blogroll\Common\BlogrollUrl
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginBlogroll
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,6 +14,13 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Exception;
 
+/**
+ * Plugin Blogroll URL methods.
+ *
+ * \Dotclear\Plugin\Blogroll\Common\BlogrollUrl
+ *
+ * @ingroup  Plugin Blogroll Url
+ */
 class BlogrollUrl extends Url
 {
     public function __construct()

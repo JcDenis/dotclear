@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Antispam\Common\Antispam
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginAntispam
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -23,6 +20,13 @@ use Dotclear\Plugin\Antispam\Common\Filter\FilterIp;
 use Dotclear\Plugin\Antispam\Common\Filter\FilterIpv6;
 use Dotclear\Process\Admin\Action\Action;
 
+/**
+ * Antispam main class.
+ *
+ * \Dotclear\Plugin\Antispam\Common\Antispam
+ *
+ * @ingroup  Plugin Antispam
+ */
 class Antispam
 {
     /** @var null|Spamfilters Spamfitlers instance */

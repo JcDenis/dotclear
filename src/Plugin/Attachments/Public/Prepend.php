@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Attachments\Public\Prepend
- * @brief Dotclear Plugin class
- *
- * @ingroup  PluginAttachments
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,6 +12,13 @@ namespace Dotclear\Plugin\Attachments\Public;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
 
+/**
+ * Public prepend for plugin Attachments.
+ *
+ * \Dotclear\Plugin\Attachments\Public\Prepend
+ *
+ * @ingroup  Plugin Attachments
+ */
 class Prepend extends AbstractPrepend
 {
     use TraitPrependPublic;

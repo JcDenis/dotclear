@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Antispam\Common\Filter\FilterIp
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginAntispam
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -23,6 +20,13 @@ use Dotclear\Helper\Network\Http;
 use Dotclear\Plugin\Antispam\Common\Spamfilter;
 use Exception;
 
+/**
+ * Antispam IP filter.
+ *
+ * \Dotclear\Plugin\Antispam\Common\Filter\FilterIp
+ *
+ * @ingroup  Plugin Antispam
+ */
 class FilterIp extends Spamfilter
 {
     public $name    = 'IP Filter';

@@ -1,15 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\RsExt\RsExtComment
- * @brief Dotclear comment record helpers.
- *
- * This class adds new methods to database comment results.
- * You can call them on every record comming from dcBlog::getComments and similar
- * methods.
- *
- * @warning You should not give the first argument (usualy $rs) of every described
- *
- * @ingroup  PluginAntispam
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -21,6 +12,17 @@ namespace Dotclear\Plugin\Antispam\Common;
 use Dotclear\Core\RsExt\RsExtend;
 use Dotclear\Database\Statement\SelectStatement;
 
+/**
+ * Comment Record extension of plugin Antispam.
+ *
+ * \Dotclear\Core\RsExt\RsExtComment
+ *
+ * This class adds new methods to database comment results.
+ * You can call them on every record comming from dcBlog::getComments and similar
+ * methods.
+ *
+ * @ingroup  Plugin Antispam Record
+ */
 class RsExtComment extends RsExtend
 {
     public function spamFilter(): ?string

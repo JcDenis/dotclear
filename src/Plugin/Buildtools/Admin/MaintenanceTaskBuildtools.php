@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Buildtools\Admin\MaintenanceTaskBuildtools
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginBuildtools
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,6 +11,13 @@ namespace Dotclear\Plugin\Buildtools\Admin;
 
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
+/**
+ * Buildtools task for plugin Maintenance.
+ *
+ * \Dotclear\Plugin\Buildtools\Admin\MaintenanceTaskBuildtools
+ *
+ * @ingroup  Plugin Buildtools Maintenance Task
+ */
 class MaintenanceTaskBuildtools extends MaintenanceTask
 {
     protected $tab   = 'dev';

@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Breadcrumb\Public\Prepend
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginBreadcrumb
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,6 +12,13 @@ namespace Dotclear\Plugin\Breadcrumb\Public;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
 
+/**
+ * Public prepend for plugin Breacrumb.
+ *
+ * \Dotclear\Plugin\Breadcrumb\Public\Prepend
+ *
+ * @ingroup  Plugin Breadcrumb
+ */
 class Prepend extends AbstractPrepend
 {
     use TraitPrependPublic;

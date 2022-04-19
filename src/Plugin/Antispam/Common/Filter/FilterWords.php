@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Antispam\Common\Filter\FilterWords
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginAntispam
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -23,6 +20,13 @@ use Dotclear\Helper\Network\Http;
 use Dotclear\Plugin\Antispam\Common\Spamfilter;
 use Exception;
 
+/**
+ * Antisâm Words filter.
+ *
+ * \Dotclear\Plugin\Antispam\Common\Filter\FilterWords
+ *
+ * @ingroup  Plugin Antispam
+ */
 class FilterWords extends Spamfilter
 {
     public $has_gui = true;

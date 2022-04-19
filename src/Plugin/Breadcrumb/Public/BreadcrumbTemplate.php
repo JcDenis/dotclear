@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Breadcrumb\Public\BreadcrumbTemplate
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginBreadcrumb
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,6 +13,13 @@ use ArrayObject;
 use Dotclear\Helper\Dt;
 use Dotclear\Helper\L10n;
 
+/**
+ * Public templates for plugin Breacrumb.
+ *
+ * \Dotclear\Plugin\Breadcrumb\Public\BreadcrumbTemplate
+ *
+ * @ingroup  Plugin Breadcrumb Template
+ */
 class BreadcrumbTemplate
 {
     public function __construct()

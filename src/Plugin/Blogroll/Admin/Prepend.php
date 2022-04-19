@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Blogroll\Admin\Prepend
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginBlogroll
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,6 +14,13 @@ use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 use Dotclear\Plugin\Blogroll\Common\BlogrollWidgets;
 
+/**
+ * Admin prepend for plugin Blogroll.
+ *
+ * \Dotclear\Plugin\Blogroll\Admin\Prepend
+ *
+ * @ingroup  Plugin Blogroll
+ */
 class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;

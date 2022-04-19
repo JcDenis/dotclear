@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Blogroll\Admin\BlogrollImport
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginBlogroll
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,6 +12,13 @@ namespace Dotclear\Plugin\Blogroll\Admin;
 use StdClass;
 use Dotclear\Exception\ModuleException;
 
+/**
+ * Import methods for plugin Blogroll.
+ *
+ * \Dotclear\Plugin\Blogroll\Admin\BlogrollImport
+ *
+ * @ingroup  Plugin Blogroll
+ */
 class BlogrollImport
 {
     /** @var array<int, string>        Imported entries */

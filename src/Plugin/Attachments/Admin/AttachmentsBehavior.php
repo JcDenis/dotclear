@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Attachments\Admin\AttachmentsBehavior
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginAttachments
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,6 +13,13 @@ use ArrayObject;
 use Dotclear\Database\Record;
 use Dotclear\Helper\File\Files;
 
+/**
+ * Admin behaviors for plugin Attachments.
+ *
+ * \Dotclear\Plugin\Attachments\Admin\AttachmentsBehavior
+ *
+ * @ingroup  Plugin Attachments Behaviors
+ */
 class AttachmentsBehavior
 {
     public function __construct()

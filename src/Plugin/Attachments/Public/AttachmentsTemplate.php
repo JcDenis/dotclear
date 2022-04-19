@@ -1,19 +1,18 @@
 <?php
-/**
- * @note Dotclear\Plugin\Attachments\Public\AttachmentsTemplate
- * @brief Dotclear Plugin class
- *
- * @ingroup  PluginAttachments
- *
- * @copyright Olivier Meunier & Association Dotclear
- * @copyright GPL-2.0-only
- */
+
 declare(strict_types=1);
 
 namespace Dotclear\Plugin\Attachments\Public;
 
 use ArrayObject;
 
+/**
+ * Public templates for plugin Attachments.
+ *
+ * \Dotclear\Plugin\Attachments\Public\AttachmentsTemplate
+ *
+ * @ingroup  Plugin Attachments Template
+ */
 class AttachmentsTemplate
 {
     public function __construct()

@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Buildtools\Admin\Prepend
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginBuildtools
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,6 +13,13 @@ use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 use Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance;
 
+/**
+ * Admin prepend for plugin Buildtools.
+ *
+ * \Dotclear\Plugin\Buildtools\Admin\Prepend
+ *
+ * @ingroup  Plugin Buildtools
+ */
 class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;

@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\FairTrackbacks\Admin\Prepend
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginFairTrackbacks
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,6 +13,13 @@ use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 use Dotclear\Plugin\FairTrackbacks\Common\FilterFairtrackbacks;
 
+/**
+ * Admin prepend for plugin FairTrackbacks.
+ *
+ * \Dotclear\Plugin\FairTrackbacks\Admin\Prepend
+ *
+ * @ingroup  Plugin FairTrackbacks
+ */
 class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;

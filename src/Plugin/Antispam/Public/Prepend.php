@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Antispam\Public\Prepend
- * @brief Dotclear Plugin class
- *
- * @ingroup  PluginAntispam
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,6 +14,13 @@ use Dotclear\Module\TraitPrependPublic;
 use Dotclear\Plugin\Antispam\Common\Antispam;
 use Dotclear\Plugin\Antispam\Common\AntispamUrl;
 
+/**
+ * Public prepend for plugin Antispam.
+ *
+ * \Dotclear\Plugin\Antispam\Public\Prepend
+ *
+ * @ingroup  Plugin Antispam
+ */
 class Prepend extends AbstractPrepend
 {
     use TraitPrependPublic;

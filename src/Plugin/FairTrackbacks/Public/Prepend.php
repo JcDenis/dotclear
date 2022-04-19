@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\FairTrackbacks\Public\Prepend
- * @brief Dotclear Plugin class
- *
- * @ingroup  PluginFairTrackbacks
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,6 +13,13 @@ use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
 use Dotclear\Plugin\FairTrackbacks\Common\FilterFairtrackbacks;
 
+/**
+ * Public prepend for plugin FairTrackbacks.
+ *
+ * \Dotclear\Plugin\FairTrackbacks\Public\Prepend
+ *
+ * @ingroup  Plugin FairTrackbacks
+ */
 class Prepend extends AbstractPrepend
 {
     use TraitPrependPublic;

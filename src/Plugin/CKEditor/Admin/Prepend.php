@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\CKEditor\Admin\Prepend
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginCKEditor
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,6 +12,13 @@ namespace Dotclear\Plugin\CKEditor\Admin;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
+/**
+ * Admin prepend for plugin CKEditor.
+ *
+ * \Dotclear\Plugin\CKEditor\Admin\Prepend
+ *
+ * @ingroup  Plugin CKEditor
+ */
 class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;

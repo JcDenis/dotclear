@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Antispam\Admin\Handler
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginAntispam
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,6 +16,13 @@ use Dotclear\Plugin\Antispam\Common\Antispam;
 use Dotclear\Helper\Dt;
 use Exception;
 
+/**
+ * Admin page for plugin Antispam.
+ *
+ * \Dotclear\Plugin\Antispam\Admin\Handler
+ *
+ * @ingroup  Plugin Antispam
+ */
 class Handler extends AbstractPage
 {
     private $a_antispam;

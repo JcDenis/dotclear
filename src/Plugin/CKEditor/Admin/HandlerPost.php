@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\CKEditor\Admin\HandlerPost
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginCKEditor
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,6 +12,13 @@ namespace Dotclear\Plugin\CKEditor\Admin;
 use ArrayObject;
 use Dotclear\Module\AbstractPage;
 
+/**
+ * Admin post page CKEditor integration.
+ *
+ * \Dotclear\Plugin\CKEditor\Admin\HandlerPost
+ *
+ * @ingroup  Plugin CKEditor Post
+ */
 class HandlerPost extends AbstractPage
 {
     protected function getPermissions(): string|null|false

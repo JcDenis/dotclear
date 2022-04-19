@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Antispam\Common\Spamfilters
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginAntispam
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,6 +12,13 @@ namespace Dotclear\Plugin\Antispam\Common;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
 
+/**
+ * Antispam filters stack.
+ *
+ * \Dotclear\Plugin\Antispam\Common\Spamfilters
+ *
+ * @ingroup  Plugin Antispam Stack
+ */
 class Spamfilters
 {
     private $filters     = [];

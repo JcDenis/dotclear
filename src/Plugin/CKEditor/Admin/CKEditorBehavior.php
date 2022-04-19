@@ -1,13 +1,5 @@
 <?php
-/**
- * @note Dotclear\Plugin\CKEditor\Admin\CKEditorBehavior
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginCKEditor
- *
- * @copyright Olivier Meunier & Association Dotclear
- * @copyright GPL-2.0-only
- */
+
 declare(strict_types=1);
 
 namespace Dotclear\Plugin\CKEditor\Admin;
@@ -15,6 +7,13 @@ namespace Dotclear\Plugin\CKEditor\Admin;
 use ArrayObject;
 use Dotclear\Helper\Html\Html;
 
+/**
+ * Amdin behaviors for plugin CKEditor.
+ *
+ * \Dotclear\Plugin\CKEditor\Admin\CKEditorBehavior
+ *
+ * @ingroup  Plugin CKEditor Behavior
+ */
 class CKEditorBehavior
 {
     public function __construct()

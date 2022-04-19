@@ -15,6 +15,13 @@ namespace Dotclear\Plugin\Antispam\Common;
 use Dotclear\Core\Url\Url;
 use Dotclear\Helper\Html\Html;
 
+/**
+ * URL handling of plugin Antispam.
+ *
+ * \Dotclear\Plugin\Antispam\Common\AntispamUrl
+ *
+ * @ingroup  Plugin Antispam Url
+ */
 class AntispamUrl extends Url
 {
     public function __construct()

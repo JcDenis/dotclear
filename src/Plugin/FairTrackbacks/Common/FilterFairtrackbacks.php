@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\FairTrackbacks\Common\FilterFairtrackbacks
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginFairTrackbacks
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,6 +14,13 @@ use Dotclear\Helper\Network\NetHttp\NetHttp;
 use Dotclear\Plugin\Antispam\Common\Spamfilter;
 use Exception;
 
+/**
+ * FairTrackbacks Antispam filter.
+ *
+ * \Dotclear\Plugin\FairTrackbacks\Common\FilterFairtrackbacks
+ *
+ * @ingroup  Plugin FairTrackbacks Antispam
+ */
 class FilterFairtrackbacks extends Spamfilter
 {
     public $name    = 'Fair Trackbacks';

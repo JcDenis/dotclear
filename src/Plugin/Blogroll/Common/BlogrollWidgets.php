@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Blogroll\Common\BlogrollWidgets
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginBlogroll
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,6 +13,13 @@ use Dotclear\Plugin\Blogroll\Public\BlogrollTemplate;
 use Dotclear\Plugin\Widgets\Common\Widget;
 use Dotclear\Plugin\Widgets\Common\Widgets;
 
+/**
+ * Plugin Widgets methods of plugin Blogroll.
+ *
+ * \Dotclear\Plugin\Blogroll\Common\BlogrollWidgets
+ *
+ * @ingroup  Plugin Blogroll Widgets
+ */
 class BlogrollWidgets
 {
     public function __construct()

@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\CKEditor\Admin\Handler
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginCKEditor
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,6 +14,13 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
 use Exception;
 
+/**
+ * Admin page for plugin CKEditor.
+ *
+ * \Dotclear\Plugin\CKEditor\Admin\Handler
+ *
+ * @ingroup  Plugin CKEditor
+ */
 class Handler extends AbstractPage
 {
     /** @var array CKEditor settings */

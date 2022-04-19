@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Breadcrumb\Admin\BreadcrumbBehavior
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginBreadcrumb
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,6 +12,13 @@ namespace Dotclear\Plugin\Breadcrumb\Admin;
 use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Helper\Html\Form;
 
+/**
+ * Admin behaviors for plugin Breacrumb.
+ *
+ * \Dotclear\Plugin\Breadcrumb\Admin\BreadcrumbBehavior
+ *
+ * @ingroup  Plugin Breadcrumb Behavior
+ */
 class BreadcrumbBehavior
 {
     public function __construct()

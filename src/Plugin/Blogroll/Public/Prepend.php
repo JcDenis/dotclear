@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Blogroll\Public\Prepend
- * @brief Dotclear Plugin class
- *
- * @ingroup  PluginBlogroll
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,6 +14,13 @@ use Dotclear\Module\TraitPrependPublic;
 use Dotclear\Plugin\Blogroll\Common\BlogrollUrl;
 use Dotclear\Plugin\Blogroll\Common\BlogrollWidgets;
 
+/**
+ * Public prepend for plugin Blogroll.
+ *
+ * \Dotclear\Plugin\Blogroll\Public\Prepend
+ *
+ * @ingroup  Plugin Blogroll
+ */
 class Prepend extends AbstractPrepend
 {
     use TraitPrependPublic;

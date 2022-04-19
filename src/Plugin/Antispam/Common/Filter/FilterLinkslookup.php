@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Antispam\Common\Filter\FilterLinkslookup
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginAntispam
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,6 +11,13 @@ namespace Dotclear\Plugin\Antispam\Common\Filter;
 
 use Dotclear\Plugin\Antispam\Common\Spamfilter;
 
+/**
+ * Antispam Links Lookup filter.
+ *
+ * \Dotclear\Plugin\Antispam\Common\Filter\FilterLinkslookup
+ *
+ * @ingroup  Plugin Antispam
+ */
 class FilterLinkslookup extends Spamfilter
 {
     public $name = 'Links Lookup';

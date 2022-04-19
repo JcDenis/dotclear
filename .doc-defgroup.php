@@ -184,6 +184,11 @@
  * Themes specific type of Dotclear Modules.
  * 
  * 
+ * @defgroup Url Public URL
+ *
+ * Classes related to public URLs.
+ * 
+ * 
  * @defgroup User
  *
  * Classes related to users.
@@ -202,6 +207,44 @@
  * @defgroup  Akismet Plugin "Akismet"
  *
  * Akismet interface for Dotclear.
+ * 
+ * 
+ * @defgroup  Antispam Plugin "Antispam"
+ *
+ * Generic antispam plugin for Dotclear.
+ * 
+ * 
+ * @defgroup  Attachments Plugin "Attachments"
+ *
+ * Manage post attachments.
+ * 
+ * 
+ * @defgroup  Blogroll Plugin "Blogroll"
+ *
+ * Manage your blogroll.
+ * 
+ * 
+ * @defgroup  Breadcrumb Plugin "Breadcrumb"
+ * 
+ * Breadcrumb for Dotclear.
+ * 
+ * @copyright Franck Paul
+ * @copyright GPL-2.0-only
+ * 
+ * 
+ * @defgroup  Buildtools Plugin "Buildtools"
+ *
+ * Internal build tools for dotclear team.
+ * 
+ * 
+ * @defgroup  CKEditor Plugin "CKEditor"
+ *
+ * dotclear CKEditor integration.
+ * 
+ * 
+ * @defgroup  FairTrackbacks Plugin "Fair Trackbacks"
+ *
+ * Trackback validity check.
  * 
  * 
  * @defgroup  Berlin Theme "Berlin"

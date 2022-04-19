@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Attachments\Admin\Prepend
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginAttachments
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,6 +12,13 @@ namespace Dotclear\Plugin\Attachments\Admin;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
+/**
+ * Admin prepend for plugin Attachments.
+ *
+ * \Dotclear\Plugin\Attachments\Admin\Prepend
+ *
+ * @ingroup  Plugin Attachments
+ */
 class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;

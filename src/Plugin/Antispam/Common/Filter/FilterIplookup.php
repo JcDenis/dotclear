@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Antispam\Common\Filter\FilterIpookup
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginAntispam
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,6 +15,13 @@ use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Network\Http;
 use Exception;
 
+/**
+ * Antispam IP lookup filter.
+ *
+ * \Dotclear\Plugin\Antispam\Common\Filter\FilterIpookup
+ *
+ * @ingroup  Plugin Antispam
+ */
 class FilterIplookup extends Spamfilter
 {
     public $name    = 'IP Lookup';

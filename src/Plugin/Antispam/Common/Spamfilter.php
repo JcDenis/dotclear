@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Antispam\Common\Spamfilter
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginAntispam
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,6 +12,13 @@ namespace Dotclear\Plugin\Antispam\Common;
 use Dotclear\Database\Record;
 use Dotclear\Helper\Html\Html;
 
+/**
+ * Antispam filter helper.
+ *
+ * \Dotclear\Plugin\Antispam\Common\Spamfilter
+ *
+ * @ingroup  Plugin Antispam
+ */
 class Spamfilter
 {
     public $id;

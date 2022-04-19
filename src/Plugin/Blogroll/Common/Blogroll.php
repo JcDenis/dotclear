@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Blogroll\Common\Blogroll
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginBlogroll
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -21,6 +18,13 @@ use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Database\StaticRecord;
 use Dotclear\Exception\ModuleException;
 
+/**
+ * Blogroll handling methods.
+ *
+ * \Dotclear\Plugin\Blogroll\Common\Blogroll
+ *
+ * @ingroup  Plugin Blogroll
+ */
 class Blogroll
 {
     private $table = 'link';

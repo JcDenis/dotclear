@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Blogroll\Admin\Handler
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginBlogroll
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -20,6 +17,13 @@ use Dotclear\Module\AbstractPage;
 use Dotclear\Plugin\Blogroll\Common\Blogroll;
 use Exception;
 
+/**
+ * Admin page for blogrolls.
+ *
+ * \Dotclear\Plugin\Blogroll\Admin\Handler
+ *
+ * @ingroup  Plugin Blogroll
+ */
 class Handler extends AbstractPage
 {
     private $br_blogroll;

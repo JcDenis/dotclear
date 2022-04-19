@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Blogroll\Public\BlogrollTemplate
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginBlogroll
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,6 +14,13 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Plugin\Blogroll\Common\Blogroll;
 
+/**
+ * Public templates methods for plugin Blogroll.
+ *
+ * \Dotclear\Plugin\Blogroll\Public\BlogrollTemplate
+ *
+ * @ingroup  Plugin Blogroll Template
+ */
 class BlogrollTemplate
 {
     public function __construct()
