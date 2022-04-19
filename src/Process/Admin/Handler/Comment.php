@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Handler\Comment
- * @brief Dotclear admin comment page
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -20,6 +17,13 @@ use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Dt;
 use Exception;
 
+/**
+ * Admin comment page.
+ *
+ * \Dotclear\Process\Admin\Handler\Comment
+ *
+ * @ingroup  Admin Comment Handler
+ */
 class Comment extends AbstractPage
 {
     private $comment_id;

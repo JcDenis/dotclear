@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Handler\User
- * @brief Dotclear admin user page
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -22,6 +19,13 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Dt;
 use Exception;
 
+/**
+ * Admin user page.
+ *
+ * \Dotclear\Process\Admin\Handler\User
+ *
+ * @ingroup  Admin User handler
+ */
 class User extends AbstractPage
 {
     /** @var UserContainer User container instance */

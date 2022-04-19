@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Handler\Help
- * @brief Dotclear admin help page
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,6 +12,13 @@ namespace Dotclear\Process\Admin\Handler;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Helper\Html\Html;
 
+/**
+ * Admin help page.
+ *
+ * \Dotclear\Process\Admin\Handler\Help
+ *
+ * @ingroup  Admin Help Localisation Handler
+ */
 class Help extends AbstractPage
 {
     private $help_title   = '';

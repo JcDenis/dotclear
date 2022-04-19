@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Handler\Charte
- * @brief Dotclear admin design help page
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,6 +11,13 @@ namespace Dotclear\Process\Admin\Handler;
 
 use Dotclear\Process\Admin\Page\AbstractPage;
 
+/**
+ * Admin design help page.
+ *
+ * \Dotclear\Process\Admin\Handler\Charte
+ *
+ * @ingroup  Admin Help Handler
+ */
 class Charte extends AbstractPage
 {
     protected function getPermissions(): string|null|false

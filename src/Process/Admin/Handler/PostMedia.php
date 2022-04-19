@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Handler\PostMedia
- * @brief Dotclear admin post media selector helper page
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -20,6 +17,13 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Exception;
 
+/**
+ * Admin post media selector helper page.
+ *
+ * \Dotclear\Process\Admin\Handler\PostMedia
+ *
+ * @ingroup  Admin Post Media Handler
+ */
 class PostMedia extends AbstractPage
 {
     protected function getPermissions(): string|null|false

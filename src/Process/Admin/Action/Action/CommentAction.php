@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Action\Action\CommentAction
- * @brief Dotclear admin handler for action page on selected comments
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,6 +14,13 @@ use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Exception;
 
+/**
+ * Admin handler for action on selected comments.
+ *
+ * \Dotclear\Process\Admin\Action\Action\CommentAction
+ *
+ * @ingroup  Admin Comment Action
+ */
 class CommentAction extends DefaultCommentAction
 {
     public function __construct(string $uri, array $redirect_args = [])

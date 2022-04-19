@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Handler\Posts
- * @brief Dotclear admin posts list page
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,6 +16,13 @@ use Dotclear\Process\Admin\Filter\Filter\PostFilter;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 
+/**
+ * Admin posts list page.
+ *
+ * \Dotclear\Process\Admin\Handler\Posts
+ *
+ * @ingroup  Admin Post Handler
+ */
 class Posts extends AbstractPage
 {
     protected function getPermissions(): string|null|false

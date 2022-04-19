@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Handler\Search
- * @brief Dotclear admin search list page
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -22,6 +19,13 @@ use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Exception;
 
+/**
+ * Admin search list page.
+ *
+ * \Dotclear\Process\Admin\Handler\Search
+ *
+ * @ingroup  Admin Search Handler
+ */
 class Search extends AbstractPage
 {
     private $s_qtype_combo = [];

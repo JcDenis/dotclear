@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Handler\Category
- * @brief Dotclear admin category page
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,6 +15,13 @@ use Dotclear\Helper\Html\FormSelectOption;
 use Dotclear\Helper\Html\Html;
 use Exception;
 
+/**
+ * Admin category page.
+ *
+ * \Dotclear\Process\Admin\Handler\Category
+ *
+ * @ingroup  Admin Category Handler
+ */
 class Category extends AbstractPage
 {
     private $cat_id;

@@ -1,15 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Filter\Filters
- * @brief Admin list filters library
- *
- * Dotclear utility class that provides reuseable list filters
- * Returned null or DefaultFilter instance
- * Should be used with Filter
- *
- * @ingroup  Admin
- *
- * @since 2.20
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -20,6 +11,17 @@ namespace Dotclear\Process\Admin\Filter;
 
 use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 
+/**
+ * Admin list filters library.
+ *
+ * \Dotclear\Process\Admin\Filter\Filters
+ *
+ * Dotclear utility class that provides reuseable list filters
+ * Returned null or DefaultFilter instance
+ * Should be used with Filter
+ *
+ * @ingroup  Admin Filter
+ */
 class Filters
 {
     /**

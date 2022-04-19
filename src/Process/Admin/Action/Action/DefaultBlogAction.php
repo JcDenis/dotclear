@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Action\Action\DefaultBlogAction
- * @brief Dotclear admin handler for action page on selected entries
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,6 +14,13 @@ use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Exception\AdminException;
 use Dotclear\Process\Admin\Action\Action;
 
+/**
+ * Admin handler for default action on selected blogs.
+ *
+ * \Dotclear\Process\Admin\Action\Action\DefaultBlogAction
+ *
+ * @ingroup  Admin Blog Action
+ */
 abstract class DefaultBlogAction extends Action
 {
     public function loadBlogsAction(Action $ap): void

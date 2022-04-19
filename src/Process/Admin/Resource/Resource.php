@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Resource\Resource
- * @brief Dotclear admin file url helper
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,6 +13,13 @@ use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Html;
 
+/**
+ * Admin file URL helper.
+ *
+ * \Dotclear\Process\Admin\Resource\Resource
+ *
+ * @ingroup  Admin Stack
+ */
 class Resource
 {
     /** @var array Stack to keep track of loaded files */

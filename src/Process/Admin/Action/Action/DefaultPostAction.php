@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Action\Action\DefaultPostAction
- * @brief Dotclear admin handler for action page on selected entries
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -21,6 +18,13 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\L10n;
 use Dotclear\Process\Admin\Action\Action;
 
+/**
+ * Admin handler for default action on selected entries.
+ *
+ * \Dotclear\Process\Admin\Action\Action\DefaultPostAction
+ *
+ * @ingroup  Admin Post Action
+ */
 abstract class DefaultPostAction extends Action
 {
     public function loadPostAction(Action $ap): void

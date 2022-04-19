@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Page\Pager
- * @brief Dotclear admin menu helper
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,6 +12,13 @@ namespace Dotclear\Process\Admin\Page;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 
+/**
+ * Pager navigation helper.
+ *
+ * \Dotclear\Process\Admin\Page\Pager
+ *
+ * @ingroup  Admin
+ */
 class Pager
 {
     protected $nb_pages;

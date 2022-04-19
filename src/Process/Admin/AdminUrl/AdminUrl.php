@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\AdminUrl\AdminUrl
- * @brief Dotclear admin url handler class
- *
- * Accessible from dotclear()->adminurl()->
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,6 +14,15 @@ use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Network\Http;
 
+/**
+ * Admin URL handler.
+ *
+ * \Dotclear\Process\Admin\AdminUrl\AdminUrl
+ *
+ * Accessible from dotclear()->adminurl()->
+ *
+ * @ingroup  Admin Handler
+ */
 class AdminUrl
 {
     /** @var string Admin URL */

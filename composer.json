@@ -23,7 +23,8 @@
     "symfony/translation": "<2.3.0",
     "behat/mink-extension": "1.3.*",
     "behat/mink-goutte-driver": "1.*",
-    "phpstan/phpstan": "^1.1"
+    "phpstan/phpstan": "^1.5",
+    "FriendsOfPHP/PHP-CS-Fixer": "^3.8"
   },
   "config": {
     "bin-dir": "bin/"

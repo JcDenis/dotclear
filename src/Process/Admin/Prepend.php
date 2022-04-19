@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Prepend
- * @brief admin process prepend
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -32,6 +29,13 @@ use Dotclear\Process\Admin\Menu\Summary;
 use Dotclear\Process\Admin\Resource\Resource;
 use Exception;
 
+/**
+ * Admin process.
+ *
+ * \Dotclear\Process\Admin\Prepend
+ *
+ * @ingroup  Admin
+ */
 class Prepend extends Core
 {
     /** @var AdminUrl AdminUrl instance */

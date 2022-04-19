@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Handler\BlogPref
- * @brief Dotclear admin blog preference page
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -25,6 +22,13 @@ use Dotclear\Helper\Network\NetHttp\NetHttp;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
 
+/**
+ * Admin blog preference page.
+ *
+ * \Dotclear\Process\Admin\Handler\BlogPref
+ *
+ * @ingroup  Admin Blog Settings Handler
+ */
 class BlogPref extends AbstractPage
 {
     private $blog_id     = true;

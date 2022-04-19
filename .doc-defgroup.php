@@ -4,6 +4,11 @@
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
+ * 
+ * 
+ * @defgroup Action List actions
+ *
+ * Classes related to list actions.
  *
  * 
  * @defgroup Admin
@@ -11,9 +16,24 @@
  * Classes related to Admin process. (backend)
  * 
  * 
+ * @defgroup Blog Blogs
+ *
+ * Classes related to blogs.
+ * 
+ * 
+ * @defgroup Category categories
+ *
+ * Classes related to categories.
+ * 
+ * 
+ * @defgroup Comment Comments
+ *
+ * Classes related to comments.
+ * 
+ * 
  * @defgroup Container
  *
- * Container is used to serve fields
+ * Container used to serve fields
  * from a single record with the right type.
  * 
  * 
@@ -53,18 +73,33 @@
  * 
  * @defgroup File
  *
- * Casses related to file and path manipulation.
+ * Classes related to file and path manipulation.
+ * 
+ * 
+ * @defgroup Filter List filters
+ *
+ * Classes related to list filters.
  *
  *
  * @defgroup  Function
  *
- * Dotclear uses few out-of-namespaces functions
+ * Out-of-namespaces functions
  * to simplify calls from everywhere.
+ * 
+ * 
+ * @defgroup Handler Admin page handler
+ *
+ * Classes related to admin page handling.
  * 
  * 
  * @defgroup Helper
  *
  * Usefull reusable classes.
+ * 
+ * 
+ * @defgroup Help
+ *
+ * Classes related to help.
  * 
  * 
  * @defgroup Html
@@ -77,31 +112,86 @@
  * Classes related to Install process.
  *
  * 
+ * @defgroup Inventory
+ * 
+ * Classes that manage inventory list.
+ * 
+ * 
+ * @defgroup Localisation
+ *
+ * Classes related to locales.
+ * 
+ * 
+ * @defgroup Media
+ *
+ * Classes related to media.
+ *
+ * 
  * @defgroup Module Modules
  *
- * Modules are extensions to Dotclear, like Themes or Plugins.
+ * Extensions to Dotclear, like Themes or Plugins.
  * This set of Module classes provides usefull methods 
  * to interface extensions to Dotclear.
  * 
  * 
  * @defgroup Network
  *
- * Casses related to network feartures.
+ * Classes related to network feartures.
  *
  *
  * @defgroup Plugin Plugins
  *
- * Plugins are specific type of Dotclear Modules.
+ * Plugins specific type of Dotclear Modules.
+ * 
+ * 
+ * @defgroup Post Posts
+ *
+ * Classes related to posts.
+ * 
+ * 
+ * @defgroup Preference
+ *
+ * Classes related to user preference.
  *
  * 
  * @defgroup Public
  * 
  * Classes related to Public process. (frontend)
+ *
+ * 
+ * @defgroup Rest
+ * 
+ * Classes related to REST service/methods.
+ * 
+ * 
+ * @defgroup Settings Blog settings
+ *
+ * Classes related to blogs settings.
+ * 
+ * 
+ * @defgroup Stack
+ *
+ * Classes using stack properties.
  * 
  * 
  * @defgroup Template
  *
- * Casses related to Template manipulation.
+ * Classes related to Template manipulation.
+ *
+ *
+ * @defgroup Theme Themes
+ *
+ * Themes specific type of Dotclear Modules.
+ * 
+ * 
+ * @defgroup User
+ *
+ * Classes related to users.
+ * 
+ * 
+ * @defgroup Xmlrpc XML-RPC
+ *
+ * Classes related to XML-RPC protocol.
  * 
  * 
  * @defgroup  AboutConfig Plugin "about:config"

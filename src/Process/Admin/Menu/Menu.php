@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Menu\Menu
- * @brief Dotclear admin menu helper
- *
- * Accessible from dotclear()->summary()['a_menu_id']
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,6 +11,15 @@ namespace Dotclear\Process\Admin\Menu;
 
 use Dotclear\Helper\Lexical;
 
+/**
+ * Admin menu item helper.
+ *
+ * \Dotclear\Process\Admin\Menu\Menu
+ *
+ * Accessible from dotclear()->summary()['a_menu_id']
+ *
+ * @ingroup  Admin
+ */
 class Menu
 {
     protected $pinned = [];

@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Action\Action\PostAction
- * @brief Dotclear admin handler for action page on selected entries
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,6 +13,13 @@ use ArrayObject;
 use Dotclear\Helper\Html\Html;
 use Exception;
 
+/**
+ * Admin handler for action on selected entries.
+ *
+ * \Dotclear\Process\Admin\Action\Action\PostAction
+ *
+ * @ingroup  Admin Post Action
+ */
 class PostAction extends DefaultPostAction
 {
     public function __construct(string $uri, array $redirect_args = [])

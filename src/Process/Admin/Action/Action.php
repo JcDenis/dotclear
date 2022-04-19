@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Action\Action
- * @brief Dotclear admin handler for action page on selected entries
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -21,6 +18,13 @@ use Dotclear\Helper\Network\Http;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
 
+/**
+ * Admin helper for action on list.
+ *
+ * \Dotclear\Process\Admin\Action\Action
+ *
+ * @ingroup  Admin Action
+ */
 abstract class Action extends AbstractPage
 {
     /** @var array action combo box */

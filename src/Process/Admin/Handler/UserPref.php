@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Handler\UserPref
- * @brief Dotclear admin user preferences page
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -22,6 +19,13 @@ use Dotclear\Helper\Dt;
 use Dotclear\Helper\Lexical;
 use Exception;
 
+/**
+ * Admin user preferences page.
+ *
+ * \Dotclear\Process\Admin\Handler\UserPref
+ *
+ * @ingroup  Admin User Preference handler
+ */
 class UserPref extends AbstractPage
 {
     /** @var UserContainer User container */

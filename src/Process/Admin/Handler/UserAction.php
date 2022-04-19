@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Handler\UserAction
- * @brief Dotclear admin user action page
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,6 +16,13 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Exception;
 
+/**
+ * Admin user action page.
+ *
+ * \Dotclear\Process\Admin\Handler\UserAction
+ *
+ * @ingroup  Admin User Handler
+ */
 class UserAction extends AbstractPage
 {
     private $user_action = '';

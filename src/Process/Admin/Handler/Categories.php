@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Handler\Categories
- * @brief Dotclear admin categories list page
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,6 +16,13 @@ use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Exception;
 
+/**
+ * Admin categories list page.
+ *
+ * \Dotclear\Process\Admin\Handler\Categories
+ *
+ * @ingroup  Admin Category Handler
+ */
 class Categories extends AbstractPage
 {
     /** @var Record Categories working on */

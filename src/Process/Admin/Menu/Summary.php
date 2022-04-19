@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Menu\Summary
- * @brief Dotclear admin menu handling facilities class
- *
- * Accessible from dotclear()->summary()->
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,6 +13,15 @@ use ArrayObject;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 
+/**
+ * Admin menu handling facilities.
+ *
+ * \Dotclear\Process\Admin\Menu\Summary
+ *
+ * Accessible from dotclear()->summary()->
+ *
+ * @ingroup  Admin
+ */
 class Summary extends ArrayObject
 {
     protected $core;

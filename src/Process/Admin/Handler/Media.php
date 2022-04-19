@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Handler\Media
- * @brief Dotclear class for admin media page
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -25,6 +22,13 @@ use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Exception;
 
+/**
+ * Admin media list page.
+ *
+ * \Dotclear\Process\Admin\Handler\Media
+ *
+ * @ingroup  Admin Media Handler
+ */
 class Media extends AbstractPage
 {
     /** @var bool Page has a valid query */

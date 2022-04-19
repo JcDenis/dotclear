@@ -1,9 +1,6 @@
 <?php
 /**
- * @note  Dotclear\Process\Admin\Service\Updater
- * @brief Dotclear core update
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -21,6 +18,13 @@ use Dotclear\Helper\Network\NetHttp\NetHttp;
 use SimpleXMLElement;
 use Exception;
 
+/**
+ * Update methods.
+ *
+ * \Dotclear\Process\Admin\Service\Updater
+ *
+ * @ingroup  Admin
+ */
 class Updater
 {
     public const ERR_FILES_CHANGED    = 101;

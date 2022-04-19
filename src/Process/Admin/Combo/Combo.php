@@ -1,14 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Combo\Combo
- * @brief Admin combo library
- *
- * Dotclear utility class that provides reuseable combos across all admin
- * form::combo -compatible format
- *
- * Accessible from dotclear()->combo()->
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -25,6 +17,18 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Dt;
 use Dotclear\Helper\L10n;
 
+/**
+ * Admin combo library.
+ *
+ * \Dotclear\Process\Admin\Combo\Combo
+ *
+ * Dotclear utility class that provides reuseable combos across all admin
+ * form::combo -compatible format
+ *
+ * Accessible from dotclear()->combo()->
+ *
+ * @ingroup  Admin Combo
+ */
 class Combo
 {
     /**

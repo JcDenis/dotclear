@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Inventory\Inventory\PostMiniInventory
- * @brief Dotclear admin list helper
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,6 +15,13 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Process\Admin\Page\Pager;
 
+/**
+ * Admin posts mini list helper.
+ *
+ * \Dotclear\Process\Admin\Inventory\Inventory\PostMiniInventory
+ *
+ * @ingroup  Admin Post Inventory
+ */
 class PostMiniInventory extends Inventory
 {
     /**

@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Inventory\Inventory\MediaInventory
- * @brief Dotclear admin list helper
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -22,6 +19,13 @@ use Dotclear\Process\Admin\Filter\Filter\MediaFilter;
 use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Process\Admin\Page\Pager;
 
+/**
+ * Admin media list helper.
+ *
+ * \Dotclear\Process\Admin\Inventory\Inventory\MediaInventory
+ *
+ * @ingroup  Admin Media Inventory
+ */
 class MediaInventory extends Inventory
 {
     /**

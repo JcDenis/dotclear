@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Handler\LinkPopup
- * @brief Dotclear admin generic link popup page
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,6 +13,13 @@ use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\Form;
 
+/**
+ * Admin generic link popup page.
+ *
+ * \Dotclear\Process\Admin\Handler\LinkPopup
+ *
+ * @ingroup  Admin Handler
+ */
 class LinkPopup extends AbstractPage
 {
     protected function getPermissions(): string|null|false

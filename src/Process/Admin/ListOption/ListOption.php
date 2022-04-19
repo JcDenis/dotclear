@@ -1,14 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\ListOption\ListOption
- * @brief Admin user list option preference library
- *
- * Dotclear utility class that provides reuseable user preference
- * across all admin page with lists and filters
- *
- * Accessible from dotclear()->listoption()->
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,6 +11,18 @@ namespace Dotclear\Process\Admin\ListOption;
 
 use ArrayObject;
 
+/**
+ * User list option preference library.
+ *
+ * \Dotclear\Process\Admin\ListOption\ListOption
+ *
+ * Dotclear utility class that provides reuseable user preference
+ * across all admin page with lists and filters
+ *
+ * Accessible from dotclear()->listoption()->
+ *
+ * @ingroup  Admin User Preference
+ */
 class ListOption
 {
     /** @var ArrayObject Sorts filters preferences */

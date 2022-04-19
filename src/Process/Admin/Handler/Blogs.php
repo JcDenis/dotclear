@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Handler\Blogs
- * @brief Dotclear admin blogs list page
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -20,6 +17,13 @@ use Dotclear\Process\Admin\Inventory\Inventory\BlogInventory;
 use Dotclear\Process\Admin\Filter\Filter\BlogFilter;
 use Dotclear\Helper\Html\Form;
 
+/**
+ * Admin blogs list page.
+ *
+ * \Dotclear\Process\Admin\Handler\Blog
+ *
+ * @ingroup  Admin Blog Handler
+ */
 class Blogs extends AbstractPage
 {
     protected function getPermissions(): string|null|false

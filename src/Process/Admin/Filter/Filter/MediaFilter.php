@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Filter\Filter\MediaFilter
- * @brief class for admin media list filters form
- *
- * @ingroup  Admin
- *
- * @since 2.20
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,6 +13,15 @@ use ArrayObject;
 use Dotclear\Process\Admin\Filter\Filter;
 use Dotclear\Helper\Html\Html;
 
+/**
+ * Admin media list filters form.
+ *
+ * \Dotclear\Process\Admin\Filter\Filter\MediaFilter
+ *
+ * @ingroup  Admin Media Filter
+ *
+ * @since 2.20
+ */
 class MediaFilter extends Filter
 {
     protected $post_type  = '';

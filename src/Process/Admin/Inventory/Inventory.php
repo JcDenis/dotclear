@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Inventory\Inventory
- * @brief Dotclear admin list helper
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,6 +12,13 @@ namespace Dotclear\Process\Admin\Inventory;
 use ArrayObject;
 use Dotclear\Database\Record;
 
+/**
+ * Admin list helper.
+ *
+ * \Dotclear\Process\Admin\Inventory\Inventory
+ *
+ * @ingroup  Admin Inventory
+ */
 class Inventory
 {
     /** @var string The HTML representation of previous */

@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Action\Action\BlogAction
- * @brief Dotclear admin handler for action page on selected entries
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,6 +14,13 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\Form;
 use Exception;
 
+/**
+ * Admin handler for action on selected blogs.
+ *
+ * \Dotclear\Process\Admin\Action\Action\BlogAction
+ *
+ * @ingroup  Admin Blog Action
+ */
 class BlogAction extends DefaultBlogAction
 {
     public function __construct(string $uri, array $redirect_args = [])

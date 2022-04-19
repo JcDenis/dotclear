@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Filter\Filter\UserFilter
- * @brief class for admin user list filters form
- *
- * @ingroup  Admin
- *
- * @since 2.20
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,6 +12,15 @@ namespace Dotclear\Process\Admin\Filter\Filter;
 use ArrayObject;
 use Dotclear\Process\Admin\Filter\Filter;
 
+/**
+ * Admin users list filters form.
+ *
+ * \Dotclear\Process\Admin\Filter\Filter\UserFilter
+ *
+ * @ingroup  Admin User Filter
+ *
+ * @since 2.20
+ */
 class UserFilter extends Filter
 {
     public function __construct()

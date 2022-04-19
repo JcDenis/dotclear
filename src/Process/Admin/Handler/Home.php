@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Handler\Home
- * @brief Dotclear admin home page
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,6 +15,13 @@ use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Exception;
 
+/**
+ * Admin home page.
+ *
+ * \Dotclear\Process\Admin\Handler\Home
+ *
+ * @ingroup  Admin Home Handler
+ */
 class Home extends AbstractPage
 {
     private $dragndrop_msg = ['dashboard', 'toggles', 'accessibility'];

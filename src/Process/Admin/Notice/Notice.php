@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Notice\Notice
- * @brief Dotclear backend notices handling facilities
- *
- * Accessible from dotclear()->notice()->
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -22,6 +17,15 @@ use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Dt;
 use Exception;
 
+/**
+ * Backend notices handling facilities.
+ *
+ * \Dotclear\Process\Admin\Notice\Notice
+ *
+ * Accessible from dotclear()->notice()->
+ *
+ * @ingroup  Admin
+ */
 class Notice
 {
     /** @var string notices table prefix */

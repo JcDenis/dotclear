@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Filter\Filter\BlogFilter
- * @brief class for admin blog list filters form
- *
- * @ingroup  Admin
- *
- * @since 2.20
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,6 +12,13 @@ namespace Dotclear\Process\Admin\Filter\Filter;
 use ArrayObject;
 use Dotclear\Process\Admin\Filter\Filter;
 
+/**
+ * Admin blogs list filters form.
+ *
+ * \Dotclear\Process\Admin\Filter\Filter\BlogFilter
+ *
+ * @ingroup  Admin Blog Filter
+ */
 class BlogFilter extends Filter
 {
     public function __construct()

@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 /**
- * Dotclear upgrade procedure (CLI).
+ * Run upgrade procedure (CLI).
  *
  * @file \src\Process\Distrib\upgrade-cli.php
  *

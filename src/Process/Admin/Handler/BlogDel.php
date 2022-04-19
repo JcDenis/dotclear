@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Handler\BlogDel
- * @brief Dotclear admin blog deletion page
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,6 +14,13 @@ use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Exception;
 
+/**
+ * Admin blog deletion page.
+ *
+ * \Dotclear\Process\Admin\Handler\BlogDel
+ *
+ * @ingroup  Admin Blog Handler
+ */
 class BlogDel extends AbstractPage
 {
     private $blog_id   = '';

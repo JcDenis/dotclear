@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Handler\Blog
- * @brief Dotclear admin blog page
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,6 +15,13 @@ use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Exception;
 
+/**
+ * Admin blog page.
+ *
+ * \Dotclear\Process\Admin\Handler\Blog
+ *
+ * @ingroup  Admin Blog Handler
+ */
 class Blog extends AbstractPage
 {
     private $blog_id   = '';

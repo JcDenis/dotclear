@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Page\AbstractPage
- * @brief abstract admin page helper.
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -25,6 +22,13 @@ use Dotclear\Process\Admin\Filter\Filter;
 use Dotclear\Process\Admin\Inventory\Inventory;
 use Exception;
 
+/**
+ * Admin page helper.
+ *
+ * \Dotclear\Process\Admin\Page\AbstractPage
+ *
+ * @ingroup  Admin
+ */
 abstract class AbstractPage
 {
     /** @var null|string Page type */

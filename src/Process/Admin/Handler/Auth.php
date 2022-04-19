@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Handler\Auth
- * @brief Dotclear admin auth page
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -20,6 +17,13 @@ use Dotclear\Helper\Network\Http;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Distrib\Upgrade;
 
+/**
+ * Admin user auth page.
+ *
+ * \Dotclear\Process\Admin\Handler\Auth
+ *
+ * @ingroup  Admin User Handler
+ */
 class Auth extends AbstractPage
 {
     /** @var string default lang */

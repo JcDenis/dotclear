@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Help\Help
- * @brief Dotclear admin locale help resources helper
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,6 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Help;
 
+/**
+ * Admin locale help resources helper.
+ *
+ * \Dotclear\Process\Admin\Help\Help
+ *
+ * @ingroup  Admin Help Localisation
+ */
 class Help
 {
     /** @var array<string, bool>       Keep track of loaded file */

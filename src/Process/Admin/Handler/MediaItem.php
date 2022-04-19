@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Handler\MediaItem
- * @brief Dotclear class for admin media item page
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -24,6 +21,13 @@ use Dotclear\Process\Admin\Page\AbstractPage;
 use SimpleXMLElement;
 use Exception;
 
+/**
+ * Admin media item page.
+ *
+ * \Dotclear\Process\Admin\Handler\MediaItem
+ *
+ * @ingroup  Admin Media Handler
+ */
 class MediaItem extends AbstractPage
 {
     private $popup;

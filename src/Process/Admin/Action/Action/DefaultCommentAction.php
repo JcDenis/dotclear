@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Action\Action\DefaultCommentAction
- * @brief Dotclear admin handler for action page on selected comments
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,6 +13,13 @@ use ArrayObject;
 use Dotclear\Exception\AdminException;
 use Dotclear\Process\Admin\Action\Action;
 
+/**
+ * Admin handler for default action on selected comments.
+ *
+ * \Dotclear\Process\Admin\Action\Action\DefaultCommentAction
+ *
+ * @ingroup  Admin Comment Action
+ */
 abstract class DefaultCommentAction extends Action
 {
     protected function loadCommentAction(Action $ap): void

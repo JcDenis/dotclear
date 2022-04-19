@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Service\RestMethods
- * @brief Dotclear common admin REST methods
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -21,6 +18,13 @@ use Dotclear\Helper\Network\Feed\Reader;
 use Dotclear\Helper\Text;
 use Dotclear\Module\Store\Repository\Repository;
 
+/**
+ * Common admin REST methods.
+ *
+ * \Dotclear\Process\Admin\Service\RestMethods
+ *
+ * @ingroup  Admin Rest
+ */
 class RestMethods
 {
     /**

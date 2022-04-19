@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Favorite\Favorite
- * @brief Dotclear admin favorites handling facilities class
- *
- * Accessible from dotclear()->favorite()->
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,6 +13,15 @@ use ArrayObject;
 use Dotclear\Core\User\Preference\Workspace;
 use Dotclear\Process\Admin\Menu\Summary;
 
+/**
+ * Admin favorites handling facilities.
+ *
+ * \Dotclear\Process\Admin\Favorite\Favorite
+ *
+ * Accessible from dotclear()->favorite()->
+ *
+ * @ingroup  Admin Favorite
+ */
 class Favorite
 {
     /** @var ArrayObject list of favorite definitions */

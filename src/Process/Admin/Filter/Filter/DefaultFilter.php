@@ -1,14 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Filter\Filter\DefaultFilter
- * @brief Admin filter
- *
- * Dotclear utility class that provides reuseable list filter
- * Should be used with Filter
- *
- * @ingroup  Admin
- *
- * @since 2.20
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -22,6 +14,18 @@ use Dotclear\Helper\Html\Form\Select as FormSelect;
 use Dotclear\Helper\Html\Form\Label as FormLabel;
 use Dotclear\Helper\Html\Form\Input as FormInput;
 
+/**
+ * Admin filter.
+ *
+ * \Dotclear\Process\Admin\Filter\Filter\DefaultFilter
+ *
+ * Dotclear utility class that provides reuseable list filter
+ * Should be used with Filter
+ *
+ * @ingroup  Admin Filter
+ *
+ * @since 2.20
+ */
 class DefaultFilter
 {
     /** @var array The filter properties */

@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Handler\Update
- * @brief Dotclear admin update page
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -22,6 +19,13 @@ use Dotclear\Process\Admin\Service\Updater;
 use Dotclear\Helper\ErrorTrait;
 use Exception;
 
+/**
+ * Admin update page.
+ *
+ * \Dotclear\Process\Admin\Handler\Update
+ *
+ * @ingroup  Admin Update Handler
+ */
 class Update extends AbstractPage
 {
     use ErrorTrait;

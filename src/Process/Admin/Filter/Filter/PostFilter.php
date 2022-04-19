@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Filter\Filter\PostFilter
- * @brief class for admin post list filters form
- *
- * @ingroup  Admin
- *
- * @since 2.20
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -20,6 +15,15 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Lexical;
 use Exception;
 
+/**
+ * Admin posts list filters form.
+ *
+ * \Dotclear\Process\Admin\Filter\Filter\PostFilter
+ *
+ * @ingroup  Admin Post Filter
+ *
+ * @since 2.20
+ */
 class PostFilter extends Filter
 {
     public function __construct(string $type = 'posts', protected string $post_type = 'post')

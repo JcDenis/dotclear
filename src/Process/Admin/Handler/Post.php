@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Handler\Post
- * @brief Dotclear admin post page
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -24,6 +21,13 @@ use Dotclear\Helper\Dt;
 use Dotclear\Helper\Text;
 use Exception;
 
+/**
+ * Admin post page.
+ *
+ * \Dotclear\Process\Admin\Handler\Pos
+ *
+ * @ingroup  Admin Post Handler
+ */
 class Post extends AbstractPage
 {
     private $post_id;

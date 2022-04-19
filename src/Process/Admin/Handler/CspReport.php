@@ -1,13 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Handler\CspReport
- * @brief Dotclear admin csp report endpoint
- *
- * From: https://github.com/nico3333fr/CSP-useful
- * Note: this script requires PHP ≥ 5.4.
- * Inspired from https://mathiasbynens.be/notes/csp-reports
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -20,6 +13,19 @@ use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Files;
 
+/**
+ * Admin csp report endpoint.
+ *
+ * \Dotclear\Process\Admin\Handler\CspReport
+ *
+ * This page is just an endpoint and does not display anything.
+ *
+ * From: https://github.com/nico3333fr/CSP-useful
+ * Note: this script requires PHP ≥ 5.4.
+ * Inspired from https://mathiasbynens.be/notes/csp-reports
+ *
+ * @ingroup  Admin Csp Handler
+ */
 class CspReport extends AbstractPage
 {
     // not used but required

@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Handler\PostsPopup
- * @brief Dotclear admin posts popup list page
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,6 +14,13 @@ use Dotclear\Process\Admin\Inventory\Inventory\PostMiniInventory;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 
+/**
+ * Admin posts popup list page.
+ *
+ * \Dotclear\Process\Admin\Handler\PostsPopup
+ *
+ * @ingroup  Admin Post Handler
+ */
 class PostsPopup extends AbstractPage
 {
     private $plugin_id = '';

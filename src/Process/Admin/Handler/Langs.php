@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Handler\Langs
- * @brief Dotclear admin langs page
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -23,6 +20,13 @@ use Dotclear\Helper\Network\NetHttp\NetHttp;
 use Dotclear\Helper\L10n;
 use Exception;
 
+/**
+ * Admin langs page.
+ *
+ * \Dotclear\Process\Admin\Handler\Langs
+ *
+ * @ingroup  Admin Lang Localisation Handler
+ */
 class Langs extends AbstractPage
 {
     private $is_writable = false;

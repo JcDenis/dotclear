@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Filter\Filter
- * @brief Generic class for admin list filters form
- *
- * @ingroup  Admin
- *
- * @since 2.20
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,6 +14,13 @@ use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 
+/**
+ * Generic class for admin list filters form.
+ *
+ * \Dotclear\Process\Admin\Filter\Filter
+ *
+ * @ingroup  Admin Filter
+ */
 class Filter extends Filters
 {
     /** @var array Filters objects */

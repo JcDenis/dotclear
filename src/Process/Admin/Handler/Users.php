@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Handler\Users
- * @brief Dotclear admin users list page
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,6 +16,13 @@ use Dotclear\Process\Admin\Inventory\Inventory\UserInventory;
 use Dotclear\Process\Admin\Filter\Filter\UserFilter;
 use Dotclear\Helper\Html\Form;
 
+/**
+ * Admin users list page.
+ *
+ * \Dotclear\Process\Admin\Handler\Users
+ *
+ * @ingroup  Admin User Handler
+ */
 class Users extends AbstractPage
 {
     protected function getPermissions(): string|null|false

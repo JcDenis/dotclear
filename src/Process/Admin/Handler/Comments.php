@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Handler\Comments
- * @brief Dotclear admin comments list page
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -20,6 +17,13 @@ use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Exception;
 
+/**
+ * Admin comments list page.
+ *
+ * \Dotclear\Process\Admin\Handler\Comments
+ *
+ * @ingroup  Admin Comment Handler
+ */
 class Comments extends AbstractPage
 {
     protected function getPermissions(): string|null|false

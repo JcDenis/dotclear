@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Handler\Xmlrpc
- * @brief Dotclear admin xmlrpc page
- *
- * @ingroup  Admin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,6 +13,13 @@ use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Core\Xmlrpc\Xmlrpc as CoreXmlrpc;
 use Dotclear\Helper\Network\Http;
 
+/**
+ * Admin xmlrpc page.
+ *
+ * \Dotclear\Process\Admin\Handler\Xmlrpc
+ *
+ * @ingroup  Admin Xmlrpc Handler
+ */
 class Xmlrpc extends AbstractPage
 {
     protected function getPermissions(): string|null|false

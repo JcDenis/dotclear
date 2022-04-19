@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Admin\Filter\Filter\CommentFilter
- * @brief class for admin comment list filters form
- *
- * @ingroup  Admin
- *
- * @since 2.20
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,6 +12,13 @@ namespace Dotclear\Process\Admin\Filter\Filter;
 use ArrayObject;
 use Dotclear\Process\Admin\Filter\Filter;
 
+/**
+ * Admin comments list filters form.
+ *
+ * \Dotclear\Process\Admin\Filter\Filter\CommentFilter
+ *
+ * @ingroup  Admin Comment Filter
+ */
 class CommentFilter extends Filter
 {
     public function __construct()
