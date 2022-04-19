@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\User\User
- * @brief Dotclear core auth class
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -22,6 +19,13 @@ use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Crypt;
 use Exception;
 
+/**
+ * User authentication class.
+ *
+ * \Dotclear\Core\User\User
+ *
+ * @ingroup  Core User
+ */
 class User
 {
     /** @var UserContainer Container instance */

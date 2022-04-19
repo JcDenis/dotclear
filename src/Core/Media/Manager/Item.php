@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\Media\Manager\Item
- * @brief Item for file manager tool
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,6 +13,18 @@ use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Files;
 use SimpleXMLElement;
 
+/**
+ * Item for file manager tool.
+ *
+ * \Dotclear\Core\Media\Manager\Item
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Core Media File
+ *
+ * @copyright Olivier Meunier & Association Dotclear
+ * @copyright GPL-2.0-only
+ */
 class Item
 {
     /** @var string Complete path to file */

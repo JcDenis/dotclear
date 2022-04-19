@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\Formater\Formater
- * @brief Dotclear core Formater class
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,6 +11,13 @@ namespace Dotclear\Core\Formater;
 
 use Closure;
 
+/**
+ * Text formater methods.
+ *
+ * \Dotclear\Core\Formater\Formater
+ *
+ * @ingroup  Core Text
+ */
 class Formater
 {
     /** @var array formaters container */

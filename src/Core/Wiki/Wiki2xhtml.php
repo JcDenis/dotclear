@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\Wiki\Wiki2xhtml
- * @brief wiki to xhtml
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -152,6 +147,15 @@ History :
 => début de quelque chose pour la reconnaissance auto d'url (avec Mat)
  */
 
+/**
+ * Wiki to xhtml.
+ *
+ * \Dotclear\Core\Wiki\Wiki2xhtml
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Core Text
+ */
 class Wiki2xhtml
 {
     public $__version__ = '3.2.23';

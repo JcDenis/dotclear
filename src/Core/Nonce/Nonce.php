@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\Nonce\Nonce
- * @brief Dotclear core nonce class
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,6 +11,13 @@ namespace Dotclear\Core\Nonce;
 
 use Dotclear\Helper\Html\Form;
 
+/**
+ * Core nonce.
+ *
+ * \Dotclear\Core\Nonce\Nonce
+ *
+ * @ingroup  Core
+ */
 class Nonce
 {
     /**

@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\Log\Log
- * @brief Dotclear utils log class
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -23,6 +20,13 @@ use Dotclear\Exception\CoreException;
 use Dotclear\Helper\Network\Http;
 use Exception;
 
+/**
+ * Log handling methods.
+ *
+ * \Dotclear\Core\Log\Log
+ *
+ * @ingroup  Core Log
+ */
 class Log
 {
     /** @var string Log table name */

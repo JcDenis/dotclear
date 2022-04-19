@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\Version\Version
- * @brief Dotclear core version class
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,6 +13,16 @@ use Dotclear\Database\Statement\InsertStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\DeleteStatement;
 
+/**
+ * Version handling class.
+ *
+ * \Dotclear\Core\Version\Version
+ *
+ * Save and retrieve and compare
+ * core and modules version in database.
+ *
+ * @ingroup  Core Version
+ */
 class Version
 {
     /** @var string The version table name */

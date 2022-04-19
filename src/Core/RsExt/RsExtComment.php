@@ -1,15 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\RsExt\RsExtComment
- * @brief Dotclear comment record helpers.
- *
- * This class adds new methods to database comment results.
- * You can call them on every record comming from dcBlog::getComments and similar
- * methods.
- *
- * @warning You should not give the first argument (usualy $rs) of every described
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -22,6 +13,19 @@ use Dotclear\Core\User\Preference\Preference;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Dt;
 
+/**
+ * Comments record helpers.
+ *
+ * \Dotclear\Core\RsExt\RsExtComment
+ *
+ * This class adds new methods to database comment results.
+ * You can call them on every record comming from dcBlog::getComments and similar
+ * methods.
+ *
+ * @warning You should not give the first argument (usualy $rs) of every described
+ *
+ * @ingroup  Core Comment Record
+ */
 class RsExtComment extends RsExtend
 {
     /**
@@ -241,7 +245,7 @@ class RsExtComment extends RsExtend
 
         return
             ($this->rs->f('comment_email') && $this->rs->f('comment_site'))
-                                           && ($this->rs->f('comment_email') == $this->rs->f('user_email') || in_array($this->rs->f('comment_email'), $user_profile_mails))
+                                           && ($this->rs->f('comment_email') == $this->rs->f('user_email')  || in_array($this->rs->f('comment_email'), $user_profile_mails))
                                            && ($this->rs->f('comment_site')  == $this->rs->f('user_url')    || in_array($this->rs->f('comment_site'), $user_profile_urls));
     }
 }

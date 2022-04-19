@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\RsExt\RsExtPost
- * @brief Dotclear posts record helpers.
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,6 +13,13 @@ use Dotclear\Core\User\UserContainer;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Dt;
 
+/**
+ * Posts record helpers.
+ *
+ * \Dotclear\Core\RsExt\RsExtPost
+ *
+ * @ingroup  Core Post Record
+ */
 class RsExtPost extends RsExtend
 {
     /** @var array<int, int>     Nb of attach media */

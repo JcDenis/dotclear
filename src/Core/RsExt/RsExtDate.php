@@ -1,15 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\RsExt\RsExtDate
- * @brief Dotclear dates record helpers.
- *
- * This class adds new methods to database dates results.
- * You can call them on every record comming from dcBlog::getDates.
- *
- * @warning You should not give the first argument (usualy $rs)
- * of every described function.
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -20,6 +11,16 @@ namespace Dotclear\Core\RsExt;
 
 use Dotclear\Helper\Dt;
 
+/**
+ * Record dates helpers.
+ *
+ * \Dotclear\Core\RsExt\RsExtDate
+ *
+ * This class adds new methods to database dates results.
+ * You can call them on every record comming from Blog::getDates.
+ *
+ * @ingroup  Core Date Record
+ */
 class RsExtDate extends RsExtend
 {
     /**

@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\RsExt\RsExtPostPublic
- * @brief Dotclear post record public helpers.
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,6 +11,13 @@ namespace Dotclear\Core\RsExt;
 
 use Dotclear\Helper\Html\Html;
 
+/**
+ * Posts record public helpers.
+ *
+ * \Dotclear\Core\RsExt\RsExtPostPublic
+ *
+ * @ingroup  Core Public Post Record
+ */
 class RsExtPostPublic extends RsExtPost
 {
     public function getContent(bool $absolute_urls = false): string

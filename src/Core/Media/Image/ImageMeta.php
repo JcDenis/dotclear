@@ -1,15 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\Media\Image\ImageMeta
- * @brief Basic image metadata handling tool
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
- * This class reads EXIF, IPTC and XMP metadata from a JPEG file.
- *
- * - Contributor: Mathieu Lecarme.
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -22,6 +13,19 @@ use Dotclear\Exception\HelperException;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Text;
 
+/**
+ * Basic image metadata handling tool.
+ *
+ * \Dotclear\Core\Media\Image\ImageMeta
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * This class reads EXIF, IPTC and XMP metadata from a JPEG file.
+ *
+ * - Contributor: Mathieu Lecarme.
+ *
+ * @ingroup  Core Media Image
+ */
 class ImageMeta
 {
     /** @var array Internal XMP array */

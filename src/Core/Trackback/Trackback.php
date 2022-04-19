@@ -1,12 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\Trackback\Trackback
- * @brief Trackbacks/Pingbacks sender and server
- *
- * Sends and receives trackbacks/pingbacks.
- * Also handles trackbacks/pingbacks auto discovery.
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -28,6 +22,16 @@ use Dotclear\Helper\Network\NetHttp\NetHttp;
 use Dotclear\Helper\Text;
 use Exception;
 
+/**
+ * Trackbacks/Pingbacks sender and server.
+ *
+ * \Dotclear\Core\Trackback\Trackback
+ *
+ * Sends and receives trackbacks/pingbacks.
+ * Also handles trackbacks/pingbacks auto discovery.
+ *
+ * @ingroup  Core Ping
+ */
 class Trackback
 {
     /** @var string Trackback table name */

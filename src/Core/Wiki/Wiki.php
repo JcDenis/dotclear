@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\Wiki\Wiki
- * @brief Dotclear trait error
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,6 +11,13 @@ namespace Dotclear\Core\Wiki;
 
 use Dotclear\Helper\Html\Html;
 
+/**
+ * Wiki tool handler.
+ *
+ * \Dotclear\Core\Wiki\Wiki
+ *
+ * @ingroup  Core Text
+ */
 class Wiki
 {
     /** @var Wiki2xhtml Wiki2xhtml instance */

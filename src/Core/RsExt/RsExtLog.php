@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\RsExt\RsExtLog
- * @brief Dotclear log record helpers.
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,7 +12,11 @@ namespace Dotclear\Core\RsExt;
 use Dotclear\Core\User\UserContainer;
 
 /**
- * Extent log record class.
+ * Logs record helpers.
+ *
+ * \Dotclear\Core\RsExt\RsExtLog
+ *
+ * @ingroup  Core Log Record
  */
 class RsExtLog extends RsExtend
 {

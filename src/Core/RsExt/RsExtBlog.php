@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\RsExt\RsExtBlog
- * @brief Dotclear blogs record helpers.
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,6 +11,13 @@ namespace Dotclear\Core\RsExt;
 
 use Dotclear\Helper\Dt;
 
+/**
+ * Blogs record helpers.
+ *
+ * \Dotclear\Core\RsExt\RsExtBlog
+ *
+ * @ingroup  Core Blog Record
+ */
 class RsExtBlog extends RsExtend
 {
     /**

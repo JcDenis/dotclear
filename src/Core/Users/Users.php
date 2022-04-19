@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\Users\Users
- * @brief Dotclear core users managment class
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -24,6 +21,13 @@ use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Exception\CoreException;
 
+/**
+ * Users handling methods.
+ *
+ * \Dotclear\Core\Users\Users
+ *
+ * @ingroup  Core User
+ */
 class Users
 {
     /**

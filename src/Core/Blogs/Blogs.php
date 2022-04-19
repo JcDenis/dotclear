@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\Blogs\Blogs
- * @brief Dotclear core blogs managment class
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,6 +16,13 @@ use Dotclear\Database\Record;
 use Dotclear\Exception\CoreException;
 use Dotclear\Helper\Html\Html;
 
+/**
+ * Blogs handling methods.
+ *
+ * \Dotclear\Core\Blogs\Blogs
+ *
+ * @ingroup  Core Blog
+ */
 class Blogs
 {
     /**

@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\Media\Manager\Manager
- * @brief File manager tool
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,6 +13,15 @@ use Dotclear\Exception\FileException;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Files;
 
+/**
+ * File manager tool.
+ *
+ * \Dotclear\Core\Media\Manager\Manager
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Core Media File
+ */
 class Manager
 {
     /** @var string Working (current) director */

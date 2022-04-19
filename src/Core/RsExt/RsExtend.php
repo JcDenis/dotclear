@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\RsExtend
- * @brief Database record extension
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,6 +11,15 @@ namespace Dotclear\Core\RsExt;
 
 use Dotclear\Database\RecordExtend;
 
+/**
+ * Core record extension.
+ *
+ * \Dotclear\Core\RsExtend
+ *
+ * All core record extension must extend this class.
+ *
+ * @ingroup  Core Record
+ */
 abstract class RsExtend extends RecordExtend
 {
 }

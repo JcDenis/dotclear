@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Install\Install
- * @brief Dotclear install install class
- *
- * @ingroup  Install
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -26,6 +23,13 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Process\Distrib\Distrib;
 
+/**
+ * Install methods.
+ *
+ * \Dotclear\Process\Install\Install
+ *
+ * @ingroup  Install
+ */
 class Install
 {
     public function __construct()

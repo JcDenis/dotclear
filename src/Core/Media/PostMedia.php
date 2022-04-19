@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\Media\PostMedia
- * @brief Dotclear core post media class
- *
- * This class handles Dotclear media items.
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -20,6 +15,15 @@ use Dotclear\Database\Statement\InsertStatement;
 use Dotclear\Database\Statement\JoinStatement;
 use Dotclear\Database\Statement\SelectStatement;
 
+/**
+ * Post media handling.
+ *
+ * \Dotclear\Core\Media\PostMedia
+ *
+ * This class handles Dotclear media items.
+ *
+ * @ingroup  Core Media Post
+ */
 class PostMedia
 {
     /** @var string Post media table name */

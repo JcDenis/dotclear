@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\Media\Media
- * @brief Dotclear core media class
- *
- * This class handles Dotclear media items.
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -34,6 +29,15 @@ use Dotclear\Helper\Text;
 use SimpleXMLElement;
 use Exception;
 
+/**
+ * Media handling methods.
+ *
+ * \Dotclear\Core\Media\Media
+ *
+ * This class handles Dotclear media items.
+ *
+ * @ingroup  Core Media
+ */
 class Media extends Manager
 {
     /** @var string Media table name */

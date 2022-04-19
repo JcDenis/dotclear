@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\PostType\PostType
- * @brief Dotclear core Post Type class
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,6 +11,13 @@ namespace Dotclear\Core\PostType;
 
 use Dotclear\Helper\Html\Html;
 
+/**
+ * Post type handling.
+ *
+ * \Dotclear\Core\PostType\PostType
+ *
+ * @ingroup  Core Post
+ */
 class PostType
 {
     /** @var array Formaters container */

@@ -1,12 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\Media\Image\ImageTools
- * @brief Basic image handling tool
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- * Some methods are based on https://dev.media-box.net/big/
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,6 +13,16 @@ use GdImage;
 use Dotclear\Exception\HelperException;
 use Dotclear\Helper\File\Files;
 
+/**
+ * Basic image handling tool.
+ *
+ * \Dotclear\Core\Media\Image\ImageTools
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ * Some methods are based on https://dev.media-box.net/big/
+ *
+ * @ingroup  Core Media Image
+ */
 class ImageTools
 {
     /** @var false|GdImage Image resource */

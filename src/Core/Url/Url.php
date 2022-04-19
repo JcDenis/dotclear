@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\Url\Url
- * @brief Dotclear core url handler (public) class
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -24,6 +21,13 @@ use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Text;
 use Exception;
 
+/**
+ * URL handler (public) methods.
+ *
+ * \Dotclear\Core\Url\Url
+ *
+ * @ingroup  Core Public Url
+ */
 class Url
 {
     /** @var array URL registered types */

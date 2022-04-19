@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\Blog\Blog
- * @brief Dotclear core blog class
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -23,6 +20,16 @@ use Dotclear\Helper\Dt;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Network\Http;
 
+/**
+ * Blog access methods.
+ *
+ * \Dotclear\Core\Blog\Blog
+ *
+ * This class provides access to informations
+ * related to a given Blog.
+ *
+ * @ingroup  Core Blog
+ */
 class Blog
 {
     /** @var Categories Categories instance */

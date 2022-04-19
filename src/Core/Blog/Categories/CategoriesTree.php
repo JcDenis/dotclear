@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\Blog\Categories\CategoriesTree
- * @brief Dotclear core blog categories tree class
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,6 +12,13 @@ namespace Dotclear\Core\Blog\Categories;
 use Dotclear\Database\NestedTree;
 use Dotclear\Database\Record;
 
+/**
+ * Categories tree handling.
+ *
+ * \Dotclear\Core\Blog\Categories\CategoriesTree
+ *
+ * @ingroup  Core Category
+ */
 class CategoriesTree extends NestedTree
 {
     protected $f_left  = 'cat_lft';

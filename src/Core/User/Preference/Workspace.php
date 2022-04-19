@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\User\Preference\Workspace
- * @brief Dotclear core workspace class
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -20,6 +17,13 @@ use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Exception\CoreException;
 use Exception;
 
+/**
+ * User preference workspace handling methods.
+ *
+ * \Dotclear\Core\User\Preference\Workspace
+ *
+ * @ingroup  Core User Preference
+ */
 class Workspace
 {
     /** @var string Preferences table name */

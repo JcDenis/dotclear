@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\Xmlrpc\Xmlrpc
- * @brief Xmlrpc server
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -25,6 +22,13 @@ use Dotclear\Helper\Network\Xmlrpc\IntrospectionServer as XmlrpcIntrospectionSer
 use Dotclear\Helper\Network\Xmlrpc\Date as XmlrpcDate;
 use Exception;
 
+/**
+ * XML-RPC server.
+ *
+ * \Dotclear\Core\Xmlrpc\Xmlrpc
+ *
+ * @ingroup  Core Network
+ */
 class Xmlrpc extends XmlrpcIntrospectionServer
 {
     private $blog_loaded    = false;

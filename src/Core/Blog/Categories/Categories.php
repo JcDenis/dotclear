@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\Blog\Categories\Categories
- * @brief Dotclear core blog categories class
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -22,6 +19,13 @@ use Dotclear\Exception\CoreException;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Text;
 
+/**
+ * Categories handling methods.
+ *
+ * \Dotclear\Core\Blog\Categories\Categories
+ *
+ * @ingroup  Core Category
+ */
 class Categories
 {
     /** @var CategoriesTree CategoriesTree instance */

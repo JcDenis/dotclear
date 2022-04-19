@@ -1,10 +1,6 @@
 <?php
 /**
- * @brief Dotclear distribution upgrade class
- *
- * @todo no files remove < dcns as entire structure change
- *
- * @ingroup  Distrib
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,6 +14,15 @@ use Dotclear\Database\AbstractConnection;
 use Dotclear\Database\Structure;
 use Exception;
 
+/**
+ * Distrib methods.
+ *
+ * \Dotclear\process\Distrib\Distrib
+ *
+ * This class provides default structures of Dotclear.
+ *
+ * @ingroup Distrib
+ */
 class Distrib
 {
     public static function getConfigFile(): string

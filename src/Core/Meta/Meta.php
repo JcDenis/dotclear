@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\Meta\Meta
- * @brief Dotclear core meta class
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -24,6 +21,13 @@ use Dotclear\Exception\CoreException;
 use Dotclear\Helper\Lexical;
 use Dotclear\Helper\Text;
 
+/**
+ * Meta handling methods.
+ *
+ * \@note Dotclear\Core\Meta\Meta
+ *
+ * @ingroup  Core Meta
+ */
 class Meta
 {
     /** @var string Meta table name */

@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\Blog\Settings\Settingspace
- * @brief Dotclear core nspace (namespace) class
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,6 +16,13 @@ use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Exception\CoreException;
 
+/**
+ * Blog settings namespace handling methods.
+ *
+ * \Dotclear\Core\Blog\Settings\Settingspace
+ *
+ * @ingroup  Core Setting
+ */
 class Settingspace
 {
     /** @var string Settings table name */

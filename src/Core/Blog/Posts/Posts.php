@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\Blog\Posts\Posts
- * @brief Dotclear core posts class
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -25,6 +22,13 @@ use Dotclear\Helper\Dt;
 use Dotclear\Helper\Text;
 use Exception;
 
+/**
+ * Posts handling methods.
+ *
+ * \Dotclear\Core\Blog\Posts\Posts
+ *
+ * @ingroup  Core Post
+ */
 class Posts
 {
     /**

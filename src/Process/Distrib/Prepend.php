@@ -1,8 +1,6 @@
 <?php
 /**
- * @brief Dotclear upgrade procedure (CLI)
- *
- * @ingroup  Distrib
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,6 +13,13 @@ use Dotclear\Exception\DistribException;
 use Dotclear\Core\Core;
 use Exception;
 
+/**
+ * Upgrade process (CLI).
+ *
+ * \Dotclear\Process\Distrib\Prepend
+ *
+ * @ingroup  Distrib
+ */
 class Prepend extends Core
 {
     protected $process = 'Distrib';

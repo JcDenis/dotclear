@@ -1,9 +1,6 @@
 <?php
 /**
- * @brief array of the plateform configuration
- *
- * @package Dotclear
- * @subpackage Core
+ * Array of the plateform configuration
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only

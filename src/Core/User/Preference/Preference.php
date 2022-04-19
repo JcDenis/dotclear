@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\User\Preference\Preference
- * @brief Dotclear core user preference class
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,6 +15,13 @@ use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Exception\CoreException;
 use Exception;
 
+/**
+ * User preference handling methods.
+ *
+ * \Dotclear\Core\User\Preference\Preference
+ *
+ * @ingroup  Core User Preference
+ */
 class Preference
 {
     /** @var string Prefs table name */

@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\Session\Session
- * @brief Dotclear core session class
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,6 +14,13 @@ use Dotclear\Database\Statement\InsertStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
 
+/**
+ * Session handling methods.
+ *
+ * \Dotclear\Core\Session\Session
+ *
+ * @ingroup  Core Session
+ */
 class Session
 {
     /** @var string Session table name */

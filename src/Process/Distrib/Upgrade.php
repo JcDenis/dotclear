@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Distrib\Upgrade
- * @brief Dotclear distribution upgrade class
- *
- * @todo no files remove < dcns as entire structure change
- *
- * @ingroup  Distrib
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -22,6 +17,13 @@ if (!defined('DOTCLEAR_OLD_ROOT_DIR')) {
     define('DOTCLEAR_OLD_ROOT_DIR', \DOTCLEAR_ROOT_DIR . '/../');
 }
 
+/**
+ * Dotclear distribution upgrade methods.
+ *
+ * \Dotclear\Process\Distrib\Upgrade
+ *
+ * @ingroup  Distrib
+ */
 class Upgrade
 {
     public function doUpgrade(): int|false

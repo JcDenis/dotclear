@@ -1,8 +1,6 @@
 <?php
 /**
- * @brief Dotclear install core prepend class
- *
- * @ingroup  Install
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,6 +15,13 @@ use Dotclear\Helper\File\Path;
 use Dotclear\Process\Admin\Resource\Resource;
 use Dotclear\Process\Admin\Favorite\Favorite;
 
+/**
+ * Install process.
+ *
+ * \Dotclear\Process\Install\Prepend
+ *
+ * @ingroup  Install
+ */
 class Prepend extends Core
 {
     /** @var Favorite Favorite instance */

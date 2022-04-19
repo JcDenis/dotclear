@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\Blog\Settings\Settings
- * @brief Dotclear core blog settings class
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,6 +15,13 @@ use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Exception\CoreException;
 
+/**
+ * Blog settings handling methods.
+ *
+ * \Dotclear\Core\Blog\Settings\Settings
+ *
+ * @ingroup  Core Setting
+ */
 class Settings
 {
     /** @var string Setting table name */

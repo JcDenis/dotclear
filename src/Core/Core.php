@@ -152,7 +152,9 @@ class Core
         Html::$absolute_regs[] = '/(<param\s+name="FlashVars"\s+value=".*?(?:mp3|flv)=)(.*?)(&|")/msu';
     }
 
-    // Disabled clone method
+    /**
+     * Disable clone method.
+     */
     final public function __clone()
     {
         trigger_error('Core instance can not be cloned.', E_USER_ERROR);

@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\Blog\Comments\Comments
- * @brief Dotclear core blog Comments class
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -26,6 +23,13 @@ use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Text;
 use Exception;
 
+/**
+ * Comments handling methods.
+ *
+ * \Dotclear\Core\Blog\Comments\Comments
+ *
+ * @ingroup  Core Comment
+ */
 class Comments
 {
     /**

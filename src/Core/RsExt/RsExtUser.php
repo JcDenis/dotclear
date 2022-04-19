@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Core\RsExt\RsExtUser
- * @brief Dotclear user record helpers.
- *
- * @ingroup  Core
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -14,6 +11,13 @@ namespace Dotclear\Core\RsExt;
 
 use Dotclear\Database\StaticRecord;
 
+/**
+ * Users record helpers.
+ *
+ * \Dotclear\Core\RsExt\RsExtUser
+ *
+ * @ingroup  Core User Record
+ */
 class RsExtUser extends RsExtend
 {
     /**
