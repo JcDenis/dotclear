@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Theme\CustomCSS\Admin\Prepend
- * @brief Dotclear Plugins class
- *
- * @ingroup  ThemeCustomCSS
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,6 +12,13 @@ namespace Dotclear\Theme\CustomCSS\Public;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
 
+/**
+ * Public prepend for theme CustomCSS.
+ *
+ * \Dotclear\Theme\CustomCSS\Admin\Prepend
+ *
+ * @ingroup  Theme CustomCSS
+ */
 class Prepend extends AbstractPrepend
 {
     use TraitPrependPublic;

@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Theme\Blowup\Common\BlowupConfig
- * @brief Helper for default theme (Blowup) config.
- *
- * @ingroup  ThemeBlowup
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,6 +13,13 @@ use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Module\Theme\Admin\ConfigTheme;
 
+/**
+ * Helper for default theme (Blowup) config.
+ *
+ * \Dotclear\Theme\Blowup\Common\BlowupConfig
+ *
+ * @ingroup  Theme Blowup
+ */
 class BlowupConfig
 {
     protected $css_folder = 'Blowup-css';

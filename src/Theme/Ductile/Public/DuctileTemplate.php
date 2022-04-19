@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Theme\Ductile\Public\DuctileTemplate
- * @brief Dotclear Theme class
- *
- * @ingroup  ThemeDuctile
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,6 +12,13 @@ namespace Dotclear\Theme\Ductile\Public;
 use ArrayObject;
 use Dotclear\Helper\File\Files;
 
+/**
+ * Public templates for theme Ductile.
+ *
+ * \Dotclear\Theme\Ductile\Public\DuctileTemplate
+ *
+ * @ingroup  Theme Ductile
+ */
 class DuctileTemplate
 {
     public function __construct()

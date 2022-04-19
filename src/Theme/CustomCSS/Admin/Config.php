@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Theme\CustomCSS\Admin\Config
- * @brief Dotclear Plugins class
- *
- * @ingroup  ThemeCustomCSS
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,6 +16,13 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\File\Path;
 
+/**
+ * Admin config page for theme CustomCSS.
+ *
+ * \Dotclear\Theme\CustomCSS\Admin\Config
+ *
+ * @ingroup  Theme CustomCSS
+ */
 class Config extends AbstractConfig
 {
     private $customcss_file = '';

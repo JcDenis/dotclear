@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Theme\Berlin\Public\Prepend
- * @brief Dotclear Theme class
- *
- * @ingroup  ThemeBerlin
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,6 +13,13 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
 
+/**
+ * Public prepend for theme Berlin.
+ *
+ * \Dotclear\Theme\Berlin\Public\Prepend
+ *
+ * @ingroup  Theme Berlin
+ */
 class Prepend extends AbstractPrepend
 {
     use TraitPrependPublic;

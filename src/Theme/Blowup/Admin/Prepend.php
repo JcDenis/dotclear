@@ -1,11 +1,8 @@
 <?php
 /**
- * @note Dotclear\Theme\Blowup\Admin\Prepend
- * @brief Dotclear Theme class
+ * @package Dotclear
  *
- * @ingroup  ThemeBlowup
- *
- * @copyright Philippe aka amalgame
+ * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
 declare(strict_types=1);
@@ -16,6 +13,13 @@ use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 use Dotclear\Module\AbstractDefine;
 
+/**
+ * Admin prepend for theme Blowup.
+ *
+ * \Dotclear\Theme\Blowup\Admin\Prepend
+ *
+ * @ingroup  Theme Blowup
+ */
 class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;

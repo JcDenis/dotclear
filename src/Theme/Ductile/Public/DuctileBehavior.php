@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Theme\Ductile\Public\DuctileBehavior
- * @brief Dotclear Theme class
- *
- * @ingroup  ThemeDuctile
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -15,6 +12,13 @@ namespace Dotclear\Theme\Ductile\Public;
 use ArrayObject;
 use Dotclear\Module\Theme\Admin\ConfigTheme;
 
+/**
+ * Public behaviors for theme Ductile.
+ *
+ * \Dotclear\Theme\Ductile\Public\DuctileBehavior
+ *
+ * @ingroup  Theme Ductile Behavior
+ */
 class DuctileBehavior
 {
     private $config;

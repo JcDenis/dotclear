@@ -202,4 +202,32 @@
  * @defgroup  Akismet Plugin "Akismet"
  *
  * Akismet interface for Dotclear.
+ * 
+ * 
+ * @defgroup  Berlin Theme "Berlin"
+ *
+ * Dotclear 2.7+ default theme
+ * 
+ * 
+ * @defgroup  Blowup Theme "Blowup"
+ * 
+ * Fully customizable theme.
+ * 
+ * 
+ * @defgroup  BlueSilence Theme "BlueSilence"
+ * 
+ * Theme from old Dotclear version.
+ * 
+ * @copyright Marco / marcarea.com
+ * @copyright GPL-2.0-only
+ * 
+ * 
+ * @defgroup  CustomCSS Theme "Custom CSS"
+ *
+ * A CSS customizable theme.
+ * 
+ * 
+ * @defgroup  Ductile Theme "Ductile"
+ *
+ * Mediaqueries compliant elegant theme.
  */

@@ -1,13 +1,5 @@
 <?php
-/**
- * @note Dotclear\Theme\Blowup\Public\Prepend
- * @brief Dotclear Theme class
- *
- * @ingroup  ThemeBlowup
- *
- * @copyright Olivier Meunier & Association Dotclear
- * @copyright GPL-2.0-only
- */
+
 declare(strict_types=1);
 
 namespace Dotclear\Theme\Blowup\Public;
@@ -16,6 +8,13 @@ use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
 use Dotclear\Theme\Blowup\Common\BlowupConfig;
 
+/**
+ * Public prepend for theme Blowup.
+ *
+ * \Dotclear\Theme\Blowup\Public\Prepend
+ *
+ * @ingroup  Theme Blowup
+ */
 class Prepend extends AbstractPrepend
 {
     use TraitPrependPublic;

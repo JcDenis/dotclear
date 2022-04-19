@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Theme\Ductile\Admin\Handler
- * @brief Dotclear Theme class
- *
- * @ingroup  ThemeBlowup
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -19,6 +16,13 @@ use Dotclear\Module\AbstractPage;
 use Dotclear\Module\Theme\Admin\ConfigTheme;
 use Exception;
 
+/**
+ * Admin page for theme Ductile.
+ *
+ * \Dotclear\Theme\Ductile\Admin\Handler
+ *
+ * @ingroup  Theme Ductile
+ */
 class Handler extends AbstractPage
 {
     private $Ductile_list_types = [];

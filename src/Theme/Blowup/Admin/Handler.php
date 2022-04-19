@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Theme\Blowup\Admin\Handler
- * @brief Dotclear Theme class
- *
- * @ingroup  ThemeBlowup
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -20,6 +17,13 @@ use Dotclear\Helper\Network\Http;
 use Dotclear\Theme\Blowup\Common\BlowupConfig;
 use Exception;
 
+/**
+ * Blowup theme admin page.
+ *
+ * \Dotclear\Theme\Blowup\Admin\Handler
+ *
+ * @ingroup  Theme Blowup
+ */
 class Handler extends AbstractPage
 {
     private $Blowup_can_write_images = false;
