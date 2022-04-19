@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Public\Template\Engine\TplNodeBlock
- * @brief Block node, for all <tpl:Tag>...</tpl:Tag>
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
- * @ingroup  Template
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,6 +11,17 @@ namespace Dotclear\Process\Public\Template\Engine;
 
 use ArrayObject;
 
+/**
+ * Template block node.
+ *
+ * \Dotclear\Process\Public\Template\Engine\TplNodeBlock
+ *
+ * Block node, for all <tpl:Tag>...</tpl:Tag>.
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Template
+ */
 class TplNodeBlock extends TplNode
 {
     protected $closed  = false;

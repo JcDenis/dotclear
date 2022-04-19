@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Public\Prepend
- * @brief public process prepend
- *
- * @ingroup  Public
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -25,6 +22,13 @@ use Dotclear\Process\Public\Template\Template;
 use Dotclear\Process\Public\Context\Context;
 use Exception;
 
+/**
+ * Public process.
+ *
+ * \Dotclear\Process\Public\Prepend
+ *
+ * @ingroup  Public
+ */
 class Prepend extends Core
 {
     /** @var Context Context instance */

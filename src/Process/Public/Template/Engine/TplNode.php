@@ -1,13 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Public\Template\Engine\TplNode
- * @brief Template nodes, for parsing purposes
- *
- * Generic list node, this one may only be instanciated once for root element
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
- * @ingroup  Template
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -18,6 +11,17 @@ namespace Dotclear\Process\Public\Template\Engine;
 
 use ArrayObject;
 
+/**
+ * Template node.
+ *
+ * \Dotclear\Process\Public\Template\Engine\TplNode
+ *
+ * Generic list node, this one may only be instanciated once for root element.
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Template
+ */
 class TplNode
 {
     // Basic tree structure : links to parent, children forrest

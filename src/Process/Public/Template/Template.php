@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Public\Template\Tempalte
- * @brief Dotclear public core prepend class
- *
- * @ingroup  Public
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,6 +14,13 @@ use Dotclear\Process\Public\Template\Engine\Template as BaseTemplate;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Dt;
 
+/**
+ * Public template methods.
+ *
+ * \Dotclear\Process\Public\Template\Template
+ *
+ * @ingroup  Public Template
+ */
 class Template extends BaseTemplate
 {
     /** @var string Current tag */

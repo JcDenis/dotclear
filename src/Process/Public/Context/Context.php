@@ -1,8 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Public\Context\Context
- *
- * @ingroup  Public
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -17,6 +15,16 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Text;
 use Exception;
 
+/**
+ * Context helper.
+ *
+ * \Dotclear\Process\Public\Context\Context
+ *
+ * This class provides methods and stack
+ * in public context.
+ *
+ * @ingroup  Public Stack
+ */
 class Context
 {
     /** @var array Context stack */

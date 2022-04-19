@@ -1,11 +1,6 @@
 <?php
 /**
- * @note Dotclear\Process\Public\Template\Engine\TplNodeValue
- * @brief Value node, for all {{tpl:Tag}}
- *
- * Source clearbricks https://git.dotclear.org/dev/clearbricks
- *
- * @ingroup  Template
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -16,6 +11,17 @@ namespace Dotclear\Process\Public\Template\Engine;
 
 use ArrayObject;
 
+/**
+ * Template value node.
+ *
+ * \Dotclear\Process\Public\Template\Engine\TplNodeValue
+ *
+ * Value node, for all {{tpl:Tag}}.
+ *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
+ * @ingroup  Template
+ */
 class TplNodeValue extends TplNode
 {
     protected $content = '';
