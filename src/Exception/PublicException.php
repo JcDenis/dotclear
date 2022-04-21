@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Exception;
 
+// Dotclear\Exception\PublicException
 use Exception;
 
 /**
  * Public exception.
- *
- * \Dotclear\Exception\PublicException
  *
  * @ingroup  Public Exception
  */

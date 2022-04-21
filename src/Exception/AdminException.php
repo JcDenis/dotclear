@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Exception;
 
+// Dotclear\Exception\AdminException
 use Exception;
 
 /**
  * Admin exception.
- *
- * \Dotclear\Exception\AdminException
  *
  * @ingroup  Admin Exception
  */

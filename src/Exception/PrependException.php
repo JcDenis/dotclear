@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Exception;
 
+// Dotclear\Exception\PrependException
 use Exception;
 use Throwable;
 
 /**
  * Prepend exception.
- *
- * \Dotclear\Exception\PrependException
  *
  * @ingroup  Core Admin Public Install Distrib Exception
  */

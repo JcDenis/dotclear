@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Exception;
 
+// Dotclear\Exception\TemplateException
 use Exception;
 
 /**
  * Template exception.
- *
- * \Dotclear\Exception\TemplateException
  *
  * @ingroup  Template Exception
  */

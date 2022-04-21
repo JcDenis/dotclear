@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Exception;
 
+// Dotclear\Exception\HelperException
 use Exception;
 
 /**
  * Helper exception.
- *
- * \Dotclear\Exception\HelperException
  *
  * @ingroup  Helper Exception
  */

@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Exception;
 
+// Dotclear\Exception\DeprecatedException
 use Exception;
 use Throwable;
 
 /**
  * Deprecated exception.
- *
- * \Dotclear\Exception\DeprecatedException
  *
  * Do not use directly "throw new DeprecatedException"
  * Use "DeprecatedException::throw()" instead

@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Exception;
 
+// Dotclear\Exception\FileException
 use Exception;
 
 /**
  * Distrib exception.
- *
- * \Dotclear\Exception\FileException
  *
  * @ingroup  File Exception
  */

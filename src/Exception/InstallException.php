@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Exception;
 
+// Dotclear\Exception\InstallException
 use Exception;
 
 /**
  * Install exception.
- *
- * \Dotclear\Exception\InstallException
  *
  * @ingroup  Install Exception
  */

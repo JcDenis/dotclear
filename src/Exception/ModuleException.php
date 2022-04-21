@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Exception;
 
+// Dotclear\Exception\moduleException
 use Exception;
 
 /**
  * Module exception.
- *
- * \Dotclear\Exception\moduleException
  *
  * @ingroup  Module Exception
  */

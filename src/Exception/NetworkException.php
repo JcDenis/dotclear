@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Exception;
 
+// Dotclear\Exception\NetworkException
 use Exception;
 
 /**
  * Network exception.
- *
- * \Dotclear\Exception\NetworkException
  *
  * @ingroup  Network Exception
  */

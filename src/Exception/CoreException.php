@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Exception;
 
+// Dotclear\Exception\CoreException
 use Exception;
 
 /**
  * Core exception.
- *
- * \Dotclear\Exception\CoreException
  *
  * @ingroup  Core Exception
  */

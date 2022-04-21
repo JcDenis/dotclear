@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Exception;
 
+// Dotclear\Exception\DatabaseException
 use Exception;
 
 /**
  * Database exception.
- *
- * \Dotclear\Exception\DatabaseException
  *
  * @ingroup  Database Exception
  */

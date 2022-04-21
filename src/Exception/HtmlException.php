@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Exception;
 
+// Dotclear\Exception\HtmlException
 use Exception;
 
 /**
  * Html exception.
- *
- * \Dotclear\Exception\HtmlException
  *
  * @ingroup  Html Exception
  */
