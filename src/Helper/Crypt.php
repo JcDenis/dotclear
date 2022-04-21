@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper;
 
+// Dotclear\Helper\Crypt
+
 /**
  * Basic cryptography tool.
- *
- * \Dotclear\Helper\Crypt
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

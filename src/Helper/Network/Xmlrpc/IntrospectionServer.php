@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Network\Xmlrpc;
 
+// Dotclear\Helper\Network\Xmlrpc\IntrospectionServer
+
 /**
  * XML-RPC Introspection Server.
- *
- * \Dotclear\Helper\Network\Xmlrpc\IntrospectionServer
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
@@ -31,10 +31,16 @@ namespace Dotclear\Helper\Network\Xmlrpc;
  */
 class IntrospectionServer extends Server
 {
-    /** @var array ... */
+    /**
+     * @var array $signatures
+     *            ...
+     */
     protected $signatures;
 
-    /** @var array ... */
+    /**
+     * @var array $help
+     *            ...
+     */
     protected $help;
 
     /**

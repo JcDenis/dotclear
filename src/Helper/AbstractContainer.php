@@ -9,14 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper;
 
+// Dotclear\Helper\AbstractContainer
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
 use Exception;
 
 /**
  * Abstract container helper.
- *
- * \Dotclear\Helper\AbstractContainer
  *
  * @ingroup  Helper Container Stack
  */

@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html\Form;
 
+// Dotclear\Helper\Html\Form\Url
+
 /**
  * HTML Forms url field creation helpers.
- *
- * \Dotclear\Helper\Html\Form\Url
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

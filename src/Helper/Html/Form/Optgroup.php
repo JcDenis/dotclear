@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html\Form;
 
+// Dotclear\Helper\Html\Form\Optgroup
+
 /**
  * HTML Forms optgroup creation helpers.
- *
- * \Dotclear\Helper\Html\Form\Optgroup
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

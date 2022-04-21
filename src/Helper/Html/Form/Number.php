@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html\Form;
 
+// Dotclear\Helper\Html\Form\Number
+
 /**
  * HTML Forms number field creation helpers.
- *
- * \Dotclear\Helper\Html\Form\Number
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
@@ -23,7 +23,10 @@ class Number extends Input
     /**
      * Constructs a new instance.
      *
-     * @param string $id The identifier
+     * @param string $id    The identifier
+     * @param ?int   $min
+     * @param ?int   $max
+     * @param ?int   $value
      */
     public function __construct(string $id = null, ?int $min = null, ?int $max = null, ?int $value = null)
     {

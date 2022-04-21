@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Network\Xmlrpc;
 
+// Dotclear\Helper\Network\Xmlrpc\Server
 use Dotclear\Exception\NetworkException;
 use Exception;
 
 /**
  * Basic XML-RPC Server.
- *
- * \Dotclear\Helper\Network\Xmlrpc\Server
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
@@ -33,19 +32,34 @@ use Exception;
  */
 class Server
 {
-    /** @var array Server methods */
+    /**
+     * @var array $callbacks
+     *            Server methods
+     */
     protected $callbacks = [];
 
-    /** @var string Received data */
+    /**
+     * @var string $data
+     *             Received data
+     * */
     protected $data;
 
-    /** @var Message Xmlrpc returned message */
+    /**
+     * @var Message $message
+     *              Xmlrpc returned message
+     */
     protected $message;
 
-    /** @var array Server capabilities */
+    /**
+     * @var array $capabilities
+     *            Server capabilities
+     */
     protected $capabilities;
 
-    /** @var bool Strict XML-RPC checks */
+    /**
+     * @var bool $strict_check
+     *           Strict XML-RPC checks
+     */
     public $strict_check = false;
 
     /**

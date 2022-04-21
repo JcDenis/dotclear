@@ -9,16 +9,19 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper;
 
+// Dotclear\Helper\ErrorTrait
+
 /**
  * Error stack trait.
- *
- * \Dotclear\Helper\ErrorTrait
  *
  * @ingroup  Helper Error
  */
 trait ErrorTrait
 {
-    /** @var Error Error instance */
+    /**
+     * @var Error $error
+     *            Error instance
+     */
     private $error;
 
     /**

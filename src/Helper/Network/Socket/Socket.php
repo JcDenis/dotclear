@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Network\Socket;
 
+// Dotclear\Helper\Network\Socket\Socket
 use Dotclear\Exception\NetworkException;
 
 /**
  * Network base.
- *
- * \Dotclear\Helper\Network\Socket\Socket
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html\Form;
 
+// Dotclear\Helper\Html\Form\Label
+
 /**
  * HTML Forms label creation helpers.
- *
- * \Dotclear\Helper\Html\Form\Label
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
@@ -35,13 +35,13 @@ class Label extends Component
     public const OUTSIDE_TEXT_AFTER  = 3;
 
     /**
-     * Position of linked component:
-     *   INSIDE_TEXT_BEFORE   = inside label, label text before component
-     *   INSIDE_TEXT_AFTER    = inside label, label text after component
-     *   OUTSIDE_LABEL_BEFORE = after label
-     *   OUTSIDE_LABEL_AFTER  = before label.
+     * @var int $_position
      *
-     * @var int
+     * Position of linked component:
+     * - INSIDE_TEXT_BEFORE   = inside label, label text before component
+     * - INSIDE_TEXT_AFTER    = inside label, label text after component
+     * - OUTSIDE_LABEL_BEFORE = after label
+     * - OUTSIDE_LABEL_AFTER  = before label
      */
     private $_position = self::INSIDE_TEXT_BEFORE;
 
@@ -67,20 +67,16 @@ class Label extends Component
     /**
      * Renders the HTML component.
      *
+     * $formats is in sprintf formats:
+     * - %1$s = label opening block
+     * - %2$s = text of label
+     * - %3$s = linked component
+     * - %4$s = label closing block
+     *
      * @param null|string $buffer The buffer
      */
     public function render(?string $buffer = ''): string
     {
-        /**
-         * sprintf formats.
-         *
-         * %1$s = label opening block
-         * %2$s = text of label
-         * %3$s = linked component
-         * %4$s = label closing block
-         *
-         * @var array
-         */
         $formats = [
             '<%1$s>%2$s %3$s</%4$s>', // Component inside label with label text before it
             '<%1$s>%3$s %2$s</%4$s>', // Component inside label with label text after it

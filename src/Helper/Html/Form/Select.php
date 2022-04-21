@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html\Form;
 
+// Dotclear\Helper\Html\Form\Select
+
 /**
  * HTML Forms select creation helpers.
- *
- * \Dotclear\Helper\Html\Form\Select
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

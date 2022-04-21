@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\File\Zip;
 
+// Dotclear\Helper\File\Zip\Unzip
 use Dotclear\Exception\FileException;
 use Dotclear\Helper\File\Files;
 
 /**
  * Unzip tool.
- *
- * /Dotclear\Helper\File\Zip\Unzip
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

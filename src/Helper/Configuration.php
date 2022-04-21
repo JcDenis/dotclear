@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper;
 
+// Dotclear\Helper\Configuration
 use Dotclear\Exception\HelperException;
 
 /**
  * Configuration stacker.
- *
- * \Dotclear\Helper\Configuration
  *
  * Container to serve protected configuration
  * properties with the right type.
@@ -25,10 +24,16 @@ class Configuration
 {
     use ErrorTrait;
 
-    /** @var array Read files */
+    /**
+     * @var array $file
+     *            Files read
+     */
     protected static $file = [];
 
-    /** @var array Stack */
+    /**
+     * @var array $stack
+     *            Stack
+     */
     private $stack = [];
 
     /**

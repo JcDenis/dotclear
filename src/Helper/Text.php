@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper;
 
+// Dotclear\Helper\Text
 use Dotclear\Helper\Html\Html;
 
 /**
  * Basic text handling tool.
- *
- * \Dotclear\Helper\Text
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

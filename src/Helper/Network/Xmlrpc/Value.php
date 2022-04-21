@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Network\Xmlrpc;
 
+// Dotclear\Helper\Network\Xmlrpc\Value
+
 /**
  * XML-RPC Value.
- *
- * \Dotclear\Helper\Network\Xmlrpc\Value
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
@@ -20,7 +20,10 @@ namespace Dotclear\Helper\Network\Xmlrpc;
  */
 class Value
 {
-    /** @var string Data type */
+    /**
+     * @var string $type
+     *             Data type 
+     */
     protected $type;
 
     /**

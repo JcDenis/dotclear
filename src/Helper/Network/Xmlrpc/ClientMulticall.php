@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Network\Xmlrpc;
 
+// Dotclear\Helper\Network\Xmlrpc\ClientMulticall
+
 /**
  * Multicall XML-RPC Client.
- *
- * \Dotclear\Helper\Network\Xmlrpc\ClientMulticall
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
@@ -44,6 +44,8 @@ class ClientMulticall extends Client
      * $r = $o->query();
      * ?>
      * </code>
+     *
+     * @param mixed[] $args
      */
     public function addCall(string $method, mixed ...$args): void
     {

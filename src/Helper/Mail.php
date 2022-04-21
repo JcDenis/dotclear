@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper;
 
+// Dotclear\Helper\Mail
 use Dotclear\Exception\HelperException;
 
 /**
  * Basic mail tool.
- *
- * \Dotclear\Helper\Mail
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
@@ -29,6 +28,8 @@ class Mail
      * be used instead of PHP mail() function. _mail() function should have the
      * same signature. Headers could be provided as a string or an array.
      *
+     * $f is a user defined mail function
+     *
      * @param string       $to      Email destination
      * @param string       $subject Email subject
      * @param string       $message Email message
@@ -39,24 +40,20 @@ class Mail
      */
     public static function sendMail(string $to, string $subject, string $message, $headers = null, $p = null): bool
     {
-        /**
-         * User defined mail function.
-         *
-         * @var callable $f
-         */
-        $f   = function_exists('_mail') ? '_mail' : null;
         $eol = trim(ini_get('sendmail_path')) ? "\n" : "\r\n";
 
         if (is_array($headers)) {
             $headers = implode($eol, $headers);
         }
 
-        if (null == $f) {
+        $f = '_mail';
+        if (function_exists($f)) {
+            /** @phpstan-ignore-next-line */
+            call_user_func($f, $to, $subject, $message, $headers, $p);
+        } else {
             if (!@mail($to, $subject, $message, $headers, $p)) {
                 throw new HelperException('Unable to send email');
             }
-        } else {
-            call_user_func($f, $to, $subject, $message, $headers, $p);
         }
 
         return true;

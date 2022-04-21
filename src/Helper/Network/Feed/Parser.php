@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Network\Feed;
 
+// Dotclear\Helper\Network\Feed\Parser
 use stdClass;
 use SimpleXMLElement;
 
 /**
  * Feed parser.
- *
- * \Dotclear\Helper\Network\Feed\Parser
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
@@ -26,28 +25,52 @@ use SimpleXMLElement;
  */
 class Parser
 {
-    /** @var string Feed type */
+    /**
+     * @var string $feed_type
+     *             Feed type
+     */
     public $feed_type;
 
-    /** @var string Feed title */
+    /**
+     * @var string $title
+     *             Feed title
+     */
     public $title;
 
-    /** @var string Feed link */
+    /**
+     * @var string $link
+     *             Feed link
+     */
     public $link;
 
-    /** @var string Feed description */
+    /**
+     * @var string $description
+     *             Feed description
+     */
     public $description;
 
-    /** @var string Feed publication date */
+    /**
+     * @var string $pubdate
+     *             Feed publication date
+     */
     public $pubdate;
 
-    /** @var string Feed generator */
+    /**
+     * @var string $generator
+     *             Feed generator
+     */
     public $generator;
 
-    /** @var array Feed items */
+    /**
+     * @var array $items
+     *            Feed items
+     */
     public $items = [];
 
-    /** @var SimpleXMLElement Feed XML content */
+    /**
+     * @var SimpleXMLElement $xml
+     *                       Feed XML content
+     */
     protected $xml;
 
     /**

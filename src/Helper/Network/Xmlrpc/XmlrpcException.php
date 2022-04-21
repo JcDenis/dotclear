@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Network\Xmlrpc;
 
+// Dotclear\Helper\Network\Xmlrpc\XmlrpcException
 use Exception;
 
 /**
  * XML-RPC Exception.
- *
- * \Dotclear\Helper\Network\Xmlrpc\XmlrpcException
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

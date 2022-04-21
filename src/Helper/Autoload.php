@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper;
 
+// Dotclear\Helper\Autoload
+
 /**
  * Helper to autoload class using php namespace.
- *
- * \Dotclear\Helper\Autoload
  *
  * Based on PSR-4 Autoloader
  * https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-4-autoloader.md
@@ -30,17 +30,34 @@ class Autoload
     /** Namespace separator */
     public const NS_SEP = '\\';
 
-    /** @var string Root namespace prepend to added ns */
+    /**
+     * @var string $root_prefix
+     *             Root namespace prepend to added ns
+     */
     protected $root_prefix = '';
 
-    /** @var string Root directory prepend to added ns */
+    /**
+     * @var string $root_base_dir
+     *             Root directory prepend to added ns
+     */
     protected $root_base_dir = '';
 
-    /** @var array Array of registered namespace [prefix=[base dir]] */
+    /**
+     * @var array $prefixes
+     *            Array of registered namespace [prefix=[base dir]]
+     */
     protected $prefixes = [];
 
-    /** @var array Keep track of loaded files */
+    /**
+     * @var array $loaded_files
+     *            Keep track of loaded files
+     */
     private static $loaded_files  = [];
+
+    /**
+     * @var int $request_count
+     *          Keep track of request count
+     */
     private static $request_count = 0;
 
     /**

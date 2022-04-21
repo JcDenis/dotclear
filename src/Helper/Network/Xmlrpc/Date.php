@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Network\Xmlrpc;
 
+// Dotclear\Helper\Network\Xmlrpc\Date
+
 /**
  * XML-RPC Date object.
- *
- * \Dotclear\Helper\Network\Xmlrpc\Date
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

@@ -9,18 +9,20 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper;
 
+// Dotclear\Helper\Behavior
 use Closure;
 
 /**
  * Stack by group of callable functions.
  *
- * \Dotclear\Helper\Behavior
- *
  * @ingroup  Helper Behavior Stack
  */
 class Behavior
 {
-    /** @var array Registered behavoirs */
+    /**
+     * @var array $stack
+     *            Registered behavoirs
+     */
     private $stack = [];
 
     /**

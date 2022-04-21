@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html;
 
+// Dotclear\Helper\Html\XmlTag
+
 /**
  * XML tree.
- *
- * \Dotclear\Helper\Html\XmlTag
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
@@ -20,10 +20,16 @@ namespace Dotclear\Helper\Html;
  */
 class XmlTag
 {
-    /** @var array Attributes */
+    /**
+     * @var array $_attr
+     *            The attributes
+     */
     private $_attr = [];
 
-    /** @var array Nodes */
+    /**
+     * @var array $_nodes
+     *            The nodes
+     */
     private $_nodes = [];
 
     /**

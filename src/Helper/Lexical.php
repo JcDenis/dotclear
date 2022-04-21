@@ -9,16 +9,19 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper;
 
+// Dotclear\Helper\Lexical
+
 /**
  * Lexical helper.
- *
- * \Dotclear\Helper\Lexical
  *
  * @ingroup  Helper Localisation
  */
 class Lexical
 {
-    /** @var string Current lang */
+    /**
+     * @var string $lexical_lang
+     *             Current lang
+     */
     protected static $lexical_lang = '';
 
     /**

@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Network\Xmlrpc;
 
+// Dotclear\Helper\Network\Xmlrpc\Base64
+
 /**
  * XML-RPC Base 64 object.
- *
- * \Dotclear\Helper\Network\Xmlrpc\Base64
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

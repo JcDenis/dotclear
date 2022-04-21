@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html\Form;
 
+// Dotclear\Helper\Html\Form\Hidden
+
 /**
  * HTML Forms hidden field creation helpers.
- *
- * \Dotclear\Helper\Html\Form\Hidden
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
@@ -23,7 +23,8 @@ class Hidden extends Input
     /**
      * Constructs a new instance.
      *
-     * @param string $id The identifier
+     * @param string  $id    The identifier
+     * @param ?string $value
      */
     public function __construct(string $id = null, ?string $value = null)
     {

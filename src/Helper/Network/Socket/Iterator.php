@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Network\Socket;
 
+// Dotclear\Helper\Network\Socket\Socket\Iterator
 use Dotclear\Exception\NetworkException;
 use ReturnTypeWillChange;
 
 /**
  * Network socket iterator.
- *
- * \Dotclear\Helper\Network\Socket\Socket\Iterator
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

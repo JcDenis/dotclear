@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html\Form;
 
+// Dotclear\Helper\Html\Form\Fieldset
+
 /**
  * HTML Forms fieldset creation helpers.
- *
- * \Dotclear\Helper\Html\Form\Fieldset
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

@@ -9,32 +9,49 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper;
 
+// Dotclear\Helper\Error
+
 /**
  * Error stack.
- *
- * \Dotclear\Helper\Error
  *
  * @ingroup  Helper Error Stack
  */
 class Error
 {
-    /** @var array Errors stack */
+    /**
+     * @var array $errors
+     *            Errors stack
+     */
     protected $errors = [];
 
-    /** @var bool True if stack is not empty */
+    /**
+     * @var bool $flag
+     *           True if stack is not empty
+     */
     protected $flag = false;
 
-    /** @var string HTML errors list pattern */
+    /**
+     * @var string $html_list
+     *             HTML errors list pattern
+     */
     protected $html_list = "<ul>\n%s</ul>\n";
 
-    /** @var string HTML error item pattern */
+    /**
+     * @var string $html_item
+     *             HTML error item pattern
+     */
     protected $html_item = "<li>%s</li>\n";
 
-    /** @var string HTML error single pattern */
+    /**
+     * @var string $html_single
+     *             HTML error single pattern
+     */
     protected $html_single = "<p>%s</p>\n";
 
     /**
-     * Object string representation. Returns errors stack.
+     * Object string representation.
+     *
+     * @return string the errors stack
      */
     public function __toString(): string
     {

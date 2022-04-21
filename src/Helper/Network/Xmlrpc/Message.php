@@ -9,14 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Network\Xmlrpc;
 
+// Dotclear\Helper\Network\Xmlrpc\Message
 use XMLParser;
 use Dotclear\Exception\NetworkException;
 use DOMDocument;
 
 /**
  * XML-RPC Message.
- *
- * \Dotclear\Helper\Network\Xmlrpc\Message
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html;
 
+// Dotclear\Helper\Html\Validator
 use Dotclear\Exception\HtmlException;
 use Dotclear\Helper\Network\NetHttp\NetHttp;
 
 /**
  * HTML Validator.
- *
- * \Dotclear\Helper\Html\Validator
  *
  * This class will perform an HTML validation upon WDG validator.
  *
@@ -25,26 +24,44 @@ use Dotclear\Helper\Network\NetHttp\NetHttp;
  */
 class Validator extends NetHttp
 {
-    /** @var string host */
+    /**
+     * @var string $host
+     *             The host
+     */
     protected $host = 'validator.w3.org';
 
-    /** @var string path */
+    /**
+     * @var string $path
+     *             The path
+     */
     protected $path = '/nu/';
 
-    /** @var bool use ssl */
+    /**
+     * @var bool $use_ssl
+     *           use ssl
+     */
     protected $use_ssl = true;
 
-    /** @var string user agent */
+    /**
+     * @var string $user_agent
+     *             The user agent
+     */
     protected $user_agent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.3a) Gecko/20021207';
 
-    /** @var int timeout */
+    /**
+     * @var int $timeout
+     *          The timeout
+     */
     protected $timeout = 2;
 
-    /** @var string html reprenstation of errors */
+    /**
+     * @var string $html_errors
+     *             The html reprenstation of errors
+     */
     protected $html_errors = '';
 
     /**
-     * Constructor, no parameters.
+     * Constructor.
      */
     public function __construct()
     {

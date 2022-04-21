@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Network\Xmlrpc;
 
+// Dotclear\Helper\Network\Xmlrpc\Client
 use Dotclear\Exception\NetworkException;
 use Dotclear\Helper\Network\NetHttp\NetHttp;
 
 /**
  * XML-RPC Client.
- *
- * \Dotclear\Helper\Network\Xmlrpc\Client
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
@@ -68,6 +67,8 @@ class Client extends NetHttp
      * $r = $o->query('method1','hello','world');
      * ?>
      * </code>
+     *
+     * @param mixed[] $args
      */
     public function query(string $method, mixed ...$args): mixed
     {

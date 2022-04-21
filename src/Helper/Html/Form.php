@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html;
 
+// Dotclear\Helper\Html\Form
 use ReflectionMethod;
 
 /**
  * Html form tool.
- *
- * \Dotclear\Helper\Html\Form
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

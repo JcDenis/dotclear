@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Network\NetHttp;
 
+// Dotclear\Helper\Network\NetHttp\NetHttp
 use Dotclear\Exception\NetworkException;
 use Dotclear\Helper\Network\Socket\Socket;
 
 /**
  * Net Http client.
- *
- * \Dotclear\Helper\Network\NetHttp\NetHttp
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

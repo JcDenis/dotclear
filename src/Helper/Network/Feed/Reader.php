@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Network\Feed;
 
+// Dotclear\Helper\Network\Feed\Reader
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Network\NetHttp\NetHttp;
 
 /**
  * Feed Reader.
- *
- * \Dotclear\Helper\Network\Feed\Reader
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
@@ -29,22 +28,40 @@ use Dotclear\Helper\Network\NetHttp\NetHttp;
  */
 class Reader extends NetHttp
 {
-    /** @var string User agent */
+    /**
+     * @var string $user_agent
+     *             User agent
+     */
     protected $user_agent = 'Clearbricks Feed Reader/0.2';
 
-    /** @var int Query timeout */
+    /**
+     * @var int $timeout
+     *          Query timeout
+     */
     protected $timeout = 5;
 
-    /** @var null|array HTTP Cache validators */
+    /**
+     * @var null|array $validators
+     *                 HTTP Cache validators
+     */
     protected $validators;
 
-    /** @var null|string Cache directory path */
+    /**
+     * @var null|string $cache_dir
+     *                  Cache directory path
+     */
     protected $cache_dir;
 
-    /** @var string Cache file prefix */
+    /**
+     * @var string $cache_file_prefix
+     *             Cache file prefix
+     */
     protected $cache_file_prefix = 'cbfeed';
 
-    /** @var string Cache time to live */
+    /**
+     * @var string $cache_ttl
+     *             Cache time to live
+     */
     protected $cache_ttl = '-30 minutes';
 
     /**

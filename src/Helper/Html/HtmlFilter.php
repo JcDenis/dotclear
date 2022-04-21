@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html;
 
+// Dotclear\Helper\Html\HtmlFilter
 use tidy;
 use XMLParser;
 
 /**
  * Html filter.
- *
- * \Dotclear\Helper\Html\HtmlFilter
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
@@ -23,13 +22,22 @@ use XMLParser;
  */
 class HtmlFilter
 {
-    /** @var XMLParser XML parser */
+    /**
+     * @var XMLParser $parser
+     *                XML parser
+     */
     private $parser;
 
-    /** @var string Parsed content */
+    /**
+     * @var string $content
+     *             Parsed content
+     */
     public $content;
 
-    /** @var string A tag */
+    /**
+     * @var string $tag
+     *             A tag
+     */
     private $tag;
 
     /**
@@ -98,6 +106,8 @@ class HtmlFilter
      * $filter->removeHosts('javascript');
      * ?>
      * </code>
+     *
+     * @param array|string[] $args
      */
     public function removeHosts(array|string ...$args): void
     {
@@ -117,6 +127,8 @@ class HtmlFilter
      * $filter->removeTags('frame','script');
      * ?>
      * </code>
+     *
+     * @param array|string[] $args
      */
     public function removeTags(array|string ...$args): void
     {
@@ -136,6 +148,8 @@ class HtmlFilter
      * $filter->removeAttributes('onclick','onunload');
      * ?>
      * </code>
+     *
+     * @param array|string[] $args
      */
     public function removeAttributes(array|string ...$args): void
     {
@@ -174,6 +188,8 @@ class HtmlFilter
      * $filter->removeAttributes('data-.*');
      * ?>
      * </code>
+     *
+     * @param array|string[] $args
      */
     public function removePatternAttributes(array|string ...$args): void
     {
@@ -194,6 +210,8 @@ class HtmlFilter
      * $filter->removeTagAttributes(['a' => ['src','title']]);
      * ?>
      * </code>
+     *
+     * @param array|string[] $args
      */
     public function removeTagAttributes(string $tag, array|string ...$args): void
     {

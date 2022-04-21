@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Network\Xmlrpc;
 
+// Dotclear\Helper\Network\Xmlrpc\Request
+
 /**
  * XML-RPC Request.
- *
- * \Dotclear\Helper\Network\Xmlrpc\Request
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

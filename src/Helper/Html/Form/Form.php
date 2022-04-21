@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html\Form;
 
+// Dotclear\Helper\Html\Form\Form
+
 /**
  * HTML Forms form creation helpers.
- *
- * \Dotclear\Helper\Html\Form\Form
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
@@ -41,6 +41,8 @@ class Form extends Component
 
     /**
      * Renders the HTML component.
+     *
+     * @param ?string $fieldFormat
      */
     public function render(?string $fieldFormat = null): string
     {

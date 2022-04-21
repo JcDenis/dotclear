@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\File;
 
+// Dotclear\Helper\File\Path
+
 /**
  * Basic path handling tool.
- *
- * \Dotclear\Helper\File\Path
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

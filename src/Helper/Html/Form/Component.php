@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html\Form;
 
+// Dotclear\Helper\Html\Form\Component
+
 /**
  * HTML Forms creation helpers.
- *
- * \Dotclear\Helper\Html\Form\Component
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
@@ -20,7 +20,10 @@ namespace Dotclear\Helper\Html\Form;
  */
 abstract class Component
 {
-    /** @var array Custom component properties (see __get() and __set()) */
+    /**
+     * @var array $_data
+     *            Custom component properties (see __get() and __set())
+     */
     private $_data = [];
 
     public function __construct(private string|null $_type = null, private string|null $_element = null)

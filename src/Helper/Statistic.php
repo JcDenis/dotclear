@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper;
 
+// Dotclear\Helper\Statistic
+
 /**
  * Basic time and memory usage.
- *
- * \Dotclear\Helper\Statistic
  *
  * @ingroup  Helper Statistic
  */

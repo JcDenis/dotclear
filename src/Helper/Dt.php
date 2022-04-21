@@ -9,14 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper;
 
+// Dotclear\Helper\Dt
 use Dotclear\Exception\HelperException;
 use DateTime;
 use DateTimeZone;
 
 /**
  * Basic date handling tool.
- *
- * \Dotclear\Helper\Dt
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

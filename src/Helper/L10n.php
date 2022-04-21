@@ -8,10 +8,10 @@
 declare(strict_types=1);
 
 namespace Dotclear\Helper {
+// Dotclear\Helper\L10n
+
 /**
  * Localisation tool.
- *
- * \Dotclear\Helper\L10n
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

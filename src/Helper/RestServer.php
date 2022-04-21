@@ -9,22 +9,27 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper;
 
+// Dotclear\Helper\RestServer
 use Dotclear\Helper\Html\XmlTag;
 use Exception;
 
 /**
  * Rest server.
  *
- * \Dotclear\Helper\RestServer
- *
  * @ingroup  Helper Rest
  */
 class RestServer
 {
-    /** @var XmlTag XML response */
+    /**
+     * @var XmlTag $rsp
+     *             XML response
+     */
     protected $rsp;
 
-    /** @var array Registered fucntions */
+    /**
+     * @var array $functions
+     *            Registered fucntions
+     */
     protected $functions = [];
 
     /**

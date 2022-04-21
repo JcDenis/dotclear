@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html\Form;
 
+// Dotclear\Helper\Html\Form\Datetime
+
 /**
  * HTML Forms datetime field creation helpers.
- *
- * \Dotclear\Helper\Html\Form\Datetime
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
@@ -23,7 +23,8 @@ class Datetime extends Input
     /**
      * Constructs a new instance.
      *
-     * @param string $id The identifier
+     * @param string  $id    The identifier
+     * @param ?string $value
      */
     public function __construct(?string $id = null, ?string $value = null)
     {

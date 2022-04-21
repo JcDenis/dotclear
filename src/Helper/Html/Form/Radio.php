@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html\Form;
 
+// Dotclear\Helper\Html\Form\Radio
+
 /**
  * HTML Forms radio button creation helpers.
- *
- * \Dotclear\Helper\Html\Form\Radio
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
@@ -23,7 +23,8 @@ class Radio extends Input
     /**
      * Constructs a new instance.
      *
-     * @param string $id The identifier
+     * @param string $id      The identifier
+     * @param ?bool  $checked
      */
     public function __construct(?string $id = null, ?bool $checked = null)
     {

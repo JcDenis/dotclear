@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html\Form;
 
+// Dotclear\Helper\Html\Form\Input
+
 /**
  * HTML Forms input field creation helpers.
- *
- * \Dotclear\Helper\Html\Form\Input
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
@@ -23,9 +23,8 @@ class Input extends Component
     private const DEFAULT_ELEMENT = 'input';
 
     /**
-     * Should include the associated label if exist.
-     *
-     * @var bool
+     * @var bool $renderLabel
+     *           Should include the associated label if exist
      */
     private $renderLabel = true;
 

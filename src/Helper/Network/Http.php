@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Network;
 
+// Dotclear\Helper\Network\Http
 use Dotclear\Exception\HelperException;
 use Dotclear\Helper\Crypt;
 
 /**
  * Basic Http tool.
- *
- * \Dotclear\Helper\Network\Http
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Network\NetHttp;
 
+// Dotclear\Helper\Network\NetHttp\Client
+
 /**
  * Http client.
- *
- * \Dotclear\Helper\Network\NetHttp\Client
  *
  * @see Dotclear\Helper\Network\NetHttp\NetHttp
  *

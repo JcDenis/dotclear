@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html;
 
+// Dotclear\Helper\Html\FormSelectOption
+
 /**
  * HTML Forms creation helpers.
- *
- * \Dotclear\Helper\Html\FormSelectOption
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
@@ -21,9 +21,8 @@ namespace Dotclear\Helper\Html;
 class FormSelectOption
 {
     /**
-     * sprintf template for option.
-     *
-     * @var string
+     * @var string $option
+     *             sprintf template for option
      */
     private $option = '<option value="%1$s"%3$s>%2$s</option>' . "\n";
 

@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\File;
 
+// Dotclear\Helper\File\Files
 use Dotclear\Exception\FileException;
 use Dotclear\Helper\Text;
 use Dotclear\Helper\Network\Http;
@@ -17,18 +18,22 @@ use Exception;
 /**
  * Basic files handling tool.
  *
- * \Dotclear\Helper\File\Files
- *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * @ingroup  Helper File
  */
 class Files
 {
-    /** @var null|int Default directory mode */
+    /**
+     * @var null|int $dir_mode
+     *               Default directory mode
+     */
     public static $dir_mode;
 
-    /** @var array Defined file mime types */
+    /**
+     * @var array $mimeType
+     *            Defined file mime types
+     */
     public static $mimeType =
     [
         'odt' => 'application/vnd.oasis.opendocument.text',
@@ -119,7 +124,10 @@ class Files
         'webm' => 'video/webm',
     ];
 
-    /** @var array Allowed files extensions to serve */
+    /**
+     * @var array $allowed_served_extensions
+     *            Allowed files extensions to serve
+     */
     public static $allowed_served_extensions = [
         'ico',
         'png',

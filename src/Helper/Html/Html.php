@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html;
 
+// Dotclear\Helper\Html\Html
 use ArrayObject;
 
 /**
  * Basic html tool.
- *
- * \Dotclear\Helper\Html\Html
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
@@ -22,10 +21,16 @@ use ArrayObject;
  */
 class Html
 {
-    /** @var null|string Base URL */
+    /**
+     * @var null|string $url_root
+     *                  Base URL
+     */
     public static $url_root;
 
-    /** @var array Array of regular expression for {@link absoluteURLs()} */
+    /**
+     * @var array $absolute_regs
+     *            Array of regular expression for {@link absoluteURLs()}
+     */
     public static $absolute_regs = [];
 
     /**

@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper\Html\Form;
 
+// Dotclear\Helper\Html\Form\Legend
+
 /**
  * HTML Forms legend creation helpers.
- *
- * \Dotclear\Helper\Html\Form\Legend
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
