@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Database\Statement;
 
+// Dotclear\Database\Statement\JoinStatement
+
 /**
  * Join (sub)Statement : small utility to build join query fragments.
- *
- * \Dotclear\Database\Statement\JoinStatement
  *
  * @ingroup Database Statement
  */

@@ -9,14 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Database\Driver\Pgsql;
 
+// Dotclear\Database\Driver\Pgsql\Connection
 use Dotclear\Database\AbstractConnection;
 use Dotclear\Database\Record;
 use Dotclear\Exception\DatabaseException;
 
 /**
  * Pgsql connection driver.
- *
- * \Dotclear\Database\Driver\Pgsql\Connection
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

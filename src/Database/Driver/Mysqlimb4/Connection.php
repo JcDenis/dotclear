@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Database\Driver\Mysqlimb4;
 
+// Dotclear\Database\Driver\Mysqlimb4\Connection
 use Dotclear\Database\Driver\Mysqli\Connection as BaseConnection;
 use Dotclear\Exception\DatabaseException;
 use mysqli_result;
@@ -16,8 +17,6 @@ use mysqli;
 
 /**
  * Mysql mb4 connection driver.
- *
- * \Dotclear\Database\Driver\Mysqlimb4\Connection
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

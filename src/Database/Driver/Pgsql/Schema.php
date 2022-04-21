@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Database\Driver\Pgsql;
 
+// Dotclear\Database\Driver\Pgsql\Schema
 use Dotclear\Database\AbstractSchema;
 
 /**
  * Pgsql schema driver.
- *
- * \Dotclear\Database\Driver\Pgsql\Schema
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

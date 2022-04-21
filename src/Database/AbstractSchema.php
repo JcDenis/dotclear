@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Database;
 
+// Dotclear\Database\AbstractSchema
+
 /**
  * Database schema manipulator.
- *
- * \Dotclear\Database\AbstractSchema
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

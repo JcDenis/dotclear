@@ -9,16 +9,19 @@ declare(strict_types=1);
 
 namespace Dotclear\Database;
 
+// Dotclear\Database\RecordExtend
+
 /**
  * Database record extension.
- *
- * \Dotclear\Database\RecordExtend
  *
  * @ingroup  Database Record
  */
 abstract class RecordExtend
 {
-    /** @var Record The record */
+    /**
+     * @var Record $rs
+     *             The record
+     */
     protected $rs;
 
     /**

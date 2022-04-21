@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Database\Statement;
 
+// Dotclear\Database\Statement\TruncateStatement
+
 /**
  * Truncate Statement : small utility to build truncate queries.
- *
- * \Dotclear\Database\Statement\TruncateStatement
  *
  * @ingroup Database Statement
  */

@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Database\Statement;
 
+// Dotclear\Database\Statement\SqlStatement
+
 /**
  * SQL Statement : small utility to build SQL queries.
- *
- * \Dotclear\Database\Statement\SqlStatement
  *
  * @ingroup Database Statement
  */

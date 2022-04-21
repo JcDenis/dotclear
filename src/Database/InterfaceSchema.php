@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Database;
 
+// Dotclear\Database\InterfaceSchema
+
 /**
  * PHP interface for database Schema.
- *
- * \Dotclear\Database\InterfaceSchema
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

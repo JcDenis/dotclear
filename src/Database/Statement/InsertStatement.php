@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Database\Statement;
 
+// Dotclear\Database\Statement\InsertStatement
+
 /**
  * Insert Statement : small utility to build insert queries.
- *
- * \Dotclear\Database\Statement\InsertStatement
  *
  * @ingroup Database Statement
  */

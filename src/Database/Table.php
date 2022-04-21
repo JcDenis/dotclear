@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Database;
 
+// Dotclear\Database\Table
 use Dotclear\Exception\DatabaseException;
 
 /**
  * Database table structure manipulator.
- *
- * \Dotclear\Database\Table
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
@@ -22,38 +21,54 @@ use Dotclear\Exception\DatabaseException;
  */
 class Table
 {
-    /** @var bool Table has primary key */
+    /**
+     * @var bool $has_primary
+     *           Table has primary key
+     */
     protected $has_primary = false;
 
-    /** @var array Table fields */
+    /**
+     * @var array $fields
+     *            Table fields
+     */
     protected $fields = [];
 
-    /** @var array Table keys */
+    /**
+     * @var array $keys
+     *            Table keys
+     */
     protected $keys = [];
 
-    /** @var array Table indexex */
+    /**
+     * @var array $indexes
+     *            Table indexex
+     */
     protected $indexes = [];
 
-    /** @var array Table references */
+    /**
+     * @var array $references
+     *            Table references
+     */
     protected $references = [];
 
     /**
-     * @var array Universal data types supported by dbSchema
+     * @var array $allowed_types
+     *            Universal data types supported by dbSchema
      *
-     * SMALLINT    : signed 2 bytes integer
-     * INTEGER    : signed 4 bytes integer
-     * BIGINT    : signed 8 bytes integer
-     * REAL        : signed 4 bytes floating point number
-     * FLOAT    : signed 8 bytes floating point number
-     * NUMERIC    : exact numeric type
+     * - SMALLINT    : signed 2 bytes integer
+     * - INTEGER    : signed 4 bytes integer
+     * - BIGINT    : signed 8 bytes integer
+     * - REAL        : signed 4 bytes floating point number
+     * - FLOAT    : signed 8 bytes floating point number
+     * - NUMERIC    : exact numeric type
      *
-     * DATE        : Calendar date (day, month and year)
-     * TIME        : Time of day
-     * TIMESTAMP    : Date and time
+     * - DATE        : Calendar date (day, month and year)
+     * - TIME        : Time of day
+     * - TIMESTAMP    : Date and time
      *
-     * CHAR        : A fixed n-length character string
-     * VARCHAR    : A variable length character string
-     * TEXT        : A variable length of text
+     * - CHAR        : A fixed n-length character string
+     * - VARCHAR    : A variable length character string
+     * - TEXT        : A variable length of text
      */
     protected $allowed_types = [
         'smallint', 'integer', 'bigint', 'real', 'float', 'numeric',
@@ -241,6 +256,8 @@ class Table
      * Set primary key.
      *
      * @see self::newKey()
+     *
+     * @param string[] $cols
      */
     public function primary(string $name, string ...$cols): Table
     {
@@ -255,6 +272,8 @@ class Table
      * Set unique key.
      *
      * @see self::newKey()
+     *
+     * @param string[] $cols
      */
     public function unique(string $name, string ...$cols): Table
     {

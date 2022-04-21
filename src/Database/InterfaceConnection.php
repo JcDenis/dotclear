@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Database;
 
+// Dotclear\Database\InterfaceConnection
+
 /**
  * PHP Interface for connector.
- *
- * \Dotclear\Database\InterfaceConnection
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

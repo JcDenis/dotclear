@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Database\Driver\Sqlite;
 
+// Dotclear\Database\Driver\Sqlite\Connection
 use Dotclear\Database\AbstractConnection;
 use Dotclear\Database\Record;
 use Dotclear\Database\StaticRecord;
@@ -19,8 +20,6 @@ use Collator;
 
 /**
  * Sqlite connection driver.
- *
- * \Dotclear\Database\Driver\Sqlite\Connection
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

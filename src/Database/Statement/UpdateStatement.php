@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Database\Statement;
 
+// Dotclear\Database\Statement\UpdateStatement
 use Dotclear\Database\Cursor;
 
 /**
  * Update Statement : small utility to build update queries.
- *
- * \Dotclear\Database\Statement\UpdateStatement
  *
  * @ingroup Database Statement
  */

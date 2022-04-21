@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Database\Driver\Mysqlimb4;
 
+// Dotclear\Database\Driver\Mysqlimb4\Schema
 use Dotclear\Database\Driver\Mysqli\Schema as BaseSchema;
 
 /**
  * Mysql mb4 schema driver.
- *
- * \Dotclear\Database\Driver\Mysqlimb4\Schema
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Database\Driver\Sqlite;
 
+// Dotclear\Database\Driver\Sqlite\Schema
 use Dotclear\Database\AbstractSchema;
 use Dotclear\Exception\DatabaseException;
 
 /**
  * Sqlite schema driver.
- *
- * \Dotclear\Database\Driver\Sqlite\Schema
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

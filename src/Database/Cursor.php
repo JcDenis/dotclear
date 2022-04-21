@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Database;
 
+// Dotclear\Database\Cursor
 use Dotclear\Exception\DatabaseException;
 
 /**
  * Database cursor.
- *
- * \Dotclear\Database\Cursor
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

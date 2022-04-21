@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Database\Driver\Mysqli;
 
+// Dotclear\Database\Driver\Mysqli\Schema
 use Dotclear\Database\AbstractSchema;
 
 /**
  * Mysql schema driver.
- *
- * \Dotclear\Database\Driver\Mysqli\Schema
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

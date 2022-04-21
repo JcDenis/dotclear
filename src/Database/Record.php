@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Database;
 
+// Dotclear\Database\Record
 use Iterator;
 use Countable;
 use ReflectionClass;
@@ -17,27 +18,40 @@ use ReturnTypeWillChange;
 /**
  * Database record.
  *
- * \Dotclear\Database\Record
- *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * @ingroup  Database Record
  */
 class Record implements Iterator, Countable
 {
-    /** @var mixed atabase resource link */
+    /**
+     * @var mixed $__link
+     *            Database resource link
+     */
     protected $__link;
 
-    /** @var array<string, callable>       List of static functions that extend recor */
+    /**
+     * @var array<string, callable> $__extend
+     *                              List of static functions that extend record
+     */
     protected $__extend = [];
 
-    /** @var int Current result position */
+    /**
+     * @var int $__index
+     *          Current result position
+     */
     protected $__index = 0;
 
-    /** @var array|false Current result row content */
+    /**
+     * @var array|false $__row
+     *                  Current result row content
+     */
     protected $__row = false;
 
-    /** @var bool Fetch method position mark */
+    /**
+     * @var bool $__fetch
+     *           Fetch method position mark
+     */
     private $__fetch = false;
 
     /**
@@ -86,6 +100,8 @@ class Record implements Iterator, Countable
      *
      * Magic call function. Calls function added by {@link extend()} if exists, passing it
      * self object and arguments.
+     *
+     * @param mixed[] $args
      */
     public function call(string $function, mixed ...$args): mixed
     {

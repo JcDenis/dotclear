@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Database\Statement;
 
+// Dotclear\Database\Statement\DeleteStatement
+
 /**
  * Delete Statement : small utility to build delete queries.
- *
- * \Dotclear\Database\Statement\DeleteStatement
  *
  * @ingroup Database Statement
  */

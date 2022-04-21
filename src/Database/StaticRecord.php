@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Database;
 
+// Dotclear\Database\StaticRecord
 use Dotclear\Helper\Lexical;
 
 /**
  * Database static record.
- *
- * \Dotclear\Database\StaticRecord
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
@@ -22,13 +21,22 @@ use Dotclear\Helper\Lexical;
  */
 class StaticRecord extends Record
 {
-    /** @var array The record data */
+    /**
+     * @var array $__data
+     *            The record data
+     */
     public $__data = [];
 
-    /** @var null|string The sort field */
+    /**
+     * @var null|string $__sortfield
+     *                  The sort field
+     */
     private $__sortfield;
 
-    /** @var null|int The sort order */
+    /**
+     * @var null|int $__sortsign
+     *               The sort order
+     */
     private $__sortsign;
 
     /**

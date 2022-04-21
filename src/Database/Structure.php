@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Database;
 
+// Dotclear\Database\Structure
 use Dotclear\Exception\DatabaseException;
 
 /**
  * Database structure manipulator.
- *
- * \Dotclear\Database\Structure
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
@@ -22,10 +21,16 @@ use Dotclear\Exception\DatabaseException;
  */
 class Structure
 {
-    /** @var array Tables */
+    /**
+     * @var array $tables
+     *            Tables
+     */
     protected $tables = [];
 
-    /** @var array References */
+    /**
+     * @var array $references
+     *            References
+     * */
     protected $references = [];
 
     /**

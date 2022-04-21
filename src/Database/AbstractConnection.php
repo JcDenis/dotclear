@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Database;
 
+// Dotclear\Database\AbstractConnection
+
 /**
  * Database connector.
- *
- * \Dotclear\Database\AbstractConnection
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
@@ -20,25 +20,46 @@ namespace Dotclear\Database;
  */
 abstract class AbstractConnection implements InterfaceConnection
 {
-    /** @var string Drvier name */
+    /**
+     * @var string $__driver
+     *             Drvier name
+     */
     protected $__driver;
 
-    /** @var string SQL syntax name */
+    /**
+     * @var string $__syntax
+     *             SQL syntax name
+     */
     protected $__syntax;
 
-    /** @var string SQL syntax name */
+    /**
+     * @var string $__version
+     *             SQL syntax name
+     */
     protected $__version;
 
-    /** @var false|object Database resource link */
+    /**
+     * @var false|object $__link
+     *                   Database resource link
+     */
     protected $__link = false;
 
-    /** @var bool|object Last result resource link */
+    /**
+     * @var bool|object $__last_result
+     *                  Last result resource link
+     */
     protected $__last_result = false;
 
-    /** @var string Database name */
+    /**
+     * @var string $__database
+     *             Database name
+     */
     protected $__database;
 
-    /** @var bool Enables weak locks for some drivers if true */
+    /**
+     * @var bool $weak_locks
+     *           Enables weak locks for some drivers if true
+     */
     public static $weak_locks = true;
 
     /**
@@ -78,6 +99,8 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
     /**
+     * Constructor.
+     *
      * @param string $host       Database hostname
      * @param string $database   Database name
      * @param string $user       User ID
@@ -97,7 +120,7 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
     /**
-     * Closes database connection.
+     * Close database connection.
      */
     public function close(): void
     {
@@ -105,7 +128,7 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
     /**
-     * Returns database driver name.
+     * Get database driver name.
      */
     public function driver(): string
     {
@@ -113,7 +136,7 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
     /**
-     * Returns database SQL syntax name.
+     * Get database SQL syntax name.
      */
     public function syntax(): string
     {
@@ -121,7 +144,7 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
     /**
-     * Returns database driver version.
+     * Get database driver version.
      */
     public function version(): string
     {
@@ -129,7 +152,7 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
     /**
-     * Returns current database name.
+     * Get current database name.
      */
     public function database(): string
     {
@@ -137,7 +160,7 @@ abstract class AbstractConnection implements InterfaceConnection
     }
 
     /**
-     * Returns link resource.
+     * Get link resource.
      *
      * @return mixed The resource
      */
@@ -149,7 +172,7 @@ abstract class AbstractConnection implements InterfaceConnection
     /**
      * Run query and get results.
      *
-     * Executes a query and return a {@link Record} object.
+     * Executes a query and return a Record object.
      *
      * @param string $sql SQL query
      */
@@ -176,7 +199,7 @@ abstract class AbstractConnection implements InterfaceConnection
     /**
      * Return an empty record.
      *
-     * Return an empty {@link Record} object (without any information).
+     * Return an empty Record object (without any information).
      */
     public function nullRecord(): Record
     {
