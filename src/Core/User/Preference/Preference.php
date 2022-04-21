@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\User\Preference;
 
+// Dotclear\Core\User\Preference\Preference
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
@@ -18,25 +19,34 @@ use Exception;
 /**
  * User preference handling methods.
  *
- * \Dotclear\Core\User\Preference\Preference
- *
  * @ingroup  Core User Preference
  */
 class Preference
 {
-    /** @var string Prefs table name */
+    /**
+     * @var string $table
+     *             Prefs table name
+     */
     protected $table;
 
-    /** @var array Associative workspaces array */
+    /**
+     * @var array $workspaces
+     *            Associative workspaces array
+     */
     protected $workspaces = [];
 
-    /** @var string Current workspace */
+    /**
+     * @var string $ws
+     *             Current workspace
+     */
     protected $ws;
 
     protected const WS_NAME_SCHEMA = '/^[a-zA-Z][a-zA-Z0-9]+$/';
 
     /**
-     * Object constructor. Retrieves user prefs and puts them in $workspaces
+     * Constructor.
+     *
+     * Retrieves user prefs and puts them in $workspaces
      * array. Local (user) prefs have a highest priority than global prefs.
      *
      * @param string      $user_id   The user identifier
@@ -54,7 +64,7 @@ class Preference
     }
 
     /**
-     * Retrieves all (or only one) workspaces (and their prefs) from database, with one query.
+     * Get all (or only one) workspaces (and their prefs) from database, with one query.
      *
      * @param string $workspace Workspace to load
      */
@@ -181,7 +191,7 @@ class Preference
     }
 
     /**
-     * Returns full workspace with all prefs pertaining to it.
+     * Get full workspace with all prefs pertaining to it.
      *
      * @param string $ws Workspace name
      */
@@ -201,7 +211,7 @@ class Preference
     }
 
     /**
-     * Dumps workspaces.
+     * Dump workspaces.
      */
     public function dump(): array
     {

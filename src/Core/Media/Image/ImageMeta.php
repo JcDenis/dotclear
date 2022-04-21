@@ -9,14 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Media\Image;
 
+// Dotclear\Core\Media\Image\ImageMeta
 use Dotclear\Exception\HelperException;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Text;
 
 /**
  * Basic image metadata handling tool.
- *
- * \Dotclear\Core\Media\Image\ImageMeta
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
@@ -28,16 +27,28 @@ use Dotclear\Helper\Text;
  */
 class ImageMeta
 {
-    /** @var array Internal XMP array */
+    /**
+     * @var array $xmp
+     *            Internal XMP array
+     */
     protected $xmp = [];
 
-    /** @var array Internal IPTC array */
+    /**
+     * @var array $iptc
+     *            Internal IPTC array
+     */
     protected $iptc = [];
 
-    /** @var array Internal EXIF array */
+    /**
+     * @var array $exif
+     *            Internal EXIF array
+     */
     protected $exif = [];
 
-    /** @var array Final properties array */
+    /**
+     * @var array $properties
+     *            Final properties array
+     */
     protected $properties = [
         'Title'             => null,
         'Description'       => null,
@@ -62,7 +73,10 @@ class ImageMeta
         'Keywords'          => null,
     ];
 
-    /** @var array XMP */
+    /**
+     * @var array $xmp_reg
+     *            XMP references
+     */
     protected $xmp_reg = [
         'Title' => [
             '%<dc:title>\s*<rdf:Alt>\s*<rdf:li.*?>(.+?)</rdf:li>%msu',
@@ -141,7 +155,10 @@ class ImageMeta
         ],
     ];
 
-    /** @var array IPTC */
+    /**
+     * @var array $iptc_ref
+     *            IPTC references
+     */
     protected $iptc_ref = [
         '1#090' => 'Iptc.Envelope.CharacterSet', // Character Set used (32 chars max)
         '2#005' => 'Iptc.ObjectName',            // Title (64 chars max)
@@ -169,7 +186,10 @@ class ImageMeta
         '2#122' => 'Iptc.CaptionWriter',         // Caption Writer/Editor (32 chars max)
     ];
 
-    /** @var array IPTC props */
+    /**
+     * @var array $iptc_to_property
+     *            IPTC properties
+     */
     protected $iptc_to_property = [
         'Iptc.ObjectName'    => 'Title',
         'Iptc.Caption'       => 'Description',
@@ -182,7 +202,10 @@ class ImageMeta
         'Iptc.Keywords'      => 'Keywords',
     ];
 
-    /** @var array EXIF props */
+    /**
+     * @var array $exif_to_property
+     *            EXIF properties
+     */
     protected $exif_to_property = [
         // '' => 'Title',
         'ImageDescription'  => 'Description',
@@ -227,6 +250,8 @@ class ImageMeta
      *
      * Returns all image metadata in an array as defined in {@link $properties}.
      * Should call {@link loadFile()} before.
+     *
+     * @return array The image metadata
      */
     public function getMeta(): array
     {

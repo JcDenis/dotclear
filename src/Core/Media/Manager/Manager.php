@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Media\Manager;
 
+// Dotclear\Core\Media\Manager\Manager
 use Dotclear\Exception\FileException;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Files;
@@ -16,24 +17,34 @@ use Dotclear\Helper\File\Files;
 /**
  * File manager tool.
  *
- * \Dotclear\Core\Media\Manager\Manager
- *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * @ingroup  Core Media File
  */
 class Manager
 {
-    /** @var string Working (current) director */
+    /**
+     * @var string $pwd
+     *             Working (current) director
+     */
     protected $pwd = '';
 
-    /** @var array Array of regexps defining excluded items */
+    /**
+     * @var array $exclude_list
+     *            Array of regexps defining excluded items
+     */
     protected $exclude_list = [];
 
-    /** @var string Files exclusion regexp pattern */
+    /**
+     * @var string $exclude_pattern
+     *             Files exclusion regexp pattern
+     */
     protected $exclude_pattern = '';
 
-    /** @var array Current directory content array */
+    /**
+     * @var array $dir
+     *            Current directory content array
+     */
     public $dir = ['dirs' => [], 'files' => []];
 
     /**
@@ -90,7 +101,7 @@ class Manager
     }
 
     /**
-     * Current directory is writable.
+     * Check if current directory is writable.
      *
      * @return bool True if working directory is writable
      */
@@ -104,7 +115,7 @@ class Manager
      *
      * Appends an exclusion to exclusions list. $f should be a regexp.
      *
-     * @see     $exclude_list
+     * @see     self::$exclude_list
      *
      * @param array|string $f Exclusion regexp
      */
@@ -127,7 +138,7 @@ class Manager
      * Returns true if path (file or directory) $f is excluded. $f path is
      * relative to {@link $root} path.
      *
-     * @see $exclude_list
+     * @see self::$exclude_list
      *
      * @param string $f Path to match
      */
@@ -148,7 +159,7 @@ class Manager
      * Returns true if file $f is excluded. $f path is relative to {@link $root}
      * path.
      *
-     * @see $exclude_pattern
+     * @see self::$exclude_pattern
      *
      * @param string $f File to match
      */
@@ -238,7 +249,7 @@ class Manager
      *
      * Returns an array of directory under {@link $root} directory.
      *
-     * @uses Item
+     * @return array<int, Item> The items
      */
     public function getRootDirs(): array
     {

@@ -9,14 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Media\Manager;
 
+// Dotclear\Core\Media\Manager\Item
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Files;
 use SimpleXMLElement;
 
 /**
  * Item for file manager tool.
- *
- * \Dotclear\Core\Media\Manager\Item
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
@@ -27,100 +26,196 @@ use SimpleXMLElement;
  */
 class Item
 {
-    /** @var string Complete path to file */
+    /**
+     * @var string $file
+     *             Complete path to file
+     */
     public $file;
 
-    /** @var string File basename */
+    /**
+     * @var string $basename
+     *             File basename
+     */
     public $basename;
 
-    /** @var string File directory name */
+    /**
+     * @var string $dir
+     *             File directory name
+     */
     public $dir;
 
-    /** @var string File URL */
+    /**
+     * @var string $file_url
+     *             File URL
+     */
     public $file_url;
 
-    /** @var string File directory URL */
+    /**
+     * @var string $dir_url
+     *             File directory URL
+     */
     public $dir_url;
 
-    /** @var string File extension */
+    /**
+     * @var string $extension
+     *             File extension
+     */
     public $extension;
 
-    /** @var string File path relative to <var>$root</var> given in constructor */
+    /**
+     * @var string $relname
+     *             File path relative to <var>$root</var> given in constructor
+     */
     public $relname;
 
-    /** @var bool Parent directory (ie. "..") */
+    /**
+     * @var bool $parent
+     *           Parent directory (ie. "..")
+     */
     public $parent = false;
 
-    /** @var string File MimeType. See {@link Files::getMimeType()}. */
+    /**
+     * @var string $type
+     *             File MimeType. See {@link Files::getMimeType()}.
+     */
     public $type;
 
-    /** @var string */
+    /**
+     * @var string $type_prefix
+     *             The prefix
+     */
     public $type_prefix;
 
-    /** @var int File modification timestamp */
+    /**
+     * @var int $mtime
+     *          File modification timestamp
+     */
     public $mtime;
 
-    /** @var int File size */
+    /**
+     * @var int $size
+     *          File size
+     */
     public $size;
 
-    /** @var int File permissions mode */
+    /**
+     * @var int $mode
+     *          File permissions mode
+     */
     public $mode;
 
-    /** @var int File owner ID */
+    /**
+     * @var int $uid
+     *          File owner ID
+     */
     public $uid;
 
-    /** @var int File group ID */
+    /**
+     * @var int $gid
+     *          File group ID
+     */
     public $gid;
 
-    /** @var bool True if file or directory is writable */
+    /**
+     * @var bool $w
+     *           True if file or directory is writable
+     */
     public $w;
 
-    /** @var bool True if file is a directory */
+    /**
+     * @var bool $d
+     *           True if file is a directory
+     */
     public $d;
 
-    /** @var bool True if file file is executable or directory is traversable */
+    /**
+     * @var bool $x
+     *           True if file file is executable or directory is traversable
+     */
     public $x;
 
-    /** @var bool True if file is a file */
+    /**
+     * @var bool $f
+     *           True if file is a file
+     */
     public $f;
 
-    /** @var bool True if file or directory is deletable */
+    /**
+     * @var bool $del
+     *           True if file or directory is deletable
+     */
     public $del;
 
-    /** @var bool Is editable */
+    /**
+     * @var bool $editable
+     *           Is editable
+     */
     public $editable = true;
 
-    /** @var string Media id */
+    /**
+     * @var string $media_id
+     *             Media id
+     */
     public $media_id = '';
 
-    /** @var string Media title */
+    /**
+     * @var string $media_title
+     *             Media title
+     */
     public $media_title = '';
 
-    /** @var null|SimpleXMLElement Media meta */
+    /**
+     * @var null|SimpleXMLElement $media_meta
+     *                            Media meta
+     */
     public $media_meta; // xml
 
-    /** @var string Media owner */
+    /**
+     * @var string $media_user
+     *             Media owner
+     */
     public $media_user = '';
 
-    /** @var bool Media is private */
+    /**
+     * @var bool $media_priv
+     *           Media is private
+     */
     public $media_priv = false;
 
-    /** @var int Media date */
+    /**
+     * @var int $media_dt
+     *          Media date
+     */
     public $media_dt = 0;
 
-    /** @var string Media date */
+    /**
+     * @var string $media_dtstr
+     *             Media date
+     */
     public $media_dtstr = '';
 
-    /** @var bool Media is image */
+    /**
+     * @var bool $media_image
+     *           Media is image
+     */
     public $media_image = false;
 
-    /** @var string Media icon */
+    /**
+     * @var string $media_icon
+     *             Media icon
+     */
     public $media_icon = 'blank';
 
-    /** @var string Media type */
+    /**
+     * @var string $media_type
+     *             Media type
+     */
     public $media_type = 'image';
 
-    /** @var array Media avialble thumbnail */
+    /**
+     * @var array $media_thumb
+     *            Media avialble thumbnail
+     */
     public $media_thumb = [];
 
     /**

@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Users;
 
+// Dotclear\Core\Users\Users
 use ArrayObject;
 use Dotclear\Core\RsExt\RsExtUser;
 use Dotclear\Core\Blog\Blog;
@@ -23,8 +24,6 @@ use Dotclear\Exception\CoreException;
 
 /**
  * Users handling methods.
- *
- * \Dotclear\Core\Users\Users
  *
  * @ingroup  Core User
  */

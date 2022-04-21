@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\RsExt;
 
+// Dotclear\Core\RsExt\RsExtPost
 use Dotclear\Core\User\UserContainer;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Dt;
@@ -16,13 +17,14 @@ use Dotclear\Helper\Dt;
 /**
  * Posts record helpers.
  *
- * \Dotclear\Core\RsExt\RsExtPost
- *
  * @ingroup  Core Post Record
  */
 class RsExtPost extends RsExtend
 {
-    /** @var array<int, int>     Nb of attach media */
+    /**
+     * @var array<int, int> $_nb_media
+     *                      Number of attach media
+     */
     public $_nb_media = [];
 
     /**

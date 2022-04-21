@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\User\Preference;
 
+// Dotclear\Core\User\Preference\Workspace
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\InsertStatement;
@@ -20,25 +21,38 @@ use Exception;
 /**
  * User preference workspace handling methods.
  *
- * \Dotclear\Core\User\Preference\Workspace
- *
  * @ingroup  Core User Preference
  */
 class Workspace
 {
-    /** @var string Preferences table name */
+    /**
+     * @var string $table
+     *             Preferences table name
+     * */
     protected $table;
 
-    /** @var array Global prefs array */
+    /**
+     * @var array $global_prefs
+     *            Global prefs array
+     */
     protected $global_prefs = [];
 
-    /** @var array Local prefs array */
+    /**
+     * @var array $local_prefs
+     *            Local prefs array
+     */
     protected $local_prefs = [];
 
-    /** @var array Associative prefs array */
+    /**
+     * @var array $prefs
+     *            Associative prefs array
+     */
     protected $prefs = [];
 
-    /** @var string Current workspace */
+    /**
+     * @var string $ws
+     *             Current workspace
+     */
     protected $ws;
 
     protected const WS_NAME_SCHEMA = '/^[a-zA-Z][a-zA-Z0-9]+$/';
@@ -146,7 +160,7 @@ class Workspace
     }
 
     /**
-     * Returns true if a pref exist, else false.
+     * Check if a pref exists.
      *
      * @param string $id     The identifier
      * @param bool   $global The global
@@ -159,7 +173,7 @@ class Workspace
     }
 
     /**
-     * Returns pref value if exists.
+     * Get pref value if exists.
      *
      * @param string $n Pref name
      */
@@ -170,7 +184,7 @@ class Workspace
     }
 
     /**
-     * Returns global pref value if exists.
+     * Get global pref value if exists.
      *
      * @param string $n Pref name
      */
@@ -181,7 +195,7 @@ class Workspace
     }
 
     /**
-     * Returns local pref value if exists.
+     * Get local pref value if exists.
      *
      * @param string $n Pref name
      */
@@ -192,7 +206,7 @@ class Workspace
     }
 
     /**
-     * Sets a pref in $prefs property.
+     * Set a pref in $prefs property.
      *
      * This sets the pref for script
      * execution time only and if pref exists.
@@ -208,7 +222,7 @@ class Workspace
     }
 
     /**
-     * Creates or updates a pref.
+     * Create or update a pref.
      *
      * $type could be 'string', 'integer', 'float', 'boolean' or null. If $type is
      * null and pref exists, it will keep current pref type.
@@ -370,7 +384,7 @@ class Workspace
     }
 
     /**
-     * Removes an existing pref. Workspace.
+     * Remove an existing pref. Workspace.
      *
      * @param string $id           The pref identifier
      * @param bool   $force_global Force global pref drop
@@ -410,7 +424,7 @@ class Workspace
     }
 
     /**
-     * Removes every existing specific pref. in a workspace.
+     * Remove every existing specific pref. in a workspace.
      *
      * @param string $id     Pref ID
      * @param bool   $global Remove global pref too
@@ -438,7 +452,7 @@ class Workspace
     }
 
     /**
-     * Removes all existing pref. in a Workspace.
+     * Remove all existing pref. in a Workspace.
      *
      * @param bool $force_global Remove global prefs too
      *
@@ -473,7 +487,7 @@ class Workspace
     }
 
     /**
-     * Dumps a workspace.
+     * Dump a workspace.
      */
     public function dumpWorkspace(): string
     {
@@ -481,7 +495,7 @@ class Workspace
     }
 
     /**
-     * Dumps preferences.
+     * Dump preferences.
      */
     public function dumpPrefs(): array
     {
@@ -489,7 +503,7 @@ class Workspace
     }
 
     /**
-     * Dumps local preferences.
+     * Dump local preferences.
      */
     public function dumpLocalPrefs(): array
     {
@@ -497,7 +511,7 @@ class Workspace
     }
 
     /**
-     * Dumps global preferences.
+     * Dump global preferences.
      */
     public function dumpGlobalPrefs(): array
     {

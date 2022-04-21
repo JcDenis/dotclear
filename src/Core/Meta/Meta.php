@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Meta;
 
+// Dotclear\Core\Meta\Meta
 use ArrayObject;
 use Dotclear\Database\Record;
 use Dotclear\Database\StaticRecord;
@@ -24,17 +25,20 @@ use Dotclear\Helper\Text;
 /**
  * Meta handling methods.
  *
- * \@note Dotclear\Core\Meta\Meta
- *
  * @ingroup  Core Meta
  */
 class Meta
 {
-    /** @var string Meta table name */
+    /**
+     * @var string $table
+     *             Meta table name
+     * */
     private $table = 'meta';
 
     /**
-     * Splits up comma-separated values into an array of
+     * Split meta values.
+     *
+     * Split up comma-separated values into an array of
      * unique, URL-proof metadata values.
      *
      * @param string $str Comma-separated metadata
@@ -69,12 +73,13 @@ class Meta
     }
 
     /**
-     * Converts serialized metadata (for instance in dc_post post_meta)
-     * into a meta array.
+     * Convert serialized metadata into a meta array.
+     *
+     * (for instance in dc_post post_meta).
      *
      * @param string $str The serialized metadata
      *
-     * @return array the meta array
+     * @return array The meta array
      */
     public function getMetaArray(string $str): array
     {
@@ -84,13 +89,14 @@ class Meta
     }
 
     /**
-     * Converts serialized metadata (for instance in dc_post post_meta)
-     * into a comma-separated meta list for a given type.
+     * Convert serialized metadata into a comma-separated meta list for a given type.
+     *
+     * (for instance in dc_post post_meta)
      *
      * @param string $str  The serialized metadata
      * @param string $type The meta type to retrieve metaIDs from
      *
-     * @return string the comma-separated list of meta
+     * @return string The comma-separated list of meta
      */
     public function getMetaStr(string $str, string $type): string
     {
@@ -100,13 +106,14 @@ class Meta
     }
 
     /**
-     * Converts serialized metadata (for instance in dc_post post_meta)
-     * into a "fetchable" metadata record.
+     * Convert serialized metadata into a "fetchable" metadata record.
+     *
+     * (for instance in dc_post post_meta)
      *
      * @param string $str  The serialized metadata
      * @param string $type The meta type to retrieve metaIDs from
      *
-     * @return StaticRecord the meta recordset
+     * @return StaticRecord The meta recordset
      */
     public function getMetaRecordset(string $str, string $type): StaticRecord
     {
@@ -130,7 +137,8 @@ class Meta
     }
 
     /**
-     * Checks whether the current user is allowed to change post meta
+     * Check whether the current user is allowed to change post meta.
+     *
      * An exception is thrown if user is not allowed.
      *
      * @param int $post_id The post identifier
@@ -161,7 +169,7 @@ class Meta
     }
 
     /**
-     * Updates serialized post_meta information with dc_meta table information.
+     * Update serialized post_meta information with dc_meta table information.
      *
      * @param int $post_id The post identifier
      */
@@ -193,7 +201,8 @@ class Meta
     }
 
     /**
-     * Retrieves posts corresponding to given meta criteria.
+     * Retrieve posts corresponding to given meta criteria.
+     *
      * <b>$params</b> is an array taking the following optional parameters:
      * - meta_id : get posts having meta id
      * - meta_type : get posts having meta type.
@@ -202,7 +211,7 @@ class Meta
      * @param bool                 $count_only Only count results
      * @param null|SelectStatement $sql        Optional dcSqlStatement instance
      *
-     * @return null|Record the resulting posts record
+     * @return null|Record The resulting posts record
      */
     public function getPostsByMeta(array|ArrayObject $params = [], bool $count_only = false, ?SelectStatement $sql = null): ?Record
     {
@@ -232,15 +241,17 @@ class Meta
     }
 
     /**
-     * Retrieves comments corresponding to given meta criteria.
+     * Retrieve comments corresponding to given meta criteria.
+     *
      * <b>$params</b> is an array taking the following optional parameters:
      * - meta_id : get posts having meta id
      * - meta_type : get posts having meta type.
      *
-     * @param array $params     The parameters
-     * @param bool  $count_only Only count results
+     * @param array            $params     The parameters
+     * @param bool             $count_only Only count results
+     * @param ?SelectStatement $sql
      *
-     * @return null|Record the resulting comments record
+     * @return null|Record The resulting comments record
      */
     public function getCommentsByMeta(array|ArrayObject $params = [], bool $count_only = false, ?SelectStatement $sql = null): ?Record
     {
@@ -268,9 +279,10 @@ class Meta
     }
 
     /**
-     * Generic-purpose metadata retrieval : gets metadatas according to given
-     * criteria. <b>$params</b> is an array taking the following
-     * optionnal parameters:.
+     * Generic-purpose metadata retrieval.
+     *
+     * Get metadatas according to given criteria.
+     * <b>$params</b> is an array taking the following optionnal parameters:.
      *
      * - type: get metas having the given type
      * - meta_id: if not null, get metas having the given id
@@ -278,10 +290,11 @@ class Meta
      * - limit: number of max fetched metas
      * - order: results order (default : posts count DESC)
      *
-     * @param array $params     The parameters
-     * @param bool  $count_only Only counts results
+     * @param array            $params     The parameters
+     * @param bool             $count_only Only counts results
+     * @param ?SelectStatement $sql
      *
-     * @return Record the metadata recordset
+     * @return Record The metadata recordset
      */
     public function getMetadata(array|ArrayObject $params = [], bool $count_only = false, ?SelectStatement $sql = null): Record
     {
@@ -363,12 +376,14 @@ class Meta
     }
 
     /**
-     * Computes statistics from a metadata recordset.
-     * Each record gets enriched with lowercase name, percent and roundpercent columns.
+     * Compute statistics from a metadata recordset.
+     *
+     * Each record gets enriched with lowercase name,
+     * percent and roundpercent columns.
      *
      * @param Record $rs The metadata recordset
      *
-     * @return StaticRecord the meta statistics
+     * @return StaticRecord The meta statistics
      */
     public function computeMetaStats(Record $rs): StaticRecord
     {
@@ -402,7 +417,7 @@ class Meta
     }
 
     /**
-     * Adds a metadata to a post.
+     * Add a metadata to a post.
      *
      * @param int    $post_id The post identifier
      * @param string $type    The type
@@ -437,7 +452,7 @@ class Meta
     }
 
     /**
-     * Removes metadata from a post.
+     * Remove metadata from a post.
      *
      * @param int         $post_id The post identifier
      * @param null|string $type    The meta type (if null, delete all types)

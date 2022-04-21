@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Wiki;
 
+// Dotclear\Core\Wiki\Wiki2xhtml
+
 /*
 Contributor(s):
 Stephanie Booth
@@ -149,8 +151,6 @@ History :
 
 /**
  * Wiki to xhtml.
- *
- * \Dotclear\Core\Wiki\Wiki2xhtml
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

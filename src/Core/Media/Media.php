@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Media;
 
+// Dotclear\Core\Media\Media
 use Closure;
 use Dotclear\Core\Media\Image\ImageTools;
 use Dotclear\Core\Media\Image\ImageMeta;
@@ -32,46 +33,67 @@ use Exception;
 /**
  * Media handling methods.
  *
- * \Dotclear\Core\Media\Media
- *
  * This class handles Dotclear media items.
  *
  * @ingroup  Core Media
  */
 class Media extends Manager
 {
-    /** @var string Media table name */
+    /**
+     * @var string $table
+     *             Media table name
+     */
     protected $table = 'media';
 
-    /** @var string Sort field */
+    /**
+     * @var string $file_sort
+     *             Sort field
+     */
     protected $file_sort = 'name-asc';
 
-    /** @var string Media path */
+    /**
+     * @var string $path
+     *             Media path
+     */
     protected $path = '';
 
-    /** @var string Relative path */
+    /**
+     * @var string $relpwd
+     *             Relative path
+     */
     protected $relpwd = '';
 
-    /** @var array File handler callback */
+    /**
+     * @var array $file_handler
+     *            File handler callback
+     */
     protected $file_handler = [];
 
-    /** @var string Thumbnail file pattern */
+    /**
+     * @var string $thumb_tp
+     *             Thumbnail file pattern
+     */
     public $thumb_tp = '%s/.%s_%s.jpg';
 
-    /** @var string Thumbnail file pattern (with alpha layer) */
+    /**
+     * @var string $thumb_tp_alpha
+     *             Thumbnail file pattern (with alpha layer)
+     */
     public $thumb_tp_alpha = '%s/.%s_%s.png';
 
-    /** @var string Thumbnail file pattern (webp) */
+    /**
+     * @var string $thumb_tp_webp
+     *             Thumbnail file pattern (webp)
+     * */
     public $thumb_tp_webp = '%s/.%s_%s.webp';
 
     /**
-     * Tubmnail sizes:
-     * - m: medium image
-     * - s: small image
-     * - t: thumbnail image
-     * - sq: square image.
-     *
-     * @var array Tubmnail sizes
+     * @var array $thumb_sizes
+     *            Thumbnail sizes:
+     *            - m: medium image
+     *            - s: small image
+     *            - t: thumbnail image
+     *            - sq: square image
      */
     public $thumb_sizes = [
         'm'  => [448, 'ratio', 'medium'],
@@ -80,7 +102,10 @@ class Media extends Manager
         'sq' => [48, 'crop', 'square'],
     ];
 
-    /** @var string Icon file URL pattern */
+    /**
+     * @var string $icon_img
+     *             Icon file URL pattern
+     */
     public $icon_img = '?df=images/media/%s.png';
 
     /**
@@ -161,7 +186,7 @@ class Media extends Manager
     }
 
     /**
-     * Changes working directory.
+     * Change working directory.
      *
      * @param null|string $dir The directory name
      */
@@ -172,7 +197,7 @@ class Media extends Manager
     }
 
     /**
-     * Adds a new file handler for a given media type and event.
+     * Add a new file handler for a given media type and event.
      *
      * Available events are:
      * - create: file creation
@@ -207,7 +232,7 @@ class Media extends Manager
     }
 
     /**
-     * Returns HTML breadCrumb for media manager navigation.
+     * Get HTML breadCrumb for media manager navigation.
      *
      * @param string $href The URL pattern
      * @param string $last The last item pattern
@@ -375,7 +400,7 @@ class Media extends Manager
     }
 
     /**
-     * Sets the file sort.
+     * Set the file sort.
      *
      * @param string $type The type
      */
@@ -388,6 +413,9 @@ class Media extends Manager
 
     /**
      * Sort file handler.
+     *
+     * @param ?Item $a
+     * @param ?Item $b
      *
      * @return int Comparison result
      */
@@ -408,7 +436,7 @@ class Media extends Manager
     }
 
     /**
-     * Gets current working directory content (using filesystem).
+     * Get current working directory content (using filesystem).
      */
     public function getFSDir(): void
     {
@@ -416,7 +444,7 @@ class Media extends Manager
     }
 
     /**
-     * Gets current working directory content.
+     * Get current working directory content.
      *
      * @param null|string $type The media type filter
      */
@@ -571,11 +599,11 @@ class Media extends Manager
     }
 
     /**
-     * Gets file by its id.
+     * Get file by its id.
      *
      * @param int $id The file identifier
      *
-     * @return null|Item the file
+     * @return null|Item The file
      */
     public function getFile(int $id): ?Item
     {
@@ -676,7 +704,7 @@ class Media extends Manager
     }
 
     /**
-     * Returns media items attached to a blog post.
+     * Return media items attached to a blog post.
      *
      * Result is an array containing Item objects.
      *
@@ -684,7 +712,7 @@ class Media extends Manager
      * @param null|int    $media_id  The media identifier
      * @param null|string $link_type The link type
      *
-     * @return array array of Item
+     * @return array Array of Item
      */
     public function getPostMedia(int $post_id, ?int $media_id = null, ?string $link_type = null): array
     {
@@ -788,7 +816,7 @@ class Media extends Manager
     }
 
     /**
-     * Makes a dir.
+     * Make a dir.
      *
      * @param string $d the directory to create
      */
@@ -799,8 +827,9 @@ class Media extends Manager
     }
 
     /**
-     * Creates or updates a file in database. Returns new media ID or false if
-     * file does not exist.
+     * Create or update a file in database.
+     *
+     * Returns new media ID or false if file does not exist.
      *
      * @param string      $name    The file name (relative to working directory)
      * @param null|string $title   The file title
@@ -891,7 +920,7 @@ class Media extends Manager
     }
 
     /**
-     * Updates a file in database.
+     * Update a file in database.
      *
      * @param Item $file    The file
      * @param Item $newFile The new file
@@ -958,7 +987,7 @@ class Media extends Manager
     }
 
     /**
-     * Uploads a file.
+     * Upload a file.
      *
      * @param string      $tmp       The full path of temporary uploaded file
      * @param string      $name      The file name (relative to working directory)me
@@ -984,7 +1013,7 @@ class Media extends Manager
     }
 
     /**
-     * Creates a file from binary content.
+     * Create a file from binary content.
      *
      * @param string $name The file name (relative to working directory)
      * @param string $bits The binary file contentits
@@ -1007,7 +1036,7 @@ class Media extends Manager
     }
 
     /**
-     * Removes a file.
+     * Remove a file.
      *
      * @param string $f The filename
      *
@@ -1131,7 +1160,7 @@ class Media extends Manager
     }
 
     /**
-     * Gets the zip content.
+     * Get the zip content.
      *
      * @param Item $f Item object
      *
@@ -1147,7 +1176,7 @@ class Media extends Manager
     }
 
     /**
-     * Calls file handlers registered for recreate event.
+     * Call file handlers registered for recreate event.
      *
      * @param Item $f Item object
      */
@@ -1335,7 +1364,7 @@ class Media extends Manager
     }
 
     /**
-     * Returns HTML code for audio player (HTML5).
+     * Get HTML code for audio player (HTML5).
      *
      * @param string      $type     The audio mime type (not used)
      * @param string      $url      The audio URL to play
@@ -1353,7 +1382,7 @@ class Media extends Manager
     }
 
     /**
-     * Returns HTML code for video player (HTML5).
+     * Get HTML code for video player (HTML5).
      *
      * @param string      $type     The audio mime type (not used)
      * @param string      $url      The audio URL to play
@@ -1390,7 +1419,7 @@ class Media extends Manager
     }
 
     /**
-     * Returns HTML code for MP3 player (HTML5).
+     * Get HTML code for MP3 player (HTML5).
      *
      * @param string      $url      The audio URL to play
      * @param null|string $player   The player URL (not used)

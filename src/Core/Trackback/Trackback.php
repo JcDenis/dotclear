@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Trackback;
 
+// Dotclear\Core\Trackback\Trackback
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\InsertStatement;
@@ -25,8 +26,6 @@ use Exception;
 /**
  * Trackbacks/Pingbacks sender and server.
  *
- * \Dotclear\Core\Trackback\Trackback
- *
  * Sends and receives trackbacks/pingbacks.
  * Also handles trackbacks/pingbacks auto discovery.
  *
@@ -34,7 +33,10 @@ use Exception;
  */
 class Trackback
 {
-    /** @var string Trackback table name */
+    /**
+     * @var string $table
+     *             Trackback table name
+     */
     public $table = 'ping';
 
     // / @name Send

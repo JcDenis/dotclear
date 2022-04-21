@@ -9,14 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Media\Image;
 
+// Dotclear\Core\Media\Image\ImageTools
 use GdImage;
 use Dotclear\Exception\HelperException;
 use Dotclear\Helper\File\Files;
 
 /**
  * Basic image handling tool.
- *
- * \Dotclear\Core\Media\Image\ImageTools
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  * Some methods are based on https://dev.media-box.net/big/
@@ -25,10 +24,16 @@ use Dotclear\Helper\File\Files;
  */
 class ImageTools
 {
-    /** @var false|GdImage Image resource */
+    /**
+     * @var false|GdImage $res
+     *                    Image resource
+     */
     public $res = false;
 
-    /** @ var   string  $memory_limit   Memory limit */
+    /**
+     * @var string $memory_limit
+     *             Memory limit
+     */
     public $memory_limit;
 
     /**
@@ -124,7 +129,7 @@ class ImageTools
     /**
      * Image width.
      *
-     * @return int Image width
+     * @return int The image width
      */
     public function getW(): int
     {
@@ -134,7 +139,7 @@ class ImageTools
     /**
      * Image height.
      *
-     * @return int Image height
+     * @return int The image height
      */
     public function getH(): int
     {
@@ -168,7 +173,7 @@ class ImageTools
                 }
 
                 if (!$this->memory_limit) {
-                    $this->memory_limit = $mem_limit;
+                    $this->memory_limit = (string) $mem_limit;
                 }
             }
         }

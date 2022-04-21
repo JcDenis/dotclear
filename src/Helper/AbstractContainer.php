@@ -22,16 +22,28 @@ use Exception;
  */
 abstract class AbstractContainer
 {
-    /** @var string Container id */
+    /**
+     * @var string $id
+     *             The container id
+     */
     protected $id = '';
 
-    /** @var array<string, mixed>      Default properties */
+    /**
+     * @var array<string, mixed> $info
+     *                           Default properties
+     */
     protected $info = [];
 
-    /** @var array<string, mixed>       Properties */
+    /**
+     * @var array<string, mixed> $row
+     *                           Properties
+     */
     private $row = [];
 
-    /** @var array<string, mixed>        Modified properties */
+    /**
+     * @var array<string, mixed> $change
+     *                           Modified properties
+     */
     private $change = [];
 
     /**

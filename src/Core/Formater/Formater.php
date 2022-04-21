@@ -7,6 +7,8 @@
  */
 declare(strict_types=1);
 
+// Dotclear\Core\Formater\Formater
+
 namespace Dotclear\Core\Formater;
 
 use Closure;
@@ -14,13 +16,14 @@ use Closure;
 /**
  * Text formater methods.
  *
- * \Dotclear\Core\Formater\Formater
- *
  * @ingroup  Core Text
  */
 class Formater
 {
-    /** @var array formaters container */
+    /**
+     * @var array<string, mixed> $formaters
+     *                           formaters container
+     */
     private $formaters = [];
 
     /**
@@ -43,9 +46,9 @@ class Formater
     }
 
     /**
-     * Gets the editors list.
+     * Get the editors list.
      *
-     * @return array the editors
+     * @return array<string, string> The editors
      */
     public function getEditors(): array
     {
@@ -61,7 +64,7 @@ class Formater
     }
 
     /**
-     * Gets the formaters.
+     * Get the formaters.
      *
      * if @param editor is empty:
      * return all formaters sorted by actives editors
@@ -73,7 +76,7 @@ class Formater
      *
      * @param string $editor The editor identifier (LegacyEditor, dcCKEditor, ...)
      *
-     * @return array the formaters
+     * @return array<string, array> The formaters
      */
     public function getFormaters(string $editor = ''): array
     {
@@ -95,7 +98,7 @@ class Formater
     /**
      * Call editor formater. (format a string).
      *
-     * If <var>$formater</var> is a valid formater, it returns <var>$str</var>
+     * If <b>$formater</b> is a valid formater, it returns <b>$str</b>
      * transformed using that formater.
      *
      * @param string $editor   The editor identifier (LegacyEditor, dcCKEditor, ...)

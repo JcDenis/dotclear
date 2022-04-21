@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\RsExt;
 
+// Dotclear\Core\RsExtend
 use Dotclear\Database\RecordExtend;
 
 /**
  * Core record extension.
- *
- * \Dotclear\Core\RsExtend
  *
  * All core record extension must extend this class.
  *

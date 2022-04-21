@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\RsExt;
 
+// Dotclear\Core\RsExt\RsExtBlog
 use Dotclear\Helper\Dt;
 
 /**
  * Blogs record helpers.
- *
- * \Dotclear\Core\RsExt\RsExtBlog
  *
  * @ingroup  Core Blog Record
  */

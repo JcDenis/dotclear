@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\RsExt;
 
+// Dotclear\Core\RsExt\RsExtLog
 use Dotclear\Core\User\UserContainer;
 
 /**
  * Logs record helpers.
- *
- * \Dotclear\Core\RsExt\RsExtLog
  *
  * @ingroup  Core Log Record
  */

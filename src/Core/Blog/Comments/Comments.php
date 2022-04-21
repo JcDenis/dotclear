@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Blog\Comments;
 
+// Dotclear\Core\Blog\Comments\Comments
 use ArrayObject;
 use Dotclear\Core\RsExt\RsExtComment;
 use Dotclear\Database\Record;
@@ -26,15 +27,14 @@ use Exception;
 /**
  * Comments handling methods.
  *
- * \Dotclear\Core\Blog\Comments\Comments
- *
  * @ingroup  Core Comment
  */
 class Comments
 {
     /**
-     * Retrieves comments. <b>$params</b> is an array taking the following
-     * optionnal parameters:.
+     * Retrieve comments.
+     *
+     * <b>$params</b> is an array taking the following optionnal parameters:
      *
      * - no_content: Don't retrieve comment content
      * - post_type: Get only entries with given type (default no type, array for many types)
@@ -261,9 +261,13 @@ class Comments
     }
 
     /**
-     * Creates a new comment. Takes a cursor as input and returns the new comment ID.
+     * Create a new comment.
+     *
+     * Takes a cursor as input and returns the new comment ID.
      *
      * @param Cursor $cur The comment cursor
+     *
+     * @return int The comment id
      */
     public function addComment(Cursor $cur): int
     {
@@ -315,7 +319,7 @@ class Comments
     }
 
     /**
-     * Updates an existing comment.
+     * Update an existing comment.
      *
      * @param int    $id  The comment identifier
      * @param Cursor $cur The comment cursor
@@ -366,7 +370,7 @@ class Comments
     }
 
     /**
-     * Updates comment status.
+     * Update comment status.
      *
      * @param int $id     The comment identifier
      * @param int $status The comment status
@@ -483,7 +487,12 @@ class Comments
         dotclear()->blog()->triggerBlog();
     }
 
-    private function getPostOwnerStatement()
+    /**
+     * Build post owner SQL statement.
+     *
+     * @return string the partial SQL statement
+     */
+    private function getPostOwnerStatement(): string
     {
         $sql = new SelectStatement(__METHOD__);
         $sql
@@ -501,7 +510,7 @@ class Comments
     }
 
     /**
-     * Gets the comment cursor.
+     * Get the comment cursor.
      *
      * @param Cursor $cur The comment cursor
      *

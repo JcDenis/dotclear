@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Session;
 
+// Dotclear\Core\Session\Session
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\InsertStatement;
 use Dotclear\Database\Statement\SelectStatement;
@@ -17,31 +18,50 @@ use Dotclear\Database\Statement\UpdateStatement;
 /**
  * Session handling methods.
  *
- * \Dotclear\Core\Session\Session
- *
  * @ingroup  Core Session
  */
 class Session
 {
-    /** @var string Session table name */
+    /**
+     * @var string $table
+     *             Session table name
+     */
     private $table;
 
-    /** @var string Session cookie name */
+    /**
+     * @var string $cookie_name
+     *             Session cookie name
+     */
     private $cookie_name;
 
-    /** @var string Session cookie path */
+    /**
+     * @var string $cookie_path
+     *             Session cookie path
+     */
     private $cookie_path;
 
-    /** @var string Session cookie domani */
+    /**
+     * @var string $cookie_domain
+     *             Session cookie domain
+     */
     private $cookie_domain;
 
-    /** @var string Session cookie is secure */
+    /**
+     * @var string $cookie_secure
+     *             Session cookie is secure
+     */
     private $cookie_secure;
 
-    /** @var string Session time to live */
+    /**
+     * @var string $ttl
+     *             Session time to live
+     */
     private $ttl = '-120 minutes';
 
-    /** @var bool Session transient */
+    /**
+     * @var bool $transient
+     *           Session transient
+     */
     private $transient = false;
 
     /**

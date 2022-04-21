@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Log;
 
+// Dotclear\Core\Log\Log
 use Dotclear\Core\RsExt\RsExtLog;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\JoinStatement;
@@ -23,21 +24,27 @@ use Exception;
 /**
  * Log handling methods.
  *
- * \Dotclear\Core\Log\Log
- *
  * @ingroup  Core Log
  */
 class Log
 {
-    /** @var string Log table name */
+    /**
+     * @var string $log_table
+     *             Log table name
+     */
     protected $log_table = 'log';
 
-    /** @var string User table name */
+    /**
+     * @var string $user_table
+     *             User table name
+     */
     protected $user_table = 'user';
 
     /**
-     * Retrieves logs. <b>$params</b> is an array taking the following
-     * optionnal parameters:.
+     * Retrieve logs.
+     *
+     * <b>$params</b> is an array taking the following
+     * optionnal parameters:
      *
      * - blog_id: Get logs belonging to given blog ID
      * - user_id: Get logs belonging to given user ID
@@ -123,9 +130,13 @@ class Log
     }
 
     /**
-     * Creates a new log. Takes a cursor as input and returns the new log ID.
+     * Create a new log.
+     *
+     * Takes a cursor as input and returns the new log ID.
      *
      * @param Cursor $cur The current
+     *
+     * @return int The log id
      */
     public function add(Cursor $cur): int
     {
@@ -162,7 +173,7 @@ class Log
     }
 
     /**
-     * Deletes a log.
+     * Delete a log.
      *
      * @param array|int $id  The identifier
      * @param bool      $all Remove all logs
@@ -183,7 +194,7 @@ class Log
     }
 
     /**
-     * Gets the log cursor.
+     * Get the log cursor.
      *
      * @param Cursor   $cur    The current
      * @param null|int $log_id The log identifier

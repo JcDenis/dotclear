@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Blog\Settings;
 
+// Dotclear\Core\Blog\Settings\Settings
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\SelectStatement;
@@ -18,19 +19,24 @@ use Dotclear\Exception\CoreException;
 /**
  * Blog settings handling methods.
  *
- * \Dotclear\Core\Blog\Settings\Settings
- *
  * @ingroup  Core Setting
  */
 class Settings
 {
-    /** @var string Setting table name */
+    /**
+     * @var string $table
+     *             Setting table name
+     */
     protected $table;
 
-    /** @var array Associative namespaces array */
+    /** @var array $namespaces
+     *             Associative namespaces array
+     */
     protected $namespaces = [];
 
-    /** @var string Current namespace */
+    /** @var string $ns
+     *              Current namespace
+     */
     protected $ns;
 
     protected const NS_NAME_SCHEMA = '/^[a-zA-Z][a-zA-Z0-9]+$/';
@@ -50,7 +56,7 @@ class Settings
     }
 
     /**
-     * Retrieves all namespaces.
+     * Retrieve all namespaces.
      *
      * (and their settings) from database, with one query.
      */
@@ -169,7 +175,7 @@ class Settings
     }
 
     /**
-     * Returns full namespace with all settings pertaining to it.
+     * Return full namespace with all settings pertaining to it.
      *
      * @param string $ns Namespace name
      */
@@ -189,7 +195,7 @@ class Settings
     }
 
     /**
-     * Dumps namespaces.
+     * Dump namespaces.
      */
     public function dump(): array
     {
@@ -206,7 +212,7 @@ class Settings
      *
      * @param array $params The parameters
      *
-     * @return Record the global settings
+     * @return Record The global settings
      */
     public function getGlobalSettings(array $params = []): Record
     {
@@ -235,7 +241,7 @@ class Settings
     }
 
     /**
-     * Updates a setting from a given record.
+     * Update a setting from a given record.
      *
      * @param Record $rs The setting to update
      */
@@ -263,7 +269,7 @@ class Settings
     }
 
     /**
-     * Drops a setting from a given record.
+     * Drop a setting from a given record.
      *
      * @param Record $rs The setting to drop
      *

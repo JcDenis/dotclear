@@ -9,18 +9,20 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Wiki;
 
+// Dotclear\Core\Wiki\Wiki
 use Dotclear\Helper\Html\Html;
 
 /**
  * Wiki tool handler.
  *
- * \Dotclear\Core\Wiki\Wiki
- *
  * @ingroup  Core Text
  */
 class Wiki
 {
-    /** @var Wiki2xhtml Wiki2xhtml instance */
+    /**
+     * @var Wiki2xhtml $wiki2xhtml
+     *                 Wiki2xhtml instance
+     */
     private $wiki2xhtml;
 
     /**

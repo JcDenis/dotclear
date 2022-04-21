@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\RsExt;
 
+// Dotclear\Core\RsExt\RsExtDate
 use Dotclear\Helper\Dt;
 
 /**
  * Record dates helpers.
- *
- * \Dotclear\Core\RsExt\RsExtDate
  *
  * This class adds new methods to database dates results.
  * You can call them on every record comming from Blog::getDates.

@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\RsExt;
 
+// Dotclear\Core\RsExt\RsExtCommentPublic
+
 /**
  * Comments record public helpers.
- *
- * \Dotclear\Core\RsExt\RsExtCommentPublic
  *
  * @ingroup  Core Public Comment Record
  */

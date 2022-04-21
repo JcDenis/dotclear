@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Url;
 
+// Dotclear\Core\Url\Url
 use ArrayObject;
 use Closure;
 use Dotclear\Core\Trackback\Trackback;
@@ -24,40 +25,67 @@ use Exception;
 /**
  * URL handler (public) methods.
  *
- * \Dotclear\Core\Url\Url
- *
  * @ingroup  Core Public Url
  */
 class Url
 {
-    /** @var array URL registered types */
+    /**
+     * @var array $types
+     *            URL registered types
+     */
     protected $types = [];
 
-    /** @var array|Closure|string Default URL handler callback */
+    /**
+     * @var array|Closure|string $default_handler
+     *                           Default URL handler callback
+     */
     protected $default_handler;
 
-    /** @var array Error URL handler */
+    /** @var array $error_handlers
+     * Error URL handler
+     */
     protected $error_handlers = [];
 
-    /** @var string URL mode */
+    /**
+     * @var string $mode
+     *             URL mode
+     */
     public $mode = 'path_info';
 
-    /** @var string URL handler current type */
+    /**
+     * @var string $type
+     *             URL handler current type
+     */
     public $type = 'default';
 
-    /** @var array List of script used files */
+    /**
+     * @var array $mod_files
+     *            List of script used files
+     */
     public $mod_files = [];
 
-    /** @var array List of timestamp */
+    /**
+     * @var array $mod_ts
+     *            List of timestamp
+     */
     public $mod_ts = [];
 
-    /** @var string URL args */
+    /**
+     * @var string $args
+     *             URL args
+     */
     public $args;
 
-    /** @var string Search string */
+    /**
+     * @var string $search_string
+     *             Search string
+     */
     public $search_string;
 
-    /** @var int Search count */
+    /**
+     * @var int $search_count
+     *          Search count
+     */
     public $search_count;
 
     /**

@@ -1,7 +1,7 @@
 <?php
 /**
  * Global functions.
- * 
+ *
  * @file \src\functions.php
  *
  * @package Dotclear
@@ -11,8 +11,11 @@
  */
 declare(strict_types=1);
 
-namespace { 
+namespace Dotclear {
+    // php-cs-fixer requires namespace to exist
+}
 
+namespace { // enter to global namespace to declare root functions
 // @cond ONCE
 if (!function_exists('dotclear_run')) {
     // @endcond
@@ -115,6 +118,7 @@ if (!function_exists('dotclear_error')) {
      * @param string $message The message
      * @param string $detail  The detail
      * @param int    $code    The code
+     * @param ?array $traces
      */
     function dotclear_error(string $message, string $detail = '', int $code = 0, ?array $traces = null): void
     {
@@ -205,5 +209,4 @@ if (!function_exists('dotclear_error')) {
     // @cond ONCE
 }
 // @endcond
-
-}
+} // end global namesapce

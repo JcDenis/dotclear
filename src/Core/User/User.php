@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\User;
 
+// Dotclear\Core\User\User
 use Dotclear\Core\RsExt\RsExtUser;
 use Dotclear\Core\User\Preference\Preference;
 use Dotclear\Database\Statement\SelectStatement;
@@ -22,44 +23,72 @@ use Exception;
 /**
  * User authentication class.
  *
- * \Dotclear\Core\User\User
- *
  * @ingroup  Core User
  */
 class User
 {
-    /** @var UserContainer Container instance */
+    /**
+     * @var UserContainer $container
+     *                    Container instance
+     */
     protected $container;
 
-    /** @var Preference Preference instance */
+    /**
+     * @var Preference $preference
+     *                 Preference instance
+     */
     protected $preference;
 
-    /** @var string User table name */
+    /**
+     * @var string $user_table
+     *             ser table name
+     */
     protected $user_table = 'user';
 
-    /** @var string Perm table name */
+    /**
+     * @var string $perm_table
+     *             Perm table name
+     */
     protected $perm_table = 'permissions';
 
-    /** @var string Blog table name */
+    /**
+     * @var string $blog_table
+     *             Blog table name
+     */
     protected $blog_table = 'blog';
 
-    /** @var array Permissions for each blog */
+    /**
+     * @var array $permissions
+     *            Permissions for each blog
+     */
     protected $permissions = [];
 
-    /** @var bool User can change its password */
+    /**
+     * @var bool $allow_pass_change
+     *           User can change its password
+     */
     protected $allow_pass_change = true;
 
-    /** @var array List of blogs on which the user has permissions */
+    /**
+     * @var array $blogs
+     *            List of blogs on which the user has permissions
+     */
     protected $blogs = [];
 
-    /** @var array Permission types */
+    /**
+     * @var array $perm_types
+     *            Permission types
+     */
     protected $perm_types = [];
 
-    /** @var int Count of user blogs */
+    /**
+     * @var int $blog_count
+     *          Count of user blogs
+     */
     public $blog_count;
 
     /**
-     * Class constructor. Takes Core object as single argument.
+     * Constructor.
      */
     public function __construct()
     {
@@ -80,7 +109,9 @@ class User
     // / @name Credentials and user permissions
     // @{
     /**
-     * Checks if user exists and can log in. <var>$pwd</var> argument is optionnal
+     * Check if user exists and can log in.
+     *
+     * <var>$pwd</var> argument is optionnal
      * while you may need to check user without password. This method will create
      * credentials and populate all needed object properties.
      *
@@ -224,6 +255,8 @@ class User
 
     /**
      * This method checks user session validity.
+     *
+     * @param ?string $uid
      */
     public function checkSession(?string $uid = null): bool
     {
@@ -252,7 +285,7 @@ class User
     }
 
     /**
-     * Checks if user must change his password in order to login.
+     * Check if user must change his password in order to login.
      */
     public function mustChangePassword(): bool
     {
@@ -260,7 +293,7 @@ class User
     }
 
     /**
-     * Checks if user is super admin.
+     * Check if user is super admin.
      */
     public function isSuperAdmin(): bool
     {
@@ -268,8 +301,10 @@ class User
     }
 
     /**
-     * Checks if user has permissions given in <var>$permissions</var> for blog
-     * <var>$blog_id</var>. <var>$permissions</var> is a coma separated list of
+     * Check if user has permissions given in <var>$permissions</var> for blog
+     * <var>$blog_id</var>.
+     *
+     * <var>$permissions</var> is a coma separated list of
      * permissions.
      *
      * @param string $permissions Permissions list
@@ -300,7 +335,7 @@ class User
     }
 
     /**
-     * Returns true if user is allowed to change its password.
+     * Return true if user is allowed to change its password.
      */
     public function allowPassChange(): bool
     {
@@ -311,10 +346,12 @@ class User
     // / @name Sudo
     // @{
     /**
-     * Calls $f function with super admin rights.
+     * Call $f function with super admin rights.
+     *
      * Returns the function result.
      *
-     * @param callable $f Callback function
+     * @param callable $f    Callback function
+     * @param array    $args
      *
      * @return mixed
      */
@@ -346,7 +383,7 @@ class User
     // / @name User information and options
     // @{
     /**
-     * Returns user permissions for a blog as an array which looks like:.
+     * Return user permissions for a blog as an array which looks like:.
      *
      *  - [blog_id]
      *    - [permission] => true
@@ -394,7 +431,7 @@ class User
     }
 
     /**
-     * Gets the blog count.
+     * Get the blog count.
      *
      * @return int the blog count
      */
@@ -408,7 +445,7 @@ class User
     }
 
     /**
-     * Finds an user blog.
+     * Find an user blog.
      *
      * @param null|string $blog_id The blog identifier
      */
@@ -453,7 +490,7 @@ class User
     }
 
     /**
-     * Returns current user ID.
+     * Return current user ID.
      */
     public function userID(): string
     {
@@ -471,7 +508,7 @@ class User
     }
 
     /**
-     * Returns information about a user .
+     * Return information about a user .
      *
      * @param string $n Information name
      *
@@ -483,7 +520,7 @@ class User
     }
 
     /**
-     * Returns a specific user option.
+     * Return a specific user option.
      *
      * @param string $n Option name
      *
@@ -495,7 +532,7 @@ class User
     }
 
     /**
-     * Returns all user options in an associative array.
+     * Return all user options in an associative array.
      */
     public function getOptions(): array
     {
@@ -506,7 +543,7 @@ class User
     // / @name Permissions
     // @{
     /**
-     * Returns an array with permissions parsed from the string <var>$level</var>.
+     * Return an array with permissions parsed from the string <var>$level</var>.
      *
      * @param null|string $level Permissions string
      */
@@ -525,7 +562,7 @@ class User
     }
 
     /**
-     * Returns <var>perm_types</var> property content.
+     * Return <var>perm_types</var> property content.
      */
     public function getPermissionsTypes(): array
     {
@@ -533,7 +570,7 @@ class User
     }
 
     /**
-     * Adds a new permission type.
+     * Add a new permission type.
      *
      * @param string $name  Permission name
      * @param string $title Permission title
@@ -582,8 +619,9 @@ class User
     }
 
     /**
-     * Creates a new user password using recovery key. Returns an array:.
+     * Create a new user password using recovery key.
      *
+     * Returns an array:
      * - user_email
      * - user_id
      * - new_pass

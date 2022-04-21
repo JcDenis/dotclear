@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Blog\Settings;
 
+// Dotclear\Core\Blog\Settings\Settingspace
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\InsertStatement;
@@ -19,25 +20,38 @@ use Dotclear\Exception\CoreException;
 /**
  * Blog settings namespace handling methods.
  *
- * \Dotclear\Core\Blog\Settings\Settingspace
- *
  * @ingroup  Core Setting
  */
 class Settingspace
 {
-    /** @var string Settings table name */
+    /**
+     * @var string $table
+     *             Settings table name
+     */
     protected $table;
 
-    /** @var array Global settings array */
+    /**
+     * @var array $global_settings
+     *            Global settings array
+     */
     protected $global_settings = [];
 
-    /** @var array Local settings array */
+    /**
+     * @var array $local_settings
+     *            Local settings array
+     */
     protected $local_settings = [];
 
-    /** @var array Associative settings array */
+    /**
+     * @var array $settings
+     *            Associative settings array
+     */
     protected $settings = [];
 
-    /** @var string Current namespace */
+    /**
+     * @var string $ns
+     *             Current namespace
+     */
     protected $ns;
 
     protected const NS_NAME_SCHEMA = '/^[a-zA-Z][a-zA-Z0-9]+$/';
@@ -46,11 +60,13 @@ class Settingspace
     /**
      * Constructor.
      *
-     * Retrieves blog settings and puts them in $settings
-     * array. Local (blog) settings have a highest priority than global settings.
+     * Retrieves blog settings and puts them in an array.
+     *
+     * Local (blog) settings have a highest priority than global settings.
      *
      * @param null|string $blog_id The blog identifier
      * @param string      $name    The namespace ID
+     * @param ?Record     $rs
      *
      * @throws CoreException
      */
@@ -140,10 +156,12 @@ class Settingspace
     }
 
     /**
-     * Returns true if a setting exist, else false.
+     * Check if a setting exists.
      *
      * @param string $id     The identifier
      * @param bool   $global The global
+     *
+     * @return bool True if settings exists
      */
     public function settingExists(string $id, bool $global = false): bool
     {
@@ -153,9 +171,11 @@ class Settingspace
     }
 
     /**
-     * Returns setting value if exists.
+     * Get setting value if exists.
      *
      * @param string $n Setting name
+     *
+     * @return mixed The setting value (or null if not)
      */
     public function get(string $n): mixed
     {
@@ -164,9 +184,11 @@ class Settingspace
     }
 
     /**
-     * Returns global setting value if exists.
+     * Get global setting value if exists.
      *
      * @param string $n Setting name
+     *
+     * @return mixed The global setting value (or null if not)
      */
     public function getGlobal(string $n): mixed
     {
@@ -175,9 +197,11 @@ class Settingspace
     }
 
     /**
-     * Returns local setting value if exists.
+     * Get local setting value if exists.
      *
      * @param string $n Setting name
+     *
+     * @return mixed The local setting value (or null if not)
      */
     public function getLocal(string $n): mixed
     {
@@ -186,7 +210,7 @@ class Settingspace
     }
 
     /**
-     * Sets a setting in $settings property.
+     * Set a setting in $settings property.
      *
      * This sets the setting for script
      * execution time only and if setting exists.
@@ -202,13 +226,14 @@ class Settingspace
     }
 
     /**
-     * Creates or updates a setting.
+     * Create or update a setting.
      *
-     * $type could be 'string', 'integer', 'float', 'boolean', 'array' or null. If $type is
-     * null and setting exists, it will keep current setting type.
+     * $type could be 'string', 'integer', 'float', 'boolean', 'array' or null.
+     * If $type is null and setting exists, it will keep current setting type.
      *
-     * $value_change allow you to not change setting. Useful if you need to change
-     * a setting label or type and don't want to change its value.
+     * $value_change allow you to not change setting.
+     * Useful if you need to change a setting label or type
+     * and don't want to change its value.
      *
      * @param string $id           The setting identifier
      * @param mixed  $value        The setting value
@@ -365,7 +390,7 @@ class Settingspace
     }
 
     /**
-     * Removes an existing setting in a Namespace.
+     * Remove an existing setting in a namespace.
      *
      * @param string $id The setting identifier
      *
@@ -391,7 +416,7 @@ class Settingspace
     }
 
     /**
-     * Removes every existing specific setting in a namespace.
+     * Remove every existing specific setting in a namespace.
      *
      * @param string $id     Setting ID
      * @param bool   $global Remove global setting too
@@ -418,7 +443,7 @@ class Settingspace
     }
 
     /**
-     * Removes all existing settings in a Namespace.
+     * Remove all existing settings in a namespace.
      *
      * @param bool $force_global Force global pref drop
      *
@@ -452,7 +477,7 @@ class Settingspace
     }
 
     /**
-     * Dumps a namespace.
+     * Dump a namespace.
      */
     public function dumpNamespace(): string
     {
@@ -460,7 +485,7 @@ class Settingspace
     }
 
     /**
-     * Dumps settings.
+     * Dump settings.
      */
     public function dumpSettings(): array
     {
@@ -468,7 +493,7 @@ class Settingspace
     }
 
     /**
-     * Dumps local settings.
+     * Dump local settings.
      */
     public function dumpLocalSettings(): array
     {
@@ -476,7 +501,7 @@ class Settingspace
     }
 
     /**
-     * Dumps global settings.
+     * Dump global settings.
      */
     public function dumpGlobalSettings(): array
     {

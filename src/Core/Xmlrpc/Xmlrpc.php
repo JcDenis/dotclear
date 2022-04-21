@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Xmlrpc;
 
+// Dotclear\Core\Xmlrpc\Xmlrpc
 use ArrayObject;
 use Dotclear\Core\User\UserContainer;
 use Dotclear\Core\Trackback\Trackback;
@@ -24,8 +25,6 @@ use Exception;
 
 /**
  * XML-RPC server.
- *
- * \Dotclear\Core\Xmlrpc\Xmlrpc
  *
  * @ingroup  Core Network
  */

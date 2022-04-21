@@ -9,28 +9,30 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\PostType;
 
+// Dotclear\Core\PostType\PostType
 use Dotclear\Helper\Html\Html;
 
 /**
  * Post type handling.
  *
- * \Dotclear\Core\PostType\PostType
- *
  * @ingroup  Core Post
  */
 class PostType
 {
-    /** @var array Formaters container */
+    /**
+     * @var array $post_types
+     *            Formaters container
+     */
     private $post_types = [];
 
     /**
-     * Gets the post admin url.
+     * Get the post admin url.
      *
      * @param string     $type    The type
      * @param int|string $post_id The post identifier
      * @param bool       $escaped Escape the URL
      *
-     * @return string the post admin url
+     * @return string The post admin url
      */
     public function getPostAdminURL(string $type, string|int $post_id, bool $escaped = true): string
     {
@@ -44,13 +46,13 @@ class PostType
     }
 
     /**
-     * Gets the post public url.
+     * Get the post public url.
      *
      * @param string $type     The type
      * @param string $post_url The post url
      * @param bool   $escaped  Escape the URL
      *
-     * @return string the post public url
+     * @return string The post public url
      */
     public function getPostPublicURL(string $type, string $post_url, bool $escaped = true): string
     {
@@ -64,7 +66,7 @@ class PostType
     }
 
     /**
-     * Sets the post type.
+     * Set the post type.
      *
      * @param string $type       The type
      * @param string $admin_url  The admin url
@@ -81,9 +83,9 @@ class PostType
     }
 
     /**
-     * Gets the post types.
+     * Get the post types.
      *
-     * @return array the post types
+     * @return array The post types
      */
     public function getPostTypes(): array
     {

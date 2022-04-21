@@ -11,7 +11,7 @@
  * Classes related to list actions.
  *
  * 
- * @defgroup Admin
+ * @defgroup Admin Admin
  * 
  * Classes related to Admin process. (backend)
  * 
@@ -31,13 +31,13 @@
  * Classes related to comments.
  * 
  * 
- * @defgroup Container
+ * @defgroup Container Container
  *
  * Container used to serve fields
  * from a single record with the right type.
  * 
  * 
- * @defgroup Core
+ * @defgroup Core Core
  *
  * Core classes that can be used by any process.
  * A process (Admin, Public, Install, Distrib, ...)
@@ -45,33 +45,33 @@
  * from \em dotclear()->
  * 
  * 
- * @defgroup Database
+ * @defgroup Database Database
  *
  * Databases management classes.
  * 
  * 
- * @defgroup Deprecated
+ * @defgroup Deprecated Deprecated
  *
  * Mark and manage deprecated classes and methods.
  *
  * 
- * @defgroup Distrib
+ * @defgroup Distrib Distrib
  * 
  * Classes related to Distrib process.
  * 
  * 
- * @defgroup Dotclear
+ * @defgroup Dotclear Dotclear
  * 
  * Dotclear is an open-source web publishing software 
  * published in 2003 by Olivier Meunier.
  * 
  * 
- * @defgroup Exception
+ * @defgroup Exception Exception
  *
  * Exception classes.
  * 
  * 
- * @defgroup File
+ * @defgroup File File
  *
  * Classes related to file and path manipulation.
  * 
@@ -81,7 +81,7 @@
  * Classes related to list filters.
  *
  *
- * @defgroup  Function
+ * @defgroup  Function Functions
  *
  * Out-of-namespaces functions
  * to simplify calls from everywhere.
@@ -92,37 +92,37 @@
  * Classes related to admin page handling.
  * 
  * 
- * @defgroup Helper
+ * @defgroup Helper Helper
  *
  * Usefull reusable classes.
  * 
  * 
- * @defgroup Help
+ * @defgroup Help Help
  *
  * Classes related to help.
  * 
  * 
- * @defgroup Html
+ * @defgroup Html Html
  *
  * Casses related to HTML manipulation.
  *
  * 
- * @defgroup Install
+ * @defgroup Install Install
  * 
  * Classes related to Install process.
  *
  * 
- * @defgroup Inventory
+ * @defgroup Inventory Inventory
  * 
  * Classes that manage inventory list.
  * 
  * 
- * @defgroup Localisation
+ * @defgroup Localisation Localisation
  *
  * Classes related to locales.
  * 
  * 
- * @defgroup Media
+ * @defgroup Media Media
  *
  * Classes related to media.
  *
@@ -134,7 +134,7 @@
  * to interface extensions to Dotclear.
  * 
  * 
- * @defgroup Network
+ * @defgroup Network Network
  *
  * Classes related to network feartures.
  *
@@ -149,17 +149,17 @@
  * Classes related to posts.
  * 
  * 
- * @defgroup Preference
+ * @defgroup Preference Preference
  *
  * Classes related to user preference.
  *
  * 
- * @defgroup Public
+ * @defgroup Public Public
  * 
  * Classes related to Public process. (frontend)
  *
  * 
- * @defgroup Rest
+ * @defgroup Rest REST
  * 
  * Classes related to REST service/methods.
  * 
@@ -169,12 +169,12 @@
  * Classes related to blogs settings.
  * 
  * 
- * @defgroup Stack
+ * @defgroup Stack Stack
  *
  * Classes using stack properties.
  * 
  * 
- * @defgroup Template
+ * @defgroup Template Template
  *
  * Classes related to Template manipulation.
  *
@@ -189,7 +189,7 @@
  * Classes related to public URLs.
  * 
  * 
- * @defgroup User
+ * @defgroup User User
  *
  * Classes related to users.
  * 

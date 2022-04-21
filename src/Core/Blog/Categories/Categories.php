@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Blog\Categories;
 
+// Dotclear\Core\Blog\Categories\Categories
 use ArrayObject;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
@@ -22,13 +23,14 @@ use Dotclear\Helper\Text;
 /**
  * Categories handling methods.
  *
- * \Dotclear\Core\Blog\Categories\Categories
- *
  * @ingroup  Core Category
  */
 class Categories
 {
-    /** @var CategoriesTree CategoriesTree instance */
+    /**
+     * @var CategoriesTree $categoriestree
+     *                     CategoriesTree instance
+     */
     private $categoriestree;
 
     /**
@@ -234,7 +236,7 @@ class Categories
      *
      * @param array|ArrayObject $params The parameters
      *
-     * @return array the categories counter
+     * @return array<int, int> the categories counter
      */
     private function getCategoriesCounter(array|ArrayObject $params = []): array
     {
@@ -267,7 +269,7 @@ class Categories
         $rs       = $sql->select();
         $counters = [];
         while ($rs->fetch()) {
-            $counters[$rs->f('cat_id')] = $rs->f('nb_post');
+            $counters[$rs->fInt('cat_id')] = $rs->fInt('nb_post');
         }
 
         return $counters;
@@ -461,6 +463,8 @@ class Categories
      * @param string   $title The title
      * @param string   $url   The url
      * @param null|int $id    The identifier
+     *
+     * @return string The cateogry URL
      */
     private function checkCategory(string $title, string $url, ?int $id = null): string
     {

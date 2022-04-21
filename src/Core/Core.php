@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
+// Dotclear\Core\Core
 use Closure;
 use Throwable;
 use Dotclear\Core\Blog\Blog;
@@ -46,92 +47,165 @@ use Exception;
 /**
  * Core for process.
  *
- * \Dotclear\Core\Core
- *
  * @ingroup Process Core
  */
 class Core
 {
     use Errortrait;
 
-    /** @var Autoload Autoload instance */
+    /**
+     * @var Autoload $autoload
+     *               Autoload instance
+     */
     private $autoload;
 
-    /** @var Behavior Behavior instance */
+    /**
+     * @var Behavior $behavior
+     *               Behavior instance
+     */
     private $behavior;
 
-    /** @var null|Blog Blog instance */
+    /**
+     * @var null|Blog $blog
+     *                Blog instance
+     */
     private $blog;
 
-    /** @var Blogs Blogs instance */
+    /**
+     * @var Blogs $blogs
+     *            Blogs instance
+     */
     private $blogs;
 
-    /** @var AbstractConnection AbstractConnection instance */
+    /**
+     * @var AbstractConnection $con
+     *                         AbstractConnection instance
+     */
     private $con;
 
-    /** @var Configuration Configuration instance */
+    /**
+     * @var Configuration $config
+     *                    Configuration instance
+     */
     private $config;
 
-    /** @var Formater Formater instance */
+    /**
+     * @var Formater $formater
+     *               Formater instance
+     */
     private $formater;
 
-    /** @var Log Log instance */
+    /**
+     * @var Log $log
+     *          Log instance
+     */
     private $log;
 
-    /** @var null|Media Media instance */
+    /**
+     * @var null|Media $media
+     *                 Media instance
+     */
     private $media;
 
-    /** @var Meta Meta instance */
+    /**
+     * @var Meta $meta
+     *           Meta instance
+     */
     private $meta;
 
-    /** @var Nonce Nonce instance */
+    /**
+     * @var Nonce $nonce
+     *            Nonce instance
+     */
     private $nonce;
 
-    /** @var PostType PostType instance */
+    /**
+     * @var PostType $posttype
+     *               PostType instance
+     */
     private $posttype;
 
-    /** @var RestServer RestServer instance */
+    /**
+     * @var RestServer $rest
+     *                 RestServer instance
+     */
     private $rest;
 
-    /** @var Session Session instance */
+    /**
+     * @var Session $session
+     *              Session instance
+     */
     private $session;
 
-    /** @var Url Url instance */
+    /**
+     * @var Url $url
+     *          Url instance
+     */
     private $url;
 
-    /** @var User User instance */
+    /**
+     * @var User $user
+     *           User instance
+     */
     private $user;
 
-    /** @var Users Users instance */
+    /**
+     * @var Users $users
+     *            Users instance
+     */
     private $users;
 
-    /** @var Version Version instance */
+    /**
+     * @var Version $version
+     *              Version instance
+     */
     private $version;
 
-    /** @var Wiki Wiki instance */
+    /**
+     * @var Wiki $wiki
+     *           Wiki instance
+     */
     private $wiki;
 
-    /** @var null|static Core singleton instance */
+    /**
+     * @var null|static $instance
+     *                  Core singleton instance
+     */
     private static $instance;
 
-    /** @var string Current Process */
+    /**
+     * @var string $process
+     *             Current Process
+     */
     protected $process;
 
-    /** @var string Current lang */
-    protected $lang = 'en';
+    /**
+     * @var string $lang
+     *             Current lang
+     */
+    protected $lang                 = 'en';
 
-    /** @var array top behaviors */
+    /**
+     * @var array $top_behaviors
+     *            top behaviors
+     */
     protected static $top_behaviors = [];
 
-    /** @var string Database table prefix */
-    public $prefix = '';
+    /**
+     * @var string $prefix
+     *             Database table prefix
+     */
+    public $prefix                  = '';
 
     // / @name Core instance methods
     // @{
     /**
-     * Disabled children constructor and direct instance.
+     * Consructor.
      *
-     * Set up some (no config) static features
+     * This method is mark as <b>final</b>
+     * to cope with singleton instance.
+     *
+     * Set up some (no config) static features.
      */
     final protected function __construct()
     {
@@ -154,6 +228,9 @@ class Core
 
     /**
      * Disable clone method.
+     *
+     * This method is mark as <b>final</b>
+     * to cope with singleton instance.
      */
     final public function __clone()
     {
@@ -162,6 +239,9 @@ class Core
 
     /**
      * Disable sleep method.
+     *
+     * This method is mark as <b>final</b>
+     * to cope with singleton instance.
      */
     final public function __sleep()
     {
@@ -170,6 +250,9 @@ class Core
 
     /**
      * Disable wakeup method.
+     *
+     * This method is mark as <b>final</b>
+     * to cope with singleton instance.
      */
     final public function __wakeup()
     {
@@ -180,6 +263,11 @@ class Core
      * Get core unique instance.
      *
      * Use a two stage instanciation (construct then process).
+     *
+     * This method is mark as <b>final</b>
+     * to cope with singleton instance.
+     *
+     * Singleton Core is accessible from function dotclear()
      *
      * @param null|string $blog_id Blog ID on first public process call
      *
@@ -204,7 +292,9 @@ class Core
      * Instanciate a core autoloader for custom
      * third party (plugins/themes) specifics needs
      *
-     * @return Autoload Autoload instance
+     * Autoload methods are accesible from dotclear()->autoload()
+     *
+     * @return Autoload The autoload instance
      */
     public function autoload(): Autoload
     {
@@ -218,7 +308,9 @@ class Core
     /**
      * Get behavior instance.
      *
-     * @return Behavior Behavior instance
+     * Behavior methods are accesible from dotclear()->behavior()
+     *
+     * @return Behavior The behaviors instance
      */
     public function behavior(): Behavior
     {
@@ -232,7 +324,9 @@ class Core
     /**
      * Get blog instance.
      *
-     * @return null|Blog Blog instance
+     * Blog methods are accesible from dotclear()->blog()
+     *
+     * @return null|Blog The blog instance
      */
     public function blog(): ?Blog
     {
@@ -242,7 +336,9 @@ class Core
     /**
      * Get blogs instance.
      *
-     * @return Blogs Blogs instance
+     * Blogs methods are accesible from dotclear()->blogs()
+     *
+     * @return Blogs The blogs instance
      */
     public function blogs(): Blogs
     {
@@ -256,7 +352,9 @@ class Core
     /**
      * Get database connection instance.
      *
-     * @return AbstractConnection AbstractConnection instance
+     * Database connection methods are accesible from dotclear()->con()
+     *
+     * @return AbstractConnection The connection instance
      */
     public function con(): AbstractConnection
     {
@@ -323,7 +421,9 @@ class Core
     /**
      * Get dotclear configuration instance.
      *
-     * @return Configuration Configuration instance
+     * Configuration methods are accesible from dotclear()->config()
+     *
+     * @return Configuration The configuration instance
      */
     public function config(): Configuration
     {
@@ -341,7 +441,9 @@ class Core
     /**
      * Get formater instance.
      *
-     * @return Formater Formater instance
+     * Formater methods are accesible from dotclear()->formater()
+     *
+     * @return Formater The formater instance
      */
     public function formater(): Formater
     {
@@ -355,7 +457,9 @@ class Core
     /**
      * Get log instance.
      *
-     * @return Log Log instance
+     * Log methods are accesible from dotclear()->log()
+     *
+     * @return Log The log instance
      */
     public function log(): Log
     {
@@ -371,10 +475,12 @@ class Core
      *
      * Caller MUST cope with Media instance failure.
      *
+     * Media methods are accesible from dotclear()->media()
+     *
      * @param bool $reload Force reload of Media instance
      * @param bool $throw  Throw Exception on instance failure
      *
-     * @return Media Media instance
+     * @return Media The media instance
      */
     public function media(bool $reload = false, bool $throw = false): ?Media
     {
@@ -395,7 +501,9 @@ class Core
     /**
      * Get meta instance.
      *
-     * @return Meta Meta instance
+     * Meta methods are accesible from dotclear()->meta()
+     *
+     * @return Meta The meta instance
      */
     public function meta(): Meta
     {
@@ -409,7 +517,9 @@ class Core
     /**
      * Get nonce instance.
      *
-     * @return Nonce Nonce instance
+     * Nonce methods are accesible from dotclear()->nonce()
+     *
+     * @return Nonce The nonce instance
      */
     public function nonce(): Nonce
     {
@@ -423,7 +533,9 @@ class Core
     /**
      * Get posttype instance.
      *
-     * @return PostType PostType instance
+     * PostType methods are accesible from dotclear()->posttype()
+     *
+     * @return PostType The post type instance
      */
     public function posttype(): PostType
     {
@@ -437,7 +549,9 @@ class Core
     /**
      * Get reser server instance.
      *
-     * @return RestServer RestServer instance
+     * RestServer methods are accesible from dotclear()->rest()
+     *
+     * @return RestServer The REST server instance
      */
     public function rest(): RestServer
     {
@@ -451,7 +565,9 @@ class Core
     /**
      * Get session instance.
      *
-     * @return Session Session instance
+     * Session methods are accesible from dotclear()->session()
+     *
+     * @return Session The session instance
      */
     public function session(): Session
     {
@@ -465,7 +581,9 @@ class Core
     /**
      * Get url (public) instance.
      *
-     * @return Url Url instance
+     * Public URL methods are accesible from dotclear()->url()
+     *
+     * @return Url The public URL instance
      */
     public function url(): Url
     {
@@ -479,10 +597,12 @@ class Core
     /**
      * Get user (auth) instance.
      *
-     * You can set \DOTCLEAR_USER_CLASS to whatever you want.
-     * Your new class *should* inherits Dotclear\Core\User\User class.
+     * You can set constant DOTCLEAR_USER_CLASS to whatever you want.
+     * Your new class *should* inherits Core User class.
      *
-     * @return User User instance
+     * User methods are accesible from dotclear()->user()
+     *
+     * @return User The user instance
      */
     public function user(): User
     {
@@ -517,7 +637,9 @@ class Core
     /**
      * Get users instance.
      *
-     * @return Users Users instance
+     * Users methods are accesible from dotclear()->users()
+     *
+     * @return Users The users instance
      */
     public function users(): Users
     {
@@ -531,7 +653,9 @@ class Core
     /**
      * Get version instance.
      *
-     * @return Version Version instance
+     * Version methods are accesible from dotclear()->version()
+     *
+     * @return Version The version instance
      */
     public function version(): Version
     {
@@ -543,9 +667,11 @@ class Core
     }
 
     /**
-     * Get wkik (wki2xhtml) instance.
+     * Get wiki (wiki2xhtml) instance.
      *
-     * @return Wiki Wiki instance
+     * Wiki synthax methods are accesible from dotclear()->wiki()
+     *
+     * @return Wiki The wiki synthax instance
      */
     public function wiki(): Wiki
     {
@@ -703,7 +829,7 @@ class Core
      *
      * @param string $lang Lang to switch on
      *
-     * @return string Lang
+     * @return string The lang
      */
     public function lang(string $lang = null): string
     {
@@ -756,7 +882,7 @@ class Core
     /**
      * Add Top Behavior statically before class instanciate.
      *
-     * ::addTopBehavior('MyBehavior', 'MyFunction');
+     * Core::addTopBehavior('MyBehavior', 'MyFunction');
      * also work from other child class.
      *
      * @param string               $behavior The behavior
@@ -810,11 +936,12 @@ class Core
     // / @name Core exception methods
     // @{
     /**
-     * display default error message.
+     * Display default error message.
      *
-     * @param string $message The short message
-     * @param string $detail  The detailed message
-     * @param int    $code    The code
+     * @param string    $message  The short message
+     * @param string    $detail   The detailed message
+     * @param int       $code     The code
+     * @param Throwable $previous The preious Exception
      *
      * @throws PrependException
      */
@@ -876,8 +1003,6 @@ class Core
      * Default Dotclear configuration.
      *
      * This configuration must be completed by the config.php file.
-     *
-     * @see     Dotclear\Helper\Configuration
      *
      * @return array Initial configuation
      */

@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Media;
 
+// Dotclear\Core\Media\PostMedia
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\InsertStatement;
@@ -18,23 +19,24 @@ use Dotclear\Database\Statement\SelectStatement;
 /**
  * Post media handling.
  *
- * \Dotclear\Core\Media\PostMedia
- *
  * This class handles Dotclear media items.
  *
  * @ingroup  Core Media Post
  */
 class PostMedia
 {
-    /** @var string Post media table name */
+    /**
+     * @var string $table
+     *             Post media table name
+     */
     protected $table = 'post_media';
 
     /**
-     * Returns media items attached to a blog post.
+     * Get media items attached to a blog post.
      *
      * @param array $params The parameters
      *
-     * @return Record the post media
+     * @return Record The post media
      */
     public function getPostMedia(array $params = []): Record
     {
@@ -94,7 +96,7 @@ class PostMedia
     }
 
     /**
-     * Attaches a media to a post.
+     * Attache a media to a post.
      *
      * @param int    $post_id   The post identifier
      * @param int    $media_id  The media identifier
@@ -127,7 +129,7 @@ class PostMedia
     }
 
     /**
-     * Detaches a media from a post.
+     * Detache a media from a post.
      *
      * @param int         $post_id   The post identifier
      * @param int         $media_id  The media identifier

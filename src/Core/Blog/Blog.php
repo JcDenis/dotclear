@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Blog;
 
+// Dotclear\Core\Blog\Blog
 use ArrayObject;
 use Dotclear\Core\Blog\Categories\Categories;
 use Dotclear\Core\Blog\Comments\Comments;
@@ -23,8 +24,6 @@ use Dotclear\Helper\Network\Http;
 /**
  * Blog access methods.
  *
- * \Dotclear\Core\Blog\Blog
- *
  * This class provides access to informations
  * related to a given Blog.
  *
@@ -32,62 +31,118 @@ use Dotclear\Helper\Network\Http;
  */
 class Blog
 {
-    /** @var Categories Categories instance */
+    /**
+     * @var categories $categories
+     *                 The blog categories instance
+     */
     private $categories;
 
-    /** @var Comments Comments instance */
+    /**
+     * @var comments $comments
+     *               The blog comments instance
+     */
     private $comments;
 
-    /** @var Posts Posts instance */
+    /**
+     * @var posts $posts
+     *            The blog posts instance
+     */
     private $posts;
 
-    /** @var Settings Settings instance */
+    /**
+     * @var settings $settings
+     *               The blog settings instance
+     */
     private $settings;
 
-    /** @var string Blog ID */
-    public $id;
+    /**
+     * @var array $post_status
+     *            The post status list
+     */
+    private $post_status    = [];
 
-    /** @var string Blog unique ID */
-    public $uid;
-
-    /** @var string Blog name */
-    public $name;
-
-    /** @var string Blog description */
-    public $desc;
-
-    /** @var string Blog URL */
-    public $url;
-
-    /** @var string Blog host */
-    public $host;
-
-    /** @var int Blog creation date */
-    public $creadt;
-
-    /** @var int Blog last update date */
-    public $upddt;
-
-    /** @var int Blog status */
-    public $status;
-
-    /** @var false|string Blog public path */
-    public $public_path;
-
-    /** @var string Blog fake public url */
-    public $public_url;
-
-    /** @var array post status list */
-    private $post_status = [];
-
-    /** @var array comment status list */
+    /**
+     * @var array $comment_status
+     *            The comment status list
+     */
     private $comment_status = [];
 
-    /** @var bool Disallow entries password protection */
+    /**
+     * @var string $id
+     *             The blog id
+     */
+    public $id;
+
+    /**
+     * @var string $uid
+     *             The blog unique id
+     */
+    public $uid;
+
+    /**
+     * @var string $name
+     *             The blog name
+     */
+    public $name;
+
+    /**
+     * @var string $desc
+     *             The blog description
+     */
+    public $desc;
+
+    /**
+     * @var string $url
+     *             The blog URL
+     */
+    public $url;
+
+    /**
+     * @var string $host
+     *             The blog host
+     */
+    public $host;
+
+    /**
+     * @var int $creadt
+     *          The blog creation date
+     */
+    public $creadt;
+
+    /**
+     * @var int $upddt
+     *          The blog last update date
+     */
+    public $upddt;
+
+    /**
+     * @var int $status
+     *          The blog status
+     */
+    public $status;
+
+    /**
+     * @var false|string $public_path
+     *                   The blog public path
+     */
+    public $public_path;
+
+    /**
+     * @var string $public_url
+     *             The blog public url
+     */
+    public $public_url;
+
+    /**
+     * @var bool $without_password
+     *           Disallow entries password protection
+     */
     public $without_password = true;
 
     /**
-     * Constructs a new instance.
+     * Constructor.
+     *
+     * Blog methods are accesible from dotclear()->blog()
      *
      * @param string $id The blog identifier
      */
@@ -125,9 +180,11 @@ class Blog
     // / @name Blog sub instances methods
     // @{
     /**
-     * Get instance.
+     * Get categories instance.
      *
-     * @return Categories Categories instance
+     * Categories methods are accesible from dotclear()->blog()->categories()
+     *
+     * @return Categories The categories instance
      */
     public function categories(): Categories
     {
@@ -139,9 +196,11 @@ class Blog
     }
 
     /**
-     * Get instance.
+     * Get comments instance.
      *
-     * @return Comments Comments instance
+     * Comments methods are accesible from dotclear()->blog()->comments()
+     *
+     * @return Comments The comments instance
      */
     public function comments(): Comments
     {
@@ -153,9 +212,11 @@ class Blog
     }
 
     /**
-     * Get instance.
+     * Get posts instance.
      *
-     * @return Posts Posts instance
+     * Posts methods are accesible from dotclear()->blog()->posts()
+     *
+     * @return Posts The posts instance
      */
     public function posts(): Posts
     {
@@ -169,7 +230,9 @@ class Blog
     /**
      * Get settings instance.
      *
-     * @return Settings Settings instance
+     * Settings methods are accesible from dotclear()->blog()->settings()
+     *
+     * @return Settings The settings instance
      */
     public function settings(): Settings
     {
@@ -187,7 +250,7 @@ class Blog
     /**
      * Returns blog URL ending with a question mark.
      *
-     * @return string the qmark url
+     * @return string The qmark url
      */
     public function getQmarkURL(): string
     {
@@ -210,19 +273,21 @@ class Blog
     }
 
     /**
-     * Gets the jQuery version.
+     * Gets the jQuery version path.
+     *
+     * @return string The jQuery version path
      */
     public function getJsJQuery(): string
     {
         $version = $this->settings()->get('system')->get('jquery_version');
         if ('' == $version) {
             // Version not set, use default one
-            $version = dotclear()->config()->get('jquery_default'); // defined in inc/prepend.php
+            $version = dotclear()->config()->get('jquery_default');
         } else {
             if (true !== $this->settings()->get('system')->get('jquery_allow_old_version')) {
                 // Use the blog defined version only if more recent than default
                 if (version_compare($version, dotclear()->config()->get('jquery_default'), '<')) {
-                    $version = dotclear()->config()->get('jquery_default'); // defined in inc/prepend.php
+                    $version = dotclear()->config()->get('jquery_default');
                 }
             }
         }
@@ -238,7 +303,7 @@ class Blog
      *
      * @param int $s The status code
      *
-     * @return string the post status
+     * @return string The post status
      */
     public function getPostStatus(int $s): string
     {
@@ -248,7 +313,7 @@ class Blog
     /**
      * Returns an array of available entry status codes and names.
      *
-     * @return array simple array with codes in keys and names in value
+     * @return array<int, string> Simple array with codes in keys and names in value
      */
     public function getAllPostStatus(): array
     {
@@ -258,7 +323,7 @@ class Blog
     /**
      * Returns an array of available comment status codes and names.
      *
-     * @return array Simple array with codes in keys and names in value
+     * @return array<int, string> Simple array with codes in keys and names in value
      */
     public function getAllCommentStatus(): array
     {
@@ -271,7 +336,7 @@ class Blog
      * You need to set it to <var>false</var> while serving a public blog.
      * Set it to null to read current value.
      *
-     * @param null|bool $v Set password usage
+     * @param null|bool $v true to set password usage, null to read it
      */
     public function withoutPassword(?bool $v = null): bool
     {
@@ -329,8 +394,10 @@ class Blog
     }
 
     /**
-     * Updates comment and trackback counters in post table. Should be called
-     * every time a comment or trackback is added, removed or changed its status.
+     * Updates comment and trackback counters in post table.
+     *
+     * Should be called every time a comment or trackback
+     * is added, removed or changed its status.
      *
      * @param int  $id  The comment identifier
      * @param bool $del If comment is deleted, set this to true
@@ -423,9 +490,11 @@ class Blog
     /**
      * Cleanup a list of IDs.
      *
-     * @param mixed $ids The identifiers
+     * @param null|array|ArrayObject|int|string $ids The identifiers
+     *
+     * @return array<int, int> The clean ids
      */
-    public function cleanIds($ids): array
+    public function cleanIds(int|string|array|ArrayObject|null $ids): array
     {
         $clean_ids = [];
 

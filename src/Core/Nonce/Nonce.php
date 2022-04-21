@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Nonce;
 
+// Dotclear\Core\Nonce\Nonce
 use Dotclear\Helper\Html\Form;
 
 /**
  * Core nonce.
- *
- * \Dotclear\Core\Nonce\Nonce
  *
  * @ingroup  Core
  */
@@ -23,7 +22,7 @@ class Nonce
     /**
      * Gets the nonce.
      *
-     * @return string the nonce
+     * @return string The nonce
      */
     public function get(): string
     {

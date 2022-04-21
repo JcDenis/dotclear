@@ -9,14 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\RsExt;
 
+// Dotclear\Core\RsExt\RsExtComment
 use Dotclear\Core\User\Preference\Preference;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Dt;
 
 /**
  * Comments record helpers.
- *
- * \Dotclear\Core\RsExt\RsExtComment
  *
  * This class adds new methods to database comment results.
  * You can call them on every record comming from dcBlog::getComments and similar

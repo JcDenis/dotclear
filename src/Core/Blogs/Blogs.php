@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Blogs;
 
+// Dotclear\Core\Blogs\Blogs
 use ArrayObject;
 use Dotclear\Core\RsExt\RsExtBlog;
 use Dotclear\Database\Cursor;
@@ -19,16 +20,14 @@ use Dotclear\Helper\Html\Html;
 /**
  * Blogs handling methods.
  *
- * \Dotclear\Core\Blogs\Blogs
- *
  * @ingroup  Core Blog
  */
 class Blogs
 {
     /**
-     * Gets all blog status.
+     * Get all blog status.
      *
-     * @return array an array of available blog status codes and names
+     * @return array<int, string> An array of available blog status codes and names
      */
     public function getAllBlogStatus(): array
     {
@@ -58,7 +57,7 @@ class Blogs
     }
 
     /**
-     * Returns all blog permissions (users) as an array which looks like:.
+     * Get all blog permissions (users) as an array which looks like:.
      *
      * - [user_id]
      * - [name] => User name
@@ -72,7 +71,7 @@ class Blogs
      * @param string $blog_id    The blog identifier
      * @param bool   $with_super Includes super admins in result
      *
-     * @return array the blog permissions
+     * @return array<int, array> The blog permissions
      */
     public function getBlogPermissions(string $blog_id, bool $with_super = true): array
     {
@@ -109,11 +108,11 @@ class Blogs
     }
 
     /**
-     * Gets the blog.
+     * Get the blog.
      *
      * @param string $blog_id The blog identifier
      *
-     * @return null|Record the blog
+     * @return null|Record The blog
      */
     public function getBlog(string $blog_id): ?Record
     {
@@ -123,7 +122,7 @@ class Blogs
     }
 
     /**
-     * Returns a record of blogs.
+     * Get a record of blogs.
      *
      * <b>$params</b> is an array with the following optionnal parameters:
      * - <var>blog_id</var>: Blog ID
@@ -133,7 +132,7 @@ class Blogs
      * @param array|ArrayObject $params     The parameters
      * @param bool              $count_only Count only results
      *
-     * @return Record the blogs
+     * @return Record The blogs
      */
     public function getBlogs(array|ArrayObject $params = [], bool $count_only = false): Record
     {
@@ -212,7 +211,7 @@ class Blogs
     }
 
     /**
-     * Adds a new blog.
+     * Add a new blog.
      *
      * @param cursor $cur The blog cursor
      *
@@ -234,7 +233,7 @@ class Blogs
     }
 
     /**
-     * Updates a given blog.
+     * Update a given blog.
      *
      * @param string $blog_id The blog identifier
      * @param Cursor $cur     The cursor
@@ -249,7 +248,7 @@ class Blogs
     }
 
     /**
-     * Gets the blog cursor.
+     * Get the blog cursor.
      *
      * @param Cursor $cur The cursor
      *
@@ -275,7 +274,7 @@ class Blogs
     }
 
     /**
-     * Removes a given blog.
+     * Remove a given blog.
      *
      * @warning This will remove everything related to the blog (posts,
      * categories, comments, links...)
@@ -297,11 +296,11 @@ class Blogs
     }
 
     /**
-     * Determines if blog exists.
+     * Check if blog exists.
      *
      * @param string $blog_id The blog identifier
      *
-     * @return bool true if blog exists, False otherwise
+     * @return bool True if blog exists, False otherwise
      */
     public function blogExists(string $blog_id): bool
     {
@@ -320,7 +319,7 @@ class Blogs
      * @param string      $blog_id   The blog identifier
      * @param null|string $post_type The post type
      *
-     * @return int number of blog posts
+     * @return int Number of blog posts
      */
     public function countBlogPosts(string $blog_id, ?string $post_type = null): int
     {

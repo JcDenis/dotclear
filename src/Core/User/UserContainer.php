@@ -9,21 +9,18 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\User;
 
+// Dotclear\Core\User\UserContainer
 use Dotclear\Database\Record;
 use Dotclear\Helper\AbstractContainer;
 
 /**
  * Container to acces user properties with fixed type.
  *
- * \Dotclear\Core\User\UserContainer
- *
  * @ingroup  Core User Container
  */
 class UserContainer extends AbstractContainer
 {
-    protected $id = 'user';
-
-    /** @var array<string, mixed>      User properties */
+    protected $id   = 'user';
     protected $info = [
         'user_id'           => '',
         'user_super'        => 0,

@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\RsExt;
 
+// Dotclear\Core\RsExt\RsExtUser
 use Dotclear\Database\StaticRecord;
 
 /**
  * Users record helpers.
- *
- * \Dotclear\Core\RsExt\RsExtUser
  *
  * @ingroup  Core User Record
  */

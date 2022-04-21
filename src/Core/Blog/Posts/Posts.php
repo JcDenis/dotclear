@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Blog\Posts;
 
+// Dotclear\Core\Blog\Posts\Posts
 use ArrayObject;
 use Dotclear\Core\RsExt\RsExtDate;
 use Dotclear\Core\RsExt\RsExtPost;
@@ -25,15 +26,14 @@ use Exception;
 /**
  * Posts handling methods.
  *
- * \Dotclear\Core\Blog\Posts\Posts
- *
  * @ingroup  Core Post
  */
 class Posts
 {
     /**
-     * Retrieves entries. <b>$params</b> is an array taking the following
-     * optionnal parameters:.
+     * Retrieve entries.
+     *
+     * <b>$params</b> is an array taking the following optionnal parameters:
      *
      * - no_content: Don't retrieve entry content (excerpt and content)
      * - post_type: Get only entries with given type (default "post", array for many types and '' for no type)
@@ -341,8 +341,10 @@ class Posts
     }
 
     /**
-     * Returns a record with post id, title and date for next or previous post
-     * according to the post ID.
+     * Return next or previous post.
+     *
+     * This returns a record with post id, title and date
+     * for next or previous post according to the post ID.
      * $dir could be 1 (next post) or -1 (previous post).
      *
      * @param Record $post                 The post Record
@@ -350,7 +352,7 @@ class Posts
      * @param bool   $restrict_to_category Restrict to same category
      * @param bool   $restrict_to_lang     Restrict to same language
      *
-     * @return null|Record the next post
+     * @return null|Record The next or previous post
      */
     public function getNextPost(Record $post, int $dir, bool $restrict_to_category = false, bool $restrict_to_lang = false): ?Record
     {
@@ -387,9 +389,9 @@ class Posts
     }
 
     /**
-     * Retrieves different languages and post count on blog, based on post_lang
-     * field. <var>$params</var> is an array taking the following optionnal
-     * parameters:.
+     * Retrieves different languages and post count on blog, based on post_lang field.
+     *
+     * <b>$params</b> is an array taking the following optionnal parameters:
      *
      * - post_type: Get only entries with given type (default "post", '' for no type)
      * - lang: retrieve post count for selected lang
@@ -397,7 +399,7 @@ class Posts
      *
      * @param array|ArrayObject $params The parameters
      *
-     * @return Record the langs
+     * @return Record The langs
      */
     public function getLangs(array|ArrayObject $params = []): Record
     {
@@ -446,8 +448,9 @@ class Posts
     }
 
     /**
-     * Returns a record with all distinct blog dates and post count.
-     * <var>$params</var> is an array taking the following optionnal parameters:.
+     * Return a record with all distinct blog dates and post count.
+     *
+     * <b>$params</b> is an array taking the following optionnal parameters:.
      *
      * - type: (day|month|year) Get days, months or years
      * - year: (int) Get dates for given year
@@ -462,7 +465,7 @@ class Posts
      *
      * @param array $params The parameters
      *
-     * @return Record the dates
+     * @return Record The dates
      */
     public function getDates(array $params = []): Record
     {
@@ -569,7 +572,9 @@ class Posts
     }
 
     /**
-     * Creates a new entry. Takes a cursor as input and returns the new entry ID.
+     * Create a new entry.
+     *
+     * Takes a cursor as input and returns the new entry ID.
      *
      * @param Cursor $cur The post cursor
      *
@@ -628,7 +633,7 @@ class Posts
     }
 
     /**
-     * Updates an existing post.
+     * Update an existing post.
      *
      * @param int    $id  The post identifier
      * @param Cursor $cur The post cursor
@@ -698,7 +703,7 @@ class Posts
     }
 
     /**
-     * Updates posts status.
+     * Update posts status.
      *
      * @param array|ArrayObject $ids    The identifiers
      * @param int               $status The status
@@ -744,7 +749,7 @@ class Posts
     }
 
     /**
-     * Updates posts selection.
+     * Update posts selection.
      *
      * @param array|ArrayObject $ids      The identifiers
      * @param bool              $selected The selected flag
@@ -777,7 +782,9 @@ class Posts
     }
 
     /**
-     * Updates post category. <var>$cat_id</var> can be null.
+     * Update post category.
+     *
+     * <b>$cat_id</b> can be null.
      *
      * @param int      $id     The identifier
      * @param null|int $cat_id The cat identifier
@@ -788,7 +795,9 @@ class Posts
     }
 
     /**
-     * Updates posts category. <var>$cat_id</var> can be null.
+     * Update posts category.
+     *
+     * <b>$cat_id</b> can be null.
      *
      * @param array|ArrayObject $ids    The identifiers
      * @param null|int          $cat_id The cat identifier
@@ -821,7 +830,9 @@ class Posts
     }
 
     /**
-     * Updates posts category. <var>$new_cat_id</var> can be null.
+     * Update posts category.
+     *
+     * <b>$new_cat_id</b> can be null.
      *
      * @param int      $old_cat_id The old cat identifier
      * @param null|int $new_cat_id The new cat identifier
@@ -847,7 +858,7 @@ class Posts
     }
 
     /**
-     * Deletes a post.
+     * Delete a post.
      *
      * @param int $id The post identifier
      */
@@ -857,7 +868,7 @@ class Posts
     }
 
     /**
-     * Deletes multiple posts.
+     * Delete multiple posts.
      *
      * @param array|ArrayObject $ids The posts identifiers
      *
@@ -889,7 +900,7 @@ class Posts
     }
 
     /**
-     * Publishes all entries flaged as "scheduled".
+     * Publishe all entries flaged as "scheduled".
      */
     public function publishScheduledEntries(): void
     {
@@ -968,7 +979,7 @@ class Posts
     }
 
     /**
-     * Retrieves all users having posts on current blog.
+     * Retrieve all users having posts on current blog.
      *
      * @param string $post_type post_type filter (post)
      */
@@ -1066,7 +1077,7 @@ class Posts
     }
 
     /**
-     * Gets the post cursor.
+     * Get the post cursor.
      *
      * @param Cursor $cur     The post cursor
      * @param int    $post_id The post identifier
@@ -1117,7 +1128,7 @@ class Posts
     }
 
     /**
-     * Gets the post content.
+     * Get the post content.
      *
      * @param Cursor $cur     The post cursor
      * @param int    $post_id The post identifier
@@ -1146,7 +1157,7 @@ class Posts
     }
 
     /**
-     * Creates post HTML content, taking format and lang into account.
+     * Create post HTML content, taking format and lang into account.
      *
      * @param null|int    $post_id       The post identifier
      * @param string      $format        The format
@@ -1199,7 +1210,8 @@ class Posts
     }
 
     /**
-     * Returns URL for a post according to blog setting <var>post_url_format</var>.
+     * Return URL for a post according to blog setting <b>post_url_format</b>.
+     *
      * It will try to guess URL and append some figures if needed.
      *
      * @param null|string $url        The url
@@ -1207,7 +1219,7 @@ class Posts
      * @param null|string $post_title The post title
      * @param null|int    $post_id    The post identifier
      *
-     * @return string the post url
+     * @return string The post url
      */
     public function getPostURL(?string $url, ?string $post_dt, ?string $post_title, ?int $post_id): string
     {

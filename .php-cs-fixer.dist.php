@@ -18,7 +18,10 @@ return $config
         'binary_operator_spaces'  => ['default' => 'align'],
         'concat_space'            => ['spacing' => 'one'],
         'global_namespace_import' => true,
+        'phpdoc_add_missing_param_annotation' => ['only_untyped' => false],
         'phpdoc_no_package'       => false,
+        'phpdoc_var_without_name' => false,
+        //'psr_autoloading' => ['dir' => './src'],
         //'ternary_to_elvis_operator' => true,
         'use_arrow_functions'     => true,
         'yoda_style'              => [

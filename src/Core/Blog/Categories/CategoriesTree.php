@@ -9,23 +9,34 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Blog\Categories;
 
+// Dotclear\Core\Blog\Categories\CategoriesTree
 use Dotclear\Database\NestedTree;
 use Dotclear\Database\Record;
 
 /**
  * Categories tree handling.
  *
- * \Dotclear\Core\Blog\Categories\CategoriesTree
- *
  * @ingroup  Core Category
  */
 class CategoriesTree extends NestedTree
 {
+    /**
+     * @var string $f_left
+     *             The left category field name
+     */
     protected $f_left  = 'cat_lft';
-    protected $f_right = 'cat_rgt';
-    protected $f_id    = 'cat_id';
 
-    protected $blog_id;
+    /**
+     * @var string $f_right
+     *             The right category field name
+     */
+    protected $f_right = 'cat_rgt';
+
+    /**
+     * @var string $f_id
+     *             The category id field name
+     */
+    protected $f_id = 'cat_id';
 
     /**
      * Constructs a new instance.
@@ -34,9 +45,8 @@ class CategoriesTree extends NestedTree
     {
         parent::__construct(dotclear()->con());
 
-        $this->blog_id       = dotclear()->blog()->id;
         $this->table         = dotclear()->prefix . 'category';
-        $this->add_condition = ['blog_id' => "'" . dotclear()->con()->escape($this->blog_id) . "'"];
+        $this->add_condition = ['blog_id' => "'" . dotclear()->con()->escape(dotclear()->blog()->id) . "'"];
     }
 
     /**
@@ -47,7 +57,7 @@ class CategoriesTree extends NestedTree
      * @param string   $sort   The sort
      * @param array    $fields The fields
      *
-     * @return Record the children
+     * @return Record The children
      */
     public function getChildren(int $start = 0, ?int $id = null, string $sort = 'asc', array $fields = []): Record
     {
@@ -62,7 +72,7 @@ class CategoriesTree extends NestedTree
      * @param int   $id     The identifier
      * @param array $fields The fields
      *
-     * @return Record the parents
+     * @return Record The parents
      */
     public function getParents(int $id, array $fields = []): Record
     {
@@ -77,7 +87,7 @@ class CategoriesTree extends NestedTree
      * @param int   $id     The identifier
      * @param array $fields The fields
      *
-     * @return Record the parent
+     * @return Record The parent
      */
     public function getParent(int $id, array $fields = []): Record
     {

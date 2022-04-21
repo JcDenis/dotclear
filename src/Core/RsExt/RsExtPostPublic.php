@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\RsExt;
 
+// Dotclear\Core\RsExt\RsExtPostPublic
 use Dotclear\Helper\Html\Html;
 
 /**
  * Posts record public helpers.
- *
- * \Dotclear\Core\RsExt\RsExtPostPublic
  *
  * @ingroup  Core Public Post Record
  */

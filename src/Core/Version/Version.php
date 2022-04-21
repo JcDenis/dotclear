@@ -9,14 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Version;
 
+// Dotclear\Core\Version\Version
 use Dotclear\Database\Statement\InsertStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\DeleteStatement;
 
 /**
  * Version handling class.
- *
- * \Dotclear\Core\Version\Version
  *
  * Save and retrieve and compare
  * core and modules version in database.
@@ -25,10 +24,16 @@ use Dotclear\Database\Statement\DeleteStatement;
  */
 class Version
 {
-    /** @var string The version table name */
+    /**
+     * @var string $table
+     *             The version table name
+     */
     protected $table = 'version';
 
-    /** @var array<string, string>   The versions stack */
+    /**
+     * @var array<string, string> $stack
+     *                            The versions stack
+     */
     protected $stack;
 
     /**
@@ -36,7 +41,7 @@ class Version
      *
      * @param string $module The module
      *
-     * @return null|string the version
+     * @return null|string The version
      */
     public function get(string $module = 'core'): ?string
     {
