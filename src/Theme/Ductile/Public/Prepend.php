@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
