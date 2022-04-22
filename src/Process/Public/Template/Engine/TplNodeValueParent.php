@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Public\Template\Engine;
 
+// Dotclear\Process\Public\Template\Engine\TplNodeValueParent
+
 /**
  * Template value node parent.
- *
- * \Dotclear\Process\Public\Template\Engine\TplNodeValueParent
  *
  * Value node, for all {{tpl:Tag}}.
  *

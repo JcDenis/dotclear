@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Notice;
 
+// Dotclear\Process\Admin\Notice\Notice
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
@@ -20,24 +21,34 @@ use Exception;
 /**
  * Backend notices handling facilities.
  *
- * \Dotclear\Process\Admin\Notice\Notice
- *
  * Accessible from dotclear()->notice()->
  *
  * @ingroup  Admin
  */
 class Notice
 {
-    /** @var string notices table prefix */
+    /**
+     * @var string $prefix
+     *             notices table prefix
+     */
     protected $prefix;
 
-    /** @var string notices table */
+    /**
+     * @var string
+     *             notices table $table_name
+     */
     protected $table_name = 'notice';
 
-    /** @var string notices table prefixed */
+    /**
+     * @var string $table
+     *             notices table prefixed
+     */
     protected $table;
 
-    /** @var array notices types */
+    /**
+     * @var array $N_TYPES
+     *            notices types
+     */
     private $N_TYPES = [
         // id → CSS class
         'success' => 'success',
@@ -46,7 +57,10 @@ class Notice
         'message' => 'message',
         'static'  => 'static-msg', ];
 
-    /** @var bool is displayed error */
+    /**
+     * @var bool $error_displayed
+     *           is displayed error
+     */
     private $error_displayed = false;
 
     /**

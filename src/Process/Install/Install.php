@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Install;
 
+// Dotclear\Process\Install\Install
 use DateTimeZone;
 use Dotclear\Core\User\UserContainer;
 use Dotclear\Core\Blog\Settings\Settings;
@@ -25,8 +26,6 @@ use Dotclear\Process\Distrib\Distrib;
 
 /**
  * Install methods.
- *
- * \Dotclear\Process\Install\Install
  *
  * @ingroup  Install
  */

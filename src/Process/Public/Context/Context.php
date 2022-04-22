@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Public\Context;
 
+// Dotclear\Process\Public\Context\Context
 use Dotclear\Database\Record;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Html;
@@ -18,8 +19,6 @@ use Exception;
 /**
  * Context helper.
  *
- * \Dotclear\Process\Public\Context\Context
- *
  * This class provides methods and stack
  * in public context.
  *
@@ -27,7 +26,10 @@ use Exception;
  */
 class Context
 {
-    /** @var array Context stack */
+    /**
+     * @var array<string, array> $stack
+     *                           Context stack
+     */
     public $stack = [
         'nb_entry_per_page'   => [10],
         'nb_entry_first_page' => [10],

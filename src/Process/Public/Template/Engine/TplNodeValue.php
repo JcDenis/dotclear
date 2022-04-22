@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Public\Template\Engine;
 
+// Dotclear\Process\Public\Template\Engine\TplNodeValue
 use ArrayObject;
 
 /**
  * Template value node.
- *
- * \Dotclear\Process\Public\Template\Engine\TplNodeValue
  *
  * Value node, for all {{tpl:Tag}}.
  *

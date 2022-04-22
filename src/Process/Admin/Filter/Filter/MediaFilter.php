@@ -9,14 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Filter\Filter;
 
+// Dotclear\Process\Admin\Filter\Filter\MediaFilter
 use ArrayObject;
 use Dotclear\Process\Admin\Filter\Filter;
 use Dotclear\Helper\Html\Html;
 
 /**
  * Admin media list filters form.
- *
- * \Dotclear\Process\Admin\Filter\Filter\MediaFilter
  *
  * @ingroup  Admin Media Filter
  *

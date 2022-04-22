@@ -9,14 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Theme\Berlin\Public;
 
+// Dotclear\Theme\Berlin\Public\Prepend
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
 
 /**
  * Public prepend for theme Berlin.
- *
- * \Dotclear\Theme\Berlin\Public\Prepend
  *
  * @ingroup  Theme Berlin
  */

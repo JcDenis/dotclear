@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Inventory\Inventory;
 
+// Dotclear\Process\Admin\Inventory\Inventory\PostMiniInventory
 use ArrayObject;
 use Dotclear\Helper\Dt;
 use Dotclear\Helper\Html\Html;
@@ -17,8 +18,6 @@ use Dotclear\Process\Admin\Page\Pager;
 
 /**
  * Admin posts mini list helper.
- *
- * \Dotclear\Process\Admin\Inventory\Inventory\PostMiniInventory
  *
  * @ingroup  Admin Post Inventory
  */

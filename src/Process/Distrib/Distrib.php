@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Distrib;
 
+// Dotclear\process\Distrib\Distrib
 use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Database\AbstractConnection;
 use Dotclear\Database\Structure;
@@ -16,8 +17,6 @@ use Exception;
 
 /**
  * Distrib methods.
- *
- * \Dotclear\process\Distrib\Distrib
  *
  * This class provides default structures of Dotclear.
  *

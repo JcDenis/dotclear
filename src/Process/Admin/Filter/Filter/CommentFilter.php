@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Filter\Filter;
 
+// Dotclear\Process\Admin\Filter\Filter\CommentFilter
 use ArrayObject;
 use Dotclear\Process\Admin\Filter\Filter;
 
 /**
  * Admin comments list filters form.
- *
- * \Dotclear\Process\Admin\Filter\Filter\CommentFilter
  *
  * @ingroup  Admin Comment Filter
  */

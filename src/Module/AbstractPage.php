@@ -20,7 +20,7 @@ use Dotclear\Process\Admin\Page\AbstractPage as AdminPage;
  *
  * @note
  * Plugins default admin page namespace should be:
- * Dotclear\\Plugins\\Xxx\\Admin\\Handler
+ * Dotclear\\Plugin\\Xxx\\Admin\\Handler
  *
  * @ingroup  Module Admin
  */

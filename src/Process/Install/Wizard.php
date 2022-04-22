@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Install;
 
+// Dotclear\Process\Install\Wizard
 use Dotclear\Database\AbstractConnection;
 use Dotclear\Database\AbstractSchema;
 use Dotclear\Exception\InstallException;
@@ -24,8 +25,6 @@ use Dotclear\Process\Distrib\Distrib;
 
 /**
  * Install wizard.
- *
- * \Dotclear\Process\Install\Wizard
  *
  * @ingroup  Install
  */

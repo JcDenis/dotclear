@@ -465,7 +465,7 @@ abstract class AbstractModules
     /**
      * This method installs all modules having a _install file.
      *
-     * @see AbstractModules::installModule
+     * @see AbstractModules::installModule()
      */
     public function installModules(): array
     {

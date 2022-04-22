@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Page;
 
+// Dotclear\Process\Admin\Page\Pager
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 
 /**
  * Pager navigation helper.
- *
- * \Dotclear\Process\Admin\Page\Pager
  *
  * @ingroup  Admin
  */

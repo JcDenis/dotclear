@@ -9,22 +9,27 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Inventory;
 
+// Dotclear\Process\Admin\Inventory\Inventory
 use ArrayObject;
 use Dotclear\Database\Record;
 
 /**
  * Admin list helper.
  *
- * \Dotclear\Process\Admin\Inventory\Inventory
- *
  * @ingroup  Admin Inventory
  */
 class Inventory
 {
-    /** @var string The HTML representation of previous */
+    /**
+     * @var string $html_prev
+     *             The HTML representation of previous
+     */
     protected $html_prev;
 
-    /** @var string The HTML representation of next */
+    /**
+     * @var string $html_next
+     *             The HTML representation of next
+     */
     protected $html_next;
 
     /**

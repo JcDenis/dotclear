@@ -24,10 +24,10 @@ use Dotclear\Helper\Network\Http;
  */
 class AdminUrl
 {
-    /** @var string Admin URL */
-    protected $root_url;
-
-    /** @var ArrayObject List of registered URLs */
+    /**
+     * @var ArrayObject $urls
+     *                  List of registered URLs
+     */
     protected $urls;
 
     /**
@@ -35,8 +35,7 @@ class AdminUrl
      */
     public function __construct()
     {
-        $this->root_url = dotclear()->config()->get('admin_url');
-        $this->urls     = new ArrayObject();
+        $this->urls = new ArrayObject();
     }
 
     /**
@@ -46,7 +45,7 @@ class AdminUrl
      */
     public function root(): string
     {
-        return $this->root_url;
+        return dotclear()->config()->get('admin_url');
     }
 
     /**
@@ -149,7 +148,7 @@ class AdminUrl
             $u = preg_replace('/\%25(([0-9])+?\%24)*?s/', '%$2s', $u);
         }
 
-        return $this->root_url . '?' . $u;
+        return $this->root() . '?' . $u;
     }
 
     /**

@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Filter\Filter;
 
+// Dotclear\Process\Admin\Filter\Filter\DefaultFilter
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Html\Form\Select as FormSelect;
 use Dotclear\Helper\Html\Form\Label as FormLabel;
@@ -16,8 +17,6 @@ use Dotclear\Helper\Html\Form\Input as FormInput;
 
 /**
  * Admin filter.
- *
- * \Dotclear\Process\Admin\Filter\Filter\DefaultFilter
  *
  * Dotclear utility class that provides reuseable list filter
  * Should be used with Filter

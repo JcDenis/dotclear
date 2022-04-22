@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Service;
 
+// Dotclear\Process\Admin\Service\RestMethods
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Dt;
 use Dotclear\Helper\Html\Html;
@@ -20,8 +21,6 @@ use Dotclear\Module\Store\Repository\Repository;
 
 /**
  * Common admin REST methods.
- *
- * \Dotclear\Process\Admin\Service\RestMethods
  *
  * @ingroup  Admin Rest
  */

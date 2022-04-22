@@ -23,22 +23,40 @@ use Dotclear\Process\Admin\Menu\Summary;
  */
 class Favorite
 {
-    /** @var ArrayObject list of favorite definitions */
+    /**
+     * @var ArrayObject $fav_defs
+     *                  list of favorite definitions
+     */
     protected $fav_defs;
 
-    /** @var Workspace current favorite landing workspace */
+    /**
+     * @var Workspace $ws
+     *                current favorite landing workspace
+     */
     protected $ws;
 
-    /** @var array list of user-defined favorite ids */
+    /**
+     * @var array $local_prefs
+     *            list of user-defined favorite ids
+     */
     protected $local_prefs = [];
 
-    /** @var array list of globally-defined favorite ids */
+    /**
+     *  @var array $global_prefs
+     * list of globally-defined favorite ids
+     */
     protected $global_prefs = [];
 
-    /** @var array list of user preferences (either one of the 2 above, or not!) */
+    /**
+     * @var array $user_prefs
+     *            list of user preferences (either one of the 2 above, or not!)
+     */
     protected $user_prefs = [];
 
-    /** @var array Default favorites values */
+    /**
+     * @var array $default_favorites
+     *            Default favorites values
+     */
     protected $default_favorites = [
         // favorite title (localized)
         'title' => '',

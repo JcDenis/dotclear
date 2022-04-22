@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Distrib;
 
+// Dotclear\Process\Distrib\Upgrade
 use Dotclear\Database\Structure;
 use Dotclear\Exception\DistribException;
 use Exception;
@@ -19,8 +20,6 @@ if (!defined('DOTCLEAR_OLD_ROOT_DIR')) {
 
 /**
  * Dotclear distribution upgrade methods.
- *
- * \Dotclear\Process\Distrib\Upgrade
  *
  * @ingroup  Distrib
  */

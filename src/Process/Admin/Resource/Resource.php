@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Resource;
 
+// Dotclear\Process\Admin\Resource\Resource
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Html;
@@ -16,13 +17,14 @@ use Dotclear\Helper\Html\Html;
 /**
  * Admin file URL helper.
  *
- * \Dotclear\Process\Admin\Resource\Resource
- *
  * @ingroup  Admin Stack
  */
 class Resource
 {
-    /** @var array Stack to keep track of loaded files */
+    /**
+     * @var array $stack
+     *            Stack to keep track of loaded files
+     */
     private static $stack = [];
 
     /**

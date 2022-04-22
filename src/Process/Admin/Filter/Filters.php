@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Filter;
 
+// Dotclear\Process\Admin\Filter\Filters
 use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 
 /**
  * Admin list filters library.
- *
- * \Dotclear\Process\Admin\Filter\Filters
  *
  * Dotclear utility class that provides reuseable list filters
  * Returned null or DefaultFilter instance
@@ -27,7 +26,7 @@ class Filters
     /**
      * Common default input field.
      *
-     * @param null|string $param
+     * @param ?string $param
      */
     public function getInputFilter(string $id, string $title, ?string $param = null): DefaultFilter
     {
@@ -41,7 +40,7 @@ class Filters
     /**
      * Common default select field.
      *
-     * @param null|string $param
+     * @param ?string $param
      */
     public function getSelectFilter(string $id, string $title, array $options, ?string $param = null): ?DefaultFilter
     {

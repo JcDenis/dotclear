@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\ListOption;
 
+// Dotclear\Process\Admin\ListOption\ListOption
 use ArrayObject;
 
 /**
  * User list option preference library.
- *
- * \Dotclear\Process\Admin\ListOption\ListOption
  *
  * Dotclear utility class that provides reuseable user preference
  * across all admin page with lists and filters
@@ -25,7 +24,10 @@ use ArrayObject;
  */
 class ListOption
 {
-    /** @var ArrayObject Sorts filters preferences */
+    /**
+     * @var ArrayObject $sort
+     *                  Sorts filters preferences
+     */
     protected $sorts;
 
     /**

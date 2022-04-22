@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Action\Action;
 
+// Dotclear\Process\Admin\Action\Action\BlogAction
 use ArrayObject;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\Form;
@@ -16,8 +17,6 @@ use Exception;
 
 /**
  * Admin handler for action on selected blogs.
- *
- * \Dotclear\Process\Admin\Action\Action\BlogAction
  *
  * @ingroup  Admin Blog Action
  */

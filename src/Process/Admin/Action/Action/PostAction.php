@@ -9,14 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Action\Action;
 
+// Dotclear\Process\Admin\Action\Action\PostAction
 use ArrayObject;
 use Dotclear\Helper\Html\Html;
 use Exception;
 
 /**
  * Admin handler for action on selected entries.
- *
- * \Dotclear\Process\Admin\Action\Action\PostAction
  *
  * @ingroup  Admin Post Action
  */

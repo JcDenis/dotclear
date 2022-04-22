@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Action\Action;
 
+// Dotclear\Process\Admin\Action\Action\CommentAction
 use ArrayObject;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -16,8 +17,6 @@ use Exception;
 
 /**
  * Admin handler for action on selected comments.
- *
- * \Dotclear\Process\Admin\Action\Action\CommentAction
  *
  * @ingroup  Admin Comment Action
  */

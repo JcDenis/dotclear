@@ -9,14 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Action\Action;
 
+// Dotclear\Process\Admin\Action\Action\DefaultCommentAction
 use ArrayObject;
 use Dotclear\Exception\AdminException;
 use Dotclear\Process\Admin\Action\Action;
 
 /**
  * Admin handler for default action on selected comments.
- *
- * \Dotclear\Process\Admin\Action\Action\DefaultCommentAction
  *
  * @ingroup  Admin Comment Action
  */

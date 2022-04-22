@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Inventory\Inventory;
 
+// Dotclear\Process\Admin\Inventory\Inventory\CommentInventory
 use ArrayObject;
 use Dotclear\Helper\Dt;
 use Dotclear\Helper\Html\Form;
@@ -18,8 +19,6 @@ use Dotclear\Process\Admin\Page\Pager;
 
 /**
  * Admin comments list helper.
- *
- * \Dotclear\Process\Admin\Inventory\Inventory\CommentInventory
  *
  * @ingroup  Admin Comment Inventory
  */

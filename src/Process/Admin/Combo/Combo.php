@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Combo;
 
+// Dotclear\Process\Admin\Combo\Combo
 use ArrayObject;
 use Dotclear\Core\User\UserContainer;
 use Dotclear\Database\Record;
@@ -19,8 +20,6 @@ use Dotclear\Helper\L10n;
 
 /**
  * Admin combo library.
- *
- * \Dotclear\Process\Admin\Combo\Combo
  *
  * Dotclear utility class that provides reuseable combos across all admin
  * form::combo -compatible format

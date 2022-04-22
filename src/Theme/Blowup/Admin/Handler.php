@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Theme\Blowup\Admin;
 
+// Dotclear\Theme\Blowup\Admin\Handler
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\File\Files;
@@ -19,8 +20,6 @@ use Exception;
 
 /**
  * Blowup theme admin page.
- *
- * \Dotclear\Theme\Blowup\Admin\Handler
  *
  * @ingroup  Theme Blowup
  */

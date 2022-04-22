@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Public\Template\Engine;
 
+// Dotclear\Process\Public\Template\Engine\TplNodeBlock
 use ArrayObject;
 
 /**
  * Template block node.
- *
- * \Dotclear\Process\Public\Template\Engine\TplNodeBlock
  *
  * Block node, for all <tpl:Tag>...</tpl:Tag>.
  *

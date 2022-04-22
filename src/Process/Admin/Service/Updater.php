@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Service;
 
+// Dotclear\Process\Admin\Service\Updater
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Zip\Unzip;
@@ -20,8 +21,6 @@ use Exception;
 
 /**
  * Update methods.
- *
- * \Dotclear\Process\Admin\Service\Updater
  *
  * @ingroup  Admin
  */

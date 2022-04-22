@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Inventory\Inventory;
 
+// Dotclear\Process\Admin\Inventory\Inventory\MediaInventory
 use ArrayObject;
 use Dotclear\Core\Media\Media;
 use Dotclear\Core\Media\Manager\Item;
@@ -21,8 +22,6 @@ use Dotclear\Process\Admin\Page\Pager;
 
 /**
  * Admin media list helper.
- *
- * \Dotclear\Process\Admin\Inventory\Inventory\MediaInventory
  *
  * @ingroup  Admin Media Inventory
  */

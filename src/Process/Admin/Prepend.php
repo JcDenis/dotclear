@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin;
 
+// Dotclear\Process\Admin\Prepend
 use Dotclear\Core\Core;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\Lexical;
@@ -32,46 +33,80 @@ use Exception;
 /**
  * Admin process.
  *
- * \Dotclear\Process\Admin\Prepend
- *
  * @ingroup  Admin
  */
 class Prepend extends Core
 {
-    /** @var AdminUrl AdminUrl instance */
+    /**
+     * @var AdminUrl $adminurl
+     *               AdminUrl instance
+     */
     private $adminurl;
 
-    /** @var Combo Combo instance */
+    /**
+     * @var Combo $combo
+     *            Combo instance
+     */
     private $combo;
 
-    /** @var Favorite Favorite instance */
+    /**
+     * @var Favorite $favorite
+     *               Favorite instance
+     */
     private $favorite;
 
-    /** @var Help Help instance */
+    /**
+     * @var Help $help
+     *           Help instance
+     */
     public $help;
 
-    /** @var ListOption ListOption instance */
+    /**
+     * @var ListOption $listoption
+     *                 ListOption instance
+     */
     private $listoption;
 
-    /** @var Notice Notice instance */
+    /**
+     * @var Notice $notice
+     *             Notice instance
+     */
     private $notice;
 
-    /** @var Summary Summary instance */
+    /**
+     * @var Summary $summary
+     *              Summary instance
+     */
     private $summary;
 
-    /** @var resource Resource instance */
+    /**
+     * @var resource $resource
+     *               Resource instance
+     */
     private $resource;
 
-    /** @var null|ModulesPlugin ModulesPlugin instance */
+    /**
+     * @var null|ModulesPlugin $plugins
+     *                         ModulesPlugin instance
+     */
     private $plugins;
 
-    /** @var null|ModulesIconset ModulesIconset instance */
+    /**
+     * @var null|ModulesIconset $iconsets
+     *                          ModulesIconset instance
+     */
     private $iconsets;
 
-    /** @var null|ModulesTheme ModulesTheme instance */
+    /**
+     * @var null|ModulesTheme $themes
+     *                        ModulesTheme instance
+     */
     private $themes;
 
-    /** @var string Current Process */
+    /**
+     * @var string $process
+     *             Current Process
+     */
     protected $process = 'Admin';
 
     /**

@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Public\Template\Engine;
 
+// Dotclear\Process\Public\Template\Engine\TplNodeText
+
 /**
  * Template text node.
- *
- * \Dotclear\Process\Public\Template\Engine\TplNodeText
  *
  * Text node, for any non-tpl content.
  *

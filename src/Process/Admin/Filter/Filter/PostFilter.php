@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Filter\Filter;
 
+// Dotclear\Process\Admin\Filter\Filter\PostFilter
 use ArrayObject;
 use Dotclear\Process\Admin\Filter\Filter;
 use Dotclear\Helper\Html\Html;
@@ -17,8 +18,6 @@ use Exception;
 
 /**
  * Admin posts list filters form.
- *
- * \Dotclear\Process\Admin\Filter\Filter\PostFilter
  *
  * @ingroup  Admin Post Filter
  *

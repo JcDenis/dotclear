@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Public\Template\Engine;
 
+// Dotclear\Process\Public\Template\Engine\Template
 use ArrayObject;
 use Dotclear\Exception\TemplateException;
 use Dotclear\Helper\File\Files;
@@ -17,8 +18,6 @@ use Dotclear\Helper\Html\Html;
 
 /**
  * Template engine.
- *
- * \Dotclear\Process\Public\Template\Engine\Template
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

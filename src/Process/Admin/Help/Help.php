@@ -18,19 +18,34 @@ namespace Dotclear\Process\Admin\Help;
  */
 class Help
 {
-    /** @var array<string, bool>       Keep track of loaded file */
+    /**
+     * @var array<string, bool> $file
+     *                          Keep track of loaded file
+     */
     private static $file = [];
 
-    /** @var string New bloc */
+    /**
+     * @var string $news
+     *             New bloc
+     */
     private $news = '';
 
-    /** @var array<string, string>      Doc bloc */
+    /**
+     * @var array<string, string> $doc
+     *                            Doc bloc
+     */
     private $doc = [];
 
-    /** @var array<string, string>      Context bloc */
+    /**
+     * @var array<string, string> $context
+     *                            Context bloc
+     */
     private $context = [];
 
-    /** @var bool Admin context flag */
+    /**
+     * @var bool $flag
+     *           Admin context flag
+     */
     private $flag;
 
     /**

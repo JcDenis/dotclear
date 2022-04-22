@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Public;
 
+// Dotclear\Process\Public\Prepend
 use Dotclear\Core\Core;
 use Dotclear\Core\RsExt\RsExtPostPublic;
 use Dotclear\Core\RsExt\RsExtCommentPublic;
@@ -25,25 +26,38 @@ use Exception;
 /**
  * Public process.
  *
- * \Dotclear\Process\Public\Prepend
- *
  * @ingroup  Public
  */
 class Prepend extends Core
 {
-    /** @var Context Context instance */
+    /**
+     * @var Context $context
+     *              Context instance
+     */
     private $context;
 
-    /** @var Template Template instance */
+    /**
+     * @var Template $template
+     *               Template instance
+     */
     private $template;
 
-    /** @var null|ModulesPlugin ModulesPlugin instance */
+    /**
+     * @var null|ModulesPlugin $plugins
+     *                         ModulesPlugin instance
+     */
     private $plugins;
 
-    /** @var null|ModulesTheme ModulesTheme instance */
+    /**
+     * @var null|ModulesTheme $themes
+     *                        ModulesTheme instance
+     */
     private $themes;
 
-    /** @var string Current Process */
+    /**
+     * @var string $process
+     *             Current Process
+     */
     protected $process = 'Public';
 
     /**

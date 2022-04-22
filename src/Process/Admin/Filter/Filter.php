@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Filter;
 
+// Dotclear\Process\Admin\Filter\Filter
 use ArrayObject;
 use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 use Dotclear\Helper\Html\Form;
@@ -17,19 +18,26 @@ use Dotclear\Helper\Html\Html;
 /**
  * Generic class for admin list filters form.
  *
- * \Dotclear\Process\Admin\Filter\Filter
- *
  * @ingroup  Admin Filter
  */
 class Filter extends Filters
 {
-    /** @var array Filters objects */
+    /**
+     * @var array $filters
+     *            Filters objects
+     */
     protected $filters = [];
 
-    /** @var bool Show filter indicator */
+    /**
+     * @var bool $show
+     *           Show filter indicator
+     */
     protected $show = false;
 
-    /** @var bool Has user preferences */
+    /**
+     * @var bool $has_user_pref
+     *           Has user preferences
+     */
     protected $has_user_pref = false;
 
     /**

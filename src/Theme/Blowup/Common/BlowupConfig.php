@@ -9,14 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Theme\Blowup\Common;
 
+// Dotclear\Theme\Blowup\Common\BlowupConfig
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Module\Theme\Admin\ConfigTheme;
 
 /**
  * Helper for default theme (Blowup) config.
- *
- * \Dotclear\Theme\Blowup\Common\BlowupConfig
  *
  * @ingroup  Theme Blowup
  */

@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Filter\Filter;
 
+// Dotclear\Process\Admin\Filter\Filter\BlogFilter
 use ArrayObject;
 use Dotclear\Process\Admin\Filter\Filter;
 
 /**
  * Admin blogs list filters form.
- *
- * \Dotclear\Process\Admin\Filter\Filter\BlogFilter
  *
  * @ingroup  Admin Blog Filter
  */

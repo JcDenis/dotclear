@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Public\Template\Engine;
 
+// Dotclear\Process\Public\Template\Engine\TplNode
 use ArrayObject;
 
 /**
  * Template node.
- *
- * \Dotclear\Process\Public\Template\Engine\TplNode
  *
  * Generic list node, this one may only be instanciated once for root element.
  *

@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Filter\Filter;
 
+// Dotclear\Process\Admin\Filter\Filter\UserFilter
 use ArrayObject;
 use Dotclear\Process\Admin\Filter\Filter;
 
 /**
  * Admin users list filters form.
- *
- * \Dotclear\Process\Admin\Filter\Filter\UserFilter
  *
  * @ingroup  Admin User Filter
  *

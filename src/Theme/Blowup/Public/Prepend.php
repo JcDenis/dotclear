@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Theme\Blowup\Public;
 
+// Dotclear\Theme\Blowup\Public\Prepend
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
 use Dotclear\Theme\Blowup\Common\BlowupConfig;
 
 /**
  * Public prepend for theme Blowup.
- *
- * \Dotclear\Theme\Blowup\Public\Prepend
  *
  * @ingroup  Theme Blowup
  */

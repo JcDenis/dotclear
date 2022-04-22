@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Install;
 
+// Dotclear\Process\Install\Prepend
 use Dotclear\Core\Core;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
@@ -18,16 +19,20 @@ use Dotclear\Process\Admin\Favorite\Favorite;
 /**
  * Install process.
  *
- * \Dotclear\Process\Install\Prepend
- *
  * @ingroup  Install
  */
 class Prepend extends Core
 {
-    /** @var Favorite Favorite instance */
+    /**
+     * @var Favorite $favorite
+     *               Favorite instance
+     */
     private $favorite;
 
-    /** @var resource Resource instance */
+    /**
+     * @var resource $resource
+     *               Resource instance
+     */
     private $resource;
 
     protected $process = 'Install';

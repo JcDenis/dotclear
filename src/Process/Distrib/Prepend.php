@@ -9,14 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Distrib;
 
+// Dotclear\Process\Distrib\Prepend
 use Dotclear\Exception\DistribException;
 use Dotclear\Core\Core;
 use Exception;
 
 /**
  * Upgrade process (CLI).
- *
- * \Dotclear\Process\Distrib\Prepend
  *
  * @ingroup  Distrib
  */

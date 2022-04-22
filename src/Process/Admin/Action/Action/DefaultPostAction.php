@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Action\Action;
 
+// Dotclear\Process\Admin\Action\Action\DefaultPostAction
 use ArrayObject;
 use Dotclear\Core\RsExt\RsExtUser;
 use Dotclear\Database\Statement\UpdateStatement;
@@ -20,8 +21,6 @@ use Dotclear\Process\Admin\Action\Action;
 
 /**
  * Admin handler for default action on selected entries.
- *
- * \Dotclear\Process\Admin\Action\Action\DefaultPostAction
  *
  * @ingroup  Admin Post Action
  */

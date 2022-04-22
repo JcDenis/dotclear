@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Theme\CustomCSS\Public;
 
+// Dotclear\Theme\CustomCSS\Admin\Prepend
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
 
 /**
  * Public prepend for theme CustomCSS.
- *
- * \Dotclear\Theme\CustomCSS\Admin\Prepend
  *
  * @ingroup  Theme CustomCSS
  */

@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Action\Action;
 
+// Dotclear\Process\Admin\Action\Action\DefaultBlogAction
 use ArrayObject;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Exception\AdminException;
@@ -16,8 +17,6 @@ use Dotclear\Process\Admin\Action\Action;
 
 /**
  * Admin handler for default action on selected blogs.
- *
- * \Dotclear\Process\Admin\Action\Action\DefaultBlogAction
  *
  * @ingroup  Admin Blog Action
  */

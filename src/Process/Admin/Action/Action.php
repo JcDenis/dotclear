@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Action;
 
+// Dotclear\Process\Admin\Action\Action
 use ArrayObject;
 use Closure;
 use Dotclear\Database\Record;
@@ -21,49 +22,86 @@ use Exception;
 /**
  * Admin helper for action on list.
  *
- * \Dotclear\Process\Admin\Action\Action
- *
  * @ingroup  Admin Action
  */
 abstract class Action extends AbstractPage
 {
-    /** @var array action combo box */
+    /**
+     * @var array $combo
+     *            action combo box
+     */
     protected $combo = [];
 
-    /** @var ArrayObject list of defined actions (callbacks) */
+    /**
+     *  @var ArrayObject $actions
+     * list of defined actions (callbacks)
+     */
     protected $actions;
 
-    /** @var array selected entries (each key is the entry id, value contains the entry description) */
+    /**
+     * @var array $entries
+     *            selected entries (each key is the entry id, value contains the entry description)
+     */
     protected $entries = [];
 
-    /** @var Record record that challenges ids against permissions */
+    /**
+     * @var Record $rs
+     *             record that challenges ids against permissions
+     */
     protected $rs;
 
-    /** @var array list of fields used to build the redirection */
+    /**
+     * @var array $redirect_fields
+     *            list of fields used to build the redirection
+     */
     protected $redirect_fields = [];
 
-    /** @var string redirection anchor if any */
+    /**
+     * @var string $redir_anchor
+     *             redirection anchor if any
+     */
     protected $redir_anchor = '';
 
-    /** @var string current action, if any */
+    /**
+     * @var string $caction
+     *             current action, if any
+     */
     protected $caction = '';
 
-    /** @var ArrayObject list of url parameters (usually) */
+    /**
+     * @var ArrayObject $from
+     *                  list of url parameters (usually)
+     */
     protected $from;
 
-    /** @var string form field name for "entries" (usually "entries") */
+    /**
+     * @var string $field_entries
+     *             form field name for "entries" (usually "entries")
+     */
     protected $field_entries = '';
 
-    /** @var string title for checkboxes list, if displayed */
+    /**
+     * @var string $cb_title
+     *             title for checkboxes list, if displayed
+     */
     protected $cb_title = '';
 
-    /** @var string title for caller page title */
+    /**
+     * @var string $caller_title
+     *             title for caller page title
+     */
     protected $caller_title = '';
 
-    /** @var bool true if we are acting inside a plugin (different handling of begin/endpage) */
+    /**
+     * @var bool $in_plugin
+     *           true if we are acting inside a plugin (different handling of begin/endpage)
+     */
     protected $in_plugin = false;
 
-    /** @var bool true if we enable to keep selection when redirecting */
+    /**
+     * @var bool $enable_redir_selection
+     *           true if we enable to keep selection when redirecting
+     */
     protected $enable_redir_selection = false;
 
     /**

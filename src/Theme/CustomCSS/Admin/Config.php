@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Theme\CustomCSS\Admin;
 
+// Dotclear\Theme\CustomCSS\Admin\Config
 use Dotclear\Exception\ModuleException;
 use Dotclear\Module\AbstractConfig;
 use Dotclear\Helper\Html\Form;
@@ -18,8 +19,6 @@ use Dotclear\Helper\File\Path;
 
 /**
  * Admin config page for theme CustomCSS.
- *
- * \Dotclear\Theme\CustomCSS\Admin\Config
  *
  * @ingroup  Theme CustomCSS
  */

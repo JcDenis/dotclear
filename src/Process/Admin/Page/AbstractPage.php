@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Page;
 
+// Dotclear\Process\Admin\Page\AbstractPage
 use ArrayObject;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\File\Files;
@@ -25,43 +26,74 @@ use Exception;
 /**
  * Admin page helper.
  *
- * \Dotclear\Process\Admin\Page\AbstractPage
- *
  * @ingroup  Admin
  */
 abstract class AbstractPage
 {
-    /** @var null|string Page type */
+    /**
+     * @var null|string $page_type
+     *                  Page type
+     */
     private $page_type;
 
-    /** @var string Page title */
+    /**
+     * @var string $page_title
+     *             Page title
+     */
     private $page_title = '';
 
-    /** @var string Page head */
+    /**
+     * @var string $page_head
+     *             Page head
+     */
     private $page_head = '';
 
-    /** @var string Page content */
+    /**
+     * @var string $page_content
+     *             Page content
+     */
     private $page_content = '';
 
-    /** @var array<int, ArrayObject|string>     Help blocks names */
+    /**
+     * @var array<int, ArrayObject|string> $page_help
+     *                                     Help blocks names
+     */
     private $page_help = [];
 
-    /** @var array Page breadcrumb (brut)) */
+    /**
+     * @var array $page_breadcrumb
+     *            Page breadcrumb (brut))
+     */
     private $page_breadcrumb = ['elements' => null, 'options' => []];
 
-    /** @var bool Load once xframe */
+    /**
+     * @var bool $page_xframe_loaded
+     *           Load once xframe
+     */
     private $page_xframe_loaded = false;
 
-    /** @var object Action instance */
+    /**
+     * @var object $action
+     *             Action instance
+     */
     protected $action;
 
-    /** @var object Filter instance */
+    /**
+     * @var object $filter
+     *             Filter instance
+     */
     protected $filter;
 
-    /** @var object Inventory instance */
+    /**
+     * @var object $inventory
+     *             Inventory instance
+     */
     protected $inventory;
 
-    /** @var array Misc options for page content */
+    /**
+     * @var array $options
+     *            Misc options for page content
+     */
     protected $options = [];
 
     /**
