@@ -9,14 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Theme\Public;
 
+// Dotclear\Module\Theme\Public\ModulesTheme
 use Dotclear\Module\AbstractModules;
 use Dotclear\Module\TraitModulesPublic;
 use Dotclear\Module\Theme\TraitModulesTheme;
 
 /**
  * Theme modules public methods.
- *
- * \Dotclear\Module\Theme\Public\ModulesTheme
  *
  * @ingroup  Module Public Theme
  */

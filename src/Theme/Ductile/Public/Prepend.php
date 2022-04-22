@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Theme\Ductile\Public;
 
+// Dotclear\Theme\Ductile\Public\Prepend
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
 
 /**
  * Public prepend for theme Ductile.
- *
- * \Dotclear\Theme\Ductile\Public\Prepend
  *
  * @ingroup  Theme Ductile
  */

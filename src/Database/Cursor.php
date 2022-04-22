@@ -27,7 +27,7 @@ class Cursor
      * Constructor.
      *
      * Init cursor object on a given table. Note that you can init it with
-     * {@link Layer::openCursor() openCursor()} method of your connection object.
+     * openCursor() method of your connection object.
      *
      * Example:
      * <code>
@@ -115,7 +115,7 @@ class Cursor
     }
 
     /**
-     * @see self::setField()
+     * _ to remove _.
      *
      * @param mixed $v
      */
@@ -125,7 +125,7 @@ class Cursor
     }
 
     /**
-     * @see self::getField()
+     * _ to remove _.
      */
     public function __get(string $n)
     {

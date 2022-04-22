@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Theme\Admin;
 
+// Dotclear\Module\Theme\Admin\ModulesTheme
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Html\Form;
@@ -22,8 +23,6 @@ use Exception;
 
 /**
  * Theme modules admin methods.
- *
- * \Dotclear\Module\Theme\Admin\ModulesTheme
  *
  * @ingroup  Module Admin Theme
  */

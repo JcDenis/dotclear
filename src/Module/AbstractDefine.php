@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
+// Dotclear\Module\AbstractDefine
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\ErrorTrait;
 use Dotclear\Helper\Html\Html;
@@ -16,8 +17,6 @@ use Dotclear\Helper\Network\Http;
 
 /**
  * Module define default structure.
- *
- * \Dotclear\Module\AbstractDefine
  *
  * This class provides all necessary informations about Module.
  * Module definition must be on a define.xml file
@@ -29,7 +28,10 @@ abstract class AbstractDefine
 {
     use ErrorTrait;
 
-    /** @var array<string, mixed>   Module cleaned properties */
+    /**
+     * @var array<string, mixed> $properties
+     *                           Module cleaned properties
+     */
     protected $properties = [
         'id'                => '',
         'root'              => '',
@@ -58,16 +60,28 @@ abstract class AbstractDefine
         'score'             => 0,
     ];
 
-    /** @var array<int, string>   Module parents dependencies */
+    /**
+     * @var array<int, string> $dep_parents
+     *                         Module parents dependencies
+     */
     private $dep_parents = [];
 
-    /** @var array<int, string>   Module children dependencies */
+    /**
+     * @var array<int, string> $dep_children
+     *                         Module children dependencies
+     */
     private $dep_children = [];
 
-    /** @var array<int, string>   Module missing dependencies */
+    /**
+     * @var array<int, string> $dep_missing
+     *                         Module missing dependencies
+     */
     private $dep_missing = [];
 
-    /** @var string Required module type */
+    /**
+     * @var string $type
+     *             Required module type
+     */
     protected $type = '';
 
     /**

@@ -9,30 +9,22 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
+// Dotclear\Module\TraitPrependPublic
+
 /**
  * Module public trait Prepend.
  *
- * \Dotclear\Module\TraitPrependPublic
- *
- * @ingroup  Module Public
+ * @ingroup  Module
  */
 trait TraitPrependPublic
 {
-    /**
-     * Not used on Public process.
-     *
-     * @see Dotclear\Module\AbstractModules::loadModules()
-     */
+    /** This method is not used on Public process. */
     public function checkModule(): bool
     {
         return true;
     }
 
-    /**
-     * Not used on Public process.
-     *
-     * @see Dotclear\Module\AbstractModules::loadModules()
-     */
+    /** This method is not used on Public process. */
     public function installModule(): ?bool
     {
         return null;

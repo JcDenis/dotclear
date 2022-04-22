@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Plugin;
 
+// Dotclear\Module\Plugin\DefinePlugin
 use Dotclear\Module\AbstractDefine;
 
 /**
  * Plugin module definition.
- *
- * \Dotclear\Module\Plugin\DefinePlugin
  *
  * @ingroup  Module Plugin
  */

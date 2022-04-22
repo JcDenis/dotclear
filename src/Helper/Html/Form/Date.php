@@ -23,8 +23,8 @@ class Date extends Input
     /**
      * Constructs a new instance.
      *
-     * @param string  $id    The identifier
-     * @param ?string $value
+     * @param string      $id    The identifier
+     * @param null|string $value The value
      */
     public function __construct(?string $id = null, ?string $value = null)
     {

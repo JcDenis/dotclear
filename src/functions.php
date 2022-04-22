@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Dotclear {
     // php-cs-fixer requires namespace to exist
+    // but this must be removed to generate phpdoc
 }
 
 namespace { // enter to global namespace to declare root functions
@@ -22,8 +23,6 @@ if (!function_exists('dotclear_run')) {
 
     /**
      * Root function to run process.
-     *
-     * \dotclear_run()
      *
      * @param string $process The process (admin,install,public...)
      * @param string $blog_id The blog id for public process
@@ -88,8 +87,6 @@ if (!function_exists('dotclear')) {
     /**
      * Root function to call singleton core.
      *
-     * \dotclear()
-     *
      * @return null|object Singleton core instance
      */
     function dotclear(): ?object
@@ -113,12 +110,10 @@ if (!function_exists('dotclear_error')) {
     /**
      * Root function to display errors.
      *
-     * \dotclear_error()
-     *
-     * @param string $message The message
-     * @param string $detail  The detail
-     * @param int    $code    The code
-     * @param ?array $traces
+     * @param string     $message The message
+     * @param string     $detail  The detail
+     * @param int        $code    The code
+     * @param null|array $traces  The traces
      */
     function dotclear_error(string $message, string $detail = '', int $code = 0, ?array $traces = null): void
     {

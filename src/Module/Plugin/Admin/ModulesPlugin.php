@@ -9,14 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Plugin\Admin;
 
+// Dotclear\Module\Plugin\Admin\ModulesPlugin
 use Dotclear\Module\AbstractModules;
 use Dotclear\Module\TraitModulesAdmin;
 use Dotclear\Module\Plugin\TraitModulesPlugin;
 
 /**
  * Plugin modules admin methods.
- *
- * \Dotclear\Module\Plugin\Admin\ModulesPlugin
  *
  * @ingroup  Module Admin Plugin
  */

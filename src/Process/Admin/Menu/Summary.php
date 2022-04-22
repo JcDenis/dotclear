@@ -9,14 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Menu;
 
+// Dotclear\Process\Admin\Menu\Summary
 use ArrayObject;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 
 /**
  * Admin menu handling facilities.
- *
- * \Dotclear\Process\Admin\Menu\Summary
  *
  * Accessible from dotclear()->summary()->
  *
@@ -49,9 +48,10 @@ class Summary extends ArrayObject
      *
      * This create a Menu instance
      *
-     * @param string $name  The menu name
-     * @param string $id    The menu id
-     * @param string $title The menu title
+     * @param string $name      The menu name
+     * @param string $id        The menu id
+     * @param string $title     The menu title
+     * @param string $itemSpace The item space
      */
     public function add(string $name, string $id, string $title, string $itemSpace = ''): void
     {

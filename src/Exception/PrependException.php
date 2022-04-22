@@ -29,9 +29,11 @@ class PrependException extends Exception
      *
      * @uses    dotclear_error()
      *
-     * @param string $message The message
-     * @param string $detail  The detail
-     * @param int    $code    The code
+     * @param string    $message The message
+     * @param string    $detail  The detail
+     * @param int       $code    The code
+     * @param bool      $trace   Add explicitly trace
+     * @param Throwable $e       The original exception
      */
     public function __construct(string $message = 'Unknow Exception', string $detail = '', int $code = 0, bool $trace = false, Throwable $e = null)
     {

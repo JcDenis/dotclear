@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Store\Repository;
 
+// Dotclear\Module\Store\Repository\RepositoryParser
 use SimpleXMLElement;
 use Dotclear\Exception\CoreException;
 
 /**
  * Repository modules XML feed parser.
- *
- * \Dotclear\Module\Store\Repository\RepositoryParser
  *
  * Provides an object to parse XML feed of modules from repository.
  *
@@ -23,13 +22,22 @@ use Dotclear\Exception\CoreException;
  */
 class RepositoryParser
 {
-    /** @var false|SimpleXMLElement XML object of feed contents */
+    /**
+     * @var false|SimpleXMLElement $xml
+     *                             XML object of feed contents
+     */
     protected $xml = false;
 
-    /** @var array Array of feed contents */
+    /**
+     * @var array<string, array> $items
+     *                           Array of feed contents
+     */
     protected $items = [];
 
-    /** @var string XML bloc tag */
+    /**
+     * @var string $bloc
+     *             XML bloc tag
+     */
     protected static $bloc = 'http://dotaddict.org/da/';
 
     /**

@@ -19,9 +19,9 @@ use ReturnTypeWillChange;
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * This class offers an iterator for network operations made with
- * {@link Dotclear\Helper\Network\Socket\Socket}.
+ * {@link Socket}.
  *
- * @see Dotclear\Helper\Network\Socket\Socket::write()
+ * @see Socket::write()
  *
  * @ingroup  Helper Network
  */

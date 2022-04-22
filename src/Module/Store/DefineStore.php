@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Store;
 
+// Dotclear\Module\Store\DefineStore
 use Dotclear\Module\AbstractDefine;
 
 /**
  * Store module definition.
- *
- * \Dotclear\Module\Store\DefineStore
  *
  * @ingroup  Module Store
  */

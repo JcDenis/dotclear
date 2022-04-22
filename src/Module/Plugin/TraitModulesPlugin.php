@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Plugin;
 
+// Dotclear\Module\Plugin\TraitModulesPlugin
 use Dotclear\Helper\File\Path;
 
 /**
  * Plugin modules methods.
- *
- * \Dotclear\Module\Plugin\TraitModulesPlugin
  *
  * @ingroup  Module Plugin
  */

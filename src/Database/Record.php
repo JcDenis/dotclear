@@ -101,7 +101,8 @@ class Record implements Iterator, Countable
      * Magic call function. Calls function added by {@link extend()} if exists, passing it
      * self object and arguments.
      *
-     * @param mixed[] $args
+     * @param string $function The function name
+     * @param mixed  ...$args  The arguments
      */
     public function call(string $function, mixed ...$args): mixed
     {

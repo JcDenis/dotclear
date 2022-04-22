@@ -257,7 +257,8 @@ class Table
      *
      * @see self::newKey()
      *
-     * @param string[] $cols
+     * @param string $name    The key name
+     * @param string ...$cols The columns
      */
     public function primary(string $name, string ...$cols): Table
     {
@@ -273,7 +274,8 @@ class Table
      *
      * @see self::newKey()
      *
-     * @param string[] $cols
+     * @param string $name    The key name
+     * @param string ...$cols The columns
      */
     public function unique(string $name, string ...$cols): Table
     {

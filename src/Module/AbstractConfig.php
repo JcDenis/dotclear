@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
+// Dotclear\Module\AbstractConfig
 use Dotclear\Helper\Network\Http;
 
 /**
  * Module abstract Config.
- *
- * \Dotclear\Module\AbstractConfig
  *
  * If exists, Module Config class must extends this class.
  * It provides a simple way to add an admin form to configure module.

@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Theme\Admin;
 
+// Dotclear\Module\Theme\Admin\ConfigTheme
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Files;
@@ -17,8 +18,6 @@ use ArrayObject;
 
 /**
  * Helper for theme configurators.
- *
- * \Dotclear\Module\Theme\Admin\ConfigTheme
  *
  * Provides helper tools for theme configurators.
  *
@@ -36,7 +35,7 @@ class ConfigTheme
      *
      * @return float computed ratio
      */
-    public function computeContrastRatio($color, $background)
+    public function computeContrastRatio(string $color, string $background): float
     {
         // Compute contrast ratio between two colors
 
@@ -70,9 +69,9 @@ class ConfigTheme
      * @param string $size  font size as defined in CSS
      * @param bool   $bold  true if bold font
      *
-     * @return string WCAG contrast ratio level (AAA, AA or <nothing>)
+     * @return string WCAG contrast ratio level (AAA, AA or nothing)
      */
-    public function contrastRatioLevel($ratio, $size, $bold = false)
+    public function contrastRatioLevel(float $ratio, string $size, bool $bold = false): string
     {
         if ('' == $size) {
             return '';
@@ -127,7 +126,7 @@ class ConfigTheme
      *
      * @return string contrast ratio including WCAG level
      */
-    public function contrastRatio($color, $background, $size = '', $bold = false)
+    public function contrastRatio(string $color, string $background, string $size = '', bool $bold = false): string
     {
         if (('' != $color) && ('' != $background)) {
             $ratio = $this->computeContrastRatio($color, $background);
@@ -146,9 +145,9 @@ class ConfigTheme
      *
      * @param string $s font size
      *
-     * @return mixed checked font size
+     * @return string checked font size
      */
-    public function adjustFontSize($s)
+    public function adjustFontSize(string $s): string
     {
         if ($s) {
             if (preg_match('/^([0-9.]+)\s*(%|pt|px|em|ex|rem|ch)?$/', $s, $m)) {
@@ -168,9 +167,9 @@ class ConfigTheme
      *
      * @param string $p position
      *
-     * @return mixed checked position
+     * @return string checked position
      */
-    public function adjustPosition($p)
+    public function adjustPosition(string $p): string
     {
         if (!$p) {
             return '';
@@ -191,7 +190,7 @@ class ConfigTheme
      *
      * @return string checked CSS color
      */
-    public function adjustColor($c)
+    public function adjustColor(string $c): string
     {
         if (!$c) {
             return '';
@@ -219,7 +218,7 @@ class ConfigTheme
      *
      * @return string checked CSS
      */
-    public function cleanCSS($css)
+    public function cleanCSS(string $css): string
     {
         // TODO ?
         return $css;
@@ -232,7 +231,7 @@ class ConfigTheme
      *
      * @return string real path of CSS
      */
-    public function cssPath($folder)
+    public function cssPath(string $folder): string
     {
         return Path::real(dotclear()->blog()->public_path, false) . '/' . $folder;
     }
@@ -244,7 +243,7 @@ class ConfigTheme
      *
      * @return string CSS URL
      */
-    public function cssURL($folder)
+    public function cssURL(string $folder): string
     {
         return dotclear()->blog()->public_url . '/' . $folder;
     }
@@ -257,7 +256,7 @@ class ConfigTheme
      *
      * @return bool true if CSS folder exists and may be written, else false
      */
-    public function canWriteCss($folder, $create = false)
+    public function canWriteCss(string $folder, bool $create = false): bool
     {
         $public = Path::real(dotclear()->blog()->public_path, false);
         $css    = $this->cssPath($folder);
@@ -298,7 +297,7 @@ class ConfigTheme
      * @param string      $prop     property
      * @param string      $value    value
      */
-    public function prop($css, $selector, $prop, $value)
+    public function prop(ArrayObject $css, string $selector, string $prop, string $value): void
     {
         if ($value) {
             $css[$selector][$prop] = $value;
@@ -314,7 +313,7 @@ class ConfigTheme
      * @param bool   $value    false for default, true if image should be set
      * @param string $image    image filename
      */
-    public function backgroundImg($folder, &$css, $selector, $value, $image)
+    public function backgroundImg(string $folder, array &$css, string $selector, bool $value, string $image): void
     {
         $file = $this->imagesPath($folder) . '/' . $image;
         if ($value && file_exists($file)) {
@@ -329,7 +328,7 @@ class ConfigTheme
      * @param string $theme  CSS filename
      * @param string $css    CSS file content
      */
-    public function writeCss($folder, $theme, $css)
+    public function writeCss(string $folder, string $theme, string $css): void
     {
         file_put_contents($this->cssPath($folder) . '/' . $theme . '.css', $css);
     }
@@ -340,7 +339,7 @@ class ConfigTheme
      * @param string $folder CSS folder
      * @param string $theme  CSS filename to be removed
      */
-    public function dropCss($folder, $theme)
+    public function dropCss(string $folder, string $theme): void
     {
         $file = Path::real($this->cssPath($folder) . '/' . $theme . '.css');
         if (!$file) {
@@ -356,17 +355,15 @@ class ConfigTheme
      *
      * @param string $folder CSS folder
      *
-     * @return mixed CSS file URL
+     * @return null|string CSS file URL
      */
-    public function publicCssUrlHelper($folder)
+    public function publicCssUrlHelper(string $folder): ?string
     {
         $theme = dotclear()->blog()->settings()->get('system')->get('theme');
         $url   = $this->cssURL($folder);
         $path  = $this->cssPath($folder);
 
-        if (file_exists($path . '/' . $theme . '.css')) {
-            return $url . '/' . $theme . '.css';
-        }
+        return file_exists($path . '/' . $theme . '.css') ? $url . '/' . $theme . '.css' : null;
     }
 
     /**
@@ -376,7 +373,7 @@ class ConfigTheme
      *
      * @return string real path of folder
      */
-    public function imagesPath($folder)
+    public function imagesPath(string $folder): string
     {
         return Path::real(dotclear()->blog()->public_path, false) . '/' . $folder;
     }
@@ -388,7 +385,7 @@ class ConfigTheme
      *
      * @return string URL of images folder
      */
-    public function imagesURL($folder)
+    public function imagesURL(string $folder): string
     {
         return dotclear()->blog()->public_url . '/' . $folder;
     }
@@ -401,7 +398,7 @@ class ConfigTheme
      *
      * @return bool true if folder exists and may be written
      */
-    public function canWriteImages($folder, $create = false)
+    public function canWriteImages(string $folder, bool $create = false): bool
     {
         $public = Path::real(dotclear()->blog()->public_path);
         $imgs   = $this->imagesPath($folder);
@@ -445,12 +442,12 @@ class ConfigTheme
      * Upload an image in images folder.
      *
      * @param string $folder images folder
-     * @param array  $f      selected image file (as $_FILES[<file input fieldname>])
+     * @param array  $f      selected image file (as $_FILES[file input fieldname])
      * @param int    $width  check accurate width of uploaded image if <> 0
      *
      * @return string full pathname of uploaded image
      */
-    public function uploadImage($folder, $f, $width = 0)
+    public function uploadImage(string $folder, array $f, int $width = 0): string
     {
         if (!$this->canWriteImages($folder, true)) {
             throw new ModuleException(__('Unable to create images.'));
@@ -485,7 +482,7 @@ class ConfigTheme
      * @param string $folder images folder
      * @param string $img    image filename
      */
-    public function dropImage($folder, $img)
+    public function dropImage(string $folder, string $img): void
     {
         if ($folder) {
             $img = Path::real($this->imagesPath($folder) . '/' . $img);

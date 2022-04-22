@@ -129,7 +129,7 @@ class MaintenanceTask
 
     /**
      * Get task scope.
-     *.
+     *
      * Is task limited to current blog.
      *
      * @return bool Limit to blog

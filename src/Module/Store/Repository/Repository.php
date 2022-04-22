@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Store\Repository;
 
+// Dotclear\Module\Store\Repository\Repository
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\Network\NetHttp\NetHttp;
 use Dotclear\Module\AbstractModules;
@@ -17,13 +18,14 @@ use Exception;
 /**
  * Repository modules manager.
  *
- * \Dotclear\Module\Store\Repository\Repository
- *
  * @ingroup  Module Store
  */
 class Repository
 {
-    /** @var array Modules fields to search on and their weighting */
+    /**
+     * @var array<string, int> $weighting
+     *                         Modules fields to search on and their weighting
+     */
     public static $weighting = [
         'id'     => 10,
         'name'   => 8,
@@ -32,10 +34,16 @@ class Repository
         'author' => 2,
     ];
 
-    /** @var string User agent used to query repository */
+    /**
+     * @var string $user_agent
+     *             User agent used to query repository
+     */
     protected $user_agent = 'DotClear.org RepoBrowser/0.1';
 
-    /** @var array Array of new/update modules from repository */
+    /**
+     * @var array<string, array> $data
+     *                           Array of new/update modules from repository
+     */
     protected $data = ['new' => [], 'update' => []];
 
     /**

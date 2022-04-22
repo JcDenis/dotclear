@@ -19,7 +19,7 @@ use SimpleXMLElement;
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
  * This class can read RSS 1.0, RSS 2.0, Atom 0.3 and Atom 1.0 feeds. Works with
- * {@link Dotclear\Helper\Network\Feed\Reader}
+ * {@link Reader}
  *
  * @ingroup  Helper Network Feed
  */

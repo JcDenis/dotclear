@@ -393,7 +393,6 @@ class SqlStatement
     /**
      * Return an SQL IN (…) fragment.
      *
-     * @param mixed  $list The list
      * @param mixed  $list The list of values
      * @param string $cast Cast given not null values to specified type
      */

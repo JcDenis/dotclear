@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
+// Dotclear\Module\TraitModulesAdmin
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Html\Form;
@@ -20,67 +21,122 @@ use Exception;
 /**
  * Module Admin specific methods.
  *
- * \Dotclear\Module\TraitModulesAdmin
- *
- * @ingroup  Module Admin
+ * @ingroup  Module
  */
 trait TraitModulesAdmin
 {
-    /** @var Repository Store instance */
+    /**
+     * @var Repository $store
+     *                 Store instance
+     */
     public $store;
 
-    /** @var bool Use store result in cache */
+    /**
+     * @var bool $store_cache
+     *           Use store result in cache
+     */
     protected $store_cache = true;
 
-    /** @var string Current list ID */
+    /**
+     * @var string $list_id
+     *             Current list ID
+     */
     protected $list_id = 'unknown';
 
-    /** @var array Current modules */
+    /**
+     * @var array<string, AbstractDefine> $data
+     *                                    Current modules
+     */
     protected $data = [];
 
-    /** @var AbstractDefine|false Module ID to configure */
+    /**
+     * @var AbstractDefine|false $config_module
+     *                           Module ID to configure
+     */
     protected $config_module = false;
 
-    /** @var AbstractConfig|false Module class to configure */
+    /**
+     * @var AbstractConfig|false $config_class
+     *                           Module class to configure
+     */
     protected $config_class = false;
 
-    /** @var string Module configuration page content */
+    /**
+     * @var string $config_content
+     *             Module configuration page content
+     */
     protected $config_content = '';
 
-    /** @var false|string Modules root directory */
+    /**
+     * @var false|string $path
+     *                   Modules root directory
+     */
     protected $path = false;
 
-    /** @var bool Indicate if modules root directory is writable */
+    /**
+     * @var bool $path_writable
+     *           Indicate if modules root directory is writable
+     */
     protected $path_writable = false;
 
-    /** @var false|string Directory pattern to work on */
+    /**
+     * @var false|string $path_pattern
+     *                   Directory pattern to work on
+     */
     protected $path_pattern = false;
 
-    /** @var string Page URL */
+    /**
+     * @var string $page_url
+     *             Page URL
+     */
     protected $page_url = '';
 
-    /** @var string Page query string */
+    /**
+     * @var string $page_qs
+     *             Page query string
+     */
     protected $page_qs = '&';
 
-    /** @var string Page tab */
+    /**
+     * @var string $page_tab
+     *             Page tab
+     */
     protected $page_tab = '';
 
-    /** @var string Page redirection */
+    /**
+     * @var string $page_redir
+     *             Page redirection
+     */
     protected $page_redir = '';
 
-    /** @var string Index list */
+    /**
+     * @var string $nav_indexes
+     *             Index list
+     */
     public static $nav_indexes = 'abcdefghijklmnopqrstuvwxyz0123456789';
 
-    /** @var array Index list with special index */
+    /**
+     * @var array $nav_list
+     *            Index list with special index
+     */
     protected $nav_list = [];
 
-    /** @var string Text for other special index */
+    /**
+     * @var string $nav_special
+     *             Text for other special index
+     */
     protected $nav_special = 'other';
 
-    /** @var string Field used to sort modules */
+    /**
+     * @var string $sort_field
+     *             Field used to sort modules
+     */
     protected $sort_field = 'sname';
 
-    /** @var bool Sort order asc */
+    /**
+     * @var bool $sort_asc
+     *           Sort order asc
+     */
     protected $sort_asc = true;
 
     /** Register module on admin url/menu/favs,... */

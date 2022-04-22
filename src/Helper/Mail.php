@@ -48,7 +48,7 @@ class Mail
 
         $f = '_mail';
         if (function_exists($f)) {
-            /** @phpstan-ignore-next-line */
+            // @phpstan-ignore-next-line
             call_user_func($f, $to, $subject, $message, $headers, $p);
         } else {
             if (!@mail($to, $subject, $message, $headers, $p)) {

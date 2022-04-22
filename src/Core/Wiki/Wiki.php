@@ -233,7 +233,7 @@ class Wiki
         return $res;
     }
 
-    /** @alias Wiki2xhtml::setOpt */
+    /** @see Wiki2xhtml::setOpt */
     public function setOpt(string $option, $value): void
     {
         $this->wiki2xhtml()->setOpt($option, $value);

@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
+// Dotclear\Module\AbstractModules
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\ErrorTrait;
 use Dotclear\Helper\L10n;
@@ -21,35 +22,58 @@ use Exception;
 /**
  * Helper for admin list of modules.
  *
- * \Dotclear\Module\AbstractModules
- *
  * @ingroup  Module
  */
 abstract class AbstractModules
 {
     use ErrorTrait;
 
-    /** @var array List of enabled modules */
+    /**
+     * @var array<string, AbstractDefine> $modules_enabled
+     *                                    List of enabled modules
+     */
     protected $modules_enabled = [];
 
-    /** @var array List of disabled modules */
+    /**
+     * @var array<string, AbstractDefine> $modules_disabled
+     *                                    List of disabled modules
+     */
     protected $modules_disabled = [];
 
-    /** @var array List of modules versions */
+    /**
+     * @var array<string, string> $modules_version
+     *                            List of modules versions
+     */
     protected $modules_version = [];
 
-    /** @var null|string Loading process, module id */
+    /**
+     * @var null|string $id
+     *                  Loading process, module id
+     * */
     private $id;
 
-    /** @var bool Loading process, in disabled mode */
+    /**
+     * @var bool $disabled_mode
+     *           Loading process, in disabled mode
+     */
     private $disabled_mode = false;
 
-    /** @var null|AbstractDefine Loading process, disabled module */
+    /**
+     * @var null|AbstractDefine $disabled_meta
+     *                          Loading process, disabled module
+     */
     private $disabled_meta;
 
-    /** @var array Loading process, modules to disable */
+    /**
+     * @var array<string, array> $to_disable
+     *                           Loading process, modules to disable
+     */
     private $to_disable = [];
 
+    /**
+     * @var array<string, AbstractPrepend> $modules_prepend
+     *                                     Loading process, stack of loaded modules prepend class
+     */
     private $modules_prepend = [];
 
     /**
@@ -311,7 +335,7 @@ abstract class AbstractModules
             if (count($missing)) {
                 $module->depMissing($missing);
                 if ($module->enabled()) {
-                    $this->to_disable[] = ['id' => $id, 'reason' => $missing];
+                    $this->to_disable[$id] = $missing;
                 }
             }
         }
@@ -508,19 +532,19 @@ abstract class AbstractModules
             // Avoid infinite redirects
             return false;
         }
-        $reason = [];
-        foreach ($this->to_disable as $module) {
+        $messages = [];
+        foreach ($this->to_disable as $id => $reason) {
             try {
-                $this->deactivateModule($module['id']);
-                $reason[] = sprintf('<li>%s : %s</li>', $module['id'], join(',', $module['reason']));
+                $this->deactivateModule($id);
+                $messages[] = sprintf('<li>%s : %s</li>', $id, join(',', $reason));
             } catch (\Exception) {
             }
         }
-        if (count($reason)) {
+        if (count($messages)) {
             $message = sprintf(
                 '<p>%s</p><ul>%s</ul>',
                 __('The following modules have been disabled :'),
-                join('', $reason)
+                join('', $messages)
             );
             dotclear()->notice()->addWarningNotice($message, ['divtag' => true, 'with_ts' => false]);
             $url = $redir_url . (str_contains($redir_url, '?') ? '&' : '?') . 'dep=1';

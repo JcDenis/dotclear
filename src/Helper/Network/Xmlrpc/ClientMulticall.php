@@ -63,7 +63,7 @@ class ClientMulticall extends Client
      * This method sends calls stack to XML-RPC system.multicall method.
      * See {@link Server::multiCall()} for details and links about it.
      *
-     * @param string $method (not used, use ::addCall() before invoking ::query())
+     * @param string $method (not used, use self::addCall() before invoking self::query())
      * @param mixed  $args   (see above)
      *
      * @return mixed (array)

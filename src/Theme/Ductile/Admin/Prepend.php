@@ -9,14 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Theme\Ductile\Admin;
 
+// Dotclear\Theme\Ductile\Admin\Prepend
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 use Dotclear\Module\AbstractDefine;
 
 /**
- * Admin prepend for theme DUctile.
- *
- * \Dotclear\Theme\Ductile\Admin\Prepend
+ * Admin prepend for theme Ductile.
  *
  * @ingroup  Theme Ductile
  */

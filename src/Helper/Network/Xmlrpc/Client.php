@@ -68,7 +68,8 @@ class Client extends NetHttp
      * ?>
      * </code>
      *
-     * @param mixed[] $args
+     * @param string $method  The method
+     * @param mixed  ...$args The arguments
      */
     public function query(string $method, mixed ...$args): mixed
     {

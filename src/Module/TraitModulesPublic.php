@@ -9,38 +9,26 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
+// Dotclear\Module\TraitModulesPublic
+
 /**
  * Dotclear Module Public specific methods.
  *
- * \Dotclear\Module\TraitModulesPublic
- *
- * @ingroup  Module Public
+ * @ingroup  Module
  */
 trait TraitModulesPublic
 {
-    /**
-     * Not used on Public process.
-     *
-     * @see Dotclear\Module\AbstractModules::loadModules()
-     */
+    /** This method is not used on Public process. */
     protected function loadModulesProcess(): void
     {
     }
 
-    /**
-     * Not used on Public process.
-     *
-     * @see Dotclear\Module\AbstractModules::loadModules()
-     */
+    /** This method is not used on Public process. */
     protected function loadModuleProcess(string $id): void
     {
     }
 
-    /**
-     * Not used on Public process.
-     *
-     * @see Dotclear\Module\AbstractModules::loadModuleDefine()
-     */
+    /** This method is not used on Public process. */
     protected function loadModuleDefineProcess(AbstractDefine $define): bool
     {
         return true;

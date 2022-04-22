@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Help;
 
+// Dotclear\Process\Admin\Help\Help
+
 /**
  * Admin locale help resources helper.
- *
- * \Dotclear\Process\Admin\Help\Help
  *
  * @ingroup  Admin Help Localisation
  */
@@ -77,7 +77,7 @@ class Help
     /**
      * Add/get context bloc.
      *
-     * @param string $value   The key
+     * @param string $key     The key
      * @param string $value   The value
      * @param bool   $replace Replace existing bloc
      *

@@ -157,7 +157,7 @@ class Widget
     {
         return !(
             $this->get('homeonly')    == self::HOME_ONLY      && !dotclear()->url()->isHome($type)      && $alt_not_home
-            || $this->get('homeonly') == self::EXCEPT_HOME && (dotclear()->url()->isHome($type) || $alt_home)
+            || $this->get('homeonly') == self::EXCEPT_HOME    && (dotclear()->url()->isHome($type) || $alt_home)
         );
     }
 

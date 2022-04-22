@@ -9,14 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Favorite;
 
+// Dotclear\Process\Admin\Favorite\Favorite
 use ArrayObject;
 use Dotclear\Core\User\Preference\Workspace;
 use Dotclear\Process\Admin\Menu\Summary;
 
 /**
  * Admin favorites handling facilities.
- *
- * \Dotclear\Process\Admin\Favorite\Favorite
  *
  * Accessible from dotclear()->favorite()->
  *
@@ -160,10 +159,11 @@ class Favorite
      * Get user favorites from settings.
      * These are complete favorites, not ids only
      * returned favorites are the first non-empty list from :
-     *    * user-defined favorites
-     *    * globally-defined favorites
-     *    * a failback list "new post" (shall never be empty)
-     * This method is called by ::setup()
+     * - user-defined favorites
+     * - globally-defined favorites
+     * - a failback list "new post" (shall never be empty)
+     *
+     * This method is called by self::setup()
      */
     protected function setUserPrefs(): void
     {

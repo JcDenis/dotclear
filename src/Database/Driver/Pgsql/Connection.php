@@ -299,7 +299,7 @@ class Connection extends AbstractConnection
     /**
      * Function call.
      *
-     * Calls a PostgreSQL function an returns the result as a {@link record}.
+     * Calls a PostgreSQL function an returns the result as a {@link Record}.
      * After <var>$name</var>, you can add any parameters you want to append
      * them to the PostgreSQL function. You don't need to escape string in
      * arguments.

@@ -211,7 +211,8 @@ class HtmlFilter
      * ?>
      * </code>
      *
-     * @param array|string[] $args
+     * @param string       $tag     The tag
+     * @param array|string ...$args The argumetns
      */
     public function removeTagAttributes(string $tag, array|string ...$args): void
     {

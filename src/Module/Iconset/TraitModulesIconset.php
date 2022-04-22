@@ -7,12 +7,12 @@
  */
 declare(strict_types=1);
 
+// Dotclear\Module\Iconset\TraitModulesIconset
+
 namespace Dotclear\Module\Iconset;
 
 /**
  * Iconset modules methods.
- *
- * \Dotclear\Module\Iconset\TraitModulesIconset
  *
  * @ingroup  Module Iconset
  */

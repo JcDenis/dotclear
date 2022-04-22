@@ -9,15 +9,14 @@ declare(strict_types=1);
 
 namespace Dotclear\Theme\Ductile\Public;
 
+// Dotclear\Theme\Ductile\Public\DuctileTemplate
 use ArrayObject;
 use Dotclear\Helper\File\Files;
 
 /**
  * Public templates for theme Ductile.
  *
- * \Dotclear\Theme\Ductile\Public\DuctileTemplate
- *
- * @ingroup  Theme Ductile
+ * @ingroup  Theme Ductile Template
  */
 class DuctileTemplate
 {

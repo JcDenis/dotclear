@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Iconset;
 
+// Dotclear\Module\Iconset\DefineIconset
 use Dotclear\Module\AbstractDefine;
 
 /**
  * Iconset module definition.
- *
- * \Dotclear\Module\Iconset\DefineIconset
  *
  * @ingroup  Module Iconset
  */
@@ -22,13 +21,13 @@ class DefineIconset extends AbstractDefine
 {
     protected $type = 'Iconset';
 
-    // Disable permissions on Iconset
+    /** This disabled permissions on Iconset */
     public function permissions(): ?string
     {
         return null;
     }
 
-    // Disable priority on Iconset
+    /** This forced priority on Iconset */
     public function priority(): int
     {
         return 1000;

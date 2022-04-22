@@ -17,11 +17,11 @@ use Dotclear\Plugin\Antispam\Common\Spamfilter;
 use Exception;
 
 /**
- * Akismet antispam filter.
+ * Akismet Antispam filter.
  *
  * \Dotclear\Plugin\Akismet\Common\FilterAkismet
  *
- * @ingroup  Plugin Akismet
+ * @ingroup  Plugin Akismet Antispam
  */
 class FilterAkismet extends Spamfilter
 {

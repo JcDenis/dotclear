@@ -9,10 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
+// Dotclear\Module\AbstractPrepenp
+
 /**
  * Abstract module prepend.
- *
- * \Dotclear\Module\AbstractPrepenp
  *
  * Module Prepend class must extends this class.
  * It provides information on Module load.

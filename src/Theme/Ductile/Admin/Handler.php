@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Theme\Ductile\Admin;
 
+// Dotclear\Theme\Ductile\Admin\Handler
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\File\Files;
@@ -18,8 +19,6 @@ use Exception;
 
 /**
  * Admin page for theme Ductile.
- *
- * \Dotclear\Theme\Ductile\Admin\Handler
  *
  * @ingroup  Theme Ductile
  */

@@ -22,7 +22,7 @@ class Value
 {
     /**
      * @var string $type
-     *             Data type 
+     *             Data type
      */
     protected $type;
 

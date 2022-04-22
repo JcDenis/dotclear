@@ -14,7 +14,7 @@ namespace Dotclear\Helper\Network\NetHttp;
 /**
  * Http client.
  *
- * @see Dotclear\Helper\Network\NetHttp\NetHttp
+ * @see NetHttp
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *

@@ -23,8 +23,8 @@ class Checkbox extends Input
     /**
      * Constructs a new instance.
      *
-     * @param string $id      The identifier
-     * @param ?bool  $checked
+     * @param string    $id      The identifier
+     * @param null|bool $checked Is checked
      */
     public function __construct(?string $id = null, ?bool $checked = null)
     {

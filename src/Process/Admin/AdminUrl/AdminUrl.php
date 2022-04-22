@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\AdminUrl;
 
+// Dotclear\Process\Admin\AdminUrl\AdminUrl
 use ArrayObject;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Html\Form;
@@ -16,8 +17,6 @@ use Dotclear\Helper\Network\Http;
 
 /**
  * Admin URL handler.
- *
- * \Dotclear\Process\Admin\AdminUrl\AdminUrl
  *
  * Accessible from dotclear()->adminurl()->
  *
@@ -202,10 +201,10 @@ class AdminUrl
     }
 
     /**
-     * Forge form hidden fields to pass to a generated <form>.
+     * Forge form hidden fields to pass to a generated form.
      *
      * @param string $name   The URL handler name
-     * @param array  $params query string parameters, given as an associative array
+     * @param array  $params The query string parameters, given as an associative array
      * @param bool   $nonce  Add the Nonce field
      *
      * @throws AdminException On unknow URL handler

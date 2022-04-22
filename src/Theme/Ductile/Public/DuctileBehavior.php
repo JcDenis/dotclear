@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Theme\Ductile\Public;
 
+// Dotclear\Theme\Ductile\Public\DuctileBehavior
 use ArrayObject;
 use Dotclear\Module\Theme\Admin\ConfigTheme;
 
 /**
  * Public behaviors for theme Ductile.
- *
- * \Dotclear\Theme\Ductile\Public\DuctileBehavior
  *
  * @ingroup  Theme Ductile Behavior
  */

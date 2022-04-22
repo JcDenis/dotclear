@@ -42,7 +42,7 @@ class Form extends Component
     /**
      * Renders the HTML component.
      *
-     * @param ?string $fieldFormat
+     * @param null|string $fieldFormat The field format
      */
     public function render(?string $fieldFormat = null): string
     {

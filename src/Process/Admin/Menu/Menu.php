@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Menu;
 
+// Dotclear\Process\Admin\Menu\Menu
 use Dotclear\Helper\Lexical;
 
 /**
  * Admin menu item helper.
- *
- * \Dotclear\Process\Admin\Menu\Menu
  *
  * Accessible from dotclear()->summary()['a_menu_id']
  *

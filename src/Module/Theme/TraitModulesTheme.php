@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Theme;
 
+// Dotclear\Module\Theme\TraitModulesTheme
 use Dotclear\Helper\File\Path;
 
 /**
  * Theme modules methods.
- *
- * \Dotclear\Module\Theme\TraitModulesTheme
  *
  * @ingroup  Module Theme
  */

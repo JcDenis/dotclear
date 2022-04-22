@@ -23,10 +23,10 @@ class Number extends Input
     /**
      * Constructs a new instance.
      *
-     * @param string $id    The identifier
-     * @param ?int   $min
-     * @param ?int   $max
-     * @param ?int   $value
+     * @param string   $id    The identifier
+     * @param null|int $min   The min
+     * @param null|int $max   The max
+     * @param null|int $value The value
      */
     public function __construct(string $id = null, ?int $min = null, ?int $max = null, ?int $value = null)
     {

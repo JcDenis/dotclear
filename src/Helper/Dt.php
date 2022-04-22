@@ -95,7 +95,7 @@ class Dt
      *
      * Returns a date formated like PHP <a href="http://www.php.net/manual/en/function.strftime.php">strftime</a>
      * function.
-     * Special cases %a, %A, %b and %B are handled by {@link l10n} library.
+     * Special cases %a, %A, %b and %B are handled by {@link L10n} library.
      *
      * @param string   $p  Format pattern
      * @param bool|int $ts Timestamp

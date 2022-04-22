@@ -65,6 +65,7 @@ class Autoload
      *
      * @param string $root_prefix   Common ns prefix
      * @param string $root_base_dir Common dir prefix
+     * @param bool   $prepend       Add loader on top of stack
      */
     public function __construct(string $root_prefix = '', string $root_base_dir = '', bool $prepend = false)
     {

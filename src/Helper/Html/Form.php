@@ -67,7 +67,7 @@ class Form
      * Returns HTML code for a select box.
      * **$nid** could be a string or an array of name and ID.
      * **$data** is an array with option titles keys and values in values
-     * or an array of object of type {@link formSelectOption}. If **$data** is an array of
+     * or an array of object of type {@link FormSelectOption}. If **$data** is an array of
      * arrays, optgroups will be created.
      *
      * **$default** could be a string or an associative array of any of optional parameters:

@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Helper {
 // Dotclear\Helper\L10n
+use Closure;
 
 /**
  * Localisation tool.
@@ -512,9 +513,9 @@ class L10n
      * @param int    $nplurals   Plurals number
      * @param string $expression Plural expression
      *
-     * @return \Closure Function to extract right plural index
+     * @return Closure Function to extract right plural index
      */
-    public static function createPluralFunction(int $nplurals, string $expression): \Closure
+    public static function createPluralFunction(int $nplurals, string $expression): Closure
     {
         return function ($n) use ($nplurals, $expression) {
             $i = eval('return (int) (' . str_replace('n', (string) $n, $expression) . ');');

@@ -9,35 +9,29 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
+// Dotclear\Module\TraitPrependAdmin
 use Dotclear\Process\Admin\Favorite\Favorite;
 
 /**
  * Module admin trait Prepend.
  *
- * \Dotclear\Module\TraitPrependAdmin
- *
- * @ingroup  Module Admin
+ * @ingroup  Module
  */
 trait TraitPrependAdmin
 {
-    /** @var array Module Favorites */
+    /**
+     * @var array $favorites
+     *            Module Favorites
+     */
     private $favorites = [];
 
-    /**
-     * Module check is optionnal on Admin process.
-     *
-     * @see Dotclear\Module\AbstractModules::loadModules()
-     */
+    /** This method is optionnal on Admin process. */
     public function checkModule(): bool
     {
         return true;
     }
 
-    /**
-     * Module install is optionnal on Admin process.
-     *
-     * @see Dotclear\Module\AbstractModules::loadModules()
-     */
+    /** This method is optionnal on Admin process. */
     public function installModule(): ?bool
     {
         return null;

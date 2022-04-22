@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Store\Repository;
 
+// Dotclear\Module\Store\Repository\RepositoryReader
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Network\NetHttp\NetHttp;
 
 /**
  * Repository modules XML feed reader.
- *
- * \Dotclear\Module\Store\Repository\RepositoryReader
  *
  * Provides an object to parse XML feed of modules from repository.
  *
@@ -23,25 +22,46 @@ use Dotclear\Helper\Network\NetHttp\NetHttp;
  */
 class RepositoryReader extends NetHttp
 {
-    /** @var string User agent used to query repository */
+    /**
+     * @var string $user_agent
+     *             User agent used to query repository
+     */
     protected $user_agent = 'DotClear.org RepoBrowser/0.1';
 
-    /** @var array HTTP Cache validators */
+    /**
+     * @var array<string, mixed> $validators
+     *                           HTTP Cache validators
+     */
     protected $validators;
 
-    /** @var mixed Cache temporary directory */
+    /**
+     * @var mixed $cache_dir
+     *            Cache temporary directory
+     */
     protected $cache_dir;
 
-    /** @var string Cache file prefix */
+    /**
+     * @var string $cache_file_prefix
+     *             Cache file prefix
+     */
     protected $cache_file_prefix = 'dcrepo';
 
-    /** @var string Cache TTL */
+    /**
+     * @var string $cache_ttl
+     *             Cache TTL
+     */
     protected $cache_ttl = '-1440 minutes';
 
-    /** @var bool 'Cache' TTL on server failed */
+    /**
+     * @var bool $cache_touch_on_fail
+     *           'Cache' TTL on server failed
+     */
     protected $cache_touch_on_fail = true;
 
-    /** @var bool Force query server */
+    /**
+     * @var bool $force
+     *           Force query server
+     */
     protected $force = false;
 
     /**

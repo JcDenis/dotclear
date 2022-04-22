@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Theme\Admin;
 
+// Dotclear\Module\Theme\Admin\HandlerTheme
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
@@ -17,15 +18,20 @@ use Exception;
 /**
  * Theme modules admin page.
  *
- * \Dotclear\Module\Theme\Admin\HandlerTheme
- *
  * @ingroup  Module Admin Theme
  */
 class HandlerTheme extends AbstractPage
 {
-    /** @var array freashly installed modules */
+    /**
+     * @var array<string, array> $modules_install
+     *                           Freashly installed modules
+     */
     private $modules_install = [];
 
+    /**
+     * @var bool $from_configuration
+     *           Use a configuration method
+     */
     private $from_configuration = false;
 
     protected function getPermissions(): string|null|false

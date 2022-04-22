@@ -9,14 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Module\Iconset\Admin;
 
+// Dotclear\Module\Iconset\Admin\ModulesIconset
 use Dotclear\Module\AbstractModules;
 use Dotclear\Module\TraitModulesAdmin;
 use Dotclear\Module\Iconset\TraitModulesIconset;
 
 /**
  * Iconset modules admin methods.
- *
- * \Dotclear\Module\Iconset\Admin\ModulesIconset
  *
  * @ingroup  Module Admin Iconset
  */
