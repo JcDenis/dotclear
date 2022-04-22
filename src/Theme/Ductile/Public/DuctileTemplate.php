@@ -20,6 +20,12 @@ use Dotclear\Helper\File\Files;
  */
 class DuctileTemplate
 {
+    // \cond
+    // php tags break doxygen parser...
+    private static $toff = ' ?>';
+    private static $ton  = '<?php ';
+    // \endcond
+
     public function __construct()
     {
         dotclear()->template()->addValue('ductileEntriesList', [$this, 'ductileEntriesList']);
@@ -33,7 +39,7 @@ class DuctileTemplate
     {
         $nb = $attr['nb'] ?? null;
 
-        return '<?php ' . __CLASS__ . '::ductileNbEntryPerPageHelper(' . strval((int) $nb) . '); ?>';
+        return self::$ton . __CLASS__ . '::ductileNbEntryPerPageHelper(' . strval((int) $nb) . ');' . self::$toff;
     }
 
     public static function ductileNbEntryPerPageHelper(int $nb): void
@@ -99,10 +105,10 @@ class DuctileTemplate
         $full               = dotclear()->template()->getFilters($attr);
         $attr['cut_string'] = $cut;
 
-        return '<?php if (strlen(' . sprintf($full, 'dotclear()->context()->get("posts")->getContent(' . $urls . ')') . ') > ' .
-        'strlen(' . sprintf($short, 'dotclear()->context()->get("posts")->getContent(' . $urls . ')') . ')) : ?>' .
+        return self::$ton . 'if (strlen(' . sprintf($full, 'dotclear()->context()->get("posts")->getContent(' . $urls . ')') . ') > ' .
+        'strlen(' . sprintf($short, 'dotclear()->context()->get("posts")->getContent(' . $urls . ')') . ')) :' . self::$toff .
             $content .
-            '<?php endif; ?>';
+            self::$ton . 'endif;' . self::$toff;
     }
 
     public function ductileEntriesList(ArrayObject $attr): string
@@ -126,19 +132,19 @@ class DuctileTemplate
         }
 
         $default = isset($attr['default']) ? trim($attr['default']) : 'short';
-        $ret     = '<?php ' . "\n" .
+        $ret     = self::$ton . "\n" .
         'switch (' . __CLASS__ . '::ductileEntriesListHelper(\'' . $default . '\')) {' . "\n";
 
         foreach ($list_types as $v) {
             $ret .= '   case \'' . $v . '\':' . "\n" .
-            '?>' . "\n" .
+            self::$toff . "\n" .
             dotclear()->template()->includeFile(['src' => '_entry-' . $v . '.html']) . "\n" .
-                '<?php ' . "\n" .
+                self::$ton . "\n" .
                 '       break;' . "\n";
         }
 
         $ret .= '}' . "\n" .
-            '?>';
+            self::$toff;
 
         return $ret;
     }
@@ -160,7 +166,7 @@ class DuctileTemplate
 
     public function ductileLogoSrc(ArrayObject $attr): string
     {
-        return '<?php echo ' . __CLASS__ . '::ductileLogoSrcHelper(); ?>';
+        return self::$ton . 'echo ' . __CLASS__ . '::ductileLogoSrcHelper();' . self::$toff;
     }
 
     public static function ductileLogoSrcHelper()
