@@ -27,7 +27,7 @@ class Filters
      * Common default input field.
      *
      * @param string      $id    The form id
-     * @param string      $name  The form name
+     * @param string      $title The form name
      * @param null|string $param The form parameters
      */
     public function getInputFilter(string $id, string $title, ?string $param = null): DefaultFilter
@@ -44,7 +44,7 @@ class Filters
      *
      * @param string      $id      The form id
      * @param string      $title   The form title
-     * @param string      $options The form options
+     * @param array       $options The form options
      * @param null|string $param   The form parameters
      */
     public function getSelectFilter(string $id, string $title, array $options, ?string $param = null): ?DefaultFilter
