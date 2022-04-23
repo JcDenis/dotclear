@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Common\Filter;
 
+// Dotclear\Plugin\Antispam\Common\Filter\FilterWords
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\InsertStatement;
@@ -22,8 +23,6 @@ use Exception;
 
 /**
  * Antisâm Words filter.
- *
- * \Dotclear\Plugin\Antispam\Common\Filter\FilterWords
  *
  * @ingroup  Plugin Antispam
  */
@@ -250,6 +249,7 @@ class FilterWords extends Spamfilter
                     'blog_id = ' . $sql->quote(dotclear()->blog()->id)
                 )
                 ->where('rule_id = ' . $rs->fInt('rule_id'))
+                ->from($this->table)
                 ->update()
             ;
         } else {
@@ -271,6 +271,7 @@ class FilterWords extends Spamfilter
                         ->select()
                         ->fInt() + 1,
                 ]])
+                ->from($this->table)
                 ->insert()
             ;
         }
