@@ -88,13 +88,13 @@ class BlogAction extends DefaultBlogAction
             $params['blog_id'] = $from['blogs'];
         }
 
-        $bl = dotclear()->blogs()->getBlogs($params);
-        while ($bl->fetch()) {
-            $this->entries[$bl->blog_id] = [
-                'blog' => $bl->blog_id,
-                'name' => $bl->blog_name,
+        $rs = dotclear()->blogs()->getBlogs($params);
+        while ($rs->fetch()) {
+            $this->entries[$rs->f('blog_id')] = [
+                'blog' => $rs->f('blog_id'),
+                'name' => $rs->f('blog_name'),
             ];
         }
-        $this->rs = $bl;
+        $this->rs = $rs;
     }
 }

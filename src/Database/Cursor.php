@@ -115,24 +115,6 @@ class Cursor
     }
 
     /**
-     * _ to remove _.
-     *
-     * @param mixed $v
-     */
-    public function __set(string $n, $v): void
-    {
-        $this->setField($n, $v);
-    }
-
-    /**
-     * _ to remove _.
-     */
-    public function __get(string $n)
-    {
-        return $this->getField($n);
-    }
-
-    /**
      * Empty data set.
      *
      * Removes all data from data set

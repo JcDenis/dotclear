@@ -116,14 +116,6 @@ class Record implements Iterator, Countable
     /**
      * @see     self::field()
      */
-    public function __get(string|int $field): mixed
-    {
-        return $this->field($field);
-    }
-
-    /**
-     * @see     self::field()
-     */
     public function f(string|int $field): mixed
     {
         return $this->field($field);
@@ -159,14 +151,6 @@ class Record implements Iterator, Countable
     public function exists(string $field): bool
     {
         return isset($this->__row[$field]);
-    }
-
-    /**
-     * @see     self::exists()
-     */
-    public function __isset(string $field): bool
-    {
-        return $this->exists($field);
     }
 
     /**
