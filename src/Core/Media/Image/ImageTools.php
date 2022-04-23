@@ -149,8 +149,9 @@ class ImageTools
     /**
      * Allocate memory.
      *
-     * @param int $w Image with
-     * @param int $h Image height
+     * @param int $w   Image with
+     * @param int $h   Image height
+     * @param int $bpp Image resolution
      *
      * @throws HelperException
      */

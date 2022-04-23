@@ -9,14 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
+// Dotclear\Process\Admin\Handler\Xmlrpc
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Core\Xmlrpc\Xmlrpc as CoreXmlrpc;
 use Dotclear\Helper\Network\Http;
 
 /**
  * Admin xmlrpc page.
- *
- * \Dotclear\Process\Admin\Handler\Xmlrpc
  *
  * @ingroup  Admin Xmlrpc Handler
  */

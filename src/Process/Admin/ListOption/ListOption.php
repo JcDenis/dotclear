@@ -25,7 +25,7 @@ use ArrayObject;
 class ListOption
 {
     /**
-     * @var ArrayObject $sort
+     * @var ArrayObject $sorts
      *                  Sorts filters preferences
      */
     protected $sorts;

@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
+// Dotclear\Process\Admin\Handler\PostsPopup
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Inventory\Inventory\PostMiniInventory;
 use Dotclear\Helper\Html\Form;
@@ -16,8 +17,6 @@ use Dotclear\Helper\Html\Html;
 
 /**
  * Admin posts popup list page.
- *
- * \Dotclear\Process\Admin\Handler\PostsPopup
  *
  * @ingroup  Admin Post Handler
  */

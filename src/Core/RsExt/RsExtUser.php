@@ -42,7 +42,7 @@ class RsExtUser extends RsExtend
     }
 
     /**
-     * Converts this record to a {@link StaticRecord} instance.
+     * Converts this record to a StaticRecord instance.
      *
      * @return StaticRecord the extent static record
      */

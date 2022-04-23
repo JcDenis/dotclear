@@ -9,14 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
+// Dotclear\Process\Admin\Handler\LinkPopup
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\Form;
 
 /**
  * Admin generic link popup page.
- *
- * \Dotclear\Process\Admin\Handler\LinkPopup
  *
  * @ingroup  Admin Handler
  */

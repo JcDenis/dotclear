@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
+// Dotclear\Process\Admin\Handler\Auth
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Mail;
 use Dotclear\Helper\Html\Form;
@@ -20,50 +21,75 @@ use Dotclear\Process\Distrib\Upgrade;
 /**
  * Admin user auth page.
  *
- * \Dotclear\Process\Admin\Handler\Auth
- *
  * @ingroup  Admin User Handler
  */
 class Auth extends AbstractPage
 {
-    /** @var string default lang */
-    protected $default_lang;
+    /**
+     * @var bool $auth_change_pwd
+     *           User can change password
+     */
+    protected $auth_change_pwd;
 
-    /** @var string this page url */
-    protected $page_url;
+    /**
+     * @var string $auth_login_data
+     *             User login data
+     */
+    protected $auth_login_data;
 
-    /** @var bool can change password */
-    protected $change_pwd;
+    /**
+     * @var bool $auth_recover
+     *           User password recover
+     */
+    protected $auth_recover;
 
-    /** @var string login data */
-    protected $login_data;
+    /**
+     * @var bool $auth_safe_mode
+     *           Log in safe mode
+     */
+    protected $auth_safe_mode;
 
-    /** @var bool password recover */
-    protected $recover;
+    /**
+     * @var string $auth_akey
+     *             User recovery key
+     */
+    protected $auth_akey;
 
-    /** @var bool safe mode */
-    protected $safe_mode;
+    /**
+     * @var null|string $auth_id
+     *                  User id
+     */
+    protected $auth_id;
 
-    /** @var string recovery key */
-    protected $akey;
+    /**
+     * @var null|string $auth_pwd
+     *                  User password
+     */
+    protected $auth_pwd;
 
-    /** @var null|string user id */
-    protected $user_id;
+    /**
+     * @var null|string $auth_key
+     *                  User key
+     */
+    protected $auth_key;
 
-    /** @var null|string user password */
-    protected $user_pwd;
+    /**
+     * @var null|string $auth_email
+     *                  User email
+     */
+    protected $auth_email;
 
-    /** @var null|string user key */
-    protected $user_key;
+    /**
+     * @var null|string $auth_error
+     *                  Error message
+     */
+    protected $auth_error;
 
-    /** @var null|string user email */
-    protected $user_email;
-
-    /** @var null|string error message */
-    protected $err;
-
-    /** @var null|string success message */
-    protected $msg;
+    /**
+     * @var null|string $auth_success
+     *                  Success message
+     */
+    protected $auth_success;
 
     public function __construct()
     {
@@ -76,57 +102,55 @@ class Auth extends AbstractPage
             dotclear()->adminurl()->redirect('admin.home');
         }
 
-        $this->default_lang = dotclear()->lang();
-        $this->page_url     = dotclear()->adminurl()->get('admin.auth');
-        $this->change_pwd   = dotclear()->user()->allowPassChange() && isset($_POST['new_pwd'], $_POST['new_pwd_c'], $_POST['login_data']);
-        $this->login_data   = !empty($_POST['login_data']) ? Html::escapeHTML($_POST['login_data']) : null;
-        $this->recover      = dotclear()->user()->allowPassChange() && !empty($_REQUEST['recover']);
-        $this->safe_mode    = !empty($_REQUEST['safe_mode']);
-        $this->akey         = dotclear()->user()->allowPassChange() && !empty($_GET['akey']) ? $_GET['akey'] : null;
-        $this->user_id      =
-        $this->user_pwd     =
-        $this->user_key     =
-        $this->user_email   =
-        $this->err          =
-        $this->msg          = null;
+        $this->auth_change_pwd       = dotclear()->user()->allowPassChange() && isset($_POST['new_pwd'], $_POST['new_pwd_c'], $_POST['login_data']);
+        $this->auth_login_data       = !empty($_POST['login_data']) ? Html::escapeHTML($_POST['login_data']) : null;
+        $this->auth_recover          = dotclear()->user()->allowPassChange() && !empty($_REQUEST['recover']);
+        $this->auth_safe_mode        = !empty($_REQUEST['safe_mode']);
+        $this->auth_akey             = dotclear()->user()->allowPassChange() && !empty($_GET['akey']) ? $_GET['akey'] : null;
+        $this->auth_id               =
+        $this->auth_pwd              =
+        $this->auth_key              =
+        $this->auth_email            =
+        $this->auth_error            =
+        $this->auth_success          = null;
 
         $this->upgrade();
 
         // If we have POST login informations, go throug auth process
         if (!empty($_POST['user_id']) && !empty($_POST['user_pwd'])) {
-            $this->user_id  = !empty($_POST['user_id']) ? $_POST['user_id'] : null;
-            $this->user_pwd = !empty($_POST['user_pwd']) ? $_POST['user_pwd'] : null;
+            $this->auth_id  = !empty($_POST['user_id']) ? $_POST['user_id'] : null;
+            $this->auth_pwd = !empty($_POST['user_pwd']) ? $_POST['user_pwd'] : null;
         }
         // If we have COOKIE login informations, go throug auth process
         elseif (isset($_COOKIE['dc_admin']) && strlen($_COOKIE['dc_admin']) == 104) {
-            // If we have a remember cookie, go through auth process with user_key
+            // If we have a remember cookie, go through auth process with auth_key
             $user_id = substr($_COOKIE['dc_admin'], 40);
             $user_id = @unpack('a32', @pack('H*', $user_id));
             if (is_array($user_id)) {
-                $this->user_id  = trim((string) $user_id[1]);
-                $this->user_key = substr($_COOKIE['dc_admin'], 0, 40);
-                $this->user_pwd = null;
+                $this->auth_id  = trim((string) $user_id[1]);
+                $this->auth_key = substr($_COOKIE['dc_admin'], 0, 40);
+                $this->auth_pwd = null;
             } else {
-                $this->user_id = null;
+                $this->auth_id = null;
             }
         }
 
         // Recover password
-        if ($this->recover && !empty($_POST['user_id']) && !empty($_POST['user_email'])) {
+        if ($this->auth_recover && !empty($_POST['user_id']) && !empty($_POST['user_email'])) {
             $this->recoverPassword();
         // Send new password
-        } elseif ($this->akey) {
+        } elseif ($this->auth_akey) {
             $this->sendNewPassword();
         // Change password and retry to log
-        } elseif ($this->change_pwd) {
+        } elseif ($this->auth_change_pwd) {
             $this->changePassword();
         // Try to log
-        } elseif (null !== $this->user_id && (null !== $this->user_pwd || null !== $this->user_key)) {
+        } elseif (null !== $this->auth_id && (null !== $this->auth_pwd || null !== $this->auth_key)) {
             $this->logon();
         }
 
         if (isset($_GET['user'])) {
-            $this->user_id = $_GET['user'];
+            $this->auth_id = $_GET['user'];
         }
     }
 
@@ -140,55 +164,55 @@ class Auth extends AbstractPage
         if (empty($get) && empty($_POST)) {
             try {
                 if (($changes = false !== (new Upgrade())->doUpgrade())) {
-                    $this->msg = __('Dotclear has been upgraded.') . '<!-- ' . $changes . ' -->';
+                    $this->auth_success = __('Dotclear has been upgraded.') . '<!-- ' . $changes . ' -->';
                 }
             } catch (\Exception $e) {
-                $this->err = $e->getMessage();
+                $this->auth_error = $e->getMessage();
             }
         }
     }
 
     protected function recoverPassword(): void
     {
-        $this->user_id    = !empty($_POST['user_id']) ? $_POST['user_id'] : null;
-        $this->user_email = !empty($_POST['user_email']) ? Html::escapeHTML($_POST['user_email']) : '';
+        $this->auth_id    = !empty($_POST['user_id']) ? $_POST['user_id'] : null;
+        $this->auth_email = !empty($_POST['user_email']) ? Html::escapeHTML($_POST['user_email']) : '';
 
         try {
-            $recover_key = dotclear()->user()->setRecoverKey($this->user_id, $this->user_email);
+            $recover_key = dotclear()->user()->setRecoverKey($this->auth_id, $this->auth_email);
 
             $subject = Mail::B64Header('Dotclear ' . __('Password reset'));
             $message = __('Someone has requested to reset the password for the following site and username.') . "\n\n" .
-            $this->page_url . "\n" . __('Username:') . ' ' . $this->user_id . "\n\n" .
+            dotclear()->adminurl()->get('admin.auth') . "\n" . __('Username:') . ' ' . $this->auth_id . "\n\n" .
             __('To reset your password visit the following address, otherwise just ignore this email and nothing will happen.') . "\n" .
-                $this->page_url . '?akey=' . $recover_key;
+                dotclear()->adminurl()->get('admin.auth', ['akey' => $recover_key]);
 
             $headers[] = 'From: ' . (dotclear()->config()->get('admin_mailform') != '' ? dotclear()->config()->get('admin_mailform') : 'dotclear@local');
             $headers[] = 'Content-Type: text/plain; charset=UTF-8;';
 
-            Mail::sendMail($this->user_email, $subject, $message, $headers);
-            $this->msg = sprintf(__('The e-mail was sent successfully to %s.'), $this->user_email);
+            Mail::sendMail($this->auth_email, $subject, $message, $headers);
+            $this->auth_success = sprintf(__('The e-mail was sent successfully to %s.'), $this->auth_email);
         } catch (\Exception $e) {
-            $this->err = $e->getMessage();
+            $this->auth_error = $e->getMessage();
         }
     }
 
     protected function sendNewPassword(): void
     {
         try {
-            $recover_res = dotclear()->user()->recoverUserPassword($this->akey);
+            $recover_res = dotclear()->user()->recoverUserPassword($this->auth_akey);
 
             $subject = mb_encode_mimeheader('Dotclear ' . __('Your new password'), 'UTF-8', 'B');
             $message = __('Username:') . ' ' . $recover_res['user_id'] . "\n" .
             __('Password:') . ' ' . $recover_res['new_pass'] . "\n\n" .
-            preg_replace('/\?(.*)$/', '', $this->page_url);
+            preg_replace('/\?(.*)$/', '', dotclear()->adminurl()->get('admin.auth'));
 
             $headers[] = 'From: ' . (dotclear()->config()->get('admin_mailform') != '' ? dotclear()->config()->get('admin_mailform') : 'dotclear@local');
             $headers[] = 'Content-Type: text/plain; charset=UTF-8;';
 
             Mail::sendMail($recover_res['user_email'], $subject, $message, $headers);
-            $this->msg = __('Your new password is in your mailbox.');
+            $this->auth_success = __('Your new password is in your mailbox.');
         } catch (\Exception $e) {
-            $this->err = $e->getMessage();
+            $this->auth_error = $e->getMessage();
         }
     }
 
@@ -214,16 +238,16 @@ class Auth extends AbstractPage
                 $user_id = substr($data['cookie_admin'], 40);
                 $user_id = @unpack('a32', @pack('H*', $user_id));
                 if (is_array($user_id)) {
-                    $this->user_id  = trim((string) $data['user_id']);
-                    $this->user_key = substr($data['cookie_admin'], 0, 40);
-                    $check_user     = dotclear()->user()->checkUser($this->user_id, null, $this->user_key) === true;
+                    $this->auth_id  = trim((string) $data['user_id']);
+                    $this->auth_key = substr($data['cookie_admin'], 0, 40);
+                    $check_user     = dotclear()->user()->checkUser($this->auth_id, null, $this->auth_key) === true;
                 } else {
-                    $this->user_id = trim((string) $user_id);  // @phpstan-ignore-line
+                    $this->auth_id = trim((string) $user_id);  // @phpstan-ignore-line
                 }
             }
 
             if (!dotclear()->user()->allowPassChange() || !$check_user) {
-                $this->change_pwd = false;
+                $this->auth_change_pwd = false;
 
                 throw new AdminException();
             }
@@ -232,7 +256,7 @@ class Auth extends AbstractPage
                 throw new AdminException(__("Passwords don't match"));
             }
 
-            if (dotclear()->user()->checkUser($this->user_id, $_POST['new_pwd']) === true) {
+            if (dotclear()->user()->checkUser($this->auth_id, $_POST['new_pwd']) === true) {
                 throw new AdminException(__("You didn't change your password."));
             }
 
@@ -242,7 +266,7 @@ class Auth extends AbstractPage
             dotclear()->users()->updUser(dotclear()->user()->userID(), $cur);
 
             dotclear()->session()->start();
-            $_SESSION['sess_user_id']     = $this->user_id;
+            $_SESSION['sess_user_id']     = $this->auth_id;
             $_SESSION['sess_browser_uid'] = Http::browserUID(dotclear()->config()->get('master_key'));
 
             if ($data['user_remember']) {
@@ -251,41 +275,41 @@ class Auth extends AbstractPage
 
             dotclear()->adminurl()->redirect('admin.home');
         } catch (\Exception $e) {
-            $this->err = $e->getMessage();
+            $this->auth_error = $e->getMessage();
         }
     }
 
     protected function logon(): void
     {
         // We check the user
-        $check_user = dotclear()->user()->checkUser($this->user_id, $this->user_pwd, $this->user_key, false) === true;
+        $check_user = dotclear()->user()->checkUser($this->auth_id, $this->auth_pwd, $this->auth_key, false) === true;
         if ($check_user) {
             $check_perms = dotclear()->user()->findUserBlog() !== false;
         } else {
             $check_perms = false;
         }
 
-        $cookie_admin = Http::browserUID(dotclear()->config()->get('master_key') . $this->user_id .
-            dotclear()->user()->cryptLegacy($this->user_id)) . bin2hex(pack('a32', $this->user_id));
+        $cookie_admin = Http::browserUID(dotclear()->config()->get('master_key') . $this->auth_id .
+            dotclear()->user()->cryptLegacy($this->auth_id)) . bin2hex(pack('a32', $this->auth_id));
 
         if ($check_perms && dotclear()->user()->mustChangePassword()) {
-            $login_data = join('/', [
-                base64_encode($this->user_id),
+            $this->auth_login_data = join('/', [
+                base64_encode($this->auth_id),
                 $cookie_admin,
                 empty($_POST['user_remember']) ? '0' : '1',
             ]);
 
             if (!dotclear()->user()->allowPassChange()) {
-                $this->err = __('You have to change your password before you can login.');
+                $this->auth_error = __('You have to change your password before you can login.');
             } else {
-                $this->err        = __('In order to login, you have to change your password now.');
-                $this->change_pwd = true;
+                $this->auth_error        = __('In order to login, you have to change your password now.');
+                $this->auth_change_pwd   = true;
             }
         } elseif ($check_perms && !empty($_POST['safe_mode']) && !dotclear()->user()->isSuperAdmin()) {
-            $this->err = __('Safe Mode can only be used for super administrators.');
+            $this->auth_error = __('Safe Mode can only be used for super administrators.');
         } elseif ($check_perms) {
             dotclear()->session()->start();
-            $_SESSION['sess_user_id']     = $this->user_id;
+            $_SESSION['sess_user_id']     = $this->auth_id;
             $_SESSION['sess_browser_uid'] = Http::browserUID(dotclear()->config()->get('master_key'));
 
             if (!empty($_POST['blog'])) {
@@ -303,9 +327,9 @@ class Auth extends AbstractPage
             dotclear()->adminurl()->redirect('admin.home');
         } else {
             if ($check_user) {
-                $this->err = __('Insufficient permissions');
+                $this->auth_error = __('Insufficient permissions');
             } else {
-                $this->err = isset($_COOKIE['dc_admin']) ? __('Administration session expired') : __('Wrong username or password');
+                $this->auth_error = isset($_COOKIE['dc_admin']) ? __('Administration session expired') : __('Wrong username or password');
             }
             if (isset($_COOKIE['dc_admin'])) {
                 unset($_COOKIE['dc_admin']);
@@ -329,12 +353,12 @@ class Auth extends AbstractPage
 
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo $this->default_lang; ?>">
+<html lang="<?php echo dotclear()->lang(); ?>">
 <head>
   <meta charset="UTF-8" />
   <meta http-equiv="Content-Script-Type" content="text/javascript" />
   <meta http-equiv="Content-Style-Type" content="text/css" />
-  <meta http-equiv="Content-Language" content="<?php echo $this->default_lang; ?>" />
+  <meta http-equiv="Content-Language" content="<?php echo dotclear()->lang(); ?>" />
   <meta name="ROBOTS" content="NOARCHIVE,NOINDEX,NOFOLLOW" />
   <meta name="GOOGLEBOT" content="NOSNIPPET" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -372,16 +396,16 @@ class Auth extends AbstractPage
 <h1 role="banner"><?php echo Html::escapeHTML(dotclear()->config()->get('vendor_name')); ?></h1>
 
 <?php
-        if ($this->err) {
-            echo '<div class="' . ($this->change_pwd ? 'info' : 'error') . '" role="alert">' . $this->err . '</div>';
+        if ($this->auth_error) {
+            echo '<div class="' . ($this->auth_change_pwd ? 'info' : 'error') . '" role="alert">' . $this->auth_error . '</div>';
         }
-        if ($this->msg) {
-            echo '<p class="success" role="alert">' . $this->msg . '</p>';
+        if ($this->auth_success) {
+            echo '<p class="success" role="alert">' . $this->auth_success . '</p>';
         }
 
-        if ($this->akey) {
+        if ($this->auth_akey) {
             echo '<p><a href="' . dotclear()->adminurl()->get('admin.auth') . '">' . __('Back to login screen') . '</a></p>';
-        } elseif ($this->recover) {
+        } elseif ($this->auth_recover) {
             echo '<div class="fieldset" role="main"><h2>' . __('Request a new password') . '</h2>' .
             '<p><label for="user_id">' . __('Username:') . '</label> ' .
             Form::field(
@@ -389,7 +413,7 @@ class Auth extends AbstractPage
                 20,
                 32,
                 [
-                    'default'      => Html::escapeHTML($this->user_id),
+                    'default'      => Html::escapeHTML($this->auth_id),
                     'autocomplete' => 'username',
                 ]
             ) .
@@ -399,7 +423,7 @@ class Auth extends AbstractPage
             Form::email(
                 'user_email',
                 [
-                    'default'      => Html::escapeHTML($this->user_email),
+                    'default'      => Html::escapeHTML($this->auth_email),
                     'autocomplete' => 'email',
                 ]
             ) .
@@ -413,7 +437,7 @@ class Auth extends AbstractPage
             '<summary>' . __('Other option') . '</summary>' . "\n" .
             '<p><a href="' . dotclear()->adminurl()->get('admin.auth') . '">' . __('Back to login screen') . '</a></p>' .
             '</details>';
-        } elseif ($this->change_pwd) {
+        } elseif ($this->auth_change_pwd) {
             echo '<div class="fieldset"><h2>' . __('Change your password') . '</h2>' .
             '<p><label for="new_pwd">' . __('New password:') . '</label> ' .
             Form::password(
@@ -436,13 +460,13 @@ class Auth extends AbstractPage
                 ]
             ) . '</p>' .
             '<p><input type="submit" value="' . __('change') . '" />' .
-            Form::hidden('login_data', $this->login_data) . '</p>' .
+            Form::hidden('login_data', $this->auth_login_data) . '</p>' .
             '</div>';
         } else {
             if (is_callable([dotclear()->user(), 'authForm'])) {
-                echo dotclear()->user()->authForm($this->user_id);
+                echo dotclear()->user()->authForm($this->auth_id);
             } else {
-                if ($this->safe_mode) {
+                if ($this->auth_safe_mode) {
                     echo '<div class="fieldset" role="main">';
                     echo '<h2>' . __('Safe mode login') . '</h2>';
                     echo '<p class="form-note">' .
@@ -459,7 +483,7 @@ class Auth extends AbstractPage
                     20,
                     32,
                     [
-                        'default'      => Html::escapeHTML($this->user_id),
+                        'default'      => Html::escapeHTML($this->auth_id),
                         'autocomplete' => 'username',
                     ]
                 ) . '</p>' .
@@ -484,7 +508,7 @@ class Auth extends AbstractPage
                 if (!empty($_REQUEST['blog'])) {
                     echo Form::hidden('blog', Html::escapeHTML($_REQUEST['blog']));
                 }
-                if ($this->safe_mode) {
+                if ($this->auth_safe_mode) {
                     echo Form::hidden('safe_mode', 1) .
                         '</div>';
                 } else {
@@ -492,8 +516,8 @@ class Auth extends AbstractPage
                 }
                 echo '<p id="cookie_help" class="error">' . __('You must accept cookies in order to use the private area.') . '</p>';
 
-                echo '<details ' . ($this->safe_mode ? 'open ' : '') . 'id="issue">' . "\n";
-                if ($this->safe_mode) {
+                echo '<details ' . ($this->auth_safe_mode ? 'open ' : '') . 'id="issue">' . "\n";
+                if ($this->auth_safe_mode) {
                     echo '<summary>' . __('Other option') . '</summary>' . "\n";
                     echo '<p><a href="' . dotclear()->adminurl()->get('admin.auth') . '" id="normal_mode_link">' . __('Get back to normal authentication') . '</a></p>';
                 } else {

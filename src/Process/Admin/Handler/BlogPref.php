@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
+// Dotclear\Process\Admin\Handler\BlogPref
 use Dotclear\Core\User\UserContainer;
 use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Exception\AdminException;
@@ -24,8 +25,6 @@ use Exception;
 
 /**
  * Admin blog preference page.
- *
- * \Dotclear\Process\Admin\Handler\BlogPref
  *
  * @ingroup  Admin Blog Settings Handler
  */

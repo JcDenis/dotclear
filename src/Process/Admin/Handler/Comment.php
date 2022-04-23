@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
+// Dotclear\Process\Admin\Handler\Comment
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Html\Form;
@@ -20,24 +21,22 @@ use Exception;
 /**
  * Admin comment page.
  *
- * \Dotclear\Process\Admin\Handler\Comment
- *
  * @ingroup  Admin Comment Handler
  */
 class Comment extends AbstractPage
 {
     private $comment_id;
-    private $comment_dt      = '';
-    private $comment_author  = '';
-    private $comment_email   = '';
-    private $comment_site    = '';
-    private $comment_content = '';
-    private $comment_ip      = '';
-    private $comment_status  = '';
-    private $post_url        = '';
-    private $can_edit        = false;
-    private $can_delete      = false;
-    private $can_publish     = false;
+    private $comment_dt              = '';
+    private $comment_author          = '';
+    private $comment_email           = '';
+    private $comment_site            = '';
+    private $comment_content         = '';
+    private $comment_ip              = '';
+    private $comment_status          = '';
+    private $commnet_post_url        = '';
+    private $commnet_can_edit        = false;
+    private $commnet_can_delete      = false;
+    private $commnet_can_publish     = false;
 
     protected function getPermissions(): string|null|false
     {
@@ -108,22 +107,22 @@ class Comment extends AbstractPage
             dotclear()->error()->add(__('No comments'));
         }
 
-        $this->can_edit = $this->can_delete = $this->can_publish = false;
+        $this->commnet_can_edit = $this->commnet_can_delete = $this->commnet_can_publish = false;
         if (!dotclear()->error()->flag() && isset($rs)) {
-            $this->can_edit = $this->can_delete = $this->can_publish = dotclear()->user()->check('contentadmin', dotclear()->blog()->id);
+            $this->commnet_can_edit = $this->commnet_can_delete = $this->commnet_can_publish = dotclear()->user()->check('contentadmin', dotclear()->blog()->id);
 
             if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id) && dotclear()->user()->userID() == $rs->f('user_id')) {
-                $this->can_edit = true;
+                $this->commnet_can_edit = true;
                 if (dotclear()->user()->check('delete', dotclear()->blog()->id)) {
-                    $this->can_delete = true;
+                    $this->commnet_can_delete = true;
                 }
                 if (dotclear()->user()->check('publish', dotclear()->blog()->id)) {
-                    $this->can_publish = true;
+                    $this->commnet_can_publish = true;
                 }
             }
 
             // update comment
-            if (!empty($_POST['update']) && $this->can_edit) {
+            if (!empty($_POST['update']) && $this->commnet_can_edit) {
                 $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
 
                 $cur->setField('comment_author', $_POST['comment_author']);
@@ -151,7 +150,7 @@ class Comment extends AbstractPage
                 }
             }
 
-            if (!empty($_POST['delete']) && $this->can_delete) {
+            if (!empty($_POST['delete']) && $this->commnet_can_delete) {
                 try {
                     // --BEHAVIOR-- adminBeforeCommentDelete
                     dotclear()->behavior()->call('adminBeforeCommentDelete', $this->comment_id);
@@ -165,13 +164,13 @@ class Comment extends AbstractPage
                 }
             }
 
-            if (!$this->can_edit) {
+            if (!$this->commnet_can_edit) {
                 dotclear()->error()->add(__("You can't edit this comment."));
             }
         }
 
         if ($rs) {
-            $this->post_url = $rs->getPostURL();
+            $this->commnet_post_url = $rs->getPostURL();
         }
 
         // Page setup
@@ -216,7 +215,7 @@ class Comment extends AbstractPage
             $comment_mailto = '<a href="mailto:' . Html::escapeHTML($this->comment_email)
             . '?subject=' . rawurlencode(sprintf(__('Your comment on my blog %s'), dotclear()->blog()->name))
             . '&amp;body='
-            . rawurlencode(sprintf(__("Hi!\n\nYou wrote a comment on:\n%s\n\n\n"), $this->post_url))
+            . rawurlencode(sprintf(__("Hi!\n\nYou wrote a comment on:\n%s\n\n\n"), $this->commnet_post_url))
             . '">' . __('Send an e-mail') . '</a>';
         }
 
@@ -255,7 +254,7 @@ class Comment extends AbstractPage
         Form::combo(
             'comment_status',
             $status_combo,
-            ['default' => $this->comment_status, 'disabled' => !$this->can_publish]
+            ['default' => $this->comment_status, 'disabled' => !$this->commnet_can_publish]
         ) .
         '</p>' .
 
@@ -279,7 +278,7 @@ class Comment extends AbstractPage
         '<input type="submit" accesskey="s" name="update" value="' . __('Save') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />';
 
-        if ($this->can_delete) {
+        if ($this->commnet_can_delete) {
             echo ' <input type="submit" class="delete" name="delete" value="' . __('Delete') . '" />';
         }
         echo '</p>' .

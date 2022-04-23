@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
+// Dotclear\Process\Admin\Handler\User
 use ArrayObject;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Core\User\UserContainer;
@@ -22,20 +23,27 @@ use Exception;
 /**
  * Admin user page.
  *
- * \Dotclear\Process\Admin\Handler\User
- *
  * @ingroup  Admin User handler
  */
 class User extends AbstractPage
 {
-    /** @var UserContainer User container instance */
-    protected $container;
+    /**
+     * @var UserContainer $container
+     *                    User container instance
+     */
+    private $container;
 
-    /** @var string User other emails (comma separated list ) */
-    protected $user_profile_mails = '';
+    /**
+     * @var string $user_profile_mails
+     *             User other emails (comma separated list )
+     */
+    private $user_profile_mails = '';
 
-    /** @var string User other URLs (comma separated list ) */
-    protected $user_profile_urls = '';
+    /**
+     * @var string $user_profile_urls
+     *             User other URLs (comma separated list )
+     */
+    private $user_profile_urls = '';
 
     protected function getPermissions(): string|null|false
     {

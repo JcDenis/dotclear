@@ -26,6 +26,10 @@ use Exception;
 /**
  * Admin page helper.
  *
+ * Properties of child class should start with
+ * class or handler name to prevent inteferance with
+ * this class properties.
+ *
  * @ingroup  Admin
  */
 abstract class AbstractPage
@@ -869,7 +873,7 @@ abstract class AbstractPage
      * Get page opening for non standard type.
      *
      * This method must echo what there is to display.
-     * This method will be called if @var is $page_type unknow.
+     * This method will be called if page_type is unknown.
      * Usefull for custom page.
      */
     protected function getPageBegin(): void
@@ -891,7 +895,7 @@ abstract class AbstractPage
      * Get page closure for non standard type.
      *
      * This method must echo what there is to display.
-     * This method will be called if @var is $page_type unknow.
+     * This method will be called if page_type is unknown.
      * Usefull for custom page.
      */
     protected function getPageEnd(): void

@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
+// Dotclear\Process\Admin\Handler\Home
 use ArrayObject;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Helper\Html\Form;
@@ -18,15 +19,12 @@ use Exception;
 /**
  * Admin home page.
  *
- * \Dotclear\Process\Admin\Handler\Home
- *
  * @ingroup  Admin Home Handler
  */
 class Home extends AbstractPage
 {
-    private $dragndrop_msg = ['dashboard', 'toggles', 'accessibility'];
-
-    private $plugins_install = [];
+    private $home_dragndrop_msg   = ['dashboard', 'toggles', 'accessibility'];
+    private $home_plugins_install = [];
 
     protected function getPermissions(): string|null|false
     {
@@ -57,7 +55,7 @@ class Home extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        $this->dragndrop_msg = [
+        $this->home_dragndrop_msg = [
             'dragndrop_off' => __("Dashboard area's drag and drop is disabled"),
             'dragndrop_on'  => __("Dashboard area's drag and drop is enabled"),
         ];
@@ -68,7 +66,7 @@ class Home extends AbstractPage
                 exit;
             }
 
-            $this->plugins_install = dotclear()->plugins()->installModules();
+            $this->home_plugins_install = dotclear()->plugins()->installModules();
         }
 
         // Check dashboard module prefs
@@ -118,7 +116,7 @@ class Home extends AbstractPage
         // Dashboard drag'n'drop switch for its elements
         $dragndrop_head = '';
         if (!dotclear()->user()->preference()->get('accessibility')->get('nodragdrop')) {
-            $dragndrop_head = dotclear()->resource()->json('dotclear_dragndrop', $this->dragndrop_msg);
+            $dragndrop_head = dotclear()->resource()->json('dotclear_dragndrop', $this->home_dragndrop_msg);
         }
 
         $this->setPageHelp('core_dashboard');
@@ -177,12 +175,12 @@ class Home extends AbstractPage
 
         $dragndrop = '';
         if (!dotclear()->user()->preference()->get('accessibility')->get('nodragdrop')) {
-            $dragndrop = '<input type="checkbox" id="dragndrop" class="sr-only" title="' . $this->dragndrop_msg['dragndrop_off'] . '" />' .
+            $dragndrop = '<input type="checkbox" id="dragndrop" class="sr-only" title="' . $this->home_dragndrop_msg['dragndrop_off'] . '" />' .
                 '<label for="dragndrop">' .
                 '<svg aria-hidden="true" focusable="false" class="dragndrop-svg">' .
                 '<use xlink:href="?df=images/dragndrop.svg#mask"></use>' .
                 '</svg>' .
-                '<span id="dragndrop-label" class="sr-only">' . $this->dragndrop_msg['dragndrop_off'] . '</span>' .
+                '<span id="dragndrop-label" class="sr-only">' . $this->home_dragndrop_msg['dragndrop_off'] . '</span>' .
                 '</label>';
         }
 
@@ -243,17 +241,17 @@ class Home extends AbstractPage
         // Module Plugin
         if (dotclear()->plugins()) {
             // Plugins install messages
-            if (!empty($this->plugins_install['success'])) {
+            if (!empty($this->home_plugins_install['success'])) {
                 echo '<div class="success">' . __('Following plugins have been installed:') . '<ul>';
-                foreach ($this->plugins_install['success'] as $k => $v) {
+                foreach ($this->home_plugins_install['success'] as $k => $v) {
                     $info = implode(' - ', dotclear()->plugins()->getSettingsUrls($k, true));
                     echo '<li>' . $k . ('' !== $info ? ' → ' . $info : '') . '</li>';
                 }
                 echo '</ul></div>';
             }
-            if (!empty($this->plugins_install['failure'])) {
+            if (!empty($this->home_plugins_install['failure'])) {
                 echo '<div class="error">' . __('Following plugins have not been installed:') . '<ul>';
-                foreach ($this->plugins_install['failure'] as $k => $v) {
+                foreach ($this->home_plugins_install['failure'] as $k => $v) {
                     echo '<li>' . $k . ' (' . $v . ')</li>';
                 }
                 echo '</ul></div>';

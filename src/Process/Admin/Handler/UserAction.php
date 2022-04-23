@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
+// Dotclear\Process\Admin\Handler\UserAction
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Html\Form;
@@ -18,8 +19,6 @@ use Exception;
 
 /**
  * Admin user action page.
- *
- * \Dotclear\Process\Admin\Handler\UserAction
  *
  * @ingroup  Admin User Handler
  */

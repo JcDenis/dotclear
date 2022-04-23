@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
+// Dotclear\Process\Admin\Handler\BlogDel
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -16,8 +17,6 @@ use Exception;
 
 /**
  * Admin blog deletion page.
- *
- * \Dotclear\Process\Admin\Handler\BlogDel
  *
  * @ingroup  Admin Blog Handler
  */

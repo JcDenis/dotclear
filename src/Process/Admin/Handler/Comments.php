@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
+// Dotclear\Process\Admin\Handler\Comments
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Action\Action\CommentAction;
 use Dotclear\Process\Admin\Inventory\Inventory\CommentInventory;
@@ -19,8 +20,6 @@ use Exception;
 
 /**
  * Admin comments list page.
- *
- * \Dotclear\Process\Admin\Handler\Comments
  *
  * @ingroup  Admin Comment Handler
  */

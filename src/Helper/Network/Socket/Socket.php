@@ -52,8 +52,8 @@ class Socket
     /**
      * Get / Set host.
      *
-     * If <var>$host</var> is set, set {@link $_host} and returns true.
-     * Otherwise, returns {@link $_host} value.
+     * If <var>$host</var> is set, set $_host and returns true.
+     * Otherwise, returns $_host value.
      *
      * @param null|string $host Server host
      */
@@ -71,8 +71,8 @@ class Socket
     /**
      * Get / Set port.
      *
-     * If <var>$port</var> is set, set {@link $_port} and returns true.
-     * Otherwise, returns {@link $_port} value.
+     * If <var>$port</var> is set, set $_port and returns true.
+     * Otherwise, returns $_port value.
      *
      * @param null|int $port Server port
      *
@@ -92,8 +92,8 @@ class Socket
     /**
      * Get / Set timeout.
      *
-     * If <var>$timeout</var> is set, set {@link $_timeout} and returns true.
-     * Otherwise, returns {@link $_timeout} value.
+     * If <var>$timeout</var> is set, set $_timeout and returns true.
+     * Otherwise, returns $_timeout value.
      *
      * @param null|int $timeout Connection timeout
      */
@@ -127,7 +127,7 @@ class Socket
     /**
      * Open connection.
      *
-     * Opens socket connection and Returns an object of type {@link Iterator}
+     * Opens socket connection and Returns an object of type Iterator
      * which can be iterate with a simple foreach loop.
      */
     public function open(): Iterator|bool
@@ -156,7 +156,7 @@ class Socket
      * Send data.
      *
      * Sends data to current socket and returns an object of type
-     * {@link netSocketIterator} which can be iterate with a simple foreach loop.
+     * Iterator which can be iterate with a simple foreach loop.
      *
      * <var>$data</var> can be a string or an array of lines.
      *
@@ -164,7 +164,7 @@ class Socket
      *
      * <code>
      * <?php
-     * $s = new netSocket('www.google.com',80,2);
+     * $s = new Socket('www.google.com',80,2);
      * $s->open();
      * $data = [
      *     'GET / HTTP/1.0'

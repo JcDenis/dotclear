@@ -499,6 +499,7 @@ class Url
      *
      * @param null|string $args The arguments
      * @param null|string $type The type
+     * @param Exception   $e    The exception
      */
     public function default404(?string $args, ?string $type, Exception $e): void
     {

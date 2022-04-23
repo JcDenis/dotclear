@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
+// Dotclear\Process\Admin\Handler\UserPref
 use ArrayObject;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Core\User\UserContainer;
@@ -22,49 +23,54 @@ use Exception;
 /**
  * Admin user preferences page.
  *
- * \Dotclear\Process\Admin\Handler\UserPref
- *
  * @ingroup  Admin User Preference handler
  */
 class UserPref extends AbstractPage
 {
-    /** @var UserContainer User container */
-    protected $container;
+    /**
+     * @var UserContainer $container
+     *                    User container
+     */
+    private $container;
 
-    /** @var string User other emails (comma separated list ) */
-    protected $user_profile_mails = '';
+    /**
+     * @var string $user_profile_mails
+     *             User other emails (comma separated list )
+     */
+    private $user_profile_mails = '';
 
-    /** @var string User other URLs (comma separated list ) */
-    protected $user_profile_urls = '';
+    /**
+     * @var string $user_profile_urls
+     *             User other URLs (comma separated list )
+     */
+    private $user_profile_urls = '';
 
-    protected $format_by_editors = [];
-    protected $available_formats = [];
+    private $format_by_editors = [];
+    private $available_formats = [];
 
-    protected $cols;
-    protected $sorts;
+    private $cols;
+    private $sorts;
 
-    protected $rte;
+    private $rte;
 
-    protected $user_dm_doclinks   = '';
-    protected $user_dm_dcnews     = '';
-    protected $user_dm_quickentry = '';
-    protected $user_dm_nofavicons = '';
-    protected $user_dm_nodcupdate = false;
-
-    protected $user_acc_nodragdrop = false;
-
-    protected $user_ui_theme              = '';
-    protected $user_ui_enhanceduploader   = '';
-    protected $user_ui_blank_preview      = '';
-    protected $user_ui_hidemoreinfo       = '';
-    protected $user_ui_hidehelpbutton     = '';
-    protected $user_ui_showajaxloader     = '';
-    protected $user_ui_htmlfontsize       = '';
-    protected $user_ui_hide_std_favicon   = false;
-    protected $user_ui_iconset            = '';
-    protected $user_ui_nofavmenu          = '';
-    protected $user_ui_media_nb_last_dirs = '';
-    protected $user_ui_nocheckadblocker   = '';
+    private $user_dm_doclinks           = '';
+    private $user_dm_dcnews             = '';
+    private $user_dm_quickentry         = '';
+    private $user_dm_nofavicons         = '';
+    private $user_dm_nodcupdate         = false;
+    private $user_acc_nodragdrop        = false;
+    private $user_ui_theme              = '';
+    private $user_ui_enhanceduploader   = '';
+    private $user_ui_blank_preview      = '';
+    private $user_ui_hidemoreinfo       = '';
+    private $user_ui_hidehelpbutton     = '';
+    private $user_ui_showajaxloader     = '';
+    private $user_ui_htmlfontsize       = '';
+    private $user_ui_hide_std_favicon   = false;
+    private $user_ui_iconset            = '';
+    private $user_ui_nofavmenu          = '';
+    private $user_ui_media_nb_last_dirs = '';
+    private $user_ui_nocheckadblocker   = '';
 
     protected function getPermissions(): string|null|false
     {

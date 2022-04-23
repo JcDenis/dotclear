@@ -247,9 +247,9 @@ class Meta
      * - meta_id : get posts having meta id
      * - meta_type : get posts having meta type.
      *
-     * @param array            $params     The parameters
-     * @param bool             $count_only Only count results
-     * @param ?SelectStatement $sql
+     * @param array                $params     The parameters
+     * @param bool                 $count_only Only count results
+     * @param null|SelectStatement $sql        An SQL statement
      *
      * @return null|Record The resulting comments record
      */
@@ -290,9 +290,9 @@ class Meta
      * - limit: number of max fetched metas
      * - order: results order (default : posts count DESC)
      *
-     * @param array            $params     The parameters
-     * @param bool             $count_only Only counts results
-     * @param ?SelectStatement $sql
+     * @param array                $params     The parameters
+     * @param bool                 $count_only Only counts results
+     * @param null|SelectStatement $sql        An SQL statement
      *
      * @return Record The metadata recordset
      */

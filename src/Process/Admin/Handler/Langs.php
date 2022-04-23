@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
+// Dotclear\Process\Admin\Handler\Langs
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\File\Files;
@@ -23,14 +24,12 @@ use Exception;
 /**
  * Admin langs page.
  *
- * \Dotclear\Process\Admin\Handler\Langs
- *
  * @ingroup  Admin Lang Localisation Handler
  */
 class Langs extends AbstractPage
 {
-    private $is_writable = false;
-    private $iso_codes   = [];
+    private $lang_is_writable = false;
+    private $lang_iso_codes   = [];
 
     protected function getPermissions(): string|null|false
     {
@@ -39,14 +38,14 @@ class Langs extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        $this->is_writable = is_dir(dotclear()->config()->get('l10n_dir')) && is_writable(dotclear()->config()->get('l10n_dir'));
-        $this->iso_codes   = L10n::getISOCodes();
+        $this->lang_is_writable = is_dir(dotclear()->config()->get('l10n_dir')) && is_writable(dotclear()->config()->get('l10n_dir'));
+        $this->lang_iso_codes   = L10n::getISOCodes();
 
         // Delete a language pack
-        if ($this->is_writable && !empty($_POST['delete']) && !empty($_POST['locale_id'])) {
+        if ($this->lang_is_writable && !empty($_POST['delete']) && !empty($_POST['locale_id'])) {
             try {
                 $locale_id = $_POST['locale_id'];
-                if (!isset($this->iso_codes[$locale_id]) || !is_dir(dotclear()->config()->get('l10n_dir') . '/' . $locale_id)) {
+                if (!isset($this->lang_iso_codes[$locale_id]) || !is_dir(dotclear()->config()->get('l10n_dir') . '/' . $locale_id)) {
                     throw new AdminException(__('No such installed language'));
                 }
 
@@ -66,7 +65,7 @@ class Langs extends AbstractPage
         }
 
         // Download a language pack
-        if ($this->is_writable && !empty($_POST['pkg_url'])) {
+        if ($this->lang_is_writable && !empty($_POST['pkg_url'])) {
             try {
                 if (empty($_POST['your_pwd']) || !dotclear()->user()->checkPassword($_POST['your_pwd'])) {
                     throw new AdminException(__('Password verification failed'));
@@ -106,7 +105,7 @@ class Langs extends AbstractPage
         }
 
         // Upload a language pack
-        if ($this->is_writable && !empty($_POST['upload_pkg'])) {
+        if ($this->lang_is_writable && !empty($_POST['upload_pkg'])) {
             try {
                 if (empty($_POST['your_pwd']) || !dotclear()->user()->checkPassword($_POST['your_pwd'])) {
                     throw new AdminException(__('Password verification failed'));
@@ -191,7 +190,7 @@ class Langs extends AbstractPage
         $locales_content = [];
         $tmp             = Files::scandir(dotclear()->config()->get('l10n_dir'));
         foreach ($tmp as $v) {
-            $c = ('.' == $v || '..' == $v || 'en' == $v || !is_dir(dotclear()->config()->get('l10n_dir') . '/' . $v) || !isset($this->iso_codes[$v]));
+            $c = ('.' == $v || '..' == $v || 'en' == $v || !is_dir(dotclear()->config()->get('l10n_dir') . '/' . $v) || !isset($this->lang_iso_codes[$v]));
 
             if (!$c) {
                 $locales_content[$v] = dotclear()->config()->get('l10n_dir') . '/' . $v;
@@ -208,11 +207,11 @@ class Langs extends AbstractPage
                 '</tr>';
 
             foreach ($locales_content as $k => $v) {
-                $is_deletable = $this->is_writable && is_writable($v);
+                $is_deletable = $this->lang_is_writable && is_writable($v);
 
                 echo '<tr class="line wide">' .
                 '<td class="maximal nowrap">(' . $k . ') ' .
-                '<strong>' . Html::escapeHTML($this->iso_codes[$k]) . '</strong></td>' .
+                '<strong>' . Html::escapeHTML($this->lang_iso_codes[$k]) . '</strong></td>' .
                     '<td class="nowrap action">';
 
                 if ($is_deletable) {
@@ -231,16 +230,16 @@ class Langs extends AbstractPage
 
         echo '<h3>' . __('Install or upgrade languages') . '</h3>';
 
-        if (!$this->is_writable) {
+        if (!$this->lang_is_writable) {
             echo '<p>' . sprintf(__('You can install or remove a language by adding or ' .
                 'removing the relevant directory in your %s folder.'), '<strong>locales</strong>') . '</p>';
         }
 
-        if (!empty($dc_langs) && $this->is_writable) {
+        if (!empty($dc_langs) && $this->lang_is_writable) {
             $dc_langs_combo = [];
             foreach ($dc_langs as $k => $v) {
-                if ($v->link && isset($this->iso_codes[$v->title])) {
-                    $dc_langs_combo[Html::escapeHTML('(' . $v->title . ') ' . $this->iso_codes[$v->title])] = Html::escapeHTML($v->link);
+                if ($v->link && isset($this->lang_iso_codes[$v->title])) {
+                    $dc_langs_combo[Html::escapeHTML('(' . $v->title . ') ' . $this->lang_iso_codes[$v->title])] = Html::escapeHTML($v->link);
                 }
             }
 
@@ -265,7 +264,7 @@ class Langs extends AbstractPage
                 '</form>';
         }
 
-        if ($this->is_writable) {
+        if ($this->lang_is_writable) {
             // 'Upload language pack' form
             echo '<form method="post" action="' . dotclear()->adminurl()->root() . '" enctype="multipart/form-data" class="fieldset">' .
             '<h4>' . __('Upload a zip file') . '</h4>' .

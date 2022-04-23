@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
+// Dotclear\Process\Admin\Handler\Services
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Service\RestMethods;
 
 /**
  * Admin rest service page.
- *
- * \Dotclear\Process\Admin\Handler\Services
  *
  * @ingroup  Admin Rest Handler
  */

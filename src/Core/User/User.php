@@ -256,7 +256,9 @@ class User
     /**
      * This method checks user session validity.
      *
-     * @param ?string $uid
+     * @param null|string $uid The session uid
+     *
+     * @return bool Session validity
      */
     public function checkSession(?string $uid = null): bool
     {
@@ -660,7 +662,7 @@ class User
 
     /** @name User management callbacks
      * This 3 functions only matter if you extend this class and use
-     * \DOTCLEAR_USER_CLASS constant.
+     * DOTCLEAR_USER_CLASS constant.
      * These are called after core user management functions.
      * Could be useful if you need to add/update/remove stuff in your
      * LDAP directory    or other third party authentication database.

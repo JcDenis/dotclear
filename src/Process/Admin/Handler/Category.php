@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
+// Dotclear\Process\Admin\Handler\Category
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\FormSelectOption;
@@ -18,19 +19,17 @@ use Exception;
 /**
  * Admin category page.
  *
- * \Dotclear\Process\Admin\Handler\Category
- *
  * @ingroup  Admin Category Handler
  */
 class Category extends AbstractPage
 {
     private $cat_id;
-    private $cat_title       = '';
-    private $cat_url         = '';
-    private $cat_desc        = '';
-    private $cat_parent      = 0;
-    private $siblings        = [];
-    private $allowed_parents = [];
+    private $cat_title           = '';
+    private $cat_url             = '';
+    private $cat_desc            = '';
+    private $cat_parent          = 0;
+    private $cat_siblings        = [];
+    private $cat_allowed_parents = [];
 
     protected function getPermissions(): string|null|false
     {
@@ -65,8 +64,8 @@ class Category extends AbstractPage
             unset($rs);
 
             // Allowed parents list
-            $children              = dotclear()->blog()->categories()->getCategories(['start' => $this->cat_id]);
-            $this->allowed_parents = [__('Top level') => 0];
+            $children                  = dotclear()->blog()->categories()->getCategories(['start' => $this->cat_id]);
+            $this->cat_allowed_parents = [__('Top level') => 0];
 
             $p = [];
             while ($children->fetch()) {
@@ -76,7 +75,7 @@ class Category extends AbstractPage
             $rs = dotclear()->blog()->categories()->getCategories();
             while ($rs->fetch()) {
                 if (!isset($p[$rs->fInt('cat_id')])) {
-                    $this->allowed_parents[] = new FormSelectOption(
+                    $this->cat_allowed_parents[] = new FormSelectOption(
                         str_repeat('&nbsp;&nbsp;', $rs->fInt('level') - 1) . ($rs->fInt('level') - 1 == 0 ? '' : '&bull; ') . Html::escapeHTML($rs->f('cat_title')),
                         $rs->fInt('cat_id')
                     );
@@ -88,7 +87,7 @@ class Category extends AbstractPage
             $rs = dotclear()->blog()->categories()->getCategoryFirstChildren($this->cat_parent);
             while ($rs->fetch()) {
                 if ($rs->fint('cat_id') != $this->cat_id) {
-                    $this->siblings[Html::escapeHTML($rs->f('cat_title'))] = $rs->fInt('cat_id');
+                    $this->cat_siblings[Html::escapeHTML($rs->f('cat_title'))] = $rs->fInt('cat_id');
                 }
             }
             unset($rs);
@@ -267,13 +266,13 @@ class Category extends AbstractPage
             '<form action="' . dotclear()->adminurl()->root() . '" method="post" class="fieldset">' .
             '<h4>' . __('Category parent') . '</h4>' .
             '<p><label for="cat_parent" class="classic">' . __('Parent:') . '</label> ' .
-            Form::combo('cat_parent', $this->allowed_parents, (string) $this->cat_parent) . '</p>' .
+            Form::combo('cat_parent', $this->cat_allowed_parents, (string) $this->cat_parent) . '</p>' .
             '<p><input type="submit" accesskey="s" value="' . __('Save') . '" />' .
             dotclear()->adminurl()->getHiddenFormFields('admin.category', ['id' => $this->cat_id], true) . '</p>' .
                 '</form>' .
                 '</div>';
 
-            if (0 < count($this->siblings)) {
+            if (0 < count($this->cat_siblings)) {
                 echo '<div class="col">' .
                 '<form action="' . dotclear()->adminurl()->root() . '" method="post" class="fieldset">' .
                 '<h4>' . __('Category sibling') . '</h4>' .
@@ -283,7 +282,7 @@ class Category extends AbstractPage
                     [__('before') => 'before', __('after') => 'after'],
                     ['extra_html' => 'title="' . __('position: ') . '"']
                 ) . ' ' .
-                Form::combo('cat_sibling', $this->siblings) . '</p>' .
+                Form::combo('cat_sibling', $this->cat_siblings) . '</p>' .
                 '<p><input type="submit" accesskey="s" value="' . __('Save') . '" />' .
                 dotclear()->adminurl()->getHiddenFormFields('admin.category', ['id' => $this->cat_id], true) . '</p>' .
                     '</form>' .

@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
+// Dotclear\Process\Admin\Handler\Help
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Helper\Html\Html;
 
 /**
  * Admin help page.
- *
- * \Dotclear\Process\Admin\Handler\Help
  *
  * @ingroup  Admin Help Localisation Handler
  */

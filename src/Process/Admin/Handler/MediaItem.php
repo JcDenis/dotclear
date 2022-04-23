@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
+// Dotclear\Process\Admin\Handler\MediaItem
 use Dotclear\Core\Media\Media;
 use Dotclear\Core\Media\Manager\Item;
 use Dotclear\Exception\AdminException;
@@ -24,22 +25,22 @@ use Exception;
 /**
  * Admin media item page.
  *
- * \Dotclear\Process\Admin\Handler\MediaItem
- *
  * @ingroup  Admin Media Handler
  */
 class MediaItem extends AbstractPage
 {
-    private $popup;
-    private $select;
-    private $page_url_params;
+    private $item_popup;
+    private $item_select;
+    private $item_page_url_params;
     private $media_page_url_params;
-    private $id;
+    private $item_id;
 
-    /** @var null|Item File info */
-    private $file;
-
-    private $dirs_combo;
+    /**
+     * @var null|Item $item_file
+     *                File info
+     */
+    private $item_file;
+    private $item_dirs_combo;
     private $media_writable;
 
     protected function getPermissions(): string|null|false
@@ -68,70 +69,70 @@ class MediaItem extends AbstractPage
             unset($post);
         }
 
-        $this->file                  = null;
-        $this->popup                 = (int) !empty($_REQUEST['popup']);
-        $this->select                = !empty($_REQUEST['select']) ? (int) $_REQUEST['select'] : 0; // 0 : none, 1 : single media, >1 : multiple medias
-        $plugin_id                   = isset($_REQUEST['plugin_id']) ? Html::sanitizeURL($_REQUEST['plugin_id']) : '';
-        $this->page_url_params       = ['popup' => $this->popup, 'select' => $this->select, 'post_id' => $post_id];
-        $this->media_page_url_params = ['popup' => $this->popup, 'select' => $this->select, 'post_id' => $post_id, 'link_type' => !empty($_REQUEST['link_type']) ? $_REQUEST['link_type'] : null];
+        $this->item_file                  = null;
+        $this->item_popup                 = (int) !empty($_REQUEST['popup']);
+        $this->item_select                = !empty($_REQUEST['select']) ? (int) $_REQUEST['select'] : 0; // 0 : none, 1 : single media, >1 : multiple medias
+        $plugin_id                        = isset($_REQUEST['plugin_id']) ? Html::sanitizeURL($_REQUEST['plugin_id']) : '';
+        $this->item_page_url_params       = ['popup' => $this->item_popup, 'select' => $this->item_select, 'post_id' => $post_id];
+        $this->media_page_url_params      = ['popup' => $this->item_popup, 'select' => $this->item_select, 'post_id' => $post_id, 'link_type' => !empty($_REQUEST['link_type']) ? $_REQUEST['link_type'] : null];
 
         if ('' != $plugin_id) {
-            $this->page_url_params['plugin_id']       = $plugin_id;
-            $this->media_page_url_params['plugin_id'] = $plugin_id;
+            $this->item_page_url_params['plugin_id']       = $plugin_id;
+            $this->media_page_url_params['plugin_id']      = $plugin_id;
         }
 
-        $this->id = !empty($_REQUEST['id']) ? (int) $_REQUEST['id'] : '';
+        $this->item_id = !empty($_REQUEST['id']) ? (int) $_REQUEST['id'] : '';
 
-        if ('' != $this->id) {
-            $this->page_url_params['id'] = $this->id;
+        if ('' != $this->item_id) {
+            $this->item_page_url_params['id'] = $this->item_id;
         }
 
         $this->media_writable = false;
 
-        $this->dirs_combo = [];
+        $this->item_dirs_combo = [];
 
         try {
-            if ($this->id) {
-                $this->file = dotclear()->media()->getFile($this->id);
+            if ($this->item_id) {
+                $this->item_file = dotclear()->media()->getFile($this->item_id);
             }
 
-            if (null === $this->file) {
+            if (null === $this->item_file) {
                 throw new AdminException(__('Not a valid file'));
             }
 
-            dotclear()->media()->chdir(dirname($this->file->relname));
+            dotclear()->media()->chdir(dirname($this->item_file->relname));
             $this->media_writable = dotclear()->media()->writable();
 
             // Prepare directories combo box
             foreach (dotclear()->media()->getDBDirs() as $v) {
-                $this->dirs_combo['/' . $v] = $v;
+                $this->item_dirs_combo['/' . $v] = $v;
             }
             // Add parent and direct childs directories if any
             dotclear()->media()->getFSDir();
             foreach (dotclear()->media()->dir['dirs'] as $k => $v) {
-                $this->dirs_combo['/' . $v->relname] = $v->relname;
+                $this->item_dirs_combo['/' . $v->relname] = $v->relname;
             }
-            ksort($this->dirs_combo);
+            ksort($this->item_dirs_combo);
         } catch (Exception $e) {
             dotclear()->error()->add($e->getMessage());
         }
 
         // Upload a new file
-        if ($this->file && !empty($_FILES['upfile']) && $this->file->editable && $this->media_writable) {
+        if ($this->item_file && !empty($_FILES['upfile']) && $this->item_file->editable && $this->media_writable) {
             try {
                 Files::uploadStatus($_FILES['upfile']);
-                dotclear()->media()->uploadMediaFile($_FILES['upfile']['tmp_name'], $this->file->basename, null, false, true);
+                dotclear()->media()->uploadMediaFile($_FILES['upfile']['tmp_name'], $this->item_file->basename, null, false, true);
 
                 dotclear()->notice()->addSuccessNotice(__('File has been successfully updated.'));
-                dotclear()->adminurl()->redirect('admin.media.item', $this->page_url_params);
+                dotclear()->adminurl()->redirect('admin.media.item', $this->item_page_url_params);
             } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
         // Update file
-        if ($this->file && !empty($_POST['media_file']) && $this->file->editable && $this->media_writable) {
-            $newFile = clone $this->file;
+        if ($this->item_file && !empty($_POST['media_file']) && $this->item_file->editable && $this->media_writable) {
+            $newFile = clone $this->item_file;
 
             $newFile->basename = $_POST['media_file'];
 
@@ -149,13 +150,13 @@ class MediaItem extends AbstractPage
 
             $desc = isset($_POST['media_desc']) ? Html::escapeHTML($_POST['media_desc']) : '';
 
-            if ($this->file->media_meta instanceof SimpleXMLElement) {
-                if (0 < count($this->file->media_meta)) {
-                    foreach ($this->file->media_meta as $k => $v) {
+            if ($this->item_file->media_meta instanceof SimpleXMLElement) {
+                if (0 < count($this->item_file->media_meta)) {
+                    foreach ($this->item_file->media_meta as $k => $v) {
                         if ('Description' == $k) {
                             // Update value
                             // $v[0] = $desc;
-                            $this->file->media_meta->Description = $desc;
+                            $this->item_file->media_meta->Description = $desc;
 
                             break;
                         }
@@ -163,46 +164,46 @@ class MediaItem extends AbstractPage
                 } else {
                     if ($desc) {
                         // Add value
-                        $this->file->media_meta->addChild('Description', $desc);
+                        $this->item_file->media_meta->addChild('Description', $desc);
                     }
                 }
             } else {
                 if ($desc) {
                     // Create meta and add value
-                    $this->file->media_meta = simplexml_load_string('<meta></meta>');
-                    $this->file->media_meta->addChild('Description', $desc);
+                    $this->item_file->media_meta = simplexml_load_string('<meta></meta>');
+                    $this->item_file->media_meta->addChild('Description', $desc);
                 }
             }
 
             try {
-                dotclear()->media()->updateFile($this->file, $newFile);
+                dotclear()->media()->updateFile($this->item_file, $newFile);
 
                 dotclear()->notice()->addSuccessNotice(__('File has been successfully updated.'));
-                $this->page_url_params['tab'] = 'media-details-tab';
-                dotclear()->adminurl()->redirect('admin.media.item', $this->page_url_params);
+                $this->item_page_url_params['tab'] = 'media-details-tab';
+                dotclear()->adminurl()->redirect('admin.media.item', $this->item_page_url_params);
             } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
         // Update thumbnails
-        if (!empty($_POST['thumbs']) && 'image' == $this->file->media_type && $this->file->editable && $this->media_writable) {
+        if (!empty($_POST['thumbs']) && 'image' == $this->item_file->media_type && $this->item_file->editable && $this->media_writable) {
             try {
                 $foo = null;
-                dotclear()->media()->mediaFireRecreateEvent($this->file);
+                dotclear()->media()->mediaFireRecreateEvent($this->item_file);
 
                 dotclear()->notice()->addSuccessNotice(__('Thumbnails have been successfully updated.'));
-                $this->page_url_params['tab'] = 'media-details-tab';
-                dotclear()->adminurl()->redirect('admin.media.item', $this->page_url_params);
+                $this->item_page_url_params['tab'] = 'media-details-tab';
+                dotclear()->adminurl()->redirect('admin.media.item', $this->item_page_url_params);
             } catch (Exception $e) {
                 dotclear()->error()->add($e->getMessage());
             }
         }
 
         // Unzip file
-        if (!empty($_POST['unzip']) && 'application/zip' == $this->file->type && $this->file->editable && $this->media_writable) {
+        if (!empty($_POST['unzip']) && 'application/zip' == $this->item_file->type && $this->item_file->editable && $this->media_writable) {
             try {
-                $unzip_dir = dotclear()->media()->inflateZipFile($this->file, 'new' == $_POST['inflate_mode']);
+                $unzip_dir = dotclear()->media()->inflateZipFile($this->item_file, 'new' == $_POST['inflate_mode']);
 
                 dotclear()->notice()->addSuccessNotice(__('Zip file has been successfully extracted.'));
                 $this->media_page_url_params['d'] = $unzip_dir;
@@ -215,7 +216,7 @@ class MediaItem extends AbstractPage
         // Save media insertion settings for the blog
         if (!empty($_POST['save_blog_prefs'])) {
             if (!empty($_POST['pref_src'])) {
-                if (!($s = array_search($_POST['pref_src'], $this->file->media_thumb))) {
+                if (!($s = array_search($_POST['pref_src'], $this->item_file->media_thumb))) {
                     $s = 'o';
                 }
                 dotclear()->blog()->settings()->get('system')->put('media_img_default_size', $s);
@@ -231,14 +232,14 @@ class MediaItem extends AbstractPage
             }
 
             dotclear()->notice()->addSuccessNotice(__('Default media insertion settings have been successfully updated.'));
-            dotclear()->adminurl()->redirect('admin.media.item', $this->page_url_params);
+            dotclear()->adminurl()->redirect('admin.media.item', $this->item_page_url_params);
         }
 
         // Save media insertion settings for the folder
         if (!empty($_POST['save_folder_prefs'])) {
             $prefs = [];
             if (!empty($_POST['pref_src'])) {
-                if (!($s = array_search($_POST['pref_src'], $this->file->media_thumb))) {
+                if (!($s = array_search($_POST['pref_src'], $this->item_file->media_thumb))) {
                     $s = 'o';
                 }
                 $prefs['size'] = $s;
@@ -253,21 +254,21 @@ class MediaItem extends AbstractPage
                 $prefs['legend'] = $_POST['pref_legend'];
             }
 
-            $local = dotclear()->media()->root . '/' . dirname($this->file->relname) . '/' . '.mediadef.json';
+            $local = dotclear()->media()->root . '/' . dirname($this->item_file->relname) . '/' . '.mediadef.json';
             if (file_put_contents($local, json_encode($prefs, JSON_PRETTY_PRINT))) {
                 dotclear()->notice()->addSuccessNotice(__('Media insertion settings have been successfully registered for this folder.'));
             }
-            dotclear()->adminurl()->redirect('admin.media.item', $this->page_url_params);
+            dotclear()->adminurl()->redirect('admin.media.item', $this->item_page_url_params);
         }
 
         // Delete media insertion settings for the folder (.mediadef and .mediadef.json)
         if (!empty($_POST['remove_folder_prefs'])) {
-            $local      = dotclear()->media()->root . '/' . dirname($this->file->relname) . '/' . '.mediadef';
+            $local      = dotclear()->media()->root . '/' . dirname($this->item_file->relname) . '/' . '.mediadef';
             $local_json = $local . '.json';
             if ((file_exists($local) && unlink($local)) || (file_exists($local_json) && unlink($local_json))) {
                 dotclear()->notice()->addSuccessNotice(__('Media insertion settings have been successfully removed for this folder.'));
             }
-            dotclear()->adminurl()->redirect('admin.media.item', $this->page_url_params);
+            dotclear()->adminurl()->redirect('admin.media.item', $this->item_page_url_params);
         }
 
         // Page setup
@@ -275,14 +276,14 @@ class MediaItem extends AbstractPage
             dotclear()->resource()->modal() .
             dotclear()->resource()->load('_media_item.js')
         );
-        if ($this->popup && !empty($plugin_id)) {
+        if ($this->item_popup && !empty($plugin_id)) {
             $this->setPageHead(dotclear()->behavior()->call('adminPopupMedia', $plugin_id));
         }
 
         $temp_params      = $this->media_page_url_params;
         $temp_params['d'] = '%s';
         $breadcrumb       = dotclear()->media()->breadCrumb(dotclear()->adminurl()->get('admin.media', $temp_params, '&amp;', true)) .
-            (null === $this->file ? '' : '<span class="page-title">' . $this->file->basename . '</span>');
+            (null === $this->item_file ? '' : '<span class="page-title">' . $this->item_file->basename . '</span>');
         $temp_params['d'] = '';
         $home_url         = dotclear()->adminurl()->get('admin.media', $temp_params);
 
@@ -294,12 +295,12 @@ class MediaItem extends AbstractPage
                 $breadcrumb                                => '',
             ],
             [
-                'home_link' => !$this->popup,
+                'home_link' => !$this->item_popup,
                 'hl'        => false,
             ]
         );
 
-        if ($this->popup) {
+        if ($this->item_popup) {
             $this->setPageType('popup');
             $this->setPageHead(dotclear()->resource()->pageTabs($tab));
         } else {
@@ -326,32 +327,32 @@ class MediaItem extends AbstractPage
         }
 
         // Get major file type (first part of mime type)
-        $file_type = explode('/', $this->file->type);
+        $file_type = explode('/', $this->item_file->type);
 
         // Selection mode
-        if ($this->select) {
+        if ($this->item_select) {
             // Let user choose thumbnail size if image
-            $media_title = $this->file->media_title;
-            if ($media_title == $this->file->basename || Files::tidyFileName($media_title) == $this->file->basename) {
+            $media_title = $this->item_file->media_title;
+            if ($media_title == $this->item_file->basename || Files::tidyFileName($media_title) == $this->item_file->basename) {
                 $media_title = '';
             }
 
-            $media_desc = $this->getImageDescription($this->file, $media_title);
-            $defaults   = $this->getImageDefinition($this->file);
+            $media_desc = $this->getImageDescription($this->item_file, $media_title);
+            $defaults   = $this->getImageDefinition($this->item_file);
 
             echo '<div id="media-select" class="multi-part" title="' . __('Select media item') . '">' .
             '<h3>' . __('Select media item') . '</h3>' .
                 '<form id="media-select-form" action="" method="get">';
 
-            if ('image' == $this->file->media_type) {
+            if ('image' == $this->item_file->media_type) {
                 $media_type  = 'image';
                 $media_title = $this->getImageTitle(
-                    $this->file,
+                    $this->item_file,
                     dotclear()->blog()->settings()->get('system')->get('media_img_title_pattern'),
                     dotclear()->blog()->settings()->get('system')->get('media_img_use_dto_first'),
                     dotclear()->blog()->settings()->get('system')->get('media_img_no_date_alone')
                 );
-                if ($media_title == $this->file->basename || Files::tidyFileName($media_title) == $this->file->basename) {
+                if ($media_title == $this->item_file->basename || Files::tidyFileName($media_title) == $this->item_file->basename) {
                     $media_title = '';
                 }
 
@@ -359,15 +360,15 @@ class MediaItem extends AbstractPage
 
                 $s_checked = false;
                 echo '<p>';
-                foreach (array_reverse($this->file->media_thumb) as $s => $v) {
+                foreach (array_reverse($this->item_file->media_thumb) as $s => $v) {
                     $s_checked = ($s == $defaults['size']);
                     echo '<label class="classic">' .
                     Form::radio(['src'], Html::escapeHTML($v), $s_checked) . ' ' .
                     dotclear()->media()->thumb_sizes[$s][2] . '</label><br /> ';
                 }
-                $s_checked = (!isset($this->file->media_thumb[$defaults['size']]));
+                $s_checked = (!isset($this->item_file->media_thumb[$defaults['size']]));
                 echo '<label class="classic">' .
-                Form::radio(['src'], $this->file->file_url, $s_checked) . ' ' . __('original') . '</label><br /> ';
+                Form::radio(['src'], $this->item_file->file_url, $s_checked) . ' ' . __('original') . '</label><br /> ';
                 echo '</p>';
             } elseif ('audio' == $file_type[0]) {
                 $media_type = 'mp3';
@@ -383,7 +384,7 @@ class MediaItem extends AbstractPage
             Form::hidden(['type'], Html::escapeHTML($media_type)) .
             Form::hidden(['title'], Html::escapeHTML($media_title)) .
             Form::hidden(['description'], Html::escapeHTML($media_desc)) .
-            Form::hidden(['url'], $this->file->file_url) .
+            Form::hidden(['url'], $this->item_file->file_url) .
                 '</p>';
 
             echo '</form>';
@@ -391,28 +392,28 @@ class MediaItem extends AbstractPage
         }
 
         // Insertion popup
-        if ($this->popup && !$this->select) {
-            $media_title = $this->file->media_title;
-            if ($media_title == $this->file->basename || Files::tidyFileName($media_title) == $this->file->basename) {
+        if ($this->item_popup && !$this->item_select) {
+            $media_title = $this->item_file->media_title;
+            if ($media_title == $this->item_file->basename || Files::tidyFileName($media_title) == $this->item_file->basename) {
                 $media_title = '';
             }
 
-            $media_desc = $this->getImageDescription($this->file, $media_title);
-            $defaults   = $this->getImageDefinition($this->file);
+            $media_desc = $this->getImageDescription($this->item_file, $media_title);
+            $defaults   = $this->getImageDefinition($this->item_file);
 
             echo '<div id="media-insert" class="multi-part" title="' . __('Insert media item') . '">' .
             '<h3>' . __('Insert media item') . '</h3>' .
                 '<form id="media-insert-form" action="" method="get">';
 
-            if ('image' == $this->file->media_type) {
+            if ('image' == $this->item_file->media_type) {
                 $media_type  = 'image';
                 $media_title = $this->getImageTitle(
-                    $this->file,
+                    $this->item_file,
                     dotclear()->blog()->settings()->get('system')->get('media_img_title_pattern'),
                     dotclear()->blog()->settings()->get('system')->get('media_img_use_dto_first'),
                     dotclear()->blog()->settings()->get('system')->get('media_img_no_date_alone')
                 );
-                if ($media_title == $this->file->basename || Files::tidyFileName($media_title) == $this->file->basename) {
+                if ($media_title == $this->item_file->basename || Files::tidyFileName($media_title) == $this->item_file->basename) {
                     $media_title = '';
                 }
 
@@ -420,15 +421,15 @@ class MediaItem extends AbstractPage
                 '<h3>' . __('Image size:') . '</h3> ';
                 $s_checked = false;
                 echo '<p>';
-                foreach (array_reverse($this->file->media_thumb) as $s => $v) {
+                foreach (array_reverse($this->item_file->media_thumb) as $s => $v) {
                     $s_checked = ($s == $defaults['size']);
                     echo '<label class="classic">' .
                     Form::radio(['src'], Html::escapeHTML($v), $s_checked) . ' ' .
                     dotclear()->media()->thumb_sizes[$s][2] . '</label><br /> ';
                 }
-                $s_checked = (!isset($this->file->media_thumb[$defaults['size']]));
+                $s_checked = (!isset($this->item_file->media_thumb[$defaults['size']]));
                 echo '<label class="classic">' .
-                Form::radio(['src'], $this->file->file_url, $s_checked) . ' ' . __('original') . '</label><br /> ';
+                Form::radio(['src'], $this->item_file->file_url, $s_checked) . ' ' . __('original') . '</label><br /> ';
                 echo '</p>';
                 echo '</div>';
 
@@ -507,7 +508,7 @@ class MediaItem extends AbstractPage
                     Form::radio(['alignment'], $k, $v[1]) . ' ' . $v[0] . '</label><br /> ';
                 }
 
-                echo Form::hidden('public_player', Html::escapeHTML(Media::audioPlayer($this->file->type, $this->file->file_url)));
+                echo Form::hidden('public_player', Html::escapeHTML(Media::audioPlayer($this->item_file->type, $this->item_file->file_url)));
                 echo '</p>';
                 echo '</div>';
             } elseif ('video' == $file_type[0]) {
@@ -540,12 +541,12 @@ class MediaItem extends AbstractPage
                     Form::radio(['alignment'], $k, $v[1]) . ' ' . $v[0] . '</label><br /> ';
                 }
 
-                echo Form::hidden('public_player', Html::escapeHTML(Media::videoPlayer($this->file->type, $this->file->file_url)));
+                echo Form::hidden('public_player', Html::escapeHTML(Media::videoPlayer($this->item_file->type, $this->item_file->file_url)));
                 echo '</p>';
                 echo '</div>';
             } else {
                 $media_type  = 'default';
-                $media_title = $this->file->media_title;
+                $media_title = $this->item_file->media_title;
                 echo '<p>' . __('Media item will be inserted as a link.') . '</p>';
             }
 
@@ -555,7 +556,7 @@ class MediaItem extends AbstractPage
             Form::hidden(['type'], Html::escapeHTML($media_type)) .
             Form::hidden(['title'], Html::escapeHTML($media_title)) .
             Form::hidden(['description'], Html::escapeHTML($media_desc)) .
-            Form::hidden(['url'], $this->file->file_url) .
+            Form::hidden(['url'], $this->item_file->file_url) .
                 '</p>';
 
             echo '</form>';
@@ -567,7 +568,7 @@ class MediaItem extends AbstractPage
                 '<input class="reset" type="submit" name="save_blog_prefs" value="' . __('For the blog') . '" /> ' . __('or') . ' ' .
                 '<input class="reset" type="submit" name="save_folder_prefs" value="' . __('For this folder only') . '" />';
 
-                $local = dotclear()->media()->root . '/' . dirname($this->file->relname) . '/' . '.mediadef';
+                $local = dotclear()->media()->root . '/' . dirname($this->item_file->relname) . '/' . '.mediadef';
                 if (!file_exists($local)) {
                     $local .= '.json';
                 }
@@ -581,56 +582,56 @@ class MediaItem extends AbstractPage
                 Form::hidden(['pref_alignment'], '') .
                 Form::hidden(['pref_insertion'], '') .
                 Form::hidden(['pref_legend'], '') .
-                dotclear()->adminurl()->getHiddenFormFields('admin.media.item', $this->page_url_params, true) . '</p>' .
+                dotclear()->adminurl()->getHiddenFormFields('admin.media.item', $this->item_page_url_params, true) . '</p>' .
                     '</form>' . '</div>';
             }
 
             echo '</div>';
         }
 
-        if ($this->popup || $this->select) {
+        if ($this->item_popup || $this->item_select) {
             echo '<div class="multi-part" title="' . __('Media details') . '" id="media-details-tab">';
         } else {
             echo '<h3 class="out-of-screen-if-js">' . __('Media details') . '</h3>';
         }
-        echo '<p id="media-icon"><img class="media-icon-square" src="' . $this->file->media_icon . '&' . time() * rand() . '" alt="" /></p>';
+        echo '<p id="media-icon"><img class="media-icon-square" src="' . $this->item_file->media_icon . '&' . time() * rand() . '" alt="" /></p>';
 
         echo '<div id="media-details">' .
             '<div class="near-icon">';
 
-        if ($this->file->media_image) {
+        if ($this->item_file->media_image) {
             $thumb_size = !empty($_GET['size']) ? $_GET['size'] : 's';
 
             if (!isset(dotclear()->media()->thumb_sizes[$thumb_size]) && 'o' != $thumb_size) {
                 $thumb_size = 's';
             }
 
-            if (isset($this->file->media_thumb[$thumb_size])) {
-                echo '<p><a class="modal-image" href="' . $this->file->file_url . '">' .
-                '<img src="' . $this->file->media_thumb[$thumb_size] . '&' . time() * rand() . '" alt="" />' .
+            if (isset($this->item_file->media_thumb[$thumb_size])) {
+                echo '<p><a class="modal-image" href="' . $this->item_file->file_url . '">' .
+                '<img src="' . $this->item_file->media_thumb[$thumb_size] . '&' . time() * rand() . '" alt="" />' .
                     '</a></p>';
             } elseif ('o' == $thumb_size) {
-                $S     = getimagesize($this->file->file);
+                $S     = getimagesize($this->item_file->file);
                 $class = !$S || (500 < $S[1]) ? ' class="overheight"' : '';
                 unset($S);
-                echo '<p id="media-original-image"' . $class . '><a class="modal-image" href="' . $this->file->file_url . '">' .
-                '<img src="' . $this->file->file_url . '&' . time() * rand() . '" alt="" />' .
+                echo '<p id="media-original-image"' . $class . '><a class="modal-image" href="' . $this->item_file->file_url . '">' .
+                '<img src="' . $this->item_file->file_url . '&' . time() * rand() . '" alt="" />' .
                     '</a></p>';
             }
 
             echo '<p>' . __('Available sizes:') . ' ';
-            foreach (array_reverse($this->file->media_thumb) as $s => $v) {
+            foreach (array_reverse($this->item_file->media_thumb) as $s => $v) {
                 $strong_link = ($s == $thumb_size) ? '<strong>%s</strong>' : '%s';
                 printf($strong_link, '<a href="' . dotclear()->adminurl()->get('admin.media.item', array_merge(
-                    $this->page_url_params,
+                    $this->item_page_url_params,
                     ['size' => $s, 'tab' => 'media-details-tab']
                 )) . '">' . dotclear()->media()->thumb_sizes[$s][2] . '</a> | ');
             }
-            echo '<a href="' . dotclear()->adminurl()->get('admin.media.item', array_merge($this->page_url_params, ['size' => 'o', 'tab' => 'media-details-tab'])) . '">' . __('original') . '</a>';
+            echo '<a href="' . dotclear()->adminurl()->get('admin.media.item', array_merge($this->item_page_url_params, ['size' => 'o', 'tab' => 'media-details-tab'])) . '">' . __('original') . '</a>';
             echo '</p>';
 
-            if ('o' != $thumb_size && isset($this->file->media_thumb[$thumb_size])) {
-                $p          = Path::info($this->file->file);
+            if ('o' != $thumb_size && isset($this->item_file->media_thumb[$thumb_size])) {
+                $p          = Path::info($this->item_file->file);
                 $alpha      = ('png' == $p['extension']) || ('PNG' == $p['extension']);
                 $alpha      = strtolower($p['extension']) === 'png';
                 $webp       = strtolower($p['extension']) === 'webp';
@@ -646,38 +647,38 @@ class MediaItem extends AbstractPage
                     '<li><strong>' . __('Image height:') . '</strong> ' . $T[1] . ' px</li>';
                 }
                 echo '<li><strong>' . __('File size:') . '</strong> ' . Files::size($stats[7]) . '</li>' .
-                '<li><strong>' . __('File URL:') . '</strong> <a href="' . $this->file->media_thumb[$thumb_size] . '">' .
-                $this->file->media_thumb[$thumb_size] . '</a></li>' .
+                '<li><strong>' . __('File URL:') . '</strong> <a href="' . $this->item_file->media_thumb[$thumb_size] . '">' .
+                $this->item_file->media_thumb[$thumb_size] . '</a></li>' .
                     '</ul>';
             }
         }
 
         // Show player if relevant
         if ('audio' == $file_type[0]) {
-            echo Media::audioPlayer($this->file->type, $this->file->file_url);
+            echo Media::audioPlayer($this->item_file->type, $this->item_file->file_url);
         }
         if ('video' == $file_type[0]) {
-            echo Media::videoPlayer($this->file->type, $this->file->file_url);
+            echo Media::videoPlayer($this->item_file->type, $this->item_file->file_url);
         }
 
         echo '<h3>' . __('Media details') . '</h3>' .
         '<ul>' .
-        '<li><strong>' . __('File owner:') . '</strong> ' . $this->file->media_user . '</li>' .
-        '<li><strong>' . __('File type:') . '</strong> ' . $this->file->type . '</li>';
-        if ($this->file->media_image) {
-            $S = getimagesize($this->file->file);
+        '<li><strong>' . __('File owner:') . '</strong> ' . $this->item_file->media_user . '</li>' .
+        '<li><strong>' . __('File type:') . '</strong> ' . $this->item_file->type . '</li>';
+        if ($this->item_file->media_image) {
+            $S = getimagesize($this->item_file->file);
             if (is_array($S)) {
                 echo '<li><strong>' . __('Image width:') . '</strong> ' . $S[0] . ' px</li>' .
                 '<li><strong>' . __('Image height:') . '</strong> ' . $S[1] . ' px</li>';
                 unset($S);
             }
         }
-        echo '<li><strong>' . __('File size:') . '</strong> ' . Files::size($this->file->size) . '</li>' .
-        '<li><strong>' . __('File URL:') . '</strong> <a href="' . $this->file->file_url . '">' . $this->file->file_url . '</a></li>' .
+        echo '<li><strong>' . __('File size:') . '</strong> ' . Files::size($this->item_file->size) . '</li>' .
+        '<li><strong>' . __('File URL:') . '</strong> <a href="' . $this->item_file->file_url . '">' . $this->item_file->file_url . '</a></li>' .
             '</ul>';
 
         if (empty($_GET['find_posts'])) {
-            echo '<p><a class="button" href="' . dotclear()->adminurl()->get('admin.media.item', array_merge($this->page_url_params, ['find_posts' => 1, 'tab' => 'media-details-tab'])) . '">' .
+            echo '<p><a class="button" href="' . dotclear()->adminurl()->get('admin.media.item', array_merge($this->item_page_url_params, ['find_posts' => 1, 'tab' => 'media-details-tab'])) . '">' .
             __('Show entries containing this media') . '</a></p>';
         } else {
             echo '<h3>' . __('Entries containing this media') . '</h3>';
@@ -685,16 +686,16 @@ class MediaItem extends AbstractPage
                 'post_type' => '',
                 'join'      => 'LEFT OUTER JOIN ' . dotclear()->prefix . 'post_media PM ON P.post_id = PM.post_id ',
                 'sql'       => 'AND (' .
-                'PM.media_id = ' . (int) $this->id . ' ' .
-                "OR post_content_xhtml LIKE '%" . dotclear()->con()->escape($this->file->relname) . "%' " .
-                "OR post_excerpt_xhtml LIKE '%" . dotclear()->con()->escape($this->file->relname) . "%' ",
+                'PM.media_id = ' . (int) $this->item_id . ' ' .
+                "OR post_content_xhtml LIKE '%" . dotclear()->con()->escape($this->item_file->relname) . "%' " .
+                "OR post_excerpt_xhtml LIKE '%" . dotclear()->con()->escape($this->item_file->relname) . "%' ",
             ];
 
-            if ($this->file->media_image) {
+            if ($this->item_file->media_image) {
                 // We look for thumbnails too
                 $media_root = dotclear()->blog()->public_url . '/';
 
-                foreach ($this->file->media_thumb as $v) {
+                foreach ($this->item_file->media_thumb as $v) {
                     $v = preg_replace('/^' . preg_quote($media_root, '/') . '/', '', $v);
                     $params['sql'] .= "OR post_content_xhtml LIKE '%" . dotclear()->con()->escape($v) . "%' ";
                     $params['sql'] .= "OR post_excerpt_xhtml LIKE '%" . dotclear()->con()->escape($v) . "%' ";
@@ -727,12 +728,12 @@ class MediaItem extends AbstractPage
             }
         }
 
-        if ('image/jpeg' == $this->file->type || 'image/webp' == $this->file->type) {
+        if ('image/jpeg' == $this->item_file->type || 'image/webp' == $this->item_file->type) {
             echo '<h3>' . __('Image details') . '</h3>';
 
             $details = '';
-            if (count($this->file->media_meta) > 0) {
-                foreach ($this->file->media_meta as $k => $v) {
+            if (count($this->item_file->media_meta) > 0) {
+                foreach ($this->item_file->media_meta as $k => $v) {
                     if ((string) $v) {
                         $details .= '<li><strong>' . $k . ':</strong> ' . Html::escapeHTML((string) $v) . '</li>';
                     }
@@ -749,18 +750,18 @@ class MediaItem extends AbstractPage
 
         echo '<h3>' . __('Updates and modifications') . '</h3>';
 
-        if ($this->file->editable && $this->media_writable) {
-            if ('image' == $this->file->media_type) {
+        if ($this->item_file->editable && $this->media_writable) {
+            if ('image' == $this->item_file->media_type) {
                 echo '<form class="clear fieldset" action="' . dotclear()->adminurl()->root() . '" method="post">' .
                 '<h4>' . __('Update thumbnails') . '</h4>' .
                 '<p class="more-info">' . __('This will create or update thumbnails for this image.') . '</p>' .
                 '<p><input type="submit" name="thumbs" value="' . __('Update thumbnails') . '" />' .
-                dotclear()->adminurl()->getHiddenFormFields('admin.media.item', $this->page_url_params, true) .
+                dotclear()->adminurl()->getHiddenFormFields('admin.media.item', $this->item_page_url_params, true) .
                 '</p>' .
                     '</form>';
             }
 
-            if ('application/zip' == $this->file->type) {
+            if ('application/zip' == $this->item_file->type) {
                 $inflate_combo = [
                     __('Extract in a new directory')   => 'new',
                     __('Extract in current directory') => 'current',
@@ -777,7 +778,7 @@ class MediaItem extends AbstractPage
                 '<p><label for="inflate_mode" class="classic">' . __('Extract mode:') . '</label> ' .
                 Form::combo('inflate_mode', $inflate_combo, 'new') .
                 '<input type="submit" name="unzip" value="' . __('Extract') . '" />' .
-                dotclear()->adminurl()->getHiddenFormFields('admin.media.item', $this->page_url_params, true) .
+                dotclear()->adminurl()->getHiddenFormFields('admin.media.item', $this->item_page_url_params, true) .
                 '</p>' .
                     '</form>';
             }
@@ -785,38 +786,38 @@ class MediaItem extends AbstractPage
             echo '<form class="clear fieldset" action="' . dotclear()->adminurl()->root() . '" method="post">' .
             '<h4>' . __('Change media properties') . '</h4>' .
             '<p><label for="media_file">' . __('File name:') . '</label>' .
-            Form::field('media_file', 30, 255, Html::escapeHTML($this->file->basename)) . '</p>' .
+            Form::field('media_file', 30, 255, Html::escapeHTML($this->item_file->basename)) . '</p>' .
             '<p><label for="media_title">' . __('File title:') . '</label>' .
             Form::field(
                 'media_title',
                 30,
                 255,
                 [
-                    'default'    => Html::escapeHTML($this->file->media_title),
+                    'default'    => Html::escapeHTML($this->item_file->media_title),
                     'extra_html' => 'lang="' . dotclear()->user()->getInfo('user_lang') . '" spellcheck="true"',
                 ]
             ) . '</p>';
-            if ('image/jpeg' == $this->file->type || 'image/webp' == $this->file->type) {
+            if ('image/jpeg' == $this->item_file->type || 'image/webp' == $this->item_file->type) {
                 echo '<p><label for="media_desc">' . __('File description:') . '</label>' .
                 Form::field(
                     'media_desc',
                     60,
                     255,
                     [
-                        'default'    => Html::escapeHTML((string) $this->getImageDescription($this->file, '')),
+                        'default'    => Html::escapeHTML((string) $this->getImageDescription($this->item_file, '')),
                         'extra_html' => 'lang="' . dotclear()->user()->getInfo('user_lang') . '" spellcheck="true"',
                     ]
                 ) . '</p>' .
                 '<p><label for="media_dt">' . __('File date:') . '</label>';
             }
-            echo Form::datetime('media_dt', ['default' => Html::escapeHTML(Dt::str('%Y-%m-%d\T%H:%M', $this->file->media_dt))]) .
+            echo Form::datetime('media_dt', ['default' => Html::escapeHTML(Dt::str('%Y-%m-%d\T%H:%M', $this->item_file->media_dt))]) .
             '</p>' .
-            '<p><label for="media_private" class="classic">' . Form::checkbox('media_private', 1, $this->file->media_priv) . ' ' .
+            '<p><label for="media_private" class="classic">' . Form::checkbox('media_private', 1, $this->item_file->media_priv) . ' ' .
             __('Private') . '</label></p>' .
             '<p><label for="media_path">' . __('New directory:') . '</label>' .
-            Form::combo('media_path', $this->dirs_combo, dirname($this->file->relname)) . '</p>' .
+            Form::combo('media_path', $this->item_dirs_combo, dirname($this->item_file->relname)) . '</p>' .
             '<p><input type="submit" accesskey="s" value="' . __('Save') . '" />' .
-            dotclear()->adminurl()->getHiddenFormFields('admin.media.item', $this->page_url_params, true) .
+            dotclear()->adminurl()->getHiddenFormFields('admin.media.item', $this->item_page_url_params, true) .
             '</p>' .
                 '</form>';
 
@@ -828,14 +829,14 @@ class MediaItem extends AbstractPage
             '<input type="file" id="upfile" name="upfile" size="35" />' .
             '</label></p>' .
             '<p><input type="submit" value="' . __('Send') . '" />' .
-            dotclear()->adminurl()->getHiddenFormFields('admin.media.item', $this->page_url_params, true) .
+            dotclear()->adminurl()->getHiddenFormFields('admin.media.item', $this->item_page_url_params, true) .
             '</p>' .
                 '</form>';
 
-            if ($this->file->del) {
+            if ($this->item_file->del) {
                 echo '<form id="delete-form" method="post" action="' . dotclear()->adminurl()->root() . '">' .
                 '<p><input name="delete" type="submit" class="delete" value="' . __('Delete this media') . '" />' .
-                Form::hidden('remove', rawurlencode($this->file->basename)) .
+                Form::hidden('remove', rawurlencode($this->item_file->basename)) .
                 Form::hidden('rmyes', 1) .
                 dotclear()->adminurl()->getHiddenFormFields('admin.media', $this->media_page_url_params, true) .
                 '</p>' .
@@ -843,11 +844,11 @@ class MediaItem extends AbstractPage
             }
 
             // --BEHAVIOR-- adminMediaItemForm
-            dotclear()->behavior()->call('adminMediaItemForm', $this->file);
+            dotclear()->behavior()->call('adminMediaItemForm', $this->item_file);
         }
 
         echo '</div>';
-        if ($this->popup || $this->select) {
+        if ($this->item_popup || $this->item_select) {
             echo '</div>';
         } else {
             // Go back button

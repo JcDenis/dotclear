@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
+// Dotclear\Process\Admin\Handler\Search
 use ArrayObject;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Action\Action\PostAction;
@@ -22,18 +23,15 @@ use Exception;
 /**
  * Admin search list page.
  *
- * \Dotclear\Process\Admin\Handler\Search
- *
  * @ingroup  Admin Search Handler
  */
 class Search extends AbstractPage
 {
     private $s_qtype_combo = [];
     private $s_args        = [];
-
-    protected $s_count;
-    protected $s_list;
-    protected $s_actions;
+    private $s_count;
+    private $s_list;
+    private $s_actions;
 
     protected function getPermissions(): string|null|false
     {

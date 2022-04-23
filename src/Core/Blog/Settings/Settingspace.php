@@ -66,7 +66,7 @@ class Settingspace
      *
      * @param null|string $blog_id The blog identifier
      * @param string      $name    The namespace ID
-     * @param ?Record     $rs
+     * @param null|Record $rs      The record, if any
      *
      * @throws CoreException
      */

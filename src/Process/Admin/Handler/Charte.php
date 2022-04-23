@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
+// Dotclear\Process\Admin\Handler\Charte
 use Dotclear\Process\Admin\Page\AbstractPage;
 
 /**
  * Admin design help page.
- *
- * \Dotclear\Process\Admin\Handler\Charte
  *
  * @ingroup  Admin Help Handler
  */

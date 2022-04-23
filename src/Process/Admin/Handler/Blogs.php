@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
+// Dotclear\Process\Admin\Handler\Blog
 use ArrayObject;
 use Dotclear\Core\RsExt\RsExtUser;
 use Dotclear\Process\Admin\Page\AbstractPage;
@@ -19,8 +20,6 @@ use Dotclear\Helper\Html\Form;
 
 /**
  * Admin blogs list page.
- *
- * \Dotclear\Process\Admin\Handler\Blog
  *
  * @ingroup  Admin Blog Handler
  */

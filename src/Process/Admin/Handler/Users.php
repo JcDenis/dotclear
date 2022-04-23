@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
+// Dotclear\Process\Admin\Handler\Users
 use ArrayObject;
 use Dotclear\Core\RsExt\RsExtUser;
 use Dotclear\Process\Admin\Page\AbstractPage;
@@ -18,8 +19,6 @@ use Dotclear\Helper\Html\Form;
 
 /**
  * Admin users list page.
- *
- * \Dotclear\Process\Admin\Handler\Users
  *
  * @ingroup  Admin User Handler
  */

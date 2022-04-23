@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
+// Dotclear\Process\Admin\Handler\PostMedia
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Core\Media\PostMedia as CoreMedia;
 use Dotclear\Exception\AdminException;
@@ -19,8 +20,6 @@ use Exception;
 
 /**
  * Admin post media selector helper page.
- *
- * \Dotclear\Process\Admin\Handler\PostMedia
  *
  * @ingroup  Admin Post Media Handler
  */

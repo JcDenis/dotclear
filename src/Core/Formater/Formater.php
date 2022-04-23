@@ -66,10 +66,10 @@ class Formater
     /**
      * Get the formaters.
      *
-     * if @param editor is empty:
+     * if $editor is empty:
      * return all formaters sorted by actives editors
      *
-     * if @param editor is not empty
+     * if $editor is not empty
      * return formaters for an editor if editor is active
      * return empty() array if editor is not active.
      * It can happens when a user choose an editor and admin deactivate that editor later

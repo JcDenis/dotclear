@@ -414,8 +414,8 @@ class Media extends Manager
     /**
      * Sort file handler.
      *
-     * @param ?Item $a
-     * @param ?Item $b
+     * @param null|Item $a First item
+     * @param null|Item $b Second item
      *
      * @return int Comparison result
      */
@@ -1075,7 +1075,7 @@ class Media extends Manager
     /**
      * Root directories.
      *
-     * Returns an array of directory under {@link $root} directory.
+     * Returns an array of directory under $root directory.
      *
      * @uses    Item
      */

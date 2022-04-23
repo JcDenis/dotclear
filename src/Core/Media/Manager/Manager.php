@@ -51,7 +51,7 @@ class Manager
      * Constructor.
      *
      * New filemanage istance. Note that filemanage is a jail in given root
-     * path. You won't be able to access files outside {@link $root} path with
+     * path. You won't be able to access files outside $root path with
      * the object's methods.
      *
      * @param string $root     Root path
@@ -73,8 +73,8 @@ class Manager
     /**
      * Change directory.
      *
-     * Changes working directory. $dir is relative to instance {@link $root}
-     * directory.
+     * Changes working directory. $dir is relative to instance
+     * $root directory.
      *
      * @param null|string $dir Directory
      */
@@ -136,7 +136,7 @@ class Manager
      * Path is excluded.
      *
      * Returns true if path (file or directory) $f is excluded. $f path is
-     * relative to {@link $root} path.
+     * relative to $root path.
      *
      * @see self::$exclude_list
      *
@@ -156,8 +156,8 @@ class Manager
     /**
      * File is excluded.
      *
-     * Returns true if file $f is excluded. $f path is relative to {@link $root}
-     * path.
+     * Returns true if file $f is excluded. $f path is relative to
+     * $root path.
      *
      * @see self::$exclude_pattern
      *
@@ -171,8 +171,8 @@ class Manager
     /**
      * Item in jail.
      *
-     * Returns true if file or directory $f is in jail (ie. not outside the
-     * {@link $root} directory).
+     * Returns true if file or directory $f is in jail.
+     * ie. not outside the $root directory.
      *
      * @param string $f Path to match
      */
@@ -186,7 +186,7 @@ class Manager
     /**
      * File in files.
      *
-     * Returns true if file $f is in files array of {@link $dir}.
+     * Returns true if file $f is in files array of $dir.
      *
      * @param string $f File to match
      */
@@ -204,7 +204,7 @@ class Manager
     /**
      * Directory list.
      *
-     * Creates list of items in working directory and append it to {@link $dir}
+     * Creates list of items in working directory and append it to $dir
      *
      * @uses sortHandler(), fileItem
      */
@@ -247,7 +247,7 @@ class Manager
     /**
      * Root directories.
      *
-     * Returns an array of directory under {@link $root} directory.
+     * Returns an array of directory under $root directory.
      *
      * @return array<int, Item> The items
      */
@@ -373,7 +373,7 @@ class Manager
      * Move file.
      *
      * Moves a file <var>$s</var> to a new destination <var>$d</var>. Both
-     * <var>$s</var> and <var>$d</var> are relative to {@link $root}.
+     * <var>$s</var> and <var>$d</var> are relative to $root.
      *
      * @param string $s Source file
      * @param string $d Destination file

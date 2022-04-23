@@ -27,7 +27,10 @@ use Dotclear\Helper\Html\Form\Input as FormInput;
  */
 class DefaultFilter
 {
-    /** @var array The filter properties */
+    /**
+     * @var array $properties
+     *            The filter properties
+     */
     protected $properties = [
         'id'      => '',
         'value'   => null,

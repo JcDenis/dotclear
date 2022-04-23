@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
+// Dotclear\Process\Admin\Handler\Posts
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Action\Action\PostAction;
 use Dotclear\Process\Admin\Inventory\Inventory\PostInventory;
@@ -18,8 +19,6 @@ use Dotclear\Helper\Html\Html;
 
 /**
  * Admin posts list page.
- *
- * \Dotclear\Process\Admin\Handler\Posts
  *
  * @ingroup  Admin Post Handler
  */

@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
+// Dotclear\Process\Admin\Handler\Update
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Zip\Unzip;
@@ -21,8 +22,6 @@ use Exception;
 
 /**
  * Admin update page.
- *
- * \Dotclear\Process\Admin\Handler\Update
  *
  * @ingroup  Admin Update Handler
  */

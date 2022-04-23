@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
+// Dotclear\Process\Admin\Handler\Categories
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Database\Record;
 use Dotclear\Exception\AdminException;
@@ -19,13 +20,14 @@ use Exception;
 /**
  * Admin categories list page.
  *
- * \Dotclear\Process\Admin\Handler\Categories
- *
  * @ingroup  Admin Category Handler
  */
 class Categories extends AbstractPage
 {
-    /** @var Record Categories working on */
+    /**
+     * @var Record $categories
+     *             Categories working on
+     */
     private $categories;
 
     protected function getPermissions(): string|null|false

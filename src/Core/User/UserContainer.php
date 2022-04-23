@@ -85,7 +85,7 @@ class UserContainer extends AbstractContainer
     /**
      * Returns user default settings in an associative array with setting names in keys.
      *
-     * @return array<string, mixed> user default options
+     * @return array<string, mixed> User default options
      */
     public static function defaultOptions(): array
     {
@@ -115,7 +115,7 @@ class UserContainer extends AbstractContainer
     /**
      * Get user options.
      *
-     * @return array<string, mixed> user options
+     * @return array<string, mixed> User options
      */
     public function getOptions(): array
     {

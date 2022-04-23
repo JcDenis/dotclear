@@ -223,7 +223,7 @@ class Favorite
      * Get Favorite IDs.
      *
      * Returns user-defined or global favorites ids list
-     * shall not be called outside Admin\Page\UserPrefs
+     * shall not be called outside handler UserPref.
      *
      * @param bool $global If true, retrieve global favs, user favs otherwise
      *
@@ -238,7 +238,7 @@ class Favorite
      * Set Favorite IDs.
      *
      * Stores user-defined or global favorites ids list
-     * shall not be called outside Admin\Page\UserPrefs
+     * shall not be called outside handler UserPref.
      *
      * @param array $ids    List of fav ids
      * @param bool  $global If true, retrieve global favs, user favs otherwise
@@ -264,7 +264,7 @@ class Favorite
      * Append Menu Title.
      *
      * Adds favorites section title to sidebar menu
-     * shall not be called outside Admin\Prepend...
+     * shall not be called outside Admin Prepend.
      *
      * @param Summary $menu Summary instance
      */
@@ -277,7 +277,7 @@ class Favorite
      * Append Menu.
      *
      * Adds favorites items title to sidebar menu
-     * shall not be called outside Admin\Prepend...
+     * shall not be called outside Admin Prepend.
      *
      * @param Summary $menu Summary instance
      */
@@ -301,7 +301,7 @@ class Favorite
      * Append Dashboard Icons.
      *
      * Adds favorites icons to index page
-     * shall not be called outside Admin\Page\Home
+     * shall not be called outside Admin handler Home.
      *
      * @param ArrayObject $icons Dashboard icon list to enrich
      */

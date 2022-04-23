@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
+// Dotclear\Process\Admin\Handler\Pos
 use ArrayObject;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Action\Action\CommentAction;
@@ -23,8 +24,6 @@ use Exception;
 
 /**
  * Admin post page.
- *
- * \Dotclear\Process\Admin\Handler\Pos
  *
  * @ingroup  Admin Post Handler
  */

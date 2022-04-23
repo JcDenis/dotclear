@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Handler;
 
+// Dotclear\Process\Admin\Handler\Media
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 use Dotclear\Process\Admin\Filter\Filter\MediaFilter;
@@ -25,32 +26,51 @@ use Exception;
 /**
  * Admin media list page.
  *
- * \Dotclear\Process\Admin\Handler\Media
- *
  * @ingroup  Admin Media Handler
  */
 class Media extends AbstractPage
 {
-    /** @var bool Page has a valid query */
-    protected $media_has_query = false;
+    /**
+     * @var bool $media_has_query
+     *           Page has a valid query
+     */
+    private $media_has_query = false;
 
-    /** @var bool Media dir is writable */
-    protected $media_writable = false;
+    /**
+     * @var bool $media_writable
+     *           Media dir is writable
+     */
+    private $media_writable = false;
 
-    /** @var bool Media dir is archivable */
-    protected $media_archivable;
+    /**
+     * @var bool $media_archivable
+     *           Media dir is archivable
+     */
+    private $media_archivable;
 
-    /** @var array Dirs and files fileItem objects */
-    protected $media_dir;
+    /**
+     * @var array $media_dir
+     *            Dirs and files fileItem objects
+     */
+    private $media_dir;
 
-    /** @var array User media recents */
-    protected $media_last;
+    /**
+     * @var array $media_last
+     *            User media recents
+     */
+    private $media_last;
 
-    /** @var array User media favorites */
-    protected $media_fav;
+    /**
+     * @var array $media_fav
+     *            User media favorites
+     */
+    private $media_fav;
 
-    /** @var bool Uses enhance uploader */
-    protected $media_uploader;
+    /**
+     * @var bool $media_uploader
+     *           Uses enhance uploader
+     */
+    private $media_uploader;
 
     protected function getPermissions(): string|null|false
     {
