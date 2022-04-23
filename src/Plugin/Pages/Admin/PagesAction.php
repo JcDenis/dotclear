@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Pages\Admin\PagesAction
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginPages
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Pages\Admin;
 
+// Dotclear\Plugin\Pages\Admin\PagesAction
 use ArrayObject;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Exception\AdminException;
@@ -20,6 +18,11 @@ use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Action\Action\PostAction;
 use Exception;
 
+/**
+ * Admin action for plugin Pages.
+ *
+ * @ingroup  Plugin Pages Action
+ */
 class PagesAction extends PostAction
 {
     public function __construct(string $uri, array $redirect_args = [])

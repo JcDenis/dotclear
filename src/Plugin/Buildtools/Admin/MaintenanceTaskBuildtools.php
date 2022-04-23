@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Buildtools\Admin;
 
+// Dotclear\Plugin\Buildtools\Admin\MaintenanceTaskBuildtools
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
 /**
  * Buildtools task for plugin Maintenance.
- *
- * \Dotclear\Plugin\Buildtools\Admin\MaintenanceTaskBuildtools
  *
  * @ingroup  Plugin Buildtools Maintenance Task
  */

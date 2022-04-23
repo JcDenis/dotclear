@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Pages\Admin\HandlerEdit
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginPages
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Pages\Admin;
 
+// Dotclear\Plugin\Pages\Admin\HandlerEdit
 use ArrayObject;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Dt;
@@ -23,6 +21,11 @@ use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Action\Action\CommentAction;
 use Exception;
 
+/**
+ * Admin page edition for plugin Pages.
+ *
+ * @ingroup  Plugin Pages
+ */
 class HandlerEdit extends AbstractPage
 {
     private $post_id            = 0;

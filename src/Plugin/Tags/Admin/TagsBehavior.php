@@ -346,7 +346,7 @@ class TagsBehavior
             '</p></div>';
     }
 
-    public function setTagListFormat(Cursor $cur, ?int $user_id = null): void
+    public function setTagListFormat(Cursor $cur, ?string $user_id = null): void
     {
         if (!is_null($user_id)) {
             $opt                    = $cur->getField('user_options');

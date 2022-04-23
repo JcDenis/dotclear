@@ -759,7 +759,7 @@ class RestMethods
             }
         } else {
             // false == unfold section ==> add it to unfolded list
-            if (false !== $k) {
+            if (false === $k) {
                 $toggles[] = $section;
             }
         }

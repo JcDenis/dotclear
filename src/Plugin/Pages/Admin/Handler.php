@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Pages\Admin\Handler
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginPages
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,12 +9,18 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Pages\Admin;
 
+// Dotclear\Plugin\Pages\Admin\Handler
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Module\AbstractPage;
 use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Inventory\Inventory;
 
+/**
+ * Admin page for plugin Pages.
+ *
+ * @ingroup  Plugin Pages
+ */
 class Handler extends AbstractPage
 {
     private $p_page = 1;

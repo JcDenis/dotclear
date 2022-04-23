@@ -247,6 +247,11 @@
  * Trackback validity check.
  * 
  * 
+ * @defgroup  Pages Plugin "Pages"
+ *
+ * Serve entries as simple web pages.
+ * 
+ * 
  * @defgroup  Pings Plugin "Pings"
  *
  * Ping services.

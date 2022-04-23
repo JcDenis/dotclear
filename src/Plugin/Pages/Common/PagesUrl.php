@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Pages\Common\PagesUrl
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginPages
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Pages\Common;
 
+// Dotclear\Plugin\Pages\Common\PagesUrl
 use ArrayObject;
 use Dotclear\Core\Url\Url;
 use Dotclear\Exception\AdminException;
@@ -21,6 +19,11 @@ use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Text;
 use Exception;
 
+/**
+ * URL methods for plugin Pages.
+ *
+ * @ingroup  Plugin Pages Url
+ */
 class PagesUrl extends Url
 {
     public function __construct()

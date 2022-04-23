@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Pages\Admin\PagesInventory
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginPages
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Pages\Admin;
 
+// Dotclear\Plugin\Pages\Admin\PagesInventory
 use ArrayObject;
 use Dotclear\Process\Admin\Page\Pager;
 use Dotclear\Process\Admin\Inventory\Inventory;
@@ -19,6 +17,11 @@ use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Dt;
 
+/**
+ * Admin inventory for plugin Pages.
+ *
+ * @ingroup  Plugin Pages Inventory
+ */
 class PagesInventory extends Inventory
 {
     public function display($page, $nb_per_page, $enclose_block = '')

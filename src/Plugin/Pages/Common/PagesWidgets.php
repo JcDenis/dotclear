@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Pages\Common\PagesWidgets
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginPages
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,11 +9,17 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Pages\Common;
 
+// Dotclear\Plugin\Pages\Common\PagesWidgets
 use Dotclear\Database\Record;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Plugin\Widgets\Common\Widget;
 use Dotclear\Plugin\Widgets\Common\Widgets;
 
+/**
+ * Widgets methods for plugin Pages.
+ *
+ * @ingroup  Plugin Pages Widgets
+ */
 class PagesWidgets
 {
     public function __construct()

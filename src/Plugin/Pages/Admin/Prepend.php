@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Pages\Admin\Prepend
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginPages
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Pages\Admin;
 
+// Dotclear\Plugin\Pages\Admin\Prepend
 use ArrayObject;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
@@ -19,6 +17,11 @@ use Dotclear\Plugin\Pages\Common\PagesUrl;
 use Dotclear\Plugin\Pages\Common\PagesWidgets;
 use Dotclear\Process\Admin\Favorite\Favorite;
 
+/**
+ * Admin prepend for plugin Pages.
+ *
+ * @ingroup  Plugin Pages
+ */
 class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;

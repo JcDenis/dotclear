@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Pages\Public\Prepend
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginPages
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,12 +9,18 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Pages\Public;
 
+// Dotclear\Plugin\Pages\Public\Prepend
 use ArrayObject;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
 use Dotclear\Plugin\Pages\Common\PagesUrl;
 use Dotclear\Plugin\Pages\Common\PagesWidgets;
 
+/**
+ * Public prepend for plugin Pages.
+ *
+ * @ingroup  Plugin Pages
+ */
 class Prepend extends AbstractPrepend
 {
     use TraitPrependPublic;
