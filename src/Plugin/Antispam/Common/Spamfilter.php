@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Common;
 
+// Dotclear\Plugin\Antispam\Common\Spamfilter
 use Dotclear\Database\Record;
 use Dotclear\Helper\Html\Html;
 
 /**
  * Antispam filter helper.
- *
- * \Dotclear\Plugin\Antispam\Common\Spamfilter
  *
  * @ingroup  Plugin Antispam
  */

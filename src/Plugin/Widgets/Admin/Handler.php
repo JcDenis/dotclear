@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Widgets\Admin\Handler
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginWidgets
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Widgets\Admin;
 
+// Dotclear\Plugin\Widgets\Admin\Handler
 use ArrayObject;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -20,15 +18,29 @@ use Dotclear\Plugin\Widgets\Common\Widgets;
 use Dotclear\Plugin\Widgets\Common\WidgetsStack;
 use Exception;
 
+/**
+ * Widgets Admin page.
+ *
+ * @ingroup  Plugin Widgets
+ */
 class Handler extends AbstractPage
 {
-    /** @var Widgets Navigation widgets */
+    /**
+     * @var Widgets $widgets_nav
+     *              Navigation widgets
+     */
     private $widgets_nav;
 
-    /** @var Widgets Extra widgets */
+    /**
+     * @var Widgets $widgets_extra
+     *              Extra widgets
+     */
     private $widgets_extra;
 
-    /** @var Widgets Custom widgets */
+    /**
+     * @var Widgets $widgets_custom
+     *              Custom widgets
+     */
     private $widgets_custom;
 
     protected function getPermissions(): string|null|false

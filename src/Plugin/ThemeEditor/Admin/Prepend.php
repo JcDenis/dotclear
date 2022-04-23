@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\ThemeEditor\Admin\Prepend
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginThemeEditor
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\ThemeEditor\Admin;
 
+// Dotclear\Plugin\ThemeEditor\Admin\Prepend
 use Dotclear\Database\Cursor;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\File\Path;
@@ -20,6 +18,11 @@ use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 use Exception;
 
+/**
+ * Admin prepend for plugin ThemeEditor.
+ *
+ * @ingroup  Plugin ThemeEditor
+ */
 class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;

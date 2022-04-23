@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Pings\Admin\PingsBehavior
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginPings
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Pings\Admin;
 
+// Dotclear\Plugin\Pings\Admin\PingsBehavior
 use ArrayObject;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
@@ -19,6 +17,11 @@ use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Plugin\Pings\Common\PingsAPI;
 
+/**
+ * Amdin behaviors for plugin Pings.
+ *
+ * @ingroup  Plugin Pings Behavior
+ */
 class PingsBehavior
 {
     public function __construct()

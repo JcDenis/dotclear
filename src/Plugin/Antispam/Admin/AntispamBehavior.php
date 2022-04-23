@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Admin;
 
+// Dotclear\Plugin\Antispam\Admin\AntispamBehavior
 use ArrayObject;
 use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Helper\Html\Form;
@@ -17,8 +18,6 @@ use Dotclear\Plugin\Antispam\Common\Antispam;
 
 /**
  * Admin behaviors for plugin Antispam.
- *
- * \Dotclear\Plugin\Antispam\Admin\AntispamBehavior
  *
  * @ingroup  Plugin Antispam Behavior
  */

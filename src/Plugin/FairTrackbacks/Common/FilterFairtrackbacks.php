@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\FairTrackbacks\Common;
 
+// Dotclear\Plugin\FairTrackbacks\Common\FilterFairtrackbacks
 use ArrayObject;
 use Dotclear\Helper\Network\NetHttp\NetHttp;
 use Dotclear\Plugin\Antispam\Common\Spamfilter;
@@ -16,8 +17,6 @@ use Exception;
 
 /**
  * FairTrackbacks Antispam filter.
- *
- * \Dotclear\Plugin\FairTrackbacks\Common\FilterFairtrackbacks
  *
  * @ingroup  Plugin FairTrackbacks Antispam
  */

@@ -9,14 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\FairTrackbacks\Admin;
 
+// Dotclear\Plugin\FairTrackbacks\Admin\Prepend
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 use Dotclear\Plugin\FairTrackbacks\Common\FilterFairtrackbacks;
 
 /**
  * Admin prepend for plugin FairTrackbacks.
- *
- * \Dotclear\Plugin\FairTrackbacks\Admin\Prepend
  *
  * @ingroup  Plugin FairTrackbacks
  */

@@ -9,14 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Akismet\Common;
 
+// Dotclear\Plugin\Akismet\Common\AkismetBehavior
 use ArrayObject;
 
 /**
  * Akismet behaviors.
  *
- * \Dotclear\Plugin\Akismet\Common\AkismetBehavior
- *
- * @ingroup  Plugin Akismet
+ * @ingroup  Plugin Akismet Behavior
  */
 class AkismetBehavior
 {

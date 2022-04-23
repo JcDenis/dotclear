@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Blogroll\Admin;
 
+// Dotclear\Plugin\Blogroll\Admin\Handler
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Html\Form;
@@ -19,8 +20,6 @@ use Exception;
 
 /**
  * Admin page for blogrolls.
- *
- * \Dotclear\Plugin\Blogroll\Admin\Handler
  *
  * @ingroup  Plugin Blogroll
  */

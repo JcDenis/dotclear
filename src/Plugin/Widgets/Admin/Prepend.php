@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Widgets\Admin\Prepend
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginWidgets
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,12 +9,18 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Widgets\Admin;
 
+// Dotclear\Plugin\Widgets\Admin\Prepend
 use ArrayObject;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 use Dotclear\Plugin\Widgets\Common\Widgets;
 use Dotclear\Plugin\Widgets\Common\WidgetsStack;
 
+/**
+ * Admin prepend for plugin Widgets.
+ *
+ * @ingroup  Plugin Widgets
+ */
 class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;

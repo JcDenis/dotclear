@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Breadcrumb\Public;
 
+// Dotclear\Plugin\Breadcrumb\Public\Prepend
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
 
 /**
  * Public prepend for plugin Breacrumb.
- *
- * \Dotclear\Plugin\Breadcrumb\Public\Prepend
  *
  * @ingroup  Plugin Breadcrumb
  */

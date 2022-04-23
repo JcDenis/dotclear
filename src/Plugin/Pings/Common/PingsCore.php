@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Pings\Common\PingsCore
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginPings
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,6 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Pings\Common;
 
+// Dotclear\Plugin\Pings\Common\PingsCore
+
+/**
+ * Core methods for plugin Pings.
+ *
+ * @ingroup  Plugin Pings
+ */
 class PingsCore
 {
     public function __construct()

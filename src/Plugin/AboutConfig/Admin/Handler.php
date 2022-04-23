@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\AboutConfig\Admin;
 
+// Dotclear\Plugin\AboutConfig\Admin\Handler
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
@@ -16,8 +17,6 @@ use Exception;
 
 /**
  * Admin plugin page.
- *
- * \Dotclear\Plugin\AboutConfig\Admin\Handler
  *
  * @ingroup  Plugin AboutConfig
  */

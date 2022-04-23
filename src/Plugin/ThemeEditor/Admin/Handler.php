@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\ThemeEditor\Admin\Handler
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginThemeEditor
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,12 +9,18 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\ThemeEditor\Admin;
 
+// Dotclear\Plugin\ThemeEditor\Admin\Handler
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
 use Exception;
 
+/**
+ * ThemeEditor Admin page.
+ *
+ * @ingroup  Plugin ThemeEditor
+ */
 class Handler extends AbstractPage
 {
     private $te_theme;

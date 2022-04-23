@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Admin;
 
+// Dotclear\Plugin\Antispam\Admin\Handler
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
@@ -18,8 +19,6 @@ use Exception;
 
 /**
  * Admin page for plugin Antispam.
- *
- * \Dotclear\Plugin\Antispam\Admin\Handler
  *
  * @ingroup  Plugin Antispam
  */

@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Tags\Admin\Prepend
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginTags
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Tags\Admin;
 
+// Dotclear\Plugin\Tags\Admin\Prepend
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 use Dotclear\Plugin\Tags\Common\TagsCore;
@@ -19,6 +17,11 @@ use Dotclear\Plugin\Tags\Common\TagsUrl;
 use Dotclear\Plugin\Tags\Common\TagsXmlrpc;
 use Dotclear\Plugin\Tags\Common\TagsWidgets;
 
+/**
+ * Admin prepend for plugin Tags.
+ *
+ * @ingroup  Plugin Tags
+ */
 class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;

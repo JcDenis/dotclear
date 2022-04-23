@@ -9,14 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Blogroll\Common;
 
+// Dotclear\Plugin\Blogroll\Common\BlogrollWidgets
 use Dotclear\Plugin\Blogroll\Public\BlogrollTemplate;
 use Dotclear\Plugin\Widgets\Common\Widget;
 use Dotclear\Plugin\Widgets\Common\Widgets;
 
 /**
  * Plugin Widgets methods of plugin Blogroll.
- *
- * \Dotclear\Plugin\Blogroll\Common\BlogrollWidgets
  *
  * @ingroup  Plugin Blogroll Widgets
  */

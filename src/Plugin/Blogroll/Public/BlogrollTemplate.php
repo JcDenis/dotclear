@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Blogroll\Public;
 
+// Dotclear\Plugin\Blogroll\Public\BlogrollTemplate
 use ArrayObject;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
@@ -17,12 +18,16 @@ use Dotclear\Plugin\Blogroll\Common\Blogroll;
 /**
  * Public templates methods for plugin Blogroll.
  *
- * \Dotclear\Plugin\Blogroll\Public\BlogrollTemplate
- *
  * @ingroup  Plugin Blogroll Template
  */
 class BlogrollTemplate
 {
+    // \cond
+    // php tags break doxygen parser...
+    private static $toff = ' ?>';
+    private static $ton  = '<?php ';
+    // \endcond
+
     public function __construct()
     {
         dotclear()->template()->addValue('Blogroll', [$this, 'blogroll']);
@@ -53,14 +58,14 @@ class BlogrollTemplate
         }
 
         return
-            '<?php ' .
+            self::$ton .
             'echo ' . __CLASS__ . "::getList('" . $category . "','" . $block . "','" . $item . "'," . $only_cat . '); ' .
-            '?>';
+            self::$toff;
     }
 
     public function blogrollXbelLink(ArrayObject $attr): string
     {
-        return '<?php echo ' . sprintf(dotclear()->template()->getFilters($attr), 'dotclear()->blog()->getURLFor("xbel")') . '; ?>';
+        return self::$ton . 'echo ' . sprintf(dotclear()->template()->getFilters($attr), 'dotclear()->blog()->getURLFor("xbel")') . ';' . self::$toff;
     }
 
     public static function getList(string $cat_title = '<h3>%s</h3>', string $block = '<ul>%s</ul>', string $item = '<li>%s</li>', ?string $category = null): string

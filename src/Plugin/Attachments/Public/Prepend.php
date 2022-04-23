@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Attachments\Public;
 
+// Dotclear\Plugin\Attachments\Public\Prepend
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
 
 /**
  * Public prepend for plugin Attachments.
- *
- * \Dotclear\Plugin\Attachments\Public\Prepend
  *
  * @ingroup  Plugin Attachments
  */

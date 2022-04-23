@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\UserPref\Admin\Handler
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginUserPref
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,11 +9,17 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\UserPref\Admin;
 
+// Dotclear\Plugin\UserPref\Admin\Handler
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
 use Exception;
 
+/**
+ * UserPref Admin page.
+ *
+ * @ingroup  Plugin UserPref
+ */
 class Handler extends AbstractPage
 {
     protected function getPermissions(): string|null|false

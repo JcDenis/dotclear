@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Breadcrumb\Public;
 
+// Dotclear\Plugin\Breadcrumb\Public\BreadcrumbTemplate
 use ArrayObject;
 use Dotclear\Helper\Dt;
 use Dotclear\Helper\L10n;
@@ -16,12 +17,16 @@ use Dotclear\Helper\L10n;
 /**
  * Public templates for plugin Breacrumb.
  *
- * \Dotclear\Plugin\Breadcrumb\Public\BreadcrumbTemplate
- *
  * @ingroup  Plugin Breadcrumb Template
  */
 class BreadcrumbTemplate
 {
+    // \cond
+    // php tags break doxygen parser...
+    private static $toff = ' ?>';
+    private static $ton  = '<?php ';
+    // \endcond
+
     public function __construct()
     {
         dotclear()->template()->addValue('Breadcrumb', [$this, 'tplValueBreadcrumb']);
@@ -32,9 +37,9 @@ class BreadcrumbTemplate
     {
         $separator = $attr['separator'] ?? '';
 
-        return '<?php echo ' . __CLASS__ . '::tplDisplayBreadcrumb(' .
+        return self::$ton . 'echo ' . __CLASS__ . '::tplDisplayBreadcrumb(' .
         "'" . addslashes($separator) . "'" .
-            '); ?>';
+            ');' . self::$toff;
     }
 
     public static function tplDisplayBreadcrumb(string $separator): string

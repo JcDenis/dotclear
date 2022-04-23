@@ -14,11 +14,33 @@
 - [ ] use array instead of constant for all DOTLCEAR_xxx stuff
 - [ ] check extends class vs public method, ex: dotclear()->url->getPageNumber()
 - [ ] use class for html form elements and static method for simple cases
-- [ ] remove maximum php magic methods or add equivalent methods
+- [ ] remove maximum php magic methods and/or add equivalent methods
 - [ ] rework Dt class to use php DateTime class
 - [ ] fix public context and template
+- [ ] use sql statement everywhere it is possible
 
 ### Idea
 
 - Merge Distrib into Install
-- use Trait for instead of Utils::
+- Use container instead of array and ArrayObject (ie for getBLogs())
+
+### Done
+
+- Require PHP 8.1
+- Convert to full PHP namespace
+- Composer compliant (not tested)
+- PSR4, PSR12 compliant
+- Include used Clearbricks libraries
+- Use configuration array instead of DC_xx constants
+- Remove cursor and record magic method (and some other magics)
+- Convert lots of static class into dynamic
+- Split Core into sub parts (blogs, users, ...)
+- Convert plugins and themes into modules (also store and iconset)
+- Allow multiple path for themes (as for plugins)
+- Allow per blog path for plugins and themes
+- Use XML file for modules definition
+- Use virtual URLs for all resources
+- Remove GLOBALS (no more global $core;)
+- Use singleton dotclear() instance accessible from every where
+- Use doxygen for code documentation (not complete)
+- ...

@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\SimpleMenu\Common\SimpleMenuWidgets
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginSimpleMenu
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,14 +9,26 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\SimpleMenu\Common;
 
+// Dotclear\Plugin\SimpleMenu\Common\SimpleMenuWidgets
 use ArrayObject;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Plugin\Widgets\Common\Widget;
 use Dotclear\Plugin\Widgets\Common\Widgets;
 
+/**
+ * Widgets methods for plugin SmpleMenu.
+ *
+ * @ingroup  Plugin SimpleMenu Widgets
+ */
 class SimpleMenuWidgets
 {
+    // \cond
+    // php tags break doxygen parser...
+    private static $toff = ' ?>';
+    private static $ton  = '<?php ';
+    // \endcond
+
     public static $widgets;
 
     public function __construct()
@@ -70,11 +79,11 @@ class SimpleMenuWidgets
             $description = '';
         }
 
-        return '<?php echo ' . __CLASS__ . '::$widgets->displayMenu(' .
+        return self::$ton . 'echo ' . __CLASS__ . '::$widgets->displayMenu(' .
         "'" . addslashes($class) . "'," .
         "'" . addslashes($id) . "'," .
         "'" . addslashes($description) . "'" .
-            '); ?>';
+            ');' . self::$toff;
     }
 
     // Widget function

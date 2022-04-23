@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\CKEditor\Admin;
 
+// Dotclear\Plugin\CKEditor\Admin\Handler
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
@@ -16,8 +17,6 @@ use Exception;
 
 /**
  * Admin page for plugin CKEditor.
- *
- * \Dotclear\Plugin\CKEditor\Admin\Handler
  *
  * @ingroup  Plugin CKEditor
  */

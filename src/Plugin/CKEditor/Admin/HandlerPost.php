@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\CKEditor\Admin;
 
+// Dotclear\Plugin\CKEditor\Admin\HandlerPost
 use ArrayObject;
 use Dotclear\Module\AbstractPage;
 
 /**
  * Admin post page CKEditor integration.
- *
- * \Dotclear\Plugin\CKEditor\Admin\HandlerPost
  *
  * @ingroup  Plugin CKEditor Post
  */

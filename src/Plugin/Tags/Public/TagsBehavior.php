@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Tags\Public\TagsBehavior
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginTags
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,8 +9,14 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Tags\Public;
 
+// Dotclear\Plugin\Tags\Public\TagsBehavior
 use ArrayObject;
 
+/**
+ * Public behaviors for plugin Tags.
+ *
+ * @ingroup  Plugin Tags Behavior
+ */
 class TagsBehavior
 {
     public function __construct()

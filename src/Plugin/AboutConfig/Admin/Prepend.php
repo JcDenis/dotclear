@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\AboutConfig\Admin;
 
+// Dotclear\Plugin\AboutConfig\Admin\Prepend
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
 /**
  * Admin prepend for plugin AboutConfig.
- *
- * \Dotclear\Plugin\AboutConfig\Admin\Prepend
  *
  * @ingroup  Plugin AboutConfig
  */

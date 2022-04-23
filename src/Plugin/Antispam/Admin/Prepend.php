@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Admin;
 
+// Dotclear\Plugin\Antispam\Admin\Prepend
 use Dotclear\Database\Structure;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
@@ -18,8 +19,6 @@ use Dotclear\Plugin\Antispam\Common\Filter\FilterWords;
 
 /**
  * Admin prepend for plugin Antispam.
- *
- * \Dotclear\Plugin\Antispam\Admin\Prepend
  *
  * @ingroup  Plugin Antispam
  */

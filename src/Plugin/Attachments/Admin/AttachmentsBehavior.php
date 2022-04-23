@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Attachments\Admin;
 
+// Dotclear\Plugin\Attachments\Admin\AttachmentsBehavior
 use ArrayObject;
 use Dotclear\Database\Record;
 use Dotclear\Helper\File\Files;
@@ -16,9 +17,7 @@ use Dotclear\Helper\File\Files;
 /**
  * Admin behaviors for plugin Attachments.
  *
- * \Dotclear\Plugin\Attachments\Admin\AttachmentsBehavior
- *
- * @ingroup  Plugin Attachments Behaviors
+ * @ingroup  Plugin Attachments Behavior
  */
 class AttachmentsBehavior
 {

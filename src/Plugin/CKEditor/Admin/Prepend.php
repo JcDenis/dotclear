@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\CKEditor\Admin;
 
+// Dotclear\Plugin\CKEditor\Admin\Prepend
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
 /**
  * Admin prepend for plugin CKEditor.
- *
- * \Dotclear\Plugin\CKEditor\Admin\Prepend
  *
  * @ingroup  Plugin CKEditor
  */

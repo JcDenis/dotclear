@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Common\Filter;
 
+// Dotclear\Plugin\Antispam\Common\Filter\FilterIpookup
 use Dotclear\Plugin\Antispam\Common\Spamfilter;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\Form;
@@ -17,8 +18,6 @@ use Exception;
 
 /**
  * Antispam IP lookup filter.
- *
- * \Dotclear\Plugin\Antispam\Common\Filter\FilterIpookup
  *
  * @ingroup  Plugin Antispam
  */

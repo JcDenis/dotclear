@@ -12,13 +12,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Common;
 
+// Dotclear\Plugin\Antispam\Common\AntispamUrl
 use Dotclear\Core\Url\Url;
 use Dotclear\Helper\Html\Html;
 
 /**
  * URL handling of plugin Antispam.
- *
- * \Dotclear\Plugin\Antispam\Common\AntispamUrl
  *
  * @ingroup  Plugin Antispam Url
  */

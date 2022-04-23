@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Tags\Public\TagsTemplate
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginTags
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,10 +9,22 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Tags\Public;
 
+// Dotclear\Plugin\Tags\Public\TagsTemplate
 use ArrayObject;
 
+/**
+ * XML-RPC methods of plugin Tags.
+ *
+ * @ingroup  Plugin Tags Xmlrpc
+ */
 class TagsTemplate
 {
+    // \cond
+    // php tags break doxygen parser...
+    private static $toff = ' ?>';
+    private static $ton  = '<?php ';
+    // \endcond
+
     public function __construct()
     {
         dotclear()->template()->addBlock('Tags', [$this, 'Tags']);
@@ -61,16 +70,16 @@ class TagsTemplate
             $order = 'desc';
         }
 
-        $res = "<?php\n" .
+        $res = self::$ton . "\n" .
             "dotclear()->context()->set('meta', dotclear()->meta()->computeMetaStats(dotclear()->meta()->getMetadata(['meta_type'=>'"
             . $type . "','limit'=>" . $limit .
             ('meta_id_lower' != $sortby ? ",'order'=>'" . $sortby . ' ' . ('asc' == $order ? 'ASC' : 'DESC') . "'" : '') .
             ']))); ' .
             "dotclear()->context()->get('meta')->sort('" . $sortby . "','" . $order . "'); " .
-            '?>';
+            self::$toff;
 
-        $res .= '<?php while (dotclear()->context()->get("meta")->fetch()) : ?>' . $content . '<?php endwhile; ' .
-            'dotclear()->context()->set("meta", null); ?>';
+        $res .= self::$ton . 'while (dotclear()->context()->get("meta")->fetch()) :' . self::$toff . $content . self::$ton . 'endwhile; ' .
+            'dotclear()->context()->set("meta", null);' . self::$toff;
 
         return $res;
     }
@@ -78,17 +87,17 @@ class TagsTemplate
     public function TagsHeader(ArrayObject $attr, string $content): string
     {
         return
-            '<?php if (dotclear()->context()->get("meta")->isStart()) : ?>' .
+            self::$ton . 'if (dotclear()->context()->get("meta")->isStart()) :' . self::$toff .
             $content .
-            '<?php endif; ?>';
+            self::$ton . 'endif;' . self::$toff;
     }
 
     public function TagsFooter(ArrayObject $attr, string $content): string
     {
         return
-            '<?php if (dotclear()->context()->get("meta")->isEnd()) : ?>' .
+            self::$ton . 'if (dotclear()->context()->get("meta")->isEnd()) :' . self::$toff .
             $content .
-            '<?php endif; ?>';
+            self::$ton . 'endif;' . self::$toff;
     }
 
     public function EntryTags(ArrayObject $attr, string $content): string
@@ -107,13 +116,13 @@ class TagsTemplate
             $order = 'desc';
         }
 
-        $res = "<?php\n" .
+        $res = self::$ton . "\n" .
             "dotclear()->context()->set('meta', dotclear()->meta()->getMetaRecordset((string) dotclear()->context()->get('posts')->f('post_meta'),'" . $type . "')); " .
             "dotclear()->context()->get('meta')->sort('" . $sortby . "','" . $order . "'); " .
-            '?>';
+            self::$toff;
 
-        $res .= '<?php while (dotclear()->context()->get("meta")->fetch()) : ?>' . $content . '<?php endwhile; ' .
-            'dotclear()->context()->set("meta", null); ?>';
+        $res .= self::$ton . 'while (dotclear()->context()->get("meta")->fetch()) :' . self::$toff . $content . self::$ton . 'endwhile; ' .
+            'dotclear()->context()->set("meta", null);' . self::$toff;
 
         return $res;
     }
@@ -129,7 +138,7 @@ class TagsTemplate
         }
 
         if (!empty($if)) {
-            return '<?php if(' . implode(' ' . $operateur . ' ', $if) . ') : ?>' . $content . '<?php endif; ?>';
+            return self::$ton . 'if(' . implode(' ' . $operateur . ' ', $if) . ') :' . self::$toff . $content . self::$ton . 'endif;' . self::$toff;
         }
 
         return $content;
@@ -137,33 +146,33 @@ class TagsTemplate
 
     public function TagID(ArrayObject $attr): string
     {
-        return '<?php echo ' . sprintf(dotclear()->template()->getFilters($attr), 'dotclear()->context()->get("meta")->f("meta_id")') . '; ?>';
+        return self::$ton . 'echo ' . sprintf(dotclear()->template()->getFilters($attr), 'dotclear()->context()->get("meta")->f("meta_id")') . ';' . self::$toff;
     }
 
     public function TagCount(ArrayObject $attr): string
     {
-        return '<?php echo dotclear()->context()->get("meta")->fInt("count"); ?>';
+        return self::$ton . 'echo dotclear()->context()->get("meta")->fInt("count");' . self::$toff;
     }
 
     public function TagPercent(ArrayObject $attr): string
     {
-        return '<?php echo dotclear()->context()->get("meta")->f("percent"); ?>';
+        return self::$ton . 'echo dotclear()->context()->get("meta")->f("percent");' . self::$toff;
     }
 
     public function TagRoundPercent(ArrayObject $attr): string
     {
-        return '<?php echo dotclear()->context()->get("meta")->f("roundpercent"); ?>';
+        return self::$ton . 'echo dotclear()->context()->get("meta")->f("roundpercent");' . self::$toff;
     }
 
     public function TagURL(ArrayObject $attr): string
     {
-        return '<?php echo ' . sprintf(dotclear()->template()->getFilters($attr), 'dotclear()->blog()->getURLFor("tag",' .
-            'rawurlencode(dotclear()->context()->get("meta")->f("meta_id")))') . '; ?>';
+        return self::$ton . 'echo ' . sprintf(dotclear()->template()->getFilters($attr), 'dotclear()->blog()->getURLFor("tag",' .
+            'rawurlencode(dotclear()->context()->get("meta")->f("meta_id")))') . ';' . self::$toff;
     }
 
     public function TagCloudURL(ArrayObject $attr): string
     {
-        return '<?php echo ' . sprintf(dotclear()->template()->getFilters($attr), 'dotclear()->blog()->getURLFor("tags")') . '; ?>';
+        return self::$ton . 'echo ' . sprintf(dotclear()->template()->getFilters($attr), 'dotclear()->blog()->getURLFor("tags")') . ';' . self::$toff;
     }
 
     public function TagFeedURL(ArrayObject $attr): string
@@ -174,7 +183,7 @@ class TagsTemplate
             $type = 'rss2';
         }
 
-        return '<?php echo ' . sprintf(dotclear()->template()->getFilters($attr), 'dotclear()->blog()->getURLFor("tag_feed",' .
-            'rawurlencode(dotclear()->context()->get("meta")->f("meta_id"))."/' . $type . '")') . '; ?>';
+        return self::$ton . 'echo ' . sprintf(dotclear()->template()->getFilters($attr), 'dotclear()->blog()->getURLFor("tag_feed",' .
+            'rawurlencode(dotclear()->context()->get("meta")->f("meta_id"))."/' . $type . '")') . ';' . self::$toff;
     }
 }

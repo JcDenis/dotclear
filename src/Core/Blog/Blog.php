@@ -473,8 +473,8 @@ class Blog
             ;
 
             if (array_key_exists($post_id, $posts)) {
-                $sql->set('nb_trackback = ' . array_key_exists('trackback', $posts[$post_id]) ? $posts[$post_id]['trackback'] : 0);
-                $sql->set('nb_comment = ' . array_key_exists('comment', $posts[$post_id]) ? $posts[$post_id]['comment'] : 0);
+                $sql->set('nb_trackback = ' . (array_key_exists('trackback', $posts[$post_id]) ? $posts[$post_id]['trackback'] : 0));
+                $sql->set('nb_comment = ' . (array_key_exists('comment', $posts[$post_id]) ? $posts[$post_id]['comment'] : 0));
             } else {
                 $sql->set('nb_trackback = 0');
                 $sql->set('nb_comment = 0');

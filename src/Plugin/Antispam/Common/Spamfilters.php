@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Common;
 
+// Dotclear\Plugin\Antispam\Common\Spamfilters
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
 
 /**
  * Antispam filters stack.
- *
- * \Dotclear\Plugin\Antispam\Common\Spamfilters
  *
  * @ingroup  Plugin Antispam Stack
  */

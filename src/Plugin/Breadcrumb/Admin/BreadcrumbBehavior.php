@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Breadcrumb\Admin;
 
+// Dotclear\Plugin\Breadcrumb\Admin\BreadcrumbBehavior
 use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Helper\Html\Form;
 
 /**
  * Admin behaviors for plugin Breacrumb.
- *
- * \Dotclear\Plugin\Breadcrumb\Admin\BreadcrumbBehavior
  *
  * @ingroup  Plugin Breadcrumb Behavior
  */

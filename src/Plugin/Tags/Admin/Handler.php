@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Tags\Admin\Handler
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginTags
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Tags\Admin;
 
+// Dotclear\Plugin\Tags\Admin\Handler
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
@@ -19,6 +17,11 @@ use Dotclear\Process\Admin\Action\Action\PostAction;
 use Dotclear\Process\Admin\Inventory\Inventory\PostInventory;
 use Exception;
 
+/**
+ * Tags Admin page.
+ *
+ * @ingroup  Plugin Tags
+ */
 class Handler extends AbstractPage
 {
     private $t_tag = '';

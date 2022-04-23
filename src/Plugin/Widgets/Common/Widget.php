@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Widgets\Common\Widget
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginWidgets
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,9 +9,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Widgets\Common;
 
+// Dotclear\Plugin\Widgets\Common\Widget
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\Form;
 
+/**
+ * Widget object.
+ *
+ * @ingroup  Plugin Widgets
+ */
 class Widget
 {
     /** Widget displayed on every page */
@@ -26,10 +29,16 @@ class Widget
     /** Widget displayed on every page but home page */
     public const EXCEPT_HOME = 2;
 
-    /** @var mixed Widget callback function */
+    /**
+     * @var mixed $append_callback
+     *            Widget callback function
+     */
     public $append_callback;
 
-    /** @var array Widget settings */
+    /**
+     * @var array $settings
+     *            Widget settings
+     */
     protected $settings = [];
 
     /**
@@ -37,7 +46,7 @@ class Widget
      *
      * @param int|string $order Widget order
      *
-     * @return array Serialized widget settngs
+     * @return array Serialized widget settings
      */
     public function serialize(string|int $order): array
     {

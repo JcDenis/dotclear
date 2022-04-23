@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Pings\Admin\Prepend
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginPings
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,10 +9,16 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Pings\Admin;
 
+// Dotclear\Plugin\Pings\Admin\Prepend
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 use Dotclear\Plugin\Pings\Common\PingsCore;
 
+/**
+ * Admin prepend for plugin Pings.
+ *
+ * @ingroup  Plugin Pings
+ */
 class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;

@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Breadcrumb\Admin;
 
+// Dotclear\Plugin\Breadcrumb\Admin\Prepend
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
 /**
  * Admin prepend for plugin Breadcrumb.
- *
- * \Dotclear\Plugin\Breadcrumb\Admin\Prepend
  *
  * @ingroup  Plugin Breadcrumb
  */

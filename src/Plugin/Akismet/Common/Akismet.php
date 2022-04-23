@@ -9,14 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Akismet\Common;
 
+// Dotclear\Plugin\Akismet\Common\Akismet
 use Dotclear\Helper\Network\NetHttp\NetHttp;
 use Dotclear\Helper\Network\Http;
 use Exception;
 
 /**
  * Akismet management.
- *
- * \Dotclear\Plugin\Akismet\Common\Akismet
  *
  * @ingroup  Plugin Akismet
  */

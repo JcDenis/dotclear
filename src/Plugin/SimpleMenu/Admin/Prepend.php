@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\SimpleMenu\Admin\Prepend
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginSimpleMenu
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,11 +9,17 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\SimpleMenu\Admin;
 
+// Dotclear\Plugin\SimpleMenu\Admin\Prepend
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 use Dotclear\Plugin\SimpleMenu\Common\SimpleMenuWidgets;
 
+/**
+ * Admin prepend for plugin SimpleMenu.
+ *
+ * @ingroup  Plugin SimpleMenu
+ */
 class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;

@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Tags\Common\TagsUrl
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginTags
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,8 +9,14 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Tags\Common;
 
+// Dotclear\Plugin\Tags\Common\TagsUrl
 use Dotclear\Core\Url\Url;
 
+/**
+ * URL methods of plugin Tags.
+ *
+ * @ingroup  Plugin Tags Url
+ */
 class TagsUrl extends Url
 {
     public function __construct()

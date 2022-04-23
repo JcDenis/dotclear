@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Tags\Common\TagsCore
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginTags
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,9 +9,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Tags\Common;
 
+// Dotclear\Plugin\Tags\Common\TagsCore
 use Dotclear\Core\Wiki\Wiki2xhtml;
 use Dotclear\Helper\Html\Html;
 
+/**
+ * Core methods of plugin Tags.
+ *
+ * @ingroup  Plugin Tags
+ */
 class TagsCore
 {
     public function __construct()

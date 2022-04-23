@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Common\Filter;
 
+// Dotclear\Plugin\Antispam\Common\Filter\FilterIp
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\InsertStatement;
@@ -22,8 +23,6 @@ use Exception;
 
 /**
  * Antispam IP filter.
- *
- * \Dotclear\Plugin\Antispam\Common\Filter\FilterIp
  *
  * @ingroup  Plugin Antispam
  */

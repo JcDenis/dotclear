@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Buildtools\Admin;
 
+// Dotclear\Plugin\Buildtools\Admin\L10nFaker
 use Dotclear\Plugin\Widgets\Common\WidgetsStack;
 
 /**
  * Buildtools L10n faker.
- *
- * \Dotclear\Plugin\Buildtools\Admin\L10nFaker
  *
  * @warning
  * Do not use l10nFaker without production mode ON

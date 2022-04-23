@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Akismet\Common;
 
+// Dotclear\Plugin\Akismet\Common\FilterAkismet
 use Dotclear\Database\Record;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -18,8 +19,6 @@ use Exception;
 
 /**
  * Akismet Antispam filter.
- *
- * \Dotclear\Plugin\Akismet\Common\FilterAkismet
  *
  * @ingroup  Plugin Akismet Antispam
  */

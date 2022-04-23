@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Widgets\Common\Widgets
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginWidgets
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,11 +9,20 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Widgets\Common;
 
+// Dotclear\Plugin\Widgets\Common\Widgets
 use Dotclear\Helper\Lexical;
 
+/**
+ * Widgets handler.
+ *
+ * @ingroup  Plugin Widgets
+ */
 class Widgets
 {
-    /** @var array<string, Widget>   Widgets */
+    /**
+     * @var array<string, Widget> $__widgets
+     *                            Widgets
+     */
     private $__widgets = [];
 
     /**

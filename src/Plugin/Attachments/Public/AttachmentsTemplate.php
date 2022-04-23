@@ -1,20 +1,30 @@
 <?php
-
+/**
+ * @package Dotclear
+ *
+ * @copyright Olivier Meunier & Association Dotclear
+ * @copyright GPL-2.0-only
+ */
 declare(strict_types=1);
 
 namespace Dotclear\Plugin\Attachments\Public;
 
+// Dotclear\Plugin\Attachments\Public\AttachmentsTemplate
 use ArrayObject;
 
 /**
  * Public templates for plugin Attachments.
  *
- * \Dotclear\Plugin\Attachments\Public\AttachmentsTemplate
- *
  * @ingroup  Plugin Attachments Template
  */
 class AttachmentsTemplate
 {
+    // \cond
+    // php tags break doxygen parser...
+    private static $toff = ' ?>';
+    private static $ton  = '<?php ';
+    // \endcond
+
     public function __construct()
     {
         dotclear()->template()->addBlock('Attachments', [$this, 'Attachments']);
@@ -39,18 +49,18 @@ class AttachmentsTemplate
      */
     public function Attachments(ArrayObject $attr, string $content): string
     {
-        return "<?php\n" .
+        return self::$ton . "\n" .
             'if (dotclear()->context()->get("posts") !== null) {' . "\n" .
             'dotclear()->context()->set("attachments", new ArrayObject(dotclear()->media()->getPostMedia(dotclear()->context()->get("posts")->fInt("post_id"),null,"attachment")));' . "\n" .
             "?>\n" .
 
-            '<?php foreach (dotclear()->context()->get("attachments") as $attach_i => $attach_f) : ' .
+            self::$ton . 'foreach (dotclear()->context()->get("attachments") as $attach_i => $attach_f) : ' .
             '$GLOBALS[\'attach_i\'] = $attach_i; $GLOBALS[\'attach_f\'] = $attach_f;' .
-            'dotclear()->context()->set("file_url", $attach_f->file_url); ?>' .
+            'dotclear()->context()->set("file_url", $attach_f->file_url);' . self::$toff .
             $content .
-            '<?php endforeach; dotclear()->context()->set("attachments", null); unset($attach_i,$attach_f); dotclear()->context()->set("file_url", null); ?>' .
+            self::$ton . 'endforeach; dotclear()->context()->set("attachments", null); unset($attach_i,$attach_f); dotclear()->context()->set("file_url", null);' . self::$toff .
 
-            "<?php } ?>\n";
+            self::$ton . '}' . self::$toff . "\n";
     }
 
     /*dtd
@@ -59,9 +69,9 @@ class AttachmentsTemplate
     public function AttachmentsHeader(ArrayObject $attr, string $content): string
     {
         return
-            '<?php if ($attach_i == 0) : ?>' .
+            self::$ton . 'if ($attach_i == 0) :' . self::$toff .
             $content .
-            '<?php endif; ?>';
+            self::$ton . 'endif;' . self::$toff;
     }
 
     /*dtd
@@ -70,9 +80,9 @@ class AttachmentsTemplate
     public function AttachmentsFooter(ArrayObject $attr, string $content): string
     {
         return
-            '<?php if ($attach_i+1 == count(dotclear()->context()->get("attachments"))) : ?>' .
+            self::$ton . 'if ($attach_i+1 == count(dotclear()->context()->get("attachments"))) :' . self::$toff .
             $content .
-            '<?php endif; ?>';
+            self::$ton . 'endif;' . self::$toff;
     }
 
     /*dtd
@@ -130,7 +140,7 @@ class AttachmentsTemplate
         }
 
         if (count($if) != 0) {
-            return '<?php if(' . implode(' ' . $operator . ' ', (array) $if) . ') : ?>' . $content . '<?php endif; ?>';
+            return self::$ton . 'if(' . implode(' ' . $operator . ' ', (array) $if) . ') :' . self::$toff . $content . self::$ton . 'endif;' . self::$toff;
         }
 
         return $content;
@@ -141,7 +151,7 @@ class AttachmentsTemplate
      */
     public function AttachmentMimeType(ArrayObject $attr): string
     {
-        return '<?php echo ' . sprintf(dotclear()->template()->getFilters($attr), '$attach_f->type') . '; ?>';
+        return self::$ton . 'echo ' . sprintf(dotclear()->template()->getFilters($attr), '$attach_f->type') . ';' . self::$toff;
     }
 
     /*dtd
@@ -149,7 +159,7 @@ class AttachmentsTemplate
      */
     public function AttachmentType(ArrayObject $attr): string
     {
-        return '<?php echo ' . sprintf(dotclear()->template()->getFilters($attr), '$attach_f->media_type') . '; ?>';
+        return self::$ton . 'echo ' . sprintf(dotclear()->template()->getFilters($attr), '$attach_f->media_type') . ';' . self::$toff;
     }
 
     /*dtd
@@ -157,7 +167,7 @@ class AttachmentsTemplate
      */
     public function AttachmentFileName(ArrayObject $attr): string
     {
-        return '<?php echo ' . sprintf(dotclear()->template()->getFilters($attr), '$attach_f->basename') . '; ?>';
+        return self::$ton . 'echo ' . sprintf(dotclear()->template()->getFilters($attr), '$attach_f->basename') . ';' . self::$toff;
     }
 
     /*dtd
@@ -168,12 +178,12 @@ class AttachmentsTemplate
      */
     public function AttachmentSize(ArrayObject $attr): string
     {
-        return '<?php echo ' . sprintf(
+        return self::$ton . 'echo ' . sprintf(
             dotclear()->template()->getFilters($attr),
             empty($attr['full']) ?
             'Dotclear\Helper\File\Files::size($attach_f->size)' :
             '$attach_f->size'
-        ) . '; ?>';
+        ) . ';' . self::$toff;
     }
 
     /*dtd
@@ -181,7 +191,7 @@ class AttachmentsTemplate
      */
     public function AttachmentTitle(ArrayObject $attr): string
     {
-        return '<?php echo ' . sprintf(dotclear()->template()->getFilters($attr), '$attach_f->media_title') . '; ?>';
+        return self::$ton . 'echo ' . sprintf(dotclear()->template()->getFilters($attr), '$attach_f->media_title') . ';' . self::$toff;
     }
 
     /*dtd
@@ -190,7 +200,7 @@ class AttachmentsTemplate
     public function AttachmentThumbnailURL(ArrayObject $attr): string
     {
         return
-        '<?php ' .
+        self::$ton .
         'if (isset($attach_f->media_thumb[\'sq\'])) {' .
         'echo ' . sprintf(dotclear()->template()->getFilters($attr), '$attach_f->media_thumb[\'sq\']') . ';' .
             '}' .
@@ -202,12 +212,12 @@ class AttachmentsTemplate
      */
     public function AttachmentURL(ArrayObject $attr): string
     {
-        return '<?php echo ' . sprintf(dotclear()->template()->getFilters($attr), '$attach_f->file_url') . '; ?>';
+        return self::$ton . 'echo ' . sprintf(dotclear()->template()->getFilters($attr), '$attach_f->file_url') . ';' . self::$toff;
     }
 
     public function MediaURL(ArrayObject $attr): string
     {
-        return '<?php echo ' . sprintf(dotclear()->template()->getFilters($attr), 'dotclear()->context()->get("file_url")') . '; ?>';
+        return self::$ton . 'echo ' . sprintf(dotclear()->template()->getFilters($attr), 'dotclear()->context()->get("file_url")') . ';' . self::$toff;
     }
 
     /*dtd

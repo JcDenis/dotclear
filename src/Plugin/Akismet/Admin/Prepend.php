@@ -9,14 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Akismet\Admin;
 
+// Dotclear\Plugin\Akismet\Admin\Prepend
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 use Dotclear\Plugin\Akismet\Common\AkismetBehavior;
 
 /**
  * Admin prepend for plugin Akismet.
- *
- * \Dotclear\Plugin\Akismet\Admin\Prepend
  *
  * @ingroup  Plugin Akismet
  */

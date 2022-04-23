@@ -1,16 +1,20 @@
 <?php
-
+/**
+ * @package Dotclear
+ *
+ * @copyright Olivier Meunier & Association Dotclear
+ * @copyright GPL-2.0-only
+ */
 declare(strict_types=1);
 
 namespace Dotclear\Plugin\CKEditor\Admin;
 
+// Dotclear\Plugin\CKEditor\Admin\CKEditorBehavior
 use ArrayObject;
 use Dotclear\Helper\Html\Html;
 
 /**
- * Amdin behaviors for plugin CKEditor.
- *
- * \Dotclear\Plugin\CKEditor\Admin\CKEditorBehavior
+ * Admin behaviors for plugin CKEditor.
  *
  * @ingroup  Plugin CKEditor Behavior
  */

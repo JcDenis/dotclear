@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Blogroll\Admin;
 
+// Dotclear\Plugin\Blogroll\Admin\HandlerEdit
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
@@ -18,13 +19,14 @@ use Exception;
 /**
  * Admin page for a Blogroll.
  *
- * \Dotclear\Plugin\Blogroll\Admin\HandlerEdit
- *
  * @ingroup  Plugin Blogroll
  */
 class HandlerEdit extends AbstractPage
 {
-    /** @var Blogroll Blogroll instance */
+    /**
+     * @var Blogroll $br_blogroll
+     *               Blogroll instance
+     */
     private $br_blogroll;
     private $br_id         = 0;
     private $br_has_rs     = false;

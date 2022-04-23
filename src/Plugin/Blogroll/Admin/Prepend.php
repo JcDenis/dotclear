@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Blogroll\Admin;
 
+// Dotclear\Plugin\Blogroll\Admin\Prepend
 use Dotclear\Database\Structure;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
@@ -16,8 +17,6 @@ use Dotclear\Plugin\Blogroll\Common\BlogrollWidgets;
 
 /**
  * Admin prepend for plugin Blogroll.
- *
- * \Dotclear\Plugin\Blogroll\Admin\Prepend
  *
  * @ingroup  Plugin Blogroll
  */

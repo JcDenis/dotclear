@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Tags\Common\TagsXmlrpc
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginTags
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,9 +9,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Tags\Common;
 
+// Dotclear\Plugin\Tags\Common\TagsXmlrpc
 use Dotclear\Database\Cursor;
 use Dotclear\Core\Xmlrpc\Xmlrpc;
 
+/**
+ * XML-RPC methods of plugin Tags.
+ *
+ * @ingroup  Plugin Tags Xmlrpc
+ */
 class TagsXmlrpc
 {
     public function __construct()

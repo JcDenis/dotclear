@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Tags\Public\Prepend
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginTags
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,12 +9,18 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Tags\Public;
 
+// Dotclear\Plugin\Tags\Public\Prepend
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
 use Dotclear\Plugin\Tags\Common\TagsUrl;
 use Dotclear\Plugin\Tags\Common\TagsXmlrpc;
 use Dotclear\Plugin\Tags\Common\TagsWidgets;
 
+/**
+ * Public prepend for plugin Tags.
+ *
+ * @ingroup  Plugin Tags
+ */
 class Prepend extends AbstractPrepend
 {
     use TraitPrependPublic;

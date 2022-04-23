@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Blogroll\Common;
 
+// Dotclear\Plugin\Blogroll\Common\Blogroll
 use ArrayObject;
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
@@ -20,8 +21,6 @@ use Dotclear\Exception\ModuleException;
 
 /**
  * Blogroll handling methods.
- *
- * \Dotclear\Plugin\Blogroll\Common\Blogroll
  *
  * @ingroup  Plugin Blogroll
  */

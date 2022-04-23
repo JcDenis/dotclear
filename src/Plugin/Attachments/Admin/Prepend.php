@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Attachments\Admin;
 
+// Dotclear\Plugin\Attachments\Admin\Prepend
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
 /**
  * Admin prepend for plugin Attachments.
- *
- * \Dotclear\Plugin\Attachments\Admin\Prepend
  *
  * @ingroup  Plugin Attachments
  */

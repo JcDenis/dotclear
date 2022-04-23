@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\ThemeEditor\Admin\ThemeEditor
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginThemeEditor
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\ThemeEditor\Admin;
 
+// Dotclear\Plugin\ThemeEditor\Admin\ThemeEditor
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
@@ -19,6 +17,11 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\L10n;
 use Exception;
 
+/**
+ * ThemeEditor handler.
+ *
+ * @ingroup  Plugin ThemeEditor
+ */
 class ThemeEditor
 {
     protected $user_theme;

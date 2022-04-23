@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Common;
 
+// Dotclear\Core\RsExt\RsExtComment
 use Dotclear\Core\RsExt\RsExtend;
 use Dotclear\Database\Statement\SelectStatement;
 
 /**
  * Comment Record extension of plugin Antispam.
- *
- * \Dotclear\Core\RsExt\RsExtComment
  *
  * This class adds new methods to database comment results.
  * You can call them on every record comming from dcBlog::getComments and similar

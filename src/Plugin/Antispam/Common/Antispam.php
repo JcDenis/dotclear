@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Common;
 
+// Dotclear\Plugin\Antispam\Common\Antispam
 use ArrayObject;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
@@ -23,13 +24,14 @@ use Dotclear\Process\Admin\Action\Action;
 /**
  * Antispam main class.
  *
- * \Dotclear\Plugin\Antispam\Common\Antispam
- *
  * @ingroup  Plugin Antispam
  */
 class Antispam
 {
-    /** @var null|Spamfilters Spamfitlers instance */
+    /**
+     * @var null|Spamfilters $filters
+     *                       Spamfitlers instance
+     */
     public $filters;
 
     public function __construct()

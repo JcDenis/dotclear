@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Blogroll\Public;
 
+// Dotclear\Plugin\Blogroll\Public\Prepend
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
 use Dotclear\Plugin\Blogroll\Common\BlogrollUrl;
@@ -16,8 +17,6 @@ use Dotclear\Plugin\Blogroll\Common\BlogrollWidgets;
 
 /**
  * Public prepend for plugin Blogroll.
- *
- * \Dotclear\Plugin\Blogroll\Public\Prepend
  *
  * @ingroup  Plugin Blogroll
  */

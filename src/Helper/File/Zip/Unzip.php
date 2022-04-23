@@ -397,7 +397,7 @@ class Unzip
                 }
 
                 foreach ($dir_list as $k => $v) {
-                    if (!$exclude && preg_match($exclude, (string) $k)) {
+                    if (!empty($exclude) && preg_match($exclude, (string) $k)) {
                         continue;
                     }
 

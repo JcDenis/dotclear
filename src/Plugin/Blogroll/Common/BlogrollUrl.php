@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Blogroll\Common;
 
+// Dotclear\Plugin\Blogroll\Common\BlogrollUrl
 use Dotclear\Core\Url\Url;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
@@ -16,8 +17,6 @@ use Exception;
 
 /**
  * Plugin Blogroll URL methods.
- *
- * \Dotclear\Plugin\Blogroll\Common\BlogrollUrl
  *
  * @ingroup  Plugin Blogroll Url
  */

@@ -9,14 +9,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\FairTrackbacks\Public;
 
+// Dotclear\Plugin\FairTrackbacks\Public\Prepend
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
 use Dotclear\Plugin\FairTrackbacks\Common\FilterFairtrackbacks;
 
 /**
  * Public prepend for plugin FairTrackbacks.
- *
- * \Dotclear\Plugin\FairTrackbacks\Public\Prepend
  *
  * @ingroup  Plugin FairTrackbacks
  */

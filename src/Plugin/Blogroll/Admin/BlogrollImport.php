@@ -9,19 +9,21 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Blogroll\Admin;
 
+// Dotclear\Plugin\Blogroll\Admin\BlogrollImport
 use StdClass;
 use Dotclear\Exception\ModuleException;
 
 /**
  * Import methods for plugin Blogroll.
  *
- * \Dotclear\Plugin\Blogroll\Admin\BlogrollImport
- *
  * @ingroup  Plugin Blogroll
  */
 class BlogrollImport
 {
-    /** @var array<int, string>        Imported entries */
+    /**
+     * @var array<int, string> $entries
+     *                         Imported entries
+     */
     protected $entries = [];
 
     public static function loadFile(string $file): array

@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Common\Filter;
 
+// Dotclear\Plugin\Antispam\Common\Filter\FilterIpv6
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\InsertStatement;
@@ -22,8 +23,6 @@ use Exception;
 
 /**
  * Antispam IPv6 filter.
- *
- * \Dotclear\Plugin\Antispam\Common\Filter\FilterIpv6
  *
  * @ingroup  Plugin Antispam
  */

@@ -247,6 +247,36 @@
  * Trackback validity check.
  * 
  * 
+ * @defgroup  Pings Plugin "Pings"
+ *
+ * Ping services.
+ * 
+ * 
+ * @defgroup  SimpleMenu Plugin "Simple menu"
+ *
+ * Simple menu for Dotclear.
+ * 
+ * 
+ * @defgroup  Tags Plugin "Tags"
+ *
+ * Tags for posts.
+ * 
+ * 
+ * @defgroup  ThemeEditor Plugin "themeEditor"
+ *
+ * Theme Editor.
+ * 
+ * 
+ * @defgroup  UserPref Plugin "user:preferences"
+ *
+ * Manage every user preference directive.
+ * 
+ * 
+ * @defgroup  Widgets Plugin "Widgets"
+ *
+ * Widgets for your blog sidebars.
+ * 
+ * 
  * @defgroup  Berlin Theme "Berlin"
  *
  * Dotclear 2.7+ default theme

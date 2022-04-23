@@ -9,12 +9,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Antispam\Common\Filter;
 
+// Dotclear\Plugin\Antispam\Common\Filter\FilterLinkslookup
 use Dotclear\Plugin\Antispam\Common\Spamfilter;
 
 /**
  * Antispam Links Lookup filter.
- *
- * \Dotclear\Plugin\Antispam\Common\Filter\FilterLinkslookup
  *
  * @ingroup  Plugin Antispam
  */

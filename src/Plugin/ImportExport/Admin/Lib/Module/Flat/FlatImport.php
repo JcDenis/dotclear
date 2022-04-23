@@ -146,9 +146,9 @@ class FlatImport extends FlatBackup
             "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "'"
         );
 
-        if ((int) $rs->cat_rgt > 0) {
+        if ((int) $rs->fInt('cat_rgt') > 0) {
             $this->has_categories                           = true;
-            $this->stack['cat_lft'][dotclear()->blog()->id] = (int) $rs->cat_rgt + 1;
+            $this->stack['cat_lft'][dotclear()->blog()->id] = (int) $rs->fInt('cat_rgt') + 1;
         }
 
         dotclear()->con()->begin();

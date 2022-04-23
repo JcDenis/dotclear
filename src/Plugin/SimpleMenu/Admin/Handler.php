@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\SimpleMenu\Admin\Handler
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginSimpleMenu
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\SimpleMenu\Admin;
 
+// Dotclear\Plugin\SimpleMenu\Admin\Handler
 use ArrayObject;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\Html\Form;
@@ -19,6 +17,11 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
 use Exception;
 
+/**
+ * Admin page for plugin SimpleMenu.
+ *
+ * @ingroup  Plugin SimpleMenu
+ */
 class Handler extends AbstractPage
 {
     private $sm_items;

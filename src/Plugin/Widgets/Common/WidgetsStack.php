@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Widgets\Common\WidgetsStack
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginWidgets
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Widgets\Common;
 
+// Dotclear\Plugin\Widgets\Common\WidgetsStack
 use ArrayObject;
 use Dotclear\Database\Record;
 use Dotclear\Helper\L10n;
@@ -19,15 +17,29 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Feed\Reader;
 use SimpleXMLElement;
 
+/**
+ * Widgets stack.
+ *
+ * @ingroup  Plugin Widgets
+ */
 class WidgetsStack
 {
-    /** @var WidgetsStack @stack  Self instance */
+    /**
+     * @var WidgetsStack $stack
+     *                   Self instance
+     */
     public static $stack;
 
-    /** @var Widgets Widgets */
+    /**
+     * @var Widgets $__widgets
+     *              Widgets
+     */
     public static $__widgets;
 
-    /** @var array<string, Widgets>   Default widgets */
+    /**
+     * @var array<string, Widgets> $__default_widgets
+     *                             Default widgets
+     */
     public static $__default_widgets;
 
     /**
@@ -38,6 +50,7 @@ class WidgetsStack
         $this->initWidgets();
         self::$stack = $this;
 
+        // Add widget to template engine on public side (frontend)
         if (dotclear()->processed('Public')) {
             dotclear()->template()->addValue('Widgets', [$this, 'tplWidgets']);
             dotclear()->template()->addBlock('Widget', [$this, 'tplWidget']);
