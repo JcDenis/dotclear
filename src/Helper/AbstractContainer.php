@@ -28,20 +28,20 @@ abstract class AbstractContainer
     protected $id = '';
 
     /**
-     * @var array<string, mixed> $info
-     *                           Default properties
+     * @var array<string,mixed> $info
+     *                          Default properties
      */
     protected $info = [];
 
     /**
-     * @var array<string, mixed> $row
-     *                           Properties
+     * @var array<string,mixed> $row
+     *                          Properties
      */
     private $row = [];
 
     /**
-     * @var array<string, mixed> $change
-     *                           Modified properties
+     * @var array<string,mixed> $change
+     *                          Modified properties
      */
     private $change = [];
 

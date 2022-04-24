@@ -23,8 +23,8 @@ use Exception;
 class Repository
 {
     /**
-     * @var array<string, int> $weighting
-     *                         Modules fields to search on and their weighting
+     * @var array<string,int> $weighting
+     *                        Modules fields to search on and their weighting
      */
     public static $weighting = [
         'id'     => 10,
@@ -41,8 +41,8 @@ class Repository
     protected $user_agent = 'DotClear.org RepoBrowser/0.1';
 
     /**
-     * @var array<string, array> $data
-     *                           Array of new/update modules from repository
+     * @var array<string,array> $data
+     *                          Array of new/update modules from repository
      */
     protected $data = ['new' => [], 'update' => []];
 

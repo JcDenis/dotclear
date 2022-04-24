@@ -58,26 +58,20 @@ class User
     protected $blog_table = 'blog';
 
     /**
-     * @var array $permissions
-     *            Permissions for each blog
-     */
-    protected $permissions = [];
-
-    /**
      * @var bool $allow_pass_change
      *           User can change its password
      */
     protected $allow_pass_change = true;
 
     /**
-     * @var array $blogs
-     *            List of blogs on which the user has permissions
+     * @var array<string,array> $blogs
+     *                          List of blogs on which the user has permissions
      */
     protected $blogs = [];
 
     /**
-     * @var array $perm_types
-     *            Permission types
+     * @var array<string,string> $perm_types
+     *                           Permission types
      */
     protected $perm_types = [];
 

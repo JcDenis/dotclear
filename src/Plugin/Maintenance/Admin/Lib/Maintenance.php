@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginMaintenance
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,27 +9,49 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Maintenance\Admin\Lib;
 
+// Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance
+
 /**
  * Main class to call everything related to maintenance.
+ *
+ * @ingroup  Plugin Maintenance
  */
 class Maintenance
 {
-    /** @var string Plugin URL */
+    /**
+     * @var string $p_url
+     *             Plugin URL
+     */
     public $p_url = '';
 
-    /** @var array<string, MaintenanceTask>      Tasks */
+    /**
+     * @var array<string,MaintenanceTask> $tasks
+     *                                    Tasks
+     */
     private $tasks = [];
 
-    /** @var array<string, string>     Tasks class name */
+    /**
+     * @var array<string,string> $tasks_id
+     *                           Tasks class name
+     */
     private $tasks_id = [];
 
-    /** @var array<string, MaintenanceDescriptor>      Tasks tabs */
+    /**
+     * @var array<string,MaintenanceDescriptor> $tabs
+     *                                          Tasks tabs
+     */
     private $tabs = [];
 
-    /** @var array<string, MaintenanceDescriptor>     Tasks groups */
+    /**
+     * @var array<string,MaintenanceDescriptor> $groups
+     *                                          Tasks groups
+     */
     private $groups = [];
 
-    /** @var array<string, array>      Logs */
+    /**
+     * @var array<string,array> $logs
+     *                          Logs
+     */
     private $logs;
 
     /**

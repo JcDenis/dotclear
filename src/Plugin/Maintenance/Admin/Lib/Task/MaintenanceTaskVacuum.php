@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskVacuum
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginMaintenance
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,9 +9,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Maintenance\Admin\Lib\Task;
 
+// Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskVacuum
 use Dotclear\Database\AbstractSchema;
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
+/**
+ * Database vacuum maintenance Task.
+ *
+ * @ingroup  Plugin Maintenance Task
+ */
 class MaintenanceTaskVacuum extends MaintenanceTask
 {
     protected $group = 'optimize';

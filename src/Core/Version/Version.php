@@ -31,8 +31,8 @@ class Version
     protected $table = 'version';
 
     /**
-     * @var array<string, string> $stack
-     *                            The versions stack
+     * @var array<string,string> $stack
+     *                           The versions stack
      */
     protected $stack;
 

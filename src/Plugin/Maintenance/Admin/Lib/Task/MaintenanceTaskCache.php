@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskCache
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginMaintenance
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,8 +9,14 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Maintenance\Admin\Lib\Task;
 
+// Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskCache
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
+/**
+ * Cache maintenance Task.
+ *
+ * @ingroup  Plugin Maintenance Task
+ */
 class MaintenanceTaskCache extends MaintenanceTask
 {
     protected $group = 'purge';

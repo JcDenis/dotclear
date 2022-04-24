@@ -19,8 +19,8 @@ namespace Dotclear\Process\Admin\Help;
 class Help
 {
     /**
-     * @var array<string, bool> $file
-     *                          Keep track of loaded file
+     * @var array<string,bool> $file
+     *                         Keep track of loaded file
      */
     private static $file = [];
 
@@ -31,14 +31,14 @@ class Help
     private $news = '';
 
     /**
-     * @var array<string, string> $doc
-     *                            Doc bloc
+     * @var array<string,string> $doc
+     *                           Doc bloc
      */
     private $doc = [];
 
     /**
-     * @var array<string, string> $context
-     *                            Context bloc
+     * @var array<string,string> $context
+     *                           Context bloc
      */
     private $context = [];
 

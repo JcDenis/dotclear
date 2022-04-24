@@ -30,8 +30,8 @@ class Preference
     protected $table;
 
     /**
-     * @var array $workspaces
-     *            Associative workspaces array
+     * @var array<string,Workspace> $workspaces
+     *                              Associative workspaces array
      */
     protected $workspaces = [];
 

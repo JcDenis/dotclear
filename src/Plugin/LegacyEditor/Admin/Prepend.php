@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\LegacyEditor\Admin\Prepend
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginLegacyEditor
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,9 +9,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\LegacyEditor\Admin;
 
+// Dotclear\Plugin\LegacyEditor\Admin\Prepend
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
+/**
+ * Admin prepend for plugin LegacyEditor.
+ *
+ * @ingroup  Plugin LegacyEditor
+ */
 class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;

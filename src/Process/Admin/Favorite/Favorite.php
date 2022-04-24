@@ -36,26 +36,26 @@ class Favorite
     protected $ws;
 
     /**
-     * @var array $local_prefs
-     *            list of user-defined favorite ids
+     * @var array<string,mixed> $local_prefs
+     *                          list of user-defined favorite ids
      */
     protected $local_prefs = [];
 
     /**
-     *  @var array $global_prefs
+     *  @var array<string,mixed> $global_prefs
      * list of globally-defined favorite ids
      */
     protected $global_prefs = [];
 
     /**
-     * @var array $user_prefs
-     *            list of user preferences (either one of the 2 above, or not!)
+     * @var array<string,mixed> $user_prefs
+     *                          list of user preferences (either one of the 2 above, or not!)
      */
     protected $user_prefs = [];
 
     /**
-     * @var array $default_favorites
-     *            Default favorites values
+     * @var array<string,string> $default_favorites
+     *                           Default favorites values
      */
     protected $default_favorites = [
         // favorite title (localized)

@@ -20,8 +20,8 @@ use Dotclear\Helper\Lexical;
 class Widgets
 {
     /**
-     * @var array<string, Widget> $__widgets
-     *                            Widgets
+     * @var array<string,Widget> $__widgets
+     *                           Widgets
      */
     private $__widgets = [];
 

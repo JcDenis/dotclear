@@ -28,26 +28,26 @@ class Table
     protected $has_primary = false;
 
     /**
-     * @var array $fields
-     *            Table fields
+     * @var array<string,array> $fields
+     *                          Table fields
      */
     protected $fields = [];
 
     /**
-     * @var array $keys
-     *            Table keys
+     * @var array<string,array> $keys
+     *                          Table keys
      */
     protected $keys = [];
 
     /**
-     * @var array $indexes
-     *            Table indexex
+     * @var array<string,array> $indexes
+     *                          Table indexex
      */
     protected $indexes = [];
 
     /**
-     * @var array $references
-     *            Table references
+     * @var array<string,array> $references
+     *                          Table references
      */
     protected $references = [];
 

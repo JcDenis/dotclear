@@ -23,8 +23,8 @@ use Exception;
 class HandlerIconset extends AbstractPage
 {
     /**
-     * @var array<string, array> $modules_install
-     *                           Freashly installed modules
+     * @var array<string,array> $modules_install
+     *                          Freashly installed modules
      */
     private $modules_install = [];
 

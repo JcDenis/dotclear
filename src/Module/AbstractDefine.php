@@ -29,8 +29,8 @@ abstract class AbstractDefine
     use ErrorTrait;
 
     /**
-     * @var array<string, mixed> $properties
-     *                           Module cleaned properties
+     * @var array<string,mixed> $properties
+     *                          Module cleaned properties
      */
     protected $properties = [
         'id'                => '',
@@ -61,20 +61,20 @@ abstract class AbstractDefine
     ];
 
     /**
-     * @var array<int, string> $dep_parents
-     *                         Module parents dependencies
+     * @var array<int,string> $dep_parents
+     *                        Module parents dependencies
      */
     private $dep_parents = [];
 
     /**
-     * @var array<int, string> $dep_children
-     *                         Module children dependencies
+     * @var array<int,string> $dep_children
+     *                        Module children dependencies
      */
     private $dep_children = [];
 
     /**
-     * @var array<int, string> $dep_missing
-     *                         Module missing dependencies
+     * @var array<int,string> $dep_missing
+     *                        Module missing dependencies
      */
     private $dep_missing = [];
 

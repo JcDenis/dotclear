@@ -43,14 +43,14 @@ class Autoload
     protected $root_base_dir = '';
 
     /**
-     * @var array $prefixes
-     *            Array of registered namespace [prefix=[base dir]]
+     * @var array<string,array> $prefixes
+     *                          Array of registered namespace [prefix=[base dir]]
      */
     protected $prefixes = [];
 
     /**
-     * @var array $loaded_files
-     *            Keep track of loaded files
+     * @var array<string,int> $loaded_files
+     *                        Keep track of loaded files
      */
     private static $loaded_files  = [];
 

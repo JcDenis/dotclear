@@ -49,20 +49,20 @@ class Media extends AbstractPage
     private $media_archivable;
 
     /**
-     * @var array $media_dir
-     *            Dirs and files fileItem objects
+     * @var array<string,array> $media_dir
+     *                          Dirs and files fileItem objects
      */
     private $media_dir;
 
     /**
-     * @var array $media_last
-     *            User media recents
+     * @var array<int,array> $media_last
+     *                       User media recents
      */
     private $media_last;
 
     /**
-     * @var array $media_fav
-     *            User media favorites
+     * @var array<int,array> $media_fav
+     *                       User media favorites
      */
     private $media_fav;
 

@@ -22,8 +22,8 @@ use Dotclear\Helper\Dt;
 class RsExtPost extends RsExtend
 {
     /**
-     * @var array<int, int> $_nb_media
-     *                      Number of attach media
+     * @var array<int,int> $_nb_media
+     *                     Number of attach media
      */
     public $_nb_media = [];
 

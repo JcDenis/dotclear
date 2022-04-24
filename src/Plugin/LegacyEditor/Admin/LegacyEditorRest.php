@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\LegacyEditor\Admin\LegacyEditorRest
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginLegacyEditor
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,8 +9,14 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\LegacyEditor\Admin;
 
+// Dotclear\Plugin\LegacyEditor\Admin\LegacyEditorRest
 use Dotclear\Helper\Html\XmlTag;
 
+/**
+ * Admin REST methods for plugin LegacyEditor.
+ *
+ * @ingroup  Plugin LegacyEditor Rest
+ */
 class LegacyEditorRest
 {
     public function __construct()

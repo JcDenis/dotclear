@@ -22,14 +22,14 @@ use Dotclear\Exception\DatabaseException;
 class Structure
 {
     /**
-     * @var array $tables
-     *            Tables
+     * @var array<string,Table> $tables
+     *                          Tables
      */
     protected $tables = [];
 
     /**
-     * @var array $references
-     *            References
+     * @var array<string,array> $references
+     *                          References
      * */
     protected $references = [];
 

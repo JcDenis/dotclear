@@ -20,8 +20,8 @@ use Closure;
 class Behavior
 {
     /**
-     * @var array $stack
-     *            Registered behavoirs
+     * @var array<string,array> $stack
+     *                          Registered behavoirs
      */
     private $stack = [];
 

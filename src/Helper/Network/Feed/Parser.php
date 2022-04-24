@@ -62,8 +62,8 @@ class Parser
     public $generator;
 
     /**
-     * @var array $items
-     *            Feed items
+     * @var array<int,stdClass> $items
+     *                          Feed items
      */
     public $items = [];
 

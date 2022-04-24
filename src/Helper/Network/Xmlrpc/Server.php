@@ -33,8 +33,8 @@ use Exception;
 class Server
 {
     /**
-     * @var array $callbacks
-     *            Server methods
+     * @var array<string,callable> $callbacks
+     *                             Server methods
      */
     protected $callbacks = [];
 
@@ -51,8 +51,8 @@ class Server
     protected $message;
 
     /**
-     * @var array $capabilities
-     *            Server capabilities
+     * @var array<string,array> $capabilities
+     *                          Server capabilities
      */
     protected $capabilities;
 

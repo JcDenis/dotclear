@@ -36,8 +36,8 @@ class Widget
     public $append_callback;
 
     /**
-     * @var array $settings
-     *            Widget settings
+     * @var array<string,array> $settings
+     *                          Widget settings
      */
     protected $settings = [];
 

@@ -31,8 +31,8 @@ class Record implements Iterator, Countable
     protected $__link;
 
     /**
-     * @var array<string, callable> $__extend
-     *                              List of static functions that extend record
+     * @var array<string,callable> $__extend
+     *                             List of static functions that extend record
      */
     protected $__extend = [];
 
@@ -43,8 +43,8 @@ class Record implements Iterator, Countable
     protected $__index = 0;
 
     /**
-     * @var array|false $__row
-     *                  Current result row content
+     * @var array<int|string,mixed>|false $__row
+     *                                    Current result row content
      */
     protected $__row = false;
 

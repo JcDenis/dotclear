@@ -28,8 +28,8 @@ class Html
     public static $url_root;
 
     /**
-     * @var array $absolute_regs
-     *            Array of regular expression for {@link absoluteURLs()}
+     * @var array<int,string> $absolute_regs
+     *                        Array of regular expression for {@link absoluteURLs()}
      */
     public static $absolute_regs = [];
 

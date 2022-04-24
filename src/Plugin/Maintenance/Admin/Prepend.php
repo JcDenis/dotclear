@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Maintenance\Admin\Prepend
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginMaintenance
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,9 +9,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Maintenance\Admin;
 
+// Dotclear\Plugin\Maintenance\Admin\Prepend
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
+/**
+ * Admin prepend for plugin Maintenance.
+ *
+ * @ingroup  Plugin Maintenance
+ */
 class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;

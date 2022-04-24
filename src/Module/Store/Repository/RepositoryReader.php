@@ -29,8 +29,8 @@ class RepositoryReader extends NetHttp
     protected $user_agent = 'DotClear.org RepoBrowser/0.1';
 
     /**
-     * @var array<string, mixed> $validators
-     *                           HTTP Cache validators
+     * @var array<string,mixed> $validators
+     *                          HTTP Cache validators
      */
     protected $validators;
 

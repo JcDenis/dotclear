@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskCountcomments
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginMaintenance
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,10 +9,16 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Maintenance\Admin\Lib\Task;
 
+// Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskCountcomments
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
+/**
+ * Comments count maintenance Task.
+ *
+ * @ingroup  Plugin Maintenance Task
+ */
 class MaintenanceTaskCountcomments extends MaintenanceTask
 {
     protected $group = 'index';

@@ -20,8 +20,8 @@ use Dotclear\Process\Admin\Favorite\Favorite;
 trait TraitPrependAdmin
 {
     /**
-     * @var array $favorites
-     *            Module Favorites
+     * @var array<string,mixed> $favorites
+     *                          Module Favorites
      */
     private $favorites = [];
 

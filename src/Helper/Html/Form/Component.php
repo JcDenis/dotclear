@@ -21,8 +21,8 @@ namespace Dotclear\Helper\Html\Form;
 abstract class Component
 {
     /**
-     * @var array $_data
-     *            Custom component properties (see __get() and __set())
+     * @var array<string,mixed> $_data
+     *                          Custom component properties (see __get() and __set())
      */
     private $_data = [];
 

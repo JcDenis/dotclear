@@ -29,20 +29,20 @@ abstract class AbstractModules
     use ErrorTrait;
 
     /**
-     * @var array<string, AbstractDefine> $modules_enabled
-     *                                    List of enabled modules
+     * @var array<string,AbstractDefine> $modules_enabled
+     *                                   List of enabled modules
      */
     protected $modules_enabled = [];
 
     /**
-     * @var array<string, AbstractDefine> $modules_disabled
-     *                                    List of disabled modules
+     * @var array<string,AbstractDefine> $modules_disabled
+     *                                   List of disabled modules
      */
     protected $modules_disabled = [];
 
     /**
-     * @var array<string, string> $modules_version
-     *                            List of modules versions
+     * @var array<string,string> $modules_version
+     *                           List of modules versions
      */
     protected $modules_version = [];
 
@@ -65,14 +65,14 @@ abstract class AbstractModules
     private $disabled_meta;
 
     /**
-     * @var array<string, array> $to_disable
-     *                           Loading process, modules to disable
+     * @var array<string,array> $to_disable
+     *                          Loading process, modules to disable
      */
     private $to_disable = [];
 
     /**
-     * @var array<string, AbstractPrepend> $modules_prepend
-     *                                     Loading process, stack of loaded modules prepend class
+     * @var array<string,AbstractPrepend> $modules_prepend
+     *                                    Loading process, stack of loaded modules prepend class
      */
     private $modules_prepend = [];
 

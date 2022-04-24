@@ -27,20 +27,20 @@ use Exception;
 abstract class Action extends AbstractPage
 {
     /**
-     * @var array $combo
-     *            action combo box
+     * @var array<string,mixed> $combo
+     *                          Action combo box
      */
     protected $combo = [];
 
     /**
-     *  @var ArrayObject $actions
-     * list of defined actions (callbacks)
+     * @var ArrayObject $actions
+     *                  List of defined actions (callbacks)
      */
     protected $actions;
 
     /**
-     * @var array $entries
-     *            selected entries (each key is the entry id, value contains the entry description)
+     * @var array<int,array|string> $entries
+     *                              selected entries (each key is the entry id, value contains the entry description)
      */
     protected $entries = [];
 
@@ -51,8 +51,8 @@ abstract class Action extends AbstractPage
     protected $rs;
 
     /**
-     * @var array $redirect_fields
-     *            list of fields used to build the redirection
+     * @var array<int,string> $redirect_fields
+     *                        list of fields used to build the redirection
      */
     protected $redirect_fields = [];
 

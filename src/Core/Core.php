@@ -186,8 +186,8 @@ class Core
     protected $lang                 = 'en';
 
     /**
-     * @var array $top_behaviors
-     *            top behaviors
+     * @var array<int,array> $top_behaviors
+     *                       top behaviors
      */
     protected static $top_behaviors = [];
 

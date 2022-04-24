@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskIndexcomments
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginMaintenance
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,11 +9,17 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Maintenance\Admin\Lib\Task;
 
+// Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskIndexcomments
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Helper\Text;
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
+/**
+ * Comments index maintenance Task.
+ *
+ * @ingroup  Plugin Maintenance Task
+ */
 class MaintenanceTaskIndexcomments extends MaintenanceTask
 {
     protected $ajax  = true;

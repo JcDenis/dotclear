@@ -34,8 +34,8 @@ class Notice
     protected $prefix;
 
     /**
-     * @var string
-     *             notices table $table_name
+     * @var string $table_name
+     *             notices table
      */
     protected $table_name = 'notice';
 
@@ -46,8 +46,8 @@ class Notice
     protected $table;
 
     /**
-     * @var array $N_TYPES
-     *            notices types
+     * @var array<string,string> $N_TYPES
+     *                           notices types
      */
     private $N_TYPES = [
         // id → CSS class

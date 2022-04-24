@@ -44,8 +44,8 @@ trait TraitModulesAdmin
     protected $list_id = 'unknown';
 
     /**
-     * @var array<string, AbstractDefine> $data
-     *                                    Current modules
+     * @var array<string,AbstractDefine> $data
+     *                                   Current modules
      */
     protected $data = [];
 
@@ -116,8 +116,8 @@ trait TraitModulesAdmin
     public static $nav_indexes = 'abcdefghijklmnopqrstuvwxyz0123456789';
 
     /**
-     * @var array $nav_list
-     *            Index list with special index
+     * @var array<int,string> $nav_list
+     *                        Index list with special index
      */
     protected $nav_list = [];
 

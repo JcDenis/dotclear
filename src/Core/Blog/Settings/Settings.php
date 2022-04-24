@@ -29,7 +29,7 @@ class Settings
      */
     protected $table;
 
-    /** @var array $namespaces
+    /** @var array<string,Settingspace> $namespaces
      *             Associative namespaces array
      */
     protected $namespaces = [];

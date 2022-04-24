@@ -21,8 +21,8 @@ use Closure;
 class Formater
 {
     /**
-     * @var array<string, mixed> $formaters
-     *                           formaters container
+     * @var array<string,mixed> $formaters
+     *                          formaters container
      */
     private $formaters = [];
 

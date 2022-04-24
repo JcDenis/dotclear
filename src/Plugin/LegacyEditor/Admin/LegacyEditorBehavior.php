@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\LegacyEditor\Admin\LegacyEditorBehavior
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginLegacyEditor
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,8 +9,14 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\LegacyEditor\Admin;
 
+// Dotclear\Plugin\LegacyEditor\Admin\LegacyEditorBehavior
 use Dotclear\Helper\L10n;
 
+/**
+ * Admin behaviors for plugin LegacyEditor.
+ *
+ * @ingroup  Plugin LegacyEditor Behavior
+ */
 class LegacyEditorBehavior
 {
     public function __construct()

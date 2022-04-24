@@ -59,14 +59,14 @@ abstract class AbstractPage
     private $page_content = '';
 
     /**
-     * @var array<int, ArrayObject|string> $page_help
-     *                                     Help blocks names
+     * @var array<int,ArrayObject|string> $page_help
+     *                                    Help blocks names
      */
     private $page_help = [];
 
     /**
-     * @var array $page_breadcrumb
-     *            Page breadcrumb (brut))
+     * @var array<string,mixed> $page_breadcrumb
+     *                          Page breadcrumb (brut))
      */
     private $page_breadcrumb = ['elements' => null, 'options' => []];
 
@@ -95,8 +95,8 @@ abstract class AbstractPage
     protected $inventory;
 
     /**
-     * @var array $options
-     *            Misc options for page content
+     * @var array<string,mixed> $options
+     *                          Misc options for page content
      */
     protected $options = [];
 

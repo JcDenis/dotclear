@@ -27,8 +27,8 @@ use Exception;
 class Context
 {
     /**
-     * @var array<string, array> $stack
-     *                           Context stack
+     * @var array<string,array> $stack
+     *                          Context stack
      */
     public $stack = [
         'nb_entry_per_page'   => [10],

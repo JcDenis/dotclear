@@ -23,8 +23,8 @@ use Dotclear\Helper\Html\Html;
 class Filter extends Filters
 {
     /**
-     * @var array $filters
-     *            Filters objects
+     * @var array<string,DefaultFilter> $filters
+     *                                  Filters objects
      */
     protected $filters = [];
 

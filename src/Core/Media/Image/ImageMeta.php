@@ -28,26 +28,26 @@ use Dotclear\Helper\Text;
 class ImageMeta
 {
     /**
-     * @var array $xmp
-     *            Internal XMP array
+     * @var array<string,string> $xmp
+     *                           Internal XMP array
      */
     protected $xmp = [];
 
     /**
-     * @var array $iptc
-     *            Internal IPTC array
+     * @var array<string,null|string> $iptc
+     *                                Internal IPTC array
      */
     protected $iptc = [];
 
     /**
-     * @var array $exif
-     *            Internal EXIF array
+     * @var array<string,null|string> $exif
+     *                                Internal EXIF array
      */
     protected $exif = [];
 
     /**
-     * @var array $properties
-     *            Final properties array
+     * @var array<string,null|string> $properties
+     *                                Final properties array
      */
     protected $properties = [
         'Title'             => null,
@@ -74,8 +74,8 @@ class ImageMeta
     ];
 
     /**
-     * @var array $xmp_reg
-     *            XMP references
+     * @var array<string,array> $xmp_reg
+     *                          XMP references
      */
     protected $xmp_reg = [
         'Title' => [
@@ -156,8 +156,8 @@ class ImageMeta
     ];
 
     /**
-     * @var array $iptc_ref
-     *            IPTC references
+     * @var array<string,string> $iptc_ref
+     *                           IPTC references
      */
     protected $iptc_ref = [
         '1#090' => 'Iptc.Envelope.CharacterSet', // Character Set used (32 chars max)
@@ -187,8 +187,8 @@ class ImageMeta
     ];
 
     /**
-     * @var array $iptc_to_property
-     *            IPTC properties
+     * @var array<string,string> $iptc_to_property
+     *                           IPTC properties
      */
     protected $iptc_to_property = [
         'Iptc.ObjectName'    => 'Title',
@@ -203,8 +203,8 @@ class ImageMeta
     ];
 
     /**
-     * @var array $exif_to_property
-     *            EXIF properties
+     * @var array<string,string> $exif_to_property
+     *                           EXIF properties
      */
     protected $exif_to_property = [
         // '' => 'Title',

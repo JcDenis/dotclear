@@ -21,8 +21,8 @@ use Dotclear\Exception\ModuleException;
 class BlogrollImport
 {
     /**
-     * @var array<int, string> $entries
-     *                         Imported entries
+     * @var array<int,string> $entries
+     *                        Imported entries
      */
     protected $entries = [];
 

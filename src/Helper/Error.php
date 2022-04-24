@@ -19,8 +19,8 @@ namespace Dotclear\Helper;
 class Error
 {
     /**
-     * @var array $errors
-     *            Errors stack
+     * @var array<int,string> $errors
+     *                        Errors stack
      */
     protected $errors = [];
 

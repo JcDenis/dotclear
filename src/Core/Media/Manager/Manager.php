@@ -30,8 +30,8 @@ class Manager
     protected $pwd = '';
 
     /**
-     * @var array $exclude_list
-     *            Array of regexps defining excluded items
+     * @var array<int,string> $exclude_list
+     *                        Array of regexps defining excluded items
      */
     protected $exclude_list = [];
 
@@ -42,8 +42,8 @@ class Manager
     protected $exclude_pattern = '';
 
     /**
-     * @var array $dir
-     *            Current directory content array
+     * @var array<string,array> $dir
+     *                          Current directory content array
      */
     public $dir = ['dirs' => [], 'files' => []];
 

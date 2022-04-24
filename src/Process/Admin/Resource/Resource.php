@@ -22,10 +22,10 @@ use Dotclear\Helper\Html\Html;
 class Resource
 {
     /**
-     * @var array $stack
-     *            Stack to keep track of loaded files
+     * @var array<string,bool> $stack
+     *                         Stack to keep track of loaded files
      */
-    private static $stack = [];
+    private $stack = [];
 
     /**
      * Constructor.
@@ -162,10 +162,10 @@ class Resource
         }
 
         $url = $this->url($src, $type, $id, $ext);
-        if (isset(self::$stack[$preload ? 'preload' : 'load'][$url])) {
+        if (array_key_exists($url, $this->stack) && $this->stack[$url] === $preload) {
             return '';
         }
-        self::$stack[$preload ? 'preload' : 'load'][$url] = true;
+        $this->stack[$url] = $preload;
 
         $url = Html::escapeHTML($url);
 

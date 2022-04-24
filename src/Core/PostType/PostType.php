@@ -20,8 +20,8 @@ use Dotclear\Helper\Html\Html;
 class PostType
 {
     /**
-     * @var array $post_types
-     *            Formaters container
+     * @var array<string,array> $post_types
+     *                          Formaters container
      */
     private $post_types = [];
 

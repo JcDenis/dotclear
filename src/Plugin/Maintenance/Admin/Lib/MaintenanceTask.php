@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginMaintenance
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,62 +9,117 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Maintenance\Admin\Lib;
 
+// Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask
+
 /**
- * @brief Maintenance plugin task class.
+ * Maintenance plugin task class.
  *
  * Every task of maintenance must extend this class.
+ *
+ * @ingroup  Plugin Maintenance
  */
 class MaintenanceTask
 {
-    /** @var string Plugin URL */
+    /**
+     * @var string $p_url
+     *             Plugin URL
+     */
     protected $p_url = '';
 
-    /** @var int Code for stepped task */
+    /**
+     * @var int $code
+     *          Code for stepped task
+     */
     protected $code = 0;
 
-    /** @var int Timestamp between task execution */
+    /**
+     * @var int $ts
+     *          Timestamp between task execution
+     */
     protected $ts = 0;
 
-    /** @var null|false|int Task expired */
+    /**
+     * @var null|false|int $expired
+     *                     Task expired
+     */
     protected $expired = 0;
 
-    /** @var bool Use ajax */
+    /**
+     * @var bool $ajax
+     *           Use ajax
+     */
     protected $ajax = false;
 
-    /** @var bool Is limited to current blog */
+    /**
+     * @var bool $blog
+     *           Is limited to current blog
+     */
     protected $blog = false;
 
-    /** @var null|string Permission to use task */
+    /**
+     * @var null|string $perm
+     *                  Permission to use task
+     */
     protected $perm;
 
-    /** @var string Task ID */
+    /**
+     * @var string $id
+     *             Task ID
+     */
     protected $id = '';
 
-    /** @var string Task sanitized ID */
+    /**
+     * @var string $sid
+     *             Task sanitized ID
+     */
     protected $sid = '';
 
-    /** @var string Task name */
+    /**
+     * @var string $name
+     *             Task name
+     */
     protected $name = '';
 
-    /** @var string Task description */
+    /**
+     * @var string $description
+     *             Task description
+     */
     protected $description = '';
 
-    /** @var null|string Task tab */
+    /**
+     * @var null|string $tab
+     *                  Task tab
+     */
     protected $tab = 'maintenance';
 
-    /** @var null|string Task group */
+    /**
+     * @var null|string $group
+     *                  Task group
+     */
     protected $group = 'other';
 
-    /** @var null|string Task execution message */
+    /**
+     * @var null|string $step
+     *                  Task execution message
+     */
     protected $step;
 
-    /** @var string Task form button message */
+    /**
+     * @var string $task
+     *             Task form button message
+     */
     protected $task = '';
 
-    /** @var string Task error message */
+    /**
+     * @var string $error
+     *             Task error message
+     */
     protected $error = '';
 
-    /** @var string Task success message */
+    /**
+     * @var string $success
+     *             Task success message
+     */
     protected $success = '';
 
     /**

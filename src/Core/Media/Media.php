@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Core\Media;
 
 // Dotclear\Core\Media\Media
-use Closure;
 use Dotclear\Core\Media\Image\ImageTools;
 use Dotclear\Core\Media\Image\ImageMeta;
 use Dotclear\Core\Media\Manager\Manager;
@@ -64,8 +63,8 @@ class Media extends Manager
     protected $relpwd = '';
 
     /**
-     * @var array $file_handler
-     *            File handler callback
+     * @var array<string,array> $file_handler
+     *                          File handler callback
      */
     protected $file_handler = [];
 
@@ -88,12 +87,12 @@ class Media extends Manager
     public $thumb_tp_webp = '%s/.%s_%s.webp';
 
     /**
-     * @var array $thumb_sizes
-     *            Thumbnail sizes:
-     *            - m: medium image
-     *            - s: small image
-     *            - t: thumbnail image
-     *            - sq: square image
+     * @var array<string,array> $thumb_sizes
+     *                          Thumbnail sizes:
+     *                          - m: medium image
+     *                          - s: small image
+     *                          - t: thumbnail image
+     *                          - sq: square image
      */
     public $thumb_sizes = [
         'm'  => [448, 'ratio', 'medium'],
@@ -204,11 +203,11 @@ class Media extends Manager
      * - update: file update
      * - remove: file deletion
      *
-     * @param string               $type     The media type
-     * @param string               $event    The event
-     * @param array|Closure|string $function The callback
+     * @param string   $type     The media type
+     * @param string   $event    The event
+     * @param callable $function The callback
      */
-    public function addFileHandler(string $type, string $event, string|array|Closure $function): void
+    public function addFileHandler(string $type, string $event, callable $function): void
     {
         if (is_callable($function)) {
             $this->file_handler[$type][$event][] = $function;

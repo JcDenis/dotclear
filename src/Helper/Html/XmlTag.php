@@ -21,14 +21,14 @@ namespace Dotclear\Helper\Html;
 class XmlTag
 {
     /**
-     * @var array $_attr
-     *            The attributes
+     * @var array<string,mixed> $_attr
+     *                          The attributes
      */
     private $_attr = [];
 
     /**
-     * @var array $_nodes
-     *            The nodes
+     * @var array<int,mixed> $_nodes
+     *                       The nodes
      */
     private $_nodes = [];
 

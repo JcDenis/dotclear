@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskLogs
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginMaintenance
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,9 +9,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Maintenance\Admin\Lib\Task;
 
+// Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskLogs
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
+/**
+ * Logs maintenance Task.
+ *
+ * @ingroup  Plugin Maintenance Task
+ */
 class MaintenanceTaskLogs extends MaintenanceTask
 {
     public static $keep_maintenance_logs = true;

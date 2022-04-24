@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Maintenance\Admin\MaintenanceBehavior
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginMaintenance
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,12 +9,18 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Maintenance\Admin;
 
+// Dotclear\Plugin\Maintenance\Admin\MaintenanceBehavior
 use ArrayObject;
 use Dotclear\Helper\Dt;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance;
 use Dotclear\Process\Admin\Favorite\Favorite;
 
+/**
+ * Admin behaviors for plugin Maintenance.
+ *
+ * @ingroup  Plugin Maintenance Behavior
+ */
 class MaintenanceBehavior
 {
     public function __construct()

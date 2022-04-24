@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceDescriptor
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginMaintenance
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,11 +9,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Maintenance\Admin\Lib;
 
+// Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceDescriptor
+
 /**
- * @brief Simple descriptor for tabs, groups and more
+ * Simple descriptor for tabs, groups and more.
  *
  * At this time this class is used in same way an arrayObject
  * but in futur it could be completed with advance methods.
+ *
+ * @ingroup  Plugin Maintenance
  */
 class MaintenanceDescriptor
 {

@@ -29,8 +29,8 @@ class RepositoryParser
     protected $xml = false;
 
     /**
-     * @var array<string, array> $items
-     *                           Array of feed contents
+     * @var array<string,array> $items
+     *                          Array of feed contents
      */
     protected $items = [];
 

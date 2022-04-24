@@ -56,14 +56,14 @@ class Blog
     private $settings;
 
     /**
-     * @var array $post_status
-     *            The post status list
+     * @var array<int,string> $post_status
+     *                        The post status list
      */
     private $post_status    = [];
 
     /**
-     * @var array $comment_status
-     *            The comment status list
+     * @var array<int,string> $comment_status
+     *                        The comment status list
      */
     private $comment_status = [];
 
@@ -413,9 +413,9 @@ class Blog
      * Should be called every time comments or trackbacks are
      * added, removed or changed their status.
      *
-     * @param array|ArrayObject $ids            The identifiers
-     * @param bool              $del            If comment is delete, set this to true
-     * @param null|array        $affected_posts The affected posts IDs
+     * @param array|ArrayObject   $ids            The identifiers
+     * @param bool                $del            If comment is delete, set this to true
+     * @param null|array<int,int> $affected_posts The affected posts IDs
      */
     public function triggerComments(array|ArrayObject $ids, bool $del = false, ?array $affected_posts = null): void
     {
@@ -459,9 +459,9 @@ class Blog
         $posts = [];
         while ($rs->fetch()) {
             if ($rs->fInt('comment_trackback')) {
-                $posts[$rs->fInt('post_id')]['trackback'] = $rs->fInt('nb_comment');
+                $posts[$rs->fInt('post_id')]['trackback'] = $rs->f('nb_comment');
             } else {
-                $posts[$rs->fInt('post_id')]['comment'] = $rs->fInt('nb_comment');
+                $posts[$rs->fInt('post_id')]['comment'] = $rs->f('nb_comment');
             }
         }
 
@@ -473,8 +473,8 @@ class Blog
             ;
 
             if (array_key_exists($post_id, $posts)) {
-                $sql->set('nb_trackback = ' . (array_key_exists('trackback', $posts[$post_id]) ? $posts[$post_id]['trackback'] : 0));
-                $sql->set('nb_comment = ' . (array_key_exists('comment', $posts[$post_id]) ? $posts[$post_id]['comment'] : 0));
+                $sql->set('nb_trackback = ' . (array_key_exists('trackback', $posts[$post_id]) ? $posts[$post_id]['trackback'] : '0'));
+                $sql->set('nb_comment = ' . (array_key_exists('comment', $posts[$post_id]) ? $posts[$post_id]['comment'] : '0'));
             } else {
                 $sql->set('nb_trackback = 0');
                 $sql->set('nb_comment = 0');
@@ -490,11 +490,11 @@ class Blog
     /**
      * Cleanup a list of IDs.
      *
-     * @param null|array|ArrayObject|int|string $ids The identifiers
+     * @param mixed $ids The identifiers
      *
      * @return array<int, int> The clean ids
      */
-    public function cleanIds(int|string|array|ArrayObject|null $ids): array
+    public function cleanIds(mixed $ids): array
     {
         $clean_ids = [];
 

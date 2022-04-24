@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Maintenance\Admin\Handler
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginMaintenance
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Maintenance\Admin;
 
+// Dotclear\Plugin\Maintenance\Admin\Handler
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
@@ -19,6 +17,11 @@ use Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance;
 use Dotclear\Helper\Dt;
 use Exception;
 
+/**
+ * Admin page for plugin Maintenance.
+ *
+ * @ingroup  Plugin Maintenance
+ */
 class Handler extends AbstractPage
 {
     private $m_maintenance;

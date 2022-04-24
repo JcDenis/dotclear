@@ -32,14 +32,14 @@ namespace Dotclear\Helper\Network\Xmlrpc;
 class IntrospectionServer extends Server
 {
     /**
-     * @var array $signatures
-     *            ...
+     * @var array<string,array> $signatures
+     *                          ...
      */
     protected $signatures;
 
     /**
-     * @var array $help
-     *            ...
+     * @var array<string,string> $help
+     *                           ...
      */
     protected $help;
 

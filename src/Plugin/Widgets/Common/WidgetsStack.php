@@ -37,8 +37,8 @@ class WidgetsStack
     public static $__widgets;
 
     /**
-     * @var array<string, Widgets> $__default_widgets
-     *                             Default widgets
+     * @var array<string,Widgets> $__default_widgets
+     *                            Default widgets
      */
     public static $__default_widgets;
 

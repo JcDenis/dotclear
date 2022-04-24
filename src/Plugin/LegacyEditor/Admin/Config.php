@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\LegacyEditor\Admin\Config
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginLegacyEditor
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,9 +9,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\LegacyEditor\Admin;
 
+// Dotclear\Plugin\LegacyEditor\Admin\Config
 use Dotclear\Helper\Html\Form;
 use Dotclear\Module\AbstractConfig;
 
+/**
+ * Admin config page for plugin LegacyEditor.
+ *
+ * @ingroup  Plugin LegacyEditor
+ */
 class Config extends AbstractConfig
 {
     public function setConfiguration($post): void

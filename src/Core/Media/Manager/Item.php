@@ -213,8 +213,8 @@ class Item
     public $media_type = 'image';
 
     /**
-     * @var array $media_thumb
-     *            Media avialble thumbnail
+     * @var array<string,string> $media_thumb
+     *                           Media avialble thumbnail
      */
     public $media_thumb = [];
 

@@ -30,18 +30,18 @@ use Exception;
 class Url
 {
     /**
-     * @var array $types
-     *            URL registered types
+     * @var array<string,array> $types
+     *                          URL registered types
      */
     protected $types = [];
 
     /**
-     * @var array|Closure|string $default_handler
-     *                           Default URL handler callback
+     * @var callable $default_handler
+     *               Default URL handler callback
      */
     protected $default_handler;
 
-    /** @var array $error_handlers
+    /** @var array<int,callable> $error_handlers
      * Error URL handler
      */
     protected $error_handlers = [];
@@ -59,14 +59,14 @@ class Url
     public $type = 'default';
 
     /**
-     * @var array $mod_files
-     *            List of script used files
+     * @var array<int,string> $mod_files
+     *                        List of script used files
      */
     public $mod_files = [];
 
     /**
-     * @var array $mod_ts
-     *            List of timestamp
+     * @var array<int,int> $mod_ts
+     *                     List of timestamp
      */
     public $mod_ts = [];
 
@@ -181,9 +181,9 @@ class Url
     /**
      * Register default handler.
      *
-     * @param array|Closure|string $handler The handler
+     * @param callable $handler The handler
      */
-    public function registerDefault(string|array|Closure $handler): void
+    public function registerDefault(callable $handler): void
     {
         $this->default_handler = $handler;
     }
@@ -191,9 +191,9 @@ class Url
     /**
      * Register an error handler.
      *
-     * @param array|Closure|string $handler The handler
+     * @param callable $handler The handler
      */
-    public function registerError(string|array|Closure $handler): void
+    public function registerError(callable $handler): void
     {
         array_unshift($this->error_handlers, $handler);
     }

@@ -31,20 +31,20 @@ class Settingspace
     protected $table;
 
     /**
-     * @var array $global_settings
-     *            Global settings array
+     * @var array<string,array> $global_settings
+     *                          Global settings array
      */
     protected $global_settings = [];
 
     /**
-     * @var array $local_settings
-     *            Local settings array
+     * @var array<string,array> $local_settings
+     *                          Local settings array
      */
     protected $local_settings = [];
 
     /**
-     * @var array $settings
-     *            Associative settings array
+     * @var array<string,array> $settings
+     *                          Associative settings array
      */
     protected $settings = [];
 

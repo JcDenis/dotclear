@@ -22,7 +22,10 @@ use Exception;
  */
 class Handler extends AbstractPage
 {
-    /** @var array CKEditor settings */
+    /**
+     * @var array<string,mixed> $ckes
+     *                          CKEditor settings
+     */
     private $ckes;
 
     protected function getPermissions(): string|null|false

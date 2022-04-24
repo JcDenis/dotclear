@@ -23,8 +23,8 @@ use Exception;
 class HandlerPlugin extends AbstractPage
 {
     /**
-     * @var array<string, array> $modules_install
-     *                           Freashly installed modules
+     * @var array<string,array> $modules_install
+     *                          Freashly installed modules
      */
     private $modules_install = [];
 

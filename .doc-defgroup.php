@@ -247,6 +247,16 @@
  * Trackback validity check.
  * 
  * 
+ * @defgroup  LegacyEditor Plugin "Legacy edito"
+ *
+ * dotclear standard editor.
+ * 
+ * 
+ * @defgroup  Maintenance Plugin "Maintenance"
+ *
+ * Maintain your installation.
+ * 
+ * 
  * @defgroup  Pages Plugin "Pages"
  *
  * Serve entries as simple web pages.

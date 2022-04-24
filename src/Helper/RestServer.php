@@ -27,8 +27,8 @@ class RestServer
     protected $rsp;
 
     /**
-     * @var array $functions
-     *            Registered fucntions
+     * @var array<string,callable> $functions
+     *                             Registered functions
      */
     protected $functions = [];
 
@@ -50,7 +50,7 @@ class RestServer
      * @param string   $name     Function name
      * @param callable $callback Callback function
      */
-    public function addFunction(string $name, $callback): void
+    public function addFunction(string $name, callable $callback): void
     {
         if (is_callable($callback)) {
             $this->functions[$name] = $callback;

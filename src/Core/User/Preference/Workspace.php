@@ -32,20 +32,20 @@ class Workspace
     protected $table;
 
     /**
-     * @var array $global_prefs
-     *            Global prefs array
+     * @var array<string,array> $global_prefs
+     *                          Global prefs array
      */
     protected $global_prefs = [];
 
     /**
-     * @var array $local_prefs
-     *            Local prefs array
+     * @var array<string,array> $local_prefs
+     *                          Local prefs array
      */
     protected $local_prefs = [];
 
     /**
-     * @var array $prefs
-     *            Associative prefs array
+     * @var array<string,array> $prefs
+     *                          Associative prefs array
      */
     protected $prefs = [];
 

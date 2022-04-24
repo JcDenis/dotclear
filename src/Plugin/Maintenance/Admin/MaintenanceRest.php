@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\Maintenance\Admin\MaintenanceRest
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginMaintenance
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,17 +9,16 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Maintenance\Admin;
 
+// Dotclear\Plugin\Maintenance\Admin\MaintenanceRest
 use Dotclear\Exception\AdminException;
 use Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\XmlTag;
 
 /**
- * @ingroup PLUGIN_MAINTENANCE
- * @nosubgrouping
- * @brief Maintenance plugin rest service class.
+ * Admin REST methods for plugin Maintenance.
  *
- * Serve maintenance methods via Dotclear's rest API
+ * @ingroup  Plugin Maintenance Rest
  */
 class MaintenanceRest
 {

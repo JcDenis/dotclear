@@ -31,8 +31,8 @@ class Files
     public static $dir_mode;
 
     /**
-     * @var array $mimeType
-     *            Defined file mime types
+     * @var array<string,string> $mimeType
+     *                           Defined file mime types
      */
     public static $mimeType =
     [
@@ -125,8 +125,8 @@ class Files
     ];
 
     /**
-     * @var array $allowed_served_extensions
-     *            Allowed files extensions to serve
+     * @var array<int,string> $allowed_served_extensions
+     *                        Allowed files extensions to serve
      */
     public static $allowed_served_extensions = [
         'ico',
