@@ -401,7 +401,8 @@ class Wiki2xhtml
         }
 
         // On ajoute les notes
-        if (count($this->foot_notes) > 0) { // @phpstan-ignore-line
+        // @phpstan-ignore-next-line (Failed to see $this->foot_notes != 0)
+        if (count($this->foot_notes) > 0) {
             $res_notes = '';
             $i         = 1;
             foreach ($this->foot_notes as $k => $v) {

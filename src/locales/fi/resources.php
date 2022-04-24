@@ -5,6 +5,9 @@
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
+if (!function_exists('dotclear')) {
+    return;
+}
 dotclear()->help()->news('https://dotclear.org/blog/feed/category/News/atom');
 dotclear()->help()->doc([
     'Dotclear-dokumentaatio'     => 'https://dotclear.org/documentation/2.0',

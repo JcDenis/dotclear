@@ -10,7 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Akismet\Common;
 
 // Dotclear\Plugin\Akismet\Common\Akismet
-use Dotclear\Helper\Network\NetHttp\NetHttp;
+use Dotclear\Helper\Network\NetHttp\Client;
 use Dotclear\Helper\Network\Http;
 use Exception;
 
@@ -19,7 +19,7 @@ use Exception;
  *
  * @ingroup  Plugin Akismet
  */
-class Akismet extends NetHttp
+class Akismet extends Client
 {
     protected $base_host  = 'rest.akismet.com';
     protected $ak_host    = '';
@@ -104,7 +104,7 @@ class Akismet extends NetHttp
         $path       = sprintf($this->ak_path, $function);
 
         if (!$this->post($path, $data, 'UTF-8')) {
-            throw new Exception('HTTP error: ' . $this->getError());    // @phpstan-ignore-line
+            throw new Exception('HTTP error: ' . $this->getError());
         }
 
         return 'true' == $this->getContent();

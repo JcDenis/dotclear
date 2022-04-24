@@ -22,6 +22,12 @@ use Dotclear\Exception\HelperException;
 class Mail
 {
     /**
+     * @var null|callable $_mail
+     *                    Callable custom mail function
+     */
+    public static $_mail;
+
+    /**
      * Send email.
      *
      * Sends email to destination. If a function called _mail() exists it will
@@ -46,10 +52,8 @@ class Mail
             $headers = implode($eol, $headers);
         }
 
-        $f = '_mail';
-        if (function_exists($f)) {
-            // @phpstan-ignore-next-line
-            call_user_func($f, $to, $subject, $message, $headers, $p);
+        if (null !== self::$_mail && is_callable(self::$_mail)) {
+            call_user_func(self::$_mail, $to, $subject, $message, $headers, $p);
         } else {
             if (!@mail($to, $subject, $message, $headers, $p)) {
                 throw new HelperException('Unable to send email');

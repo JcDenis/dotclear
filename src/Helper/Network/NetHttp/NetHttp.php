@@ -865,16 +865,16 @@ class NetHttp extends Socket
     {
         $bits = parse_url($url);
 
-        if (empty($bits['host'])) {
+        if (false === $bits
+            || empty($bits['host'])
+            || empty($bits['scheme'])
+            || !preg_match('%^http[s]?$%', $bits['scheme'])
+        ) {
             return false;
         }
 
-        if (empty($bits['scheme']) || !preg_match('%^http[s]?$%', $bits['scheme'])) {
-            return false;
-        }
-
-        $scheme = $bits['scheme'] ?? 'http';    // @phpstan-ignore-line
-        $host   = $bits['host']   ?? null;      // @phpstan-ignore-line
+        $scheme = $bits['scheme'];
+        $host   = $bits['host'];
         $port   = $bits['port']   ?? null;
         $path   = $bits['path']   ?? '/';
         $user   = $bits['user']   ?? null;

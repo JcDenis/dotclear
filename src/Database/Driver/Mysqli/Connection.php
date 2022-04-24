@@ -144,7 +144,7 @@ class Connection extends AbstractConnection
             $res->field_seek($position);
             $finfo = $res->fetch_field();
 
-            // @phpstan-ignore-next-line
+            // @phpstan-ignore-next-line (Failed to see $finfo better than an object)
             return $finfo->name;
         }
 
@@ -157,7 +157,7 @@ class Connection extends AbstractConnection
             $res->field_seek($position);
             $finfo = $res->fetch_field();
 
-            // @phpstan-ignore-next-line
+            // @phpstan-ignore-next-line (Failed to see $finfo better than an object)
             return $this->_convert_types($finfo->type);
         }
 

@@ -179,7 +179,7 @@ class UserAction extends AbstractPage
             Form::hidden(['nb'], $_POST['nb']                ?? '');
         }
 
-        echo '<p><a class="back" href="' . Html::escapeURL($this->user_redir) . '">' . __('Back to user profile') . '</a></p>';    // @phpstan-ignore-line
+        echo '<p><a class="back" href="' . Html::escapeURL($this->user_redir) . '">' . __('Back to user profile') . '</a></p>';
 
         // --BEHAVIOR-- adminUsersActionsContent
         dotclear()->behavior()->call('adminUsersActionsContent', $this->user_action, $hidden_fields);

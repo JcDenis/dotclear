@@ -228,7 +228,7 @@ class Auth extends AbstractPage
                 'cookie_admin'  => $tmp_data[1],
                 'user_remember' => '1' == $tmp_data[2],
             ];
-            if (false === $data['user_id']) {   // @phpstan-ignore-line
+            if (empty($data['user_id'])) {
                 throw new AdminException();
             }
 
@@ -242,7 +242,7 @@ class Auth extends AbstractPage
                     $this->auth_key = substr($data['cookie_admin'], 0, 40);
                     $check_user     = dotclear()->user()->checkUser($this->auth_id, null, $this->auth_key) === true;
                 } else {
-                    $this->auth_id = trim((string) $user_id);  // @phpstan-ignore-line
+                    $this->auth_id = trim((string) $user_id);
                 }
             }
 

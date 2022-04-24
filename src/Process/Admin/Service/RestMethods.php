@@ -122,10 +122,9 @@ class RestMethods
                     $ret = '<div class="box medium dc-box" id="ajax-news"><h3>' . __('Dotclear news') . '</h3><dl id="news">';
                     $i   = 1;
                     foreach ($feed->items as $item) {
-                        // @phpstan-ignore-next-line
                         $dt = isset($item->link) ? '<a href="' . $item->link . '" class="outgoing" title="' . $item->title . '">' .
-                        // @phpstan-ignore-next-line
                         $item->title . ' <img src="?df=images/outgoing-link.svg" alt="" /></a>' : $item->title;
+
                         $ret .= '<dt>' . $dt . '</dt>' .
                         '<dd><p><strong>' . Dt::dt2str(__('%d %B %Y:'), $item->pubdate, 'Europe/Paris') . '</strong> ' .
                         '<em>' . Text::cutString(Html::clean($item->content), 120) . '...</em></p></dd>';
@@ -211,8 +210,8 @@ class RestMethods
     /**
      * Check repository update.
      *
-     * @param array $get  Cleaned $_GET
-     * @param array $post Cleaned $_POST
+     * @param array<string,mixed> $get  Cleaned $_GET
+     * @param array<string,mixed> $post Cleaned $_POST
      *
      * @return XmlTag The response
      */
@@ -223,8 +222,9 @@ class RestMethods
         $rsp = new XmlTag('update');
         $rsp->insertAttr('check', false);
         $rsp->insertAttr('nb', 0);
+
         $ret = __('No updates are available');
-        $mod = '';
+        $mod = null;
         $url = '';
 
         if (empty($post['store'])) {
@@ -238,10 +238,10 @@ class RestMethods
             $mod = dotclear()->plugins();
             $url = dotclear()->blog()->settings()->get('system')->get('store_plugin_url');
         } else {
-            // --BEHAVIOR-- restCheckStoreUpdate
-            dotclear()->behavior()->call('restCheckStoreUpdate', $post['store'], [&$mod], [&$url]);
+            // --BEHAVIOR-- restCheckStoreUpdate, string, AbstractModules, string
+            dotclear()->behavior()->call('restCheckStoreUpdate', $post['store'], $mod, $url);
 
-            // @phpstan-ignore-next-line
+            // @phpstan-ignore-next-line (Failed to see $mod != null and $url != '')
             if (empty($mod) || empty($url)) {
                 throw new AdminException('Unknown store type');
             }

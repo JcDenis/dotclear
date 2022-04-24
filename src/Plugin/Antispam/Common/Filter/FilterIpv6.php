@@ -375,7 +375,7 @@ class FilterIpv6 extends Spamfilter
             if (function_exists('gmp_init')) {
                 $ipmax = gmp_add(gmp_init($ipmin, 10), gmp_sub(gmp_init($mask, 10), gmp_init(1)));
             } elseif (function_exists('bcadd')) {
-                $ipmax = bcadd($ipmin, bcsub($mask, '1'));    // @phpstan-ignore-line
+                $ipmax = bcadd($ipmin, bcsub($mask, '1'));
             } else {
                 trigger_error('GMP or BCMATH extension not installed!', E_USER_ERROR);
             }
@@ -426,7 +426,7 @@ class FilterIpv6 extends Spamfilter
             if (function_exists('gmp_init')) {
                 $mask = gmp_mul(gmp_init(1), gmp_pow(gmp_init(2), 128 - min((int) $bits[1], 128)));
             } elseif (function_exists('bcadd')) {
-                $mask = bcmul(1, bcpow(2, 128 - min((int) $bits[1], 128))); // @phpstan-ignore-line
+                $mask = bcmul('1', bcpow('2', (string) (128 - min((int) $bits[1], 128))));
             } else {
                 trigger_error('GMP or BCMATH extension not installed!', E_USER_ERROR);
             }

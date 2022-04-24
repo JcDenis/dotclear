@@ -45,6 +45,12 @@ class Updater
     protected $forced_files = [];
 
     /**
+     * @var array<int,string> $errors
+     *                        List of errors during update
+     */
+    public static $errors = [];
+
+    /**
      * Constructor.
      *
      * @param string $url       Versions file URL
@@ -211,10 +217,9 @@ class Updater
         $changes = $this->md5sum($root, $digests_file);
 
         if (!empty($changes)) {
-            $e            = new AdminException('Some files have changed.', self::ERR_FILES_CHANGED);
-            $e->bad_files = $changes;   // @phpstan-ignore-line
+            self::$errors = $changes;
 
-            throw $e;
+            throw new AdminException('Some files have changed.', self::ERR_FILES_CHANGED);
         }
 
         return true;
@@ -359,10 +364,9 @@ class Updater
 
         // If only one file is not readable, stop everything now
         if (!empty($not_readable)) {
-            $e            = new AdminException('Some files are not readable.', self::ERR_FILES_UNREADABLE);
-            $e->bad_files = $not_readable;  // @phpstan-ignore-line
+            self::$errors = $not_readable;
 
-            throw $e;
+            throw new AdminException('Some files are not readable.', self::ERR_FILES_UNREADABLE);
         }
 
         $b_zip->write();
@@ -438,10 +442,9 @@ class Updater
 
         // If only one file is not writable, stop everything now
         if (!empty($not_writable)) {
-            $e            = new AdminException('Some files are not writable', self::ERR_FILES_UNWRITALBE);
-            $e->bad_files = $not_writable;  // @phpstan-ignore-line
+            self::$errors = $not_writable;
 
-            throw $e;
+            throw new AdminException('Some files are not writable', self::ERR_FILES_UNWRITALBE);
         }
 
         // Everything's fine, we can write files, then do it now

@@ -183,7 +183,7 @@ class Handler extends AbstractPage
                     dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Tags', ['tag' => $this->t_tag], true) .
                         '</p></form>';
                     // Remove tag
-                    if (!$this->t_posts->isEmpty() && dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {    // @phpstan-ignore-line
+                    if (dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
                         echo '<form id="tag_delete" action="' . dotclear()->adminurl()->root() . '" method="post">' .
                         '<p><input type="submit" class="delete" name="delete" value="' . __('Delete this tag') . '" />' .
                     dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Tags', ['tag' => $this->t_tag], true) .

@@ -132,7 +132,7 @@ class ImportFeed extends Module
             }
             // Port control (white list regexp)
             if (dotclear()->blog()->settings()->get('system')->get('import_feed_port_regexp') != '' && isset($bits['port'])) {
-                if (!preg_match(dotclear()->blog()->settings()->get('system')->get('import_feed_port_regexp'), $bits['port'])) { // @phpstan-ignore-line
+                if (!preg_match(dotclear()->blog()->settings()->get('system')->get('import_feed_port_regexp'), (string) $bits['port'])) {
                     throw new ModuleException(__('Cannot retrieve feed URL.'));
                 }
             }

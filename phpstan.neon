@@ -5,9 +5,6 @@
 # or (replacing conf level by 1, … up to 8):
 # bin/phpstan analyse -l 1 --memory-limit=-1
 
-includes:
-#  - phpstan.local.neon
-
 parameters:
   level: 5
 
@@ -16,25 +13,15 @@ parameters:
 
   fileExtensions:
     - php
-    - in
 
   scanFiles:
     - index.php
+    - admin/index.php
+    - admin/install/index.php
+    - src/Process/Distrib/upgrade-cli.php
 
   paths:
-    - admin
     - src
-
-  excludePaths:
-    - inc/*
-
-  reportUnmatchedIgnoredErrors: false
-
-  ignoreErrors:
-
-    # Intensive use of magic __set/__get/__call/__invoke causes theses wrong warnings
-    #- message: '#Access to an undefined property form[a-zA-Z0-9\\_]+::#'
-    #  path: %currentWorkingDirectory%
 
 # Notes:
 #

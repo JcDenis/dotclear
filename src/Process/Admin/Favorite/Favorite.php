@@ -257,7 +257,7 @@ class Favorite
      */
     public function getAvailableFavoritesIDs(): array
     {
-        return array_keys($this->fav_defs->getArrayCopy()); // @phpstan-ignore-line
+        return array_keys($this->fav_defs->getArrayCopy());
     }
 
     /**

@@ -189,9 +189,9 @@ class Update extends AbstractPage
                         'Please fix this or try to <a href="https://dotclear.org/download">update manually</a>.');
                 }
 
-                if (isset($e->bad_files)) {
+                if (!empty(Updater::$errors)) {
                     $msg .= '<ul><li><strong>' .
-                    implode('</strong></li><li><strong>', $e->bad_files) .
+                    implode('</strong></li><li><strong>', Updater::$errors) .
                         '</strong></li></ul>';
                 }
 

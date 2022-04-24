@@ -124,7 +124,7 @@ $(function() {
     <?php if (!empty($s->get('custom_color_list'))) { ?>
         CKEDITOR.config.colorButton_colors = '<?php echo $s->get('custom_color_list'); ?>';
     <?php }?>
-    CKEDITOR.config.colorButton_colorsPerRow = <?php echo $s->get('colors_per_row') ?: 6; /* @phpstan-ignore-line */ ?>;
+    CKEDITOR.config.colorButton_colorsPerRow = <?php echo $s->get('colors_per_row') ?: 6; ?>;
 <?php } ?>
 
     CKEDITOR.config.defaultLanguage = dotclear.user_language;

@@ -451,14 +451,13 @@ class Context
 
         foreach ($pol as $k => &$v) {
             if (isset($base[$k]) || isset($base['NO' . $k])) {
-                $v = isset($base['NO' . $k]) ? 'NO' . $k : $k;
+                $pol[$k] = $v = isset($base['NO' . $k]) ? 'NO' . $k : $k;
             }
             if (isset($over[$k]) || isset($over['NO' . $k])) {
-                $v = isset($over['NO' . $k]) ? 'NO' . $k : $k;
+                $pol[$k] = $v = isset($over['NO' . $k]) ? 'NO' . $k : $k;
             }
         }
 
-        // @phpstan-ignore-next-line
         if ('ARCHIVE' == $pol['ARCHIVE']) {
             unset($pol['ARCHIVE']);
         }

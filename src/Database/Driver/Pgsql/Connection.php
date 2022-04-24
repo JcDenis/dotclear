@@ -216,7 +216,7 @@ class Connection extends AbstractConnection
     public function db_escape_string(?string $str, mixed $handle = null): string
     {
         if ($handle instanceof \PgSql\Connection) {
-            // @phpstan-ignore-next-line
+            // @phpstan-ignore-next-line (Failed to parse php8.1 pg_escape_string arguments type)
             return pg_escape_string($handle, (string) $str);
         }
 

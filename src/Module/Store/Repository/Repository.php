@@ -79,7 +79,7 @@ class Repository
             return false;
         }
 
-        $raw_datas = !$parser ? [] : $parser->getModules(); // @phpstan-ignore-line
+        $raw_datas = !$parser ? [] : $parser->getModules();
 
         uasort($raw_datas, [$this, 'sort']);
 

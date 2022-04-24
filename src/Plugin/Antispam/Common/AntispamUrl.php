@@ -80,7 +80,6 @@ class AntispamUrl extends Url
 
         while ($rs->fetch() && ($nbitems < $maxitems)) {
             ++$nbitems;
-            // @phpstan-ignore-next-line
             $uri    = dotclear()->config()->get('admin_url') != '' ? dotclear()->config()->get('admin_url') . '?handler=admin.comment&id=' . $rs->f('comment_id') : 'about:blank';
             $author = $rs->f('comment_author');
             $title  = $rs->f('post_title') . ' - ' . $author;

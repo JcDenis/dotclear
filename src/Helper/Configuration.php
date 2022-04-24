@@ -25,7 +25,7 @@ class Configuration
     use ErrorTrait;
 
     /**
-     * @var array<string,bool> $file
+     * @var array<string,bool> $files
      *                         List of read path
      */
     protected static $files = [];

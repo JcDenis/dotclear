@@ -110,10 +110,10 @@ if (!function_exists('dotclear_error')) {
     /**
      * Root function to display errors.
      *
-     * @param string     $message The message
-     * @param string     $detail  The detail
-     * @param int        $code    The code
-     * @param null|array $traces  The traces
+     * @param string                $message The message
+     * @param string                $detail  The detail
+     * @param int                   $code    The code
+     * @param null|array<int,array> $traces  The traces
      */
     function dotclear_error(string $message, string $detail = '', int $code = 0, ?array $traces = null): void
     {

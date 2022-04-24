@@ -821,7 +821,6 @@ trait TraitModulesAdmin
                     );
                 }
 
-                // @phpstan-ignore-next-line
                 if ($config || $index || !empty($module->section()) || !empty($module->tags()) || !empty($module->settings())
                     || !empty($module->repository()) && dotclear()->config()->get('store_allow_repo') && !dotclear()->production()
                 ) {

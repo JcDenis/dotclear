@@ -270,8 +270,7 @@ class HtmlFilter
             $tidy->parseString($str, $config, 'utf8');
             $tidy->cleanRepair();
 
-            // @phpstan-ignore-next-line
-            $str = (string) $tidy;
+            $str = tidy_get_output($tidy);
 
             $str = preg_replace('#^<p>tt</p>\s?#', '', $str);
         } else {

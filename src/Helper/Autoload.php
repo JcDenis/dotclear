@@ -76,7 +76,7 @@ class Autoload
             $this->root_base_dir = $this->normalizeBaseDir($root_base_dir);
         }
 
-        // @phpstan-ignore-next-line
+        // @phpstan-ignore-next-line (Failed to see array as callable but works great)
         spl_autoload_register([$this, 'loadClass'], true, $prepend);
     }
 

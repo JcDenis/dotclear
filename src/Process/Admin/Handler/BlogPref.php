@@ -810,7 +810,7 @@ class BlogPref extends AbstractPage
             echo '<p>' . __('XML/RPC interface is active. You should set the following parameters on your XML/RPC client:') . '</p>' .
             '<ul>' .
             '<li>' . __('Server URL:') . ' <strong><code>' .
-            sprintf(dotclear()->config()->get('xmlrpc_url'), dotclear()->blog()->url, dotclear()->blog()->id) . // @phpstan-ignore-line
+            sprintf(dotclear()->config()->get('xmlrpc_url'), dotclear()->blog()->url, dotclear()->blog()->id) .
             '</code></strong></li>' .
             '<li>' . __('Blogging system:') . ' <strong><code>Movable Type</code></strong></li>' .
             '<li>' . __('User name:') . ' <strong><code>' . dotclear()->user()->userID() . '</code></strong></li>' .
