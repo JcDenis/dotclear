@@ -197,7 +197,7 @@ class Core
      */
     public $prefix                  = '';
 
-    // / @name Core instance methods
+    // / @name Core instance methods and magic
     // @{
     /**
      * Consructor.
@@ -227,7 +227,7 @@ class Core
     }
 
     /**
-     * Disable clone method.
+     * Disable magic clone method.
      *
      * This method is mark as <b>final</b>
      * to cope with singleton instance.
@@ -238,23 +238,23 @@ class Core
     }
 
     /**
-     * Disable sleep method.
+     * Disable magic sleep method.
      *
      * This method is mark as <b>final</b>
      * to cope with singleton instance.
      */
-    final public function __sleep()
+    final public function __sleep(): array
     {
         trigger_error('Core instance can not be serialized.', E_USER_ERROR);
     }
 
     /**
-     * Disable wakeup method.
+     * Disablemagic  wakeup method.
      *
      * This method is mark as <b>final</b>
      * to cope with singleton instance.
      */
-    final public function __wakeup()
+    final public function __wakeup(): void
     {
         trigger_error('Core instance can not be deserialized.', E_USER_ERROR);
     }

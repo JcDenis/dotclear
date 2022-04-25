@@ -49,38 +49,6 @@ class XmlTag
     }
 
     /**
-     * @see insertAttr()
-     *
-     * @param mixed $name
-     * @param mixed $value
-     */
-    public function __set($name, $value)
-    {
-        $this->insertAttr($name, $value);
-    }
-
-    /**
-     * Add a tag.
-     *
-     * This magic __call method appends a tag to XML tree.
-     *
-     * @param string $name Tag name
-     * @param array  $args Function arguments, the first one would be tag content
-     */
-    public function __call($name, $args)
-    {
-        if (!preg_match('#^[a-z_]#', (string) $name)) {
-            return false;
-        }
-
-        if (!isset($args[0])) {
-            $args[0] = null;
-        }
-
-        $this->insertNode(new self($name, $args[0]));
-    }
-
-    /**
      * Add CDTA.
      *
      * Appends CDATA to current tag.

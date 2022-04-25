@@ -46,7 +46,7 @@ abstract class Component
     }
 
     /**
-     * Magic getter method.
+     * Get a property.
      *
      * @param string $property The property
      *
@@ -61,14 +61,8 @@ abstract class Component
         return null;
     }
 
-    /*
-        public function __get(string $property)
-        {
-            return $this->get($property);
-        }
-    */
     /**
-     * Magic setter method.
+     * Set a property.
      *
      * @param string $property The property
      * @param mixed  $value    The value
@@ -82,12 +76,6 @@ abstract class Component
         return $this;
     }
 
-    /*
-        public function __set(string $property, $value)
-        {
-            return $this->set($property, $value);
-        }
-    */
     /**
      * Check if a property exists.
      *
@@ -154,12 +142,6 @@ abstract class Component
         return $this;
     }
 
-    /*
-        public function __call(string $method, $arguments)
-        {
-            return call_user_func_array([$this, 'call'], $arguments);
-        }
-    */
     /**
      * Magic invoke method.
      *
