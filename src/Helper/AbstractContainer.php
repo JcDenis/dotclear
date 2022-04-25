@@ -22,28 +22,22 @@ use Exception;
 abstract class AbstractContainer
 {
     /**
-     * @var string $id
-     *             The container id
-     */
-    protected $id = '';
-
-    /**
-     * @var array<string,mixed> $info
+     * @var array<string,mixed> $default
      *                          Default properties
      */
-    protected $info = [];
+    private $default = [];
 
     /**
-     * @var array<string,mixed> $row
-     *                          Properties
+     * @var array<string,mixed> $current
+     *                          Current properties
      */
-    private $row = [];
+    private $current = [];
 
     /**
-     * @var array<string,mixed> $change
-     *                          Modified properties
+     * @var array<string,string> $changed
+     *                           Modified properties
      */
-    private $change = [];
+    private $changed = [];
 
     /**
      * Constructor.
@@ -52,24 +46,26 @@ abstract class AbstractContainer
      */
     public function __construct(Record $rs = null)
     {
-        foreach ($this->info() as $key => $value) {
-            $this->add($key, $value);
+        foreach ($this->initDefaultProperties() as $key => $value) {
+            $this->current[$key] = $this->default[$key] = $value;
         }
 
-        $this->fromRecord($rs);
+        $this->parseFromRecord($rs);
     }
 
     /**
      * Update properties from record.
      *
+     * Only fields existing in default properties are set.
+     *
      * @param Record $rs A record
      */
-    public function fromRecord(Record $rs = null): void
+    public function parseFromRecord(Record $rs = null): void
     {
-        if ($rs && !$rs->isEmpty()) {
-            foreach ($this->info() as $key => $value) {
+        if (null != $rs && !$rs->isEmpty()) {
+            foreach ($this->getDefaultProperties() as $key => $value) {
                 if ($rs->exists($key)) {
-                    $this->row[$key] = $rs->f($key);
+                    $this->current[$key] = $rs->f($key);
                 }
             }
         }
@@ -83,9 +79,9 @@ abstract class AbstractContainer
      *
      * @param Cursor $cur A cursor
      */
-    public function toCursor(Cursor $cur): Cursor
+    public function parseToCursor(Cursor $cur): Cursor
     {
-        foreach ($this->change as $key => $value) {
+        foreach ($this->getChangedProperties() as $key => $value) {
             $cur->setField($key, $value);
         }
 
@@ -93,31 +89,46 @@ abstract class AbstractContainer
     }
 
     /**
-     * Get container id.
+     * Set default properties.
+     *
+     * This method is called on class construction
+     * and must return an array of key/value pair of default properties.
+     *
+     * @note
+     * The type of default values is used to fixed new values type.
+     *
+     * @return array<string,mixed> the default properties
      */
-    public function id(): string
+    abstract protected function initDefaultProperties(): array;
+
+    /**
+     * Get default properties.
+     *
+     * @return array<string,mixed> The default properties
+     */
+    public function getDefaultProperties(): array
     {
-        return $this->id;
+        return $this->default;
     }
 
     /**
-     * Get container properties.
+     * Get current properties.
      *
-     * @return array<string, mixed>
+     * @return array<string,mixed> The current properties
      */
-    public function row(): array
+    public function getCurrentProperties(): array
     {
-        return $this->row;
+        return $this->current;
     }
 
     /**
-     * Get container default properties.
+     * Get modified properties.
      *
-     * @return array<string, mixed>
+     * @return array<string,mixed> The modified properties
      */
-    public function info(): array
+    public function getChangedProperties(): array
     {
-        return $this->info;
+        return $this->changed;
     }
 
     /**
@@ -130,8 +141,8 @@ abstract class AbstractContainer
      */
     public function add(string $key, mixed $value): static
     {
-        if (!$this->exists($key)) {
-            $this->row[$key] = $value;
+        if (!$this->propertyExists($key)) {
+            $this->current[$key] = $value;
         }
 
         return $this;
@@ -145,15 +156,15 @@ abstract class AbstractContainer
      *
      * @return mixed The value
      */
-    public function set(string $key, mixed $value): mixed
+    public function setProperty(string $key, mixed $value): mixed
     {
-        $this->exists($key, true);
-        if (!settype($value, gettype($this->row[$key]))) {
+        $this->propertyExists($key, true);
+        if (!settype($value, gettype($this->current[$key]))) {
             throw new Exception(sprintf('Wrong container value type for key %s', $key));
         }
-        $this->row[$key] = $this->change[$key] = $value;
+        $this->current[$key] = $this->changed[$key] = $value;
 
-        return $this->row[$key];
+        return $this->current[$key];
     }
 
     /**
@@ -163,11 +174,11 @@ abstract class AbstractContainer
      *
      * @return mixed The value
      */
-    public function get(string $key): mixed
+    public function getProperty(string $key): mixed
     {
-        $this->exists($key, true);
+        $this->propertyExists($key, true);
 
-        return $this->row[$key];
+        return $this->current[$key];
     }
 
     /**
@@ -176,9 +187,9 @@ abstract class AbstractContainer
      * @param string $key   The key
      * @param bool   $throw Throw error if key does not exist
      */
-    public function exists(string $key, bool $throw = false): bool
+    public function propertyExists(string $key, bool $throw = false): bool
     {
-        if (!($exists = array_key_exists($key, $this->row)) && $throw) {
+        if (!($exists = array_key_exists($key, $this->current)) && $throw) {
             throw new Exception(sprintf('Unknown container key %s', $key));
         }
 

@@ -20,29 +20,32 @@ use Dotclear\Helper\AbstractContainer;
  */
 class UserContainer extends AbstractContainer
 {
-    protected $id   = 'user';
-    protected $info = [
-        'user_id'           => '',
-        'user_super'        => 0,
-        'user_pwd'          => '',
-        'user_change_pwd'   => 0,
-        'user_name'         => '',
-        'user_firstname'    => '',
-        'user_displayname'  => '',
-        'user_email'        => '',
-        'user_url'          => '',
-        'user_lang'         => 'en',
-        'user_tz'           => 'Europe/London',
-        'user_post_status'  => -2,
-        'user_creadt'       => '',
-        'user_upddt'        => '',
-        'user_default_blog' => 'default',
-        'user_options'      => '',
-    ];
-
-    public function fromRecord(Record $rs = null): void
+    protected function initDefaultProperties(): array
     {
-        parent::fromRecord($rs);
+        return [
+            'user_id'           => '',
+            'user_super'        => 0,
+            'user_pwd'          => '',
+            'user_change_pwd'   => 0,
+            'user_name'         => '',
+            'user_firstname'    => '',
+            'user_displayname'  => '',
+            'user_email'        => '',
+            'user_url'          => '',
+            'user_lang'         => 'en',
+            'user_tz'           => 'Europe/London',
+            'user_post_status'  => -2,
+            'user_creadt'       => '',
+            'user_upddt'        => '',
+            'user_default_blog' => 'default',
+            'user_options'      => '',
+        ];
+    }
+
+    // Override parent class to manage "options" field.
+    public function parseFromRecord(Record $rs = null): void
+    {
+        parent::parseFromRecord($rs);
 
         // Use custom method for user options
         if (null != $rs && $rs->exists('user_options')) {
@@ -60,7 +63,7 @@ class UserContainer extends AbstractContainer
      * @param null|string $user_firstname   The user firstname
      * @param null|string $user_displayname The user displayname
      *
-     * @return string the user cn
+     * @return string The user common name
      */
     public static function getUserCN(string $user_id, ?string $user_name, ?string $user_firstname, ?string $user_displayname): string
     {
@@ -107,7 +110,7 @@ class UserContainer extends AbstractContainer
      */
     private function setOptions(array $arg): array
     {
-        $this->set('user_options', serialize(array_merge($this->getOptions(), $arg)));
+        $this->setProperty('user_options', serialize(array_merge($this->getOptions(), $arg)));
 
         return $this->getOptions();
     }
@@ -119,7 +122,7 @@ class UserContainer extends AbstractContainer
      */
     public function getOptions(): array
     {
-        return array_merge($this->defaultOptions(), empty($this->get('user_options')) ? [] : unserialize($this->get('user_options')));
+        return array_merge($this->defaultOptions(), empty($this->getProperty('user_options')) ? [] : unserialize($this->getProperty('user_options')));
     }
 
     /**

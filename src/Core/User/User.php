@@ -28,10 +28,10 @@ use Exception;
 class User
 {
     /**
-     * @var UserContainer $container
+     * @var UserContainer $user
      *                    Container instance
      */
-    protected $container;
+    protected $user;
 
     /**
      * @var Preference $preference
@@ -86,7 +86,7 @@ class User
      */
     public function __construct()
     {
-        $this->container = new UserContainer();
+        $this->user = new UserContainer();
 
         $this->perm_types = [
             'admin'        => __('administrator'),
@@ -119,7 +119,7 @@ class User
         // Check user and password
         $sql = new SelectStatement(__METHOD__);
         $sql
-            ->columns(array_keys($this->container->row()))
+            ->columns(array_keys($this->user->getCurrentProperties()))
             ->from(dotclear()->prefix . $this->user_table)
             ->where('user_id = ' . $sql->quote($user_id))
         ;
@@ -188,8 +188,8 @@ class User
             }
         }
 
-        $this->container->fromRecord($rs);
-        $this->preference = new Preference($this->container->get('user_id'));
+        $this->user->parseFromRecord($rs);
+        $this->preference = new Preference($this->user->getProperty('user_id'));
 
         // Get permissions on blogs
         return !($check_blog && false === $this->findUserBlog());
@@ -236,7 +236,7 @@ class User
      */
     public function checkPassword(string $pwd): bool
     {
-        return empty($this->container->get('user_pwd')) ? false : password_verify($pwd, $this->container->get('user_pwd'));
+        return empty($this->user->getProperty('user_pwd')) ? false : password_verify($pwd, $this->user->getProperty('user_pwd'));
     }
 
     /**
@@ -285,7 +285,7 @@ class User
      */
     public function mustChangePassword(): bool
     {
-        return (bool) $this->container->get('user_change_pwd');
+        return (bool) $this->user->getProperty('user_change_pwd');
     }
 
     /**
@@ -293,7 +293,7 @@ class User
      */
     public function isSuperAdmin(): bool
     {
-        return (bool) $this->container->get('user_super');
+        return (bool) $this->user->getProperty('user_super');
     }
 
     /**
@@ -308,7 +308,7 @@ class User
      */
     public function check(string $permissions, string $blog_id): bool
     {
-        if ($this->container->get('user_super')) {
+        if ($this->user->getProperty('user_super')) {
             return true;
         }
 
@@ -357,16 +357,16 @@ class User
             throw new CoreException($f . ' function does not exist');
         }
 
-        if ($this->container->get('user_super')) {
+        if ($this->user->getProperty('user_super')) {
             $res = call_user_func_array($f, $args);
         } else {
-            $this->container->set('user_super', true);
+            $this->user->set('user_super', true);
 
             try {
                 $res = call_user_func_array($f, $args);
-                $this->container->set('user_super', false);
+                $this->user->setProperty('user_super', false);
             } catch (Exception $e) {
-                $this->container->set('user_super', false);
+                $this->user->setProperty('user_super', false);
 
                 throw $e;
             }
@@ -393,7 +393,7 @@ class User
             return $this->blogs[$blog_id];
         }
 
-        if ($this->container->get('user_super')) {
+        if ($this->user->getProperty('user_super')) {
             $sql = new SelectStatement(__METHOD__);
             $rs  = $sql
                 ->column('blog_id')
@@ -411,7 +411,7 @@ class User
         $rs  = $sql
             ->column('permissions')
             ->from(dotclear()->prefix . $this->perm_table)
-            ->where('user_id = ' . $sql->quote($this->container->get('user_id')))
+            ->where('user_id = ' . $sql->quote($this->user->getProperty('user_id')))
             ->and('blog_id = ' . $sql->quote($blog_id))
             ->and($sql->orGroup([
                 $sql->like('permissions', '%|usage|%'),
@@ -453,7 +453,7 @@ class User
 
         $sql = new SelectStatement(__METHOD__);
 
-        if ($this->container->get('user_super')) {
+        if ($this->user->getProperty('user_super')) {
             $sql
                 ->column('blog_id')
                 ->from(dotclear()->prefix . $this->blog_table)
@@ -467,7 +467,7 @@ class User
                     dotclear()->prefix . $this->perm_table . ' P',
                     dotclear()->prefix . $this->blog_table . ' B',
                 ])
-                ->where('user_id = ' . $sql->quote($this->container->get('user_id')))
+                ->where('user_id = ' . $sql->quote($this->user->getProperty('user_id')))
                 ->and('P.blog_id = B.blog_id')
                 ->and($sql->orGroup([
                     $sql->like('permissions', '%|usage|%'),
@@ -490,16 +490,16 @@ class User
      */
     public function userID(): string
     {
-        return $this->container->get('user_id');
+        return $this->user->getProperty('user_id');
     }
 
     public function userCN(): string
     {
-        return $this->container->getUserCN(
-            $this->container->get('user_id'),
-            $this->container->get('user_name'),
-            $this->container->get('user_firstname'),
-            $this->container->get('user_displayname')
+        return $this->user->getUserCN(
+            $this->user->getProperty('user_id'),
+            $this->user->getProperty('user_name'),
+            $this->user->getProperty('user_firstname'),
+            $this->user->getProperty('user_displayname')
         );
     }
 
@@ -512,7 +512,7 @@ class User
      */
     public function getInfo(string $n)
     {
-        return $this->container->get($n);
+        return $this->user->getProperty($n);
     }
 
     /**
@@ -524,7 +524,7 @@ class User
      */
     public function getOption(string $n)
     {
-        return $this->container->getOption($n);
+        return $this->user->getOption($n);
     }
 
     /**
@@ -532,7 +532,7 @@ class User
      */
     public function getOptions(): array
     {
-        return $this->container->getOptions();
+        return $this->user->getOptions();
     }
     // @}
 
