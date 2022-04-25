@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\ImportExport\Admin\Handler
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginImportExport
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,11 +9,17 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\ImportExport\Admin;
 
+// Dotclear\Plugin\ImportExport\Admin\Handler
 use ArrayObject;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
 use Exception;
 
+/**
+ * Admin page for plugin ImportExport.
+ *
+ * @ingroup  Plugin ImportExport
+ */
 class Handler extends AbstractPage
 {
     protected function getPermissions(): string|null|false

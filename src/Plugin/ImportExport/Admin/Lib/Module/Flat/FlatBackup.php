@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat\FlatBackup
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginImportExport
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,8 +9,14 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat;
 
+// Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat\FlatBackup
 use Dotclear\Exception\ModuleException;
 
+/**
+ * Flat backup for plugin ImportExport.
+ *
+ * @ingroup  Plugin ImportExport
+ */
 class FlatBackup
 {
     protected $fp;
@@ -28,7 +31,7 @@ class FlatBackup
         '/(\\\\\\\\)/'                        => '\\',
     ];
 
-    public function __construct($file)
+    public function __construct(string $file)
     {
         if (file_exists($file) && is_readable($file)) {
             $this->fp       = fopen($file, 'rb');
@@ -45,7 +48,7 @@ class FlatBackup
         }
     }
 
-    public function getLine()
+    public function getLine(): FlatBackupItem|false
     {
         if (false === ($line = $this->nextLine())) {
             return false;
@@ -79,7 +82,7 @@ class FlatBackup
         return $this->getLine();
     }
 
-    private function nextLine()
+    private function nextLine(): string|false
     {
         if (feof($this->fp)) {
             return false;

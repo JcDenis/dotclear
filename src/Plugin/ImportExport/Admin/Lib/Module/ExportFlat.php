@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\ImportExport\Admin\Lib\Module\ExportFlat
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginImportExport
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 
+// Dotclear\Plugin\ImportExport\Admin\Lib\Module\ExportFlat
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\File\Zip\Zip;
 use Dotclear\Helper\Html\Form;
@@ -21,16 +19,21 @@ use Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 use Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat\FlatExport;
 use Exception;
 
+/**
+ * Export flat module for plugin ImportExport.
+ *
+ * @ingroup  Plugin ImportExport
+ */
 class ExportFlat extends Module
 {
-    public function setInfo()
+    public function setInfo(): void
     {
         $this->type        = 'export';
         $this->name        = __('Flat file export');
         $this->description = __('Exports a blog or a full Dotclear installation to flat file.');
     }
 
-    public function process($do)
+    public function process(string $do): void
     {
         // Export a blog
         if ('export_blog' == $do && dotclear()->user()->check('admin', dotclear()->blog()->id)) {
@@ -197,7 +200,7 @@ class ExportFlat extends Module
         }
     }
 
-    public function gui()
+    public function gui(): void
     {
         echo '<form action="' . $this->getURL(true) . '" method="post" class="fieldset">' .
         '<h3>' . __('Single blog') . '</h3>' .

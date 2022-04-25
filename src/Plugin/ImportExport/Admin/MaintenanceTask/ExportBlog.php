@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\ImportExport\Admin\MaintenanceTask\ExportBlog
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginImportExport
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,10 +9,16 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\ImportExport\Admin\MaintenanceTask;
 
+// Dotclear\Plugin\ImportExport\Admin\MaintenanceTask\ExportBlog
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
+/**
+ * Export blog maintenance task of plugin ImportExport.
+ *
+ * @ingroup  Plugin ImportExport Maintenance
+ */
 class ExportBlog extends MaintenanceTask
 {
     protected $perm  = 'admin';

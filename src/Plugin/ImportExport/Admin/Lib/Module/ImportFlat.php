@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\ImportExport\Admin\Lib\Module\ImportFlat
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginImportExport
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 
+// Dotclear\Plugin\ImportExport\Admin\Lib\Module\ImportFlat
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
@@ -23,18 +21,23 @@ use Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 use Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat\FlatImport;
 use Exception;
 
+/**
+ * Import flat for plugin ImportExport.
+ *
+ * @ingroup  Plugin ImportExport
+ */
 class ImportFlat extends Module
 {
     protected $status = false;
 
-    public function setInfo()
+    public function setInfo(): void
     {
         $this->type        = 'import';
         $this->name        = __('Flat file import');
         $this->description = __('Imports a blog or a full Dotclear installation from flat file.');
     }
 
-    public function process($do)
+    public function process(string $do): void
     {
         if ('single' == $do || 'full' == $do) {
             $this->status = $do;
@@ -155,7 +158,7 @@ class ImportFlat extends Module
         exit;
     }
 
-    public function gui()
+    public function gui(): void
     {
         if ('single' == $this->status) {
             dotclear()->notice()->success(__('Single blog successfully imported.'));
@@ -238,7 +241,7 @@ class ImportFlat extends Module
         }
     }
 
-    protected function getPublicFiles()
+    protected function getPublicFiles(): array
     {
         $public_files = [];
         $dir          = @dir(dotclear()->blog()->public_path);
@@ -260,7 +263,7 @@ class ImportFlat extends Module
         return $public_files;
     }
 
-    protected function checkFileContent($entry_path)
+    protected function checkFileContent(string $entry_path): bool
     {
         $ret = false;
 
@@ -273,7 +276,7 @@ class ImportFlat extends Module
         return $ret;
     }
 
-    private function unzip($file)
+    private function unzip(string $file): string|false
     {
         $zip = new Unzip($file);
 

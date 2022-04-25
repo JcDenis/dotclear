@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat\FlatExport
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginImportExport
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,10 +9,16 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat;
 
+// Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat\FlatExport
 use Dotclear\Database\Record;
 use Dotclear\Database\AbstractSchema;
 use Dotclear\Exception\ModuleException;
 
+/**
+ * Flat export for plugin ImportExport.
+ *
+ * @ingroup  Plugin ImportExport
+ */
 class FlatExport
 {
     private $line_reg = ['/\\\\/u', '/\n/u', '/\r/u', '/"/u'];
@@ -23,7 +26,7 @@ class FlatExport
 
     public $fp;
 
-    public function __construct($out = 'php://output')
+    public function __construct(string $out = 'php://output')
     {
         if (false === ($this->fp = fopen($out, 'w'))) {
             throw new ModuleException(__('Unable to create output file.'));

@@ -252,6 +252,11 @@
  * dotclear standard editor.
  * 
  * 
+ * @defgroup  ImportExport Plugin "Import & Export"
+ *
+ * Import and Export your blog.
+ * 
+ * 
  * @defgroup  Maintenance Plugin "Maintenance"
  *
  * Maintain your installation.

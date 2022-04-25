@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\ImportExport\Admin\Lib\Module\ImportFeed
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginImportExport
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,6 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 
+// Dotclear\Plugin\ImportExport\Admin\Lib\Module\ImportFeed
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\Text;
 use Dotclear\Helper\Html\Form;
@@ -21,13 +19,18 @@ use Dotclear\Helper\Network\Feed\Reader;
 use Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 use Exception;
 
+/**
+ * Import feed for plugin ImportExport.
+ *
+ * @ingroup  Plugin ImportExport
+ */
 class ImportFeed extends Module
 {
     protected $status   = false;
     protected $feed_url = '';
 
     // IPv6 functions (from https://gist.github.com/tbaschak/7866688)
-    private function gethostbyname6($host, $try_a = false)
+    private function gethostbyname6(string $host, bool $try_a = false): string|false
     {
         // get AAAA record for $host
         // if $try_a is true, if AAAA fails, it tries for A
@@ -42,7 +45,7 @@ class ImportFeed extends Module
         return $dns[0];
     }
 
-    private function gethostbynamel6($host, $try_a = false)
+    private function gethostbynamel6(string $host, bool $try_a = false): array|false
     {
         // get AAAA records for $host,
         // if $try_a is true, if AAAA fails, it tries for A
@@ -81,14 +84,14 @@ class ImportFeed extends Module
         return $ip6;
     }
 
-    public function setInfo()
+    public function setInfo(): void
     {
         $this->type        = 'import';
         $this->name        = __('RSS or Atom feed import');
         $this->description = __('Add a feed content to the blog.');
     }
 
-    public function process($do)
+    public function process(string $do): void
     {
         if ('ok' == $do) {
             $this->status = true;
@@ -174,7 +177,7 @@ class ImportFeed extends Module
         Http::redirect($this->getURL() . '&do=ok');
     }
 
-    public function gui()
+    public function gui(): void
     {
         if ($this->status) {
             dotclear()->notice()->success(__('Content successfully imported.'));

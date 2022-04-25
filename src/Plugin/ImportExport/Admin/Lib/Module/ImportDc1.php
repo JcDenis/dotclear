@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\ImportExport\Admin\Lib\Module\ImportDc1
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginImportExport
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,8 +9,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 
+// Dotclear\Plugin\ImportExport\Admin\Lib\Module\ImportDc1
 use ArrayObject;
 use Dotclear\Database\AbstractConnection;
+use Dotclear\Database\Record;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -23,6 +22,11 @@ use Dotclear\Helper\Crypt;
 use Dotclear\Helper\Text;
 use Exception;
 
+/**
+ * Import dotclear 1 module for plugin ImportExport.
+ *
+ * @ingroup  Plugin ImportExport
+ */
 class ImportDc1 extends Module
 {
     protected $action;
@@ -46,14 +50,14 @@ class ImportDc1 extends Module
         'cat_ids'    => [],
     ];
 
-    protected function setInfo()
+    protected function setInfo(): void
     {
         $this->type        = 'import';
         $this->name        = __('Dotclear 1.2 import');
         $this->description = __('Import a Dotclear 1.2 installation into your current blog.');
     }
 
-    public function init()
+    public function init(): void
     {
         if (!isset($_SESSION['dc1_import_vars'])) {
             $_SESSION['dc1_import_vars'] = $this->base_vars;
@@ -65,20 +69,20 @@ class ImportDc1 extends Module
         }
     }
 
-    public function resetVars()
+    public function resetVars(): void
     {
         $this->vars = $this->base_vars;
         unset($_SESSION['dc1_import_vars']);
     }
 
-    public function process($do)
+    public function process(string $do): void
     {
         $this->action = $do;
     }
 
     // We handle process in another way to always display something to
     // user
-    protected function guiprocess($do)
+    protected function guiprocess(string $do): void
     {
         switch ($do) {
             case 'step1':
@@ -131,7 +135,7 @@ class ImportDc1 extends Module
                 if ($this->importPosts($percent) === -1) {
                     Http::redirect($this->getURL() . '&do=ok');
                 } else {
-                    echo $this->progressBar(ceil($percent * 0.93) + 7);
+                    echo $this->progressBar((int) (ceil($percent * 0.93) + 7));
                 }
 
                 break;
@@ -146,7 +150,7 @@ class ImportDc1 extends Module
         }
     }
 
-    public function gui()
+    public function gui(): void
     {
         try {
             $this->guiprocess($this->action);
@@ -250,7 +254,7 @@ class ImportDc1 extends Module
     }
 
     // Simple form for step by step process
-    protected function imForm($step, $legend, $submit_value = null)
+    protected function imForm(int $step, string $legend, ?string $submit_value = null): string
     {
         if (!$submit_value) {
             $submit_value = __('next step') . ' >';
@@ -269,14 +273,14 @@ class ImportDc1 extends Module
     }
 
     // Error display
-    protected function error($e)
+    protected function error(Exception $e): void
     {
         echo '<div class="error"><strong>' . __('Errors:') . '</strong>' .
         '<p>' . $e->getMessage() . '</p></div>';
     }
 
     // Database init
-    protected function db()
+    protected function db(): AbstractConnection
     {
         $db = AbstractConnection::init($this->vars['db_driver'], $this->vars['db_host'], $this->vars['db_name'], $this->vars['db_user'], $this->vars['db_pwd']);
 
@@ -308,13 +312,13 @@ class ImportDc1 extends Module
         return $db;
     }
 
-    protected function cleanStr($str)
+    protected function cleanStr(string $str): string
     {
         return Text::cleanUTF8(@Text::toUTF8($str));
     }
 
     // Users import
-    protected function importUsers()
+    protected function importUsers(): void
     {
         $db     = $this->db();
         $prefix = $this->vars['db_prefix'];
@@ -386,7 +390,7 @@ class ImportDc1 extends Module
     }
 
     // Categories import
-    protected function importCategories()
+    protected function importCategories(): void
     {
         $db     = $this->db();
         $prefix = $this->vars['db_prefix'];
@@ -423,7 +427,7 @@ class ImportDc1 extends Module
     }
 
     // Blogroll import
-    protected function importLinks()
+    protected function importLinks(): void
     {
         $db     = $this->db();
         $prefix = $this->vars['db_prefix'];
@@ -459,7 +463,7 @@ class ImportDc1 extends Module
     }
 
     // Entries import
-    protected function importPosts(&$percent)
+    protected function importPosts(int &$percent): int
     {
         $db     = $this->db();
         $prefix = $this->vars['db_prefix'];
@@ -498,11 +502,13 @@ class ImportDc1 extends Module
         if ($this->post_offset > $this->post_count) {
             $percent = 100;
         } else {
-            $percent = $this->post_offset * 100 / $this->post_count;
+            $percent = (int) ($this->post_offset * 100 / $this->post_count);
         }
+
+        return $percent;
     }
 
-    protected function importPost($rs, $db)
+    protected function importPost(Record $rs, AbstractConnection $db): void
     {
         $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
         $cur->setField('blog_id', dotclear()->blog()->id);
@@ -556,7 +562,7 @@ class ImportDc1 extends Module
     }
 
     // Comments import
-    protected function importComments($post_id, $new_post_id, $db)
+    protected function importComments(int $post_id, int $new_post_id, AbstractConnection $db): void
     {
         $count_c = $count_t = 0;
 
@@ -611,7 +617,7 @@ class ImportDc1 extends Module
     }
 
     // Pings import
-    protected function importPings($post_id, $new_post_id, $db)
+    protected function importPings(int $post_id, int $new_post_id, AbstractConnection $db): void
     {
         $urls = [];
 
@@ -637,7 +643,7 @@ class ImportDc1 extends Module
     }
 
     // Meta import
-    protected function importMeta($post_id, $new_post_id, $db)
+    protected function importMeta(int $post_id, int $new_post_id, AbstractConnection $db): void
     {
         $rs = $db->select(
             'SELECT * FROM ' . $this->vars['db_prefix'] . 'post_meta ' .

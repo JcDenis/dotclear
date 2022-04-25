@@ -1,9 +1,6 @@
 <?php
 /**
- * @note Dotclear\Plugin\ImportExport\Admin\Prepend
- * @brief Dotclear Plugins class
- *
- * @ingroup  PluginImportExport
+ * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -12,9 +9,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\ImportExport\Admin;
 
+// Dotclear\Plugin\ImportExport\Admin\Prepend
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
+/**
+ * Admin prepend for plugin ImportExport.
+ *
+ * @ingroup  Plugin ImportExport
+ */
 class Prepend extends AbstractPrepend
 {
     use TraitPrependAdmin;
@@ -35,7 +38,6 @@ class Prepend extends AbstractPrepend
 
             if (dotclear()->user()->isSuperAdmin()) {
                 $modules['import'] = array_merge($modules['import'], [$ns . 'ImportDc1']);
-                $modules['import'] = array_merge($modules['import'], [$ns . 'ImportWp']);
             }
         });
 
