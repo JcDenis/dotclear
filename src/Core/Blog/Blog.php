@@ -356,17 +356,12 @@ class Blog
      */
     public function getUpdateDate(string $format = ''): int|string
     {
-        if ('rfc822' == $format) {
-            return Dt::rfc822($this->upddt, $this->settings()->get('system')->get('blog_timezone'));
-        }
-        if ('iso8601' == $format) {
-            return Dt::iso8601($this->upddt, $this->settings()->get('system')->get('blog_timezone'));
-        }
-        if (!$format) {
-            return Dt::str($format, $this->upddt);
-        }
-
-        return $this->upddt;
+        return match ($format) {
+            'rfc822'  => Dt::rfc822($this->upddt, $this->settings()->get('system')->get('blog_timezone')),
+            'iso8601' => Dt::iso8601($this->upddt, $this->settings()->get('system')->get('blog_timezone')),
+            ''        => Dt::str($format, $this->upddt),
+            default   => $this->upddt,
+        };
     }
     // @}
 
