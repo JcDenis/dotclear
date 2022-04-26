@@ -28,10 +28,10 @@ use Exception;
 class UserPref extends AbstractPage
 {
     /**
-     * @var UserContainer $container
+     * @var UserContainer $user
      *                    User container
      */
-    private $container;
+    private $user;
 
     /**
      * @var string $user_profile_mails
@@ -81,10 +81,10 @@ class UserPref extends AbstractPage
     {
         $page_title = __('My preferences');
 
-        $this->container = new UserContainer(dotclear()->users()->getUser(dotclear()->user()->userID()));
+        $this->user = new UserContainer(dotclear()->users()->getUser(dotclear()->user()->userID()));
 
-        if (empty($this->container->getOption('editor'))) {
-            $this->container->setOption('editor', []);
+        if (empty($this->user->getOption('editor'))) {
+            $this->user->setOption('editor', []);
         }
 
         $this->user_profile_mails = dotclear()->user()->preference()->get('profile')->get('mails');
@@ -139,7 +139,7 @@ class UserPref extends AbstractPage
         $this->available_formats = ['' => ''];
         foreach (array_keys($this->format_by_editors) as $format) {
             $this->available_formats[$format] = $format;
-            $this->container->setOption('editor', array_merge([$format => ''], $this->container->getOption('editor')));
+            $this->user->setOption('editor', array_merge([$format => ''], $this->user->getOption('editor')));
         }
 
         // Ensure Font size is set to default is empty
@@ -175,20 +175,20 @@ class UserPref extends AbstractPage
             try {
                 $pwd_check = !empty($_POST['cur_pwd']) && dotclear()->user()->checkPassword($_POST['cur_pwd']);
 
-                if (dotclear()->user()->allowPassChange() && !$pwd_check && $this->container->get('user_email') != $_POST['user_email']) {
+                if (dotclear()->user()->allowPassChange() && !$pwd_check && $this->user->getProperty('user_email') != $_POST['user_email']) {
                     throw new AdminException(__('If you want to change your email or password you must provide your current password.'));
                 }
 
                 $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'user');
 
-                $cur->setField('user_name', $this->container->set('user_name', $_POST['user_name']));
-                $cur->setField('user_firstname', $this->container->set('user_firstname', $_POST['user_firstname']));
-                $cur->setField('user_displayname', $this->container->set('user_displayname', $_POST['user_displayname']));
-                $cur->setField('user_email', $this->container->set('user_email', $_POST['user_email']));
-                $cur->setField('user_url', $this->container->set('user_url', $_POST['user_url']));
-                $cur->setField('user_lang', $this->container->set('user_lang', $_POST['user_lang']));
-                $cur->setField('user_tz', $this->container->set('user_tz', $_POST['user_tz']));
-                $cur->setField('user_options', new ArrayObject($this->container->getOptions()));
+                $cur->setField('user_name', $this->user->setProperty('user_name', $_POST['user_name']));
+                $cur->setField('user_firstname', $this->user->setProperty('user_firstname', $_POST['user_firstname']));
+                $cur->setField('user_displayname', $this->user->setProperty('user_displayname', $_POST['user_displayname']));
+                $cur->setField('user_email', $this->user->setProperty('user_email', $_POST['user_email']));
+                $cur->setField('user_url', $this->user->setProperty('user_url', $_POST['user_url']));
+                $cur->setField('user_lang', $this->user->setProperty('user_lang', $_POST['user_lang']));
+                $cur->setField('user_tz', $this->user->setProperty('user_tz', $_POST['user_tz']));
+                $cur->setField('user_options', new ArrayObject($this->user->getOptions()));
 
                 if (dotclear()->user()->allowPassChange() && !empty($_POST['new_pwd'])) {
                     if (!$pwd_check) {
@@ -236,25 +236,25 @@ class UserPref extends AbstractPage
             try {
                 $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'user');
 
-                $cur->setField('user_name', $this->container->get('user_name'));
-                $cur->setField('user_firstname', $this->container->get('user_firstname'));
-                $cur->setField('user_displayname', $this->container->get('user_displayname'));
-                $cur->setField('user_email', $this->container->get('user_email'));
-                $cur->setField('user_url', $this->container->get('user_url'));
-                $cur->setField('user_lang', $this->container->get('user_lang'));
-                $cur->setField('user_tz', $this->container->get('user_tz'));
-                $cur->setField('user_post_status', $this->container->set('user_post_status', $_POST['user_post_status']));
+                $cur->setField('user_name', $this->user->getProperty('user_name'));
+                $cur->setField('user_firstname', $this->user->getProperty('user_firstname'));
+                $cur->setField('user_displayname', $this->user->getProperty('user_displayname'));
+                $cur->setField('user_email', $this->user->getProperty('user_email'));
+                $cur->setField('user_url', $this->user->getProperty('user_url'));
+                $cur->setField('user_lang', $this->user->getProperty('user_lang'));
+                $cur->setField('user_tz', $this->user->getProperty('user_tz'));
+                $cur->setField('user_post_status', $this->user->setProperty('user_post_status', $_POST['user_post_status']));
 
-                $this->container->setOption('edit_size', $_POST['user_edit_size']);
-                if ($this->container->getOption('edit_size') < 1) {
-                    $this->container->setOption('edit_size', 10);
+                $this->user->setOption('edit_size', $_POST['user_edit_size']);
+                if ($this->user->getOption('edit_size') < 1) {
+                    $this->user->setOption('edit_size', 10);
                 }
-                $this->container->setOption('post_format', $_POST['user_post_format']);
-                $this->container->setOption('editor', $_POST['user_editor']);
-                $this->container->setOption('enable_wysiwyg', !empty($_POST['user_wysiwyg']));
-                $this->container->setOption('toolbar_bottom', !empty($_POST['user_toolbar_bottom']));
+                $this->user->setOption('post_format', $_POST['user_post_format']);
+                $this->user->setOption('editor', $_POST['user_editor']);
+                $this->user->setOption('enable_wysiwyg', !empty($_POST['user_wysiwyg']));
+                $this->user->setOption('toolbar_bottom', !empty($_POST['user_toolbar_bottom']));
 
-                $cur->setField('user_options', new ArrayObject($this->container->getOptions()));
+                $cur->setField('user_options', new ArrayObject($this->user->getOptions()));
 
                 // --BEHAVIOR-- adminBeforeUserOptionsUpdate
                 dotclear()->behavior()->call('adminBeforeUserOptionsUpdate', $cur, dotclear()->user()->userID());
@@ -521,28 +521,28 @@ class UserPref extends AbstractPage
 
         '<p><label for="user_name">' . __('Last Name:') . '</label>' .
         Form::field('user_name', 20, 255, [
-            'default'      => Html::escapeHTML($this->container->get('user_name')),
+            'default'      => Html::escapeHTML($this->user->getProperty('user_name')),
             'autocomplete' => 'family-name',
         ]) .
         '</p>' .
 
         '<p><label for="user_firstname">' . __('First Name:') . '</label>' .
         Form::field('user_firstname', 20, 255, [
-            'default'      => Html::escapeHTML($this->container->get('user_firstname')),
+            'default'      => Html::escapeHTML($this->user->getProperty('user_firstname')),
             'autocomplete' => 'given-name',
         ]) .
         '</p>' .
 
         '<p><label for="user_displayname">' . __('Display name:') . '</label>' .
         Form::field('user_displayname', 20, 255, [
-            'default'      => Html::escapeHTML($this->container->get('user_displayname')),
+            'default'      => Html::escapeHTML($this->user->getProperty('user_displayname')),
             'autocomplete' => 'nickname',
         ]) .
         '</p>' .
 
         '<p><label for="user_email">' . __('Email:') . '</label>' .
         Form::email('user_email', [
-            'default'      => Html::escapeHTML($this->container->get('user_email')),
+            'default'      => Html::escapeHTML($this->user->getProperty('user_email')),
             'autocomplete' => 'email',
         ]) .
         '</p>' .
@@ -557,7 +557,7 @@ class UserPref extends AbstractPage
         '<p><label for="user_url">' . __('URL:') . '</label>' .
         Form::url('user_url', [
             'size'         => 30,
-            'default'      => Html::escapeHTML($this->container->get('user_url')),
+            'default'      => Html::escapeHTML($this->user->getProperty('user_url')),
             'autocomplete' => 'url',
         ]) .
         '</p>' .
@@ -570,10 +570,10 @@ class UserPref extends AbstractPage
         '<p class="form-note info" id="sanitize_urls">' . __('Invalid URLs will be automatically removed from list.') . '</p>' .
 
         '<p><label for="user_lang">' . __('Language for my interface:') . '</label>' .
-        Form::combo('user_lang', dotclear()->combo()->getAdminLangsCombo(), $this->container->get('user_lang'), 'l10n') . '</p>' .
+        Form::combo('user_lang', dotclear()->combo()->getAdminLangsCombo(), $this->user->getProperty('user_lang'), 'l10n') . '</p>' .
 
         '<p><label for="user_tz">' . __('My timezone:') . '</label>' .
-        Form::combo('user_tz', Dt::getZones(true, true), $this->container->get('user_tz')) . '</p>';
+        Form::combo('user_tz', Dt::getZones(true, true), $this->user->getProperty('user_tz')) . '</p>';
 
         if (dotclear()->user()->allowPassChange()) {
             echo '<h4 class="vertical-separator pretty-title">' . __('Change my password') . '</h4>' .
@@ -731,7 +731,7 @@ class UserPref extends AbstractPage
         '<h4 id="user_options_edition">' . __('Edition') . '</h4>';
 
         echo '<div class="two-boxes odd">';
-        $user_editors = $this->container->getOption('editor');
+        $user_editors = $this->user->getOption('editor');
         foreach ($this->format_by_editors as $format => $editors) {
             echo '<p class="field"><label for="user_editor_' . $format . '">' . sprintf(__('Preferred editor for %s:'), $format) . '</label>' .
             Form::combo(
@@ -741,20 +741,20 @@ class UserPref extends AbstractPage
             ) . '</p>';
         }
         echo '<p class="field"><label for="user_post_format">' . __('Preferred format:') . '</label>' .
-        Form::combo('user_post_format', $this->available_formats, $this->container->getOption('post_format')) . '</p>';
+        Form::combo('user_post_format', $this->available_formats, $this->user->getOption('post_format')) . '</p>';
 
         echo '<p class="field"><label for="user_post_status">' . __('Default entry status:') . '</label>' .
-        Form::combo('user_post_status', dotclear()->combo()->getPostStatusesCombo(), $this->container->get('user_post_status')) . '</p>' .
+        Form::combo('user_post_status', dotclear()->combo()->getPostStatusesCombo(), $this->user->getProperty('user_post_status')) . '</p>' .
 
         '<p class="field"><label for="user_edit_size">' . __('Entry edit field height:') . '</label>' .
-        Form::number('user_edit_size', 10, 999, (string) $this->container->getOption('edit_size')) . '</p>' .
+        Form::number('user_edit_size', 10, 999, (string) $this->user->getOption('edit_size')) . '</p>' .
 
         '<p><label for="user_wysiwyg" class="classic">' .
-        Form::checkbox('user_wysiwyg', 1, $this->container->getOption('enable_wysiwyg')) . ' ' .
+        Form::checkbox('user_wysiwyg', 1, $this->user->getOption('enable_wysiwyg')) . ' ' .
         __('Enable WYSIWYG mode') . '</label></p>' .
 
         '<p><label for="user_toolbar_bottom" class="classic">' .
-        Form::checkbox('user_toolbar_bottom', 1, $this->container->getOption('toolbar_bottom')) . ' ' .
+        Form::checkbox('user_toolbar_bottom', 1, $this->user->getOption('toolbar_bottom')) . ' ' .
         __('Display editor\'s toolbar at bottom of textarea (if possible)') . '</label></p>' .
 
             '</div>';

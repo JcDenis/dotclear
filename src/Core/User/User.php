@@ -360,7 +360,7 @@ class User
         if ($this->user->getProperty('user_super')) {
             $res = call_user_func_array($f, $args);
         } else {
-            $this->user->set('user_super', true);
+            $this->user->setProperty('user_super', true);
 
             try {
                 $res = call_user_func_array($f, $args);
