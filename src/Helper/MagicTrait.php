@@ -13,7 +13,7 @@ namespace Dotclear\Helper;
 
 /**
  * Simple no magic trait.
- * 
+ *
  * This mainly used for code cleaning.
  */
 trait MagicTrait

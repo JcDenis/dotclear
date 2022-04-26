@@ -162,7 +162,7 @@ class FlatImport extends FlatBackup
 
     /**
      * @var array<string,int> $lft_categories
-     *                     The lft categories
+     *                        The lft categories
      */
     public $lft_categories = [];
 

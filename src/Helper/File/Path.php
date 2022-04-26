@@ -88,6 +88,7 @@ class Path
 
         $p = $_start . implode('/', $res);
 
+        // @todo \@ is not sufficient to avoid E_WARNING on some config
         if ($strict && !@file_exists($p)) {
             return false;
         }

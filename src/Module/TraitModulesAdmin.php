@@ -373,7 +373,7 @@ trait TraitModulesAdmin
      */
     public function getSearch(): ?string
     {
-        $query = !empty($_REQUEST['m_search']) ? trim($_REQUEST['m_search']) : null;
+        $query = !empty($_REQUEST['m_search']) ? $_REQUEST['m_search'] : null;
 
         return strlen((string) $query) >= 2 ? $query : null;
     }
