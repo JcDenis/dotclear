@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\Update
+use Dotclear\App;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Zip\Unzip;
@@ -50,26 +51,26 @@ class Update extends AbstractPage
             ])
         ;
 
-        if (!is_dir(dotclear()->config()->get('backup_dir'))) {
+        if (!is_dir(App::core()->config()->get('backup_dir'))) {
             $this->error()->add(__('Backup directory does not exist'));
 
             return true;
         }
 
-        if (!is_readable(dotclear()->config()->get('digests_dir'))) {
+        if (!is_readable(App::core()->config()->get('digests_dir'))) {
             $this->error()->add(__('Access denied'));
 
             return true;
         }
 
-        $this->upd_updater     = new Updater(dotclear()->config()->get('core_update_url'), 'dotclear', dotclear()->config()->get('core_update_channel'), dotclear()->config()->get('cache_dir') . '/versions');
-        $this->upd_new_version = $this->upd_updater->check(dotclear()->config()->get('core_version'), !empty($_GET['nocache']));
-        $zip_file              = $this->upd_new_version ? dotclear()->config()->get('backup_dir') . '/' . basename($this->upd_updater->getFileURL()) : '';
+        $this->upd_updater     = new Updater(App::core()->config()->get('core_update_url'), 'dotclear', App::core()->config()->get('core_update_channel'), App::core()->config()->get('cache_dir') . '/versions');
+        $this->upd_new_version = $this->upd_updater->check(App::core()->config()->get('core_version'), !empty($_GET['nocache']));
+        $zip_file              = $this->upd_new_version ? App::core()->config()->get('backup_dir') . '/' . basename($this->upd_updater->getFileURL()) : '';
 
         // Hide "update me" message
         if (!empty($_GET['hide_msg'])) {
             $this->upd_updater->setNotify(false);
-            dotclear()->adminurl()->redirect('admin.home');
+            App::core()->adminurl()->redirect('admin.home');
         }
 
         $this->upd_step = $_GET['step'] ?? '';
@@ -80,7 +81,7 @@ class Update extends AbstractPage
             $default_tab = 'files';
         }
 
-        foreach (Files::scanDir(dotclear()->config()->get('backup_dir')) as $v) {
+        foreach (Files::scanDir(App::core()->config()->get('backup_dir')) as $v) {
             if (preg_match('/backup-([0-9A-Za-z\.-]+).zip/', $v)) {
                 $this->upd_archives[] = $v;
             }
@@ -93,8 +94,8 @@ class Update extends AbstractPage
 
         if (!$this->upd_step) {
             $this->setPageHead(
-                dotclear()->resource()->pageTabs($default_tab) .
-                dotclear()->resource()->load('_update.js')
+                App::core()->resource()->pageTabs($default_tab) .
+                App::core()->resource()->load('_update.js')
             );
         }
 
@@ -104,32 +105,32 @@ class Update extends AbstractPage
 
             try {
                 if (!empty($_POST['b_del'])) {
-                    if (!@unlink(dotclear()->config()->get('backup_dir') . '/' . $b_file)) {
+                    if (!@unlink(App::core()->config()->get('backup_dir') . '/' . $b_file)) {
                         throw new AdminException(sprintf(__('Unable to delete file %s'), Html::escapeHTML($b_file)));
                     }
-                    dotclear()->adminurl()->redirect('admin.update', ['tab' => 'files']);
+                    App::core()->adminurl()->redirect('admin.update', ['tab' => 'files']);
                 }
 
                 if (!empty($_POST['b_revert'])) {
-                    $zip = new Unzip(dotclear()->config()->get('backup_dir') . '/' . $b_file);
-                    $zip->unzipAll(dotclear()->config()->get('backup_dir') . '/');
-                    @unlink(dotclear()->config()->get('backup_dir') . '/' . $b_file);
-                    dotclear()->adminurl()->redirect('admin.update', ['tab' => 'files']);
+                    $zip = new Unzip(App::core()->config()->get('backup_dir') . '/' . $b_file);
+                    $zip->unzipAll(App::core()->config()->get('backup_dir') . '/');
+                    @unlink(App::core()->config()->get('backup_dir') . '/' . $b_file);
+                    App::core()->adminurl()->redirect('admin.update', ['tab' => 'files']);
                 }
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
         // Upgrade process
         if ($this->upd_new_version && $this->upd_step) {
             try {
-                $this->upd_updater->setForcedFiles(dotclear()->config()->get('digests_dir'));
+                $this->upd_updater->setForcedFiles(App::core()->config()->get('digests_dir'));
 
                 switch ($this->upd_step) {
                     case 'check':
-                        $this->upd_updater->checkIntegrity(dotclear()->config()->get('digests_dir'), dotclear()->config()->get('root_dir'));
-                        dotclear()->adminurl()->redirect('admin.update', ['step' => 'download']);
+                        $this->upd_updater->checkIntegrity(App::core()->config()->get('digests_dir'), App::core()->config()->get('root_dir'));
+                        App::core()->adminurl()->redirect('admin.update', ['step' => 'download']);
 
                         break;
 
@@ -138,13 +139,13 @@ class Update extends AbstractPage
                         if (!$this->upd_updater->checkDownload($zip_file)) {
                             throw new AdminException(
                                 sprintf(__('Downloaded Dotclear archive seems to be corrupted. ' .
-                                    'Try <a %s>download it</a> again.'), 'href="' . dotclear()->adminurl()->get('admin.update', ['step' => 'download']) . '"') .
+                                    'Try <a %s>download it</a> again.'), 'href="' . App::core()->adminurl()->get('admin.update', ['step' => 'download']) . '"') .
                                 ' ' .
                                 __('If this problem persists try to ' .
                                     '<a href="https://dotclear.org/download">update manually</a>.')
                             );
                         }
-                        dotclear()->adminurl()->redirect('admin.update', ['step' => 'backup']);
+                        App::core()->adminurl()->redirect('admin.update', ['step' => 'backup']);
 
                         break;
 
@@ -152,11 +153,11 @@ class Update extends AbstractPage
                         $this->upd_updater->backup(
                             $zip_file,
                             'dotclear/digests',
-                            dotclear()->config()->get('root_dir'),
-                            dotclear()->config()->get('digests_dir'),
-                            dotclear()->config()->get('backup_dir') . '/backup-' . dotclear()->config()->get('core_version') . '.zip'
+                            App::core()->config()->get('root_dir'),
+                            App::core()->config()->get('digests_dir'),
+                            App::core()->config()->get('backup_dir') . '/backup-' . App::core()->config()->get('core_version') . '.zip'
                         );
-                        dotclear()->adminurl()->redirect('admin.update', ['step' => 'unzip']);
+                        App::core()->adminurl()->redirect('admin.update', ['step' => 'unzip']);
 
                         break;
 
@@ -165,8 +166,8 @@ class Update extends AbstractPage
                             $zip_file,
                             'dotclear/digests',
                             'dotclear',
-                            dotclear()->config()->get('root_dir'),
-                            dotclear()->config()->get('digests_dir')
+                            App::core()->config()->get('root_dir'),
+                            App::core()->config()->get('digests_dir')
                         );
 
                         break;
@@ -182,7 +183,7 @@ class Update extends AbstractPage
                     $msg = sprintf(
                         __('The following files of your Dotclear installation are not readable. ' .
                         'Please fix this or try to make a backup file named %s manually.'),
-                        '<strong>backup-' . dotclear()->config()->get('core_version') . '.zip</strong>'
+                        '<strong>backup-' . App::core()->config()->get('core_version') . '.zip</strong>'
                     );
                 } elseif ($e->getCode() == Updater::ERR_FILES_UNWRITALBE) {
                     $msg = __('The following files of your Dotclear installation cannot be written. ' .
@@ -195,9 +196,9 @@ class Update extends AbstractPage
                         '</strong></li></ul>';
                 }
 
-                dotclear()->error()->add($msg);
+                App::core()->error()->add($msg);
 
-                dotclear()->behavior()->call('adminDCUpdateException', $e);
+                App::core()->behavior()->call('adminDCUpdateException', $e);
             }
         }
 
@@ -212,9 +213,9 @@ class Update extends AbstractPage
             return;
         }
 
-        if (!dotclear()->error()->flag()) {
+        if (!App::core()->error()->flag()) {
             if (!empty($_GET['nocache'])) {
-                dotclear()->notice()->success(__('Manual checking of update done successfully.'));
+                App::core()->notice()->success(__('Manual checking of update done successfully.'));
             }
         }
 
@@ -222,18 +223,18 @@ class Update extends AbstractPage
             echo '<div class="multi-part" id="update" title="' . __('Dotclear update') . '">';
 
             // Warning about PHP version if necessary
-            if (version_compare(phpversion(), dotclear()->config()->get('php_next_required'), '<')) {
+            if (version_compare(phpversion(), App::core()->config()->get('php_next_required'), '<')) {
                 echo '<p class="info more-info">' .
                 sprintf(
                     __('The next versions of Dotclear will not support PHP version < %s, your\'s is currently %s'),
-                    dotclear()->config()->get('php_next_required'),
+                    App::core()->config()->get('php_next_required'),
                     phpversion()
                 ) .
                 '</p>';
             }
             if (empty($this->upd_new_version)) {
                 echo '<p><strong>' . __('No newer Dotclear version available.') . '</strong></p>' .
-                '<form action="' . dotclear()->adminurl()->get('admin.update', [], '&') . '" method="get">' .
+                '<form action="' . App::core()->adminurl()->get('admin.update', [], '&') . '" method="get">' .
                 '<p><input type="hidden" name="nocache" value="1" />' .
                 '<input type="submit" value="' . __('Force checking update Dotclear') . '" /></p>' .
                     '</form>';
@@ -249,7 +250,7 @@ class Update extends AbstractPage
                 } else {
                     echo '<p>' . __('To upgrade your Dotclear installation simply click on the following button. ' .
                         'A backup file of your current installation will be created in your root directory.') . '</p>' .
-                    '<form action="' . dotclear()->adminurl()->get('admin.update', [], '&') . '" method="get">' .
+                    '<form action="' . App::core()->adminurl()->get('admin.update', [], '&') . '" method="get">' .
                     '<p><input type="hidden" name="step" value="check" />' .
                     '<input type="submit" value="' . __('Update Dotclear') . '" /></p>' .
                         '</form>';
@@ -264,7 +265,7 @@ class Update extends AbstractPage
                 '<p>' . __('The following files are backups of previously updates. ' .
                     'You can revert your previous installation or delete theses files.') . '</p>';
 
-                echo '<form action="' . dotclear()->adminurl()->get('admin.update', [], '&') . '" method="post">';
+                echo '<form action="' . App::core()->adminurl()->get('admin.update', [], '&') . '" method="post">';
                 foreach ($this->upd_archives as $v) {
                     echo '<p><label class="classic">' . Form::radio(['backup_file'], Html::escapeHTML($v)) . ' ' .
                     Html::escapeHTML($v) . '</label></p>';
@@ -276,15 +277,15 @@ class Update extends AbstractPage
                 '</p>' .
                 '<p><input type="submit" class="delete" name="b_del" value="' . __('Delete selected file') . '" /> ' .
                 '<input type="submit" name="b_revert" value="' . __('Revert to selected file') . '" />' .
-                dotclear()->nonce()->form() . '</p>' .
+                App::core()->nonce()->form() . '</p>' .
                     '</form>';
 
                 echo '</div>';
             }
-        } elseif ('unzip' == $this->upd_step && !dotclear()->error()->flag()) {
+        } elseif ('unzip' == $this->upd_step && !App::core()->error()->flag()) {
             echo '<p class="message">' .
             __("Congratulations, you're one click away from the end of the update.") .
-            ' <strong><a href="' . dotclear()->adminurl()->get('admin.home', ['logout' => 1], '&') . '" class="button submit">' . __('Finish the update.') . '</a></strong>' .
+            ' <strong><a href="' . App::core()->adminurl()->get('admin.home', ['logout' => 1], '&') . '" class="button submit">' . __('Finish the update.') . '</a></strong>' .
                 '</p>';
         }
     }

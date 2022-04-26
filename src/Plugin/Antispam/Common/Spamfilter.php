@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Antispam\Common;
 
 // Dotclear\Plugin\Antispam\Common\Spamfilter
+use Dotclear\App;
 use Dotclear\Database\Record;
 use Dotclear\Helper\Html\Html;
 
@@ -43,8 +44,8 @@ class Spamfilter
             $this->name = $this->id;
         }
 
-        if (dotclear()->processed('Admin')) {
-            $this->gui_url = dotclear()->adminurl()->get('admin.plugin.Antispam', ['f' => $this->id], '&');
+        if (App::core()->processed('Admin')) {
+            $this->gui_url = App::core()->adminurl()->get('admin.plugin.Antispam', ['f' => $this->id], '&');
         }
     }
 
@@ -126,7 +127,7 @@ class Spamfilter
 
     public function hasGUI(): bool
     {
-        if (!dotclear()->user()->check('admin', dotclear()->blog()->id)) {
+        if (!App::core()->user()->check('admin', App::core()->blog()->id)) {
             return false;
         }
 

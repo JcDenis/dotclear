@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Tags\Admin;
 
 // Dotclear\Plugin\Tags\Admin\Prepend
+use Dotclear\App;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 use Dotclear\Plugin\Tags\Common\TagsCore;
@@ -39,7 +40,7 @@ class Prepend extends AbstractPrepend
         new TagsXmlrpc();
 
         // Widgets
-        if (dotclear()->adminurl()->is('admin.plugin.Widgets')) {
+        if (App::core()->adminurl()->is('admin.plugin.Widgets')) {
             new TagsWidgets();
         }
     }

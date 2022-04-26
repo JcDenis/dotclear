@@ -11,6 +11,7 @@ namespace Dotclear\Process\Admin\Inventory\Inventory;
 
 // Dotclear\Process\Admin\Inventory\Inventory\BlogInventory
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Helper\Dt;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -52,7 +53,7 @@ class BlogInventory extends Inventory
 
             $cols = [
                 'blog' => '<th' .
-                (dotclear()->user()->isSuperAdmin() ? ' colspan="2"' : '') .
+                (App::core()->user()->isSuperAdmin() ? ' colspan="2"' : '') .
                 ' scope="col" abbr="comm" class="first nowrap">' . __('Blog id') . '</th>',
                 'name'   => '<th scope="col" abbr="name">' . __('Blog name') . '</th>',
                 'url'    => '<th scope="col" class="nowrap">' . __('URL') . '</th>',
@@ -62,7 +63,7 @@ class BlogInventory extends Inventory
             ];
 
             $cols = new ArrayObject($cols);
-            dotclear()->behavior()->call('adminBlogListHeader', $this->rs, $cols);
+            App::core()->behavior()->call('adminBlogListHeader', $this->rs, $cols);
 
             $html_block = '<div class="table-outer"><table>' .
             (
@@ -111,19 +112,19 @@ class BlogInventory extends Inventory
         $blog_id = Html::escapeHTML($this->rs->f('blog_id'));
 
         $cols = [
-            'check' => (dotclear()->user()->isSuperAdmin() ?
+            'check' => (App::core()->user()->isSuperAdmin() ?
                 '<td class="nowrap">' .
                 Form::checkbox(['blogs[]'], $this->rs->f('blog_id'), $checked) .
                 '</td>' : ''),
             'blog' => '<td class="nowrap">' .
-            (dotclear()->user()->isSuperAdmin() ?
-                '<a href="' . dotclear()->adminurl()->get('admin.blog', ['id' => $blog_id]) . '"  ' .
+            (App::core()->user()->isSuperAdmin() ?
+                '<a href="' . App::core()->adminurl()->get('admin.blog', ['id' => $blog_id]) . '"  ' .
                 'title="' . sprintf(__('Edit blog settings for %s'), $blog_id) . '">' .
                 '<img src="?df=images/edit-mini.png" alt="' . __('Edit blog settings') . '" /> ' . $blog_id . '</a> ' :
                 $blog_id . ' ') .
             '</td>',
             'name' => '<td class="maximal">' .
-            '<a href="' . dotclear()->adminurl()->get('admin.home', ['switchblog' => $this->rs->f('blog_id')]) . '" ' .
+            '<a href="' . App::core()->adminurl()->get('admin.home', ['switchblog' => $this->rs->f('blog_id')]) . '" ' .
             'title="' . sprintf(__('Switch to blog %s'), $this->rs->f('blog_id')) . '">' .
             Html::escapeHTML($this->rs->f('blog_name')) . '</a>' .
             '</td>',
@@ -132,22 +133,22 @@ class BlogInventory extends Inventory
             Html::escapeHTML($this->rs->f('blog_url')) . '">' . Html::escapeHTML($this->rs->f('blog_url')) .
             ' <img src="?df=images/outgoing-link.svg" alt="" /></a></td>',
             'posts' => '<td class="nowrap count">' .
-            dotclear()->blogs()->countBlogPosts($this->rs->f('blog_id')) .
+            App::core()->blogs()->countBlogPosts($this->rs->f('blog_id')) .
             '</td>',
             'upddt' => '<td class="nowrap count">' .
-            Dt::str(__('%Y-%m-%d %H:%M'), strtotime($this->rs->f('blog_upddt')) + Dt::getTimeOffset(dotclear()->user()->getInfo('user_tz'))) .
+            Dt::str(__('%Y-%m-%d %H:%M'), strtotime($this->rs->f('blog_upddt')) + Dt::getTimeOffset(App::core()->user()->getInfo('user_tz'))) .
             '</td>',
             'status' => '<td class="nowrap status txt-center">' .
             sprintf(
                 '<img src="?df=images/%1$s.png" alt="%2$s" title="%2$s" />',
                 (1 == $this->rs->f('blog_status') ? 'check-on' : (0 == $this->rs->f('blog_status') ? 'check-off' : 'check-wrn')),
-                dotclear()->blogs()->getBlogStatus($this->rs->fInt('blog_status'))
+                App::core()->blogs()->getBlogStatus($this->rs->fInt('blog_status'))
             ) .
             '</td>',
         ];
 
         $cols = new ArrayObject($cols);
-        dotclear()->behavior()->call('adminBlogListValue', $this->rs, $cols);
+        App::core()->behavior()->call('adminBlogListValue', $this->rs, $cols);
 
         return
         '<tr class="line" id="b' . $blog_id . '">' .

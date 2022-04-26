@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\AboutConfig\Admin;
 
 // Dotclear\Plugin\AboutConfig\Admin\Handler
+use Dotclear\App;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
@@ -32,12 +33,12 @@ class Handler extends AbstractPage
     {
         // Local navigation
         if (!empty($_POST['gs_nav'])) {
-            dotclear()->adminurl()->redirect('admin.plugin.AboutConfig', [], $_POST['gs_nav']);
+            App::core()->adminurl()->redirect('admin.plugin.AboutConfig', [], $_POST['gs_nav']);
 
             exit;
         }
         if (!empty($_POST['ls_nav'])) {
-            dotclear()->adminurl()->redirect('admin.plugin.AboutConfig', [], $_POST['ls_nav']);
+            App::core()->adminurl()->redirect('admin.plugin.AboutConfig', [], $_POST['ls_nav']);
 
             exit;
         }
@@ -50,15 +51,15 @@ class Handler extends AbstractPage
                         if ('array' == $_POST['s_type'][$ns][$k]) {
                             $v = json_decode($v, true);
                         }
-                        dotclear()->blog()->settings()->get($ns)->put($k, $v);
+                        App::core()->blog()->settings()->get($ns)->put($k, $v);
                     }
-                    dotclear()->blog()->triggerBlog();
+                    App::core()->blog()->triggerBlog();
                 }
 
-                dotclear()->notice()->addSuccessNotice(__('Configuration successfully updated'));
-                dotclear()->adminurl()->redirect('admin.plugin.AboutConfig');
+                App::core()->notice()->addSuccessNotice(__('Configuration successfully updated'));
+                App::core()->adminurl()->redirect('admin.plugin.AboutConfig');
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
@@ -70,15 +71,15 @@ class Handler extends AbstractPage
                         if ('array' == $_POST['gs_type'][$ns][$k]) {
                             $v = json_decode($v, true);
                         }
-                        dotclear()->blog()->settings()->get($ns)->put($k, $v, null, null, true, true);
+                        App::core()->blog()->settings()->get($ns)->put($k, $v, null, null, true, true);
                     }
-                    dotclear()->blog()->triggerBlog();
+                    App::core()->blog()->triggerBlog();
                 }
 
-                dotclear()->notice()->addSuccessNotice(__('Configuration successfully updated'));
-                dotclear()->adminurl()->redirect('admin.plugin.AboutConfig', ['part' => 'global']);
+                App::core()->notice()->addSuccessNotice(__('Configuration successfully updated'));
+                App::core()->adminurl()->redirect('admin.plugin.AboutConfig', ['part' => 'global']);
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
@@ -87,13 +88,13 @@ class Handler extends AbstractPage
             ->setPageTitle(__('about:config'))
             ->setPageHelp('aboutConfig')
             ->setPageHead(
-                dotclear()->resource()->pageTabs(!empty($_GET['part']) && 'global' == $_GET['part'] ? 'global' : 'local') .
-                dotclear()->resource()->load('index.js', 'Plugin', 'AboutConfig')
+                App::core()->resource()->pageTabs(!empty($_GET['part']) && 'global' == $_GET['part'] ? 'global' : 'local') .
+                App::core()->resource()->load('index.js', 'Plugin', 'AboutConfig')
             )
             ->setPageBreadcrumb([
-                __('System')                               => '',
-                Html::escapeHTML(dotclear()->blog()->name) => '',
-                __('about:config')                         => '',
+                __('System')                                => '',
+                Html::escapeHTML(App::core()->blog()->name) => '',
+                __('about:config')                          => '',
             ])
         ;
 
@@ -102,11 +103,11 @@ class Handler extends AbstractPage
 
     protected function getPageContent(): void
     {
-        echo '<div id="local" class="multi-part" title="' . sprintf(__('Settings for %s'), Html::escapeHTML(dotclear()->blog()->name)) . '">' .
-        '<h3 class="out-of-screen-if-js">' . sprintf(__('Settings for %s'), Html::escapeHTML(dotclear()->blog()->name)) . '</h3>';
+        echo '<div id="local" class="multi-part" title="' . sprintf(__('Settings for %s'), Html::escapeHTML(App::core()->blog()->name)) . '">' .
+        '<h3 class="out-of-screen-if-js">' . sprintf(__('Settings for %s'), Html::escapeHTML(App::core()->blog()->name)) . '</h3>';
 
         $settings = [];
-        foreach (dotclear()->blog()->settings()->dump() as $ns => $namespace) {
+        foreach (App::core()->blog()->settings()->dump() as $ns => $namespace) {
             foreach ($namespace->dumpSettings() as $k => $v) {
                 $settings[$ns][$k] = $v;
             }
@@ -129,7 +130,7 @@ class Handler extends AbstractPage
         '<h3 class="out-of-screen-if-js">' . __('Global settings') . '</h3>';
 
         $settings = [];
-        foreach (dotclear()->blog()->settings()->dump() as $ns => $namespace) {
+        foreach (App::core()->blog()->settings()->dump() as $ns => $namespace) {
             foreach ($namespace->dumpGlobalSettings() as $k => $v) {
                 $settings[$ns][$k] = $v;
             }
@@ -151,12 +152,12 @@ class Handler extends AbstractPage
 
     private function settingMenu(array $combo, bool $global): void
     {
-        echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" class="anchor-nav-sticky">' .
+        echo '<form action="' . App::core()->adminurl()->root() . '" method="post" class="anchor-nav-sticky">' .
         '<p class="anchor-nav">' .
         '<label for="' . ($global ? 'g' : 'l') . 's_nav" class="classic">' . __('Goto:') . '</label> ' .
         form::combo(($global ? 'g' : 'l') . 's_nav', $combo, ['class' => 'navigation']) .
         ' <input type="submit" value="' . __('Ok') . '" id="' . ($global ? 'g' : 'l') . 's_submit" />' .
-        dotclear()->adminurl()->getHiddenFormFields('admin.plugin.AboutConfig', [], true) .
+        App::core()->adminurl()->getHiddenFormFields('admin.plugin.AboutConfig', [], true) .
         '</p></form>';
     }
 
@@ -174,7 +175,7 @@ class Handler extends AbstractPage
             '<tbody>';
         $table_footer = '</tbody></table></div>';
 
-        echo '<form action="' . dotclear()->adminurl()->root() . '" method="post">';
+        echo '<form action="' . App::core()->adminurl()->root() . '" method="post">';
 
         foreach ($prefs as $ws => $s) {
             ksort($s);
@@ -187,7 +188,7 @@ class Handler extends AbstractPage
 
         echo '<p><input type="submit" value="' . __('Save') . '" />' .
         '<input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
-        dotclear()->adminurl()->getHiddenFormFields('admin.plugin.AboutConfig', [], true) . '</p>' .
+        App::core()->adminurl()->getHiddenFormFields('admin.plugin.AboutConfig', [], true) . '</p>' .
         '</form>';
     }
 

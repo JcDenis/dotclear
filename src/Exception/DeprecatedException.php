@@ -12,6 +12,7 @@ namespace Dotclear\Exception;
 // Dotclear\Exception\DeprecatedException
 use Exception;
 use Throwable;
+use Dotclear\App;
 
 /**
  * Deprecated exception.
@@ -34,7 +35,7 @@ class DeprecatedException extends Exception
 
     public static function throw(): void
     {
-        if (!dotclear()->production()) {
+        if (!App::core()->production()) {
             throw new self();
         }
     }

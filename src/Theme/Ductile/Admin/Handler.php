@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Theme\Ductile\Admin;
 
 // Dotclear\Theme\Ductile\Admin\Handler
+use Dotclear\App;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\File\Files;
@@ -126,19 +127,19 @@ class Handler extends AbstractPage
             }
         }
 
-        $ductile_user = (string) dotclear()->blog()->settings()->get('themes')->get(dotclear()->blog()->settings()->get('system')->get('theme') . '_style');
+        $ductile_user = (string) App::core()->blog()->settings()->get('themes')->get(App::core()->blog()->settings()->get('system')->get('theme') . '_style');
         $ductile_user = @unserialize($ductile_user);
         if (is_array($ductile_user)) {
             $this->Ductile_user = array_merge($this->Ductile_user, $ductile_user);
         }
 
-        $ductile_lists = (string) dotclear()->blog()->settings()->get('themes')->get(dotclear()->blog()->settings()->get('system')->get('theme') . '_entries_lists');
+        $ductile_lists = (string) App::core()->blog()->settings()->get('themes')->get(App::core()->blog()->settings()->get('system')->get('theme') . '_entries_lists');
         $ductile_lists = @unserialize($ductile_lists);
         if (is_array($ductile_lists)) {
             $this->Ductile_lists = array_merge($this->Ductile_lists, $ductile_lists);
         }
 
-        $ductile_counts = (string) dotclear()->blog()->settings()->get('themes')->get(dotclear()->blog()->settings()->get('system')->get('theme') . '_entries_counts');
+        $ductile_counts = (string) App::core()->blog()->settings()->get('themes')->get(App::core()->blog()->settings()->get('system')->get('theme') . '_entries_counts');
         $ductile_counts = @unserialize($ductile_counts);
         if (is_array($ductile_counts)) {
             $this->Ductile_counts = array_merge($this->Ductile_counts, $ductile_counts);
@@ -146,11 +147,11 @@ class Handler extends AbstractPage
 
         $this->Ductile_stickers = [[
             'label' => __('Subscribe'),
-            'url'   => dotclear()->blog()->getURLFor('feed', 'atom'),
+            'url'   => App::core()->blog()->getURLFor('feed', 'atom'),
             'image' => 'sticker-feed.png',
         ]];
 
-        $ductile_stickers = (string) dotclear()->blog()->settings()->get('themes')->get(dotclear()->blog()->settings()->get('system')->get('theme') . '_stickers');
+        $ductile_stickers = (string) App::core()->blog()->settings()->get('themes')->get(App::core()->blog()->settings()->get('system')->get('theme') . '_stickers');
         $ductile_stickers = @unserialize($ductile_stickers);
         if (is_array($ductile_stickers)) {
             $this->Ductile_stickers = $ductile_stickers;
@@ -257,17 +258,17 @@ class Handler extends AbstractPage
                     $this->Ductile_user['post_title_c_m'] = $this->Ductile_config->adjustColor($_POST['post_title_c_m']);
                 }
 
-                dotclear()->blog()->settings()->get('themes')->put(dotclear()->blog()->settings()->get('system')->get('theme') . '_style', serialize($this->Ductile_user));
-                dotclear()->blog()->settings()->get('themes')->put(dotclear()->blog()->settings()->get('system')->get('theme') . '_stickers', serialize($this->Ductile_stickers));
-                dotclear()->blog()->settings()->get('themes')->put(dotclear()->blog()->settings()->get('system')->get('theme') . '_entries_lists', serialize($this->Ductile_lists));
-                dotclear()->blog()->settings()->get('themes')->put(dotclear()->blog()->settings()->get('system')->get('theme') . '_entries_counts', serialize($this->Ductile_counts));
+                App::core()->blog()->settings()->get('themes')->put(App::core()->blog()->settings()->get('system')->get('theme') . '_style', serialize($this->Ductile_user));
+                App::core()->blog()->settings()->get('themes')->put(App::core()->blog()->settings()->get('system')->get('theme') . '_stickers', serialize($this->Ductile_stickers));
+                App::core()->blog()->settings()->get('themes')->put(App::core()->blog()->settings()->get('system')->get('theme') . '_entries_lists', serialize($this->Ductile_lists));
+                App::core()->blog()->settings()->get('themes')->put(App::core()->blog()->settings()->get('system')->get('theme') . '_entries_counts', serialize($this->Ductile_counts));
 
-                dotclear()->blog()->triggerBlog();
-                dotclear()->emptyTemplatesCache();
+                App::core()->blog()->triggerBlog();
+                App::core()->emptyTemplatesCache();
 
-                dotclear()->notice()->addSuccessNotice(__('Theme configuration upgraded.'));
+                App::core()->notice()->addSuccessNotice(__('Theme configuration upgraded.'));
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
@@ -275,19 +276,19 @@ class Handler extends AbstractPage
         $this
             ->setPageTitle(__('Ductile configuration'))
             ->setPageHelp('ductile')
-            ->setPageHead(dotclear()->resource()->pageTabs())
+            ->setPageHead(App::core()->resource()->pageTabs())
             ->setPageBreadcrumb([
-                Html::escapeHTML(dotclear()->blog()->name) => '',
-                __('Blog appearance')                      => dotclear()->adminurl()->get('admin.blog.theme'),
-                __('Ductile configuration')                => '',
+                Html::escapeHTML(App::core()->blog()->name) => '',
+                __('Blog appearance')                       => App::core()->adminurl()->get('admin.blog.theme'),
+                __('Ductile configuration')                 => '',
             ])
         ;
 
-        if (!dotclear()->user()->preference()->get('accessibility')->get('nodragdrop')) {
+        if (!App::core()->user()->preference()->get('accessibility')->get('nodragdrop')) {
             $this->setpageHead(
-                dotclear()->resource()->load('jquery/jquery-ui.custom.js') .
-                dotclear()->resource()->load('jquery/jquery.ui.touch-punch.js') .
-                dotclear()->resource()->load('config.js', 'Theme', 'Ductile')
+                App::core()->resource()->load('jquery/jquery-ui.custom.js') .
+                App::core()->resource()->load('jquery/jquery.ui.touch-punch.js') .
+                App::core()->resource()->load('config.js', 'Theme', 'Ductile')
             );
         }
 
@@ -325,14 +326,14 @@ class Handler extends AbstractPage
             __('stylesheet (Google)') => 'css',
         ];
 
-        $img_url = dotclear()->blog()->url . 'resources/img/';
+        $img_url = App::core()->blog()->url . 'resources/img/';
 
         // HTML Tab
 
         echo '<div class="multi-part" id="themes-list-html" title="' . __('Content') . '">' .
         '<h3>' . __('Content') . '</h3>';
 
-        echo '<form id="theme_config" action="' . dotclear()->adminurl()->root() . '#themes-list-html' .
+        echo '<form id="theme_config" action="' . App::core()->adminurl()->root() . '#themes-list-html' .
             '" method="post" enctype="multipart/form-data">';
 
         echo '<h4>' . __('Header') . '</h4>' .
@@ -340,10 +341,10 @@ class Handler extends AbstractPage
         Form::checkbox('subtitle_hidden', 1, $this->Ductile_user['subtitle_hidden']) . '</p>';
         echo '<p class="field"><label for="logo_src">' . __('Logo URL:') . '</label> ' .
         Form::field('logo_src', 40, 255, $this->Ductile_user['logo_src']) . '</p>';
-        if (dotclear()->plugins()->hasModule('SimpleMenu')) {
+        if (App::core()->plugins()->hasModule('SimpleMenu')) {
             echo '<p>' . sprintf(
                 __('To configure the top menu go to the <a href="%s">Simple Menu administration page</a>.'),
-                dotclear()->adminurl()->get('admin.plugin.SimpleMenu')
+                App::core()->adminurl()->get('admin.plugin.SimpleMenu')
             ) . '</p>';
         }
 
@@ -414,7 +415,7 @@ class Handler extends AbstractPage
 
         echo '<p><input type="hidden" name="conf_tab" value="html" /></p>';
         echo '<p class="clear">' . Form::hidden('ds_order', '') . '<input type="submit" value="' . __('Save') . '" />' .
-        dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Ductile', [], true) . '</p>';
+        App::core()->adminurl()->getHiddenFormFields('admin.plugin.Ductile', [], true) . '</p>';
         echo '</form>';
 
         echo '</div>'; // Close tab
@@ -423,7 +424,7 @@ class Handler extends AbstractPage
 
         echo '<div class="multi-part" id="themes-list-css' . '" title="' . __('Presentation') . '">';
 
-        echo '<form id="theme_config" action="' . dotclear()->adminurl()->root() . '#themes-list-css' .
+        echo '<form id="theme_config" action="' . App::core()->adminurl()->root() . '#themes-list-css' .
             '" method="post" enctype="multipart/form-data">';
 
         echo '<h3>' . __('General settings') . '</h3>';
@@ -587,7 +588,7 @@ class Handler extends AbstractPage
 
         echo '<p><input type="hidden" name="conf_tab" value="css" /></p>';
         echo '<p class="clear border-top"><input type="submit" value="' . __('Save') . '" />' .
-        dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Ductile', [], true) . '</p>';
+        App::core()->adminurl()->getHiddenFormFields('admin.plugin.Ductile', [], true) . '</p>';
         echo '</form>';
 
         echo '</div>'; // Close tab

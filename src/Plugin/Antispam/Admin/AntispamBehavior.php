@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\Antispam\Admin;
 
 // Dotclear\Plugin\Antispam\Admin\AntispamBehavior
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\XmlTag;
@@ -26,16 +27,16 @@ class AntispamBehavior
     public function __construct()
     {
         // Rest service
-        dotclear()->rest()->addFunction('getSpamsCount', [$this, 'restGetSpamsCount']);
+        App::core()->rest()->addFunction('getSpamsCount', [$this, 'restGetSpamsCount']);
 
         // Admin behaviors
-        dotclear()->behavior()->add('adminDashboardFavsIcon', [$this, 'behaviorAdminDashboardFavsIcon']);
+        App::core()->behavior()->add('adminDashboardFavsIcon', [$this, 'behaviorAdminDashboardFavsIcon']);
 
-        if (false == DC_ANTISPAM_CONF_SUPER || dotclear()->user()->isSuperAdmin()) {
-            dotclear()->behavior()->add('adminBlogPreferencesForm', [$this, 'behaviorAdminBlogPreferencesForm']);
-            dotclear()->behavior()->add('adminBeforeBlogSettingsUpdate', [$this, 'behaviorAdminBeforeBlogSettingsUpdate']);
-            dotclear()->behavior()->add('adminCommentsSpamForm', [$this, 'behaviorAdminCommentsSpamForm']);
-            dotclear()->behavior()->add('adminPageHelpBlock', [$this, 'behaviorAdminPageHelpBlock']);
+        if (false == DC_ANTISPAM_CONF_SUPER || App::core()->user()->isSuperAdmin()) {
+            App::core()->behavior()->add('adminBlogPreferencesForm', [$this, 'behaviorAdminBlogPreferencesForm']);
+            App::core()->behavior()->add('adminBeforeBlogSettingsUpdate', [$this, 'behaviorAdminBeforeBlogSettingsUpdate']);
+            App::core()->behavior()->add('adminCommentsSpamForm', [$this, 'behaviorAdminCommentsSpamForm']);
+            App::core()->behavior()->add('adminPageHelpBlock', [$this, 'behaviorAdminPageHelpBlock']);
         }
     }
 
@@ -46,7 +47,7 @@ class AntispamBehavior
         if ('comments' == $name) {
             // Hack comments title if there is at least one spam
             if (0 < ($count = (new Antispam())->countSpam())) {
-                $str = '</span></a> <a href="' . dotclear()->adminurl()->get('admin.comments', ['status' => '-2']) . '"><span class="db-icon-title-spam">' .
+                $str = '</span></a> <a href="' . App::core()->adminurl()->get('admin.comments', ['status' => '-2']) . '"><span class="db-icon-title-spam">' .
                     sprintf((1 < $count) ? __('(including %d spam comments)') : __('(including %d spam comment)'), $count);
             }
 
@@ -74,10 +75,10 @@ class AntispamBehavior
 
     public function behaviorAdminCommentsSpamForm(): void
     {
-        $ttl = dotclear()->blog()->settings()->get('antispam')->get('antispam_moderation_ttl');
+        $ttl = App::core()->blog()->settings()->get('antispam')->get('antispam_moderation_ttl');
         if (null != $ttl && 0 <= $ttl) {
             echo '<p>' . sprintf(__('All spam comments older than %s day(s) will be automatically deleted.'), $ttl) . ' ' .
-            sprintf(__('You can modify this duration in the %s'), '<a href="' . dotclear()->adminurl()->get('admin.blog.pref') .
+            sprintf(__('You can modify this duration in the %s'), '<a href="' . App::core()->adminurl()->get('admin.blog.pref') .
                 '#antispam_moderation_ttl"> ' . __('Blog settings') . '</a>') .
                 '.</p>';
         }
@@ -91,7 +92,7 @@ class AntispamBehavior
         ' ' . __('days') .
         '</label></p>' .
         '<p class="form-note">' . __('Set -1 to disabled this feature ; Leave empty to use default 7 days delay.') . '</p>' .
-        '<p><a href="' . dotclear()->adminurl()->get('admin.plugin.Antispam') . '">' . __('Set spam filters.') . '</a></p>' .
+        '<p><a href="' . App::core()->adminurl()->get('admin.plugin.Antispam') . '">' . __('Set spam filters.') . '</a></p>' .
             '</div>';
     }
 

@@ -10,12 +10,13 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Menu;
 
 // Dotclear\Process\Admin\Menu\Menu
+use Dotclear\App;
 use Dotclear\Helper\Lexical;
 
 /**
  * Admin menu item helper.
  *
- * Accessible from dotclear()->summary()['a_menu_id']
+ * Accessible from App::core()->summary()['a_menu_id']
  *
  * @ingroup  Admin
  */
@@ -150,7 +151,7 @@ class Menu
 
         return
             '<li' . (($active || $class) ? ' class="' . (($active) ? 'active ' : '') . (($class) ? $class : '') . '"' : '') . '>' .
-            '<a href="' . $link . '"' . $ahtml . '>' . dotclear()->summary()->getIconTheme($img) . $title . '</a>' .
+            '<a href="' . $link . '"' . $ahtml . '>' . App::core()->summary()->getIconTheme($img) . $title . '</a>' .
             '</li>' . "\n";
     }
 }

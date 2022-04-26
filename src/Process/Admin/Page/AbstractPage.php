@@ -11,6 +11,7 @@ namespace Dotclear\Process\Admin\Page;
 
 // Dotclear\Process\Admin\Page\AbstractPage
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Html\Form;
@@ -115,27 +116,27 @@ abstract class AbstractPage
         }
 
         // Super Admin
-        if (dotclear()->user()->isSuperAdmin()) {
+        if (App::core()->user()->isSuperAdmin()) {
             return;
         }
 
         // Has required permissions
-        if (is_string($permissions) && dotclear()->blog() && dotclear()->user()->check($this->getPermissions(), dotclear()->blog()->id)) {
+        if (is_string($permissions) && App::core()->blog() && App::core()->user()->check($this->getPermissions(), App::core()->blog()->id)) {
             return;
         }
 
         // Check if dashboard is not the current page and if it is granted for the user
-        if ('admin.home' != $this->handler && dotclear()->blog() && dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id)) {
+        if ('admin.home' != $this->handler && App::core()->blog() && App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)) {
             // Go back to the dashboard
-            dotclear()->adminurl()->redirect('admin.home');
+            App::core()->adminurl()->redirect('admin.home');
         }
 
         // Not enought permissions
         if (session_id()) {
-            dotclear()->session()->destroy();
+            App::core()->session()->destroy();
         }
         // Go to auth page
-        dotclear()->adminurl()->redirect('admin.auth');
+        App::core()->adminurl()->redirect('admin.auth');
     }
 
     /**
@@ -163,7 +164,7 @@ abstract class AbstractPage
                 $this->inventory = $inventory_class;
             }
         } catch (Exception $e) {
-            dotclear()->error()->add($e->getMessage());
+            App::core()->error()->add($e->getMessage());
         }
 
         // Get page Prepend actions (stop process loop on null)
@@ -183,7 +184,7 @@ abstract class AbstractPage
         $this->pageBreadcrumb();
 
         // Get notices
-        echo dotclear()->notice()->getNotices();
+        echo App::core()->notice()->getNotices();
 
         // Get page content
         $this->getPageContent();
@@ -214,22 +215,22 @@ abstract class AbstractPage
         $js = [];
 
         // List of user's blogs
-        if (1 == dotclear()->user()->getBlogCount() || 20 < dotclear()->user()->getBlogCount()) {
-            $blog_box = '<p>' . __('Blog:') . ' <strong title="' . Html::escapeHTML(dotclear()->blog()->url) . '">' .
-            Html::escapeHTML(dotclear()->blog()->name) . '</strong>';
+        if (1 == App::core()->user()->getBlogCount() || 20 < App::core()->user()->getBlogCount()) {
+            $blog_box = '<p>' . __('Blog:') . ' <strong title="' . Html::escapeHTML(App::core()->blog()->url) . '">' .
+            Html::escapeHTML(App::core()->blog()->name) . '</strong>';
 
-            if (20 < dotclear()->user()->getBlogCount()) {
-                $blog_box .= ' - <a href="' . dotclear()->adminurl()->get('admin.blogs') . '">' . __('Change blog') . '</a>';
+            if (20 < App::core()->user()->getBlogCount()) {
+                $blog_box .= ' - <a href="' . App::core()->adminurl()->get('admin.blogs') . '">' . __('Change blog') . '</a>';
             }
             $blog_box .= '</p>';
         } else {
-            $rs_blogs = dotclear()->blogs()->getBlogs(['order' => 'LOWER(blog_name)', 'limit' => 20]);
+            $rs_blogs = App::core()->blogs()->getBlogs(['order' => 'LOWER(blog_name)', 'limit' => 20]);
             $blogs    = [];
             while ($rs_blogs->fetch()) {
                 $blogs[Html::escapeHTML($rs_blogs->f('blog_name') . ' - ' . $rs_blogs->f('blog_url'))] = $rs_blogs->f('blog_id');
             }
             $blog_box = '<p><label for="switchblog" class="classic">' . __('Blogs:') . '</label> ' .
-            dotclear()->nonce()->form() . Form::combo('switchblog', $blogs, dotclear()->blog()->id) .
+            App::core()->nonce()->form() . Form::combo('switchblog', $blogs, App::core()->blog()->id) .
             Form::hidden(['redir'], $_SERVER['REQUEST_URI']) .
             '<input type="submit" value="' . __('ok') . '" class="hidden-if-js" /></p>';
         }
@@ -251,42 +252,42 @@ abstract class AbstractPage
         }
 
         // Content-Security-Policy (only if safe mode if not active, it may help)
-        if (!dotclear()->rescue() && dotclear()->blog()->settings()->get('system')->get('csp_admin_on')) {
+        if (!App::core()->rescue() && App::core()->blog()->settings()->get('system')->get('csp_admin_on')) {
             // Get directives from settings if exist, else set defaults
             $csp = new ArrayObject();
 
             // SQlite Clearbricks driver does not allow using single quote at beginning or end of a field value
                                                                                 // so we have to use neutral values (localhost and 127.0.0.1) for some CSP directives
-            $csp_prefix = dotclear()->con()->syntax() == 'sqlite' ? 'localhost ' : ''; // Hack for SQlite Clearbricks syntax
-            $csp_suffix = dotclear()->con()->syntax() == 'sqlite' ? ' 127.0.0.1' : ''; // Hack for SQlite Clearbricks syntax
+            $csp_prefix = App::core()->con()->syntax() == 'sqlite' ? 'localhost ' : ''; // Hack for SQlite Clearbricks syntax
+            $csp_suffix = App::core()->con()->syntax() == 'sqlite' ? ' 127.0.0.1' : ''; // Hack for SQlite Clearbricks syntax
 
-            $csp['default-src'] = dotclear()->blog()->settings()->get('system')->get('csp_admin_default') ?:
+            $csp['default-src'] = App::core()->blog()->settings()->get('system')->get('csp_admin_default') ?:
             $csp_prefix . "'self'" . $csp_suffix;
-            $csp['script-src'] = dotclear()->blog()->settings()->get('system')->get('csp_admin_script') ?:
+            $csp['script-src'] = App::core()->blog()->settings()->get('system')->get('csp_admin_script') ?:
             $csp_prefix . "'self' 'unsafe-eval'" . $csp_suffix;
-            $csp['style-src'] = dotclear()->blog()->settings()->get('system')->get('csp_admin_style') ?:
+            $csp['style-src'] = App::core()->blog()->settings()->get('system')->get('csp_admin_style') ?:
             $csp_prefix . "'self' 'unsafe-inline'" . $csp_suffix;
-            $csp['img-src'] = dotclear()->blog()->settings()->get('system')->get('csp_admin_img') ?:
+            $csp['img-src'] = App::core()->blog()->settings()->get('system')->get('csp_admin_img') ?:
             $csp_prefix . "'self' data: https://media.dotaddict.org blob:";
 
             // Cope with blog post preview (via public URL in iframe)
-            if (!is_null(dotclear()->blog()->host)) {
-                $csp['default-src'] .= ' ' . parse_url(dotclear()->blog()->host, PHP_URL_HOST);
-                $csp['script-src']  .= ' ' . parse_url(dotclear()->blog()->host, PHP_URL_HOST);
-                $csp['style-src']   .= ' ' . parse_url(dotclear()->blog()->host, PHP_URL_HOST);
+            if (!is_null(App::core()->blog()->host)) {
+                $csp['default-src'] .= ' ' . parse_url(App::core()->blog()->host, PHP_URL_HOST);
+                $csp['script-src']  .= ' ' . parse_url(App::core()->blog()->host, PHP_URL_HOST);
+                $csp['style-src']   .= ' ' . parse_url(App::core()->blog()->host, PHP_URL_HOST);
             }
             // Cope with media display in media manager (via public URL)
-            if (dotclear()->media()) {
-                $csp['img-src'] .= ' ' . parse_url(dotclear()->media()->root_url, PHP_URL_HOST);
-            } elseif (!is_null(dotclear()->blog()->host)) {
+            if (App::core()->media()) {
+                $csp['img-src'] .= ' ' . parse_url(App::core()->media()->root_url, PHP_URL_HOST);
+            } elseif (!is_null(App::core()->blog()->host)) {
                 // Let's try with the blog URL
-                $csp['img-src'] .= ' ' . parse_url(dotclear()->blog()->host, PHP_URL_HOST);
+                $csp['img-src'] .= ' ' . parse_url(App::core()->blog()->host, PHP_URL_HOST);
             }
             // Allow everything in iframe (used by editors to preview public content)
             $csp['frame-src'] = '*';
 
             // --BEHAVIOR-- adminPageHTTPHeaderCSP, ArrayObject
-            dotclear()->behavior()->call('adminPageHTTPHeaderCSP', $csp);
+            App::core()->behavior()->call('adminPageHTTPHeaderCSP', $csp);
 
             // Construct CSP header
             $directives = [];
@@ -296,23 +297,23 @@ abstract class AbstractPage
                 }
             }
             if (count($directives)) {
-                $directives[]   = 'report-uri ' . dotclear()->config()->get('admin_url') . '?handler=admin.cspreport';
-                $report_only    = dotclear()->blog()->settings()->get('system')->get('csp_admin_report_only') ? '-Report-Only' : '';
+                $directives[]   = 'report-uri ' . App::core()->config()->get('admin_url') . '?handler=admin.cspreport';
+                $report_only    = App::core()->blog()->settings()->get('system')->get('csp_admin_report_only') ? '-Report-Only' : '';
                 $headers['csp'] = 'Content-Security-Policy' . $report_only . ': ' . implode(' ; ', $directives);
             }
         }
 
         // --BEHAVIOR-- adminPageHTTPHeaders, ArrayObject
-        dotclear()->behavior()->call('adminPageHTTPHeaders', $headers);
+        App::core()->behavior()->call('adminPageHTTPHeaders', $headers);
 
         foreach ($headers as $key => $value) {
             header($value);
         }
 
-        $data_theme = dotclear()->user()->preference()->get('interface')->get('theme');
+        $data_theme = App::core()->user()->preference()->get('interface')->get('theme');
 
         echo '<!DOCTYPE html>' .
-        '<html lang="' . dotclear()->user()->getInfo('user_lang') . '" data-theme="' . $data_theme . '">' . "\n" .
+        '<html lang="' . App::core()->user()->getInfo('user_lang') . '" data-theme="' . $data_theme . '">' . "\n" .
         "<head>\n" .
         '  <meta charset="UTF-8" />' . "\n" .
         '  <meta name="ROBOTS" content="NOARCHIVE,NOINDEX,NOFOLLOW" />' . "\n" .
@@ -320,43 +321,43 @@ abstract class AbstractPage
         '  <meta name="viewport" content="width=device-width, initial-scale=1.0" />' . "\n" .
         '  <title>' . Html::escapeHTML(
             $this->page_title . ' - ' .
-                dotclear()->blog()->name . ' - ' .
-                dotclear()->config()->get('vendor_name') . ' - ' .
-                dotclear()->config()->get('core_version')
+                App::core()->blog()->name . ' - ' .
+                App::core()->config()->get('vendor_name') . ' - ' .
+                App::core()->config()->get('core_version')
         ) . '</title>' . "\n";
 
-        echo dotclear()->resource()->preload('default.css') . dotclear()->resource()->load('default.css');
+        echo App::core()->resource()->preload('default.css') . App::core()->resource()->load('default.css');
 
-        if ('rtl' == L10n::getLanguageTextDirection(dotclear()->lang())) {
-            echo dotclear()->resource()->load('default-rtl.css');
+        if ('rtl' == L10n::getLanguageTextDirection(App::core()->lang())) {
+            echo App::core()->resource()->load('default-rtl.css');
         }
 
-        if (!dotclear()->user()->preference()->get('interface')->get('hide_std_favicon')) {
+        if (!App::core()->user()->preference()->get('interface')->get('hide_std_favicon')) {
             echo '<link rel="icon" type="image/png" href="?df=images/favicon96-login.png" />' . "\n" .
                 '<link rel="shortcut icon" href="?df=images/favicon.ico" type="image/x-icon" />' . "\n";
         }
-        if (dotclear()->user()->preference()->get('interface')->get('htmlfontsize')) {
-            $js['htmlFontSize'] = dotclear()->user()->preference()->get('interface')->get('htmlfontsize');
+        if (App::core()->user()->preference()->get('interface')->get('htmlfontsize')) {
+            $js['htmlFontSize'] = App::core()->user()->preference()->get('interface')->get('htmlfontsize');
         }
-        $js['hideMoreInfo']   = (bool) dotclear()->user()->preference()->get('interface')->get('hidemoreinfo');
-        $js['showAjaxLoader'] = (bool) dotclear()->user()->preference()->get('interface')->get('showajaxloader');
-        $js['noDragDrop']     = (bool) dotclear()->user()->preference()->get('accessibility')->get('nodragdrop');
-        $js['debug']          = !dotclear()->production();
-        $js['showIp']         = dotclear()->blog() && dotclear()->blog()->id ? dotclear()->user()->check('contentadmin', dotclear()->blog()->id) : false;
+        $js['hideMoreInfo']   = (bool) App::core()->user()->preference()->get('interface')->get('hidemoreinfo');
+        $js['showAjaxLoader'] = (bool) App::core()->user()->preference()->get('interface')->get('showajaxloader');
+        $js['noDragDrop']     = (bool) App::core()->user()->preference()->get('accessibility')->get('nodragdrop');
+        $js['debug']          = !App::core()->production();
+        $js['showIp']         = App::core()->blog() && App::core()->blog()->id ? App::core()->user()->check('contentadmin', App::core()->blog()->id) : false;
 
         // Set some JSON data
-        echo dotclear()->resource()->json('dotclear_init', $js) .
-        dotclear()->resource()->common() .
-        dotclear()->resource()->toggles() .
+        echo App::core()->resource()->json('dotclear_init', $js) .
+        App::core()->resource()->common() .
+        App::core()->resource()->toggles() .
         $this->page_head;
 
         // --BEHAVIOR-- adminPageHTMLHead, string, string
-        dotclear()->behavior()->call('adminPageHTMLHead', $this->handler, $this->page_type);
+        App::core()->behavior()->call('adminPageHTMLHead', $this->handler, $this->page_type);
 
         echo "</head>\n" .
         '<body id="dotclear-admin" class="no-js' .
-        (dotclear()->rescue() ? ' safe-mode' : '') .
-        (dotclear()->production() ? '' : ' debug-mode') .
+        (App::core()->rescue() ? ' safe-mode' : '') .
+        (App::core()->production() ? '' : ' debug-mode') .
         '">' . "\n" .
 
         '<ul id="prelude">' .
@@ -365,18 +366,18 @@ abstract class AbstractPage
         '<li><a href="#help">' . __('Go to help') . '</a></li>' .
         '</ul>' . "\n" .
         '<header id="header" role="banner">' .
-        '<h1><a href="' . dotclear()->adminurl()->get('admin.home') . '"><span class="hidden">' . dotclear()->config()->get('vendor_name') . '</span></a></h1>' . "\n";
+        '<h1><a href="' . App::core()->adminurl()->get('admin.home') . '"><span class="hidden">' . App::core()->config()->get('vendor_name') . '</span></a></h1>' . "\n";
 
-        echo '<form action="' . dotclear()->adminurl()->get('admin.home') . '" method="post" id="top-info-blog">' .
+        echo '<form action="' . App::core()->adminurl()->get('admin.home') . '" method="post" id="top-info-blog">' .
         $blog_box .
-        '<p><a href="' . dotclear()->blog()->url . '" class="outgoing" title="' . __('Go to site') .
+        '<p><a href="' . App::core()->blog()->url . '" class="outgoing" title="' . __('Go to site') .
         '">' . __('Go to site') . '<img src="?df=images/outgoing-link.svg" alt="" /></a>' .
         '</p></form>' .
         '<ul id="top-info-user">' .
-        '<li><a class="' . (preg_match('"' . preg_quote(dotclear()->adminurl()->get('admin.home')) . '$"', $_SERVER['REQUEST_URI']) ? ' active' : '') . '" href="' . dotclear()->adminurl()->get('admin.home') . '">' . __('My dashboard') . '</a></li>' .
-        '<li><a class="smallscreen' . (preg_match('"' . preg_quote(dotclear()->adminurl()->get('admin.user.pref')) . '(\?.*)?$"', $_SERVER['REQUEST_URI']) ? ' active' : '') .
-        '" href="' . dotclear()->adminurl()->get('admin.user.pref') . '">' . __('My preferences') . '</a></li>' .
-        '<li><a href="' . dotclear()->adminurl()->get('admin.home', ['logout' => 1]) . '" class="logout"><span class="nomobile">' . sprintf(__('Logout %s'), dotclear()->user()->userID()) .
+        '<li><a class="' . (preg_match('"' . preg_quote(App::core()->adminurl()->get('admin.home')) . '$"', $_SERVER['REQUEST_URI']) ? ' active' : '') . '" href="' . App::core()->adminurl()->get('admin.home') . '">' . __('My dashboard') . '</a></li>' .
+        '<li><a class="smallscreen' . (preg_match('"' . preg_quote(App::core()->adminurl()->get('admin.user.pref')) . '(\?.*)?$"', $_SERVER['REQUEST_URI']) ? ' active' : '') .
+        '" href="' . App::core()->adminurl()->get('admin.user.pref') . '">' . __('My preferences') . '</a></li>' .
+        '<li><a href="' . App::core()->adminurl()->get('admin.home', ['logout' => 1]) . '" class="logout"><span class="nomobile">' . sprintf(__('Logout %s'), App::core()->user()->userID()) .
             '</span><img src="?df=images/logout.svg" alt="" /></a></li>' .
             '</ul>' .
             '</header>'; // end header
@@ -390,7 +391,7 @@ abstract class AbstractPage
             '<div id="content" class="clearfix">' . "\n";
 
         // Safe mode
-        if (dotclear()->rescue()) {
+        if (App::core()->rescue()) {
             echo '<div class="warning" role="alert"><h3>' . __('Safe mode') . '</h3>' .
             '<p>' . __('You are in safe mode. All plugins have been temporarily disabled. Remind to log out then log in again normally to get back all functionalities') . '</p>' .
                 '</div>';
@@ -420,47 +421,47 @@ abstract class AbstractPage
         // Prevents Clickjacking as far as possible
         header('X-Frame-Options: SAMEORIGIN'); // FF 3.6.9+ Chrome 4.1+ IE 8+ Safari 4+ Opera 10.5+
 
-        $data_theme = dotclear()->user()->preference()->get('interface')->get('theme');
+        $data_theme = App::core()->user()->preference()->get('interface')->get('theme');
 
         echo '<!DOCTYPE html>' .
-        '<html lang="' . dotclear()->user()->getInfo('user_lang') . '" data-theme="' . $data_theme . '">' . "\n" .
+        '<html lang="' . App::core()->user()->getInfo('user_lang') . '" data-theme="' . $data_theme . '">' . "\n" .
         "<head>\n" .
         '  <meta charset="UTF-8" />' . "\n" .
         '  <meta name="viewport" content="width=device-width, initial-scale=1.0" />' . "\n" .
-        '  <title>' . $this->page_title . ' - ' . Html::escapeHTML(dotclear()->blog()->name) . ' - ' . Html::escapeHTML(dotclear()->config()->get('vendor_name')) . ' - ' . dotclear()->config()->get('core_version') . '</title>' . "\n" .
+        '  <title>' . $this->page_title . ' - ' . Html::escapeHTML(App::core()->blog()->name) . ' - ' . Html::escapeHTML(App::core()->config()->get('vendor_name')) . ' - ' . App::core()->config()->get('core_version') . '</title>' . "\n" .
             '  <meta name="ROBOTS" content="NOARCHIVE,NOINDEX,NOFOLLOW" />' . "\n" .
             '  <meta name="GOOGLEBOT" content="NOSNIPPET" />' . "\n";
 
-        echo dotclear()->resource()->preload('default.css') . dotclear()->resource()->load('default.css');
+        echo App::core()->resource()->preload('default.css') . App::core()->resource()->load('default.css');
 
-        if (L10n::getLanguageTextDirection(dotclear()->lang()) == 'rtl') {
-            echo dotclear()->resource()->load('default-rtl.css');
+        if (L10n::getLanguageTextDirection(App::core()->lang()) == 'rtl') {
+            echo App::core()->resource()->load('default-rtl.css');
         }
 
-        if (dotclear()->user()->preference()->get('interface')->get('htmlfontsize')) {
-            $js['htmlFontSize'] = dotclear()->user()->preference()->get('interface')->get('htmlfontsize');
+        if (App::core()->user()->preference()->get('interface')->get('htmlfontsize')) {
+            $js['htmlFontSize'] = App::core()->user()->preference()->get('interface')->get('htmlfontsize');
         }
-        $js['hideMoreInfo']   = (bool) dotclear()->user()->preference()->get('interface')->get('hidemoreinfo');
-        $js['showAjaxLoader'] = (bool) dotclear()->user()->preference()->get('interface')->get('showajaxloader');
-        $js['noDragDrop']     = (bool) dotclear()->user()->preference()->get('accessibility')->get('nodragdrop');
-        $js['debug']          = !dotclear()->production();
+        $js['hideMoreInfo']   = (bool) App::core()->user()->preference()->get('interface')->get('hidemoreinfo');
+        $js['showAjaxLoader'] = (bool) App::core()->user()->preference()->get('interface')->get('showajaxloader');
+        $js['noDragDrop']     = (bool) App::core()->user()->preference()->get('accessibility')->get('nodragdrop');
+        $js['debug']          = !App::core()->production();
 
         // Set JSON data
-        echo dotclear()->resource()->json('dotclear_init', $js) .
-        dotclear()->resource()->common() .
-        dotclear()->resource()->toggles() .
+        echo App::core()->resource()->json('dotclear_init', $js) .
+        App::core()->resource()->common() .
+        App::core()->resource()->toggles() .
         $this->page_head;
 
         // --BEHAVIOR-- adminPageHTMLHead, string, string
-        dotclear()->behavior()->call('adminPageHTMLHead', $this->handler, $this->page_type);
+        App::core()->behavior()->call('adminPageHTMLHead', $this->handler, $this->page_type);
 
         echo "</head>\n" .
             '<body id="dotclear-admin" class="popup' .
-            (dotclear()->rescue() ? ' safe-mode' : '') .
-            (dotclear()->production() ? '' : ' debug-mode') .
+            (App::core()->rescue() ? ' safe-mode' : '') .
+            (App::core()->production() ? '' : ' debug-mode') .
             '">' . "\n" .
 
-            '<h1>' . dotclear()->config()->get('vendor_name') . '</h1>' . "\n";
+            '<h1>' . App::core()->config()->get('vendor_name') . '</h1>' . "\n";
 
         echo '<div id="wrapper">' . "\n" .
             '<main id="main" role="main">' . "\n" .
@@ -481,7 +482,7 @@ abstract class AbstractPage
         $hl_pos         = $options['hl_pos']    ?? -1;
         // First item of array elements should be blog's name, System or Plugins
         $res = '<h2>' . ($with_home_link ?
-            '<a class="go_home" href="' . dotclear()->adminurl()->get('admin.home') . '">' .
+            '<a class="go_home" href="' . App::core()->adminurl()->get('admin.home') . '">' .
             '<img class="go_home light-only" src="?df=css/dashboard.svg" alt="' . __('Go to dashboard') . '" />' .
             '<img class="go_home dark-only" src="?df=css/dashboard-dark.svg" alt="' . __('Go to dashboard') . '" />' .
             '</a>' :
@@ -509,17 +510,17 @@ abstract class AbstractPage
      */
     private function pageHelp(): void
     {
-        if (!dotclear()->user()->preference()) {
+        if (!App::core()->user()->preference()) {
             return;
         }
-        if (dotclear()->user()->preference()->get('interface')->get('hidehelpbutton')) {
+        if (App::core()->user()->preference()->get('interface')->get('hidehelpbutton')) {
             return;
         }
 
         $args = new ArrayObject($this->page_help);
 
         // --BEHAVIOR-- adminPageHelpBlock, ArrayObject
-        dotclear()->behavior()->call('adminPageHelpBlock', $args);
+        App::core()->behavior()->call('adminPageHelpBlock', $args);
 
         if (!count($args)) {
             return;
@@ -536,7 +537,7 @@ abstract class AbstractPage
                 continue;
             }
 
-            if (!($f = dotclear()->help()->context($v))) {
+            if (!($f = App::core()->help()->context($v))) {
                 continue;
             }
             if (!file_exists($f) || !is_readable($f)) {
@@ -556,24 +557,24 @@ abstract class AbstractPage
         }
 
         // Set contextual help global flag
-        dotclear()->help()->flag(true);
+        App::core()->help()->flag(true);
 
         echo '<div id="help"><hr /><div class="help-content clear"><h3>' . __('Help about this page') . '</h3>' .
         $content .
         '</div>' .
         '<div id="helplink"><hr />' .
         '<p>' .
-        sprintf(__('See also %s'), sprintf('<a href="' . dotclear()->adminurl()->get('admin.help') . '">%s</a>', __('the global help'))) .
+        sprintf(__('See also %s'), sprintf('<a href="' . App::core()->adminurl()->get('admin.help') . '">%s</a>', __('the global help'))) .
             '.</p>' .
             '</div></div>';
     }
 
     private function pageClose(): void
     {
-        if (!dotclear()->help()->flag() && !dotclear()->user()->preference()->get('interface')->get('hidehelpbutton')) {
+        if (!App::core()->help()->flag() && !App::core()->user()->preference()->get('interface')->get('hidehelpbutton')) {
             echo sprintf(
                 '<p id="help-button"><a href="%1$s" class="outgoing" title="%2$s">%2$s</a></p>',
-                dotclear()->adminurl()->get('admin.help'),
+                App::core()->adminurl()->get('admin.help'),
                 __('Global help')
             );
         }
@@ -583,19 +584,19 @@ abstract class AbstractPage
 
         '<nav id="main-menu" role="navigation">' . "\n" .
 
-        '<form id="search-menu" action="' . dotclear()->adminurl()->get('admin.search') . '" method="get" role="search">' .
+        '<form id="search-menu" action="' . App::core()->adminurl()->get('admin.search') . '" method="get" role="search">' .
         '<p><label for="qx" class="hidden">' . __('Search:') . ' </label>' . Form::field('qx', 30, 255, '') .
         '<input type="submit" value="' . __('OK') . '" /></p>' .
             '</form>';
 
-        foreach (dotclear()->summary() as $k => $v) {
-            echo dotclear()->summary()[$k]->draw();
+        foreach (App::core()->summary() as $k => $v) {
+            echo App::core()->summary()[$k]->draw();
         }
 
-        $text = sprintf(__('Thank you for using %s.'), 'Dotclear ' . dotclear()->config()->get('core_version'));
+        $text = sprintf(__('Thank you for using %s.'), 'Dotclear ' . App::core()->config()->get('core_version'));
 
         // --BEHAVIOR-- adminPageFooter, string
-        $textAlt = dotclear()->behavior()->call('adminPageFooter', $text);
+        $textAlt = App::core()->behavior()->call('adminPageFooter', $text);
         if ('' != $textAlt) {
             $text = $textAlt;
         }
@@ -619,7 +620,7 @@ abstract class AbstractPage
             $figure .
             ' -->' . "\n";
 
-        if (!dotclear()->production()) {
+        if (!App::core()->production()) {
             echo $this->pageDebugInfo();
         }
 
@@ -665,8 +666,8 @@ abstract class AbstractPage
         }
         $res .= '<p>Core elapsed time: ' . Statistic::time() . ' | Core consumed memory: ' . Statistic::memory() . '</p>';
 
-        $loaded_files = dotclear()->autoload()->getLoadedFiles();
-        $res .= '<p>Autoloader provided files : ' . count($loaded_files) . ' (' . dotclear()->autoload()->getRequestsCount() . ' requests)</p>';
+        $loaded_files = App::core()->autoload()->getLoadedFiles();
+        $res .= '<p>Autoloader provided files : ' . count($loaded_files) . ' (' . App::core()->autoload()->getRequestsCount() . ' requests)</p>';
         // $res .= '<ul><li>' . implode('</li><li>', $loaded_files) . '</li></lu>';
 
         $res .= '<p>Global vars: ' . $global_vars . '</p>' .

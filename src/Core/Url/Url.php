@@ -12,6 +12,7 @@ namespace Dotclear\Core\Url;
 // Dotclear\Core\Url\Url
 use ArrayObject;
 use Closure;
+use Dotclear\App;
 use Dotclear\Core\Trackback\Trackback;
 use Dotclear\Core\Xmlrpc\Xmlrpc;
 use Dotclear\Exception\CoreException;
@@ -118,7 +119,7 @@ class Url
      */
     protected function getHomeType(): string
     {
-        return dotclear()->blog()->settings()->get('system')->get('static_home') ? 'static' : 'default';
+        return App::core()->blog()->settings()->get('system')->get('static_home') ? 'static' : 'default';
     }
 
     /**
@@ -143,7 +144,7 @@ class Url
      */
     public function getURLFor(string $type, string|int $value = ''): string
     {
-        $url = dotclear()->behavior()->call('publicGetURLFor', $type, $value);
+        $url = App::core()->behavior()->call('publicGetURLFor', $type, $value);
         if (!$url) {
             $url = $this->getBase($type);
             if ('' !== $value) {
@@ -169,7 +170,7 @@ class Url
     {
         $args = new ArrayObject(func_get_args());
 
-        dotclear()->behavior()->call('publicRegisterURL', $args);
+        App::core()->behavior()->call('publicRegisterURL', $args);
 
         $this->types[$args[0]] = [
             'url'            => $args[1],
@@ -263,45 +264,45 @@ class Url
      */
     protected function serveDocument(string $tpl, string $content_type = 'text/html', bool $http_cache = true, bool $http_etag = true): void
     {
-        if (null === dotclear()->context()->get('nb_entry_per_page')) {
-            dotclear()->context()->set('nb_entry_per_page', dotclear()->blog()->settings()->get('system')->get('nb_post_per_page'));
+        if (null === App::core()->context()->get('nb_entry_per_page')) {
+            App::core()->context()->set('nb_entry_per_page', App::core()->blog()->settings()->get('system')->get('nb_post_per_page'));
         }
-        if (null === dotclear()->context()->get('nb_entry_first_page')) {
-            dotclear()->context()->set('nb_entry_first_page', dotclear()->context()->get('nb_entry_per_page'));
+        if (null === App::core()->context()->get('nb_entry_first_page')) {
+            App::core()->context()->set('nb_entry_first_page', App::core()->context()->get('nb_entry_per_page'));
         }
 
-        $tpl_file = dotclear()->template()->getFilePath($tpl);
+        $tpl_file = App::core()->template()->getFilePath($tpl);
         if (!$tpl_file) {
             throw new CoreException('Unable to find template ');
         }
 
-        dotclear()->context()->set('current_tpl', $tpl);
-        dotclear()->context()->set('content_type', $content_type);
-        dotclear()->context()->set('http_cache', $http_cache);
-        dotclear()->context()->set('http_etag', $http_etag);
+        App::core()->context()->set('current_tpl', $tpl);
+        App::core()->context()->set('content_type', $content_type);
+        App::core()->context()->set('http_cache', $http_cache);
+        App::core()->context()->set('http_etag', $http_etag);
 
-        dotclear()->behavior()->call('urlHandlerBeforeGetData', dotclear()->context());
+        App::core()->behavior()->call('urlHandlerBeforeGetData', App::core()->context());
 
-        if (dotclear()->context()->get('http_cache')) {
+        if (App::core()->context()->get('http_cache')) {
             $this->mod_files = array_merge($this->mod_files, [$tpl_file]);
             Http::cache($this->mod_files, $this->mod_ts);
         }
 
-        header('Content-Type: ' . dotclear()->context()->get('content_type') . '; charset=UTF-8');
+        header('Content-Type: ' . App::core()->context()->get('content_type') . '; charset=UTF-8');
 
         $this->additionalHeaders();
 
         $result                 = new ArrayObject();
-        $result['content']      = dotclear()->template()->getData(dotclear()->context()->get('current_tpl'));
-        $result['content_type'] = dotclear()->context()->get('content_type');
-        $result['tpl']          = dotclear()->context()->get('current_tpl');
-        $result['blogupddt']    = dotclear()->blog()->upddt;
+        $result['content']      = App::core()->template()->getData(App::core()->context()->get('current_tpl'));
+        $result['content_type'] = App::core()->context()->get('content_type');
+        $result['tpl']          = App::core()->context()->get('current_tpl');
+        $result['blogupddt']    = App::core()->blog()->upddt;
         $result['headers']      = headers_list();
 
         // --BEHAVIOR-- urlHandlerServeDocument
-        dotclear()->behavior()->call('urlHandlerServeDocument', $result);
+        App::core()->behavior()->call('urlHandlerServeDocument', $result);
 
-        if (dotclear()->context()->get('http_cache') && dotclear()->context()->get('http_etag')) {
+        if (App::core()->context()->get('http_cache') && App::core()->context()->get('http_etag')) {
             Http::etag($result['content'], Http::getSelfURI());
         }
         echo $result['content'];
@@ -348,7 +349,7 @@ class Url
         $this->getArgs($part, $type, $this->args);
 
         // --BEHAVIOR-- urlHandlerGetArgsDocument
-        dotclear()->behavior()->call('urlHandlerGetArgsDocument', $this);
+        App::core()->behavior()->call('urlHandlerGetArgsDocument', $this);
 
         if (!$type) {
             $this->type = $this->getHomeType();
@@ -509,14 +510,14 @@ class Url
 
         header('Content-Type: text/html; charset=UTF-8');
         Http::head(404, 'Not Found');
-        dotclear()->url()->type = '404';
-        dotclear()->context()->set('current_tpl', '404.html');
-        dotclear()->context()->set('content_type', 'text/html');
+        App::core()->url()->type = '404';
+        App::core()->context()->set('current_tpl', '404.html');
+        App::core()->context()->set('content_type', 'text/html');
 
-        echo dotclear()->template()->getData(dotclear()->context()->set('current_tpl'));
+        echo App::core()->template()->getData(App::core()->context()->set('current_tpl'));
 
         // --BEHAVIOR-- publicAfterDocument
-        dotclear()->behavior()->call('publicAfterDocument');
+        App::core()->behavior()->call('publicAfterDocument');
 
         exit;
     }
@@ -529,27 +530,27 @@ class Url
     public function home(?string $args): void
     {
         // Page number may have been set by $this->lang() which ends with a call to $this->home(null)
-        $n = $args ? $this->getPageNumber($args) : dotclear()->context()->page_number();
+        $n = $args ? $this->getPageNumber($args) : App::core()->context()->page_number();
 
         if ($args && !$n) {
             // Then specified URL went unrecognized by all URL handlers and
             // defaults to the home page, but is not a page number.
             $this->p404();
         } else {
-            dotclear()->url()->type = 'default';
+            App::core()->url()->type = 'default';
             if ($n) {
-                dotclear()->context()->page_number($n);
+                App::core()->context()->page_number($n);
                 if (1 < $n) {
-                    dotclear()->url()->type = 'default-page';
+                    App::core()->url()->type = 'default-page';
                 }
             }
 
             if (empty($_GET['q'])) {
-                if (null !== dotclear()->blog()->settings()->get('system')->get('nb_post_for_home')) {
-                    dotclear()->context()->set('nb_entry_first_page', dotclear()->blog()->settings()->get('system')->get('nb_post_for_home'));
+                if (null !== App::core()->blog()->settings()->get('system')->get('nb_post_for_home')) {
+                    App::core()->context()->set('nb_entry_first_page', App::core()->blog()->settings()->get('system')->get('nb_post_for_home'));
                 }
                 $this->serveDocument('home.html');
-                dotclear()->blog()->posts()->publishScheduledEntries();
+                App::core()->blog()->posts()->publishScheduledEntries();
             } else {
                 $this->search();
             }
@@ -563,11 +564,11 @@ class Url
      */
     public function static_home(?string $args): void
     {
-        dotclear()->url()->type = 'static';
+        App::core()->url()->type = 'static';
 
         if (empty($_GET['q'])) {
             $this->serveDocument('static.html');
-            dotclear()->blog()->posts()->publishScheduledEntries();
+            App::core()->blog()->posts()->publishScheduledEntries();
         } else {
             $this->search();
         }
@@ -578,17 +579,17 @@ class Url
      */
     public function search(): void
     {
-        if (dotclear()->blog()->settings()->get('system')->get('no_search')) {
+        if (App::core()->blog()->settings()->get('system')->get('no_search')) {
             // Search is disabled for this blog.
             $this->p404();
         } else {
-            dotclear()->url()->type = 'search';
+            App::core()->url()->type = 'search';
 
-            dotclear()->url()->search_string = !empty($_GET['q']) ? Html::escapeHTML(rawurldecode($_GET['q'])) : '';
-            if (dotclear()->url()->search_string) {
-                $params = new ArrayObject(['search' => dotclear()->url()->search_string]);
-                dotclear()->behavior()->call('publicBeforeSearchCount', $params);
-                dotclear()->url()->search_count = dotclear()->blog()->posts()->getPosts($params, true)->fInt();
+            App::core()->url()->search_string = !empty($_GET['q']) ? Html::escapeHTML(rawurldecode($_GET['q'])) : '';
+            if (App::core()->url()->search_string) {
+                $params = new ArrayObject(['search' => App::core()->url()->search_string]);
+                App::core()->behavior()->call('publicBeforeSearchCount', $params);
+                App::core()->url()->search_count = App::core()->blog()->posts()->getPosts($params, true)->fInt();
             }
 
             $this->serveDocument('search.html');
@@ -605,18 +606,18 @@ class Url
         $n      = $this->getPageNumber($args);
         $params = new ArrayObject(['lang' => $args]);
 
-        dotclear()->behavior()->call('publicLangBeforeGetLangs', $params, $args);
+        App::core()->behavior()->call('publicLangBeforeGetLangs', $params, $args);
 
-        dotclear()->context()->set('langs', dotclear()->blog()->posts()->getLangs($params));
+        App::core()->context()->set('langs', App::core()->blog()->posts()->getLangs($params));
 
-        if (dotclear()->context()->get('langs')->isEmpty()) {
+        if (App::core()->context()->get('langs')->isEmpty()) {
             // The specified language does not exist.
             $this->p404();
         } else {
             if ($n) {
-                dotclear()->context()->page_number($n);
+                App::core()->context()->page_number($n);
             }
-            dotclear()->context()->set('cur_lang', $args);
+            App::core()->context()->set('cur_lang', $args);
             $this->home(null);
         }
     }
@@ -639,16 +640,16 @@ class Url
                 'post_type'     => 'post',
                 'without_empty' => false, ]);
 
-            dotclear()->behavior()->call('publicCategoryBeforeGetCategories', $params, $args);
+            App::core()->behavior()->call('publicCategoryBeforeGetCategories', $params, $args);
 
-            dotclear()->context()->set('categories', dotclear()->blog()->categories()->getCategories($params));
+            App::core()->context()->set('categories', App::core()->blog()->categories()->getCategories($params));
 
-            if (dotclear()->context()->get('categories')->isEmpty()) {
+            if (App::core()->context()->get('categories')->isEmpty()) {
                 // The specified category does no exist.
                 $this->p404();
             } else {
                 if ($n) {
-                    dotclear()->context()->page_number($n);
+                    App::core()->context()->page_number($n);
                 }
                 $this->serveDocument('category.html');
             }
@@ -671,11 +672,11 @@ class Url
                 'month' => $m[2],
                 'type'  => 'month', ]);
 
-            dotclear()->behavior()->call('publicArchiveBeforeGetDates', $params, $args);
+            App::core()->behavior()->call('publicArchiveBeforeGetDates', $params, $args);
 
-            dotclear()->context()->set('archives', dotclear()->blog()->posts()->getDates($params->getArrayCopy()));
+            App::core()->context()->set('archives', App::core()->blog()->posts()->getDates($params->getArrayCopy()));
 
-            if (dotclear()->context()->get('archives')->isEmpty()) {
+            if (App::core()->context()->get('archives')->isEmpty()) {
                 // There is no entries for the specified period.
                 $this->p404();
             } else {
@@ -698,14 +699,14 @@ class Url
             // No entry was specified.
             $this->p404();
         } else {
-            dotclear()->blog()->withoutPassword(false);
+            App::core()->blog()->withoutPassword(false);
 
             $params = new ArrayObject([
                 'post_url' => $args, ]);
 
-            dotclear()->behavior()->call('publicPostBeforeGetPosts', $params, $args);
+            App::core()->behavior()->call('publicPostBeforeGetPosts', $params, $args);
 
-            dotclear()->context()->set('posts', dotclear()->blog()->posts()->getPosts($params));
+            App::core()->context()->set('posts', App::core()->blog()->posts()->getPosts($params));
 
             $cp               = new ArrayObject();
             $cp['content']    = '';
@@ -715,19 +716,19 @@ class Url
             $cp['site']       = '';
             $cp['preview']    = false;
             $cp['remember']   = false;
-            dotclear()->context()->set('comment_preview', $cp);
+            App::core()->context()->set('comment_preview', $cp);
 
-            dotclear()->blog()->withoutPassword(true);
+            App::core()->blog()->withoutPassword(true);
 
-            if (dotclear()->context()->get('posts')->isEmpty()) {
+            if (App::core()->context()->get('posts')->isEmpty()) {
                 // The specified entry does not exist.
                 $this->p404();
             } else {
-                $post_id       = dotclear()->context()->get('posts')->f('post_id');
-                $post_password = dotclear()->context()->get('posts')->f('post_password');
+                $post_id       = App::core()->context()->get('posts')->f('post_id');
+                $post_password = App::core()->context()->get('posts')->f('post_password');
 
                 // Password protected entry
-                if ('' != $post_password && !dotclear()->context()->get('preview')) {
+                if ('' != $post_password && !App::core()->context()->get('preview')) {
                     // Get passwords cookie
                     if (isset($_COOKIE['dc_passwd'])) {
                         $pwd_cookie = json_decode($_COOKIE['dc_passwd']);
@@ -755,7 +756,7 @@ class Url
                     }
                 }
 
-                $post_comment = isset($_POST['c_name'], $_POST['c_mail'], $_POST['c_site'], $_POST['c_content']) && dotclear()->context()->get('posts')->commentsActive();
+                $post_comment = isset($_POST['c_name'], $_POST['c_mail'], $_POST['c_site'], $_POST['c_content']) && App::core()->context()->get('posts')->commentsActive();
 
                 // Posting a comment
                 if ($post_comment) {
@@ -776,21 +777,21 @@ class Url
 
                     if ('' != $content) {
                         // --BEHAVIOR-- publicBeforeCommentTransform
-                        $buffer = dotclear()->behavior()->call('publicBeforeCommentTransform', $content);
+                        $buffer = App::core()->behavior()->call('publicBeforeCommentTransform', $content);
                         if ('' != $buffer) {
                             $content = $buffer;
                         } else {
-                            if (dotclear()->blog()->settings()->get('system')->get('wiki_comments')) {
-                                dotclear()->wiki()->initWikiComment();
+                            if (App::core()->blog()->settings()->get('system')->get('wiki_comments')) {
+                                App::core()->wiki()->initWikiComment();
                             } else {
-                                dotclear()->wiki()->initWikiSimpleComment();
+                                App::core()->wiki()->initWikiSimpleComment();
                             }
-                            $content = dotclear()->wiki()->wikiTransform($content);
+                            $content = App::core()->wiki()->wikiTransform($content);
                         }
                         $content = Html::filter($content);
                     }
 
-                    $cp               = dotclear()->context()->get('comment_preview');
+                    $cp               = App::core()->context()->get('comment_preview');
                     $cp['content']    = $content;
                     $cp['rawcontent'] = $_POST['c_content'];
                     $cp['name']       = $name;
@@ -799,22 +800,22 @@ class Url
 
                     if ($preview) {
                         // --BEHAVIOR-- publicBeforeCommentPreview
-                        dotclear()->behavior()->call('publicBeforeCommentPreview', $cp);
+                        App::core()->behavior()->call('publicBeforeCommentPreview', $cp);
 
                         $cp['preview'] = true;
                     } else {
                         // Post the comment
-                        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
+                        $cur = App::core()->con()->openCursor(App::core()->prefix . 'comment');
                         $cur->setField('comment_author', $name);
                         $cur->setField('comment_site', Html::clean($site));
                         $cur->setField('comment_email', Html::clean($mail));
                         $cur->setField('comment_content', $content);
-                        $cur->setField('post_id', dotclear()->context()->get('posts')->fInt('post_id'));
-                        $cur->setField('comment_status', dotclear()->blog()->settings()->get('system')->get('comments_pub') ? 1 : -1);
+                        $cur->setField('post_id', App::core()->context()->get('posts')->fInt('post_id'));
+                        $cur->setField('comment_status', App::core()->blog()->settings()->get('system')->get('comments_pub') ? 1 : -1);
                         $cur->setField('comment_ip', Http::realIP());
 
-                        $redir = dotclear()->context()->get('posts')->getURL();
-                        $redir .= 'query_string' == dotclear()->blog()->settings()->get('system')->get('url_scan') ? '&' : '?';
+                        $redir = App::core()->context()->get('posts')->getURL();
+                        $redir .= 'query_string' == App::core()->blog()->settings()->get('system')->get('url_scan') ? '&' : '?';
 
                         try {
                             if (!Text::isEmail($cur->getField('comment_email'))) {
@@ -822,12 +823,12 @@ class Url
                             }
 
                             // --BEHAVIOR-- publicBeforeCommentCreate
-                            dotclear()->behavior()->call('publicBeforeCommentCreate', $cur);
+                            App::core()->behavior()->call('publicBeforeCommentCreate', $cur);
                             if ($cur->getField('post_id')) {
-                                $comment_id = dotclear()->blog()->comments()->addComment($cur);
+                                $comment_id = App::core()->blog()->comments()->addComment($cur);
 
                                 // --BEHAVIOR-- publicAfterCommentCreate
-                                dotclear()->behavior()->call('publicAfterCommentCreate', $cur, $comment_id);
+                                App::core()->behavior()->call('publicAfterCommentCreate', $cur, $comment_id);
                             }
 
                             if (1 == (int) $cur->getField('comment_status')) {
@@ -836,20 +837,20 @@ class Url
                                 $redir_arg = 'pub=0';
                             }
 
-                            $redir_arg .= filter_var(dotclear()->behavior()->call('publicBeforeCommentRedir', $cur), FILTER_SANITIZE_URL);
+                            $redir_arg .= filter_var(App::core()->behavior()->call('publicBeforeCommentRedir', $cur), FILTER_SANITIZE_URL);
 
                             header('Location: ' . $redir . $redir_arg);
                         } catch (Exception $e) {
-                            dotclear()->context()->set('form_error', $e->getMessage());
+                            App::core()->context()->set('form_error', $e->getMessage());
                         }
                     }
-                    dotclear()->context()->set('comment_preview', $cp);
+                    App::core()->context()->set('comment_preview', $cp);
                 }
 
                 // The entry
-                if (dotclear()->context()->get('posts')->trackbacksActive()) {
-                    header('X-Pingback: ' . dotclear()->blog()->getURLFor('xmlrpc', dotclear()->blog()->id));
-                    header('Link: <' . dotclear()->blog()->getURLFor('webmention') . '>; rel="webmention"');
+                if (App::core()->context()->get('posts')->trackbacksActive()) {
+                    header('X-Pingback: ' . App::core()->blog()->getURLFor('xmlrpc', App::core()->blog()->id));
+                    header('Link: <' . App::core()->blog()->getURLFor('webmention') . '>; rel="webmention"');
                 }
                 $this->serveDocument('post.html');
             }
@@ -870,13 +871,13 @@ class Url
             $user_id  = $m[1];
             $user_key = $m[2];
             $post_url = $m[3];
-            if (!dotclear()->user()->checkUser($user_id, null, $user_key)) {
+            if (!App::core()->user()->checkUser($user_id, null, $user_key)) {
                 // The user has no access to the entry.
                 $this->p404();
             } else {
-                dotclear()->context()->set('preview', true);
-                if ('' != dotclear()->config()->get('admin_url')) {
-                    dotclear()->context()->set('xframeoption', dotclear()->config()->get('admin_url'));
+                App::core()->context()->set('preview', true);
+                if ('' != App::core()->config()->get('admin_url')) {
+                    App::core()->context()->set('xframeoption', App::core()->config()->get('admin_url'));
                 }
                 $this->post($post_url);
             }
@@ -903,17 +904,17 @@ class Url
 
             $args = $m[3];
 
-            dotclear()->behavior()->call('publicFeedBeforeGetLangs', $params, $args);
+            App::core()->behavior()->call('publicFeedBeforeGetLangs', $params, $args);
 
-            dotclear()->context()->set('langs', dotclear()->blog()->posts()->getLangs($params));
+            App::core()->context()->set('langs', App::core()->blog()->posts()->getLangs($params));
 
-            if (dotclear()->context()->get('langs')->isEmpty()) {
+            if (App::core()->context()->get('langs')->isEmpty()) {
                 // The specified language does not exist.
                 $this->p404();
 
                 return;
             }
-            dotclear()->context()->set('cur_lang', $m[1]);
+            App::core()->context()->set('cur_lang', $m[1]);
         }
 
         if (preg_match('#^rss2/xslt$#', $args, $m)) {
@@ -947,44 +948,44 @@ class Url
                 'cat_url'   => $cat_url,
                 'post_type' => 'post', ]);
 
-            dotclear()->behavior()->call('publicFeedBeforeGetCategories', $params, $args);
+            App::core()->behavior()->call('publicFeedBeforeGetCategories', $params, $args);
 
-            dotclear()->context()->set('categories', dotclear()->blog()->categories()->getCategories($params));
+            App::core()->context()->set('categories', App::core()->blog()->categories()->getCategories($params));
 
-            if (dotclear()->context()->get('categories')->isEmpty()) {
+            if (App::core()->context()->get('categories')->isEmpty()) {
                 // The specified category does no exist.
                 $this->p404();
 
                 return;
             }
 
-            $subtitle = ' - ' . dotclear()->context()->get('categories')->f('cat_title');
+            $subtitle = ' - ' . App::core()->context()->get('categories')->f('cat_title');
         } elseif ($post_id) {
             $params = new ArrayObject([
                 'post_id'   => $post_id,
                 'post_type' => '', ]);
 
-            dotclear()->behavior()->call('publicFeedBeforeGetPosts', $params, $args);
+            App::core()->behavior()->call('publicFeedBeforeGetPosts', $params, $args);
 
-            dotclear()->context()->set('posts', dotclear()->blog()->posts()->getPosts($params));
+            App::core()->context()->set('posts', App::core()->blog()->posts()->getPosts($params));
 
-            if (dotclear()->context()->get('posts')->isEmpty()) {
+            if (App::core()->context()->get('posts')->isEmpty()) {
                 // The specified post does not exist.
                 $this->p404();
 
                 return;
             }
 
-            $subtitle = ' - ' . dotclear()->context()->get('posts')->f('post_title');
+            $subtitle = ' - ' . App::core()->context()->get('posts')->f('post_title');
         }
 
         $tpl = $type;
         if ($comments) {
             $tpl .= '-comments';
-            dotclear()->context()->set('nb_comment_per_page', (int) dotclear()->blog()->settings()->get('system')->get('nb_comment_per_feed'));
+            App::core()->context()->set('nb_comment_per_page', (int) App::core()->blog()->settings()->get('system')->get('nb_comment_per_feed'));
         } else {
-            dotclear()->context()->set('nb_entry_per_page', (int) dotclear()->blog()->settings()->get('system')->get('nb_post_per_feed'));
-            dotclear()->context()->set('short_feed_items', (bool) dotclear()->blog()->settings()->get('system')->get('short_feed_items'));
+            App::core()->context()->set('nb_entry_per_page', (int) App::core()->blog()->settings()->get('system')->get('nb_post_per_feed'));
+            App::core()->context()->set('short_feed_items', (bool) App::core()->blog()->settings()->get('system')->get('short_feed_items'));
         }
         $tpl .= '.xml';
 
@@ -992,12 +993,12 @@ class Url
             $mime = 'application/atom+xml';
         }
 
-        dotclear()->context()->set('feed_subtitle', $subtitle);
+        App::core()->context()->set('feed_subtitle', $subtitle);
 
-        header('X-Robots-Tag: ' . dotclear()->context()->robotsPolicy(dotclear()->blog()->settings()->get('system')->get('robots_policy'), ''));
+        header('X-Robots-Tag: ' . App::core()->context()->robotsPolicy(App::core()->blog()->settings()->get('system')->get('robots_policy'), ''));
         $this->serveDocument($tpl, $mime);
         if (!$comments && !$cat_url) {
-            dotclear()->blog()->posts()->publishScheduledEntries();
+            App::core()->blog()->posts()->publishScheduledEntries();
         }
     }
 
@@ -1020,7 +1021,7 @@ class Url
             $args['type']    = 'trackback';
 
             // --BEHAVIOR-- publicBeforeReceiveTrackback
-            dotclear()->behavior()->call('publicBeforeReceiveTrackback', $args);
+            App::core()->behavior()->call('publicBeforeReceiveTrackback', $args);
 
             $trackback = new Trackback();
             $trackback->receiveTrackback($post_id);
@@ -1037,7 +1038,7 @@ class Url
         $args = ['type' => 'webmention'];
 
         // --BEHAVIOR-- publicBeforeReceiveTrackback
-        dotclear()->behavior()->call('publicBeforeReceiveTrackback', $args);
+        App::core()->behavior()->call('publicBeforeReceiveTrackback', $args);
 
         $trackback = new Trackback();
         $trackback->receiveWebmention();
@@ -1058,10 +1059,10 @@ class Url
         "<service>\n" .
         "  <engineName>Dotclear</engineName>\n" .
         "  <engineLink>https://dotclear.org/</engineLink>\n" .
-        '  <homePageLink>' . Html::escapeHTML(dotclear()->blog()->url) . "</homePageLink>\n";
+        '  <homePageLink>' . Html::escapeHTML(App::core()->blog()->url) . "</homePageLink>\n";
 
-        if (dotclear()->blog()->settings()->get('system')->get('enable_xmlrpc')) {
-            $u = sprintf(dotclear()->config()->get('xmlrpc_url'), dotclear()->blog()->url, dotclear()->blog()->id);
+        if (App::core()->blog()->settings()->get('system')->get('enable_xmlrpc')) {
+            $u = sprintf(App::core()->config()->get('xmlrpc_url'), App::core()->blog()->url, App::core()->blog()->id);
 
             echo "  <apis>\n" .
                 '    <api name="WordPress" blogID="1" preferred="true" apiLink="' . $u . '"/>' . "\n" .
@@ -1102,7 +1103,7 @@ class Url
 
         // Check if it in Var path
         $var_args = explode('/', $args);
-        $var_path = dotclear()->config()->get('var_dir');
+        $var_path = App::core()->config()->get('var_dir');
         if (1 < count($var_args) && 'var' == array_shift($var_args) && !empty($var_path) && is_dir($var_path)) {
             $dirs[] = $var_path;
             $args   = implode('/', $var_args);
@@ -1135,16 +1136,16 @@ class Url
         }
 
         // Current Theme paths
-        if (empty($dirs) && dotclear()->themes()) {
+        if (empty($dirs) && App::core()->themes()) {
             $dirs = array_merge(
-                array_values(dotclear()->themes()->getThemePath('Public/resources')),
-                array_values(dotclear()->themes()->getThemePath('Common/resources'))
+                array_values(App::core()->themes()->getThemePath('Public/resources')),
+                array_values(App::core()->themes()->getThemePath('Common/resources'))
             );
         }
 
         // Blog public path
-        if (dotclear()->blog()) {
-            $dirs[] = dotclear()->blog()->public_path;
+        if (App::core()->blog()) {
+            $dirs[] = App::core()->blog()->public_path;
         }
 
         // List other available file paths
@@ -1153,11 +1154,11 @@ class Url
         $dirs[] = Path::implodeRoot('Core', 'resources', 'js');
 
         // Search file
-        if (!($file = Files::serveFile($args, $dirs, dotclear()->config()->get('file_sever_type'), false, true))) {
+        if (!($file = Files::serveFile($args, $dirs, App::core()->config()->get('file_sever_type'), false, true))) {
             $this->p404();
         }
 
-        if (dotclear()->context()->get('http_cache')) {
+        if (App::core()->context()->get('http_cache')) {
             $this->mod_files = array_merge($this->mod_files, [basename($file)]);
             Http::cache($this->mod_files, $this->mod_ts);
         }
@@ -1177,9 +1178,9 @@ class Url
     {
         // Additional headers
         $headers = new ArrayObject();
-        if (dotclear()->blog()->settings()->get('system')->get('prevents_clickjacking')) {
-            if (dotclear()->context()->exists('xframeoption')) {
-                $url    = parse_url(dotclear()->context()->get('xframeoption'));
+        if (App::core()->blog()->settings()->get('system')->get('prevents_clickjacking')) {
+            if (App::core()->context()->exists('xframeoption')) {
+                $url    = parse_url(App::core()->context()->get('xframeoption'));
                 $header = sprintf(
                     'X-Frame-Options: %s',
                     is_array($url) ? ('ALLOW-FROM ' . $url['scheme'] . '://' . $url['host']) : 'SAMEORIGIN'
@@ -1192,7 +1193,7 @@ class Url
         }
 
         // --BEHAVIOR-- urlHandlerServeDocumentHeaders
-        dotclear()->behavior()->call('urlHandlerServeDocumentHeaders', $headers);
+        App::core()->behavior()->call('urlHandlerServeDocumentHeaders', $headers);
 
         // Send additional headers if any
         foreach ($headers as $header) {

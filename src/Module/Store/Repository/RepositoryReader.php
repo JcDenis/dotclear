@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Module\Store\Repository;
 
 // Dotclear\Module\Store\Repository\RepositoryReader
+use Dotclear\App;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Network\NetHttp\NetHttp;
 
@@ -72,8 +73,8 @@ class RepositoryReader extends NetHttp
     public function __construct()
     {
         parent::__construct('');
-        $this->setUserAgent(sprintf('Dotclear/%s', dotclear()->config()->get('core_version')));
-        $this->setTimeout(dotclear()->config()->get('query_timeout'));
+        $this->setUserAgent(sprintf('Dotclear/%s', App::core()->config()->get('core_version')));
+        $this->setTimeout(App::core()->config()->get('query_timeout'));
     }
 
     /**

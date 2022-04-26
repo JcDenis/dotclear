@@ -11,6 +11,7 @@ namespace Dotclear\Process\Admin\Action\Action;
 
 // Dotclear\Process\Admin\Action\Action\PostAction
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Helper\Html\Html;
 use Exception;
 
@@ -33,23 +34,23 @@ class PostAction extends DefaultPostAction
         // Page setup
         $this->setPageTitle(__('Posts'));
         $this->setPageType($this->in_plugin ? 'plugin' : 'full');
-        $this->setPageHead(dotclear()->resource()->load('_posts_actions.js'));
+        $this->setPageHead(App::core()->resource()->load('_posts_actions.js'));
         $this->setPageBreadcrumb([
-            Html::escapeHTML(dotclear()->blog()->name) => '',
-            $this->getCallerTitle()                    => $this->getRedirection(true),
-            __('Posts actions')                        => '',
+            Html::escapeHTML(App::core()->blog()->name) => '',
+            $this->getCallerTitle()                     => $this->getRedirection(true),
+            __('Posts actions')                         => '',
         ]);
     }
 
     protected function loadDefaults(): void
     {
         $this->loadPostAction($this);
-        dotclear()->behavior()->call('adminPostsActionsPage', $this);
+        App::core()->behavior()->call('adminPostsActionsPage', $this);
     }
 
     public function error(Exception $e)
     {
-        dotclear()->error()->add($e->getMessage());
+        App::core()->error()->add($e->getMessage());
         $this->setPageContent('<p><a class="back" href="' . $this->getRedirection(true) . '">' . __('Back to entries list') . '</a></p>');
     }
 
@@ -76,7 +77,7 @@ class PostAction extends DefaultPostAction
             $params['post_type'] = $from['post_type'];
         }
 
-        $posts = dotclear()->blog()->posts()->getPosts($params);
+        $posts = App::core()->blog()->posts()->getPosts($params);
         while ($posts->fetch()) {
             $this->entries[$posts->fInt('post_id')] = $posts->f('post_title');
         }

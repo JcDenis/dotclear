@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\User\Preference;
 
 // Dotclear\Core\User\Preference\Preference
+use Dotclear\App;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
@@ -54,12 +55,12 @@ class Preference
      */
     public function __construct(protected string $user_id, $workspace = null)
     {
-        $this->table = dotclear()->prefix . 'pref';
+        $this->table = App::core()->prefix . 'pref';
 
         try {
             $this->loadPrefs($workspace);
         } catch (\Exception) {
-            trigger_error(__('Unable to retrieve workspaces:') . ' ' . dotclear()->con()->error(), E_USER_ERROR);
+            trigger_error(__('Unable to retrieve workspaces:') . ' ' . App::core()->con()->error(), E_USER_ERROR);
         }
     }
 

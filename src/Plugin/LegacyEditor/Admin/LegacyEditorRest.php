@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\LegacyEditor\Admin;
 
 // Dotclear\Plugin\LegacyEditor\Admin\LegacyEditorRest
+use Dotclear\App;
 use Dotclear\Helper\Html\XmlTag;
 
 /**
@@ -21,7 +22,7 @@ class LegacyEditorRest
 {
     public function __construct()
     {
-        dotclear()->rest()->addFunction('wikiConvert', [$this, 'convert']);
+        App::core()->rest()->addFunction('wikiConvert', [$this, 'convert']);
     }
 
     public function convert(array $get, array $post): XmlTag
@@ -32,12 +33,12 @@ class LegacyEditorRest
         $ret  = false;
         $html = '';
         if ('' !== $wiki) {
-            dotclear()->wiki()->initWikiPost();
-            $html = dotclear()->formater()->callEditorFormater('LegacyEditor', 'wiki', $wiki);
+            App::core()->wiki()->initWikiPost();
+            $html = App::core()->formater()->callEditorFormater('LegacyEditor', 'wiki', $wiki);
             $ret  = strlen($html) > 0;
 
             if ($ret) {
-                $media_root = dotclear()->blog()->host;
+                $media_root = App::core()->blog()->host;
                 $html       = preg_replace_callback('/src="([^\"]*)"/', function ($matches) use ($media_root) {
                     if (!preg_match('/^http(s)?:\/\//', $matches[1])) {
                         // Relative URL, convert to absolute

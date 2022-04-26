@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Antispam\Admin;
 
 // Dotclear\Plugin\Antispam\Admin\Handler
+use Dotclear\App;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
@@ -60,12 +61,12 @@ class Handler extends AbstractPage
 
             // Remove all spam
             if (!empty($_POST['delete_all'])) {
-                $ts = Dt::str('%Y-%m-%d %H:%M:%S', $_POST['ts'], dotclear()->blog()->settings()->get('system')->get('blog_timezone'));
+                $ts = Dt::str('%Y-%m-%d %H:%M:%S', $_POST['ts'], App::core()->blog()->settings()->get('system')->get('blog_timezone'));
 
                 $this->a_antispam->delAllSpam($ts);
 
-                dotclear()->notice()->addSuccessNotice(__('Spam comments have been successfully deleted.'));
-                dotclear()->adminurl()->redirect('admin.plugin.Antispam');
+                App::core()->notice()->addSuccessNotice(__('Spam comments have been successfully deleted.'));
+                App::core()->adminurl()->redirect('admin.plugin.Antispam');
             }
 
             // Update filters
@@ -108,36 +109,36 @@ class Handler extends AbstractPage
 
                 $this->a_antispam->filters->saveFilterOpts($filters_opt);
 
-                dotclear()->notice()->addSuccessNotice(__('Filters configuration has been successfully saved.'));
-                dotclear()->adminurl()->redirect('admin.plugin.Antispam');
+                App::core()->notice()->addSuccessNotice(__('Filters configuration has been successfully saved.'));
+                App::core()->adminurl()->redirect('admin.plugin.Antispam');
             }
         } catch (Exception $e) {
-            dotclear()->error()->add($e->getMessage());
+            App::core()->error()->add($e->getMessage());
         }
 
         // Page setup
         $this
             ->setPageTitle((false !== $this->a_gui ? sprintf(__('%s configuration'), $filter->name) . ' - ' : '') . __('Antispam'))
-            ->setPageHead(dotclear()->resource()->pageTabs($this->a_tab))
+            ->setPageHead(App::core()->resource()->pageTabs($this->a_tab))
         ;
 
-        if (!dotclear()->user()->preference()->get('accessibility')->get('nodragdrop')) {
+        if (!App::core()->user()->preference()->get('accessibility')->get('nodragdrop')) {
             $this->setPageHead(
-                dotclear()->resource()->load('jquery/jquery-ui.custom.js') .
-                dotclear()->resource()->load('jquery/jquery.ui.touch-punch.js')
+                App::core()->resource()->load('jquery/jquery-ui.custom.js') .
+                App::core()->resource()->load('jquery/jquery.ui.touch-punch.js')
             );
         }
         $this->setPageHead(
-            dotclear()->resource()->json('antispam', ['confirm_spam_delete' => __('Are you sure you want to delete all spams?')]) .
-            dotclear()->resource()->load('antispam.js', 'Plugin', 'Antispam') .
-            dotclear()->resource()->load('style.css', 'Plugin', 'Antispam')
+            App::core()->resource()->json('antispam', ['confirm_spam_delete' => __('Are you sure you want to delete all spams?')]) .
+            App::core()->resource()->load('antispam.js', 'Plugin', 'Antispam') .
+            App::core()->resource()->load('style.css', 'Plugin', 'Antispam')
         );
 
         if (false !== $this->a_gui) {
             $this
                 ->setPageBreadcrumb([
                     __('Plugins')  => '',
-                    __('Antispam') => dotclear()->adminurl()->get('admin.plugin.Antispam'),
+                    __('Antispam') => App::core()->adminurl()->get('admin.plugin.Antispam'),
                     sprintf(__('%s filter configuration'), $filter->name) => '',
                 ])
                 ->setPageHelp($filter->help)
@@ -158,7 +159,7 @@ class Handler extends AbstractPage
     protected function getPageContent(): void
     {
         if (false !== $this->a_gui) {
-            echo '<p><a href="' . dotclear()->adminurl()->get('admin.plugin.Antispam') . '" class="back">' . __('Back to filters list') . '</a></p>' . $this->a_gui;
+            echo '<p><a href="' . App::core()->adminurl()->get('admin.plugin.Antispam') . '" class="back">' . __('Back to filters list') . '</a></p>' . $this->a_gui;
 
             return;
         }
@@ -166,15 +167,15 @@ class Handler extends AbstractPage
         // Information
         $spam_count      = $this->a_antispam->countSpam();
         $published_count = $this->a_antispam->countPublishedComments();
-        $moderationTTL   = dotclear()->blog()->settings()->get('antispam')->get('antispam_moderation_ttl');
+        $moderationTTL   = App::core()->blog()->settings()->get('antispam')->get('antispam_moderation_ttl');
 
-        echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" class="fieldset">' .
+        echo '<form action="' . App::core()->adminurl()->root() . '" method="post" class="fieldset">' .
         '<h3>' . __('Information') . '</h3>';
 
         echo '<ul class="spaminfo">' .
-        '<li class="spamcount"><a href="' . dotclear()->adminurl()->get('admin.comments', ['status' => '-2']) . '">' . __('Junk comments:') . '</a> ' .
+        '<li class="spamcount"><a href="' . App::core()->adminurl()->get('admin.comments', ['status' => '-2']) . '">' . __('Junk comments:') . '</a> ' .
         '<strong>' . $spam_count . '</strong></li>' .
-        '<li class="hamcount"><a href="' . dotclear()->adminurl()->get('admin.comments', ['status' => '1']) . '">' . __('Published comments:') . '</a> ' .
+        '<li class="hamcount"><a href="' . App::core()->adminurl()->get('admin.comments', ['status' => '1']) . '">' . __('Published comments:') . '</a> ' .
             $published_count . '</li>' .
             '</ul>';
 
@@ -185,18 +186,18 @@ class Handler extends AbstractPage
         }
         if (null != $moderationTTL && 0 <= $moderationTTL) {
             echo '<p>' . sprintf(__('All spam comments older than %s day(s) will be automatically deleted.'), $moderationTTL) . ' ' .
-            sprintf(__('You can modify this duration in the %s'), '<a href="' . dotclear()->adminurl()->get('admin.blog.pref') .
+            sprintf(__('You can modify this duration in the %s'), '<a href="' . App::core()->adminurl()->get('admin.blog.pref') .
                 '#antispam_moderation_ttl"> ' . __('Blog settings') . '</a>') .
                 '.</p>';
         }
-        echo dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Antispam', [], true) .
+        echo App::core()->adminurl()->getHiddenFormFields('admin.plugin.Antispam', [], true) .
         '</form>';
 
         // Filters
-        echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="filters-list-form">';
+        echo '<form action="' . App::core()->adminurl()->root() . '" method="post" id="filters-list-form">';
 
         if (!empty($_GET['upd'])) {
-            dotclear()->notice()->success(__('Filters configuration has been successfully saved.'));
+            App::core()->notice()->success(__('Filters configuration has been successfully saved.'));
         }
 
         echo '<div class="table-outer">' .
@@ -254,19 +255,19 @@ class Handler extends AbstractPage
         echo '</tbody></table></div>' .
         '<p>' .
         Form::hidden('filters_order', '') .
-        dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Antispam', [], true) .
+        App::core()->adminurl()->getHiddenFormFields('admin.plugin.Antispam', [], true) .
         '<input type="submit" name="filters_upd" value="' . __('Save') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
         '</p>' .
         '</form>';
 
         // Syndication
-        if ('' != dotclear()->config()->get('admin_url')) {
-            $ham_feed = dotclear()->blog()->getURLFor(
+        if ('' != App::core()->config()->get('admin_url')) {
+            $ham_feed = App::core()->blog()->getURLFor(
                 'hamfeed',
                 $code = $this->a_antispam->getUserCode()
             );
-            $spam_feed = dotclear()->blog()->getURLFor(
+            $spam_feed = App::core()->blog()->getURLFor(
                 'spamfeed',
                 $code = $this->a_antispam->getUserCode()
             );

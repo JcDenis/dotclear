@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Database\Statement;
 
 // Dotclear\Database\Statement\JoinStatement
+use Dotclear\App;
 
 /**
  * Join (sub)Statement : small utility to build join query fragments.
@@ -57,7 +58,7 @@ class JoinStatement extends SqlStatement
     public function statement(): string
     {
         // --BEHAVIOR-- coreBeforeDeleteStatement
-        dotclear()->behavior()->call('coreBeforeJoinStatement', $this);
+        App::core()->behavior()->call('coreBeforeJoinStatement', $this);
 
         // Check if source given
         if (!count($this->from)) {
@@ -93,7 +94,7 @@ class JoinStatement extends SqlStatement
         $query = trim($query);
 
         // --BEHAVIOR-- coreAfertSelectStatement
-        dotclear()->behavior()->call('coreAfterJoinStatement', $this, $query);
+        App::core()->behavior()->call('coreAfterJoinStatement', $this, $query);
 
         return $query;
     }

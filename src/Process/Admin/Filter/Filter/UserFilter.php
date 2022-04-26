@@ -11,6 +11,7 @@ namespace Dotclear\Process\Admin\Filter\Filter;
 
 // Dotclear\Process\Admin\Filter\Filter\UserFilter
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Process\Admin\Filter\Filter;
 
 /**
@@ -32,7 +33,7 @@ class UserFilter extends Filter
         ]);
 
         // --BEHAVIOR-- adminUserFilter
-        dotclear()->behavior()->call('adminUserFilter', $filters);
+        App::core()->behavior()->call('adminUserFilter', $filters);
 
         $filters = $filters->getArrayCopy();
 

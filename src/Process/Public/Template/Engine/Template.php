@@ -397,7 +397,7 @@ class Template
         return $rootNode;
     }
 
-    protected function compileFile(string $file)
+    protected function compileFile(string $file): string
     {
         $tree = null;
         $err  = '';

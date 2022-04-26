@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Tags\Admin;
 
 // Dotclear\Plugin\Tags\Admin\Handler
+use Dotclear\App;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
@@ -44,10 +45,10 @@ class Handler extends AbstractPage
             $this
                 ->setPageTitle(__('Tags'))
                 ->setPageHelp('tags')
-                ->setPageHead(dotclear()->resource()->load('style.css', 'Plugin', 'Tags'))
+                ->setPageHead(App::core()->resource()->load('style.css', 'Plugin', 'Tags'))
                 ->setPageBreadcrumb([
-                    html::escapeHTML(dotclear()->blog()->name) => '',
-                    __('Tags')                                 => '',
+                    html::escapeHTML(App::core()->blog()->name) => '',
+                    __('Tags')                                  => '',
                 ])
             ;
         } else {
@@ -55,26 +56,26 @@ class Handler extends AbstractPage
 
             // Rename a tag
             if (isset($_POST['new_tag_id'])) {
-                $new_id = dotclear()->meta()::sanitizeMetaID($_POST['new_tag_id']);
+                $new_id = App::core()->meta()::sanitizeMetaID($_POST['new_tag_id']);
 
                 try {
-                    if (dotclear()->meta()->updateMeta($this->t_tag, $new_id, 'tag')) {
-                        dotclear()->notice()->addSuccessNotice(__('Tag has been successfully renamed'));
-                        dotclear()->adminurl()->redirect('admin.plugin.Tags', ['tag' => $new_id]);
+                    if (App::core()->meta()->updateMeta($this->t_tag, $new_id, 'tag')) {
+                        App::core()->notice()->addSuccessNotice(__('Tag has been successfully renamed'));
+                        App::core()->adminurl()->redirect('admin.plugin.Tags', ['tag' => $new_id]);
                     }
                 } catch (Exception $e) {
-                    dotclear()->error()->add($e->getMessage());
+                    App::core()->error()->add($e->getMessage());
                 }
             }
 
             // Delete a tag
-            if (!empty($_POST['delete']) && dotclear()->user()->check('publish,contentadmin', dotclear()->blog()->id)) {
+            if (!empty($_POST['delete']) && App::core()->user()->check('publish,contentadmin', App::core()->blog()->id)) {
                 try {
-                    dotclear()->meta()->delMeta($this->t_tag, 'tag');
-                    dotclear()->adminurl()->addSuccessNotice(__('Tag has been successfully removed'));
-                    dotclear()->adminurl()->redirect('admin.plugin.Tags');
+                    App::core()->meta()->delMeta($this->t_tag, 'tag');
+                    App::core()->adminurl()->addSuccessNotice(__('Tag has been successfully removed'));
+                    App::core()->adminurl()->redirect('admin.plugin.Tags');
                 } catch (Exception $e) {
-                    dotclear()->error()->add($e->getMessage());
+                    App::core()->error()->add($e->getMessage());
                 }
             }
 
@@ -88,14 +89,14 @@ class Handler extends AbstractPage
 
             // Get posts
             try {
-                $this->t_posts     = dotclear()->meta()->getPostsByMeta($params);
-                $count             = dotclear()->meta()->getPostsByMeta($params, true)->fInt();
+                $this->t_posts     = App::core()->meta()->getPostsByMeta($params);
+                $count             = App::core()->meta()->getPostsByMeta($params, true)->fInt();
                 $this->t_post_list = new PostInventory($this->t_posts, $count);
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
 
-            $this->t_posts_actions_page = new PostAction(dotclear()->adminurl()->get('admin.plugin.Tags'), ['tag' => $this->t_tag]);
+            $this->t_posts_actions_page = new PostAction(App::core()->adminurl()->get('admin.plugin.Tags'), ['tag' => $this->t_tag]);
 
             if ($this->t_posts_actions_page->getPagePrepend()) {
                 return null;
@@ -105,19 +106,19 @@ class Handler extends AbstractPage
                 ->setPageTitle(__('Tags'))
                 ->setPageHelp('tag_posts')
                 ->setPageHead(
-                    dotclear()->resource()->load('style.css', 'Plugin', 'Tags') .
-                    dotclear()->resource()->load('_posts_list.js') .
-                    dotclear()->resource()->json('posts_tags_msg', [
+                    App::core()->resource()->load('style.css', 'Plugin', 'Tags') .
+                    App::core()->resource()->load('_posts_list.js') .
+                    App::core()->resource()->json('posts_tags_msg', [
                         'confirm_tag_delete' => sprintf(__('Are you sure you want to remove tag: “%s”?'), html::escapeHTML($this->t_tag)),
                     ]) .
-                    dotclear()->resource()->load('posts.js', 'Plugin', 'Tags') .
-                    dotclear()->resource()->confirmClose('tag_rename')
+                    App::core()->resource()->load('posts.js', 'Plugin', 'Tags') .
+                    App::core()->resource()->confirmClose('tag_rename')
                 )
                 ->setPageBreadcrumb(
                     [
-                        html::escapeHTML(dotclear()->blog()->name)                          => '',
-                        __('Tags')                                                          => dotclear()->adminurl()->get('admin.plugin.Tags'),
-                        __('Tag') . ' &ldquo;' . html::escapeHTML($this->t_tag) . '&rdquo;' => '',
+                        html::escapeHTML(App::core()->blog()->name)                          => '',
+                        __('Tags')                                                           => App::core()->adminurl()->get('admin.plugin.Tags'),
+                        __('Tag') . ' &ldquo;' . html::escapeHTML($this->t_tag) . '&rdquo;'  => '',
                     ]
                 )
             ;
@@ -129,8 +130,8 @@ class Handler extends AbstractPage
     protected function getPageContent(): void
     {
         if (empty($this->t_tag)) {
-            $tags = dotclear()->meta()->getMetadata(['meta_type' => 'tag']);
-            $tags = dotclear()->meta()->computeMetaStats($tags);
+            $tags = App::core()->meta()->getMetadata(['meta_type' => 'tag']);
+            $tags = App::core()->meta()->computeMetaStats($tags);
             $tags->sort('meta_id_lower', 'asc');
 
             $last_letter = null;
@@ -147,7 +148,7 @@ class Handler extends AbstractPage
                 }
 
                 $cols[$col] .= '<tr class="line">' .
-                '<td class="maximal"><a href="' . dotclear()->adminurl()->get('admin.plugin.Tags', ['tag' => rawurlencode($tags->f('meta_id'))]) . '">' .
+                '<td class="maximal"><a href="' . App::core()->adminurl()->get('admin.plugin.Tags', ['tag' => rawurlencode($tags->f('meta_id'))]) . '">' .
                     $tags->f('meta_id') . '</a></td>' .
                 '<td class="nowrap count"><strong>' . $tags->f('count') . '</strong> ' .
                     (($tags->fInt('count') == 1) ? __('entry') : __('entries')) . '</td>' .
@@ -169,24 +170,24 @@ class Handler extends AbstractPage
                 echo '<p>' . __('No tags on this blog.') . '</p>';
             }
         } else {
-            echo '<p><a class="back" href="' . dotclear()->adminurl()->get('admin.plugin.Tags') . '">' . __('Back to tags list') . '</a></p>';
+            echo '<p><a class="back" href="' . App::core()->adminurl()->get('admin.plugin.Tags') . '">' . __('Back to tags list') . '</a></p>';
 
-            if (!dotclear()->error()->flag()) {
+            if (!App::core()->error()->flag()) {
                 if (!$this->t_posts->isEmpty()) {
                     echo '<div class="tag-actions vertical-separator">' .
                     '<h3>' . html::escapeHTML($this->t_tag) . '</h3>' .
-                    '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="tag_rename">' .
+                    '<form action="' . App::core()->adminurl()->root() . '" method="post" id="tag_rename">' .
                     '<p><label for="new_tag_id" class="classic">' . __('Rename') . '</label> ' .
                     form::field('new_tag_id', 20, 255, html::escapeHTML($this->t_tag)) .
                     '<input type="submit" value="' . __('OK') . '" />' .
                     ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
-                    dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Tags', ['tag' => $this->t_tag], true) .
+                    App::core()->adminurl()->getHiddenFormFields('admin.plugin.Tags', ['tag' => $this->t_tag], true) .
                         '</p></form>';
                     // Remove tag
-                    if (dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
-                        echo '<form id="tag_delete" action="' . dotclear()->adminurl()->root() . '" method="post">' .
+                    if (App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
+                        echo '<form id="tag_delete" action="' . App::core()->adminurl()->root() . '" method="post">' .
                         '<p><input type="submit" class="delete" name="delete" value="' . __('Delete this tag') . '" />' .
-                    dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Tags', ['tag' => $this->t_tag], true) .
+                    App::core()->adminurl()->getHiddenFormFields('admin.plugin.Tags', ['tag' => $this->t_tag], true) .
                             '</p></form>';
                     }
                     echo '</div>';
@@ -197,7 +198,7 @@ class Handler extends AbstractPage
                 $this->t_post_list->display(
                     $this->t_page,
                     $this->t_nb_per_page,
-                    '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-entries">' .
+                    '<form action="' . App::core()->adminurl()->root() . '" method="post" id="form-entries">' .
 
                     '%s' .
 
@@ -207,7 +208,7 @@ class Handler extends AbstractPage
                     '<p class="col right"><label for="action" class="classic">' . __('Selected entries action:') . '</label> ' .
                     form::combo('action', $this->t_posts_actions_page->getCombo()) .
                     '<input id="do-action" type="submit" value="' . __('OK') . '" /></p>' .
-                    dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Tags', ['post_type' => '', 'tag' => $this->t_tag], true) .
+                    App::core()->adminurl()->getHiddenFormFields('admin.plugin.Tags', ['post_type' => '', 'tag' => $this->t_tag], true) .
                     '</div>' .
                     '</form>'
                 );

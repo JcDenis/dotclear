@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\CspReport
+use Dotclear\App;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Files;
@@ -39,7 +40,7 @@ class CspReport extends AbstractPage
 
         // Specify admin CSP log file if necessary
         if (!defined('LOGFILE')) {
-            define('LOGFILE', Path::real(dotclear()->config()->get('var_dir') . '/csp/csp_report.json', false));
+            define('LOGFILE', Path::real(App::core()->config()->get('var_dir') . '/csp/csp_report.json', false));
         }
 
         // Get the raw POST data

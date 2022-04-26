@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Module\Plugin;
 
 // Dotclear\Module\Plugin\TraitModulesPlugin
+use Dotclear\App;
 use Dotclear\Helper\File\Path;
 
 /**
@@ -26,11 +27,11 @@ trait TraitModulesPlugin
 
     public function getModulesPath(): array
     {
-        $paths = dotclear()->config()->get('plugin_dirs');
+        $paths = App::core()->config()->get('plugin_dirs');
 
         // If a plugin directory is set for current blog, it will be added to the end of paths
-        if (dotclear()->blog()) {
-            $path = trim((string) dotclear()->blog()->settings()->get('system')->get('module_plugin_dir'));
+        if (App::core()->blog()) {
+            $path = trim((string) App::core()->blog()->settings()->get('system')->get('module_plugin_dir'));
             if (!empty($path) && false !== ($dir = Path::real(str_starts_with('\\', $path) ? $path : Path::implodeRoot($path), true))) {
                 $paths[] = $dir;
             }
@@ -41,7 +42,7 @@ trait TraitModulesPlugin
 
     public function getStoreURL(): string
     {
-        return (string) dotclear()->blog()->settings()->get('system')->get('store_plugin_url');
+        return (string) App::core()->blog()->settings()->get('system')->get('store_plugin_url');
     }
 
     public function useStoreCache(): bool
@@ -51,6 +52,6 @@ trait TraitModulesPlugin
 
     public function getDistributedModules(): array
     {
-        return dotclear()->config()->get('plugin_official');
+        return App::core()->config()->get('plugin_official');
     }
 }

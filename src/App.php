@@ -1,9 +1,5 @@
 <?php
 /**
- * Global functions.
- *
- * @file \src\functions.php
- *
  * @package Dotclear
  *
  * @copyright Olivier Meunier & Association Dotclear
@@ -11,23 +7,24 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear {
-    // php-cs-fixer requires namespace to exist
-    // but this must be removed to generate phpdoc
-}
+namespace Dotclear;
 
-namespace { // enter to global namespace to declare root functions
-// @cond ONCE
-if (!function_exists('dotclear_run')) {
-    // @endcond
-
+/**
+ * Application.
+ *
+ * Run process from this class.
+ * 
+ * @ingroup Process Core
+ */
+class App
+{
     /**
-     * Root function to run process.
+     * Run process.
      *
      * @param string $process The process (admin,install,public...)
      * @param string $blog_id The blog id for public process
      */
-    function dotclear_run(string $process, ?string $blog_id = null): void
+    final public static function run(string $process, ?string $blog_id = null)
     {
         // Define Dotclear root directory
         if (!defined('DOTCLEAR_ROOT_DIR')) {
@@ -41,14 +38,14 @@ if (!function_exists('dotclear_run')) {
         // Dotclear autoload
         } else {
             require_once implode(DIRECTORY_SEPARATOR, [\DOTCLEAR_ROOT_DIR, 'Helper', 'Autoload.php']);
-            $autoload = new Dotclear\Helper\Autoload();
+            $autoload = new \Dotclear\Helper\Autoload();
             $autoload->addNamespace('Dotclear', \DOTCLEAR_ROOT_DIR);
         }
 
         // Find process (Admin|Public|Install|...)
         $class = 'Dotclear\\Process\\' . ucfirst(strtolower($process)) . '\\Prepend';
         if (!is_subclass_of($class, 'Dotclear\\Core\\Core')) {
-            dotclear_error('No process found', 'Something went wrong while trying to start process.');
+            self::stop('No process found', 'Something went wrong while trying to start process.');
         }
 
         // Execute Process
@@ -63,59 +60,47 @@ if (!function_exists('dotclear_run')) {
 
             try {
                 $traces = null;
-                if (false === dotclear()?->production()) {
+                if (false === self::core()?->production()) {
                     $traces = $e->getTrace();
                     array_unshift($traces, ['file' => $e->getFile(), 'line' => $e->getLine()]);
                     if (null != ($previous = $e->getPrevious())) {
                         array_unshift($traces, ['file' => $previous->getFile(), 'line' => $previous->getLine()]);
                     }
                 }
-                dotclear_error(get_class($e), $e->getMessage(), $e->getCode(), $traces);
+                self::stop(get_class($e), $e->getMessage(), $e->getCode(), $traces);
             } catch (\Exception|\Error) {
             }
-            dotclear_error('Unexpected error', 'Sorry, execution of the script is halted.', $e->getCode());
+            self::stop('Unexpected error', 'Sorry, execution of the script is halted.', $e->getCode());
         }
     }
-    // @cond ONCE
-}
-// @endcond
-
-// @cond ONCE
-if (!function_exists('dotclear')) {
-    // @endcond
 
     /**
-     * Root function to call singleton core.
+     * Call singleton core.
+     *
+     * @param ?string $blog_id
      *
      * @return null|object Singleton core instance
      */
-    function dotclear(): ?object
+    final public static function core(?string $blog_id = null)
     {
         if (class_exists('Dotclear\\Core\\Core')) {
-            return Dotclear\Core\Core::singleton();
+            return \Dotclear\Core\Core::singleton();
         }
 
-        dotclear_error('Runtime error', 'Core instance can not be called directly.', 601);
+        self::stop('Runtime error', 'Core instance can not be called directly.', 601);
 
         return null;
     }
-    // @cond ONCE
-}
-// @endcond
-
-// @cond ONCE
-if (!function_exists('dotclear_error')) {
-    // @endcond
 
     /**
-     * Root function to display errors.
+     * Display errors.
      *
      * @param string                $message The message
      * @param string                $detail  The detail
      * @param int                   $code    The code
      * @param null|array<int,array> $traces  The traces
      */
-    function dotclear_error(string $message, string $detail = '', int $code = 0, ?array $traces = null): void
+    final public static function stop(string $message, string $detail = '', int $code = 0, ?array $traces = null): void
     {
         @ob_clean();
 
@@ -201,7 +186,4 @@ if (!function_exists('dotclear_error')) {
             exit(0);
         }
     }
-    // @cond ONCE
 }
-// @endcond
-} // end global namesapce

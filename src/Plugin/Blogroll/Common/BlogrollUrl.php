@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Blogroll\Common;
 
 // Dotclear\Plugin\Blogroll\Common\BlogrollUrl
+use Dotclear\App;
 use Dotclear\Core\Url\Url;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
@@ -24,7 +25,7 @@ class BlogrollUrl extends Url
 {
     public function __construct()
     {
-        dotclear()->url()->register('xbel', 'xbel', '^xbel(?:/?)$', [$this, 'xbel']);
+        App::core()->url()->register('xbel', 'xbel', '^xbel(?:/?)$', [$this, 'xbel']);
     }
 
     public function xbel($args)
@@ -34,18 +35,18 @@ class BlogrollUrl extends Url
         try {
             $links = $blogroll->getLinks();
         } catch (Exception $e) {
-            dotclear()->url()->p404();
+            App::core()->url()->p404();
 
             return;
         }
 
         if ($args) {
-            dotclear()->url()->p404();
+            App::core()->url()->p404();
 
             return;
         }
 
-        Http::cache(dotclear()->url()->mod_files, dotclear()->url()->mod_ts);
+        Http::cache(App::core()->url()->mod_files, App::core()->url()->mod_ts);
 
         header('Content-Type: text/xml; charset=UTF-8');
 
@@ -54,7 +55,7 @@ class BlogrollUrl extends Url
         'Language 1.0//EN//XML"' . "\n" .
         '"http://www.python.org/topics/xml/dtds/xbel-1.0.dtd">' . "\n" .
         '<xbel version="1.0">' . "\n" .
-        '<title>' . Html::escapeHTML(dotclear()->blog()->name) . " blogroll</title>\n";
+        '<title>' . Html::escapeHTML(App::core()->blog()->name) . " blogroll</title>\n";
 
         $i = 1;
         foreach ($blogroll->getLinksHierarchy($links) as $cat_title => $links) {

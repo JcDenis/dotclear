@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Service;
 
 // Dotclear\Process\Admin\Service\Updater
+use Dotclear\App;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Zip\Unzip;
@@ -122,7 +123,7 @@ class Updater
             $http_get = function ($http_url) use (&$status, $path) {
                 $client = NetHttp::initClient($http_url, $path);
                 if (false !== $client) {
-                    $client->setTimeout(dotclear()->config()->get('query_timeout'));
+                    $client->setTimeout(App::core()->config()->get('query_timeout'));
                     $client->setUserAgent($_SERVER['HTTP_USER_AGENT']);
                     $client->get($path);
                     $status = (int) $client->getStatus();
@@ -249,7 +250,7 @@ class Updater
             $http_get = function ($http_url) use (&$status, $dest, $path) {
                 $client = NetHttp::initClient($http_url, $path);
                 if (false !== $client) {
-                    $client->setTimeout(dotclear()->config()->get('query_timeout'));
+                    $client->setTimeout(App::core()->config()->get('query_timeout'));
                     $client->setUserAgent($_SERVER['HTTP_USER_AGENT']);
                     $client->useGzip(false);
                     $client->setPersistReferers(false);

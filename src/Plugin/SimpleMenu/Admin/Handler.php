@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\SimpleMenu\Admin;
 
 // Dotclear\Plugin\SimpleMenu\Admin\Handler
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -50,23 +51,23 @@ class Handler extends AbstractPage
     {
         // Liste des catégories
         $categories_label          = [];
-        $rs                        = dotclear()->blog()->categories()->getCategories(['post_type' => 'post']);
-        $this->sm_categories_combo = dotclear()->combo()->getCategoriesCombo($rs, false, true);
+        $rs                        = App::core()->blog()->categories()->getCategories(['post_type' => 'post']);
+        $this->sm_categories_combo = App::core()->combo()->getCategoriesCombo($rs, false, true);
         $rs->moveStart();
         while ($rs->fetch()) {
             $categories_label[$rs->f('cat_url')] = Html::escapeHTML($rs->f('cat_title'));
         }
 
         // Liste des langues utilisées
-        $this->sm_langs_combo = dotclear()->combo()->getLangscombo(
-            dotclear()->blog()->posts()->getLangs(['order' => 'asc'])
+        $this->sm_langs_combo = App::core()->combo()->getLangscombo(
+            App::core()->blog()->posts()->getLangs(['order' => 'asc'])
         );
 
         // Liste des mois d'archive
-        $rs                    = dotclear()->blog()->posts()->getDates(['type' => 'month']);
+        $rs                    = App::core()->blog()->posts()->getDates(['type' => 'month']);
         $this->sm_months_combo = array_merge(
             [__('All months') => '-'],
-            dotclear()->combo()->getDatesCombo($rs)
+            App::core()->combo()->getDatesCombo($rs)
         );
 
         $first_year = $last_year = 0;
@@ -83,7 +84,7 @@ class Handler extends AbstractPage
 
         // Liste des pages -- Doit être pris en charge plus tard par le plugin ?
         try {
-            $rs = dotclear()->blog()->posts()->getPosts(['post_type' => 'page']);
+            $rs = App::core()->blog()->posts()->getPosts(['post_type' => 'page']);
             while ($rs->fetch()) {
                 $this->sm_pages_combo[$rs->f('post_title')] = $rs->getURL();
             }
@@ -93,7 +94,7 @@ class Handler extends AbstractPage
 
         // Liste des tags -- Doit être pris en charge plus tard par le plugin ?
         try {
-            $rs                                  = dotclear()->meta()->getMetadata(['meta_type' => 'tag']);
+            $rs                                  = App::core()->meta()->getMetadata(['meta_type' => 'tag']);
             $this->sm_tags_combo[__('All tags')] = '-';
             while ($rs->fetch()) {
                 $this->sm_tags_combo[$rs->f('meta_id')] = $rs->f('meta_id');
@@ -106,7 +107,7 @@ class Handler extends AbstractPage
         $this->sm_items         = new ArrayObject();
         $this->sm_items['home'] = new ArrayObject([__('Home'), false]);
 
-        if (dotclear()->blog()->settings()->get('system')->get('static_home')) {
+        if (App::core()->blog()->settings()->get('system')->get('static_home')) {
             $this->sm_items['posts'] = new ArrayObject([__('Posts'), false]);
         }
 
@@ -119,12 +120,12 @@ class Handler extends AbstractPage
         if (1 < count($this->sm_months_combo)) {
             $this->sm_items['archive'] = new ArrayObject([__('Archive'), true]);
         }
-        if (dotclear()->plugins()->hasModule('pages')) {
+        if (App::core()->plugins()->hasModule('pages')) {
             if (count($this->sm_pages_combo)) {
                 $this->sm_items['pages'] = new ArrayObject([__('Page'), true]);
             }
         }
-        if (dotclear()->plugins()->hasModule('tags')) {
+        if (App::core()->plugins()->hasModule('tags')) {
             if (1 < count($this->sm_tags_combo)) {
                 $this->sm_items['tags'] = new ArrayObject([__('Tags'), true]);
             }
@@ -132,12 +133,12 @@ class Handler extends AbstractPage
 
         // --BEHAVIOR-- adminSimpleMenuAddType
         // Should add an item to $this->sm_items[<id>] as an [<label>,<optional step (true or false)>]
-        dotclear()->behavior()->call('adminSimpleMenuAddType', $this->sm_items);
+        App::core()->behavior()->call('adminSimpleMenuAddType', $this->sm_items);
 
         $this->sm_items['special'] = new ArrayObject([__('User defined'), false]);
 
         // Lecture menu existant
-        $menu = dotclear()->blog()->settings()->get('system')->get('simpleMenu');
+        $menu = App::core()->blog()->settings()->get('system')->get('simpleMenu');
         if (is_array($menu)) {
             $this->sm_menu = $menu;
         }
@@ -148,14 +149,14 @@ class Handler extends AbstractPage
         if (!empty($_POST['saveconfig'])) {
             try {
                 $menu_active = (empty($_POST['active'])) ? false : true;
-                dotclear()->blog()->settings()->get('system')->put('simpleMenu_active', $menu_active, 'boolean');
-                dotclear()->blog()->triggerBlog();
+                App::core()->blog()->settings()->get('system')->put('simpleMenu_active', $menu_active, 'boolean');
+                App::core()->blog()->triggerBlog();
 
                 // All done successfully, return to menu items list
-                dotclear()->notice()->addSuccessNotice(__('Configuration successfully updated.'));
-                dotclear()->adminurl()->redirect('admin.plugin.SimpleMenu');
+                App::core()->notice()->addSuccessNotice(__('Configuration successfully updated.'));
+                App::core()->adminurl()->redirect('admin.plugin.SimpleMenu');
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         } else {
             // Récupération paramètres postés
@@ -195,19 +196,19 @@ class Handler extends AbstractPage
                         $this->sm_item_select_label = '';
                         $this->sm_item_label        = __('Label');
                         $this->sm_item_descr        = __('Description');
-                        $this->sm_item_url          = Html::stripHostURL(dotclear()->blog()->url);
+                        $this->sm_item_url          = Html::stripHostURL(App::core()->blog()->url);
 
                         switch ($this->sm_item_type) {
                             case 'home':
                                 $this->sm_item_label = __('Home');
-                                $this->sm_item_descr = dotclear()->blog()->settings()->get('system')->get('static_home') ? __('Home page') : __('Recent posts');
+                                $this->sm_item_descr = App::core()->blog()->settings()->get('system')->get('static_home') ? __('Home page') : __('Recent posts');
 
                                 break;
 
                             case 'posts':
                                 $this->sm_item_label = __('Posts');
                                 $this->sm_item_descr = __('Recent posts');
-                                $this->sm_item_url .= dotclear()->url()->getURLFor('posts');
+                                $this->sm_item_url .= App::core()->url()->getURLFor('posts');
 
                                 break;
 
@@ -215,7 +216,7 @@ class Handler extends AbstractPage
                                 $this->sm_item_select_label = array_search($this->sm_item_select, $this->sm_langs_combo);
                                 $this->sm_item_label        = $this->sm_item_select_label;
                                 $this->sm_item_descr        = sprintf(__('Switch to %s language'), $this->sm_item_select_label);
-                                $this->sm_item_url .= dotclear()->url()->getURLFor('lang', $this->sm_item_select);
+                                $this->sm_item_url .= App::core()->url()->getURLFor('lang', $this->sm_item_select);
 
                                 break;
 
@@ -223,7 +224,7 @@ class Handler extends AbstractPage
                                 $this->sm_item_select_label = $categories_label[$this->sm_item_select];
                                 $this->sm_item_label        = $this->sm_item_select_label;
                                 $this->sm_item_descr        = __('Recent Posts from this category');
-                                $this->sm_item_url .= dotclear()->url()->getURLFor('category', $this->sm_item_select);
+                                $this->sm_item_url .= App::core()->url()->getURLFor('category', $this->sm_item_select);
 
                                 break;
 
@@ -232,11 +233,11 @@ class Handler extends AbstractPage
                                 if ('-' == $this->sm_item_select) {
                                     $this->sm_item_label = __('Archives');
                                     $this->sm_item_descr = $first_year . ($first_year != $last_year ? ' - ' . $last_year : '');
-                                    $this->sm_item_url .= dotclear()->url()->getURLFor('archive');
+                                    $this->sm_item_url .= App::core()->url()->getURLFor('archive');
                                 } else {
                                     $this->sm_item_label = $this->sm_item_select_label;
                                     $this->sm_item_descr = sprintf(__('Posts from %s'), $this->sm_item_select_label);
-                                    $this->sm_item_url .= dotclear()->url()->getURLFor('archive', substr($this->sm_item_select, 0, 4) . '/' . substr($this->sm_item_select, -2));
+                                    $this->sm_item_url .= App::core()->url()->getURLFor('archive', substr($this->sm_item_select, 0, 4) . '/' . substr($this->sm_item_select, -2));
                                 }
 
                                 break;
@@ -254,11 +255,11 @@ class Handler extends AbstractPage
                                 if ('-' == $this->sm_item_select) {
                                     $this->sm_item_label = __('All tags');
                                     $this->sm_item_descr = '';
-                                    $this->sm_item_url .= dotclear()->url()->getURLFor('tags');
+                                    $this->sm_item_url .= App::core()->url()->getURLFor('tags');
                                 } else {
                                     $this->sm_item_label = $this->sm_item_select_label;
                                     $this->sm_item_descr = sprintf(__('Recent posts for %s tag'), $this->sm_item_select_label);
-                                    $this->sm_item_url .= dotclear()->url()->getURLFor('tag', $this->sm_item_select);
+                                    $this->sm_item_url .= App::core()->url()->getURLFor('tag', $this->sm_item_select);
                                 }
 
                                 break;
@@ -270,7 +271,7 @@ class Handler extends AbstractPage
                                 // --BEHAVIOR-- adminSimpleMenuBeforeEdit
                                 // Should modify if necessary $this->sm_item_label, $this->sm_item_descr and $this->sm_item_url
                                 // Should set if necessary $this->sm_item_select_label (displayed on further admin step only)
-                                dotclear()->behavior()->call(
+                                App::core()->behavior()->call(
                                     'adminSimpleMenuBeforeEdit',
                                     $this->sm_item_type,
                                     $this->sm_item_select,
@@ -295,19 +296,19 @@ class Handler extends AbstractPage
                                 ];
 
                                 // Save menu in blog settings
-                                dotclear()->blog()->settings()->get('system')->put('simpleMenu', $this->sm_menu);
-                                dotclear()->blog()->triggerBlog();
+                                App::core()->blog()->settings()->get('system')->put('simpleMenu', $this->sm_menu);
+                                App::core()->blog()->triggerBlog();
 
                                 // All done successfully, return to menu items list
-                                dotclear()->notice()->addSuccessNotice(__('Menu item has been successfully added.'));
-                                dotclear()->adminurl()->redirect('admin.plugin.SimpleMenu');
+                                App::core()->notice()->addSuccessNotice(__('Menu item has been successfully added.'));
+                                App::core()->adminurl()->redirect('admin.plugin.SimpleMenu');
                             } else {
                                 $this->sm_step              = 3;
                                 $this->sm_item_select_label = $this->sm_item_label;
-                                dotclear()->notice()->addErrorNotice(__('Label and URL of menu item are mandatory.'));
+                                App::core()->notice()->addErrorNotice(__('Label and URL of menu item are mandatory.'));
                             }
                         } catch (Exception $e) {
-                            dotclear()->error()->add($e->getMessage());
+                            App::core()->error()->add($e->getMessage());
                         }
 
                         break;
@@ -333,17 +334,17 @@ class Handler extends AbstractPage
                             }
                             $this->sm_menu = $newmenu;
                             // Save menu in blog settings
-                            dotclear()->blog()->settings()->get('system')->put('simpleMenu', $this->sm_menu);
-                            dotclear()->blog()->triggerBlog();
+                            App::core()->blog()->settings()->get('system')->put('simpleMenu', $this->sm_menu);
+                            App::core()->blog()->triggerBlog();
 
                             // All done successfully, return to menu items list
-                            dotclear()->notice()->addSuccessNotice(__('Menu items have been successfully removed.'));
-                            dotclear()->adminurl()->redirect('admin.plugin.SimpleMenu');
+                            App::core()->notice()->addSuccessNotice(__('Menu items have been successfully removed.'));
+                            App::core()->adminurl()->redirect('admin.plugin.SimpleMenu');
                         } else {
                             throw new ModuleException(__('No menu items selected.'));
                         }
                     } catch (Exception $e) {
-                        dotclear()->error()->add($e->getMessage());
+                        App::core()->error()->add($e->getMessage());
                     }
                 }
 
@@ -371,7 +372,7 @@ class Handler extends AbstractPage
                         }
                         $this->sm_menu = $newmenu;
 
-                        if (dotclear()->user()->preference()->get('accessibility')->get('nodragdrop')) {
+                        if (App::core()->user()->preference()->get('accessibility')->get('nodragdrop')) {
                             // Order menu items
                             $order = [];
                             if (empty($_POST['im_order']) && !empty($_POST['order'])) {
@@ -398,14 +399,14 @@ class Handler extends AbstractPage
                         }
 
                         // Save menu in blog settings
-                        dotclear()->blog()->settings()->get('system')->put('simpleMenu', $this->sm_menu);
-                        dotclear()->blog()->triggerBlog();
+                        App::core()->blog()->settings()->get('system')->put('simpleMenu', $this->sm_menu);
+                        App::core()->blog()->triggerBlog();
 
                         // All done successfully, return to menu items list
-                        dotclear()->notice()->addSuccessNotice(__('Menu items have been successfully updated.'));
-                        dotclear()->adminurl()->redirect('admin.plugin.SimpleMenu');
+                        App::core()->notice()->addSuccessNotice(__('Menu items have been successfully updated.'));
+                        App::core()->adminurl()->redirect('admin.plugin.SimpleMenu');
                     } catch (Exception $e) {
-                        dotclear()->error()->add($e->getMessage());
+                        App::core()->error()->add($e->getMessage());
                     }
                 }
             }
@@ -415,13 +416,13 @@ class Handler extends AbstractPage
         $this
             ->setPageTitle(__('Simple menu'))
             ->setPageHelp('simpleMenu')
-            ->setPageHead(dotclear()->resource()->confirmClose('settings', 'menuitemsappend', 'additem', 'menuitems'))
+            ->setPageHead(App::core()->resource()->confirmClose('settings', 'menuitemsappend', 'additem', 'menuitems'))
         ;
-        if (!dotclear()->user()->preference()->get('accessibility')->get('nodragdrop')) {
+        if (!App::core()->user()->preference()->get('accessibility')->get('nodragdrop')) {
             $this->setPageHead(
-                dotclear()->resource()->load('jquery/jquery-ui.custom.js') .
-                dotclear()->resource()->load('jquery/jquery.ui.touch-punch.js') .
-                dotclear()->resource()->load('simplemenu.js', 'Plugin', 'SimpleMenu')
+                App::core()->resource()->load('jquery/jquery-ui.custom.js') .
+                App::core()->resource()->load('jquery/jquery.ui.touch-punch.js') .
+                App::core()->resource()->load('simplemenu.js', 'Plugin', 'SimpleMenu')
             );
         }
 
@@ -447,17 +448,17 @@ class Handler extends AbstractPage
 
             $this->setPageBreadcrumb(
                 [
-                    Html::escapeHTML(dotclear()->blog()->name) => '',
-                    __('Simple menu')                          => dotclear()->adminurl()->get('admin.plugin.SimpleMenu'),
-                    __('Add item')                             => '',
-                    $step_label                                => '',
+                    Html::escapeHTML(App::core()->blog()->name) => '',
+                    __('Simple menu')                           => App::core()->adminurl()->get('admin.plugin.SimpleMenu'),
+                    __('Add item')                              => '',
+                    $step_label                                 => '',
                 ],
                 ['hl_pos' => -2]
             );
         } else {
             $this->setPageBreadcrumb([
-                Html::escapeHTML(dotclear()->blog()->name) => '',
-                __('Simple menu')                          => '',
+                Html::escapeHTML(App::core()->blog()->name) => '',
+                __('Simple menu')                           => '',
             ]);
         }
 
@@ -475,10 +476,10 @@ class Handler extends AbstractPage
                         $items_combo[$v[0]] = $k;
                     }
                     // Selection du type d'item
-                    echo '<form id="additem" action="' . dotclear()->adminurl()->root() . '" method="post">';
+                    echo '<form id="additem" action="' . App::core()->adminurl()->root() . '" method="post">';
                     echo '<fieldset><legend>' . __('Select type') . '</legend>';
                     echo '<p class="field"><label for="item_type" class="classic">' . __('Type of item menu:') . '</label>' . form::combo('item_type', $items_combo) . '</p>';
-                    echo '<p>' . dotclear()->adminurl()->getHiddenFormFields('admin.plugin.SimpleMenu', ['add' => 2], true);
+                    echo '<p>' . App::core()->adminurl()->getHiddenFormFields('admin.plugin.SimpleMenu', ['add' => 2], true);
                     echo '<input type="submit" name="appendaction" value="' . __('Continue...') . '" />' . '</p>';
                     echo '</fieldset>';
                     echo '</form>';
@@ -488,7 +489,7 @@ class Handler extends AbstractPage
                 case 2:
                     if ($this->sm_items[$this->sm_item_type][1]) {
                         // Choix à faire
-                        echo '<form id="additem" action="' . dotclear()->adminurl()->root() . '" method="post">';
+                        echo '<form id="additem" action="' . App::core()->adminurl()->root() . '" method="post">';
                         echo '<fieldset><legend>' . $this->sm_item_type_label . '</legend>';
 
                         switch ($this->sm_item_type) {
@@ -525,9 +526,9 @@ class Handler extends AbstractPage
                             default:
                                 echo // --BEHAVIOR-- adminSimpleMenuSelect
                                 // Optional step once $this->sm_item_type known : should provide a field using 'item_select' as id
-                                dotclear()->behavior()->call('adminSimpleMenuSelect', $this->sm_item_type, 'item_select');
+                                App::core()->behavior()->call('adminSimpleMenuSelect', $this->sm_item_type, 'item_select');
                         }
-                        echo '<p>' . dotclear()->adminurl()->getHiddenFormFields('admin.plugin.SimpleMenu', ['item_type' => $this->sm_item_type, 'add' => 3], true);
+                        echo '<p>' . App::core()->adminurl()->getHiddenFormFields('admin.plugin.SimpleMenu', ['item_type' => $this->sm_item_type, 'add' => 3], true);
                         echo '<input type="submit" name="appendaction" value="' . __('Continue...') . '" /></p>';
                         echo '</fieldset>';
                         echo '</form>';
@@ -537,13 +538,13 @@ class Handler extends AbstractPage
                     // no break
                 case 3:
                     // Libellé et description
-                    echo '<form id="additem" action="' . dotclear()->adminurl()->root() . '" method="post">';
+                    echo '<form id="additem" action="' . App::core()->adminurl()->root() . '" method="post">';
                     echo '<fieldset><legend>' . $this->sm_item_type_label . ('' != $this->sm_item_select_label ? ' (' . $this->sm_item_select_label . ')' : '') . '</legend>';
                     echo '<p class="field"><label for="item_label" class="classic required"><abbr title="' . __('Required field') . '">*</abbr> ' .
                     __('Label of item menu:') . '</label>' .
                     form::field('item_label', 20, 255, [
                         'default'    => $this->sm_item_label,
-                        'extra_html' => 'required placeholder="' . __('Label') . '" lang="' . dotclear()->user()->getInfo('user_lang') . '" spellcheck="true"',
+                        'extra_html' => 'required placeholder="' . __('Label') . '" lang="' . App::core()->user()->getInfo('user_lang') . '" spellcheck="true"',
                     ]) .
                         '</p>';
                     echo '<p class="field"><label for="item_descr" class="classic">' .
@@ -553,7 +554,7 @@ class Handler extends AbstractPage
                         255,
                         [
                             'default'    => $this->sm_item_descr,
-                            'extra_html' => 'lang="' . dotclear()->user()->getInfo('user_lang') . '" spellcheck="true"',
+                            'extra_html' => 'lang="' . App::core()->user()->getInfo('user_lang') . '" spellcheck="true"',
                         ]
                     ) . '</p>';
                     echo '<p class="field"><label for="item_url" class="classic required"><abbr title="' . __('Required field') . '">*</abbr> ' .
@@ -565,7 +566,7 @@ class Handler extends AbstractPage
                         '</p>';
                     echo '<p class="field"><label for="item_descr" class="classic">' .
                     __('Open URL on a new tab') . ':</label>' . form::checkbox('item_targetBlank', 'blank') . '</p>';
-                    echo '<p>' . dotclear()->adminurl()->getHiddenFormFields(
+                    echo '<p>' . App::core()->adminurl()->getHiddenFormFields(
                         'admin.plugin.SimpleMenu',
                         ['item_type' => $this->sm_item_type, 'item_select' => $this->sm_item_select, 'add' => 4],
                         true
@@ -580,10 +581,10 @@ class Handler extends AbstractPage
 
         // Formulaire d'activation
         if (!$this->sm_step) {
-            echo '<form id="settings" action="' . dotclear()->adminurl()->root() . '" method="post">' .
-            '<p>' . form::checkbox('active', 1, (bool) dotclear()->blog()->settings()->get('system')->get('simpleMenu_active')) .
+            echo '<form id="settings" action="' . App::core()->adminurl()->root() . '" method="post">' .
+            '<p>' . form::checkbox('active', 1, (bool) App::core()->blog()->settings()->get('system')->get('simpleMenu_active')) .
             '<label class="classic" for="active">' . __('Enable simple menu for this blog') . '</label>' . '</p>' .
-            '<p>' . dotclear()->adminurl()->getHiddenFormFields('admin.plugin.SimpleMenu', [], true) .
+            '<p>' . App::core()->adminurl()->getHiddenFormFields('admin.plugin.SimpleMenu', [], true) .
             '<input type="submit" name="saveconfig" value="' . __('Save configuration') . '" />' .
             ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
             '</p>' .
@@ -592,15 +593,15 @@ class Handler extends AbstractPage
 
         // Liste des items
         if (!$this->sm_step) {
-            echo '<form id="menuitemsappend" action="' . dotclear()->adminurl()->root() . '" method="post">';
-            echo '<p class="top-add">' . dotclear()->adminurl()->getHiddenFormFields('admin.plugin.SimpleMenu', ['add' => 1], true);
+            echo '<form id="menuitemsappend" action="' . App::core()->adminurl()->root() . '" method="post">';
+            echo '<p class="top-add">' . App::core()->adminurl()->getHiddenFormFields('admin.plugin.SimpleMenu', ['add' => 1], true);
             echo '<input class="button add" type="submit" name="appendaction" value="' . __('Add an item') . '" /></p>';
             echo '</form>';
         }
 
         if (count($this->sm_menu)) {
             if (!$this->sm_step) {
-                echo '<form id="menuitems" action="' . dotclear()->adminurl()->root() . '" method="post">';
+                echo '<form id="menuitems" action="' . App::core()->adminurl()->root() . '" method="post">';
             }
             // Entête table
             echo '<div class="table-outer">' .
@@ -650,7 +651,7 @@ class Handler extends AbstractPage
                         255,
                         [
                             'default'    => Html::escapeHTML($m['label']),
-                            'extra_html' => 'lang="' . dotclear()->user()->getInfo('user_lang') . '" spellcheck="true"',
+                            'extra_html' => 'lang="' . App::core()->user()->getInfo('user_lang') . '" spellcheck="true"',
                         ]
                     ) . '</td>';
                     echo '<td class="nowrap">' . form::field(
@@ -659,7 +660,7 @@ class Handler extends AbstractPage
                         255,
                         [
                             'default'    => Html::escapeHTML($m['descr']),
-                            'extra_html' => 'lang="' . dotclear()->user()->getInfo('user_lang') . '" spellcheck="true"',
+                            'extra_html' => 'lang="' . App::core()->user()->getInfo('user_lang') . '" spellcheck="true"',
                         ]
                     ) . '</td>';
                     echo '<td class="nowrap">' . form::field(['items_url[]', 'imu-' . $i], 30, 255, Html::escapeHTML($m['url'])) . '</td>';
@@ -676,7 +677,7 @@ class Handler extends AbstractPage
                 '</table></div>';
             if (!$this->sm_step) {
                 echo '<div class="two-cols">';
-                echo '<p class="col">' . form::hidden('im_order', '') . dotclear()->adminurl()->getHiddenFormFields('admin.plugin.SimpleMenu', [], true);
+                echo '<p class="col">' . form::hidden('im_order', '') . App::core()->adminurl()->getHiddenFormFields('admin.plugin.SimpleMenu', [], true);
                 echo '<input type="submit" name="updateaction" value="' . __('Update menu') . '" />' . '</p>';
                 echo '<p class="col right">' . '<input id="remove-action" type="submit" class="delete" name="removeaction" ' .
                 'value="' . __('Delete selected menu items') . '" ' .

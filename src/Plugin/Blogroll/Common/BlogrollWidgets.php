@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Blogroll\Common;
 
 // Dotclear\Plugin\Blogroll\Common\BlogrollWidgets
+use Dotclear\App;
 use Dotclear\Plugin\Blogroll\Public\BlogrollTemplate;
 use Dotclear\Plugin\Widgets\Common\Widget;
 use Dotclear\Plugin\Widgets\Common\Widgets;
@@ -23,8 +24,8 @@ class BlogrollWidgets
 {
     public function __construct()
     {
-        dotclear()->behavior()->add('initWidgets', [$this, 'initWidgets']);
-        dotclear()->behavior()->add('initDefaultWidgets', [$this, 'initDefaultWidgets']);
+        App::core()->behavior()->add('initWidgets', [$this, 'initWidgets']);
+        App::core()->behavior()->add('initDefaultWidgets', [$this, 'initDefaultWidgets']);
     }
 
     public function initWidgets(Widgets $widgets): void
@@ -58,7 +59,7 @@ class BlogrollWidgets
 
     public function linksWidget(Widget $widget): string
     {
-        if ($widget->isOffline() || !$widget->checkHomeOnly(dotclear()->url()->type)) {
+        if ($widget->isOffline() || !$widget->checkHomeOnly(App::core()->url()->type)) {
             return '';
         }
 

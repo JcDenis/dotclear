@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\CKEditor\Admin;
 
 // Dotclear\Plugin\CKEditor\Admin\Prepend
+use Dotclear\App;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
@@ -29,18 +30,18 @@ class Prepend extends AbstractPrepend
         // $this->addStandardFavorites('admin');
 
         // Settings
-        if (!dotclear()->blog()->settings()->get('dcckeditor')->get('active')) {
+        if (!App::core()->blog()->settings()->get('dcckeditor')->get('active')) {
             // return;
         }
 
         // Admin url for post js
-        dotclear()->adminurl()->register(
+        App::core()->adminurl()->register(
             'admin.plugin.CKEditorPost',
             'Dotclear\\Plugin\\CKEditor\\Admin\\HandlerPost'
         );
 
         // Formater
-        dotclear()->formater()->addEditorFormater('CKEditor', 'xhtml', fn ($s) => $s);
+        App::core()->formater()->addEditorFormater('CKEditor', 'xhtml', fn ($s) => $s);
 
         // Behaviors
         new CKEditorBehavior();
@@ -48,7 +49,7 @@ class Prepend extends AbstractPrepend
 
     public function installModule(): ?bool
     {
-        $s = dotclear()->blog()->settings()->get('dcckeditor');
+        $s = App::core()->blog()->settings()->get('dcckeditor');
 
         $s->put('active', true, 'boolean', 'dcCKEditor plugin activated?', false, true);
         $s->put('alignment_buttons', true, 'boolean', 'Add alignment buttons?', false, true);

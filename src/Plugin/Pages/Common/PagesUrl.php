@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\Pages\Common;
 
 // Dotclear\Plugin\Pages\Common\PagesUrl
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Core\Url\Url;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Html\Html;
@@ -28,27 +29,27 @@ class PagesUrl extends Url
 {
     public function __construct()
     {
-        dotclear()->url()->register('pages', 'pages', '^pages/(.+)$', [$this, 'pages']);
-        dotclear()->url()->register('pagespreview', 'pagespreview', '^pagespreview/(.+)$', [$this, 'pagespreview']);
+        App::core()->url()->register('pages', 'pages', '^pages/(.+)$', [$this, 'pages']);
+        App::core()->url()->register('pagespreview', 'pagespreview', '^pagespreview/(.+)$', [$this, 'pagespreview']);
 
-        dotclear()->posttype()->setPostType('page', '?handler=admin.plugin.Page&id=%d', dotclear()->url()->getURLFor('pages', '%s'), 'Pages');
+        App::core()->posttype()->setPostType('page', '?handler=admin.plugin.Page&id=%d', App::core()->url()->getURLFor('pages', '%s'), 'Pages');
     }
 
     public function pages(string $args): void
     {
         if ('' == $args) {
             // No page was specified.
-            dotclear()->url()->p404();
+            App::core()->url()->p404();
         } else {
-            dotclear()->blog()->withoutPassword(false);
+            App::core()->blog()->withoutPassword(false);
 
             $params = new ArrayObject([
                 'post_type' => 'page',
                 'post_url'  => $args, ]);
 
-            dotclear()->behavior()->call('publicPagesBeforeGetPosts', $params, $args);
+            App::core()->behavior()->call('publicPagesBeforeGetPosts', $params, $args);
 
-            dotclear()->context()->set('posts', dotclear()->blog()->posts()->getPosts($params));
+            App::core()->context()->set('posts', App::core()->blog()->posts()->getPosts($params));
 
             $cp               = new ArrayObject();
             $cp['content']    = '';
@@ -58,19 +59,19 @@ class PagesUrl extends Url
             $cp['site']       = '';
             $cp['preview']    = false;
             $cp['remember']   = false;
-            dotclear()->context()->set('comment_preview', $cp);
+            App::core()->context()->set('comment_preview', $cp);
 
-            dotclear()->blog()->withoutPassword(true);
+            App::core()->blog()->withoutPassword(true);
 
-            if (dotclear()->context()->get('posts')->isEmpty()) {
+            if (App::core()->context()->get('posts')->isEmpty()) {
                 // The specified page does not exist.
-                dotclear()->url()->p404();
+                App::core()->url()->p404();
             } else {
-                $post_id       = dotclear()->context()->get('posts')->fInt('post_id');
-                $post_password = dotclear()->context()->get('posts')->f('post_password');
+                $post_id       = App::core()->context()->get('posts')->fInt('post_id');
+                $post_password = App::core()->context()->get('posts')->f('post_password');
 
                 // Password protected entry
-                if ('' != $post_password && !dotclear()->context()->get('preview')) {
+                if ('' != $post_password && !App::core()->context()->get('preview')) {
                     // Get passwords cookie
                     if (isset($_COOKIE['dc_passwd'])) {
                         $pwd_cookie = json_decode($_COOKIE['dc_passwd']);
@@ -91,13 +92,13 @@ class PagesUrl extends Url
                         $pwd_cookie['#' . $post_id] = $post_password;
                         setcookie('dc_passwd', json_encode($pwd_cookie), 0, '/');
                     } else {
-                        dotclear()->url()->serveDocument('password-form.html', 'text/html', false);
+                        App::core()->url()->serveDocument('password-form.html', 'text/html', false);
 
                         return;
                     }
                 }
 
-                $post_comment = isset($_POST['c_name'], $_POST['c_mail'], $_POST['c_site'], $_POST['c_content']) && dotclear()->context()->get('posts')->commentsActive();
+                $post_comment = isset($_POST['c_name'], $_POST['c_mail'], $_POST['c_site'], $_POST['c_content']) && App::core()->context()->get('posts')->commentsActive();
 
                 // Posting a comment
                 if ($post_comment) {
@@ -118,21 +119,21 @@ class PagesUrl extends Url
 
                     if ('' != $content) {
                         // --BEHAVIOR-- publicBeforeCommentTransform
-                        $buffer = dotclear()->behavior()->call('publicBeforeCommentTransform', $content);
+                        $buffer = App::core()->behavior()->call('publicBeforeCommentTransform', $content);
                         if ('' != $buffer) {
                             $content = $buffer;
                         } else {
-                            if (dotclear()->blog()->settings()->get('system')->get('wiki_comments')) {
-                                dotclear()->wiki()->initWikiComment();
+                            if (App::core()->blog()->settings()->get('system')->get('wiki_comments')) {
+                                App::core()->wiki()->initWikiComment();
                             } else {
-                                dotclear()->wiki()->initWikiSimpleComment();
+                                App::core()->wiki()->initWikiSimpleComment();
                             }
-                            $content = dotclear()->wiki()->wikiTransform($content);
+                            $content = App::core()->wiki()->wikiTransform($content);
                         }
                         $content = new HtmlFilter($content);
                     }
 
-                    $cp               = dotclear()->context()->get('comment_preview');
+                    $cp               = App::core()->context()->get('comment_preview');
                     $cp['content']    = $content;
                     $cp['rawcontent'] = $_POST['c_content'];
                     $cp['name']       = $name;
@@ -141,22 +142,22 @@ class PagesUrl extends Url
 
                     if ($preview) {
                         // --BEHAVIOR-- publicBeforeCommentPreview
-                        dotclear()->behavior()->call('publicBeforeCommentPreview', $cp);
+                        App::core()->behavior()->call('publicBeforeCommentPreview', $cp);
 
                         $cp['preview'] = true;
                     } else {
                         // Post the comment
-                        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
+                        $cur = App::core()->con()->openCursor(App::core()->prefix . 'comment');
                         $cur->setField('comment_author', $name);
                         $cur->setField('comment_site', Html::clean($site));
                         $cur->setField('comment_email', Html::clean($mail));
                         $cur->setField('comment_content', $content);
-                        $cur->setField('post_id', dotclear()->context()->get('posts')->fInt('post_id'));
-                        $cur->setField('comment_status', dotclear()->blog()->settings()->get('system')->get('comments_pub') ? 1 : -1);
+                        $cur->setField('post_id', App::core()->context()->get('posts')->fInt('post_id'));
+                        $cur->setField('comment_status', App::core()->blog()->settings()->get('system')->get('comments_pub') ? 1 : -1);
                         $cur->setField('comment_ip', Http::realIP());
 
-                        $redir = dotclear()->context()->get('posts')->getURL();
-                        $redir .= dotclear()->blog()->settings()->get('system')->get('url_scan') == 'query_string' ? '&' : '?';
+                        $redir = App::core()->context()->get('posts')->getURL();
+                        $redir .= App::core()->blog()->settings()->get('system')->get('url_scan') == 'query_string' ? '&' : '?';
 
                         try {
                             if (!Text::isEmail($cur->getField('comment_email'))) {
@@ -164,12 +165,12 @@ class PagesUrl extends Url
                             }
 
                             // --BEHAVIOR-- publicBeforeCommentCreate
-                            dotclear()->behavior()->call('publicBeforeCommentCreate', $cur);
+                            App::core()->behavior()->call('publicBeforeCommentCreate', $cur);
                             if ($cur->getField('post_id')) {
-                                $comment_id = dotclear()->blog()->comments()->addComment($cur);
+                                $comment_id = App::core()->blog()->comments()->addComment($cur);
 
                                 // --BEHAVIOR-- publicAfterCommentCreate
-                                dotclear()->behavior()->call('publicAfterCommentCreate', $cur, $comment_id);
+                                App::core()->behavior()->call('publicAfterCommentCreate', $cur, $comment_id);
                             }
 
                             if (1 == $cur->getField('comment_status')) {
@@ -180,19 +181,19 @@ class PagesUrl extends Url
 
                             header('Location: ' . $redir . $redir_arg);
                         } catch (Exception $e) {
-                            dotclear()->context()->set('form_error', $e->getMessage());
+                            App::core()->context()->set('form_error', $e->getMessage());
                         }
                     }
-                    dotclear()->context()->set('comment_preview', $cp);
+                    App::core()->context()->set('comment_preview', $cp);
                 }
 
                 // The entry
-                if (dotclear()->context()->get('posts')->trackbacksActive()) {
-                    header('X-Pingback: ' . dotclear()->blog()->getURLFor('xmlrpc', dotclear()->blog()->id));
+                if (App::core()->context()->get('posts')->trackbacksActive()) {
+                    header('X-Pingback: ' . App::core()->blog()->getURLFor('xmlrpc', App::core()->blog()->id));
                 }
 
                 // Serve page
-                dotclear()->url()->serveDocument('page.html');
+                App::core()->url()->serveDocument('page.html');
             }
         }
     }
@@ -201,18 +202,18 @@ class PagesUrl extends Url
     {
         if (!preg_match('#^(.+?)/([0-9a-z]{40})/(.+?)$#', $args, $m)) {
             // The specified Preview URL is malformed.
-            dotclear()->url()->p404();
+            App::core()->url()->p404();
         } else {
             $user_id  = $m[1];
             $user_key = $m[2];
             $post_url = $m[3];
-            if (!dotclear()->user()->checkUser($user_id, null, $user_key)) {
+            if (!App::core()->user()->checkUser($user_id, null, $user_key)) {
                 // The user has no access to the entry.
-                dotclear()->url()->p404();
+                App::core()->url()->p404();
             } else {
-                dotclear()->user()->preview = true;
-                if (dotclear()->processed('Admin')) {
-                    dotclear()->user()->xframeoption = dotclear()->config()->get('admin_url');
+                App::core()->user()->preview = true;
+                if (App::core()->processed('Admin')) {
+                    App::core()->user()->xframeoption = App::core()->config()->get('admin_url');
                 }
 
                 $this->pages($post_url);

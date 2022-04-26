@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Module;
 
 // Dotclear\Module\AbstractModules
+use Dotclear\App;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\ErrorTrait;
 use Dotclear\Helper\L10n;
@@ -151,7 +152,7 @@ abstract class AbstractModules
                 // Check dir
                 if ('.' != $this->id && '..' != $this->id && is_dir($entry_path)) {
                     // Module will be disabled
-                    $entry_enabled = !file_exists($entry_path . '/_disabled') && !dotclear()->rescue();
+                    $entry_enabled = !file_exists($entry_path . '/_disabled') && !App::core()->rescue();
                     if (!$entry_enabled) {
                         $this->disabled_mode = true;
                     }
@@ -161,7 +162,7 @@ abstract class AbstractModules
 
                     // Add module namespace
                     if ($entry_enabled) {
-                        dotclear()->autoload()->addNamespace('Dotclear\\' . $this->getModulesType() . '\\' . $this->id, $entry_path);
+                        App::core()->autoload()->addNamespace('Dotclear\\' . $this->getModulesType() . '\\' . $this->id, $entry_path);
                     // Save module in disabled list
                     } elseif (null !== $this->disabled_meta) {
                         $this->disabled_mode               = false;
@@ -186,7 +187,7 @@ abstract class AbstractModules
         // Load modules stuff
         foreach ($this->modules_enabled as $id => $define) {
             // Search module Prepend ex: Dotclear\Plugin\MyPloug\Admin\Prepend
-            $class       = 'Dotclear\\' . $this->getModulesType() . '\\' . $id . '\\' . dotclear()->processed() . '\Prepend';
+            $class       = 'Dotclear\\' . $this->getModulesType() . '\\' . $id . '\\' . App::core()->processed() . '\Prepend';
             $has_prepend = is_subclass_of($class, 'Dotclear\\Module\\AbstractPrepend');
 
             // Check module and stop if method not returns True statement
@@ -200,7 +201,7 @@ abstract class AbstractModules
             // Load module main l10n
             if ($lang) {
                 $this->loadModuleL10N($id, $lang, 'main');
-                $this->loadModuleL10N($id, $lang, strtolower(dotclear()->processed()));
+                $this->loadModuleL10N($id, $lang, strtolower(App::core()->processed()));
             }
 
             // Load module process specifics (auto register admi nurl, ...)
@@ -298,7 +299,7 @@ abstract class AbstractModules
     public function checkModulesDependencies(): void
     {
         $modules          = array_merge($this->modules_enabled, $this->modules_disabled);
-        $dc_version       = preg_replace('/\-dev.*$/', '', dotclear()->config()->get('core_version'));
+        $dc_version       = preg_replace('/\-dev.*$/', '', App::core()->config()->get('core_version'));
         $this->to_disable = [];
 
         foreach ($modules as $id => $module) {
@@ -435,7 +436,7 @@ abstract class AbstractModules
                 $id         = $tmp[0];
                 $cur_module = $modules->getModule($id);
                 if (!empty($cur_module)
-                    && (!dotclear()->production() || dotclear()->version()->compare($new_modules[$id]['version'], $cur_module['version'], '>', true))
+                    && (!App::core()->production() || App::core()->version()->compare($new_modules[$id]['version'], $cur_module['version'], '>', true))
                 ) {
                     // Delete old module
                     if (!Files::deltree($destination)) {
@@ -500,7 +501,7 @@ abstract class AbstractModules
         }
 
         // Check module version in db
-        if (version_compare((string) dotclear()->version()->get($id), (string) $this->modules_enabled[$id]->version(), '>=')) {
+        if (version_compare((string) App::core()->version()->get($id), (string) $this->modules_enabled[$id]->version(), '>=')) {
             return null;
         }
 
@@ -509,7 +510,7 @@ abstract class AbstractModules
             $i = $this->modules_prepend[$id]->installModule();
 
             // Update module version in db
-            dotclear()->version()->set($id, $this->modules_enabled[$id]->version());
+            App::core()->version()->set($id, $this->modules_enabled[$id]->version());
 
             return $i ? true : null;
         } catch (Exception $e) {
@@ -546,7 +547,7 @@ abstract class AbstractModules
                 __('The following modules have been disabled :'),
                 join('', $messages)
             );
-            dotclear()->notice()->addWarningNotice($message, ['divtag' => true, 'with_ts' => false]);
+            App::core()->notice()->addWarningNotice($message, ['divtag' => true, 'with_ts' => false]);
             $url = $redir_url . (str_contains($redir_url, '?') ? '&' : '?') . 'dep=1';
             Http::redirect($url);
 

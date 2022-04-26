@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Widgets\Public;
 
 // Dotclear\Plugin\Widgets\Public\Prepend
+use Dotclear\App;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
 use Dotclear\Plugin\Widgets\Common\WidgetsStack;
@@ -26,6 +27,6 @@ class Prepend extends AbstractPrepend
     public function loadModule(): void
     {
         // Load Widgets stack on public prepend
-        dotclear()->behavior()->add('publicPrepend', fn () => new WidgetsStack());
+        App::core()->behavior()->add('publicPrepend', fn () => new WidgetsStack());
     }
 }

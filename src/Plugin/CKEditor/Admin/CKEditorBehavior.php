@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\CKEditor\Admin;
 
 // Dotclear\Plugin\CKEditor\Admin\CKEditorBehavior
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Helper\Html\Html;
 
 /**
@@ -22,12 +23,12 @@ class CKEditorBehavior
 {
     public function __construct()
     {
-        dotclear()->behavior()->add('adminPostEditor', [$this, 'adminPostEditor']);
-        dotclear()->behavior()->add('adminPopupMedia', [$this, 'adminPopupMedia']);
-        dotclear()->behavior()->add('adminPopupLink', [$this, 'adminPopupLink']);
-        dotclear()->behavior()->add('adminPopupPosts', [$this, 'adminPopupPosts']);
-        dotclear()->behavior()->add('adminMediaURL', [$this, 'adminMediaURL']);
-        dotclear()->behavior()->add('adminPageHTTPHeaderCSP', [$this, 'adminPageHTTPHeaderCSP']);
+        App::core()->behavior()->add('adminPostEditor', [$this, 'adminPostEditor']);
+        App::core()->behavior()->add('adminPopupMedia', [$this, 'adminPopupMedia']);
+        App::core()->behavior()->add('adminPopupLink', [$this, 'adminPopupLink']);
+        App::core()->behavior()->add('adminPopupPosts', [$this, 'adminPopupPosts']);
+        App::core()->behavior()->add('adminMediaURL', [$this, 'adminMediaURL']);
+        App::core()->behavior()->add('adminPageHTTPHeaderCSP', [$this, 'adminPageHTTPHeaderCSP']);
     }
 
     /**
@@ -44,23 +45,23 @@ class CKEditorBehavior
             return '';
         }
 
-        $config_js = dotclear()->adminurl()->get('admin.plugin.CKEditorPost', [], '&');
+        $config_js = App::core()->adminurl()->get('admin.plugin.CKEditorPost', [], '&');
         if (!empty($context)) {
             $config_js .= '&context=' . $context;
         }
 
-        return dotclear()->resource()->json('ck_editor_ctx', [
+        return App::core()->resource()->json('ck_editor_ctx', [
             'ckeditor_context'      => $context,
             'ckeditor_tags_context' => [$context => $tags],
-            'admin_base_url'        => dotclear()->adminurl()->root(),
-            'base_url'              => dotclear()->blog()->host,
-            'dcckeditor_plugin_url' => dotclear()->adminurl()->root() . '?df=Plugin/CKEditor/Admin/resources', // !
-            'user_language'         => dotclear()->user()->getInfo('user_lang'),
+            'admin_base_url'        => App::core()->adminurl()->root(),
+            'base_url'              => App::core()->blog()->host,
+            'dcckeditor_plugin_url' => App::core()->adminurl()->root() . '?df=Plugin/CKEditor/Admin/resources', // !
+            'user_language'         => App::core()->user()->getInfo('user_lang'),
         ]) .
-        dotclear()->resource()->json('ck_editor_var', [
-            'CKEDITOR_BASEPATH' => dotclear()->adminurl()->root() . '?df=Plugin/CKEditor/Admin/resources/js/ckeditor/', // !
+        App::core()->resource()->json('ck_editor_var', [
+            'CKEDITOR_BASEPATH' => App::core()->adminurl()->root() . '?df=Plugin/CKEditor/Admin/resources/js/ckeditor/', // !
         ]) .
-        dotclear()->resource()->json('ck_editor_msg', [
+        App::core()->resource()->json('ck_editor_msg', [
             'img_select_title'     => __('Media chooser'),
             'img_select_accesskey' => __('m'),
             'post_link_title'      => __('Link to an entry'),
@@ -69,25 +70,25 @@ class CKEditorBehavior
             'img_title'            => __('External image'),
             'url_cannot_be_empty'  => __('URL field cannot be empty.'),
         ]) .
-        dotclear()->resource()->load('_post_editor.js', 'Plugin', 'CKEditor') .
-        dotclear()->resource()->load('ckeditor/ckeditor.js', 'Plugin', 'CKEditor') .
-        dotclear()->resource()->load('ckeditor/adapters/jquery.js', 'Plugin', 'CKEditor') .
-        dotclear()->resource()->js($config_js);
+        App::core()->resource()->load('_post_editor.js', 'Plugin', 'CKEditor') .
+        App::core()->resource()->load('ckeditor/ckeditor.js', 'Plugin', 'CKEditor') .
+        App::core()->resource()->load('ckeditor/adapters/jquery.js', 'Plugin', 'CKEditor') .
+        App::core()->resource()->js($config_js);
     }
 
     public function adminPopupMedia(string $editor = ''): string
     {
-        return 'CKEditor' != $editor ? '' : dotclear()->resource()->load('popup_media.js', 'Plugin', 'CKEditor');
+        return 'CKEditor' != $editor ? '' : App::core()->resource()->load('popup_media.js', 'Plugin', 'CKEditor');
     }
 
     public function adminPopupLink(string $editor = ''): string
     {
-        return 'CKEditor' != $editor ? '' : dotclear()->resource()->load('popup_link.js', 'Plugin', 'CKEditor');
+        return 'CKEditor' != $editor ? '' : App::core()->resource()->load('popup_link.js', 'Plugin', 'CKEditor');
     }
 
     public function adminPopupPosts(string $editor = ''): string
     {
-        return 'CKEditor' != $editor ? '' : dotclear()->resource()->load('popup_posts.js', 'Plugin', 'CKEditor');
+        return 'CKEditor' != $editor ? '' : App::core()->resource()->load('popup_posts.js', 'Plugin', 'CKEditor');
     }
 
     public function adminMediaURLParams(ArrayObject $p): void

@@ -11,13 +11,14 @@ namespace Dotclear\Process\Admin\Menu;
 
 // Dotclear\Process\Admin\Menu\Summary
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 
 /**
  * Admin menu handling facilities.
  *
- * Accessible from dotclear()->summary()->
+ * Accessible from App::core()->summary()->
  *
  * @ingroup  Admin
  */
@@ -29,14 +30,14 @@ class Summary extends ArrayObject
     public function __construct()
     {
         if (!self::$iconset) {
-            self::$iconset = (string) dotclear()->user()->preference()->get('interface')->get('iconset');
+            self::$iconset = (string) App::core()->user()->preference()->get('interface')->get('iconset');
         }
 
         parent::__construct();
 
         $this->add('Dashboard', 'dashboard-menu', '');
-        if (!dotclear()->user()->preference()->get('interface')->get('nofavmenu')) {
-            dotclear()->favorite()->appendMenuTitle($this);
+        if (!App::core()->user()->preference()->get('interface')->get('nofavmenu')) {
+            App::core()->favorite()->appendMenuTitle($this);
         }
         $this->add('Blog', 'blog-menu', __('Blog'));
         $this->add('System', 'system-menu', __('System settings'));
@@ -71,14 +72,14 @@ class Summary extends ArrayObject
      */
     public function register($section, $desc, $adminurl, $icon, $perm, $pinned = false, $strict = false): void
     {
-        $match = dotclear()->adminurl()->is($adminurl);
+        $match = App::core()->adminurl()->is($adminurl);
         if ($strict && $match) {
             $match = 1 == count($_GET);
         }
 
         $this->offsetGet($section)->prependItem(
             $desc,
-            dotclear()->adminurl()->get($adminurl),
+            App::core()->adminurl()->get($adminurl),
             $icon,
             $match,
             $perm,
@@ -186,7 +187,7 @@ class Summary extends ArrayObject
     public function setup()
     {
         $this->initDefaultMenus();
-        dotclear()->behavior()->call('adminMenus', $this);
+        App::core()->behavior()->call('adminMenus', $this);
     }
 
     protected function initDefaultMenus()
@@ -197,15 +198,15 @@ class Summary extends ArrayObject
             __('Blog settings'),
             'admin.blog.pref',
             ['images/menu/blog-pref.svg', 'images/menu/blog-pref-dark.svg'],
-            dotclear()->user()->check('admin', dotclear()->blog()->id)
+            App::core()->user()->check('admin', App::core()->blog()->id)
         );
-        if (dotclear()->blog()->public_path) {
+        if (App::core()->blog()->public_path) {
             $this->register(
                 'Blog',
                 __('Media manager'),
                 'admin.media',
                 ['images/menu/media.svg', 'images/menu/media-dark.svg'],
-                dotclear()->user()->check('media,media_admin', dotclear()->blog()->id)
+                App::core()->user()->check('media,media_admin', App::core()->blog()->id)
             );
         }
         $this->register(
@@ -213,35 +214,35 @@ class Summary extends ArrayObject
             __('Categories'),
             'admin.categories',
             ['images/menu/categories.svg', 'images/menu/categories-dark.svg'],
-            dotclear()->user()->check('categories', dotclear()->blog()->id)
+            App::core()->user()->check('categories', App::core()->blog()->id)
         );
         $this->register(
             'Blog',
             __('Search'),
             'admin.search',
             ['images/menu/search.svg', 'images/menu/search-dark.svg'],
-            dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id)
+            App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)
         );
         $this->register(
             'Blog',
             __('Comments'),
             'admin.comments',
             ['images/menu/comments.svg', 'images/menu/comments-dark.svg'],
-            dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id)
+            App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)
         );
         $this->register(
             'Blog',
             __('Posts'),
             'admin.posts',
             ['images/menu/entries.svg', 'images/menu/entries-dark.svg'],
-            dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id)
+            App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)
         );
         $this->register(
             'Blog',
             __('New post'),
             'admin.post',
             ['images/menu/edit.svg', 'images/menu/edit-dark.svg'],
-            dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id),
+            App::core()->user()->check('usage,contentadmin', App::core()->blog()->id),
             true,
             true
         );
@@ -251,28 +252,28 @@ class Summary extends ArrayObject
             __('Update'),
             'admin.update',
             ['images/menu/update.svg', 'images/menu/update-dark.svg'],
-            dotclear()->user()->isSuperAdmin() && is_readable(dotclear()->config()->get('digests_dir'))
+            App::core()->user()->isSuperAdmin() && is_readable(App::core()->config()->get('digests_dir'))
         );
         $this->register(
             'System',
             __('Languages'),
             'admin.langs',
             ['images/menu/langs.svg', 'images/menu/langs-dark.svg'],
-            dotclear()->user()->isSuperAdmin()
+            App::core()->user()->isSuperAdmin()
         );
         $this->register(
             'System',
             __('Users'),
             'admin.users',
             'images/menu/users.svg',
-            dotclear()->user()->isSuperAdmin()
+            App::core()->user()->isSuperAdmin()
         );
         $this->register(
             'System',
             __('Blogs'),
             'admin.blogs',
             ['images/menu/blogs.svg', 'images/menu/blogs-dark.svg'],
-            dotclear()->user()->isSuperAdmin() || dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id) && 1 < dotclear()->user()->getBlogCount()
+            App::core()->user()->isSuperAdmin() || App::core()->user()->check('usage,contentadmin', App::core()->blog()->id) && 1 < App::core()->user()->getBlogCount()
         );
     }
 }

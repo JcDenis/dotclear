@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Pages\Common;
 
 // Dotclear\Plugin\Pages\Common\PagesWidgets
+use Dotclear\App;
 use Dotclear\Database\Record;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Plugin\Widgets\Common\Widget;
@@ -24,8 +25,8 @@ class PagesWidgets
 {
     public function __construct()
     {
-        dotclear()->behavior()->add('initWidgets', [$this, 'initWidgets']);
-        dotclear()->behavior()->add('initDefaultWidgets', [$this, 'initDefaultWidgets']);
+        App::core()->behavior()->add('initWidgets', [$this, 'initWidgets']);
+        App::core()->behavior()->add('initDefaultWidgets', [$this, 'initDefaultWidgets']);
     }
 
     public function initWidgets(Widgets $widgets): void
@@ -69,7 +70,7 @@ class PagesWidgets
 
     public function pagesWidget(Widget $widget): string
     {
-        if ($widget->isOffline() || !$widget->checkHomeOnly(dotclear()->url()->type)) {
+        if ($widget->isOffline() || !$widget->checkHomeOnly(App::core()->url()->type)) {
             return '';
         }
 
@@ -92,7 +93,7 @@ class PagesWidgets
             $params['limit'] = abs((int) $widget->get('limit'));
         }
 
-        $rs = dotclear()->blog()->posts()->getPosts($params);
+        $rs = App::core()->blog()->posts()->getPosts($params);
 
         if ($rs->isEmpty()) {
             return '';
@@ -102,9 +103,9 @@ class PagesWidgets
 
         while ($rs->fetch()) {
             $class = '';
-            if ('pages' == dotclear()->url()->type
-                && dotclear()->context()->get('posts') instanceof Record
-                && dotclear()->context()->get('posts')->fInt('post_id') === $rs->fInt('post_id')
+            if ('pages' == App::core()->url()->type
+                && App::core()->context()->get('posts') instanceof Record
+                && App::core()->context()->get('posts')->fInt('post_id') === $rs->fInt('post_id')
             ) {
                 $class = ' class="page-current"';
             }

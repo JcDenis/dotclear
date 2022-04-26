@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Maintenance\Admin\Lib\Task;
 
 // Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskVacuum
+use Dotclear\App;
 use Dotclear\Database\AbstractSchema;
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
@@ -34,11 +35,11 @@ class MaintenanceTaskVacuum extends MaintenanceTask
 
     public function execute(): int|bool
     {
-        $schema = AbstractSchema::init(dotclear()->con());
+        $schema = AbstractSchema::init(App::core()->con());
 
         foreach ($schema->getTables() as $table) {
-            if (str_starts_with($table, dotclear()->prefix)) {
-                dotclear()->con()->vacuum($table);
+            if (str_starts_with($table, App::core()->prefix)) {
+                App::core()->con()->vacuum($table);
             }
         }
 

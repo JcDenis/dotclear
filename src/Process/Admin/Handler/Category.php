@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\Category
+use Dotclear\App;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\FormSelectOption;
@@ -44,12 +45,12 @@ class Category extends AbstractPage
 
         if (!empty($_REQUEST['id'])) {
             try {
-                $rs = dotclear()->blog()->categories()->getCategory((int) $_REQUEST['id']);
+                $rs = App::core()->blog()->categories()->getCategory((int) $_REQUEST['id']);
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
 
-            if (!dotclear()->error()->flag() && !$rs->isEmpty()) {
+            if (!App::core()->error()->flag() && !$rs->isEmpty()) {
                 $this->cat_id    = $rs->fInt('cat_id');
                 $this->cat_title = $rs->f('cat_title');
                 $this->cat_url   = $rs->f('cat_url');
@@ -58,13 +59,13 @@ class Category extends AbstractPage
             unset($rs);
 
             // Getting hierarchy information
-            $parents          = dotclear()->blog()->categories()->getCategoryParents($this->cat_id);
-            $rs               = dotclear()->blog()->categories()->getCategoryParent($this->cat_id);
+            $parents          = App::core()->blog()->categories()->getCategoryParents($this->cat_id);
+            $rs               = App::core()->blog()->categories()->getCategoryParent($this->cat_id);
             $this->cat_parent = $rs->isEmpty() ? 0 : $rs->fInt('cat_id');
             unset($rs);
 
             // Allowed parents list
-            $children                  = dotclear()->blog()->categories()->getCategories(['start' => $this->cat_id]);
+            $children                  = App::core()->blog()->categories()->getCategories(['start' => $this->cat_id]);
             $this->cat_allowed_parents = [__('Top level') => 0];
 
             $p = [];
@@ -72,7 +73,7 @@ class Category extends AbstractPage
                 $p[$children->f('cat_id')] = 1;
             }
 
-            $rs = dotclear()->blog()->categories()->getCategories();
+            $rs = App::core()->blog()->categories()->getCategories();
             while ($rs->fetch()) {
                 if (!isset($p[$rs->fInt('cat_id')])) {
                     $this->cat_allowed_parents[] = new FormSelectOption(
@@ -84,7 +85,7 @@ class Category extends AbstractPage
             unset($rs);
 
             // Allowed siblings list
-            $rs = dotclear()->blog()->categories()->getCategoryFirstChildren($this->cat_parent);
+            $rs = App::core()->blog()->categories()->getCategoryFirstChildren($this->cat_parent);
             while ($rs->fetch()) {
                 if ($rs->fint('cat_id') != $this->cat_id) {
                     $this->cat_siblings[Html::escapeHTML($rs->f('cat_title'))] = $rs->fInt('cat_id');
@@ -98,11 +99,11 @@ class Category extends AbstractPage
             $new_parent = (int) $_POST['cat_parent'];
             if ($this->cat_parent != $new_parent) {
                 try {
-                    dotclear()->blog()->categories()->setCategoryParent($this->cat_id, $new_parent);
-                    dotclear()->notice()->addSuccessNotice(__('The category has been successfully moved'));
-                    dotclear()->adminurl()->redirect('admin.categories');
+                    App::core()->blog()->categories()->setCategoryParent($this->cat_id, $new_parent);
+                    App::core()->notice()->addSuccessNotice(__('The category has been successfully moved'));
+                    App::core()->adminurl()->redirect('admin.categories');
                 } catch (Exception $e) {
-                    dotclear()->error()->add($e->getMessage());
+                    App::core()->error()->add($e->getMessage());
                 }
             }
         }
@@ -110,17 +111,17 @@ class Category extends AbstractPage
         // Changing sibling
         if (null !== $this->cat_id && isset($_POST['cat_sibling'])) {
             try {
-                dotclear()->blog()->categories()->setCategoryPosition($this->cat_id, (int) $_POST['cat_sibling'], $_POST['cat_move']);
-                dotclear()->notice()->addSuccessNotice(__('The category has been successfully moved'));
-                dotclear()->adminurl()->redirect('admin.categories');
+                App::core()->blog()->categories()->setCategoryPosition($this->cat_id, (int) $_POST['cat_sibling'], $_POST['cat_move']);
+                App::core()->notice()->addSuccessNotice(__('The category has been successfully moved'));
+                App::core()->adminurl()->redirect('admin.categories');
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
         // Create or update a category
         if (isset($_POST['cat_title'])) {
-            $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'category');
+            $cur = App::core()->con()->openCursor(App::core()->prefix . 'category');
 
             $cur->setField('cat_title', $this->cat_title = $_POST['cat_title']);
 
@@ -138,35 +139,35 @@ class Category extends AbstractPage
                 // Update category
                 if (null !== $this->cat_id) {
                     // --BEHAVIOR-- adminBeforeCategoryUpdate
-                    dotclear()->behavior()->call('adminBeforeCategoryUpdate', $cur, $this->cat_id);
+                    App::core()->behavior()->call('adminBeforeCategoryUpdate', $cur, $this->cat_id);
 
-                    dotclear()->blog()->categories()->updCategory((int) $_POST['id'], $cur);
+                    App::core()->blog()->categories()->updCategory((int) $_POST['id'], $cur);
 
                     // --BEHAVIOR-- adminAfterCategoryUpdate
-                    dotclear()->behavior()->call('adminAfterCategoryUpdate', $cur, $this->cat_id);
+                    App::core()->behavior()->call('adminAfterCategoryUpdate', $cur, $this->cat_id);
 
-                    dotclear()->notice()->addSuccessNotice(__('The category has been successfully updated.'));
+                    App::core()->notice()->addSuccessNotice(__('The category has been successfully updated.'));
 
-                    dotclear()->adminurl()->redirect('admin.category', ['id' => $_POST['id']]);
+                    App::core()->adminurl()->redirect('admin.category', ['id' => $_POST['id']]);
                 }
                 // Create category
                 else {
                     // --BEHAVIOR-- adminBeforeCategoryCreate
-                    dotclear()->behavior()->call('adminBeforeCategoryCreate', $cur);
+                    App::core()->behavior()->call('adminBeforeCategoryCreate', $cur);
 
-                    $id = dotclear()->blog()->categories()->addCategory($cur, (int) $_POST['new_cat_parent']);
+                    $id = App::core()->blog()->categories()->addCategory($cur, (int) $_POST['new_cat_parent']);
 
                     // --BEHAVIOR-- adminAfterCategoryCreate
-                    dotclear()->behavior()->call('adminAfterCategoryCreate', $cur, $id);
+                    App::core()->behavior()->call('adminAfterCategoryCreate', $cur, $id);
 
-                    dotclear()->notice()->addSuccessNotice(sprintf(
+                    App::core()->notice()->addSuccessNotice(sprintf(
                         __('The category "%s" has been successfully created.'),
                         Html::escapeHTML($cur->getField('cat_title'))
                     ));
-                    dotclear()->adminurl()->redirect('admin.categories');
+                    App::core()->adminurl()->redirect('admin.categories');
                 }
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
@@ -174,19 +175,19 @@ class Category extends AbstractPage
         $title = null !== $this->cat_id ? Html::escapeHTML($this->cat_title) : __('New category');
 
         $elements = [
-            Html::escapeHTML(dotclear()->blog()->name) => '',
-            __('Categories')                           => dotclear()->adminurl()->get('admin.categories'),
+            Html::escapeHTML(App::core()->blog()->name) => '',
+            __('Categories')                            => App::core()->adminurl()->get('admin.categories'),
         ];
         if (null !== $this->cat_id) {
             while ($parents->fetch()) {
-                $elements[Html::escapeHTML($parents->f('cat_title'))] = dotclear()->adminurl()->get('admin.category', ['id' => $parents->f('cat_id')]);
+                $elements[Html::escapeHTML($parents->f('cat_title'))] = App::core()->adminurl()->get('admin.category', ['id' => $parents->f('cat_id')]);
             }
         }
         $elements[$title] = '';
 
-        $category_editor = dotclear()->user()->getOption('editor');
+        $category_editor = App::core()->user()->getOption('editor');
         $rte_flag        = true;
-        $rte_flags       = dotclear()->user()->preference()->get('interface')->get('rte_flags');
+        $rte_flags       = App::core()->user()->preference()->get('interface')->get('rte_flags');
         if (is_array($rte_flags) && in_array('cat_descr', $rte_flags)) {
             $rte_flag = $rte_flags['cat_descr'];
         }
@@ -196,9 +197,9 @@ class Category extends AbstractPage
             ->setPageHelp('core_category')
             ->setPageBreadcrumb($elements)
             ->setPageHead(
-                dotclear()->resource()->confirmClose('category-form') .
-                dotclear()->resource()->load('_category.js') .
-                ($rte_flag ? dotclear()->behavior()->call('adminPostEditor', $category_editor['xhtml'], 'category', ['#cat_desc'], 'xhtml') : '')
+                App::core()->resource()->confirmClose('category-form') .
+                App::core()->resource()->load('_category.js') .
+                ($rte_flag ? App::core()->behavior()->call('adminPostEditor', $category_editor['xhtml'], 'category', ['#cat_desc'], 'xhtml') : '')
             )
         ;
 
@@ -208,19 +209,19 @@ class Category extends AbstractPage
     protected function getPageContent(): void
     {
         if (!empty($_GET['upd'])) {
-            dotclear()->notice()->success(__('Category has been successfully updated.'));
+            App::core()->notice()->success(__('Category has been successfully updated.'));
         }
 
-        echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="category-form">' .
+        echo '<form action="' . App::core()->adminurl()->root() . '" method="post" id="category-form">' .
         '<h3>' . __('Category information') . '</h3>' .
         '<p><label class="required" for="cat_title"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Name:') . '</label> ' .
         Form::field('cat_title', 40, 255, [
             'default'    => Html::escapeHTML($this->cat_title),
-            'extra_html' => 'required placeholder="' . __('Name') . '" lang="' . dotclear()->blog()->settings()->get('system')->get('lang') . '" spellcheck="true"',
+            'extra_html' => 'required placeholder="' . __('Name') . '" lang="' . App::core()->blog()->settings()->get('system')->get('lang') . '" spellcheck="true"',
         ]) .
             '</p>';
         if (null === $this->cat_id) {
-            $rs = dotclear()->blog()->categories()->getCategories();
+            $rs = App::core()->blog()->categories()->getCategories();
             echo '<p><label for="new_cat_parent">' . __('Parent:') . ' ' .
             '<select id="new_cat_parent" name="new_cat_parent" >' .
             '<option value="0">' . __('(none)') . '</option>';
@@ -246,7 +247,7 @@ class Category extends AbstractPage
             8,
             [
                 'default'    => Html::escapeHTML($this->cat_desc),
-                'extra_html' => 'lang="' . dotclear()->blog()->settings()->get('system')->get('lang') . '" spellcheck="true"',
+                'extra_html' => 'lang="' . App::core()->blog()->settings()->get('system')->get('lang') . '" spellcheck="true"',
             ]
         ) .
         '</p>' .
@@ -254,7 +255,7 @@ class Category extends AbstractPage
         '<p><input type="submit" accesskey="s" value="' . __('Save') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
         (null !== $this->cat_id ? Form::hidden('id', $this->cat_id) : '') .
-        dotclear()->adminurl()->getHiddenFormFields('admin.category', [], true) .
+        App::core()->adminurl()->getHiddenFormFields('admin.category', [], true) .
             '</p>' .
             '</form>';
 
@@ -263,18 +264,18 @@ class Category extends AbstractPage
             '<div class="two-cols">' .
             '<div class="col">' .
 
-            '<form action="' . dotclear()->adminurl()->root() . '" method="post" class="fieldset">' .
+            '<form action="' . App::core()->adminurl()->root() . '" method="post" class="fieldset">' .
             '<h4>' . __('Category parent') . '</h4>' .
             '<p><label for="cat_parent" class="classic">' . __('Parent:') . '</label> ' .
             Form::combo('cat_parent', $this->cat_allowed_parents, (string) $this->cat_parent) . '</p>' .
             '<p><input type="submit" accesskey="s" value="' . __('Save') . '" />' .
-            dotclear()->adminurl()->getHiddenFormFields('admin.category', ['id' => $this->cat_id], true) . '</p>' .
+            App::core()->adminurl()->getHiddenFormFields('admin.category', ['id' => $this->cat_id], true) . '</p>' .
                 '</form>' .
                 '</div>';
 
             if (0 < count($this->cat_siblings)) {
                 echo '<div class="col">' .
-                '<form action="' . dotclear()->adminurl()->root() . '" method="post" class="fieldset">' .
+                '<form action="' . App::core()->adminurl()->root() . '" method="post" class="fieldset">' .
                 '<h4>' . __('Category sibling') . '</h4>' .
                 '<p><label class="classic" for="cat_sibling">' . __('Move current category') . '</label> ' .
                 Form::combo(
@@ -284,7 +285,7 @@ class Category extends AbstractPage
                 ) . ' ' .
                 Form::combo('cat_sibling', $this->cat_siblings) . '</p>' .
                 '<p><input type="submit" accesskey="s" value="' . __('Save') . '" />' .
-                dotclear()->adminurl()->getHiddenFormFields('admin.category', ['id' => $this->cat_id], true) . '</p>' .
+                App::core()->adminurl()->getHiddenFormFields('admin.category', ['id' => $this->cat_id], true) . '</p>' .
                     '</form>' .
                     '</div>';
             }

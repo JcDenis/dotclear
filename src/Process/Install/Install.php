@@ -11,6 +11,7 @@ namespace Dotclear\Process\Install;
 
 // Dotclear\Process\Install\Install
 use DateTimeZone;
+use Dotclear\App;
 use Dotclear\Core\User\UserContainer;
 use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Database\AbstractSchema;
@@ -48,26 +49,26 @@ class Install
         $dlang = Http::getAcceptLanguage();
         if ('en' != $dlang) {
             L10n::init($dlang);
-            L10n::set(Path::implode(dotclear()->config()->get('l10n_dir'), $dlang, 'date'));
-            L10n::set(Path::implode(dotclear()->config()->get('l10n_dir'), $dlang, 'main'));
-            L10n::set(Path::implode(dotclear()->config()->get('l10n_dir'), $dlang, 'plugins'));
+            L10n::set(Path::implode(App::core()->config()->get('l10n_dir'), $dlang, 'date'));
+            L10n::set(Path::implode(App::core()->config()->get('l10n_dir'), $dlang, 'main'));
+            L10n::set(Path::implode(App::core()->config()->get('l10n_dir'), $dlang, 'plugins'));
         }
 
-        if ('' == dotclear()->config()->get('master_key')) {
+        if ('' == App::core()->config()->get('master_key')) {
             $can_install = false;
             $err         = '<p>' . __('Please set a master key in configuration file.') . '</p>';
         }
 
         // Check if dotclear is already installed
-        $schema = AbstractSchema::init(dotclear()->con());
-        if (in_array(dotclear()->prefix . 'post', $schema->getTables())) {
+        $schema = AbstractSchema::init(App::core()->con());
+        if (in_array(App::core()->prefix . 'post', $schema->getTables())) {
             $can_install = false;
             $err         = '<p>' . __('Dotclear is already installed.') . '</p>';
         }
 
         // Check system capabilites
         $_e = [];
-        if (!Distrib::checkRequirements(dotclear()->con(), $_e)) { // ! no need to con, and change _e to arrayobject
+        if (!Distrib::checkRequirements(App::core()->con(), $_e)) { // ! no need to con, and change _e to arrayobject
             $can_install = false;
             $err         = '<p>' . __('Dotclear cannot be installed.') . '</p><ul><li>' . implode('</li><li>', $_e) . '</li></ul>';
         }
@@ -127,17 +128,17 @@ class Install
                 }
 
                 // Create schema
-                $_s = new Structure(dotclear()->con(), dotclear()->prefix);
+                $_s = new Structure(App::core()->con(), App::core()->prefix);
                 Distrib::getDatabaseStructure($_s);
 
-                $si      = new Structure(dotclear()->con(), dotclear()->prefix);
+                $si      = new Structure(App::core()->con(), App::core()->prefix);
                 $changes = $si->synchronize($_s);
 
                 // Create user
-                $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'user');
+                $cur = App::core()->con()->openCursor(App::core()->prefix . 'user');
                 $cur->setField('user_id', $u_login);
                 $cur->setField('user_super', 1);
-                $cur->setField('user_pwd', dotclear()->user()->crypt($u_pwd));
+                $cur->setField('user_pwd', App::core()->user()->crypt($u_pwd));
                 $cur->setField('user_name', (string) $u_name);
                 $cur->setField('user_firstname', (string) $u_firstname);
                 $cur->setField('user_email', (string) $u_email);
@@ -148,14 +149,14 @@ class Install
                 $cur->setField('user_options', serialize(UserContainer::defaultOptions()));
                 $cur->insert();
 
-                dotclear()->user()->checkUser($u_login);
+                App::core()->user()->checkUser($u_login);
 
                 // Create blog
-                $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'blog');
+                $cur = App::core()->con()->openCursor(App::core()->prefix . 'blog');
                 $cur->setField('blog_id', 'default');
                 $cur->setField('blog_url', Http::getHost() . $root_url . '/index.php?');
                 $cur->setField('blog_name', __('My first blog'));
-                dotclear()->blogs()->addBlog($cur);
+                App::core()->blogs()->addBlog($cur);
 
                 // Create global blog settings
                 Distrib::setBlogDefaultSettings();
@@ -182,17 +183,17 @@ class Install
                 $blog_settings->get('system')->put('time_formats', $time_formats, 'array', 'Time formats examples', true, true);
 
                 // Add repository URL for themes and plugins
-                $blog_settings->get('system')->put('store_plugin_url', dotclear()->config()->get('plugin_update_url'), 'string', 'Plugins XML feed location', true, true);
-                $blog_settings->get('system')->put('store_theme_url', dotclear()->config()->get('theme_update_url'), 'string', 'Themes XML feed location', true, true);
-                $blog_settings->get('system')->put('store_iconset_url', dotclear()->config()->get('iconset_update_url'), 'string', 'Iconsets XML feed location', true, true);
+                $blog_settings->get('system')->put('store_plugin_url', App::core()->config()->get('plugin_update_url'), 'string', 'Plugins XML feed location', true, true);
+                $blog_settings->get('system')->put('store_theme_url', App::core()->config()->get('theme_update_url'), 'string', 'Themes XML feed location', true, true);
+                $blog_settings->get('system')->put('store_iconset_url', App::core()->config()->get('iconset_update_url'), 'string', 'Iconsets XML feed location', true, true);
 
                 // CSP directive (admin part)
 
                 /* SQlite Clearbricks driver does not allow using single quote at beginning or end of a field value
                 so we have to use neutral values (localhost and 127.0.0.1) for some CSP directives
                  */
-                $csp_prefix = dotclear()->con()->driver() == 'sqlite' ? 'localhost ' : ''; // Hack for SQlite Clearbricks driver
-                $csp_suffix = dotclear()->con()->driver() == 'sqlite' ? ' 127.0.0.1' : ''; // Hack for SQlite Clearbricks driver
+                $csp_prefix = App::core()->con()->driver() == 'sqlite' ? 'localhost ' : ''; // Hack for SQlite Clearbricks driver
+                $csp_suffix = App::core()->con()->driver() == 'sqlite' ? ' 127.0.0.1' : ''; // Hack for SQlite Clearbricks driver
 
                 $blog_settings->get('system')->put('csp_admin_on', true, 'boolean', 'Send CSP header (admin)', true, true);
                 $blog_settings->get('system')->put('csp_admin_report_only', false, 'boolean', 'CSP Report only violations (admin)', true, true);
@@ -234,15 +235,15 @@ class Install
                 $blog_settings->get('system')->put('jquery_allow_old_version', false, 'boolean', 'Allow older version of jQuery', false, true);
 
                 // Add Dotclear version
-                $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'version');
+                $cur = App::core()->con()->openCursor(App::core()->prefix . 'version');
                 $cur->setField('module', 'core');
-                $cur->setField('version', (string) dotclear()->config()->get('core_version'));
+                $cur->setField('version', (string) App::core()->config()->get('core_version'));
                 $cur->insert();
 
                 // Create first post
-                dotclear()->setBlog('default');
+                App::core()->setBlog('default');
 
-                $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
+                $cur = App::core()->con()->openCursor(App::core()->prefix . 'post');
                 $cur->setField('user_id', $u_login);
                 $cur->setField('post_format', 'xhtml');
                 $cur->setField('post_lang', $dlang);
@@ -252,33 +253,33 @@ class Install
                 $cur->setField('post_status', 1);
                 $cur->setField('post_open_comment', 1);
                 $cur->setField('post_open_tb', 0);
-                $post_id = dotclear()->blog()->posts()->addPost($cur);
+                $post_id = App::core()->blog()->posts()->addPost($cur);
 
                 // Add a comment to it
-                $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
+                $cur = App::core()->con()->openCursor(App::core()->prefix . 'comment');
                 $cur->setField('post_id', $post_id);
                 $cur->setField('comment_tz', $default_tz);
                 $cur->setField('comment_author', __('Dotclear Team'));
                 $cur->setField('comment_email', 'contact@dotclear.net');
                 $cur->setField('comment_site', 'https://dotclear.org/');
                 $cur->setField('comment_content', __("<p>This is a comment.</p>\n<p>To delete it, log in and view your blog's comments. Then you might remove or edit it.</p>"));
-                dotclear()->blog()->comments()->addComment($cur);
+                App::core()->blog()->comments()->addComment($cur);
 
                 // Add dashboard module options
-                dotclear()->user()->preference()->get('dashboard')->put('doclinks', true, 'boolean', '', null, true);
-                dotclear()->user()->preference()->get('dashboard')->put('dcnews', true, 'boolean', '', null, true);
-                dotclear()->user()->preference()->get('dashboard')->put('quickentry', true, 'boolean', '', null, true);
-                dotclear()->user()->preference()->get('dashboard')->put('nodcupdate', false, 'boolean', '', null, true);
+                App::core()->user()->preference()->get('dashboard')->put('doclinks', true, 'boolean', '', null, true);
+                App::core()->user()->preference()->get('dashboard')->put('dcnews', true, 'boolean', '', null, true);
+                App::core()->user()->preference()->get('dashboard')->put('quickentry', true, 'boolean', '', null, true);
+                App::core()->user()->preference()->get('dashboard')->put('nodcupdate', false, 'boolean', '', null, true);
 
                 // Add accessibility options
-                dotclear()->user()->preference()->get('accessibility')->put('nodragdrop', false, 'boolean', '', null, true);
+                App::core()->user()->preference()->get('accessibility')->put('nodragdrop', false, 'boolean', '', null, true);
 
                 // Add user interface options
-                dotclear()->user()->preference()->get('interface')->put('enhanceduploader', true, 'boolean', '', null, true);
+                App::core()->user()->preference()->get('interface')->put('enhanceduploader', true, 'boolean', '', null, true);
 
                 // Add default favorites
                 $init_favs = ['posts', 'new_post', 'newpage', 'comments', 'categories', 'media', 'blog_theme', 'widgets', 'simpleMenu', 'prefs', 'help'];
-                dotclear()->favorite()->setFavoriteIDs($init_favs, true);
+                App::core()->favorite()->setFavoriteIDs($init_favs, true);
 
                 $step = 1;
             } catch (\Exception $e) {
@@ -309,12 +310,12 @@ class Install
             <link rel="stylesheet" href="?df=css/install.css" type="text/css" media="screen" />
             <script src="?df=js/prepend.js"></script>
           <?php
-          echo dotclear()->resource()->json('pwstrength', [
+          echo App::core()->resource()->json('pwstrength', [
               'min' => sprintf(__('Password strength: %s'), __('weak')),
               'avg' => sprintf(__('Password strength: %s'), __('medium')),
               'max' => sprintf(__('Password strength: %s'), __('strong')),
           ]) .
-            dotclear()->resource()->json('install_show', __('show')); ?>
+            App::core()->resource()->json('install_show', __('show')); ?>
             <script src="?df=js/pwstrength.js"></script>
             <script src="?df=js/jquery/jquery.js"></script>
             <script src="?df=js/_install.js"></script>
@@ -326,8 +327,8 @@ class Install
         echo '<h1>' . __('Dotclear installation') . '</h1>' .
             '<div id="main">';
 
-        if (!is_writable(dotclear()->config()->get('cache_dir'))) {
-            echo '<div class="error" role="alert"><p>' . sprintf(__('Cache directory %s is not writable.'), dotclear()->config()->get('cache_dir')) . '</p></div>';
+        if (!is_writable(App::core()->config()->get('cache_dir'))) {
+            echo '<div class="error" role="alert"><p>' . sprintf(__('Cache directory %s is not writable.'), App::core()->config()->get('cache_dir')) . '</p></div>';
         }
 
         if ($can_install && !empty($err)) {

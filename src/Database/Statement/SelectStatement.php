@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Database\Statement;
 
 // Dotclear\Database\Statement\SelectStatement
+use Dotclear\App;
 
 /**
  * Select Statement : small utility to build select queries.
@@ -197,7 +198,7 @@ class SelectStatement extends SqlStatement
     public function statement(): string
     {
         // --BEHAVIOR-- coreBeforeSelectStatement
-        dotclear()->behavior()->call('coreBeforeSelectStatement', $this);
+        App::core()->behavior()->call('coreBeforeSelectStatement', $this);
 
         // Check if source given
         if (!count($this->from)) {
@@ -267,7 +268,7 @@ class SelectStatement extends SqlStatement
         $query = trim($query);
 
         // --BEHAVIOR-- coreAfertSelectStatement
-        dotclear()->behavior()->call('coreAfterSelectStatement', $this, $query);
+        App::core()->behavior()->call('coreAfterSelectStatement', $this, $query);
 
         return $query;
     }
@@ -280,7 +281,7 @@ class SelectStatement extends SqlStatement
     public function select()
     {
         if (($sql = $this->statement())) {
-            return dotclear()->con()->select($sql);
+            return App::core()->con()->select($sql);
         }
 
         return null;

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Maintenance\Admin\Lib\Task;
 
 // Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskLogs
+use Dotclear\App;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
@@ -37,12 +38,12 @@ class MaintenanceTaskLogs extends MaintenanceTask
     {
         if (static::$keep_maintenance_logs) {
             DeleteStatement::init(__METHOD__)
-                ->from(dotclear()->prefix . 'log')
+                ->from(App::core()->prefix . 'log')
                 ->where("log_table <> 'maintenance'")
                 ->delete()
             ;
         } else {
-            dotclear()->log()->delete(null, true);
+            App::core()->log()->delete(null, true);
         }
 
         return true;

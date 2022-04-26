@@ -18,6 +18,8 @@
 - [ ] rework Dt class to use php DateTime class
 - [ ] fix public context and template
 - [ ] use sql statement everywhere it is possible
+- [ ] move root functions into dotclear namespace
+- [ ] move config outside src path
 
 ### Idea
 

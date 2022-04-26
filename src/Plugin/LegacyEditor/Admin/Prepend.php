@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\LegacyEditor\Admin;
 
 // Dotclear\Plugin\LegacyEditor\Admin\Prepend
+use Dotclear\App;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
@@ -24,13 +25,13 @@ class Prepend extends AbstractPrepend
 
     public function loadModule(): void
     {
-        if (!dotclear()->blog()->settings()->get('LegacyEditor')->get('active')) {
+        if (!App::core()->blog()->settings()->get('LegacyEditor')->get('active')) {
             return;
         }
 
-        dotclear()->wiki()->initWikiPost();
-        dotclear()->formater()->addEditorFormater('LegacyEditor', 'xhtml', fn ($s) => $s);
-        dotclear()->formater()->addEditorFormater('LegacyEditor', 'wiki', [dotclear()->wiki(), 'wikiTransform']);
+        App::core()->wiki()->initWikiPost();
+        App::core()->formater()->addEditorFormater('LegacyEditor', 'xhtml', fn ($s) => $s);
+        App::core()->formater()->addEditorFormater('LegacyEditor', 'wiki', [App::core()->wiki(), 'wikiTransform']);
 
         new LegacyEditorBehavior();
         new LegacyEditorRest();
@@ -38,7 +39,7 @@ class Prepend extends AbstractPrepend
 
     public function installModule(): ?bool
     {
-        dotclear()->blog()->settings()->get('LegacyEditor')->put('active', true, 'boolean', 'LegacyEditor plugin activated ?', false, true);
+        App::core()->blog()->settings()->get('LegacyEditor')->put('active', true, 'boolean', 'LegacyEditor plugin activated ?', false, true);
 
         return true;
     }

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\ThemeEditor\Admin;
 
 // Dotclear\Plugin\ThemeEditor\Admin\Handler
+use Dotclear\App;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -40,9 +41,9 @@ class Handler extends AbstractPage
                 ->setPageTitle(__('Edit theme files'))
                 ->setPageHelp('themeEditor')
                 ->setPageBreadcrumb([
-                    Html::escapeHTML(dotclear()->blog()->name) => '',
-                    __('Blog appearance')                      => dotclear()->adminurl()->get('admin.blog.theme'),
-                    __('Edit theme files')                     => '',
+                    Html::escapeHTML(App::core()->blog()->name) => '',
+                    __('Blog appearance')                       => App::core()->adminurl()->get('admin.blog.theme'),
+                    __('Edit theme files')                      => '',
                 ])
             ;
 
@@ -52,10 +53,10 @@ class Handler extends AbstractPage
         $file_default = $this->te_file = ['c' => null, 'w' => false, 'type' => null, 'f' => null, 'default_file' => false];
 
         // Get interface setting
-        $user_ui_colorsyntax = dotclear()->user()->preference()->get('interface')->get('colorsyntax');
+        $user_ui_colorsyntax = App::core()->user()->preference()->get('interface')->get('colorsyntax');
 
         // Loading themes
-        $this->te_theme  = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->get('system')->get('theme'));
+        $this->te_theme  = App::core()->themes()->getModule((string) App::core()->blog()->settings()->get('system')->get('theme'));
         $this->te_editor = new ThemeEditor();
 
         try {
@@ -86,47 +87,47 @@ class Handler extends AbstractPage
             // Delete file
             if (!empty($_POST['delete'])) {
                 $this->te_editor->deleteFile($this->te_file['type'], $this->te_file['f']);
-                dotclear()->notice()->addSuccessNotice(__('The file has been reset.'));
-                dotclear()->adminurl()->redirect('admin.plugin.ThemeEditor', [$this->te_file['type'] => $this->te_file['f']]);
+                App::core()->notice()->addSuccessNotice(__('The file has been reset.'));
+                App::core()->adminurl()->redirect('admin.plugin.ThemeEditor', [$this->te_file['type'] => $this->te_file['f']]);
             }
         } catch (Exception $e) {
-            dotclear()->error()->add($e->getMessage());
+            App::core()->error()->add($e->getMessage());
         }
 
         // Page setup
         $this
             ->setPageTitle(__('Edit theme files'))
             ->setPageHelp('themeEditor')
-            ->setPageHead(dotclear()->resource()->confirmClose('settings', 'menuitemsappend', 'additem', 'menuitems'))
+            ->setPageHead(App::core()->resource()->confirmClose('settings', 'menuitemsappend', 'additem', 'menuitems'))
             ->setPageBreadcrumb([
-                Html::escapeHTML(dotclear()->blog()->name) => '',
-                __('Blog appearance')                      => dotclear()->adminurl()->get('admin.blog.theme'),
-                __('Edit theme files')                     => '',
+                Html::escapeHTML(App::core()->blog()->name) => '',
+                __('Blog appearance')                       => App::core()->adminurl()->get('admin.blog.theme'),
+                __('Edit theme files')                      => '',
             ])
         ;
 
         if ($user_ui_colorsyntax) {
             $this->setPageHead(
-                dotclear()->resource()->json('dotclear_colorsyntax', ['colorsyntax' => $user_ui_colorsyntax])
+                App::core()->resource()->json('dotclear_colorsyntax', ['colorsyntax' => $user_ui_colorsyntax])
             );
         }
         $this->setPageHead(
-            dotclear()->resource()->json('theme_editor_msg', [
+            App::core()->resource()->json('theme_editor_msg', [
                 'saving_document'    => __('Saving document...'),
                 'document_saved'     => __('Document saved'),
                 'error_occurred'     => __('An error occurred:'),
                 'confirm_reset_file' => __('Are you sure you want to reset this file?'),
             ]) .
-            dotclear()->resource()->load('script.js', 'Plugin', 'ThemeEditor') .
-            dotclear()->resource()->confirmClose('file-form')
+            App::core()->resource()->load('script.js', 'Plugin', 'ThemeEditor') .
+            App::core()->resource()->confirmClose('file-form')
         );
         if ($user_ui_colorsyntax) {
             $this->setPageHead(
-                dotclear()->resource()->loadCodeMirror(dotclear()->user()->preference()->get('interface')->get('colorsyntax_theme'))
+                App::core()->resource()->loadCodeMirror(App::core()->user()->preference()->get('interface')->get('colorsyntax_theme'))
             );
         }
         $this->setPageHead(
-            dotclear()->resource()->load('style.css', 'Plugin', 'ThemeEditor')
+            App::core()->resource()->load('style.css', 'Plugin', 'ThemeEditor')
         );
 
         return true;
@@ -142,7 +143,7 @@ class Handler extends AbstractPage
 
         echo '<p><strong>' . sprintf(__('Your current theme on this blog is "%s".'), Html::escapeHTML($this->te_theme->name())) . '</strong></p>';
 
-        if ('default' == dotclear()->blog()->settings()->get('system')->get('theme')) {
+        if ('default' == App::core()->blog()->settings()->get('system')->get('theme')) {
             echo '<div class="error"><p>' . __("You can't edit default theme.") . '</p></div>';
 
             return;
@@ -154,7 +155,7 @@ class Handler extends AbstractPage
         if (null === $this->te_file['c']) {
             echo '<p>' . __('Please select a file to edit.') . '</p>';
         } else {
-            echo '<form id="file-form" action="' . dotclear()->adminurl()->root() . '" method="post">' .
+            echo '<form id="file-form" action="' . App::core()->adminurl()->root() . '" method="post">' .
             '<div class="fieldset"><h3>' . __('File editor') . '</h3>' .
             '<p><label for="file_content">' . sprintf(__('Editing file %s'), '<strong>' . $this->te_file['f']) . '</strong></label></p>' .
             '<p>' . Form::textarea('file_content', 72, 25, [
@@ -166,7 +167,7 @@ class Handler extends AbstractPage
             if ($this->te_file['w']) {
                 echo '<p><input type="submit" name="write" value="' . __('Save') . ' (s)" accesskey="s" /> ' .
                 ($this->te_editor->deletableFile($this->te_file['type'], $this->te_file['f']) ? '<input type="submit" name="delete" class="delete" value="' . __('Reset') . '" />' : '') .
-                dotclear()->adminurl()->getHiddenFormFields('admin.plugin.ThemeEditor', [], true) .
+                App::core()->adminurl()->getHiddenFormFields('admin.plugin.ThemeEditor', [], true) .
                     ($this->te_file['type'] ? Form::hidden([$this->te_file['type']], $this->te_file['f']) : '') .
                     '</p>';
             } else {
@@ -175,15 +176,15 @@ class Handler extends AbstractPage
 
             echo '</div></form>';
 
-            if (dotclear()->user()->preference()->get('interface')->get('colorsyntax')) {
+            if (App::core()->user()->preference()->get('interface')->get('colorsyntax')) {
                 $editorMode = (!empty($_REQUEST['css']) ? 'css' :
                     (!empty($_REQUEST['js']) ? 'javascript' :
                     (!empty($_REQUEST['po']) ? 'text/plain' :
                     (!empty($_REQUEST['php']) ? 'php' :
                     'text/html'))));
-                dotclear()->resource()->json('theme_editor_mode', ['mode' => $editorMode]);
-                echo dotclear()->resource()->load('mode.js', 'Plugin', 'themeEditor');
-                echo dotclear()->resource()->runCodeMirror('editor', 'file_content', 'dotclear', dotclear()->user()->preference()->get('interface')->get('colorsyntax_theme'));
+                App::core()->resource()->json('theme_editor_mode', ['mode' => $editorMode]);
+                echo App::core()->resource()->load('mode.js', 'Plugin', 'themeEditor');
+                echo App::core()->resource()->runCodeMirror('editor', 'file_content', 'dotclear', App::core()->user()->preference()->get('interface')->get('colorsyntax_theme'));
             }
         }
 
@@ -192,31 +193,31 @@ class Handler extends AbstractPage
 
         <div id="file-chooser">' .
         '<h3>' . __('Templates files') . '</h3>' .
-        $this->te_editor->filesList('tpl', '<a href="' . dotclear()->adminurl()->get('admin.plugin.ThemeEditor') . '&amp;tpl=%2$s" class="tpl-link">%1$s</a>') .
+        $this->te_editor->filesList('tpl', '<a href="' . App::core()->adminurl()->get('admin.plugin.ThemeEditor') . '&amp;tpl=%2$s" class="tpl-link">%1$s</a>') .
 
         '<h3>' . __('CSS files') . '</h3>' .
-        $this->te_editor->filesList('css', '<a href="' . dotclear()->adminurl()->get('admin.plugin.ThemeEditor') . '&amp;css=%2$s" class="css-link">%1$s</a>') .
+        $this->te_editor->filesList('css', '<a href="' . App::core()->adminurl()->get('admin.plugin.ThemeEditor') . '&amp;css=%2$s" class="css-link">%1$s</a>') .
 
         '<h3>' . __('JavaScript files') . '</h3>' .
-        $this->te_editor->filesList('js', '<a href="' . dotclear()->adminurl()->get('admin.plugin.ThemeEditor') . '&amp;js=%2$s" class="js-link">%1$s</a>') .
+        $this->te_editor->filesList('js', '<a href="' . App::core()->adminurl()->get('admin.plugin.ThemeEditor') . '&amp;js=%2$s" class="js-link">%1$s</a>') .
 
         '<h3>' . __('Locales files') . '</h3>' .
-        $this->te_editor->filesList('po', '<a href="' . dotclear()->adminurl()->get('admin.plugin.ThemeEditor') . '&amp;po=%2$s" class="po-link">%1$s</a>') .
+        $this->te_editor->filesList('po', '<a href="' . App::core()->adminurl()->get('admin.plugin.ThemeEditor') . '&amp;po=%2$s" class="po-link">%1$s</a>') .
 
         '<h3>' . __('PHP files') . '</h3>' .
-        $this->te_editor->filesList('php', '<a href="' . dotclear()->adminurl()->get('admin.plugin.ThemeEditor') . '&amp;php=%2$s" class="php-link">%1$s</a>') .
+        $this->te_editor->filesList('php', '<a href="' . App::core()->adminurl()->get('admin.plugin.ThemeEditor') . '&amp;php=%2$s" class="php-link">%1$s</a>') .
         '</div>';
     }
 
     private function isEditableTheme(): bool
     {
-        $theme = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->get('system')->get('theme'));
-        if ($theme && 'default' != $theme->id() && dotclear()->user()->isSuperAdmin()) {
-            $path = dotclear()->themes()->getModulesPath();
+        $theme = App::core()->themes()->getModule((string) App::core()->blog()->settings()->get('system')->get('theme'));
+        if ($theme && 'default' != $theme->id() && App::core()->user()->isSuperAdmin()) {
+            $path = App::core()->themes()->getModulesPath();
 
-            return !dotclear()->production()
+            return !App::core()->production()
                 || !str_contains(Path::real($theme->root()), Path::real((string) array_pop($path)))
-                || !dotclear()->themes()->isDistributedModule($theme->id());
+                || !App::core()->themes()->isDistributedModule($theme->id());
         }
 
         return false;

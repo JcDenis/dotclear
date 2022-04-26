@@ -5,12 +5,11 @@
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!function_exists('dotclear')) {
-    return;
-}
-dotclear()->help()->context('antispam', __DIR__ . '/help/help.html');
-dotclear()->help()->context('antispam-filters', __DIR__ . '/help/filters.html');
-dotclear()->help()->context('ip-filter', __DIR__ . '/help/ip.html');
-dotclear()->help()->context('iplookup-filter', __DIR__ . '/help/iplookup.html');
-dotclear()->help()->context('words-filter', __DIR__ . '/help/words.html');
-dotclear()->help()->context('antispam_comments', __DIR__ . '/help/comments.html');
+use Dotclear\App;
+
+App::core()->help()->context('antispam', __DIR__ . '/help/help.html');
+App::core()->help()->context('antispam-filters', __DIR__ . '/help/filters.html');
+App::core()->help()->context('ip-filter', __DIR__ . '/help/ip.html');
+App::core()->help()->context('iplookup-filter', __DIR__ . '/help/iplookup.html');
+App::core()->help()->context('words-filter', __DIR__ . '/help/words.html');
+App::core()->help()->context('antispam_comments', __DIR__ . '/help/comments.html');

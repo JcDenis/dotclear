@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\MediaItem
+use Dotclear\App;
 use Dotclear\Core\Media\Media;
 use Dotclear\Core\Media\Manager\Item;
 use Dotclear\Exception\AdminException;
@@ -51,9 +52,9 @@ class MediaItem extends AbstractPage
     protected function getPagePrepend(): ?bool
     {
         try {
-            dotclear()->media(true, true);
+            App::core()->media(true, true);
         } catch (Exception $e) {
-            dotclear()->error()->add($e->getMessage());
+            App::core()->error()->add($e->getMessage());
 
             return true;
         }
@@ -62,7 +63,7 @@ class MediaItem extends AbstractPage
 
         $post_id = !empty($_REQUEST['post_id']) ? (int) $_REQUEST['post_id'] : null;
         if ($post_id) {
-            $post = dotclear()->blog()->posts()->getPosts(['post_id' => $post_id]);
+            $post = App::core()->blog()->posts()->getPosts(['post_id' => $post_id]);
             if ($post->isEmpty()) {
                 $post_id = null;
             }
@@ -93,40 +94,40 @@ class MediaItem extends AbstractPage
 
         try {
             if ($this->item_id) {
-                $this->item_file = dotclear()->media()->getFile($this->item_id);
+                $this->item_file = App::core()->media()->getFile($this->item_id);
             }
 
             if (null === $this->item_file) {
                 throw new AdminException(__('Not a valid file'));
             }
 
-            dotclear()->media()->chdir(dirname($this->item_file->relname));
-            $this->media_writable = dotclear()->media()->writable();
+            App::core()->media()->chdir(dirname($this->item_file->relname));
+            $this->media_writable = App::core()->media()->writable();
 
             // Prepare directories combo box
-            foreach (dotclear()->media()->getDBDirs() as $v) {
+            foreach (App::core()->media()->getDBDirs() as $v) {
                 $this->item_dirs_combo['/' . $v] = $v;
             }
             // Add parent and direct childs directories if any
-            dotclear()->media()->getFSDir();
-            foreach (dotclear()->media()->dir['dirs'] as $k => $v) {
+            App::core()->media()->getFSDir();
+            foreach (App::core()->media()->dir['dirs'] as $k => $v) {
                 $this->item_dirs_combo['/' . $v->relname] = $v->relname;
             }
             ksort($this->item_dirs_combo);
         } catch (Exception $e) {
-            dotclear()->error()->add($e->getMessage());
+            App::core()->error()->add($e->getMessage());
         }
 
         // Upload a new file
         if ($this->item_file && !empty($_FILES['upfile']) && $this->item_file->editable && $this->media_writable) {
             try {
                 Files::uploadStatus($_FILES['upfile']);
-                dotclear()->media()->uploadMediaFile($_FILES['upfile']['tmp_name'], $this->item_file->basename, null, false, true);
+                App::core()->media()->uploadMediaFile($_FILES['upfile']['tmp_name'], $this->item_file->basename, null, false, true);
 
-                dotclear()->notice()->addSuccessNotice(__('File has been successfully updated.'));
-                dotclear()->adminurl()->redirect('admin.media.item', $this->item_page_url_params);
+                App::core()->notice()->addSuccessNotice(__('File has been successfully updated.'));
+                App::core()->adminurl()->redirect('admin.media.item', $this->item_page_url_params);
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
@@ -176,13 +177,13 @@ class MediaItem extends AbstractPage
             }
 
             try {
-                dotclear()->media()->updateFile($this->item_file, $newFile);
+                App::core()->media()->updateFile($this->item_file, $newFile);
 
-                dotclear()->notice()->addSuccessNotice(__('File has been successfully updated.'));
+                App::core()->notice()->addSuccessNotice(__('File has been successfully updated.'));
                 $this->item_page_url_params['tab'] = 'media-details-tab';
-                dotclear()->adminurl()->redirect('admin.media.item', $this->item_page_url_params);
+                App::core()->adminurl()->redirect('admin.media.item', $this->item_page_url_params);
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
@@ -190,26 +191,26 @@ class MediaItem extends AbstractPage
         if (!empty($_POST['thumbs']) && 'image' == $this->item_file->media_type && $this->item_file->editable && $this->media_writable) {
             try {
                 $foo = null;
-                dotclear()->media()->mediaFireRecreateEvent($this->item_file);
+                App::core()->media()->mediaFireRecreateEvent($this->item_file);
 
-                dotclear()->notice()->addSuccessNotice(__('Thumbnails have been successfully updated.'));
+                App::core()->notice()->addSuccessNotice(__('Thumbnails have been successfully updated.'));
                 $this->item_page_url_params['tab'] = 'media-details-tab';
-                dotclear()->adminurl()->redirect('admin.media.item', $this->item_page_url_params);
+                App::core()->adminurl()->redirect('admin.media.item', $this->item_page_url_params);
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
         // Unzip file
         if (!empty($_POST['unzip']) && 'application/zip' == $this->item_file->type && $this->item_file->editable && $this->media_writable) {
             try {
-                $unzip_dir = dotclear()->media()->inflateZipFile($this->item_file, 'new' == $_POST['inflate_mode']);
+                $unzip_dir = App::core()->media()->inflateZipFile($this->item_file, 'new' == $_POST['inflate_mode']);
 
-                dotclear()->notice()->addSuccessNotice(__('Zip file has been successfully extracted.'));
+                App::core()->notice()->addSuccessNotice(__('Zip file has been successfully extracted.'));
                 $this->media_page_url_params['d'] = $unzip_dir;
-                dotclear()->adminurl()->redirect('admin.media', $this->media_page_url_params);
+                App::core()->adminurl()->redirect('admin.media', $this->media_page_url_params);
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
@@ -219,20 +220,20 @@ class MediaItem extends AbstractPage
                 if (!($s = array_search($_POST['pref_src'], $this->item_file->media_thumb))) {
                     $s = 'o';
                 }
-                dotclear()->blog()->settings()->get('system')->put('media_img_default_size', $s);
+                App::core()->blog()->settings()->get('system')->put('media_img_default_size', $s);
             }
             if (!empty($_POST['pref_alignment'])) {
-                dotclear()->blog()->settings()->get('system')->put('media_img_default_alignment', $_POST['pref_alignment']);
+                App::core()->blog()->settings()->get('system')->put('media_img_default_alignment', $_POST['pref_alignment']);
             }
             if (!empty($_POST['pref_insertion'])) {
-                dotclear()->blog()->settings()->get('system')->put('media_img_default_link', ('link' == $_POST['pref_insertion']));
+                App::core()->blog()->settings()->get('system')->put('media_img_default_link', ('link' == $_POST['pref_insertion']));
             }
             if (!empty($_POST['pref_legend'])) {
-                dotclear()->blog()->settings()->get('system')->put('media_img_default_legend', $_POST['pref_legend']);
+                App::core()->blog()->settings()->get('system')->put('media_img_default_legend', $_POST['pref_legend']);
             }
 
-            dotclear()->notice()->addSuccessNotice(__('Default media insertion settings have been successfully updated.'));
-            dotclear()->adminurl()->redirect('admin.media.item', $this->item_page_url_params);
+            App::core()->notice()->addSuccessNotice(__('Default media insertion settings have been successfully updated.'));
+            App::core()->adminurl()->redirect('admin.media.item', $this->item_page_url_params);
         }
 
         // Save media insertion settings for the folder
@@ -254,45 +255,45 @@ class MediaItem extends AbstractPage
                 $prefs['legend'] = $_POST['pref_legend'];
             }
 
-            $local = dotclear()->media()->root . '/' . dirname($this->item_file->relname) . '/' . '.mediadef.json';
+            $local = App::core()->media()->root . '/' . dirname($this->item_file->relname) . '/' . '.mediadef.json';
             if (file_put_contents($local, json_encode($prefs, JSON_PRETTY_PRINT))) {
-                dotclear()->notice()->addSuccessNotice(__('Media insertion settings have been successfully registered for this folder.'));
+                App::core()->notice()->addSuccessNotice(__('Media insertion settings have been successfully registered for this folder.'));
             }
-            dotclear()->adminurl()->redirect('admin.media.item', $this->item_page_url_params);
+            App::core()->adminurl()->redirect('admin.media.item', $this->item_page_url_params);
         }
 
         // Delete media insertion settings for the folder (.mediadef and .mediadef.json)
         if (!empty($_POST['remove_folder_prefs'])) {
-            $local      = dotclear()->media()->root . '/' . dirname($this->item_file->relname) . '/' . '.mediadef';
+            $local      = App::core()->media()->root . '/' . dirname($this->item_file->relname) . '/' . '.mediadef';
             $local_json = $local . '.json';
             if ((file_exists($local) && unlink($local)) || (file_exists($local_json) && unlink($local_json))) {
-                dotclear()->notice()->addSuccessNotice(__('Media insertion settings have been successfully removed for this folder.'));
+                App::core()->notice()->addSuccessNotice(__('Media insertion settings have been successfully removed for this folder.'));
             }
-            dotclear()->adminurl()->redirect('admin.media.item', $this->item_page_url_params);
+            App::core()->adminurl()->redirect('admin.media.item', $this->item_page_url_params);
         }
 
         // Page setup
         $this->setPageHead(
-            dotclear()->resource()->modal() .
-            dotclear()->resource()->load('_media_item.js')
+            App::core()->resource()->modal() .
+            App::core()->resource()->load('_media_item.js')
         );
         if ($this->item_popup && !empty($plugin_id)) {
-            $this->setPageHead(dotclear()->behavior()->call('adminPopupMedia', $plugin_id));
+            $this->setPageHead(App::core()->behavior()->call('adminPopupMedia', $plugin_id));
         }
 
         $temp_params      = $this->media_page_url_params;
         $temp_params['d'] = '%s';
-        $breadcrumb       = dotclear()->media()->breadCrumb(dotclear()->adminurl()->get('admin.media', $temp_params, '&amp;', true)) .
+        $breadcrumb       = App::core()->media()->breadCrumb(App::core()->adminurl()->get('admin.media', $temp_params, '&amp;', true)) .
             (null === $this->item_file ? '' : '<span class="page-title">' . $this->item_file->basename . '</span>');
         $temp_params['d'] = '';
-        $home_url         = dotclear()->adminurl()->get('admin.media', $temp_params);
+        $home_url         = App::core()->adminurl()->get('admin.media', $temp_params);
 
         $this->setPageTitle(__('Media manager'));
         $this->setPageBreadcrumb(
             [
-                Html::escapeHTML(dotclear()->blog()->name) => '',
-                __('Media manager')                        => $home_url,
-                $breadcrumb                                => '',
+                Html::escapeHTML(App::core()->blog()->name) => '',
+                __('Media manager')                         => $home_url,
+                $breadcrumb                                 => '',
             ],
             [
                 'home_link' => !$this->item_popup,
@@ -302,7 +303,7 @@ class MediaItem extends AbstractPage
 
         if ($this->item_popup) {
             $this->setPageType('popup');
-            $this->setPageHead(dotclear()->resource()->pageTabs($tab));
+            $this->setPageHead(App::core()->resource()->pageTabs($tab));
         } else {
             $this->setPageHelp('core_media');
         }
@@ -312,18 +313,18 @@ class MediaItem extends AbstractPage
 
     protected function getPageContent(): void
     {
-        if (!dotclear()->media()) {
+        if (!App::core()->media()) {
             return;
         }
 
         if (!empty($_GET['fupd']) || !empty($_GET['fupl'])) {
-            dotclear()->notice()->success(__('File has been successfully updated.'));
+            App::core()->notice()->success(__('File has been successfully updated.'));
         }
         if (!empty($_GET['thumbupd'])) {
-            dotclear()->notice()->success(__('Thumbnails have been successfully updated.'));
+            App::core()->notice()->success(__('Thumbnails have been successfully updated.'));
         }
         if (!empty($_GET['blogprefupd'])) {
-            dotclear()->notice()->success(__('Default media insertion settings have been successfully updated.'));
+            App::core()->notice()->success(__('Default media insertion settings have been successfully updated.'));
         }
 
         // Get major file type (first part of mime type)
@@ -348,9 +349,9 @@ class MediaItem extends AbstractPage
                 $media_type  = 'image';
                 $media_title = $this->getImageTitle(
                     $this->item_file,
-                    dotclear()->blog()->settings()->get('system')->get('media_img_title_pattern'),
-                    dotclear()->blog()->settings()->get('system')->get('media_img_use_dto_first'),
-                    dotclear()->blog()->settings()->get('system')->get('media_img_no_date_alone')
+                    App::core()->blog()->settings()->get('system')->get('media_img_title_pattern'),
+                    App::core()->blog()->settings()->get('system')->get('media_img_use_dto_first'),
+                    App::core()->blog()->settings()->get('system')->get('media_img_no_date_alone')
                 );
                 if ($media_title == $this->item_file->basename || Files::tidyFileName($media_title) == $this->item_file->basename) {
                     $media_title = '';
@@ -364,7 +365,7 @@ class MediaItem extends AbstractPage
                     $s_checked = ($s == $defaults['size']);
                     echo '<label class="classic">' .
                     Form::radio(['src'], Html::escapeHTML($v), $s_checked) . ' ' .
-                    dotclear()->media()->thumb_sizes[$s][2] . '</label><br /> ';
+                    App::core()->media()->thumb_sizes[$s][2] . '</label><br /> ';
                 }
                 $s_checked = (!isset($this->item_file->media_thumb[$defaults['size']]));
                 echo '<label class="classic">' .
@@ -409,9 +410,9 @@ class MediaItem extends AbstractPage
                 $media_type  = 'image';
                 $media_title = $this->getImageTitle(
                     $this->item_file,
-                    dotclear()->blog()->settings()->get('system')->get('media_img_title_pattern'),
-                    dotclear()->blog()->settings()->get('system')->get('media_img_use_dto_first'),
-                    dotclear()->blog()->settings()->get('system')->get('media_img_no_date_alone')
+                    App::core()->blog()->settings()->get('system')->get('media_img_title_pattern'),
+                    App::core()->blog()->settings()->get('system')->get('media_img_use_dto_first'),
+                    App::core()->blog()->settings()->get('system')->get('media_img_no_date_alone')
                 );
                 if ($media_title == $this->item_file->basename || Files::tidyFileName($media_title) == $this->item_file->basename) {
                     $media_title = '';
@@ -425,7 +426,7 @@ class MediaItem extends AbstractPage
                     $s_checked = ($s == $defaults['size']);
                     echo '<label class="classic">' .
                     Form::radio(['src'], Html::escapeHTML($v), $s_checked) . ' ' .
-                    dotclear()->media()->thumb_sizes[$s][2] . '</label><br /> ';
+                    App::core()->media()->thumb_sizes[$s][2] . '</label><br /> ';
                 }
                 $s_checked = (!isset($this->item_file->media_thumb[$defaults['size']]));
                 echo '<label class="classic">' .
@@ -493,7 +494,7 @@ class MediaItem extends AbstractPage
 
                 echo '<div class="two-boxes">' .
                 '<h3>' . __('MP3 disposition') . '</h3>';
-                dotclear()->notice()->message(__('Please note that you cannot insert mp3 files with visual editor.'), false);
+                App::core()->notice()->message(__('Please note that you cannot insert mp3 files with visual editor.'), false);
 
                 $i_align = [
                     'none'   => [__('None'), ('none' == $defaults['alignment'] ? 1 : 0)],
@@ -514,14 +515,14 @@ class MediaItem extends AbstractPage
             } elseif ('video' == $file_type[0]) {
                 $media_type = 'flv';
 
-                dotclear()->notice()->message(__('Please note that you cannot insert video files with visual editor.'), false);
+                App::core()->notice()->message(__('Please note that you cannot insert video files with visual editor.'), false);
 
                 echo '<div class="two-boxes">' .
                 '<h3>' . __('Video size') . '</h3>' .
                 '<p><label for="video_w" class="classic">' . __('Width:') . '</label> ' .
-                Form::number('video_w', 0, 9999, dotclear()->blog()->settings()->get('system')->get('media_video_width')) . '  ' .
+                Form::number('video_w', 0, 9999, App::core()->blog()->settings()->get('system')->get('media_video_width')) . '  ' .
                 '<label for="video_h" class="classic">' . __('Height:') . '</label> ' .
-                Form::number('video_h', 0, 9999, dotclear()->blog()->settings()->get('system')->get('media_video_height')) .
+                Form::number('video_h', 0, 9999, App::core()->blog()->settings()->get('system')->get('media_video_height')) .
                     '</p>' .
                     '</div>';
 
@@ -563,12 +564,12 @@ class MediaItem extends AbstractPage
 
             if ('default' != $media_type) {
                 echo '<div class="border-top">' .
-                '<form id="save_settings" action="' . dotclear()->adminurl()->root() . '" method="post">' .
+                '<form id="save_settings" action="' . App::core()->adminurl()->root() . '" method="post">' .
                 '<p>' . __('Make current settings as default') . ' ' .
                 '<input class="reset" type="submit" name="save_blog_prefs" value="' . __('For the blog') . '" /> ' . __('or') . ' ' .
                 '<input class="reset" type="submit" name="save_folder_prefs" value="' . __('For this folder only') . '" />';
 
-                $local = dotclear()->media()->root . '/' . dirname($this->item_file->relname) . '/' . '.mediadef';
+                $local = App::core()->media()->root . '/' . dirname($this->item_file->relname) . '/' . '.mediadef';
                 if (!file_exists($local)) {
                     $local .= '.json';
                 }
@@ -582,7 +583,7 @@ class MediaItem extends AbstractPage
                 Form::hidden(['pref_alignment'], '') .
                 Form::hidden(['pref_insertion'], '') .
                 Form::hidden(['pref_legend'], '') .
-                dotclear()->adminurl()->getHiddenFormFields('admin.media.item', $this->item_page_url_params, true) . '</p>' .
+                App::core()->adminurl()->getHiddenFormFields('admin.media.item', $this->item_page_url_params, true) . '</p>' .
                     '</form>' . '</div>';
             }
 
@@ -602,7 +603,7 @@ class MediaItem extends AbstractPage
         if ($this->item_file->media_image) {
             $thumb_size = !empty($_GET['size']) ? $_GET['size'] : 's';
 
-            if (!isset(dotclear()->media()->thumb_sizes[$thumb_size]) && 'o' != $thumb_size) {
+            if (!isset(App::core()->media()->thumb_sizes[$thumb_size]) && 'o' != $thumb_size) {
                 $thumb_size = 's';
             }
 
@@ -622,12 +623,12 @@ class MediaItem extends AbstractPage
             echo '<p>' . __('Available sizes:') . ' ';
             foreach (array_reverse($this->item_file->media_thumb) as $s => $v) {
                 $strong_link = ($s == $thumb_size) ? '<strong>%s</strong>' : '%s';
-                printf($strong_link, '<a href="' . dotclear()->adminurl()->get('admin.media.item', array_merge(
+                printf($strong_link, '<a href="' . App::core()->adminurl()->get('admin.media.item', array_merge(
                     $this->item_page_url_params,
                     ['size' => $s, 'tab' => 'media-details-tab']
-                )) . '">' . dotclear()->media()->thumb_sizes[$s][2] . '</a> | ');
+                )) . '">' . App::core()->media()->thumb_sizes[$s][2] . '</a> | ');
             }
-            echo '<a href="' . dotclear()->adminurl()->get('admin.media.item', array_merge($this->item_page_url_params, ['size' => 'o', 'tab' => 'media-details-tab'])) . '">' . __('original') . '</a>';
+            echo '<a href="' . App::core()->adminurl()->get('admin.media.item', array_merge($this->item_page_url_params, ['size' => 'o', 'tab' => 'media-details-tab'])) . '">' . __('original') . '</a>';
             echo '</p>';
 
             if ('o' != $thumb_size && isset($this->item_file->media_thumb[$thumb_size])) {
@@ -635,7 +636,7 @@ class MediaItem extends AbstractPage
                 $alpha      = ('png' == $p['extension']) || ('PNG' == $p['extension']);
                 $alpha      = strtolower($p['extension']) === 'png';
                 $webp       = strtolower($p['extension']) === 'webp';
-                $thumb_tp   = ($alpha ? dotclear()->media()->thumb_tp_alpha : ($webp ? dotclear()->media()->thumb_tp_webp : dotclear()->media()->thumb_tp));
+                $thumb_tp   = ($alpha ? App::core()->media()->thumb_tp_alpha : ($webp ? App::core()->media()->thumb_tp_webp : App::core()->media()->thumb_tp));
                 $thumb      = sprintf($thumb_tp, $p['dirname'], $p['base'], '%s');
                 $thumb_file = sprintf($thumb, $thumb_size);
                 $T          = getimagesize($thumb_file);
@@ -678,33 +679,33 @@ class MediaItem extends AbstractPage
             '</ul>';
 
         if (empty($_GET['find_posts'])) {
-            echo '<p><a class="button" href="' . dotclear()->adminurl()->get('admin.media.item', array_merge($this->item_page_url_params, ['find_posts' => 1, 'tab' => 'media-details-tab'])) . '">' .
+            echo '<p><a class="button" href="' . App::core()->adminurl()->get('admin.media.item', array_merge($this->item_page_url_params, ['find_posts' => 1, 'tab' => 'media-details-tab'])) . '">' .
             __('Show entries containing this media') . '</a></p>';
         } else {
             echo '<h3>' . __('Entries containing this media') . '</h3>';
             $params = [
                 'post_type' => '',
-                'join'      => 'LEFT OUTER JOIN ' . dotclear()->prefix . 'post_media PM ON P.post_id = PM.post_id ',
+                'join'      => 'LEFT OUTER JOIN ' . App::core()->prefix . 'post_media PM ON P.post_id = PM.post_id ',
                 'sql'       => 'AND (' .
                 'PM.media_id = ' . (int) $this->item_id . ' ' .
-                "OR post_content_xhtml LIKE '%" . dotclear()->con()->escape($this->item_file->relname) . "%' " .
-                "OR post_excerpt_xhtml LIKE '%" . dotclear()->con()->escape($this->item_file->relname) . "%' ",
+                "OR post_content_xhtml LIKE '%" . App::core()->con()->escape($this->item_file->relname) . "%' " .
+                "OR post_excerpt_xhtml LIKE '%" . App::core()->con()->escape($this->item_file->relname) . "%' ",
             ];
 
             if ($this->item_file->media_image) {
                 // We look for thumbnails too
-                $media_root = dotclear()->blog()->public_url . '/';
+                $media_root = App::core()->blog()->public_url . '/';
 
                 foreach ($this->item_file->media_thumb as $v) {
                     $v = preg_replace('/^' . preg_quote($media_root, '/') . '/', '', $v);
-                    $params['sql'] .= "OR post_content_xhtml LIKE '%" . dotclear()->con()->escape($v) . "%' ";
-                    $params['sql'] .= "OR post_excerpt_xhtml LIKE '%" . dotclear()->con()->escape($v) . "%' ";
+                    $params['sql'] .= "OR post_content_xhtml LIKE '%" . App::core()->con()->escape($v) . "%' ";
+                    $params['sql'] .= "OR post_excerpt_xhtml LIKE '%" . App::core()->con()->escape($v) . "%' ";
                 }
             }
 
             $params['sql'] .= ') ';
 
-            $rs = dotclear()->blog()->posts()->getPosts($params);
+            $rs = App::core()->blog()->posts()->getPosts($params);
 
             if ($rs->isEmpty()) {
                 echo '<p>' . __('No entry seems contain this media.') . '</p>';
@@ -719,7 +720,7 @@ class MediaItem extends AbstractPage
                         -2      => sprintf($img, __('pending'), 'check-wrn.png'),
                         default => '',
                     };
-                    echo '<li>' . $img_status . ' ' . '<a href="' . dotclear()->posttype()->getPostAdminURL($rs->f('post_type'), $rs->f('post_id')) . '">' .
+                    echo '<li>' . $img_status . ' ' . '<a href="' . App::core()->posttype()->getPostAdminURL($rs->f('post_type'), $rs->f('post_id')) . '">' .
                     $rs->f('post_title') . '</a>' .
                     ('post' != $rs->f('post_type') ? ' (' . Html::escapeHTML($rs->f('post_type')) . ')' : '') .
                     ' - ' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $rs->f('post_dt')) . '</li>';
@@ -752,11 +753,11 @@ class MediaItem extends AbstractPage
 
         if ($this->item_file->editable && $this->media_writable) {
             if ('image' == $this->item_file->media_type) {
-                echo '<form class="clear fieldset" action="' . dotclear()->adminurl()->root() . '" method="post">' .
+                echo '<form class="clear fieldset" action="' . App::core()->adminurl()->root() . '" method="post">' .
                 '<h4>' . __('Update thumbnails') . '</h4>' .
                 '<p class="more-info">' . __('This will create or update thumbnails for this image.') . '</p>' .
                 '<p><input type="submit" name="thumbs" value="' . __('Update thumbnails') . '" />' .
-                dotclear()->adminurl()->getHiddenFormFields('admin.media.item', $this->item_page_url_params, true) .
+                App::core()->adminurl()->getHiddenFormFields('admin.media.item', $this->item_page_url_params, true) .
                 '</p>' .
                     '</form>';
             }
@@ -767,7 +768,7 @@ class MediaItem extends AbstractPage
                     __('Extract in current directory') => 'current',
                 ];
 
-                echo '<form class="clear fieldset" id="file-unzip" action="' . dotclear()->adminurl()->root() . '" method="post">' .
+                echo '<form class="clear fieldset" id="file-unzip" action="' . App::core()->adminurl()->root() . '" method="post">' .
                 '<h4>' . __('Extract archive') . '</h4>' .
                 '<ul>' .
                 '<li><strong>' . __('Extract in a new directory') . '</strong> : ' .
@@ -778,12 +779,12 @@ class MediaItem extends AbstractPage
                 '<p><label for="inflate_mode" class="classic">' . __('Extract mode:') . '</label> ' .
                 Form::combo('inflate_mode', $inflate_combo, 'new') .
                 '<input type="submit" name="unzip" value="' . __('Extract') . '" />' .
-                dotclear()->adminurl()->getHiddenFormFields('admin.media.item', $this->item_page_url_params, true) .
+                App::core()->adminurl()->getHiddenFormFields('admin.media.item', $this->item_page_url_params, true) .
                 '</p>' .
                     '</form>';
             }
 
-            echo '<form class="clear fieldset" action="' . dotclear()->adminurl()->root() . '" method="post">' .
+            echo '<form class="clear fieldset" action="' . App::core()->adminurl()->root() . '" method="post">' .
             '<h4>' . __('Change media properties') . '</h4>' .
             '<p><label for="media_file">' . __('File name:') . '</label>' .
             Form::field('media_file', 30, 255, Html::escapeHTML($this->item_file->basename)) . '</p>' .
@@ -794,7 +795,7 @@ class MediaItem extends AbstractPage
                 255,
                 [
                     'default'    => Html::escapeHTML($this->item_file->media_title),
-                    'extra_html' => 'lang="' . dotclear()->user()->getInfo('user_lang') . '" spellcheck="true"',
+                    'extra_html' => 'lang="' . App::core()->user()->getInfo('user_lang') . '" spellcheck="true"',
                 ]
             ) . '</p>';
             if ('image/jpeg' == $this->item_file->type || 'image/webp' == $this->item_file->type) {
@@ -805,7 +806,7 @@ class MediaItem extends AbstractPage
                     255,
                     [
                         'default'    => Html::escapeHTML((string) $this->getImageDescription($this->item_file, '')),
-                        'extra_html' => 'lang="' . dotclear()->user()->getInfo('user_lang') . '" spellcheck="true"',
+                        'extra_html' => 'lang="' . App::core()->user()->getInfo('user_lang') . '" spellcheck="true"',
                     ]
                 ) . '</p>' .
                 '<p><label for="media_dt">' . __('File date:') . '</label>';
@@ -817,34 +818,34 @@ class MediaItem extends AbstractPage
             '<p><label for="media_path">' . __('New directory:') . '</label>' .
             Form::combo('media_path', $this->item_dirs_combo, dirname($this->item_file->relname)) . '</p>' .
             '<p><input type="submit" accesskey="s" value="' . __('Save') . '" />' .
-            dotclear()->adminurl()->getHiddenFormFields('admin.media.item', $this->item_page_url_params, true) .
+            App::core()->adminurl()->getHiddenFormFields('admin.media.item', $this->item_page_url_params, true) .
             '</p>' .
                 '</form>';
 
-            echo '<form class="clear fieldset" action="' . dotclear()->adminurl()->root() . '" method="post" enctype="multipart/form-data">' .
+            echo '<form class="clear fieldset" action="' . App::core()->adminurl()->root() . '" method="post" enctype="multipart/form-data">' .
             '<h4>' . __('Change file') . '</h4>' .
-            '<div>' . Form::hidden(['MAX_FILE_SIZE'], (string) dotclear()->config()->get('media_upload_maxsize')) . '</div>' .
+            '<div>' . Form::hidden(['MAX_FILE_SIZE'], (string) App::core()->config()->get('media_upload_maxsize')) . '</div>' .
             '<p><label for="upfile">' . __('Choose a file:') .
-            ' (' . sprintf(__('Maximum size %s'), Files::size((int) dotclear()->config()->get('media_upload_maxsize'))) . ') ' .
+            ' (' . sprintf(__('Maximum size %s'), Files::size((int) App::core()->config()->get('media_upload_maxsize'))) . ') ' .
             '<input type="file" id="upfile" name="upfile" size="35" />' .
             '</label></p>' .
             '<p><input type="submit" value="' . __('Send') . '" />' .
-            dotclear()->adminurl()->getHiddenFormFields('admin.media.item', $this->item_page_url_params, true) .
+            App::core()->adminurl()->getHiddenFormFields('admin.media.item', $this->item_page_url_params, true) .
             '</p>' .
                 '</form>';
 
             if ($this->item_file->del) {
-                echo '<form id="delete-form" method="post" action="' . dotclear()->adminurl()->root() . '">' .
+                echo '<form id="delete-form" method="post" action="' . App::core()->adminurl()->root() . '">' .
                 '<p><input name="delete" type="submit" class="delete" value="' . __('Delete this media') . '" />' .
                 Form::hidden('remove', rawurlencode($this->item_file->basename)) .
                 Form::hidden('rmyes', 1) .
-                dotclear()->adminurl()->getHiddenFormFields('admin.media', $this->media_page_url_params, true) .
+                App::core()->adminurl()->getHiddenFormFields('admin.media', $this->media_page_url_params, true) .
                 '</p>' .
                     '</form>';
             }
 
             // --BEHAVIOR-- adminMediaItemForm
-            dotclear()->behavior()->call('adminMediaItemForm', $this->item_file);
+            App::core()->behavior()->call('adminMediaItemForm', $this->item_file);
         }
 
         echo '</div>';
@@ -915,15 +916,15 @@ class MediaItem extends AbstractPage
     protected function getImageDefinition($file)
     {
         $defaults = [
-            'size'      => (string) dotclear()->blog()->settings()->get('system')->get('media_img_default_size') ?: 'm',
-            'alignment' => (string) dotclear()->blog()->settings()->get('system')->get('media_img_default_alignment') ?: 'none',
-            'link'      => (bool) dotclear()->blog()->settings()->get('system')->get('media_img_default_link'),
-            'legend'    => (string) dotclear()->blog()->settings()->get('system')->get('media_img_default_legend') ?: 'legend',
+            'size'      => (string) App::core()->blog()->settings()->get('system')->get('media_img_default_size') ?: 'm',
+            'alignment' => (string) App::core()->blog()->settings()->get('system')->get('media_img_default_alignment') ?: 'none',
+            'link'      => (bool) App::core()->blog()->settings()->get('system')->get('media_img_default_link'),
+            'legend'    => (string) App::core()->blog()->settings()->get('system')->get('media_img_default_legend') ?: 'legend',
             'mediadef'  => false,
         ];
 
         try {
-            $local = dotclear()->media()->root . '/' . dirname($file->relname) . '/' . '.mediadef';
+            $local = App::core()->media()->root . '/' . dirname($file->relname) . '/' . '.mediadef';
             if (!file_exists($local)) {
                 $local .= '.json';
             }

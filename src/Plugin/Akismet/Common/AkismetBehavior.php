@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Akismet\Common;
 
 // Dotclear\Plugin\Akismet\Common\AkismetBehavior
+use Dotclear\App;
 use ArrayObject;
 
 /**
@@ -21,7 +22,7 @@ class AkismetBehavior
 {
     public function __construct()
     {
-        dotclear()->behavior()->add('antispamInitFilters', function (ArrayObject $spamfilters): void {
+        App::core()->behavior()->add('antispamInitFilters', function (ArrayObject $spamfilters): void {
             $spamfilters[] = __NAMESPACE__ . '\\FilterAkismet';
         });
     }

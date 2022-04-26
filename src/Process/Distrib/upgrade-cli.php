@@ -9,8 +9,8 @@
  * @copyright GPL-2.0-only
  */
 try {
-    require_once implode(DIRECTORY_SEPARATOR, [__DIR__, '..', '..', 'functions.php']);
-    dotclear_run('Distrib');
+    require_once implode(DIRECTORY_SEPARATOR, [__DIR__, '..', '..', 'App.php']);
+    Dotclear\App::run('Distrib');
 
     exit(0);
 } catch (\Exception $e) {

@@ -11,6 +11,7 @@ namespace Dotclear\Process\Admin\Filter\Filter;
 
 // Dotclear\Process\Admin\Filter\Filter\MediaFilter
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Process\Admin\Filter\Filter;
 use Dotclear\Helper\Html\Html;
 
@@ -44,7 +45,7 @@ class MediaFilter extends Filter
         ]);
 
         // --BEHAVIOR-- adminBlogFilter
-        dotclear()->behavior()->call('adminMediaFilter', $filters);
+        App::core()->behavior()->call('adminMediaFilter', $filters);
 
         $filters = $filters->getArrayCopy();
 
@@ -60,7 +61,7 @@ class MediaFilter extends Filter
     {
         $values = new ArrayObject($this->values());
 
-        dotclear()->behavior()->call('adminMediaURLParams', $values);
+        App::core()->behavior()->call('adminMediaURLParams', $values);
 
         foreach ($values->getArrayCopy() as $filter => $new_value) {
             if (isset($this->filters[$filter])) {
@@ -75,7 +76,7 @@ class MediaFilter extends Filter
     {
         $post_id = !empty($_REQUEST['post_id']) ? (int) $_REQUEST['post_id'] : null;
         if ($post_id) {
-            $post = dotclear()->blog()->posts()->getPosts(['post_id' => $post_id, 'post_type' => '']);
+            $post = App::core()->blog()->posts()->getPosts(['post_id' => $post_id, 'post_type' => '']);
             if ($post->isEmpty()) {
                 $post_id = null;
             }

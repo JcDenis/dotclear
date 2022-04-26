@@ -83,7 +83,7 @@ class Prepend extends Core
     {
         if (!($this->template instanceof Template)) {
             try {
-                $this->template = new Template($this->config()->get('cache_dir'), 'dotclear()->template()');
+                $this->template = new Template($this->config()->get('cache_dir'), 'App::core()->template()');
             } catch (Exception $e) {
                 $this->throwException(__('Unable to create template'), $e->getMessage(), 640, $e);
             }

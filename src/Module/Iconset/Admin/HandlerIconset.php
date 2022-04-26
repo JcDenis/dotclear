@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Module\Iconset\Admin;
 
 // Dotclear\Module\Iconset\Admin\HandlerIconset
+use Dotclear\App;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
@@ -42,19 +43,19 @@ class HandlerIconset extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        if (dotclear()->iconsets()?->disableModulesDependencies(dotclear()->adminurl()->get('admin.iconset'))) {
+        if (App::core()->iconsets()?->disableModulesDependencies(App::core()->adminurl()->get('admin.iconset'))) {
             exit;
         }
         // -- Execute actions --
         try {
-            dotclear()->iconsets()->doActions();
+            App::core()->iconsets()->doActions();
         } catch (Exception $e) {
-            dotclear()->error()->add($e->getMessage());
+            App::core()->error()->add($e->getMessage());
         }
 
         // -- Plugin install --
-        if (!dotclear()->error()->flag()) {
-            $this->modules_install = dotclear()->iconsets()->installModules();
+        if (!App::core()->error()->flag()) {
+            $this->modules_install = App::core()->iconsets()->installModules();
         }
 
         // Page setup
@@ -62,11 +63,11 @@ class HandlerIconset extends AbstractPage
             ->setPageTitle(__('Iconset management'))
             ->setPageHelp('core_iconset')
             ->setPageHead(
-                dotclear()->resource()->load('_plugins.js') .
-                dotclear()->resource()->pageTabs() .
+                App::core()->resource()->load('_plugins.js') .
+                App::core()->resource()->pageTabs() .
 
                 // --BEHAVIOR-- modulesToolsHeaders
-                (string) dotclear()->behavior()->call('modulesToolsHeaders', false)
+                (string) App::core()->behavior()->call('modulesToolsHeaders', false)
             )
             ->setPageBreadcrumb([
                 __('System')             => '',
@@ -84,7 +85,7 @@ class HandlerIconset extends AbstractPage
             echo '<div class="static-msg">' . __('Following modules have been installed:') . '<ul>';
 
             foreach ($this->modules_install['success'] as $k => $v) {
-                $info = implode(' - ', dotclear()->iconsets()->getSettingsUrls($k, true));
+                $info = implode(' - ', App::core()->iconsets()->getSettingsUrls($k, true));
                 echo '<li>' . $k . ('' !== $info ? ' → ' . $info : '') . '</li>';
             }
 
@@ -101,21 +102,21 @@ class HandlerIconset extends AbstractPage
         }
 
         if ($this->from_configuration) {
-            echo dotclear()->iconsets()->displayModuleConfiguration();
+            echo App::core()->iconsets()->displayModuleConfiguration();
 
             return;
         }
 
         // -- Display modules lists --
-        if (dotclear()->user()->isSuperAdmin()) {
-            if (!dotclear()->error()->flag()) {
+        if (App::core()->user()->isSuperAdmin()) {
+            if (!App::core()->error()->flag()) {
                 if (!empty($_GET['nocache'])) {
-                    dotclear()->notice()->success(__('Manual checking of modules update done successfully.'));
+                    App::core()->notice()->success(__('Manual checking of modules update done successfully.'));
                 }
             }
 
             // Updated modules from repo
-            $modules = dotclear()->iconsets()->store->get(true);
+            $modules = App::core()->iconsets()->store->get(true);
             if (!empty($modules)) {
                 echo '<div class="multi-part" id="update" title="' . Html::escapeHTML(__('Update modules')) . '">' .
                 '<h3>' . Html::escapeHTML(__('Update modules')) . '</h3>' .
@@ -124,7 +125,7 @@ class HandlerIconset extends AbstractPage
                     count($modules)
                 ) . '</p>';
 
-                dotclear()->iconsets()
+                App::core()->iconsets()
                     ->setList('module-update')
                     ->setTab('update')
                     ->setData($modules)
@@ -144,10 +145,10 @@ class HandlerIconset extends AbstractPage
 
                     '</div>';
             } else {
-                echo '<form action="' . dotclear()->iconsets()->getURL('', false) . '" method="get">' .
+                echo '<form action="' . App::core()->iconsets()->getURL('', false) . '" method="get">' .
                 '<p><input type="hidden" name="nocache" value="1" />' .
                 '<input type="submit" value="' . __('Force checking update of modules') . '" />' .
-                Form::hidden(['handler'], dotclear()->adminurl()->called()) .
+                Form::hidden(['handler'], App::core()->adminurl()->called()) .
                     '</form>';
             }
         }
@@ -155,12 +156,12 @@ class HandlerIconset extends AbstractPage
         echo '<div class="multi-part" id="modules" title="' . __('Installed modules') . '">';
 
         // Activated modules
-        $modules = dotclear()->iconsets()->getModules();
+        $modules = App::core()->iconsets()->getModules();
         if (!empty($modules)) {
-            echo '<h3>' . (dotclear()->user()->isSuperAdmin() ? __('Activated modules') : __('Installed modules')) . '</h3>' .
+            echo '<h3>' . (App::core()->user()->isSuperAdmin() ? __('Activated modules') : __('Installed modules')) . '</h3>' .
             '<p class="more-info">' . __('You can configure and manage installed modules from this list.') . '</p>';
 
-            dotclear()->iconsets()
+            App::core()->iconsets()
                 ->setList('module-activate')
                 ->setTab('modules')
                 ->setData($modules)
@@ -172,13 +173,13 @@ class HandlerIconset extends AbstractPage
         }
 
         // Deactivated modules
-        if (dotclear()->user()->isSuperAdmin()) {
-            $modules = dotclear()->iconsets()->getDisabledModules();
+        if (App::core()->user()->isSuperAdmin()) {
+            $modules = App::core()->iconsets()->getDisabledModules();
             if (!empty($modules)) {
                 echo '<h3>' . __('Deactivated modules') . '</h3>' .
                 '<p class="more-info">' . __('Deactivated modules are installed but not usable. You can activate them from here.') . '</p>';
 
-                dotclear()->iconsets()
+                App::core()->iconsets()
                     ->setList('module-deactivate')
                     ->setTab('modules')
                     ->setData($modules)
@@ -192,16 +193,16 @@ class HandlerIconset extends AbstractPage
 
         echo '</div>';
 
-        if (dotclear()->user()->isSuperAdmin() && dotclear()->iconsets()->isWritablePath()) {
+        if (App::core()->user()->isSuperAdmin() && App::core()->iconsets()->isWritablePath()) {
             // New modules from repo
-            $search  = dotclear()->iconsets()->getSearch();
-            $modules = $search ? dotclear()->iconsets()->store->search($search) : dotclear()->iconsets()->store->get();
+            $search  = App::core()->iconsets()->getSearch();
+            $modules = $search ? App::core()->iconsets()->store->search($search) : App::core()->iconsets()->store->get();
 
             if (!empty($search) || !empty($modules)) {
                 echo '<div class="multi-part" id="new" title="' . __('Add modules') . '">' .
                 '<h3>' . __('Add modules from repository') . '</h3>';
 
-                dotclear()->iconsets()
+                App::core()->iconsets()
                     ->setList('module-new')
                     ->setTab('new')
                     ->setData($modules)
@@ -228,16 +229,16 @@ class HandlerIconset extends AbstractPage
             '<h3>' . __('Add modules from a package') . '</h3>' .
             '<p class="more-info">' . __('You can install modules by uploading or downloading zip files.') . '</p>';
 
-            dotclear()->iconsets()->displayManualForm();
+            App::core()->iconsets()->displayManualForm();
 
             echo '</div>';
         }
 
         // --BEHAVIOR-- modulesToolsTabs
-        dotclear()->behavior()->call('modulesToolsTabs');
+        App::core()->behavior()->call('modulesToolsTabs');
 
         // -- Notice for super admin --
-        if (dotclear()->user()->isSuperAdmin() && !dotclear()->iconsets()->isWritablePath()) {
+        if (App::core()->user()->isSuperAdmin() && !App::core()->iconsets()->isWritablePath()) {
             echo '<p class="warning">' . __('Some functions are disabled, please give write access to your modules directory to enable them.') . '</p>';
         }
     }

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Attachments\Public;
 
 // Dotclear\Plugin\Attachments\Public\Prepend
+use Dotclear\App;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
 
@@ -24,7 +25,7 @@ class Prepend extends AbstractPrepend
 
     public function loadModule(): void
     {
-        if (!dotclear()->media()) {
+        if (!App::core()->media()) {
             return;
         }
 

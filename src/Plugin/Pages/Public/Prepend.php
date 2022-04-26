@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\Pages\Public;
 
 // Dotclear\Plugin\Pages\Public\Prepend
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
 use Dotclear\Plugin\Pages\Common\PagesUrl;
@@ -32,8 +33,8 @@ class Prepend extends AbstractPrepend
         __('This page\'s comments feed');
 
         // Add post type to queries
-        dotclear()->behavior()->add('coreBlogBeforeGetPosts', function (ArrayObject $params): void {
-            if ('search' == dotclear()->url()->type) {
+        App::core()->behavior()->add('coreBlogBeforeGetPosts', function (ArrayObject $params): void {
+            if ('search' == App::core()->url()->type) {
                 // Add page post type for searching
                 if (isset($params['post_type'])) {
                     if (!is_array($params['post_type'])) {

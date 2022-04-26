@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\ImportExport\Admin\Lib;
 
 // Dotclear\Plugin\ImportExport\Admin\Lib\Module
+use Dotclear\App;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -67,7 +68,7 @@ abstract class Module
         }
 
         $this->id  = get_class($this); // join('', array_slice(explode('\\', get_class($this)), -1));;
-        $this->url = dotclear()->adminurl()->get('admin.plugin.ImportExport', ['type' => $this->type, 'module' => $this->id], '&');
+        $this->url = App::core()->adminurl()->get('admin.plugin.ImportExport', ['type' => $this->type, 'module' => $this->id], '&');
     }
 
     /**
@@ -113,7 +114,7 @@ abstract class Module
         return
         '<h3>' . __('Congratulation!') . '</h3>' .
         '<p class="success">' . __('Your blog has been successfully imported. Welcome on Dotclear 2!') . '</p>' .
-        '<ul><li><strong><a href="' . dotclear()->adminurl()->get('admin.post') . '">' . __('Why don\'t you blog this now?') . '</a></strong></li>' .
-        '<li>' . __('or') . ' <a href="' . dotclear()->adminurl()->get('admin.home') . '">' . __('visit your dashboard') . '</a></li></ul>';
+        '<ul><li><strong><a href="' . App::core()->adminurl()->get('admin.post') . '">' . __('Why don\'t you blog this now?') . '</a></strong></li>' .
+        '<li>' . __('or') . ' <a href="' . App::core()->adminurl()->get('admin.home') . '">' . __('visit your dashboard') . '</a></li></ul>';
     }
 }

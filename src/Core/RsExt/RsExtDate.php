@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\RsExt;
 
 // Dotclear\Core\RsExt\RsExtDate
+use Dotclear\App;
 use Dotclear\Helper\Dt;
 
 /**
@@ -59,7 +60,7 @@ class RsExtDate extends RsExtend
      */
     public function url(): string
     {
-        return dotclear()->blog()->getURLFor('archive', date('Y/m', $this->ts()));
+        return App::core()->blog()->getURLFor('archive', date('Y/m', $this->ts()));
     }
 
     /**
@@ -109,6 +110,6 @@ class RsExtDate extends RsExtend
      */
     public function getDate(string $format = ''): string
     {
-        return Dt::dt2str($format ?: dotclear()->blog()->settings()->get('system')->get('date_format'), $this->rs->f('dt'));
+        return Dt::dt2str($format ?: App::core()->blog()->settings()->get('system')->get('date_format'), $this->rs->f('dt'));
     }
 }

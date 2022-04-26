@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Database\Statement;
 
 // Dotclear\Database\Statement\DeleteStatement
+use Dotclear\App;
 
 /**
  * Delete Statement : small utility to build delete queries.
@@ -31,7 +32,7 @@ class DeleteStatement extends SqlStatement
     public function statement(): string
     {
         // --BEHAVIOR-- coreBeforeDeleteStatement
-        dotclear()->behavior()->call('coreBeforeDeleteStatement', $this);
+        App::core()->behavior()->call('coreBeforeDeleteStatement', $this);
 
         // Check if source given
         if (!count($this->from)) {
@@ -65,7 +66,7 @@ class DeleteStatement extends SqlStatement
         $query = trim($query);
 
         // --BEHAVIOR-- coreAfertDeleteStatement
-        dotclear()->behavior()->call('coreAfterDeleteStatement', $this, $query);
+        App::core()->behavior()->call('coreAfterDeleteStatement', $this, $query);
 
         return $query;
     }
@@ -76,7 +77,7 @@ class DeleteStatement extends SqlStatement
     public function delete(): bool
     {
         if (($sql = $this->statement())) {
-            return dotclear()->con()->execute($sql);
+            return App::core()->con()->execute($sql);
         }
 
         return false;

@@ -11,13 +11,14 @@ namespace Dotclear\Process\Admin\Favorite;
 
 // Dotclear\Process\Admin\Favorite\Favorite
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Core\User\Preference\Workspace;
 use Dotclear\Process\Admin\Menu\Summary;
 
 /**
  * Admin favorites handling facilities.
  *
- * Accessible from dotclear()->favorite()->
+ * Accessible from App::core()->favorite()->
  *
  * @ingroup  Admin Favorite
  */
@@ -80,7 +81,7 @@ class Favorite
     public function __construct()
     {
         $this->fav_defs   = new ArrayObject();
-        $this->ws         = dotclear()->user()->preference()->get('dashboard');
+        $this->ws         = App::core()->user()->preference()->get('dashboard');
         $this->user_prefs = [];
 
         if ($this->ws->prefExists('favorites')) {
@@ -105,7 +106,7 @@ class Favorite
     public function setup(): void
     {
         $this->initDefaultFavorites();
-        dotclear()->behavior()->call('adminDashboardFavorites', $this);
+        App::core()->behavior()->call('adminDashboardFavorites', $this);
         $this->setUserPrefs();
     }
 
@@ -139,10 +140,10 @@ class Favorite
             if (is_bool($fattr['permissions']) && !$fattr['permissions']) {
                 return [];
             }
-            if (!dotclear()->user()->check($fattr['permissions'], dotclear()->blog()->id)) {
+            if (!App::core()->user()->check($fattr['permissions'], App::core()->blog()->id)) {
                 return [];
             }
-        } elseif (!dotclear()->user()->isSuperAdmin()) {
+        } elseif (!App::core()->user()->isSuperAdmin()) {
             return [];
         }
 
@@ -201,7 +202,7 @@ class Favorite
             } else {
                 parse_str(parse_url($v['url'], PHP_URL_QUERY), $url);
                 $handler     = $url['handler'] ?: null;
-                $v['active'] = dotclear()->adminurl()->is($handler);
+                $v['active'] = App::core()->adminurl()->is($handler);
             }
         }
     }
@@ -313,7 +314,7 @@ class Favorite
                 call_user_func($v['dashboard_cb'], $v);
             }
             $icons[$k] = new ArrayObject([$v['title'], $v['url'], $v['large-icon']]);
-            dotclear()->behavior()->call('adminDashboardFavsIcon', $k, $icons[$k]);
+            App::core()->behavior()->call('adminDashboardFavsIcon', $k, $icons[$k]);
         }
     }
 
@@ -376,77 +377,77 @@ class Favorite
         $this->registerMultiple([
             'prefs' => [
                 'title'      => __('My preferences'),
-                'url'        => dotclear()->adminurl()->get('admin.user.pref'),
+                'url'        => App::core()->adminurl()->get('admin.user.pref'),
                 'small-icon' => 'images/menu/user-pref.svg',
                 'large-icon' => 'images/menu/user-pref.svg', ],
             'new_post' => [
                 'title'       => __('New post'),
-                'url'         => dotclear()->adminurl()->get('admin.post'),
+                'url'         => App::core()->adminurl()->get('admin.post'),
                 'small-icon'  => ['images/menu/edit.svg', 'images/menu/edit-dark.svg'],
                 'large-icon'  => ['images/menu/edit.svg', 'images/menu/edit-dark.svg'],
                 'permissions' => 'usage,contentadmin',
                 'active_cb'   => [$this, 'cbNewpostActive'], ],
             'posts' => [
                 'title'        => __('Posts'),
-                'url'          => dotclear()->adminurl()->get('admin.posts'),
+                'url'          => App::core()->adminurl()->get('admin.posts'),
                 'small-icon'   => ['images/menu/entries.svg', 'images/menu/entries-dark.svg'],
                 'large-icon'   => ['images/menu/entries.svg', 'images/menu/entries-dark.svg'],
                 'permissions'  => 'usage,contentadmin',
                 'dashboard_cb' => [$this, 'cbPostsDashboard'], ],
             'comments' => [
                 'title'        => __('Comments'),
-                'url'          => dotclear()->adminurl()->get('admin.comments'),
+                'url'          => App::core()->adminurl()->get('admin.comments'),
                 'small-icon'   => ['images/menu/comments.svg', 'images/menu/comments-dark.svg'],
                 'large-icon'   => ['images/menu/comments.svg', 'images/menu/comments-dark.svg'],
                 'permissions'  => 'usage,contentadmin',
                 'dashboard_cb' => [$this, 'cbCommentsDashboard'], ],
             'search' => [
                 'title'       => __('Search'),
-                'url'         => dotclear()->adminurl()->get('admin.search'),
+                'url'         => App::core()->adminurl()->get('admin.search'),
                 'small-icon'  => ['images/menu/search.svg', 'images/menu/search-dark.svg'],
                 'large-icon'  => ['images/menu/search.svg', 'images/menu/search-dark.svg'],
                 'permissions' => 'usage,contentadmin', ],
             'categories' => [
                 'title'       => __('Categories'),
-                'url'         => dotclear()->adminurl()->get('admin.categories'),
+                'url'         => App::core()->adminurl()->get('admin.categories'),
                 'small-icon'  => ['images/menu/categories.svg', 'images/menu/categories-dark.svg'],
                 'large-icon'  => ['images/menu/categories.svg', 'images/menu/categories-dark.svg'],
                 'permissions' => 'categories', ],
             'blog_pref' => [
                 'title'       => __('Blog settings'),
-                'url'         => dotclear()->adminurl()->get('admin.blog.pref'),
+                'url'         => App::core()->adminurl()->get('admin.blog.pref'),
                 'small-icon'  => ['images/menu/blog-pref.svg', 'images/menu/blog-pref-dark.svg'],
                 'large-icon'  => ['images/menu/blog-pref.svg', 'images/menu/blog-pref-dark.svg'],
                 'permissions' => 'admin', ],
             'blogs' => [
                 'title'       => __('Blogs'),
-                'url'         => dotclear()->adminurl()->get('admin.blogs'),
+                'url'         => App::core()->adminurl()->get('admin.blogs'),
                 'small-icon'  => ['images/menu/blogs.svg', 'images/menu/blogs-dark.svg'],
                 'large-icon'  => ['images/menu/blogs.svg', 'images/menu/blogs-dark.svg'],
                 'permissions' => 'usage,contentadmin', ],
             'users' => [
                 'title'      => __('Users'),
-                'url'        => dotclear()->adminurl()->get('admin.users'),
+                'url'        => App::core()->adminurl()->get('admin.users'),
                 'small-icon' => 'images/menu/users.svg',
                 'large-icon' => 'images/menu/users.svg', ],
             'langs' => [
                 'title'      => __('Languages'),
-                'url'        => dotclear()->adminurl()->get('admin.langs'),
+                'url'        => App::core()->adminurl()->get('admin.langs'),
                 'small-icon' => ['images/menu/langs.svg', 'images/menu/langs-dark.svg'],
                 'large-icon' => ['images/menu/langs.svg', 'images/menu/langs-dark.svg'], ],
             'help' => [
                 'title'      => __('Global help'),
-                'url'        => dotclear()->adminurl()->get('admin.help'),
+                'url'        => App::core()->adminurl()->get('admin.help'),
                 'small-icon' => 'images/menu/help.svg',
                 'large-icon' => 'images/menu/help.svg', ],
         ]);
 
-        if (dotclear()->blog()->public_path) {
+        if (App::core()->blog()->public_path) {
             $this->register(
                 'media',
                 [
                     'title'       => __('Media manager'),
-                    'url'         => dotclear()->adminurl()->get('admin.media'),
+                    'url'         => App::core()->adminurl()->get('admin.media'),
                     'small-icon'  => ['images/menu/media.svg', 'images/menu/media-dark.svg'],
                     'large-icon'  => ['images/menu/media.svg', 'images/menu/media-dark.svg'],
                     'permissions' => 'media,media_admin',
@@ -462,7 +463,7 @@ class Favorite
      */
     public function cbPostsDashboard(ArrayObject $v): void
     {
-        $post_count  = dotclear()->blog()->posts()->getPosts([], true)->fInt();
+        $post_count  = App::core()->blog()->posts()->getPosts([], true)->fInt();
         $str_entries = __('%d post', '%d posts', $post_count);
         $v['title']  = sprintf($str_entries, $post_count);
     }
@@ -476,7 +477,7 @@ class Favorite
      */
     public function cbNewpostActive(): bool
     {
-        return dotclear()->adminurl()->is('admin.post') && !isset($_REQUEST['id']);
+        return App::core()->adminurl()->is('admin.post') && !isset($_REQUEST['id']);
     }
 
     /**
@@ -486,7 +487,7 @@ class Favorite
      */
     public function cbCommentsDashboard(ArrayObject $v): void
     {
-        $comment_count = dotclear()->blog()->comments()->getComments([], true)->fInt();
+        $comment_count = App::core()->blog()->comments()->getComments([], true)->fInt();
         $str_comments  = __('%d comment', '%d comments', $comment_count);
         $v['title']    = sprintf($str_comments, $comment_count);
     }

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Maintenance\Admin\Lib\Task;
 
 // Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskIndexcomments
+use Dotclear\App;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Helper\Text;
@@ -74,7 +75,7 @@ class MaintenanceTaskIndexcomments extends MaintenanceTask
         $sql   = new SelectStatement(__METHOD__);
         $count = $sql
             ->column($sql->count('comment_id'))
-            ->from(dotclear()->prefix . 'comment')
+            ->from(App::core()->prefix . 'comment')
             ->select()
             ->fInt()
         ;
@@ -92,7 +93,7 @@ class MaintenanceTaskIndexcomments extends MaintenanceTask
         ;
 
         $sql = UpdateStatement::init(__METHOD__)
-            ->from(dotclear()->prefix . 'comment')
+            ->from(App::core()->prefix . 'comment')
         ;
 
         while ($rs->fetch()) {

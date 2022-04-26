@@ -12,6 +12,7 @@ namespace Dotclear\Process\Admin\Action;
 // Dotclear\Process\Admin\Action\Action
 use ArrayObject;
 use Closure;
+use Dotclear\App;
 use Dotclear\Database\Record;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\FormSelectOption;
@@ -372,7 +373,7 @@ abstract class Action extends AbstractPage
                     return true;
                 }
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
 
                 return false;
             }

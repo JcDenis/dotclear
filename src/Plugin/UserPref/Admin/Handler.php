@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\UserPref\Admin;
 
 // Dotclear\Plugin\UserPref\Admin\Handler
+use Dotclear\App;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
@@ -32,12 +33,12 @@ class Handler extends AbstractPage
     {
         // Local navigation
         if (!empty($_POST['gp_nav'])) {
-            dotclear()->adminurl()->redirect('admin.plugin.UserPref', [], $_POST['gp_nav']);
+            App::core()->adminurl()->redirect('admin.plugin.UserPref', [], $_POST['gp_nav']);
 
             exit;
         }
         if (!empty($_POST['lp_nav'])) {
-            dotclear()->adminurl()->redirect('admin.plugin.UserPref', [], $_POST['lp_nav']);
+            App::core()->adminurl()->redirect('admin.plugin.UserPref', [], $_POST['lp_nav']);
 
             exit;
         }
@@ -50,14 +51,14 @@ class Handler extends AbstractPage
                         if ('array' == $_POST['s_type'][$ws][$k]) {
                             $v = json_decode($v, true);
                         }
-                        dotclear()->user()->preference()->get($ws)->put($k, $v);
+                        App::core()->user()->preference()->get($ws)->put($k, $v);
                     }
                 }
 
-                dotclear()->notice()->addSuccessNotice(__('Preferences successfully updated'));
-                dotclear()->adminurl()->redirect('admin.plugin.UserPref');
+                App::core()->notice()->addSuccessNotice(__('Preferences successfully updated'));
+                App::core()->adminurl()->redirect('admin.plugin.UserPref');
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
@@ -69,14 +70,14 @@ class Handler extends AbstractPage
                         if ('array' == $_POST['gs_type'][$ws][$k]) {
                             $v = json_decode($v, true);
                         }
-                        dotclear()->user()->preference()->get($ws)->put($k, $v, null, null, true, true);
+                        App::core()->user()->preference()->get($ws)->put($k, $v, null, null, true, true);
                     }
                 }
 
-                dotclear()->notice()->addSuccessNotice(__('Preferences successfully updated'));
-                dotclear()->adminurl()->redirect('admin.plugin.UserPref', ['part' => 'global']);
+                App::core()->notice()->addSuccessNotice(__('Preferences successfully updated'));
+                App::core()->adminurl()->redirect('admin.plugin.UserPref', ['part' => 'global']);
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
@@ -85,13 +86,13 @@ class Handler extends AbstractPage
             ->setPageTitle(__('user:preferences'))
             ->setPageHelp('UserPref')
             ->setPageHead(
-                dotclear()->resource()->pageTabs(!empty($_GET['part']) && 'global' == $_GET['part'] ? 'global' : 'local') .
-                dotclear()->resource()->load('index.js', 'Plugin', 'UserPref')
+                App::core()->resource()->pageTabs(!empty($_GET['part']) && 'global' == $_GET['part'] ? 'global' : 'local') .
+                App::core()->resource()->load('index.js', 'Plugin', 'UserPref')
             )
             ->setPageBreadcrumb([
-                __('System')                                   => '',
-                Html::escapeHTML(dotclear()->user()->userID()) => '',
-                __('user:preferences')                         => '',
+                __('System')                                    => '',
+                Html::escapeHTML(App::core()->user()->userID()) => '',
+                __('user:preferences')                          => '',
             ])
         ;
 
@@ -104,7 +105,7 @@ class Handler extends AbstractPage
         '<h3 class="out-of-screen-if-js">' . __('User preferences') . '</h3>';
 
         $prefs = [];
-        foreach (dotclear()->user()->preference()->dump() as $ws => $workspace) {
+        foreach (App::core()->user()->preference()->dump() as $ws => $workspace) {
             foreach ($workspace->dumpPrefs() as $k => $v) {
                 $prefs[$ws][$k] = $v;
             }
@@ -127,7 +128,7 @@ class Handler extends AbstractPage
         '<h3 class="out-of-screen-if-js">' . __('Global preferences') . '</h3>';
 
         $prefs = [];
-        foreach (dotclear()->user()->preference()->dump() as $ws => $workspace) {
+        foreach (App::core()->user()->preference()->dump() as $ws => $workspace) {
             foreach ($workspace->dumpGlobalPrefs() as $k => $v) {
                 $prefs[$ws][$k] = $v;
             }
@@ -149,12 +150,12 @@ class Handler extends AbstractPage
 
     private function prefMenu(array $combo, bool $global): void
     {
-        echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" class="anchor-nav-sticky">' .
+        echo '<form action="' . App::core()->adminurl()->root() . '" method="post" class="anchor-nav-sticky">' .
         '<p class="anchor-nav">' .
         '<label for="' . ($global ? 'g' : 'l') . 'p_nav" class="classic">' . __('Goto:') . '</label> ' .
         Form::combo(($global ? 'g' : 'l') . 'p_nav', $combo, ['class' => 'navigation']) .
         ' <input type="submit" value="' . __('Ok') . '" id="' . ($global ? 'g' : 'l') . 'p_submit" />' .
-        dotclear()->adminurl()->getHiddenFormFields('admin.plugin.UserPref', [], true) . '</p></form>';
+        App::core()->adminurl()->getHiddenFormFields('admin.plugin.UserPref', [], true) . '</p></form>';
     }
 
     private function prefTable(array $prefs, bool $global): void
@@ -171,7 +172,7 @@ class Handler extends AbstractPage
             '<tbody>';
         $table_footer = '</tbody></table></div>';
 
-        echo '<form action="' . dotclear()->adminurl()->root() . '" method="post">';
+        echo '<form action="' . App::core()->adminurl()->root() . '" method="post">';
 
         foreach ($prefs as $ws => $s) {
             ksort($s);
@@ -184,7 +185,7 @@ class Handler extends AbstractPage
 
         echo '<p><input type="submit" value="' . __('Save') . '" />' .
         '<input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
-        dotclear()->adminurl()->getHiddenFormFields('admin.plugin.UserPref', [], true) . '</p>' .
+        App::core()->adminurl()->getHiddenFormFields('admin.plugin.UserPref', [], true) . '</p>' .
         '</form>';
     }
 

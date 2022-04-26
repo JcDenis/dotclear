@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Antispam\Common;
 
 // Dotclear\Plugin\Antispam\Common\Spamfilters
+use Dotclear\App;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
 
@@ -120,15 +121,15 @@ class Spamfilters
     public function saveFilterOpts(array $opts, bool $global = false): void
     {
         if (true === $global) {
-            dotclear()->blog()->settings()->get('antispam')->drop('antispam_filters');
+            App::core()->blog()->settings()->get('antispam')->drop('antispam_filters');
         }
-        dotclear()->blog()->settings()->get('antispam')->put('antispam_filters', $opts, 'array', 'Antispam Filters', true, $global);
+        App::core()->blog()->settings()->get('antispam')->put('antispam_filters', $opts, 'array', 'Antispam Filters', true, $global);
     }
 
     private function setFilterOpts(): void
     {
-        if (null !== dotclear()->blog()->settings()->get('antispam')->get('antispam_filters')) {
-            $this->filters_opt = dotclear()->blog()->settings()->get('antispam')->get('antispam_filters');
+        if (null !== App::core()->blog()->settings()->get('antispam')->get('antispam_filters')) {
+            $this->filters_opt = App::core()->blog()->settings()->get('antispam')->get('antispam_filters');
         }
 
         // Create default options if needed

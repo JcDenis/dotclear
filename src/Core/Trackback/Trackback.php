@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\Trackback;
 
 // Dotclear\Core\Trackback\Trackback
+use Dotclear\App;
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\InsertStatement;
@@ -55,7 +56,7 @@ class Trackback
                 'ping_url',
                 'ping_dt',
             ])
-            ->from(dotclear()->prefix . $this->table)
+            ->from(App::core()->prefix . $this->table)
             ->where('post_id = ' . $post_id)
             ->select()
         ;
@@ -76,7 +77,7 @@ class Trackback
      */
     public function ping(string $url, int $post_id, string $post_title, string $post_excerpt, string $post_url): bool
     {
-        if (null === dotclear()->blog()) {
+        if (null === App::core()->blog()) {
             return false;
         }
 
@@ -86,7 +87,7 @@ class Trackback
                 'post_id',
                 'ping_url',
             ])
-            ->from(dotclear()->prefix . $this->table)
+            ->from(App::core()->prefix . $this->table)
             ->where('post_id = ' . $post_id)
             ->and('ping_url = ' . $sql->quote($url))
             ->select()
@@ -129,7 +130,7 @@ class Trackback
                 'title'     => $post_title,
                 'excerpt'   => $post_excerpt,
                 'url'       => $post_url,
-                'blog_name' => trim(Html::escapeHTML(Html::clean(dotclear()->blog()->name))),
+                'blog_name' => trim(Html::escapeHTML(Html::clean(App::core()->blog()->name))),
                 // ,'__debug' => false
             ];
 
@@ -221,7 +222,7 @@ class Trackback
         $err = false;
         $msg = '';
 
-        if (null === dotclear()->blog()) {
+        if (null === App::core()->blog()) {
             $err = true;
             $msg = 'No blog.';
         } elseif ('' == $url) {
@@ -233,7 +234,7 @@ class Trackback
         }
 
         if (!$err) {
-            $rs = dotclear()->blog()->posts()->getPosts(['post_id' => $post_id, 'post_type' => '']);
+            $rs = App::core()->blog()->posts()->getPosts(['post_id' => $post_id, 'post_type' => '']);
 
             if ($rs->isEmpty()) {
                 $err = true;
@@ -441,7 +442,7 @@ class Trackback
             $this->addBacklink($post_id, $from_url, $blog_name, $title, $excerpt, $comment);
 
             // All done, thanks
-            $code = dotclear()->blog()->settings()->get('system')->get('trackbacks_pub') ? 200 : 202;
+            $code = App::core()->blog()->settings()->get('system')->get('trackbacks_pub') ? 200 : 202;
             Http::head($code);
 
             return;
@@ -467,7 +468,7 @@ class Trackback
             'comment_trackback' => 1,
         ];
 
-        $rs = dotclear()->blog()->comments()->getComments($params, true);
+        $rs = App::core()->blog()->comments()->getComments($params, true);
 
         return $rs && !$rs->isEmpty() ? (bool) $rs->fInt() : false;
     }
@@ -493,22 +494,22 @@ class Trackback
             '<p><strong>' . ($title ?: $blog_name) . "</strong></p>\n" .
             '<p>' . $excerpt . '</p>';
 
-        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
+        $cur = App::core()->con()->openCursor(App::core()->prefix . 'comment');
         $cur->setField('comment_author', $blog_name);
         $cur->setField('comment_site', $url);
         $cur->setField('comment_content', $comment);
         $cur->setField('post_id', $post_id);
         $cur->setField('comment_trackback', '1');
-        $cur->setField('comment_status', dotclear()->blog()->settings()->get('system')->get('trackbacks_pub') ? 1 : -1);
+        $cur->setField('comment_status', App::core()->blog()->settings()->get('system')->get('trackbacks_pub') ? 1 : -1);
         $cur->setField('comment_ip', Http::realIP());
 
         // --BEHAVIOR-- publicBeforeTrackbackCreate
-        dotclear()->behavior()->call('publicBeforeTrackbackCreate', $cur);
+        App::core()->behavior()->call('publicBeforeTrackbackCreate', $cur);
         if ($cur->getField('post_id')) {
-            $comment_id = dotclear()->blog()->comments()->addComment($cur);
+            $comment_id = App::core()->blog()->comments()->addComment($cur);
 
             // --BEHAVIOR-- publicAfterTrackbackCreate
-            dotclear()->behavior()->call('publicAfterTrackbackCreate', $cur, $comment_id);
+            App::core()->behavior()->call('publicAfterTrackbackCreate', $cur, $comment_id);
         }
     }
 
@@ -521,7 +522,7 @@ class Trackback
     private function delBacklink(int $post_id, string $url): void
     {
         $sql = new DeleteStatement(__METHOD__);
-        $sql->from(dotclear()->prefix . $this->table)
+        $sql->from(App::core()->prefix . $this->table)
             ->where('post_id = ' . $post_id)
             ->and('comment_site = ' . $sql->quote($url))
             ->and('comment_trackback = 1')
@@ -577,7 +578,7 @@ class Trackback
      */
     private function getTargetPost(string $to_url): Record
     {
-        $reg  = '!^' . preg_quote(dotclear()->blog()->url) . '(.*)!';
+        $reg  = '!^' . preg_quote(App::core()->blog()->url) . '(.*)!';
         $type = $args = $next = '';
 
         // Are you dumb?
@@ -588,7 +589,7 @@ class Trackback
         // Does the targeted URL look like a registered post type?
         $url_part   = $m[1];
         $p_type     = '';
-        $post_types = dotclear()->posttype()->getPostTypes();
+        $post_types = App::core()->posttype()->getPostTypes();
         $post_url   = '';
         foreach ($post_types as $k => $v) {
             $reg = '!^' . preg_quote(str_replace('%s', '', $v['public_url'])) . '(.*)!';
@@ -609,7 +610,7 @@ class Trackback
             'post_type' => $p_type,
             'post_url'  => $post_url,
         ];
-        $posts = dotclear()->blog()->posts()->getPosts($params);
+        $posts = App::core()->blog()->posts()->getPosts($params);
 
         // Missed!
         if ($posts->isEmpty()) {
@@ -856,7 +857,7 @@ class Trackback
     private static function initHttp(string $url, string &$path): NetHttp
     {
         $client = NetHttp::initClient($url, $path);
-        $client->setTimeout(dotclear()->config()->get('query_timeout'));
+        $client->setTimeout(App::core()->config()->get('query_timeout'));
         $client->setUserAgent('Dotclear - https://dotclear.org/');
         $client->useGzip(false);
         $client->setPersistReferers(false);

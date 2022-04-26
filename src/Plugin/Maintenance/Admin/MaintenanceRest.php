@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Maintenance\Admin;
 
 // Dotclear\Plugin\Maintenance\Admin\MaintenanceRest
+use Dotclear\App;
 use Dotclear\Exception\AdminException;
 use Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance;
 use Dotclear\Helper\Html\Html;
@@ -24,7 +25,7 @@ class MaintenanceRest
 {
     public function __construct()
     {
-        dotclear()->rest()->addFunction('dcMaintenanceStep', [$this, 'step']);
+        App::core()->rest()->addFunction('dcMaintenanceStep', [$this, 'step']);
     }
 
     /**

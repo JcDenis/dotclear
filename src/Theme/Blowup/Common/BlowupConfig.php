@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Theme\Blowup\Common;
 
 // Dotclear\Theme\Blowup\Common\BlowupConfig
+use Dotclear\App;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Module\Theme\Admin\ConfigTheme;
@@ -299,10 +300,10 @@ class BlowupConfig
         }
 
         // erase old css file
-        $this->dropCss(dotclear()->blog()->settings()->get('system')->get('theme'));
+        $this->dropCss(App::core()->blog()->settings()->get('system')->get('theme'));
 
         // create new css file into public Blowup-css subdirectory
-        $this->writeCss(dotclear()->blog()->settings()->get('system')->get('theme'), $res);
+        $this->writeCss(App::core()->blog()->settings()->get('system')->get('theme'), $res);
 
         return $res;
     }

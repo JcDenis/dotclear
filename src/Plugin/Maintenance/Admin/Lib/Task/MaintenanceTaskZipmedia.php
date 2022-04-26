@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Maintenance\Admin\Lib\Task;
 
 // Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskZipmedia
+use Dotclear\App;
 use Dotclear\Helper\File\Zip\Zip;
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
@@ -34,26 +35,26 @@ class MaintenanceTaskZipmedia extends MaintenanceTask
 
     public function execute(): int|bool
     {
-        if (!dotclear()->media()) {
+        if (!App::core()->media()) {
             return false;
         }
 
         // Instance media
-        dotclear()->media()->chdir('');
-        dotclear()->media()->getDir();
+        App::core()->media()->chdir('');
+        App::core()->media()->getDir();
 
         // Create zip
         @set_time_limit(300);
         $fp  = fopen('php://output', 'wb');
         $zip = new Zip($fp);
         $zip->addExclusion('#(^|/).(.*?)_(m|s|sq|t).jpg$#');
-        $zip->addDirectory(dotclear()->media()->root . '/', '', true);
+        $zip->addDirectory(App::core()->media()->root . '/', '', true);
 
         // Log task execution here as we sent file and stop script
         $this->log();
 
         // Send zip
-        header('Content-Disposition: attachment;filename=' . date('Y-m-d') . '-' . dotclear()->blog()->id . '-' . 'media.zip');
+        header('Content-Disposition: attachment;filename=' . date('Y-m-d') . '-' . App::core()->blog()->id . '-' . 'media.zip');
         header('Content-Type: application/x-zip');
         $zip->write();
         unset($zip);

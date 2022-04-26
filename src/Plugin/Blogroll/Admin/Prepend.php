@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Blogroll\Admin;
 
 // Dotclear\Plugin\Blogroll\Admin\Prepend
+use Dotclear\App;
 use Dotclear\Database\Structure;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
@@ -31,22 +32,22 @@ class Prepend extends AbstractPrepend
         $this->addStandardFavorites('usage,contentadmin');
 
         // Manage user permissions
-        dotclear()->behavior()->add(
+        App::core()->behavior()->add(
             'adminUsersActionsHeaders',
-            fn () => dotclear()->resource()->load('_users_actions.js', 'Plugin', 'Blogroll')
+            fn () => App::core()->resource()->load('_users_actions.js', 'Plugin', 'Blogroll')
         );
 
-        dotclear()->user()->setPermissionType('blogroll', __('manage blogroll'));
+        App::core()->user()->setPermissionType('blogroll', __('manage blogroll'));
 
         // Widgets
-        if (dotclear()->adminurl()->is('admin.plugin.Widgets')) {
+        if (App::core()->adminurl()->is('admin.plugin.Widgets')) {
             new BlogrollWidgets();
         }
     }
 
     public function installModule(): ?bool
     {
-        $s = new Structure(dotclear()->con(), dotclear()->prefix);
+        $s = new Structure(App::core()->con(), App::core()->prefix);
 
         $s->table('link')
             ->field('link_id', 'bigint', 0, false)
@@ -65,7 +66,7 @@ class Prepend extends AbstractPrepend
         $s->table('link')->reference('fk_link_blog', 'blog_id', 'blog', 'blog_id', 'cascade', 'cascade');
 
         // Schema installation
-        $si      = new Structure(dotclear()->con(), dotclear()->prefix);
+        $si      = new Structure(App::core()->con(), App::core()->prefix);
         $changes = $si->synchronize($s);
 
         return true;

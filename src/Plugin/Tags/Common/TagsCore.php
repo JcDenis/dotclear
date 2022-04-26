@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Tags\Common;
 
 // Dotclear\Plugin\Tags\Common\TagsCore
+use Dotclear\App;
 use Dotclear\Core\Wiki\Wiki2xhtml;
 use Dotclear\Helper\Html\Html;
 
@@ -22,7 +23,7 @@ class TagsCore
 {
     public function __construct()
     {
-        dotclear()->behavior()->add('coreInitWikiPost', function (Wiki2xhtml $wiki2xhtml): void {
+        App::core()->behavior()->add('coreInitWikiPost', function (Wiki2xhtml $wiki2xhtml): void {
             $wiki2xhtml->registerFunction('url:tag', [$this, 'wiki2xhtmlTag']);
         });
     }
@@ -34,8 +35,8 @@ class TagsCore
             $content = substr($content, 4);
         }
 
-        $tag_url        = Html::stripHostURL(dotclear()->blog()->getURLFor('tag'));
-        $res['url']     = $tag_url . '/' . rawurlencode(dotclear()->meta()::sanitizeMetaID($url));
+        $tag_url        = Html::stripHostURL(App::core()->blog()->getURLFor('tag'));
+        $res['url']     = $tag_url . '/' . rawurlencode(App::core()->meta()::sanitizeMetaID($url));
         $res['content'] = $content;
 
         return $res;

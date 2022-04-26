@@ -11,6 +11,7 @@ namespace Dotclear\Process\Admin\Inventory\Inventory;
 
 // Dotclear\Process\Admin\Inventory\Inventory\CommentInventory
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Helper\Dt;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -63,35 +64,35 @@ class CommentInventory extends Inventory
                 ), $this->rs_count) .
                     '</caption>';
             } else {
-                $nb_published   = dotclear()->blog()->comments()->getComments(['comment_status' => 1], true)->fInt();
-                $nb_spam        = dotclear()->blog()->comments()->getComments(['comment_status' => -2], true)->fInt();
-                $nb_pending     = dotclear()->blog()->comments()->getComments(['comment_status' => -1], true)->fInt();
-                $nb_unpublished = dotclear()->blog()->comments()->getComments(['comment_status' => 0], true)->fInt();
+                $nb_published   = App::core()->blog()->comments()->getComments(['comment_status' => 1], true)->fInt();
+                $nb_spam        = App::core()->blog()->comments()->getComments(['comment_status' => -2], true)->fInt();
+                $nb_pending     = App::core()->blog()->comments()->getComments(['comment_status' => -1], true)->fInt();
+                $nb_unpublished = App::core()->blog()->comments()->getComments(['comment_status' => 0], true)->fInt();
 
                 $html_block .= '<caption>' .
                 sprintf(__('List of comments and trackbacks (%s)'), $this->rs_count) .
                     ($nb_published ?
                     sprintf(
                         __(', <a href="%s">published</a> (1)', ', <a href="%s">published</a> (%s)', $nb_published),
-                        dotclear()->adminurl()->get('admin.comments', ['status' => 1]),
+                        App::core()->adminurl()->get('admin.comments', ['status' => 1]),
                         $nb_published
                     ) : '') .
                     ($nb_spam ?
                     sprintf(
                         __(', <a href="%s">spam</a> (1)', ', <a href="%s">spam</a> (%s)', $nb_spam),
-                        dotclear()->adminurl()->get('admin.comments', ['status' => -2]),
+                        App::core()->adminurl()->get('admin.comments', ['status' => -2]),
                         $nb_spam
                     ) : '') .
                     ($nb_pending ?
                     sprintf(
                         __(', <a href="%s">pending</a> (1)', ', <a href="%s">pending</a> (%s)', $nb_pending),
-                        dotclear()->adminurl()->get('admin.comments', ['status' => -1]),
+                        App::core()->adminurl()->get('admin.comments', ['status' => -1]),
                         $nb_pending
                     ) : '') .
                     ($nb_unpublished ?
                     sprintf(
                         __(', <a href="%s">unpublished</a> (1)', ', <a href="%s">unpublished</a> (%s)', $nb_unpublished),
-                        dotclear()->adminurl()->get('admin.comments', ['status' => 0]),
+                        App::core()->adminurl()->get('admin.comments', ['status' => 0]),
                         $nb_unpublished
                     ) : '') .
                     '</caption>';
@@ -109,7 +110,7 @@ class CommentInventory extends Inventory
             $cols['entry'] = '<th scope="col" abbr="entry">' . __('Entry') . '</th>';
 
             $cols = new ArrayObject($cols);
-            dotclear()->behavior()->call('adminCommentListHeader', $this->rs, $cols, $spam);
+            App::core()->behavior()->call('adminCommentListHeader', $this->rs, $cols, $spam);
 
             $html_block .= '<tr>' . implode(iterator_to_array($cols)) . '</tr>%s</table>%s</div>';
 
@@ -148,12 +149,12 @@ class CommentInventory extends Inventory
      */
     private function commentLine(bool $checked = false, bool $spam = false): string
     {
-        $author_url  = dotclear()->adminurl()->get('admin.comments', ['author' => $this->rs->f('comment_author')]);
-        $post_url    = dotclear()->posttype()->getPostAdminURL($this->rs->f('post_type'), $this->rs->f('post_id'));
-        $comment_url = dotclear()->adminurl()->get('admin.comment', ['id' => $this->rs->f('comment_id')]);
+        $author_url  = App::core()->adminurl()->get('admin.comments', ['author' => $this->rs->f('comment_author')]);
+        $post_url    = App::core()->posttype()->getPostAdminURL($this->rs->f('post_type'), $this->rs->f('post_id'));
+        $comment_url = App::core()->adminurl()->get('admin.comment', ['id' => $this->rs->f('comment_id')]);
         $comment_dt  = Dt::dt2str(
-            dotclear()->blog()->settings()->get('system')->get('date_format') . ' - ' .
-            dotclear()->blog()->settings()->get('system')->get('time_format'),
+            App::core()->blog()->settings()->get('system')->get('date_format') . ' - ' .
+            App::core()->blog()->settings()->get('system')->get('time_format'),
             $this->rs->f('comment_dt')
         );
         $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
@@ -215,14 +216,14 @@ class CommentInventory extends Inventory
 
         if ($spam) {
             $cols['ip'] = '<td class="nowrap"><a href="' .
-            dotclear()->adminurl()->get('admin.comments', ['ip' => $this->rs->f('comment_ip')]) . '">' .
+            App::core()->adminurl()->get('admin.comments', ['ip' => $this->rs->f('comment_ip')]) . '">' .
             $this->rs->f('comment_ip') . '</a></td>';
         }
         $cols['entry'] = '<td class="nowrap discrete"><a href="' . $post_url . '">' . $post_title . '</a>' .
             ('post' != $this->rs->f('post_type') ? ' (' . Html::escapeHTML($this->rs->f('post_type')) . ')' : '') . '</td>';
 
         $cols = new ArrayObject($cols);
-        dotclear()->behavior()->call('adminCommentListValue', $this->rs, $cols, $spam);
+        App::core()->behavior()->call('adminCommentListValue', $this->rs, $cols, $spam);
 
         $res .= implode(iterator_to_array($cols));
         $res .= '</tr>';

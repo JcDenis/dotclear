@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Akismet\Common;
 
 // Dotclear\Plugin\Akismet\Common\FilterAkismet
+use Dotclear\App;
 use Dotclear\Database\Record;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -33,7 +34,7 @@ class FilterAkismet extends Spamfilter
     {
         parent::__construct();
 
-        if (defined('DC_AKISMET_SUPER') && DC_AKISMET_SUPER && !dotclear()->user()->isSuperAdmin()) {
+        if (defined('DC_AKISMET_SUPER') && DC_AKISMET_SUPER && !App::core()->user()->isSuperAdmin()) {
             $this->has_gui = false;
         }
     }
@@ -50,11 +51,11 @@ class FilterAkismet extends Spamfilter
 
     private function akInit(): Akismet|false
     {
-        if (!dotclear()->blog()->settings()->get('akismet')->get('ak_key')) {
+        if (!App::core()->blog()->settings()->get('akismet')->get('ak_key')) {
             return false;
         }
 
-        return new Akismet(dotclear()->blog()->url, dotclear()->blog()->settings()->get('akismet')->get('ak_key'));
+        return new Akismet(App::core()->blog()->url, App::core()->blog()->settings()->get('akismet')->get('ak_key'));
     }
 
     public function isSpam(string $type, string $author, string $email, string $site, string $ip, string $content, int $post_id, ?int &$status): ?bool
@@ -65,7 +66,7 @@ class FilterAkismet extends Spamfilter
 
         try {
             if ($ak->verify()) {
-                $post = dotclear()->blog()->posts()->getPosts(['post_id' => $post_id]);
+                $post = App::core()->blog()->posts()->getPosts(['post_id' => $post_id]);
 
                 $c = $ak->comment_check(
                     $post->getURL(),
@@ -111,28 +112,28 @@ class FilterAkismet extends Spamfilter
 
     public function gui(string $url): string
     {
-        $ak_key      = dotclear()->blog()->settings()->get('akismet')->get('ak_key');
+        $ak_key      = App::core()->blog()->settings()->get('akismet')->get('ak_key');
         $ak_verified = null;
 
         if (isset($_POST['ak_key'])) {
             try {
                 $ak_key = $_POST['ak_key'];
 
-                dotclear()->blog()->settings()->get('akismet')->put('ak_key', $ak_key, 'string');
+                App::core()->blog()->settings()->get('akismet')->put('ak_key', $ak_key, 'string');
 
-                dotclear()->notice()->addSuccessNotice(__('Filter configuration have been successfully saved.'));
+                App::core()->notice()->addSuccessNotice(__('Filter configuration have been successfully saved.'));
                 Http::redirect($url);
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
-        if (dotclear()->blog()->settings()->get('akismet')->get('ak_key')) {
+        if (App::core()->blog()->settings()->get('akismet')->get('ak_key')) {
             try {
-                $ak          = new Akismet(dotclear()->blog()->url, dotclear()->blog()->settings()->get('akismet')->get('ak_key'));
+                $ak          = new Akismet(App::core()->blog()->url, App::core()->blog()->settings()->get('akismet')->get('ak_key'));
                 $ak_verified = $ak->verify();
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
@@ -149,7 +150,7 @@ class FilterAkismet extends Spamfilter
         $res .= '</p>' .
         '<p><a href="https://akismet.com/">' . __('Get your own API key') . '</a></p>' .
         '<p><input type="submit" value="' . __('Save') . '" />' .
-        dotclear()->nonce()->form() . '</p>' .
+        App::core()->nonce()->form() . '</p>' .
             '</form>';
 
         return $res;

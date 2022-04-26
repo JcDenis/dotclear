@@ -11,6 +11,7 @@ namespace Dotclear\Process\Admin\Inventory\Inventory;
 
 // Dotclear\Process\Admin\Inventory\Inventory\PostMiniInventory
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Helper\Dt;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Inventory\Inventory;
@@ -48,7 +49,7 @@ class PostMiniInventory extends Inventory
             ];
 
             $cols = new ArrayObject($cols);
-            dotclear()->behavior()->call('adminPostMiniListHeader', $this->rs, $cols);
+            App::core()->behavior()->call('adminPostMiniListHeader', $this->rs, $cols);
 
             // Cope with optional columns
             $this->userColumns('posts', $cols);
@@ -129,7 +130,7 @@ class PostMiniInventory extends Inventory
 
         $cols = [
             'title' => '<td scope="row" class="maximal"><a href="' .
-            dotclear()->posttype()->getPostAdminURL($this->rs->f('post_type'), $this->rs->f('post_id')) . '" ' .
+            App::core()->posttype()->getPostAdminURL($this->rs->f('post_type'), $this->rs->f('post_id')) . '" ' .
             'title="' . Html::escapeHTML($this->rs->call('getURL')) . '">' .
             Html::escapeHTML(trim(Html::clean($this->rs->f('post_title')))) . '</a></td>',
             'date'   => '<td class="nowrap count">' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $this->rs->f('post_dt')) . '</td>',
@@ -138,7 +139,7 @@ class PostMiniInventory extends Inventory
         ];
 
         $cols = new ArrayObject($cols);
-        dotclear()->behavior()->call('adminPostMiniListValue', $this->rs, $cols);
+        App::core()->behavior()->call('adminPostMiniListValue', $this->rs, $cols);
 
         // Cope with optional columns
         $this->userColumns('posts', $cols);

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Public\Context;
 
 // Dotclear\Process\Public\Context\Context
+use Dotclear\App;
 use Dotclear\Database\Record;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Html;
@@ -195,12 +196,12 @@ class Context
         $args[0] = &$str;
 
         // --BEHAVIOR-- publicBeforeContentFilter
-        dotclear()->behavior()->call('publicBeforeContentFilter', $tag, $args);
+        App::core()->behavior()->call('publicBeforeContentFilter', $tag, $args);
         $str = $args[0];
 
         foreach ($filters as $filter) {
             // --BEHAVIOR-- publicContentFilter
-            switch (dotclear()->behavior()->call('publicContentFilter', $tag, $args, $filter)) {
+            switch (App::core()->behavior()->call('publicContentFilter', $tag, $args, $filter)) {
                 case '1':
                     // 3rd party filter applied and must stop
                     break;
@@ -216,7 +217,7 @@ class Context
         }
 
         // --BEHAVIOR-- publicAfterContentFilter
-        dotclear()->behavior()->call('publicAfterContentFilter', $tag, $args);
+        App::core()->behavior()->call('publicAfterContentFilter', $tag, $args);
         $str = $args[0];
 
         return $str;
@@ -374,7 +375,7 @@ class Context
         }
 
         $nb_posts = $this->get('pagination')->fInt();
-        $nb_pages = in_array(dotclear()->url()->type, ['default', 'default-page']) ?
+        $nb_pages = in_array(App::core()->url()->type, ['default', 'default-page']) ?
             ceil(($nb_posts - (int) $this->get('nb_entry_first_page')) / (int) $this->get('nb_entry_per_page') + 1) :
             ceil($nb_posts                                             / (int) $this->get('nb_entry_per_page'));
 
@@ -424,7 +425,7 @@ class Context
      */
     public function PaginationURL(int $offset = 0): string
     {
-        $url = dotclear()->blog()->url . preg_replace('#(^|/)page/([0-9]+)$#', '', $_SERVER['URL_REQUEST_PART']);
+        $url = App::core()->blog()->url . preg_replace('#(^|/)page/([0-9]+)$#', '', $_SERVER['URL_REQUEST_PART']);
 
         $n = $this->PaginationPosition($offset);
         if (1 < $n) {
@@ -475,13 +476,13 @@ class Context
         }
 
         // Search smilies on public path then Theme path and then parent theme path and then core path
-        $base_url = dotclear()->blog()->public_url . '/smilies/';
+        $base_url = App::core()->blog()->public_url . '/smilies/';
         $src      = '/resources/smilies/smilies.txt';
         $paths    = array_merge(
-            [dotclear()->blog()->public_path . '/smilies/smilies.txt'],
-            array_values(dotclear()->themes()->getThemePath('Public' . $src)),
-            array_values(dotclear()->themes()->getThemePath('Common' . $src)),
-            [dotclear()->config()->get('root_dir') . '/Public' . $src]
+            [App::core()->blog()->public_path . '/smilies/smilies.txt'],
+            array_values(App::core()->themes()->getThemePath('Public' . $src)),
+            array_values(App::core()->themes()->getThemePath('Common' . $src)),
+            [App::core()->config()->get('root_dir') . '/Public' . $src]
         );
 
         foreach ($paths as $file) {
@@ -605,18 +606,18 @@ class Context
      */
     public function EntryFirstImageHelper(string $size, bool $with_category, string $class = '', bool $no_tag = false, bool $content_only = false, bool $cat_only = false): string
     {
-        if (!dotclear()->media()) {
+        if (!App::core()->media()) {
             return '';
         }
 
         try {
-            $sizes = implode('|', array_keys(dotclear()->media()->thumb_sizes)) . '|o';
+            $sizes = implode('|', array_keys(App::core()->media()->thumb_sizes)) . '|o';
             if (!preg_match('/^' . $sizes . '$/', $size)) {
                 $size = 's';
             }
-            $p_url  = dotclear()->blog()->public_url;
-            $p_site = preg_replace('#^(.+?//.+?)/(.*)$#', '$1', dotclear()->blog()->url);
-            $p_root = dotclear()->blog()->public_path;
+            $p_url  = App::core()->blog()->public_url;
+            $p_site = preg_replace('#^(.+?//.+?)/(.*)$#', '$1', App::core()->blog()->url);
+            $p_root = App::core()->blog()->public_path;
 
             $pattern = '(?:' . preg_quote($p_site, '/') . ')?' . preg_quote($p_url, '/');
             $pattern = sprintf('/<img.+?src="%s(.*?\.(?:jpg|jpeg|gif|png|svg|webp))"[^>]+/msui', $pattern);
@@ -667,7 +668,7 @@ class Context
                 return '<img alt="' . $alt . '" src="' . $src . '" class="' . $class . '" />';
             }
         } catch (Exception $e) {
-            dotclear()->error()->add($e->getMessage());
+            App::core()->error()->add($e->getMessage());
         }
 
         return '';
@@ -684,7 +685,7 @@ class Context
      */
     private function ContentFirstImageLookup(string $root, string $img, string $size): string|false
     {
-        if (!dotclear()->media()) {
+        if (!App::core()->media()) {
             return false;
         }
 
@@ -698,7 +699,7 @@ class Context
         $res = false;
 
         try {
-            $sizes = implode('|', array_keys(dotclear()->media()->thumb_sizes));
+            $sizes = implode('|', array_keys(App::core()->media()->thumb_sizes));
             if (preg_match('/^\.(.+)_(' . $sizes . ')$/', $base, $m)) {
                 $base = $m[1];
             }
@@ -730,7 +731,7 @@ class Context
                 }
             }
         } catch (Exception $e) {
-            dotclear()->error()->add($e->getMessage());
+            App::core()->error()->add($e->getMessage());
         }
 
         if ($res) {

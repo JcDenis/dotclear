@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\RsExt;
 
 // Dotclear\Core\RsExt\RsExtPost
+use Dotclear\App;
 use Dotclear\Core\User\UserContainer;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Dt;
@@ -35,7 +36,7 @@ class RsExtPost extends RsExtend
     public function isEditable(): bool
     {
         // If user is admin or contentadmin, true
-        if (dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
+        if (App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
             return true;
         }
 
@@ -45,8 +46,8 @@ class RsExtPost extends RsExtend
         }
 
         // If user is usage and owner of the entrie
-        if (dotclear()->user()->check('usage', dotclear()->blog()->id)
-            && $this->rs->f('user_id') == dotclear()->user()->userID()) {
+        if (App::core()->user()->check('usage', App::core()->blog()->id)
+            && $this->rs->f('user_id') == App::core()->user()->userID()) {
             return true;
         }
 
@@ -61,7 +62,7 @@ class RsExtPost extends RsExtend
     public function isDeletable(): bool
     {
         // If user is admin, or contentadmin, true
-        if (dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
+        if (App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
             return true;
         }
 
@@ -71,8 +72,8 @@ class RsExtPost extends RsExtend
         }
 
         // If user has delete rights and is owner of the entrie
-        if (dotclear()->user()->check('delete', dotclear()->blog()->id)
-            && $this->rs->f('user_id') == dotclear()->user()->userID()) {
+        if (App::core()->user()->check('delete', App::core()->blog()->id)
+            && $this->rs->f('user_id') == App::core()->user()->userID()) {
             return true;
         }
 
@@ -119,11 +120,11 @@ class RsExtPost extends RsExtend
     public function commentsActive(): bool
     {
         return
-            dotclear()->blog()->settings()->get('system')->get('allow_comments')
+            App::core()->blog()->settings()->get('system')->get('allow_comments')
             && $this->rs->f('post_open_comment')
             && (
-                0 == dotclear()->blog()->settings()->get('system')->get('comments_ttl')
-                || time() - (dotclear()->blog()->settings()->get('system')->get('comments_ttl') * 86400) < $this->getTS()
+                0 == App::core()->blog()->settings()->get('system')->get('comments_ttl')
+                || time() - (App::core()->blog()->settings()->get('system')->get('comments_ttl') * 86400) < $this->getTS()
             );
     }
 
@@ -133,11 +134,11 @@ class RsExtPost extends RsExtend
     public function trackbacksActive(): bool
     {
         return
-            dotclear()->blog()->settings()->get('system')->get('allow_trackbacks')
+            App::core()->blog()->settings()->get('system')->get('allow_trackbacks')
             && $this->rs->f('post_open_tb')
             && (
-                0 == dotclear()->blog()->settings()->get('system')->get('trackbacks_ttl')
-                || time() - (dotclear()->blog()->settings()->get('system')->get('trackbacks_ttl') * 86400) < $this->getTS()
+                0 == App::core()->blog()->settings()->get('system')->get('trackbacks_ttl')
+                || time() - (App::core()->blog()->settings()->get('system')->get('trackbacks_ttl') * 86400) < $this->getTS()
             );
     }
 
@@ -173,7 +174,7 @@ class RsExtPost extends RsExtend
      */
     public function getURL(): string
     {
-        return dotclear()->blog()->url . dotclear()->posttype()->getPostPublicURL(
+        return App::core()->blog()->url . App::core()->posttype()->getPostPublicURL(
             $this->rs->f('post_type'),
             Html::sanitizeURL($this->rs->f('post_url'))
         );
@@ -186,7 +187,7 @@ class RsExtPost extends RsExtend
      */
     public function getCategoryURL(): string
     {
-        return dotclear()->blog()->getURLFor('category', Html::sanitizeURL($this->rs->f('cat_url')));
+        return App::core()->blog()->getURLFor('category', Html::sanitizeURL($this->rs->f('cat_url')));
     }
 
     /**
@@ -255,7 +256,7 @@ class RsExtPost extends RsExtend
     public function getDate(string $format, string $type = ''): string
     {
         if (!$format) {
-            $format = dotclear()->blog()->settings()->get('system')->get('date_format');
+            $format = App::core()->blog()->settings()->get('system')->get('date_format');
         }
 
         return match ($type) {
@@ -277,7 +278,7 @@ class RsExtPost extends RsExtend
     public function getTime(string $format, string $type = ''): string
     {
         if (!$format) {
-            $format = dotclear()->blog()->settings()->get('system')->get('time_format');
+            $format = App::core()->blog()->settings()->get('system')->get('time_format');
         }
 
         return match ($type) {
@@ -337,7 +338,7 @@ class RsExtPost extends RsExtend
      */
     public function getFeedID(): string
     {
-        return 'urn:md5:' . md5(dotclear()->blog()->uid . $this->rs->f('post_id'));
+        return 'urn:md5:' . md5(App::core()->blog()->uid . $this->rs->f('post_id'));
     }
 
     /**
@@ -370,7 +371,7 @@ class RsExtPost extends RsExtend
      */
     public function getTrackbackLink(): string
     {
-        return dotclear()->blog()->getURLFor('trackback', $this->rs->f('post_id'));
+        return App::core()->blog()->getURLFor('trackback', $this->rs->f('post_id'));
     }
 
     /**
@@ -416,13 +417,13 @@ class RsExtPost extends RsExtend
             return $this->_nb_media[$this->rs->index()];
         }
         $strReq = 'SELECT count(media_id) ' .
-            'FROM ' . dotclear()->prefix . 'post_media ' .
+            'FROM ' . App::core()->prefix . 'post_media ' .
             'WHERE post_id = ' . (int) $this->rs->f('post_id') . ' ';
         if (null != $link_type) {
-            $strReq .= "AND link_type = '" . dotclear()->con()->escape($link_type) . "'";
+            $strReq .= "AND link_type = '" . App::core()->con()->escape($link_type) . "'";
         }
 
-        $res                                 = dotclear()->con()->select($strReq)->fInt();
+        $res                                 = App::core()->con()->select($strReq)->fInt();
         $this->_nb_media[$this->rs->index()] = $res;
 
         return $res;
@@ -437,6 +438,6 @@ class RsExtPost extends RsExtend
      */
     public function underCat(string $cat_url): bool
     {
-        return dotclear()->blog()->categories()->IsInCatSubtree($this->rs->f('cat_url'), $cat_url);
+        return App::core()->blog()->categories()->IsInCatSubtree($this->rs->f('cat_url'), $cat_url);
     }
 }

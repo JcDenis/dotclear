@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Maintenance\Admin\Lib;
 
 // Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance
+use Dotclear\App;
 
 /**
  * Main class to call everything related to maintenance.
@@ -59,7 +60,7 @@ class Maintenance
      */
     public function __construct()
     {
-        $this->p_url = dotclear()->adminurl()->get('admin.plugin.Maintenance');
+        $this->p_url = App::core()->adminurl()->get('admin.plugin.Maintenance');
         $this->getLogs();
         $this->init();
     }
@@ -74,7 +75,7 @@ class Maintenance
     protected function init(): void
     {
         // --BEHAVIOR-- dcMaintenanceInit
-        dotclear()->behavior()->call('dcMaintenanceInit', $this);
+        App::core()->behavior()->call('dcMaintenanceInit', $this);
     }
 
     // / @name Tab methods
@@ -231,7 +232,7 @@ class Maintenance
         }
 
         // Get logs from this task
-        $rs = dotclear()->log()->get([
+        $rs = App::core()->log()->get([
             'log_msg'   => $id,
             'log_table' => 'maintenance',
             'blog_id'   => '*',
@@ -244,16 +245,16 @@ class Maintenance
 
         // Delete old logs
         if (!empty($logs)) {
-            dotclear()->log()->delete($logs);
+            App::core()->log()->delete($logs);
         }
 
         // Add new log
-        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'log');
+        $cur = App::core()->con()->openCursor(App::core()->prefix . 'log');
         $cur->setField('log_msg', $id);
         $cur->setField('log_table', 'maintenance');
-        $cur->setField('user_id', dotclear()->user()->userID());
+        $cur->setField('user_id', App::core()->user()->userID());
 
-        dotclear()->log()->add($cur);
+        App::core()->log()->add($cur);
     }
 
     /**
@@ -262,7 +263,7 @@ class Maintenance
     public function delLogs(): void
     {
         // Retrieve logs from this task
-        $rs = dotclear()->log()->get([
+        $rs = App::core()->log()->get([
             'log_table' => 'maintenance',
             'blog_id'   => '*',
         ]);
@@ -274,7 +275,7 @@ class Maintenance
 
         // Delete old logs
         if (!empty($logs)) {
-            dotclear()->log()->delete($logs);
+            App::core()->log()->delete($logs);
         }
     }
 
@@ -293,7 +294,7 @@ class Maintenance
     public function getLogs(): array
     {
         if (null === $this->logs) {
-            $rs = dotclear()->log()->get([
+            $rs = App::core()->log()->get([
                 'log_table' => 'maintenance',
                 'blog_id'   => '*',
             ]);
@@ -302,7 +303,7 @@ class Maintenance
             while ($rs->fetch()) {
                 $this->logs[$rs->f('log_msg')] = [
                     'ts'   => strtotime($rs->f('log_dt')),
-                    'blog' => $rs->f('blog_id') == dotclear()->blog()->id,
+                    'blog' => $rs->f('blog_id') == App::core()->blog()->id,
                 ];
             }
         }

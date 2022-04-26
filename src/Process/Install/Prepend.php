@@ -80,7 +80,7 @@ class Prepend extends Core
         }
 
         // No configuration ? start installalation process
-        if (!is_file(\DOTCLEAR_CONFIG_PATH)) {
+        if (!is_file(DOTCLEAR_CONFIG_PATH)) {
             new Wizard();
         } else {
             new Install();

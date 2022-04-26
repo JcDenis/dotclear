@@ -11,6 +11,7 @@ namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\Blog
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Core\RsExt\RsExtUser;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Action\Action\BlogAction;
@@ -32,7 +33,7 @@ class Blogs extends AbstractPage
 
     protected function getActionInstance(): ?BlogAction
     {
-        return dotclear()->user()->isSuperAdmin() ? new BlogAction(dotclear()->adminurl()->get('admin.blogs')) : null;
+        return App::core()->user()->isSuperAdmin() ? new BlogAction(App::core()->adminurl()->get('admin.blogs')) : null;
     }
 
     protected function getFilterInstance(): ?BlogFilter
@@ -46,10 +47,10 @@ class Blogs extends AbstractPage
         $params = new ArrayObject($params);
 
         // --BEHAVIOR-- adminGetBlogs, ArrayObject
-        dotclear()->behavior()->call('adminGetBlogs', $params);
+        App::core()->behavior()->call('adminGetBlogs', $params);
 
-        $counter  = dotclear()->blogs()->getBlogs($params, true);
-        $rs       = dotclear()->blogs()->getBlogs($params);
+        $counter  = App::core()->blogs()->getBlogs($params, true);
+        $rs       = App::core()->blogs()->getBlogs($params);
         $nb_blog  = $counter->fInt();
         $rsStatic = $rs->toStatic();
         if (($this->filter->get('sortby') != 'blog_upddt') && ($this->filter->get('sortby') != 'blog_status')) {
@@ -69,7 +70,7 @@ class Blogs extends AbstractPage
             ->setPageTitle(__('List of blogs'))
             ->setPageHead(
                 $this->filter->js() .
-                dotclear()->resource()->load('_blogs.js')
+                App::core()->resource()->load('_blogs.js')
             )
             ->setPageBreadcrumb([
                 __('System')        => '',
@@ -82,12 +83,12 @@ class Blogs extends AbstractPage
 
     protected function getPageContent(): void
     {
-        if (dotclear()->error()->flag()) {
+        if (App::core()->error()->flag()) {
             return;
         }
 
-        if (dotclear()->user()->isSuperAdmin()) {
-            echo '<p class="top-add"><a class="button add" href="' . dotclear()->adminurl()->get('admin.blog') . '">' . __('Create a new blog') . '</a></p>';
+        if (App::core()->user()->isSuperAdmin()) {
+            echo '<p class="top-add"><a class="button add" href="' . App::core()->adminurl()->get('admin.blog') . '">' . __('Create a new blog') . '</a></p>';
         }
 
         $this->filter->display('admin.blogs');
@@ -96,12 +97,12 @@ class Blogs extends AbstractPage
         $this->inventory->display(
             $this->filter->get('page'),
             $this->filter->get('nb'),
-            (dotclear()->user()->isSuperAdmin() ?
-                '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-blogs">' : '') .
+            (App::core()->user()->isSuperAdmin() ?
+                '<form action="' . App::core()->adminurl()->root() . '" method="post" id="form-blogs">' : '') .
 
             '%s' .
 
-            (dotclear()->user()->isSuperAdmin() ?
+            (App::core()->user()->isSuperAdmin() ?
                 '<div class="two-cols clearfix">' .
                 '<p class="col checkboxes-helpers"></p>' .
 
@@ -117,7 +118,7 @@ class Blogs extends AbstractPage
                 '<p><label for="pwd" class="classic">' . __('Please give your password to confirm blog(s) deletion:') . '</label> ' .
                 Form::password('pwd', 20, 255, ['autocomplete' => 'current-password']) . '</p>' .
 
-                dotclear()->adminurl()->getHiddenFormFields('admin.blogs', $this->filter->values(true), true) .
+                App::core()->adminurl()->getHiddenFormFields('admin.blogs', $this->filter->values(true), true) .
                 '</form>' : ''),
             $this->filter->show()
         );

@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\Formater;
 
 use Closure;
+use Dotclear\App;
 
 /**
  * Text formater methods.
@@ -55,7 +56,7 @@ class Formater
         $editors = [];
 
         foreach (array_keys($this->formaters) as $editor) {
-            if (null !== ($module = dotclear()->plugins()?->getModule($editor))) {
+            if (null !== ($module = App::core()->plugins()?->getModule($editor))) {
                 $editors[$editor] = $module->name();
             }
         }

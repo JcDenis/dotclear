@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat;
 
 // Dotclear\Plugin\ImportExport\Admin\Lib\Module\Flat\FlatExport
+use Dotclear\App;
 use Dotclear\Database\Record;
 use Dotclear\Database\AbstractSchema;
 use Dotclear\Exception\ModuleException;
@@ -43,7 +44,7 @@ class FlatExport
 
     public function export(string $name, string $sql): void
     {
-        $rs = dotclear()->con()->select($sql);
+        $rs = App::core()->con()->select($sql);
 
         if (!$rs->isEmpty()) {
             fwrite($this->fp, "\n[" . $name . ' ' . implode(',', $rs->columns()) . "]\n");
@@ -65,20 +66,20 @@ class FlatExport
 
     public function exportTable(string $table): void
     {
-        $req = 'SELECT * FROM ' . dotclear()->con()->escapeSystem(dotclear()->prefix . $table);
+        $req = 'SELECT * FROM ' . App::core()->con()->escapeSystem(App::core()->prefix . $table);
 
         $this->export($table, $req);
     }
 
     public function getTables(): array
     {
-        $schema    = AbstractSchema::init(dotclear()->con());
+        $schema    = AbstractSchema::init(App::core()->con());
         $db_tables = $schema->getTables();
 
         $tables = [];
         foreach ($db_tables as $t) {
-            if (dotclear()->prefix) {
-                if (str_starts_with($t, dotclear()->prefix)) {
+            if (App::core()->prefix) {
+                if (str_starts_with($t, App::core()->prefix)) {
                     $tables[] = $t;
                 }
             } else {

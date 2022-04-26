@@ -11,6 +11,7 @@ namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\Search
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Action\Action\PostAction;
 use Dotclear\Process\Admin\Action\Action\CommentAction;
@@ -40,19 +41,19 @@ class Search extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        dotclear()->behavior()->add('adminSearchPageCombo', [$this, 'typeCombo']);
-        dotclear()->behavior()->add('adminSearchPageHead', [$this, 'pageHead']);
+        App::core()->behavior()->add('adminSearchPageCombo', [$this, 'typeCombo']);
+        App::core()->behavior()->add('adminSearchPageHead', [$this, 'pageHead']);
         // posts search
-        dotclear()->behavior()->add('adminSearchPageProcess', [$this, 'processPosts']);
-        dotclear()->behavior()->add('adminSearchPageDisplay', [$this, 'displayPosts']);
+        App::core()->behavior()->add('adminSearchPageProcess', [$this, 'processPosts']);
+        App::core()->behavior()->add('adminSearchPageDisplay', [$this, 'displayPosts']);
         // comments search
-        dotclear()->behavior()->add('adminSearchPageProcess', [$this, 'processComments']);
-        dotclear()->behavior()->add('adminSearchPageDisplay', [$this, 'displayComments']);
+        App::core()->behavior()->add('adminSearchPageProcess', [$this, 'processComments']);
+        App::core()->behavior()->add('adminSearchPageDisplay', [$this, 'displayComments']);
 
         $qtype_combo = new ArrayObject();
 
         // --BEHAVIOR-- adminSearchPageCombo
-        dotclear()->behavior()->call('adminSearchPageCombo', $qtype_combo);
+        App::core()->behavior()->call('adminSearchPageCombo', $qtype_combo);
 
         $this->s_qtype_combo = $qtype_combo->getArrayCopy();
         $q                   = !empty($_REQUEST['q']) ? $_REQUEST['q'] : (!empty($_REQUEST['qx']) ? $_REQUEST['qx'] : null);
@@ -62,7 +63,7 @@ class Search extends AbstractPage
         }
 
         $page = !empty($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
-        $nb   = dotclear()->listoption()->getUserFilters('search', 'nb');
+        $nb   = App::core()->listoption()->getUserFilters('search', 'nb');
         if (!empty($_GET['nb']) && (int) $_GET['nb'] > 0) {
             $nb = (int) $_GET['nb'];
         }
@@ -70,11 +71,11 @@ class Search extends AbstractPage
         $this->s_args = ['q' => $q, 'qtype' => $qtype, 'page' => $page, 'nb' => $nb];
 
         // --BEHAVIOR-- adminSearchPageHead
-        $starting_scripts = $q ? dotclear()->behavior()->call('adminSearchPageHead', $this->s_args) : '';
+        $starting_scripts = $q ? App::core()->behavior()->call('adminSearchPageHead', $this->s_args) : '';
 
         if ($q) {
             // --BEHAVIOR-- adminSearchPageProcess
-            dotclear()->behavior()->call('adminSearchPageProcess', $this->s_args);
+            App::core()->behavior()->call('adminSearchPageProcess', $this->s_args);
         }
 
         // Page setup
@@ -83,8 +84,8 @@ class Search extends AbstractPage
             ->setPageHelp('core_search')
             ->setPageHead($starting_scripts)
             ->setPageBreadcrumb([
-                Html::escapeHTML(dotclear()->blog()->name) => '',
-                __('Search')                               => '',
+                Html::escapeHTML(App::core()->blog()->name) => '',
+                __('Search')                                => '',
             ])
         ;
 
@@ -93,7 +94,7 @@ class Search extends AbstractPage
 
     protected function getPageContent(): void
     {
-        echo '<form action="' . dotclear()->adminurl()->get('admin.search') . '" method="get" role="search">' .
+        echo '<form action="' . App::core()->adminurl()->get('admin.search') . '" method="get" role="search">' .
         '<div class="fieldset"><h3>' . __('Search options') . '</h3>' .
         '<p><label for="q">' . __('Query:') . ' </label>' .
         Form::field('q', 30, 255, Html::escapeHTML($this->s_args['q'])) . '</p>' .
@@ -106,11 +107,11 @@ class Search extends AbstractPage
         '</div>' .
         '</form>';
 
-        if ($this->s_args['q'] && !dotclear()->error()->flag()) {
+        if ($this->s_args['q'] && !App::core()->error()->flag()) {
             ob_start();
 
             // --BEHAVIOR-- adminSearchPageDisplay
-            dotclear()->behavior()->call('adminSearchPageDisplay', $this->s_args);
+            App::core()->behavior()->call('adminSearchPageDisplay', $this->s_args);
 
             $res = ob_get_contents();
             ob_end_clean();
@@ -127,10 +128,10 @@ class Search extends AbstractPage
     public function pageHead(array $args)
     {
         if ('p' == $args['qtype']) {
-            return dotclear()->resource()->load('_posts_list.js');
+            return App::core()->resource()->load('_posts_list.js');
         }
         if ('c' == $args['qtype']) {
-            return dotclear()->resource()->load('_comments.js');
+            return App::core()->resource()->load('_comments.js');
         }
     }
 
@@ -148,14 +149,14 @@ class Search extends AbstractPage
         ];
 
         try {
-            $this->s_count   = dotclear()->blog()->posts()->getPosts($params, true)->fInt();
-            $this->s_list    = new PostInventory(dotclear()->blog()->posts()->getPosts($params), $this->s_count);
-            $this->s_actions = new PostAction(dotclear()->adminurl()->get('admin.search'), $args);
+            $this->s_count   = App::core()->blog()->posts()->getPosts($params, true)->fInt();
+            $this->s_list    = new PostInventory(App::core()->blog()->posts()->getPosts($params), $this->s_count);
+            $this->s_actions = new PostAction(App::core()->adminurl()->get('admin.search'), $args);
             if ($this->s_actions->getPagePrepend()) {
                 return;
             }
         } catch (Exception $e) {
-            dotclear()->error()->add($e->getMessage());
+            App::core()->error()->add($e->getMessage());
         }
     }
 
@@ -172,7 +173,7 @@ class Search extends AbstractPage
         $this->s_list->display(
             $args['page'],
             $args['nb'],
-            '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-entries">' .
+            '<form action="' . App::core()->adminurl()->root() . '" method="post" id="form-entries">' .
 
             '%s' .
 
@@ -182,7 +183,7 @@ class Search extends AbstractPage
             '<p class="col right"><label for="action" class="classic">' . __('Selected entries action:') . '</label> ' .
             Form::combo('action', $this->s_actions->getCombo()) .
             '<input id="do-action" type="submit" value="' . __('ok') . '" /></p>' .
-            dotclear()->adminurl()->getHiddenFormFields('admin.search', [], true) .
+            App::core()->adminurl()->getHiddenFormFields('admin.search', [], true) .
             preg_replace('/%/', '%%', $this->s_actions->getHiddenFields()) .
             '</div>' .
             '</form>'
@@ -203,14 +204,14 @@ class Search extends AbstractPage
         ];
 
         try {
-            $this->s_count   = dotclear()->blog()->comments()->getComments($params, true)->fInt();
-            $this->s_list    = new CommentInventory(dotclear()->blog()->comments()->getComments($params), $this->s_count);
-            $this->s_actions = new CommentAction(dotclear()->adminurl()->get('admin.search'), $args);
+            $this->s_count   = App::core()->blog()->comments()->getComments($params, true)->fInt();
+            $this->s_list    = new CommentInventory(App::core()->blog()->comments()->getComments($params), $this->s_count);
+            $this->s_actions = new CommentAction(App::core()->adminurl()->get('admin.search'), $args);
             if ($this->s_actions->getPagePrepend()) {
                 return;
             }
         } catch (Exception $e) {
-            dotclear()->error()->add($e->getMessage());
+            App::core()->error()->add($e->getMessage());
         }
     }
 
@@ -227,7 +228,7 @@ class Search extends AbstractPage
         $this->s_list->display(
             $args['page'],
             $args['nb'],
-            '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-comments">' .
+            '<form action="' . App::core()->adminurl()->root() . '" method="post" id="form-comments">' .
 
             '%s' .
 
@@ -237,7 +238,7 @@ class Search extends AbstractPage
             '<p class="col right"><label for="action" class="classic">' . __('Selected comments action:') . '</label> ' .
             Form::combo('action', $this->s_actions->getCombo()) .
             '<input id="do-action" type="submit" value="' . __('ok') . '" /></p>' .
-            dotclear()->adminurl()->getHiddenFormFields('admin.search', [], true) .
+            App::core()->adminurl()->getHiddenFormFields('admin.search', [], true) .
             preg_replace('/%/', '%%', $this->s_actions->getHiddenFields()) .
             '</div>' .
             '</form>'

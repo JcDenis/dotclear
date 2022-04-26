@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\Xmlrpc
+use Dotclear\App;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Core\Xmlrpc\Xmlrpc as CoreXmlrpc;
 use Dotclear\Helper\Network\Http;
@@ -44,7 +45,7 @@ class Xmlrpc extends AbstractPage
         }
 
         // Avoid plugins warnings, set a default blog
-        dotclear()->setBlog($blog_id);
+        App::core()->setBlog($blog_id);
 
         // Start XML-RPC server
         $xmlrpc = new CoreXmlrpc($blog_id);

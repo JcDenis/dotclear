@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Antispam\Common;
 
 // Dotclear\Plugin\Antispam\Common\AntispamUrl
+use Dotclear\App;
 use Dotclear\Core\Url\Url;
 use Dotclear\Helper\Html\Html;
 
@@ -25,8 +26,8 @@ class AntispamUrl extends Url
 {
     public function __construct()
     {
-        dotclear()->url()->register('spamfeed', 'spamfeed', '^spamfeed/(.+)$', [$this, 'spamFeed']);
-        dotclear()->url()->register('hamfeed', 'hamfeed', '^hamfeed/(.+)$', [$this, 'hamFeed']);
+        App::core()->url()->register('spamfeed', 'spamfeed', '^spamfeed/(.+)$', [$this, 'spamFeed']);
+        App::core()->url()->register('hamfeed', 'hamfeed', '^hamfeed/(.+)$', [$this, 'hamFeed']);
     }
 
     public function hamFeed(?string $args): void
@@ -44,16 +45,16 @@ class AntispamUrl extends Url
         $user_id = (new Antispam())->checkUserCode($args);
 
         if (false === $user_id) {
-            dotclear()->url()->p404();
+            App::core()->url()->p404();
 
             return;
         }
 
-        dotclear()->user()->checkUser($user_id, null, null);
+        App::core()->user()->checkUser($user_id, null, null);
 
         header('Content-Type: application/xml; charset=UTF-8');
 
-        $title   = dotclear()->blog()->name . ' - ' . __('Spam moderation') . ' - ';
+        $title   = App::core()->blog()->name . ' - ' . __('Spam moderation') . ' - ';
         $params  = [];
         $end_url = '';
         if ('spam' == $type) {
@@ -71,16 +72,16 @@ class AntispamUrl extends Url
         'xmlns:content="http://purl.org/rss/1.0/modules/content/">' . "\n" .
         '<channel>' . "\n" .
         '<title>' . html::escapeHTML($title) . '</title>' . "\n" .
-        '<link>' . ('' != dotclear()->config()->get('admin_url') ? dotclear()->config()->get('admin_url') . '?handler=admin.comments' . $end_url : 'about:blank') . '</link>' . "\n" .
+        '<link>' . ('' != App::core()->config()->get('admin_url') ? App::core()->config()->get('admin_url') . '?handler=admin.comments' . $end_url : 'about:blank') . '</link>' . "\n" .
         '<description></description>' . "\n";
 
-        $rs       = dotclear()->blog()->comments()->getComments($params);
+        $rs       = App::core()->blog()->comments()->getComments($params);
         $maxitems = 20;
         $nbitems  = 0;
 
         while ($rs->fetch() && ($nbitems < $maxitems)) {
             ++$nbitems;
-            $uri    = dotclear()->config()->get('admin_url') != '' ? dotclear()->config()->get('admin_url') . '?handler=admin.comment&id=' . $rs->f('comment_id') : 'about:blank';
+            $uri    = App::core()->config()->get('admin_url') != '' ? App::core()->config()->get('admin_url') . '?handler=admin.comment&id=' . $rs->f('comment_id') : 'about:blank';
             $author = $rs->f('comment_author');
             $title  = $rs->f('post_title') . ' - ' . $author;
             if ('spam' == $type) {

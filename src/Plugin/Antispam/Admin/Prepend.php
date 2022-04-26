@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Antispam\Admin;
 
 // Dotclear\Plugin\Antispam\Admin\Prepend
+use Dotclear\App;
 use Dotclear\Database\Structure;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
@@ -43,7 +44,7 @@ class Prepend extends AbstractPrepend
 
     public function installModule(): ?bool
     {
-        $s = new Structure(dotclear()->con(), dotclear()->prefix);
+        $s = new Structure(App::core()->con(), App::core()->prefix);
 
         $s->table('comment')
             ->field('comment_spam_status', 'varchar', 128, true, 0)
@@ -67,17 +68,17 @@ class Prepend extends AbstractPrepend
         }
 
         // Schema installation
-        $si      = new Structure(dotclear()->con(), dotclear()->prefix);
+        $si      = new Structure(App::core()->con(), App::core()->prefix);
         $changes = $si->synchronize($s);
 
         // Creating default wordslist
-        if (null === dotclear()->version()->get('Antispam')) {
+        if (null === App::core()->version()->get('Antispam')) {
             $_o = new FilterWords();
             $_o->defaultWordsList();
             unset($_o);
         }
 
-        dotclear()->blog()->settings()->get('antispam')->put('antispam_moderation_ttl', 0, 'integer', 'Antispam Moderation TTL (days)', false);
+        App::core()->blog()->settings()->get('antispam')->put('antispam_moderation_ttl', 0, 'integer', 'Antispam Moderation TTL (days)', false);
 
         return true;
     }

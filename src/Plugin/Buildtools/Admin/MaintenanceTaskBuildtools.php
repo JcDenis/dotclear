@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Buildtools\Admin;
 
 // Dotclear\Plugin\Buildtools\Admin\MaintenanceTaskBuildtools
+use Dotclear\App;
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
 /**
@@ -33,7 +34,7 @@ class MaintenanceTaskBuildtools extends MaintenanceTask
     public function execute(): int|bool
     {
         /*
-        $widget = dotclear()->plugins()?->getModules('widgets');
+        $widget = App::core()->plugins()?->getModules('widgets');
         include $widget['root'] . '/_default_widgets.php';
         */
 

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Maintenance\Admin\Lib\Task;
 
 // Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskCache
+use Dotclear\App;
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
 /**
@@ -32,7 +33,7 @@ class MaintenanceTaskCache extends MaintenanceTask
 
     public function execute(): int|bool
     {
-        dotclear()->emptyTemplatesCache();
+        App::core()->emptyTemplatesCache();
 
         return true;
     }

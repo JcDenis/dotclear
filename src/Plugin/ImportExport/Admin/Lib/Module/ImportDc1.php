@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 
 // Dotclear\Plugin\ImportExport\Admin\Lib\Module\ImportDc1
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Database\AbstractConnection;
 use Dotclear\Database\Record;
 use Dotclear\Exception\ModuleException;
@@ -111,7 +112,7 @@ class ImportDc1 extends Module
             case 'step3':
                 $this->step = 3;
                 $this->importCategories();
-                if (dotclear()->plugins()->hasModule('Blogroll')) {
+                if (App::core()->plugins()->hasModule('Blogroll')) {
                     $this->step = 4;
                     echo $this->progressBar(5);
                 } else {
@@ -142,7 +143,7 @@ class ImportDc1 extends Module
 
             case 'ok':
                 $this->resetVars();
-                dotclear()->blog()->triggerBlog();
+                App::core()->blog()->triggerBlog();
                 $this->step = 6;
                 echo $this->progressBar(100);
 
@@ -167,7 +168,7 @@ class ImportDc1 extends Module
             case 1:
                 echo '<p>' . sprintf(
                     __('Import the content of a Dotclear 1.2\'s blog in the current blog: %s.'),
-                    '<strong>' . Html::escapeHTML(dotclear()->blog()->name) . '</strong>'
+                    '<strong>' . Html::escapeHTML(App::core()->blog()->name) . '</strong>'
                 ) . '</p>' .
                 '<p class="warning">' . __('Please note that this process ' .
                     'will empty your categories, blogroll, entries and comments on the current blog.') . '</p>';
@@ -263,7 +264,7 @@ class ImportDc1 extends Module
         return
         '<form action="' . $this->getURL(true) . '" method="post">' .
         '<h3 class="vertical-separator">' . $legend . '</h3>' .
-        '<div>' . dotclear()->nonce()->form() .
+        '<div>' . App::core()->nonce()->form() .
         Form::hidden(['do'], 'step' . $step) .
         Form::hidden(['handler'], 'admin.plugin.ImportExport') .
         '%s' . '</div>' .
@@ -325,11 +326,11 @@ class ImportDc1 extends Module
         $rs     = $db->select('SELECT * FROM ' . $prefix . 'user');
 
         try {
-            dotclear()->con()->begin();
+            App::core()->con()->begin();
 
             while ($rs->fetch()) {
-                if (!dotclear()->users()->userExists($rs->f('user_id'))) {
-                    $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'user');
+                if (!App::core()->users()->userExists($rs->f('user_id'))) {
+                    $cur = App::core()->con()->openCursor(App::core()->prefix . 'user');
                     $cur->setField('user_id', $rs->f('user_id'));
                     $cur->setField('user_name', $rs->f('user_nom'));
                     $cur->setField('user_firstname', $rs->f('user_prenom'));
@@ -337,7 +338,7 @@ class ImportDc1 extends Module
                     $cur->setField('user_pwd', Crypt::createPassword());
                     $cur->setField('user_email', $rs->f('user_email'));
                     $cur->setField('user_lang', $rs->f('user_lang'));
-                    $cur->setField('user_tz', dotclear()->blog()->settings()->get('system')->get('blog_timezone'));
+                    $cur->setField('user_tz', App::core()->blog()->settings()->get('system')->get('blog_timezone'));
                     $cur->setField('user_post_status', $rs->f('user_post_pub') ? 1 : -2);
                     $cur->setField('user_options', new ArrayObject([
                         'edit_size'   => $rs->fInt('user_edit_size'),
@@ -370,19 +371,19 @@ class ImportDc1 extends Module
                             break;
                     }
 
-                    dotclear()->users()->addUser($cur);
-                    dotclear()->users()->setUserBlogPermissions(
+                    App::core()->users()->addUser($cur);
+                    App::core()->users()->setUserBlogPermissions(
                         $rs->f('user_id'),
-                        dotclear()->blog()->id,
+                        App::core()->blog()->id,
                         $permissions
                     );
                 }
             }
 
-            dotclear()->con()->commit();
+            App::core()->con()->commit();
             $db->close();
         } catch (Exception $e) {
-            dotclear()->con()->rollback();
+            App::core()->con()->rollback();
             $db->close();
 
             throw $e;
@@ -397,22 +398,22 @@ class ImportDc1 extends Module
         $rs     = $db->select('SELECT * FROM ' . $prefix . 'categorie ORDER BY cat_ord ASC');
 
         try {
-            dotclear()->con()->execute(
-                'DELETE FROM ' . dotclear()->prefix . 'category ' .
-                "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' "
+            App::core()->con()->execute(
+                'DELETE FROM ' . App::core()->prefix . 'category ' .
+                "WHERE blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' "
             );
 
             $ord = 2;
             while ($rs->fetch()) {
-                $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'category');
-                $cur->setField('blog_id', dotclear()->blog()->id);
+                $cur = App::core()->con()->openCursor(App::core()->prefix . 'category');
+                $cur->setField('blog_id', App::core()->blog()->id);
                 $cur->setField('cat_title', $this->cleanStr(htmlspecialchars_decode($rs->f('cat_libelle'))));
                 $cur->setField('cat_desc', $this->cleanStr($rs->f('cat_desc')));
                 $cur->setField('cat_url', $this->cleanStr($rs->f('cat_libelle_url')));
                 $cur->setField('cat_lft', $ord++);
                 $cur->setField('cat_rgt', $ord++);
-                $cur->setField('cat_id', dotclear()->con()->select(
-                    'SELECT MAX(cat_id) FROM ' . dotclear()->prefix . 'category'
+                $cur->setField('cat_id', App::core()->con()->select(
+                    'SELECT MAX(cat_id) FROM ' . App::core()->prefix . 'category'
                 )->fInt() + 1);
                 $this->vars['cat_ids'][$rs->fInt('cat_id')] = $cur->getField('cat_id');
                 $cur->insert();
@@ -434,22 +435,22 @@ class ImportDc1 extends Module
         $rs     = $db->select('SELECT * FROM ' . $prefix . 'link ORDER BY link_id ASC');
 
         try {
-            dotclear()->con()->execute(
-                'DELETE FROM ' . dotclear()->prefix . 'link ' .
-                "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' "
+            App::core()->con()->execute(
+                'DELETE FROM ' . App::core()->prefix . 'link ' .
+                "WHERE blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' "
             );
 
             while ($rs->fetch()) {
-                $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'link');
-                $cur->setField('blog_id', dotclear()->blog()->id);
+                $cur = App::core()->con()->openCursor(App::core()->prefix . 'link');
+                $cur->setField('blog_id', App::core()->blog()->id);
                 $cur->setField('link_href', $this->cleanStr($rs->f('href')));
                 $cur->setField('link_title', $this->cleanStr($rs->f('label')));
                 $cur->setField('link_desc', $this->cleanStr($rs->f('title')));
                 $cur->setField('link_lang', $this->cleanStr($rs->f('lang')));
                 $cur->setField('link_xfn', $this->cleanStr($rs->f('rel')));
                 $cur->setField('link_position', $rs->fInt('position'));
-                $cur->setField('link_id', dotclear()->con()->select(
-                    'SELECT MAX(link_id) FROM ' . dotclear()->prefix . 'link'
+                $cur->setField('link_id', App::core()->con()->select(
+                    'SELECT MAX(link_id) FROM ' . App::core()->prefix . 'link'
                 )->fInt() + 1);
                 $cur->insert();
             }
@@ -477,9 +478,9 @@ class ImportDc1 extends Module
 
         try {
             if (0 == $this->post_offset) {
-                dotclear()->con()->execute(
-                    'DELETE FROM ' . dotclear()->prefix . 'post ' .
-                    "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' "
+                App::core()->con()->execute(
+                    'DELETE FROM ' . App::core()->prefix . 'post ' .
+                    "WHERE blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' "
                 );
             }
 
@@ -510,8 +511,8 @@ class ImportDc1 extends Module
 
     protected function importPost(Record $rs, AbstractConnection $db): void
     {
-        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
-        $cur->setField('blog_id', dotclear()->blog()->id);
+        $cur = App::core()->con()->openCursor(App::core()->prefix . 'post');
+        $cur->setField('blog_id', App::core()->blog()->id);
         $cur->setField('user_id', $rs->f('user_id'));
         $cur->setField('cat_id', (int) $this->vars['cat_ids'][$rs->fInt('cat_id')]);
         $cur->setField('post_dt', $rs->f('post_dt'));
@@ -547,8 +548,8 @@ class ImportDc1 extends Module
             $cur->getField('post_content_xhtml')
         )));
 
-        $cur->setField('post_id', dotclear()->con()->select(
-            'SELECT MAX(post_id) FROM ' . dotclear()->prefix . 'post'
+        $cur->setField('post_id', App::core()->con()->select(
+            'SELECT MAX(post_id) FROM ' . App::core()->prefix . 'post'
         )->fInt() + 1);
 
         $cur->insert();
@@ -572,7 +573,7 @@ class ImportDc1 extends Module
         );
 
         while ($rs->fetch()) {
-            $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
+            $cur = App::core()->con()->openCursor(App::core()->prefix . 'comment');
             $cur->setField('post_id', (int) $new_post_id);
             $cur->setField('comment_author', $this->cleanStr($rs->f('comment_auteur')));
             $cur->setField('comment_status', $rs->fInt('comment_pub'));
@@ -593,8 +594,8 @@ class ImportDc1 extends Module
 
             $cur->setField('comment_words', implode(' ', Text::splitWords($cur->f('comment_content'))));
 
-            $cur->setField('comment_id', dotclear()->con()->select(
-                'SELECT MAX(comment_id) FROM ' . dotclear()->prefix . 'comment'
+            $cur->setField('comment_id', App::core()->con()->select(
+                'SELECT MAX(comment_id) FROM ' . App::core()->prefix . 'comment'
             )->fInt() + 1);
 
             $cur->insert();
@@ -607,8 +608,8 @@ class ImportDc1 extends Module
         }
 
         if (0 < $count_t || 0 < $count_c) {
-            dotclear()->con()->execute(
-                'UPDATE ' . dotclear()->prefix . 'post SET ' .
+            App::core()->con()->execute(
+                'UPDATE ' . App::core()->prefix . 'post SET ' .
                 'nb_comment = ' . $count_c . ', ' .
                 'nb_trackback = ' . $count_t . ' ' .
                 'WHERE post_id = ' . (int) $new_post_id . ' '
@@ -632,7 +633,7 @@ class ImportDc1 extends Module
                 continue;
             }
 
-            $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'ping');
+            $cur = App::core()->con()->openCursor(App::core()->prefix . 'ping');
             $cur->setField('post_id', (int) $new_post_id);
             $cur->setField('ping_url', $url);
             $cur->setField('ping_dt', $rs->f('ping_dt'));
@@ -655,7 +656,7 @@ class ImportDc1 extends Module
         }
 
         while ($rs->fetch()) {
-            dotclear()->meta()->setPostMeta($new_post_id, $this->cleanStr($rs->f('meta_key')), $this->cleanStr($rs->f('meta_value')));
+            App::core()->meta()->setPostMeta($new_post_id, $this->cleanStr($rs->f('meta_key')), $this->cleanStr($rs->f('meta_value')));
         }
     }
 }

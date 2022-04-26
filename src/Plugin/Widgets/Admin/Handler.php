@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\Widgets\Admin;
 
 // Dotclear\Plugin\Widgets\Admin\Handler
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
@@ -53,14 +54,14 @@ class Handler extends AbstractPage
     {
         $widgets = new Widgets();
         // Loading navigation, extra widgets and custom widgets
-        if (dotclear()->blog()->settings()->get('widgets')->get('widgets_nav')) {
-            $this->widgets_nav = $widgets->load(dotclear()->blog()->settings()->get('widgets')->get('widgets_nav'));
+        if (App::core()->blog()->settings()->get('widgets')->get('widgets_nav')) {
+            $this->widgets_nav = $widgets->load(App::core()->blog()->settings()->get('widgets')->get('widgets_nav'));
         }
-        if (dotclear()->blog()->settings()->get('widgets')->get('widgets_extra')) {
-            $this->widgets_extra = $widgets->load(dotclear()->blog()->settings()->get('widgets')->get('widgets_extra'));
+        if (App::core()->blog()->settings()->get('widgets')->get('widgets_extra')) {
+            $this->widgets_extra = $widgets->load(App::core()->blog()->settings()->get('widgets')->get('widgets_extra'));
         }
-        if (dotclear()->blog()->settings()->get('widgets')->get('widgets_custom')) {
-            $this->widgets_custom = $widgets->load(dotclear()->blog()->settings()->get('widgets')->get('widgets_custom'));
+        if (App::core()->blog()->settings()->get('widgets')->get('widgets_custom')) {
+            $this->widgets_custom = $widgets->load(App::core()->blog()->settings()->get('widgets')->get('widgets_custom'));
         }
 
         // Adding widgets to sidebars
@@ -114,13 +115,13 @@ class Handler extends AbstractPage
                 }
 
                 try {
-                    dotclear()->blog()->settings()->get('widgets')->put('widgets_nav', $this->widgets_nav->store());
-                    dotclear()->blog()->settings()->get('widgets')->put('widgets_extra', $this->widgets_extra->store());
-                    dotclear()->blog()->settings()->get('widgets')->put('widgets_custom', $this->widgets_custom->store());
-                    dotclear()->blog()->triggerBlog();
-                    dotclear()->adminurl()->redirect('admin.plugin.Widgets');
+                    App::core()->blog()->settings()->get('widgets')->put('widgets_nav', $this->widgets_nav->store());
+                    App::core()->blog()->settings()->get('widgets')->put('widgets_extra', $this->widgets_extra->store());
+                    App::core()->blog()->settings()->get('widgets')->put('widgets_custom', $this->widgets_custom->store());
+                    App::core()->blog()->triggerBlog();
+                    App::core()->adminurl()->redirect('admin.plugin.Widgets');
                 } catch (Exception $e) {
-                    dotclear()->error()->add($e->getMessage());
+                    App::core()->error()->add($e->getMessage());
                 }
             }
         }
@@ -198,27 +199,27 @@ class Handler extends AbstractPage
                 $this->widgets_extra  = $widgets->loadArray($_POST['w']['extra'], WidgetsStack::$__widgets);
                 $this->widgets_custom = $widgets->loadArray($_POST['w']['custom'], WidgetsStack::$__widgets);
 
-                dotclear()->blog()->settings()->get('widgets')->put('widgets_nav', $this->widgets_nav->store());
-                dotclear()->blog()->settings()->get('widgets')->put('widgets_extra', $this->widgets_extra->store());
-                dotclear()->blog()->settings()->get('widgets')->put('widgets_custom', $this->widgets_custom->store());
-                dotclear()->blog()->triggerBlog();
+                App::core()->blog()->settings()->get('widgets')->put('widgets_nav', $this->widgets_nav->store());
+                App::core()->blog()->settings()->get('widgets')->put('widgets_extra', $this->widgets_extra->store());
+                App::core()->blog()->settings()->get('widgets')->put('widgets_custom', $this->widgets_custom->store());
+                App::core()->blog()->triggerBlog();
 
-                dotclear()->notice()->addSuccessNotice(__('Sidebars and their widgets have been saved.'));
-                dotclear()->adminurl()->redirect('admin.plugin.Widgets');
+                App::core()->notice()->addSuccessNotice(__('Sidebars and their widgets have been saved.'));
+                App::core()->adminurl()->redirect('admin.plugin.Widgets');
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         } elseif (!empty($_POST['wreset'])) {
             try {
-                dotclear()->blog()->settings()->get('widgets')->put('widgets_nav', '');
-                dotclear()->blog()->settings()->get('widgets')->put('widgets_extra', '');
-                dotclear()->blog()->settings()->get('widgets')->put('widgets_custom', '');
-                dotclear()->blog()->triggerBlog();
+                App::core()->blog()->settings()->get('widgets')->put('widgets_nav', '');
+                App::core()->blog()->settings()->get('widgets')->put('widgets_extra', '');
+                App::core()->blog()->settings()->get('widgets')->put('widgets_custom', '');
+                App::core()->blog()->triggerBlog();
 
-                dotclear()->notice()->addSuccessNotice(__('Sidebars have been resetting.'));
-                dotclear()->adminurl()->redirect('admin.plugin.Widgets');
+                App::core()->notice()->addSuccessNotice(__('Sidebars have been resetting.'));
+                App::core()->adminurl()->redirect('admin.plugin.Widgets');
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
@@ -228,8 +229,8 @@ class Handler extends AbstractPage
             ->setPageHead(self::widgetsHead())
             ->setPageHelp('widgets', self::widgetsHelp())
             ->setPageBreadcrumb([
-                Html::escapeHTML(dotclear()->blog()->name) => '',
-                __('Widgets')                              => '',
+                Html::escapeHTML(App::core()->blog()->name) => '',
+                __('Widgets')                               => '',
             ])
         ;
 
@@ -239,7 +240,7 @@ class Handler extends AbstractPage
     protected function getPageContent(): void
     {
         // All widgets
-        echo '<form id="listWidgets" action="' . dotclear()->adminurl()->root() . '" method="post"  class="widgets">' .
+        echo '<form id="listWidgets" action="' . App::core()->adminurl()->root() . '" method="post"  class="widgets">' .
         '<h3>' . __('Available widgets') . '</h3>' .
         '<p>' . __('Drag widgets from this list to one of the sidebars, for add.') . '</p>' .
             '<ul id="widgets-ref">';
@@ -264,10 +265,10 @@ class Handler extends AbstractPage
 
         echo '</ul>' .
         '<p class="remove-if-drag"><input type="submit" name="append" value="' . __('Add widgets to sidebars') . '" />' .
-        dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Widgets', [], true) . '</p>' .
+        App::core()->adminurl()->getHiddenFormFields('admin.plugin.Widgets', [], true) . '</p>' .
             '</form>';
 
-        echo '<form id="sidebarsWidgets" action="' . dotclear()->adminurl()->root() . '" method="post">';
+        echo '<form id="sidebarsWidgets" action="' . App::core()->adminurl()->root() . '" method="post">';
         // Nav sidebar
         echo '<div id="sidebarNav" class="widgets fieldset">' .
         $this->sidebarWidgets('dndnav', __('Navigation sidebar'), $this->widgets_nav, 'nav', WidgetsStack::$__default_widgets['nav'], $j);
@@ -287,33 +288,33 @@ class Handler extends AbstractPage
         '<input type="submit" name="wup" value="' . __('Update sidebars') . '" /> ' .
         '<input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" /> ' .
         '<input type="submit" class="reset" name="wreset" value="' . __('Reset sidebars') . '" />' .
-        dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Widgets', [], true) .
+        App::core()->adminurl()->getHiddenFormFields('admin.plugin.Widgets', [], true) .
         '</p>' .
         '</form>';
     }
 
     private function widgetsHead(): string
     {
-        $widget_editor = dotclear()->user()->getOption('editor');
+        $widget_editor = App::core()->user()->getOption('editor');
         $rte_flag      = true;
-        $rte_flags     = @dotclear()->user()->preference()->get('interface')->get('rte_flags');
+        $rte_flags     = @App::core()->user()->preference()->get('interface')->get('rte_flags');
         if (is_array($rte_flags) && isset($rte_flags['widgets_text'])) {
             $rte_flag = $rte_flags['widgets_text'];
         }
-        $user_dm_nodragdrop = dotclear()->user()->preference()->get('accessibility')->get('nodragdrop');
+        $user_dm_nodragdrop = App::core()->user()->preference()->get('accessibility')->get('nodragdrop');
 
         return
-        dotclear()->resource()->load('style.css', 'Plugin', 'Widgets') .
-        dotclear()->resource()->load('jquery/jquery-ui.custom.js') .
-        dotclear()->resource()->Load('jquery/jquery.ui.touch-punch.js') .
-        dotclear()->resource()->json('widgets', [
+        App::core()->resource()->load('style.css', 'Plugin', 'Widgets') .
+        App::core()->resource()->load('jquery/jquery-ui.custom.js') .
+        App::core()->resource()->Load('jquery/jquery.ui.touch-punch.js') .
+        App::core()->resource()->json('widgets', [
             'widget_noeditor' => ($rte_flag ? 0 : 1),
             'msg'             => ['confirm_widgets_reset' => __('Are you sure you want to reset sidebars?')],
         ]) .
-        dotclear()->resource()->load('widgets.js', 'Plugin', 'Widgets') .
-        (!$user_dm_nodragdrop ? dotclear()->resource()->load('dragdrop.js', 'Plugin', 'Widgets') : '') .
-        ($rte_flag ? (string) dotclear()->behavior()->call('adminPostEditor', $widget_editor['xhtml'], 'widget', ['#sidebarsWidgets textarea:not(.noeditor)'], 'xhtml') : '') .
-        dotclear()->resource()->confirmClose('sidebarsWidgets');
+        App::core()->resource()->load('widgets.js', 'Plugin', 'Widgets') .
+        (!$user_dm_nodragdrop ? App::core()->resource()->load('dragdrop.js', 'Plugin', 'Widgets') : '') .
+        ($rte_flag ? (string) App::core()->behavior()->call('adminPostEditor', $widget_editor['xhtml'], 'widget', ['#sidebarsWidgets textarea:not(.noeditor)'], 'xhtml') : '') .
+        App::core()->resource()->confirmClose('sidebarsWidgets');
     }
 
     private function widgetsHelp(): ArrayObject

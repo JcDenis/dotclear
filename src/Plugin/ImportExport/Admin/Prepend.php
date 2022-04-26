@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\ImportExport\Admin;
 
 // Dotclear\Plugin\ImportExport\Admin\Prepend
+use Dotclear\App;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 
@@ -29,20 +30,20 @@ class Prepend extends AbstractPrepend
         $this->addStandardFavorites();
 
         // ImportExport modules
-        dotclear()->behavior()->add('importExportModules', function ($modules) {
+        App::core()->behavior()->add('importExportModules', function ($modules) {
             $ns                = __NAMESPACE__ . '\\Lib\\Module\\';
             $modules['import'] = array_merge($modules['import'], [$ns . 'ImportFlat']);
             $modules['import'] = array_merge($modules['import'], [$ns . 'ImportFeed']);
 
             $modules['export'] = array_merge($modules['export'], [$ns . 'ExportFlat']);
 
-            if (dotclear()->user()->isSuperAdmin()) {
+            if (App::core()->user()->isSuperAdmin()) {
                 $modules['import'] = array_merge($modules['import'], [$ns . 'ImportDc1']);
             }
         });
 
         // Maintenance task
-        dotclear()->behavior()->add('dcMaintenanceInit', function ($maintenance) {
+        App::core()->behavior()->add('dcMaintenanceInit', function ($maintenance) {
             $ns = __NAMESPACE__ . '\\MaintenanceTask\\';
             $maintenance
                 ->addTask($ns . 'ExportBlog')

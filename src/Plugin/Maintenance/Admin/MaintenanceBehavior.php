@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\Maintenance\Admin;
 
 // Dotclear\Plugin\Maintenance\Admin\MaintenanceBehavior
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Helper\Dt;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance;
@@ -25,12 +26,12 @@ class MaintenanceBehavior
 {
     public function __construct()
     {
-        dotclear()->behavior()->add('dcMaintenanceInit', [$this, 'behaviorDcMaintenanceInit']);
-        dotclear()->behavior()->add('adminDashboardFavorites', [$this, 'behaviorAdminDashboardFavorites']);
-        dotclear()->behavior()->add('adminDashboardContents', [$this, 'behaviorAdminDashboardItems']);
-        dotclear()->behavior()->add('adminDashboardOptionsForm', [$this, 'behaviorAdminDashboardOptionsForm']);
-        dotclear()->behavior()->add('adminAfterDashboardOptionsUpdate', [$this, 'behaviorAdminAfterDashboardOptionsUpdate']);
-        dotclear()->behavior()->add('adminPageHelpBlock', [$this, 'behaviorAdminPageHelpBlock']);
+        App::core()->behavior()->add('dcMaintenanceInit', [$this, 'behaviorDcMaintenanceInit']);
+        App::core()->behavior()->add('adminDashboardFavorites', [$this, 'behaviorAdminDashboardFavorites']);
+        App::core()->behavior()->add('adminDashboardContents', [$this, 'behaviorAdminDashboardItems']);
+        App::core()->behavior()->add('adminDashboardOptionsForm', [$this, 'behaviorAdminDashboardOptionsForm']);
+        App::core()->behavior()->add('adminAfterDashboardOptionsUpdate', [$this, 'behaviorAdminAfterDashboardOptionsUpdate']);
+        App::core()->behavior()->add('adminPageHelpBlock', [$this, 'behaviorAdminPageHelpBlock']);
     }
 
     /**
@@ -78,11 +79,11 @@ class MaintenanceBehavior
     {
         $favs->register('maintenance', [
             'title'        => __('Maintenance'),
-            'url'          => dotclear()->adminurl()->get('admin.plugin.Maintenance'),
+            'url'          => App::core()->adminurl()->get('admin.plugin.Maintenance'),
             'small-icon'   => ['?df=Plugin/Maintenance/icon.svg', '?df=Plugin/Maintenance/icon-dark.svg'],
             'large-icon'   => ['?df=Plugin/Maintenance/icon.svg', '?df=Plugin/Maintenance/icon-dark.svg'],
             'permissions'  => 'admin',
-            'active_cb'    => dotclear()->adminurl()->is('admin.plugin.Maintenance'),
+            'active_cb'    => App::core()->adminurl()->is('admin.plugin.Maintenance'),
             'dashboard_cb' => [$this, 'behaviorAdminDashboardFavoritesCallback'],
         ]);
     }
@@ -98,7 +99,7 @@ class MaintenanceBehavior
     public function behaviorAdminDashboardFavoritesCallback(ArrayObject $fav): void
     {
         // Check user option
-        if (!dotclear()->user()->preference()->get('maintenance')->get('dashboard_icon')) {
+        if (!App::core()->user()->preference()->get('maintenance')->get('dashboard_icon')) {
             return;
         }
 
@@ -126,7 +127,7 @@ class MaintenanceBehavior
      */
     public function behaviorAdminDashboardItems(ArrayObject $items): void
     {
-        if (!dotclear()->user()->preference()->get('maintenance')->get('dashboard_item')) {
+        if (!App::core()->user()->preference()->get('maintenance')->get('dashboard_item')) {
             return;
         }
 
@@ -145,8 +146,8 @@ class MaintenanceBehavior
                 :
                 sprintf(
                     __('Last execution of this task was on %s.'),
-                    Dt::dt2str(dotclear()->blog()->settings()->get('system')->get('date_format'), (string) $ts) . ' ' .
-                    Dt::dt2str(dotclear()->blog()->settings()->get('system')->get('time_format'), (string) $ts)
+                    Dt::dt2str(App::core()->blog()->settings()->get('system')->get('date_format'), (string) $ts) . ' ' .
+                    Dt::dt2str(App::core()->blog()->settings()->get('system')->get('time_format'), (string) $ts)
                 )
             ) . '">' . $t->task() . '</li>';
         }
@@ -157,10 +158,10 @@ class MaintenanceBehavior
 
         $items[] = new ArrayObject([
             '<div id="maintenance-expired" class="box small">' .
-            '<h3>' . dotclear()->summary()->getIconTheme(['?df=Plugin/Maintenance/icon.svg', '?df=Plugin/Maintenance/icon-dark.svg'], true, '', '', 'icon-small') . __('Maintenance') . '</h3>' .
+            '<h3>' . App::core()->summary()->getIconTheme(['?df=Plugin/Maintenance/icon.svg', '?df=Plugin/Maintenance/icon-dark.svg'], true, '', '', 'icon-small') . __('Maintenance') . '</h3>' .
             '<p class="warning no-margin">' . sprintf(__('There is a task to execute.', 'There are %s tasks to execute.', count($lines)), count($lines)) . '</p>' .
             '<ul>' . implode('', $lines) . '</ul>' .
-            '<p><a href="' . dotclear()->adminurl()->get('admin.plugin.Maintenance') . '">' . __('Manage tasks') . '</a></p>' .
+            '<p><a href="' . App::core()->adminurl()->get('admin.plugin.Maintenance') . '">' . __('Manage tasks') . '</a></p>' .
             '</div>',
         ]);
     }
@@ -177,11 +178,11 @@ class MaintenanceBehavior
         '<h4>' . __('Maintenance') . '</h4>' .
 
         '<p><label for="maintenance_dashboard_icon" class="classic">' .
-        Form::checkbox('maintenance_dashboard_icon', 1, dotclear()->user()->preference()->get('maintenance')->get('dashboard_icon')) .
+        Form::checkbox('maintenance_dashboard_icon', 1, App::core()->user()->preference()->get('maintenance')->get('dashboard_icon')) .
         __('Display overdue tasks counter on maintenance dashboard icon') . '</label></p>' .
 
         '<p><label for="maintenance_dashboard_item" class="classic">' .
-        Form::checkbox('maintenance_dashboard_item', 1, dotclear()->user()->preference()->get('maintenance')->get('dashboard_item')) .
+        Form::checkbox('maintenance_dashboard_item', 1, App::core()->user()->preference()->get('maintenance')->get('dashboard_item')) .
         __('Display overdue tasks list on dashboard items') . '</label></p>' .
 
             '</div>';
@@ -198,8 +199,8 @@ class MaintenanceBehavior
             return;
         }
 
-        dotclear()->user()->preference()->get('maintenance')->put('dashboard_icon', !empty($_POST['maintenance_dashboard_icon']), 'boolean');
-        dotclear()->user()->preference()->get('maintenance')->put('dashboard_item', !empty($_POST['maintenance_dashboard_item']), 'boolean');
+        App::core()->user()->preference()->get('maintenance')->put('dashboard_icon', !empty($_POST['maintenance_dashboard_icon']), 'boolean');
+        App::core()->user()->preference()->get('maintenance')->put('dashboard_item', !empty($_POST['maintenance_dashboard_item']), 'boolean');
     }
 
     /**

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Maintenance\Admin\Lib;
 
 // Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask
+use Dotclear\App;
 
 /**
  * Maintenance plugin task class.
@@ -134,8 +135,8 @@ class MaintenanceTask
     {
         $this->init();
 
-        if (null === $this->perm() && !dotclear()->user()->isSuperAdmin()
-            || !dotclear()->user()->check((string) $this->perm(), dotclear()->blog()->id)) {
+        if (null === $this->perm() && !App::core()->user()->isSuperAdmin()
+            || !App::core()->user()->check((string) $this->perm(), App::core()->blog()->id)) {
             return;
         }
 
@@ -153,7 +154,7 @@ class MaintenanceTask
             $this->success = __('Task successfully executed.');
         }
 
-        $this->ts = abs((int) dotclear()->blog()->settings()->get('maintenance')->get('ts_' . $this->id));
+        $this->ts = abs((int) App::core()->blog()->settings()->get('maintenance')->get('ts_' . $this->id));
     }
 
     /**

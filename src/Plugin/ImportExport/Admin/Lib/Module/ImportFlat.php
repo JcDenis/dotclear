@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 
 // Dotclear\Plugin\ImportExport\Admin\Lib\Module\ImportFlat
+use Dotclear\App;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
@@ -59,7 +60,7 @@ class ImportFlat extends Module
         if (null !== $single_upl) {
             if ($single_upl) {
                 Files::uploadStatus($_FILES['up_single_file']);
-                $file = dotclear()->config()->get('cache_dir') . '/' . md5(uniqid());
+                $file = App::core()->config()->get('cache_dir') . '/' . md5(uniqid());
                 if (!move_uploaded_file($_FILES['up_single_file']['tmp_name'], $file)) {
                     throw new ModuleException(__('Unable to move uploaded file.'));
                 }
@@ -107,14 +108,14 @@ class ImportFlat extends Module
             $full_upl = true;
         }
 
-        if (null !== $full_upl && dotclear()->user()->isSuperAdmin()) {
-            if (empty($_POST['your_pwd']) || !dotclear()->user()->checkPassword($_POST['your_pwd'])) {
+        if (null !== $full_upl && App::core()->user()->isSuperAdmin()) {
+            if (empty($_POST['your_pwd']) || !App::core()->user()->checkPassword($_POST['your_pwd'])) {
                 throw new ModuleException(__('Password verification failed'));
             }
 
             if ($full_upl) {
                 Files::uploadStatus($_FILES['up_full_file']);
-                $file = dotclear()->config()->get('cache_dir') . '/' . md5(uniqid());
+                $file = App::core()->config()->get('cache_dir') . '/' . md5(uniqid());
                 if (!move_uploaded_file($_FILES['up_full_file']['tmp_name'], $file)) {
                     throw new ModuleException(__('Unable to move uploaded file.'));
                 }
@@ -161,12 +162,12 @@ class ImportFlat extends Module
     public function gui(): void
     {
         if ('single' == $this->status) {
-            dotclear()->notice()->success(__('Single blog successfully imported.'));
+            App::core()->notice()->success(__('Single blog successfully imported.'));
 
             return;
         }
         if ('full' == $this->status) {
-            dotclear()->notice()->success(__('Content successfully imported.'));
+            App::core()->notice()->success(__('Content successfully imported.'));
 
             return;
         }
@@ -174,17 +175,17 @@ class ImportFlat extends Module
         $public_files = array_merge(['-' => ''], $this->getPublicFiles());
         $has_files    = (bool) (count($public_files) - 1);
 
-        echo dotclear()->resource()->json(
+        echo App::core()->resource()->json(
             'ie_import_flat_msg',
             ['confirm_full_import' => __('Are you sure you want to import a full backup file?')]
         ) .
-        dotclear()->resource()->load('import_flat.js', 'Plugin', 'ImportExport') .
+        App::core()->resource()->load('import_flat.js', 'Plugin', 'ImportExport') .
         '<form action="' . $this->getURL(true) . '" method="post" enctype="multipart/form-data" class="fieldset">' .
         '<h3>' . __('Single blog') . '</h3>' .
-        '<p>' . sprintf(__('This will import a single blog backup as new content in the current blog: <strong>%s</strong>.'), Html::escapeHTML(dotclear()->blog()->name)) . '</p>' .
+        '<p>' . sprintf(__('This will import a single blog backup as new content in the current blog: <strong>%s</strong>.'), Html::escapeHTML(App::core()->blog()->name)) . '</p>' .
 
         '<p><label for="up_single_file">' . __('Upload a backup file') .
-        ' (' . sprintf(__('maximum size %s'), Files::size((int) dotclear()->config()->get('media_upload_maxsize'))) . ')' . ' </label>' .
+        ' (' . sprintf(__('maximum size %s'), Files::size((int) App::core()->config()->get('media_upload_maxsize'))) . ')' . ' </label>' .
             ' <input type="file" id="up_single_file" name="up_single_file" size="20" />' .
             '</p>';
 
@@ -195,21 +196,21 @@ class ImportFlat extends Module
         }
 
         echo '<p>' .
-        dotclear()->nonce()->form() .
+        App::core()->nonce()->form() .
         Form::hidden(['handler'], 'admin.plugin.ImportExport') .
         Form::hidden(['do'], 1) .
-        Form::hidden(['MAX_FILE_SIZE'], (int) dotclear()->config()->get('media_upload_maxsize')) .
+        Form::hidden(['MAX_FILE_SIZE'], (int) App::core()->config()->get('media_upload_maxsize')) .
         '<input type="submit" value="' . __('Import') . '" /></p>' .
 
             '</form>';
 
-        if (dotclear()->user()->isSuperAdmin()) {
+        if (App::core()->user()->isSuperAdmin()) {
             echo '<form action="' . $this->getURL(true) . '" method="post" enctype="multipart/form-data" id="formfull" class="fieldset">' .
             '<h3>' . __('Multiple blogs') . '</h3>' .
             '<p class="warning">' . __('This will reset all the content of your database, except users.') . '</p>' .
 
             '<p><label for="up_full_file">' . __('Upload a backup file') . ' ' .
-            ' (' . sprintf(__('maximum size %s'), Files::size((int) dotclear()->config()->get('media_upload_maxsize'))) . ')' . ' </label>' .
+            ' (' . sprintf(__('maximum size %s'), Files::size((int) App::core()->config()->get('media_upload_maxsize'))) . ')' . ' </label>' .
                 '<input type="file" id="up_full_file" name="up_full_file" size="20" />' .
                 '</p>';
 
@@ -231,10 +232,10 @@ class ImportFlat extends Module
             ) . '</p>' .
 
             '<p>' .
-            dotclear()->nonce()->form() .
+            App::core()->nonce()->form() .
             Form::hidden(['handler'], 'admin.plugin.ImportExport') .
             Form::hidden(['do'], 1) .
-            Form::hidden(['MAX_FILE_SIZE'], dotclear()->config()->get('media_upload_maxsize')) .
+            Form::hidden(['MAX_FILE_SIZE'], App::core()->config()->get('media_upload_maxsize')) .
             '<input type="submit" value="' . __('Import') . '" /></p>' .
 
                 '</form>';
@@ -244,7 +245,7 @@ class ImportFlat extends Module
     protected function getPublicFiles(): array
     {
         $public_files = [];
-        $dir          = @dir(dotclear()->blog()->public_path);
+        $dir          = @dir(App::core()->blog()->public_path);
         if ($dir) {
             while (false !== ($entry = $dir->read())) {
                 $entry_path = $dir->path . '/' . $entry;

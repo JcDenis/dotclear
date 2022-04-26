@@ -11,6 +11,7 @@ namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\Pos
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Action\Action\CommentAction;
 use Dotclear\Core\Trackback\Trackback;
@@ -73,25 +74,25 @@ class Post extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        Dt::setTZ(dotclear()->user()->getInfo('user_tz'));
+        Dt::setTZ(App::core()->user()->getInfo('user_tz'));
 
         $page_title = __('New post');
 
         $this->trackback = new Trackback();
 
-        $this->post_format       = dotclear()->user()->getOption('post_format');
-        $this->post_editor       = dotclear()->user()->getOption('editor');
-        $this->post_lang         = dotclear()->user()->getInfo('user_lang');
-        $this->post_status       = dotclear()->user()->getInfo('user_post_status');
-        $this->post_open_comment = dotclear()->blog()->settings()->get('system')->get('allow_comments');
-        $this->post_open_tb      = dotclear()->blog()->settings()->get('system')->get('allow_trackbacks');
+        $this->post_format       = App::core()->user()->getOption('post_format');
+        $this->post_editor       = App::core()->user()->getOption('editor');
+        $this->post_lang         = App::core()->user()->getInfo('user_lang');
+        $this->post_status       = App::core()->user()->getInfo('user_post_status');
+        $this->post_open_comment = App::core()->blog()->settings()->get('system')->get('allow_comments');
+        $this->post_open_tb      = App::core()->blog()->settings()->get('system')->get('allow_trackbacks');
 
-        $this->can_view_ip   = dotclear()->user()->check('contentadmin', dotclear()->blog()->id);
-        $this->can_edit_post = dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id);
-        $this->can_publish   = dotclear()->user()->check('publish,contentadmin', dotclear()->blog()->id);
+        $this->can_view_ip   = App::core()->user()->check('contentadmin', App::core()->blog()->id);
+        $this->can_edit_post = App::core()->user()->check('usage,contentadmin', App::core()->blog()->id);
+        $this->can_publish   = App::core()->user()->check('publish,contentadmin', App::core()->blog()->id);
 
-        $post_headlink      = '<link rel="%s" title="%s" href="' . dotclear()->adminurl()->get('admin.post', ['id' => '%s'], '&amp;', true) . '" />';
-        $post_link          = '<a href="' . dotclear()->adminurl()->get('admin.post', ['id' => '%s'], '&amp;', true) . '" title="%s">%s</a>';
+        $post_headlink      = '<link rel="%s" title="%s" href="' . App::core()->adminurl()->get('admin.post', ['id' => '%s'], '&amp;', true) . '" />';
+        $post_link          = '<a href="' . App::core()->adminurl()->get('admin.post', ['id' => '%s'], '&amp;', true) . '" title="%s">%s</a>';
         $next_headlink      = $prev_headlink      = null;
         $img_status_pattern = '<img class="img_select_option" alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
 
@@ -104,10 +105,10 @@ class Post extends AbstractPage
         if (!empty($_REQUEST['id'])) {
             $page_title = __('Edit post');
 
-            $this->post = $rs = dotclear()->blog()->posts()->getPosts(['post_id' => (int) $_REQUEST['id']]);
+            $this->post = $rs = App::core()->blog()->posts()->getPosts(['post_id' => (int) $_REQUEST['id']]);
 
             if ($rs->isEmpty()) {
-                dotclear()->error()->add(__('This entry does not exist.'));
+                App::core()->error()->add(__('This entry does not exist.'));
                 $this->can_view_page = false;
             } else {
                 $this->post_id            = $rs->fInt('post_id');
@@ -131,8 +132,8 @@ class Post extends AbstractPage
                 $this->can_edit_post = $rs->isEditable();
                 $this->can_delete    = $rs->isDeletable();
 
-                $next_rs = dotclear()->blog()->posts()->getNextPost($rs, 1);
-                $prev_rs = dotclear()->blog()->posts()->getNextPost($rs, -1);
+                $next_rs = App::core()->blog()->posts()->getNextPost($rs, 1);
+                $prev_rs = App::core()->blog()->posts()->getNextPost($rs, -1);
 
                 if (null !== $next_rs) {
                     $this->next_link = sprintf(
@@ -165,8 +166,8 @@ class Post extends AbstractPage
                 }
 
                 /*
-                if (!dotclear()->blog()->public_path) {
-                    dotclear()->error()->add(
+                if (!App::core()->blog()->public_path) {
+                    App::core()->error()->add(
                         __('There is no writable root directory for the media manager. You should contact your administrator.')
                     );
                 }
@@ -183,7 +184,7 @@ class Post extends AbstractPage
 
         $anchor = isset($_REQUEST['section']) && 'trackbacks' == $_REQUEST['section'] ? 'trackbacks' : 'comments';
 
-        $this->comments_actions = new CommentAction(dotclear()->adminurl()->get('admin.post'), ['id' => $this->post_id, '_ANCHOR' => $anchor, 'section' => $anchor]);
+        $this->comments_actions = new CommentAction(App::core()->adminurl()->get('admin.post'), ['id' => $this->post_id, '_ANCHOR' => $anchor, 'section' => $anchor]);
         $this->comments_actions->pageProcess(); // Redirect on action made
 
         // Ping blogs
@@ -197,17 +198,17 @@ class Post extends AbstractPage
                 foreach (explode("\n", $this->tb_urls) as $tb_url) {
                     try {
                         // --BEHAVIOR-- adminBeforePingTrackback
-                        dotclear()->behavior()->call('adminBeforePingTrackback', $tb_url, $this->post_id, $tb_post_title, $this->tb_excerpt, $tb_post_url);
+                        App::core()->behavior()->call('adminBeforePingTrackback', $tb_url, $this->post_id, $tb_post_title, $this->tb_excerpt, $tb_post_url);
 
                         $this->trackback->ping($tb_url, $this->post_id, $tb_post_title, $this->tb_excerpt, $tb_post_url);
                     } catch (Exception $e) {
-                        dotclear()->error()->add($e->getMessage());
+                        App::core()->error()->add($e->getMessage());
                     }
                 }
 
-                if (!dotclear()->error()->flag()) {
-                    dotclear()->notice()->addSuccessNotice(__('All pings sent.'));
-                    dotclear()->adminurl()->redirect(
+                if (!App::core()->error()->flag()) {
+                    App::core()->notice()->addSuccessNotice(__('All pings sent.'));
+                    App::core()->adminurl()->redirect(
                         'admin.post',
                         ['id' => $this->post_id, 'tb' => '1']
                     );
@@ -239,7 +240,7 @@ class Post extends AbstractPage
                     }
                     $this->post_dt = date('Y-m-d H:i', $this->post_dt);
                 } catch (Exception $e) {
-                    dotclear()->error()->add($e->getMessage());
+                    App::core()->error()->add($e->getMessage());
                 }
             }
 
@@ -254,7 +255,7 @@ class Post extends AbstractPage
                 $this->post_url = $_POST['post_url'];
             }
 
-            dotclear()->blog()->posts()->setPostContent(
+            App::core()->blog()->posts()->setPostContent(
                 $this->post_id,
                 $this->post_format,
                 $this->post_lang,
@@ -269,34 +270,34 @@ class Post extends AbstractPage
         if (!empty($_POST['delete']) && $this->can_delete) {
             try {
                 // --BEHAVIOR-- adminBeforePostDelete
-                dotclear()->behavior()->call('adminBeforePostDelete', $this->post_id);
-                dotclear()->blog()->posts()->delPost($this->post_id);
-                dotclear()->adminurl()->redirect('admin.posts');
+                App::core()->behavior()->call('adminBeforePostDelete', $this->post_id);
+                App::core()->blog()->posts()->delPost($this->post_id);
+                App::core()->adminurl()->redirect('admin.posts');
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
         // Create or update post
         if (!empty($_POST) && !empty($_POST['save']) && $this->can_edit_post && !$this->bad_dt) {
             // Create category
-            if (!empty($_POST['new_cat_title']) && dotclear()->user()->check('categories', dotclear()->blog()->id)) {
-                $cur_cat = dotclear()->con()->openCursor(dotclear()->prefix . 'category');
+            if (!empty($_POST['new_cat_title']) && App::core()->user()->check('categories', App::core()->blog()->id)) {
+                $cur_cat = App::core()->con()->openCursor(App::core()->prefix . 'category');
                 $cur_cat->setField('cat_title', $_POST['new_cat_title']);
                 $cur_cat->setField('cat_url', '');
 
                 $parent_cat = !empty($_POST['new_cat_parent']) ? $_POST['new_cat_parent'] : '';
 
                 // --BEHAVIOR-- adminBeforeCategoryCreate
-                dotclear()->behavior()->call('adminBeforeCategoryCreate', $cur_cat);
+                App::core()->behavior()->call('adminBeforeCategoryCreate', $cur_cat);
 
-                $this->cat_id = dotclear()->blog()->categories()->addCategory($cur_cat, (int) $parent_cat);
+                $this->cat_id = App::core()->blog()->categories()->addCategory($cur_cat, (int) $parent_cat);
 
                 // --BEHAVIOR-- adminAfterCategoryCreate
-                dotclear()->behavior()->call('adminAfterCategoryCreate', $cur_cat, $this->cat_id);
+                App::core()->behavior()->call('adminAfterCategoryCreate', $cur_cat, $this->cat_id);
             }
 
-            $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
+            $cur = App::core()->con()->openCursor(App::core()->prefix . 'post');
 
             $cur->setField('cat_id', $this->cat_id ?: null);
             $cur->setField('post_dt', $this->post_dt ? date('Y-m-d H:i:00', strtotime($this->post_dt)) : '');
@@ -325,42 +326,42 @@ class Post extends AbstractPage
             if ($this->post_id) {
                 try {
                     // --BEHAVIOR-- adminBeforePostUpdate, Cursor, int
-                    dotclear()->behavior()->call('adminBeforePostUpdate', $cur, $this->post_id);
+                    App::core()->behavior()->call('adminBeforePostUpdate', $cur, $this->post_id);
 
-                    dotclear()->blog()->posts()->updPost($this->post_id, $cur);
+                    App::core()->blog()->posts()->updPost($this->post_id, $cur);
 
                     // --BEHAVIOR-- adminAfterPostUpdate, Cursor, int
-                    dotclear()->behavior()->call('adminAfterPostUpdate', $cur, $this->post_id);
-                    dotclear()->notice()->addSuccessNotice(sprintf(
+                    App::core()->behavior()->call('adminAfterPostUpdate', $cur, $this->post_id);
+                    App::core()->notice()->addSuccessNotice(sprintf(
                         __('The post "%s" has been successfully updated'),
                         Html::escapeHTML(trim(Html::clean($cur->getField('post_title'))))
                     ));
-                    dotclear()->adminurl()->redirect(
+                    App::core()->adminurl()->redirect(
                         'admin.post',
                         ['id' => $this->post_id]
                     );
                 } catch (Exception $e) {
-                    dotclear()->error()->add($e->getMessage());
+                    App::core()->error()->add($e->getMessage());
                 }
             } else {
-                $cur->setField('user_id', dotclear()->user()->userID());
+                $cur->setField('user_id', App::core()->user()->userID());
 
                 try {
                     // --BEHAVIOR-- adminBeforePostCreate, Cursor
-                    dotclear()->behavior()->call('adminBeforePostCreate', $cur);
+                    App::core()->behavior()->call('adminBeforePostCreate', $cur);
 
-                    $return_id = dotclear()->blog()->posts()->addPost($cur);
+                    $return_id = App::core()->blog()->posts()->addPost($cur);
 
                     // --BEHAVIOR-- adminAfterPostCreate, Cursor, int
-                    dotclear()->behavior()->call('adminAfterPostCreate', $cur, $return_id);
+                    App::core()->behavior()->call('adminAfterPostCreate', $cur, $return_id);
 
-                    dotclear()->notice()->addSuccessNotice(__('Entry has been successfully created.'));
-                    dotclear()->adminurl()->redirect(
+                    App::core()->notice()->addSuccessNotice(__('Entry has been successfully created.'));
+                    App::core()->adminurl()->redirect(
                         'admin.post',
                         ['id' => $return_id]
                     );
                 } catch (Exception $e) {
-                    dotclear()->error()->add($e->getMessage());
+                    App::core()->error()->add($e->getMessage());
                 }
             }
         }
@@ -391,8 +392,8 @@ class Post extends AbstractPage
         }
 
         $this->setPageHead(
-            dotclear()->resource()->modal() .
-            dotclear()->resource()->metaEditor()
+            App::core()->resource()->modal() .
+            App::core()->resource()->metaEditor()
         );
 
         if ($this->post_editor) {
@@ -404,7 +405,7 @@ class Post extends AbstractPage
                 $c_edit = $this->post_editor['xhtml'];
             }
             if ($p_edit == $c_edit) {
-                $this->setPageHead(dotclear()->behavior()->call(
+                $this->setPageHead(App::core()->behavior()->call(
                     'adminPostEditor',
                     $p_edit,
                     'post',
@@ -412,14 +413,14 @@ class Post extends AbstractPage
                     $this->post_format
                 ));
             } else {
-                $this->setPageHead(dotclear()->behavior()->call(
+                $this->setPageHead(App::core()->behavior()->call(
                     'adminPostEditor',
                     $p_edit,
                     'post',
                     ['#post_excerpt', '#post_content'],
                     $this->post_format
                 ));
-                $this->setPageHead(dotclear()->behavior()->call(
+                $this->setPageHead(App::core()->behavior()->call(
                     'adminPostEditor',
                     $c_edit,
                     'comment',
@@ -437,19 +438,19 @@ class Post extends AbstractPage
         $this
             ->setPageTitle($page_title . ' - ' . __('Posts'))
             ->setPageHead(
-                dotclear()->resource()->load('_post.js') .
-                dotclear()->resource()->confirmClose('entry-form', 'comment-form') .
+                App::core()->resource()->load('_post.js') .
+                App::core()->resource()->confirmClose('entry-form', 'comment-form') .
                 // --BEHAVIOR-- adminPostHeaders
-                dotclear()->behavior()->call('adminPostHeaders') .
-                dotclear()->resource()->pageTabs($default_tab) .
+                App::core()->behavior()->call('adminPostHeaders') .
+                App::core()->resource()->pageTabs($default_tab) .
                 $next_headlink . "\n" . $prev_headlink
             )
             ->setPageBreadcrumb([
-                Html::escapeHTML(dotclear()->blog()->name)        => '',
-                __('Posts')                                       => dotclear()->adminurl()->get('admin.posts'),
-                ($this->post_id ? $page_title_edit : $page_title) => '',
+                Html::escapeHTML(App::core()->blog()->name)        => '',
+                __('Posts')                                        => App::core()->adminurl()->get('admin.posts'),
+                ($this->post_id ? $page_title_edit : $page_title)  => '',
             ], [
-                'x-frame-allow' => dotclear()->blog()->url,
+                'x-frame-allow' => App::core()->blog()->url,
             ])
         ;
 
@@ -458,18 +459,18 @@ class Post extends AbstractPage
 
     protected function getPageContent(): void
     {
-        $categories_combo = dotclear()->combo()->getCategoriesCombo(
-            dotclear()->blog()->categories()->getCategories()
+        $categories_combo = App::core()->combo()->getCategoriesCombo(
+            App::core()->blog()->categories()->getCategories()
         );
 
-        $status_combo = dotclear()->combo()->getPostStatusesCombo();
+        $status_combo = App::core()->combo()->getPostStatusesCombo();
 
-        $lang_combo = dotclear()->combo()->getLangsCombo(
-            dotclear()->blog()->posts()->getLangs(['order' => 'asc']),
+        $lang_combo = App::core()->combo()->getLangsCombo(
+            App::core()->blog()->posts()->getLangs(['order' => 'asc']),
             true
         );
 
-        $core_formaters    = dotclear()->formater()->getFormaters();
+        $core_formaters    = App::core()->formater()->getFormaters();
         $available_formats = ['' => ''];
         foreach ($core_formaters as $editor => $formats) {
             foreach ($formats as $format) {
@@ -478,20 +479,20 @@ class Post extends AbstractPage
         }
 
         if (!empty($_GET['upd'])) {
-            dotclear()->notice()->success(__('Entry has been successfully updated.'));
+            App::core()->notice()->success(__('Entry has been successfully updated.'));
         } elseif (!empty($_GET['crea'])) {
-            dotclear()->notice()->success(__('Entry has been successfully created.'));
+            App::core()->notice()->success(__('Entry has been successfully created.'));
         } elseif (!empty($_GET['attached'])) {
-            dotclear()->notice()->success(__('File has been successfully attached.'));
+            App::core()->notice()->success(__('File has been successfully attached.'));
         } elseif (!empty($_GET['rmattach'])) {
-            dotclear()->notice()->success(__('Attachment has been successfully removed.'));
+            App::core()->notice()->success(__('Attachment has been successfully removed.'));
         }
 
         if (!empty($_GET['creaco'])) {
-            dotclear()->notice()->success(__('Comment has been successfully created.'));
+            App::core()->notice()->success(__('Comment has been successfully created.'));
         }
         if (!empty($_GET['tbsent'])) {
-            dotclear()->notice()->success(__('All pings sent.'));
+            App::core()->notice()->success(__('All pings sent.'));
         }
 
         // XHTML conversion
@@ -500,7 +501,7 @@ class Post extends AbstractPage
             $this->post_content = $this->post_content_xhtml;
             $this->post_format  = 'xhtml';
 
-            dotclear()->notice()->message(__('Don\'t forget to validate your XHTML conversion by saving your post.'));
+            App::core()->notice()->message(__('Don\'t forget to validate your XHTML conversion by saving your post.'));
         }
 
         if ($this->post_id && 1 == $this->post_status) {
@@ -519,7 +520,7 @@ class Post extends AbstractPage
             }
 
             // --BEHAVIOR-- adminPostNavLinks
-            dotclear()->behavior()->call('adminPostNavLinks', $this->post ?? null, 'post');
+            App::core()->behavior()->call('adminPostNavLinks', $this->post ?? null, 'post');
 
             echo '</p>';
         }
@@ -545,7 +546,7 @@ class Post extends AbstractPage
                         '</p>',
                         'post_dt' => '<p><label for="post_dt">' . __('Publication date and hour') . '</label>' .
                         Form::datetime('post_dt', [
-                            'default' => Html::escapeHTML(Dt::str('%Y-%m-%dT%H:%M', strtotime($this->post_dt), dotclear()->user()->getInfo('user_tz'))),
+                            'default' => Html::escapeHTML(Dt::str('%Y-%m-%dT%H:%M', strtotime($this->post_dt), App::core()->user()->getInfo('user_tz'))),
                             'class'   => ($this->bad_dt ? 'invalid' : ''),
                         ]) .
                         '</p>',
@@ -557,7 +558,7 @@ class Post extends AbstractPage
                         '<p>' . Form::combo('post_format', $available_formats, $this->post_format, 'maximal') . '</p>' .
                         '<p class="format_control control_no_xhtml">' .
                         '<a id="convert-xhtml" class="button' . ($this->post_id && 'wiki' != $this->post_format ? ' hide' : '') . '" href="' .
-                        dotclear()->adminurl()->get('admin.post', ['id' => $this->post_id, 'xconv' => '1']) .
+                        App::core()->adminurl()->get('admin.post', ['id' => $this->post_id, 'xconv' => '1']) .
                         '">' .
                         __('Convert to XHTML') . '</a></p></div>', ], ],
                 'metas-box' => [
@@ -571,7 +572,7 @@ class Post extends AbstractPage
                         '<p><label for="cat_id">' . __('Category:') . '</label>' .
                         Form::combo('cat_id', $categories_combo, $this->cat_id, 'maximal') .
                         '</p>' .
-                        (dotclear()->user()->check('categories', dotclear()->blog()->id) ?
+                        (App::core()->user()->check('categories', App::core()->blog()->id) ?
                             '<div>' .
                             '<h5 id="create_cat">' . __('Add a new category') . '</h5>' .
                             '<p><label for="new_cat_title">' . __('Title:') . ' ' .
@@ -590,7 +591,7 @@ class Post extends AbstractPage
                         '<p><label for="post_open_comment" class="classic">' .
                         Form::checkbox('post_open_comment', 1, $this->post_open_comment) . ' ' .
                         __('Accept comments') . '</label></p>' .
-                        (dotclear()->blog()->settings()->get('system')->get('allow_comments') ?
+                        (App::core()->blog()->settings()->get('system')->get('allow_comments') ?
                             ($this->isContributionAllowed($this->post_id, strtotime($this->post_dt), true) ?
                                 '' :
                                 '<p class="form-note warn">' .
@@ -600,7 +601,7 @@ class Post extends AbstractPage
                         '<p><label for="post_open_tb" class="classic">' .
                         Form::checkbox('post_open_tb', 1, $this->post_open_tb) . ' ' .
                         __('Accept trackbacks') . '</label></p>' .
-                        (dotclear()->blog()->settings()->get('system')->get('allow_trackbacks') ?
+                        (App::core()->blog()->settings()->get('system')->get('allow_trackbacks') ?
                             ($this->isContributionAllowed($this->post_id, strtotime($this->post_dt), false) ?
                                 '' :
                                 '<p class="form-note warn">' .
@@ -648,7 +649,7 @@ class Post extends AbstractPage
                     Form::textarea(
                         'post_content',
                         50,
-                        (int) dotclear()->user()->getOption('edit_size'),
+                        (int) App::core()->user()->getOption('edit_size'),
                         [
                             'default'    => Html::escapeHTML($this->post_content),
                             'extra_html' => 'required placeholder="' . __('Content') . '" lang="' . $this->post_lang . '" spellcheck="true"',
@@ -672,11 +673,11 @@ class Post extends AbstractPage
             );
 
             // --BEHAVIOR-- adminPostFormItems, ArrayObject, ArrayObject, Record|null, string
-            dotclear()->behavior()->call('adminPostFormItems', $main_items, $sidebar_items, $this->post ?? null, 'post');
+            App::core()->behavior()->call('adminPostFormItems', $main_items, $sidebar_items, $this->post ?? null, 'post');
 
             echo '<div class="multi-part" title="' . ($this->post_id ? __('Edit post') : __('New post')) .
             sprintf(' &rsaquo; %s', $this->post_format) . '" id="edit-entry">';
-            echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="entry-form">';
+            echo '<form action="' . App::core()->adminurl()->root() . '" method="post" id="entry-form">';
             echo '<div id="entry-wrapper">';
             echo '<div id="entry-content"><div class="constrained">';
 
@@ -687,19 +688,19 @@ class Post extends AbstractPage
             }
 
             // --BEHAVIOR-- adminPostForm (may be deprecated)
-            dotclear()->behavior()->call('adminPostForm', $this->post ?? null, 'post');
+            App::core()->behavior()->call('adminPostForm', $this->post ?? null, 'post');
 
             echo '<p class="border-top">' .
             ($this->post_id ? Form::hidden('id', $this->post_id) : '') .
             '<input type="submit" value="' . __('Save') . ' (s)" ' .
                 'accesskey="s" name="save" /> ';
             if ($this->post_id) {
-                $preview_url = dotclear()->blog()->getURLFor('preview', dotclear()->user()->userID() . '/' .
-                    Http::browserUID(dotclear()->config()->get('master_key') . dotclear()->user()->userID() . dotclear()->user()->cryptLegacy(dotclear()->user()->userID())) .
+                $preview_url = App::core()->blog()->getURLFor('preview', App::core()->user()->userID() . '/' .
+                    Http::browserUID(App::core()->config()->get('master_key') . App::core()->user()->userID() . App::core()->user()->cryptLegacy(App::core()->user()->userID())) .
                     '/' . $this->post->f('post_url'));
                 $preview_url .= (parse_url($preview_url, PHP_URL_QUERY) ? '&' : '?') . 'rand=' . md5((string) rand());
 
-                $blank_preview = dotclear()->user()->preference()->get('interface')->get('blank_preview');
+                $blank_preview = App::core()->user()->preference()->get('interface')->get('blank_preview');
 
                 $preview_class  = $blank_preview ? '' : ' modal';
                 $preview_target = $blank_preview ? '' : ' target="_blank"';
@@ -707,11 +708,11 @@ class Post extends AbstractPage
                 echo '<a id="post-preview" href="' . $preview_url . '" class="button' . $preview_class . '" accesskey="p"' . $preview_target . '>' . __('Preview') . ' (p)' . '</a>';
                 echo ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />';
             } else {
-                echo '<a id="post-cancel" href="' . dotclear()->adminurl()->get('admin.home') . '" class="button" accesskey="c">' . __('Cancel') . ' (c)</a>';
+                echo '<a id="post-cancel" href="' . App::core()->adminurl()->get('admin.home') . '" class="button" accesskey="c">' . __('Cancel') . ' (c)</a>';
             }
 
             echo($this->can_delete ? ' <input type="submit" class="delete" value="' . __('Delete') . '" name="delete" />' : '') .
-            dotclear()->adminurl()->getHiddenFormFields('admin.post', [], true) .
+            App::core()->adminurl()->getHiddenFormFields('admin.post', [], true) .
                 '</p>';
 
             echo '</div></div>'; // End #entry-content
@@ -729,13 +730,13 @@ class Post extends AbstractPage
             }
 
             // --BEHAVIOR-- adminPostFormSidebar (may be deprecated)
-            dotclear()->behavior()->call('adminPostFormSidebar', $this->post ?? null, 'post');
+            App::core()->behavior()->call('adminPostFormSidebar', $this->post ?? null, 'post');
             echo '</div>'; // End #entry-sidebar
 
             echo '</form>';
 
             // --BEHAVIOR-- adminPostForm
-            dotclear()->behavior()->call('adminPostAfterForm', $this->post ?? null, 'post');
+            App::core()->behavior()->call('adminPostAfterForm', $this->post ?? null, 'post');
 
             echo '</div>';
         }
@@ -746,7 +747,7 @@ class Post extends AbstractPage
 
             $params = ['post_id' => $this->post_id, 'order' => 'comment_dt ASC'];
 
-            $comments = dotclear()->blog()->comments()->getComments(array_merge($params, ['comment_trackback' => 0]));
+            $comments = App::core()->blog()->comments()->getComments(array_merge($params, ['comment_trackback' => 0]));
 
             echo '<div id="comments" class="clear multi-part" title="' . __('Comments') . '">';
             $combo_action = $this->comments_actions->getCombo();
@@ -754,7 +755,7 @@ class Post extends AbstractPage
             echo '<p class="top-add"><a class="button add" href="#comment-form">' . __('Add a comment') . '</a></p>';
 
             if ($has_action) {
-                echo '<form action="' . dotclear()->adminurl()->root() . '" id="form-comments" method="post">';
+                echo '<form action="' . App::core()->adminurl()->root() . '" id="form-comments" method="post">';
             }
 
             echo '<h3>' . __('Comments') . '</h3>';
@@ -770,7 +771,7 @@ class Post extends AbstractPage
 
                 '<p class="col right"><label for="action" class="classic">' . __('Selected comments action:') . '</label> ' .
                 Form::combo('action', $combo_action) .
-                dotclear()->adminurl()->getHiddenFormFields('admin.post', [
+                App::core()->adminurl()->getHiddenFormFields('admin.post', [
                     'section' => 'comments',
                     'id'      => $this->post_id,
                 ], true) .
@@ -784,21 +785,21 @@ class Post extends AbstractPage
             echo '<div class="fieldset clear">' .
             '<h3>' . __('Add a comment') . '</h3>' .
 
-            '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="comment-form">' .
+            '<form action="' . App::core()->adminurl()->root() . '" method="post" id="comment-form">' .
             '<div class="constrained">' .
             '<p><label for="comment_author" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Name:') . '</label>' .
             Form::field('comment_author', 30, 255, [
-                'default'    => Html::escapeHTML(dotclear()->user()->userCN()),
+                'default'    => Html::escapeHTML(App::core()->user()->userCN()),
                 'extra_html' => 'required placeholder="' . __('Author') . '"',
             ]) .
             '</p>' .
 
             '<p><label for="comment_email">' . __('Email:') . '</label>' .
-            Form::email('comment_email', 30, 255, Html::escapeHTML(dotclear()->user()->getInfo('user_email'))) .
+            Form::email('comment_email', 30, 255, Html::escapeHTML(App::core()->user()->getInfo('user_email'))) .
             '</p>' .
 
             '<p><label for="comment_site">' . __('Web site:') . '</label>' .
-            Form::url('comment_site', 30, 255, Html::escapeHTML(dotclear()->user()->getInfo('user_url'))) .
+            Form::url('comment_site', 30, 255, Html::escapeHTML(App::core()->user()->getInfo('user_url'))) .
             '</p>' .
 
             '<p class="area"><label for="comment_content" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' .
@@ -808,7 +809,7 @@ class Post extends AbstractPage
                 50,
                 8,
                 [
-                    'extra_html' => 'required placeholder="' . __('Comment') . '" lang="' . dotclear()->user()->getInfo('user_lang') .
+                    'extra_html' => 'required placeholder="' . __('Comment') . '" lang="' . App::core()->user()->getInfo('user_lang') .
                         '" spellcheck="true"',
                 ]
             ) .
@@ -816,7 +817,7 @@ class Post extends AbstractPage
 
             '<p>' .
             Form::hidden('post_id', $this->post_id) .
-            dotclear()->adminurl()->getHiddenFormFields('admin.comment', [], true) .
+            App::core()->adminurl()->getHiddenFormFields('admin.comment', [], true) .
             '<input type="submit" name="add" value="' . __('Save') . '" /></p>' .
             '</div>' . // constrained
 
@@ -830,7 +831,7 @@ class Post extends AbstractPage
             -------------------------------------------------------- */
 
             $params     = ['post_id' => $this->post_id, 'order' => 'comment_dt ASC'];
-            $trackbacks = dotclear()->blog()->comments()->getComments(array_merge($params, ['comment_trackback' => 1]));
+            $trackbacks = App::core()->blog()->comments()->getComments(array_merge($params, ['comment_trackback' => 1]));
 
             // Actions combo box
             $combo_action = $this->comments_actions->getCombo();
@@ -845,7 +846,7 @@ class Post extends AbstractPage
 
             // tracbacks actions
             if ($has_action) {
-                echo '<form action="' . dotclear()->adminurl()->root() . '" id="form-trackbacks" method="post">';
+                echo '<form action="' . App::core()->adminurl()->root() . '" id="form-trackbacks" method="post">';
             }
 
             echo '<h3>' . __('Trackbacks received') . '</h3>';
@@ -863,7 +864,7 @@ class Post extends AbstractPage
                 '<p class="col right"><label for="action" class="classic">' . __('Selected trackbacks action:') . '</label> ' .
                 Form::combo('action', $combo_action) .
                 Form::hidden('id', $this->post_id) .
-                dotclear()->adminurl()->getHiddenFormFields('admin.post', ['section' => 'trackbacks'], true) .
+                App::core()->adminurl()->getHiddenFormFields('admin.post', ['section' => 'trackbacks'], true) .
                 '<input type="submit" value="' . __('ok') . '" /></p>' .
                     '</div>' .
                     '</form>';
@@ -875,7 +876,7 @@ class Post extends AbstractPage
                 echo '<div class="fieldset clear">';
 
                 echo '<h3>' . __('Ping blogs') . '</h3>' .
-                '<form action="' . dotclear()->adminurl()->root() . '" id="trackback-form" method="post">' .
+                '<form action="' . App::core()->adminurl()->root() . '" id="trackback-form" method="post">' .
                 '<p><label for="tb_urls" class="area">' . __('URLs to ping:') . '</label>' .
                 Form::textarea('tb_urls', 60, 5, $this->tb_urls) .
                 '</p>' .
@@ -884,11 +885,11 @@ class Post extends AbstractPage
                 Form::textarea('tb_excerpt', 60, 5, $this->tb_excerpt) . '</p>' .
 
                 '<p>' .
-                dotclear()->adminurl()->getHiddenFormFields('admin.post', ['id' => $this->post_id], true) .
+                App::core()->adminurl()->getHiddenFormFields('admin.post', ['id' => $this->post_id], true) .
                 '<input type="submit" name="ping" value="' . __('Ping blogs') . '" />' .
                     (empty($_GET['tb_auto']) ?
                     '&nbsp;&nbsp;<a class="button" href="' .
-                    dotclear()->adminurl()->get('admin.post', ['id' => $this->post_id, 'tb_auto' => 1, 'tb' => 1]) .
+                    App::core()->adminurl()->get('admin.post', ['id' => $this->post_id, 'tb_auto' => 1, 'tb' => 1]) .
                     '">' . __('Auto discover ping URLs') . '</a>'
                     : '') .
                     '</p>' .
@@ -921,11 +922,11 @@ class Post extends AbstractPage
             return true;
         }
         if ($com) {
-            if (0 == dotclear()->blog()->settings()->get('system')->get('comments_ttl') || $dt > (time() - dotclear()->blog()->settings()->get('system')->get('comments_ttl') * 86400)) {
+            if (0 == App::core()->blog()->settings()->get('system')->get('comments_ttl') || $dt > (time() - App::core()->blog()->settings()->get('system')->get('comments_ttl') * 86400)) {
                 return true;
             }
         } else {
-            if (0 == dotclear()->blog()->settings()->get('system')->get('trackbacks_ttl') || $dt > (time() - dotclear()->blog()->settings()->get('system')->get('trackbacks_ttl') * 86400)) {
+            if (0 == App::core()->blog()->settings()->get('system')->get('trackbacks_ttl') || $dt > (time() - App::core()->blog()->settings()->get('system')->get('trackbacks_ttl') * 86400)) {
                 return true;
             }
         }
@@ -952,7 +953,7 @@ class Post extends AbstractPage
         }
 
         while ($rs->fetch()) {
-            $comment_url = dotclear()->adminurl()->get('admin.comment', ['id' => $rs->f('comment_id')]);
+            $comment_url = App::core()->adminurl()->get('admin.comment', ['id' => $rs->f('comment_id')]);
 
             $img              = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
             $this->img_status = '';
@@ -999,7 +1000,7 @@ class Post extends AbstractPage
             '<td class="maximal">' . Html::escapeHTML($rs->f('comment_author')) . '</td>' .
             '<td class="nowrap">' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $rs->f('comment_dt')) . '</td>' .
             ($this->can_view_ip ?
-                '<td class="nowrap"><a href="' . dotclear()->adminurl()->get('admin.comments', ['ip' => $rs->f('comment_ip')]) . '">' . $rs->f('comment_ip') . '</a></td>' : '') .
+                '<td class="nowrap"><a href="' . App::core()->adminurl()->get('admin.comments', ['ip' => $rs->f('comment_ip')]) . '">' . $rs->f('comment_ip') . '</a></td>' : '') .
             '<td class="nowrap status">' . $this->img_status . '</td>' .
             '<td class="nowrap status"><a href="' . $comment_url . '">' .
             '<img src="?df=images/edit-mini.png" alt="" title="' . __('Edit this comment') . '" /> ' . __('Edit') . '</a></td>' .

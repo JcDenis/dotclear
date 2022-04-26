@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\Charte
+use Dotclear\App;
 use Dotclear\Process\Admin\Page\AbstractPage;
 
 /**
@@ -29,7 +30,7 @@ class Charte extends AbstractPage
     protected function getPageContent(): void
     {
         $js         = [];
-        $data_theme = dotclear()->user()->preference()->get('interface')->get('theme'); ?>
+        $data_theme = App::core()->user()->preference()->get('interface')->get('theme'); ?>
 <!DOCTYPE html>
 <html lang="fr" data-theme="<?php echo $data_theme; ?>">
 <head>
@@ -41,21 +42,21 @@ class Charte extends AbstractPage
     <link rel="icon" type="image/png" href="?df=images/favicon96-login.png" />
 <?php
 
-echo dotclear()->resource()->load('default.css');
+echo App::core()->resource()->load('default.css');
 
-        if (dotclear()->user()->preference()->get('interface')->get('htmlfontsize')) {
-            $js['htmlFontSize'] = dotclear()->user()->preference()->get('interface')->get('htmlfontsize');
+        if (App::core()->user()->preference()->get('interface')->get('htmlfontsize')) {
+            $js['htmlFontSize'] = App::core()->user()->preference()->get('interface')->get('htmlfontsize');
         }
         // Set some JSON data
-        echo dotclear()->resource()->json('dotclear_init', $js);
-        echo dotclear()->resource()->load('jquery/jquery.js');
-        echo dotclear()->resource()->load('jquery/jquery-ui.custom.js');
-        echo dotclear()->resource()->load('jquery/jquery.ui.touch-punch.js');
-        echo dotclear()->resource()->load('jquery/jquery.pageTabs.js');
-        echo dotclear()->resource()->load('prepend.js');
-        echo dotclear()->resource()->load('common.js');
-        echo dotclear()->resource()->load('prelude.js');
-        echo dotclear()->resource()->load('_charte.js'); ?>
+        echo App::core()->resource()->json('dotclear_init', $js);
+        echo App::core()->resource()->load('jquery/jquery.js');
+        echo App::core()->resource()->load('jquery/jquery-ui.custom.js');
+        echo App::core()->resource()->load('jquery/jquery.ui.touch-punch.js');
+        echo App::core()->resource()->load('jquery/jquery.pageTabs.js');
+        echo App::core()->resource()->load('prepend.js');
+        echo App::core()->resource()->load('common.js');
+        echo App::core()->resource()->load('prelude.js');
+        echo App::core()->resource()->load('_charte.js'); ?>
 </head>
 
 <body id="dotclear-admin" class="no-js guideline">

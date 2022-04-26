@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Install;
 
 // Dotclear\Process\Install\Wizard
+use Dotclear\App;
 use Dotclear\Database\AbstractConnection;
 use Dotclear\Database\AbstractSchema;
 use Dotclear\Exception\InstallException;
@@ -43,11 +44,11 @@ class Wizard
         $dlang = Http::getAcceptLanguage();
         if ('en' != $dlang) {
             L10n::init($dlang);
-            L10n::set(Path::implode(dotclear()->config()->get('l10n_dir'), $dlang, 'main'));
+            L10n::set(Path::implode(App::core()->config()->get('l10n_dir'), $dlang, 'main'));
         }
 
-        if (!is_writable(dirname(\DOTCLEAR_CONFIG_PATH))) {
-            $err = '<p>' . sprintf(__('Path <strong>%s</strong> is not writable.'), Path::real(dirname(\DOTCLEAR_CONFIG_PATH), false)) . '</p>' .
+        if (!is_writable(dirname(DOTCLEAR_CONFIG_PATH))) {
+            $err = '<p>' . sprintf(__('Path <strong>%s</strong> is not writable.'), Path::real(dirname(DOTCLEAR_CONFIG_PATH), false)) . '</p>' .
             '<p>' . __('Dotclear installation wizard could not create configuration file for you. ' .
                 'You must change folder right or create the <strong>config.php</strong> ' .
                 'file manually, please refer to ' .
@@ -103,8 +104,8 @@ class Wizard
                     throw new InstallException(__('Master email is not valid.'));
                 }
                 // Can we write config.php
-                if (!is_writable(dirname(\DOTCLEAR_CONFIG_PATH))) {
-                    throw new InstallException(sprintf(__('Cannot write %s file.'), \DOTCLEAR_CONFIG_PATH));
+                if (!is_writable(dirname(DOTCLEAR_CONFIG_PATH))) {
+                    throw new InstallException(sprintf(__('Cannot write %s file.'), DOTCLEAR_CONFIG_PATH));
                 }
 
                 // Creates config.php file
@@ -123,13 +124,13 @@ class Wizard
                 $this->writeConfigValue('admin_mailform', $admin_email, $full_conf);
                 $this->writeConfigValue('master_key', md5(uniqid()), $full_conf);
 
-                $fp = @fopen(\DOTCLEAR_CONFIG_PATH, 'wb');
+                $fp = @fopen(DOTCLEAR_CONFIG_PATH, 'wb');
                 if (false === $fp) {
-                    throw new InstallException(sprintf(__('Cannot write %s file.'), \DOTCLEAR_CONFIG_PATH));
+                    throw new InstallException(sprintf(__('Cannot write %s file.'), DOTCLEAR_CONFIG_PATH));
                 }
                 fwrite($fp, $full_conf);
                 fclose($fp);
-                chmod(\DOTCLEAR_CONFIG_PATH, 0666);
+                chmod(DOTCLEAR_CONFIG_PATH, 0666);
 
                 $con->close();
 

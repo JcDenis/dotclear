@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\Tags\Public;
 
 // Dotclear\Plugin\Tags\Public\TagsBehavior
 use ArrayObject;
+use Dotclear\App;
 
 /**
  * Public behaviors for plugin Tags.
@@ -21,7 +22,7 @@ class TagsBehavior
 {
     public function __construct()
     {
-        dotclear()->behavior()->add('templateBeforeBlock', [$this, 'templateBeforeBlock']);
+        App::core()->behavior()->add('templateBeforeBlock', [$this, 'templateBeforeBlock']);
     }
 
     public function templateBeforeBlock(string $tag, ArrayObject $attr): string
@@ -32,22 +33,22 @@ class TagsBehavior
             "if (!isset(\$params)) { \$params = []; }\n" .
             "if (!isset(\$params['from'])) { \$params['from'] = ''; }\n" .
             "if (!isset(\$params['sql'])) { \$params['sql'] = ''; }\n" .
-            "\$params['from'] .= ', '.dotclear()->prefix.'meta META ';\n" .
+            "\$params['from'] .= ', '.App::core()->prefix.'meta META ';\n" .
             "\$params['sql'] .= 'AND META.post_id = P.post_id ';\n" .
             "\$params['sql'] .= \"AND META.meta_type = 'tag' \";\n" .
-            "\$params['sql'] .= \"AND META.meta_id = '" . dotclear()->con()->escape($attr['tag']) . "' \";\n" .
+            "\$params['sql'] .= \"AND META.meta_id = '" . App::core()->con()->escape($attr['tag']) . "' \";\n" .
                 "?>\n";
         }
         if (empty($attr['no_context']) && in_array($tag, ['Entries', 'Comments'])) {
             return
-                '<?php if (dotclear()->context()->exists("meta") && dotclear()->context()->get("meta")->rows() && dotclear()->context()->get("meta")->f("meta_type") == "tag") { ' .
+                '<?php if (App::core()->context()->exists("meta") && App::core()->context()->get("meta")->rows() && App::core()->context()->get("meta")->f("meta_type") == "tag") { ' .
                 "if (!isset(\$params)) { \$params = []; }\n" .
                 "if (!isset(\$params['from'])) { \$params['from'] = ''; }\n" .
                 "if (!isset(\$params['sql'])) { \$params['sql'] = ''; }\n" .
-                "\$params['from'] .= ', '.dotclear()->prefix.'meta META ';\n" .
+                "\$params['from'] .= ', '.App::core()->prefix.'meta META ';\n" .
                 "\$params['sql'] .= 'AND META.post_id = P.post_id ';\n" .
                 "\$params['sql'] .= \"AND META.meta_type = 'tag' \";\n" .
-                "\$params['sql'] .= \"AND META.meta_id = '\".dotclear()->con()->escape(dotclear()->context()->get('meta')->f('meta_id')).\"' \";\n" .
+                "\$params['sql'] .= \"AND META.meta_id = '\".App::core()->con()->escape(App::core()->context()->get('meta')->f('meta_id')).\"' \";\n" .
                 "} ?>\n";
         }
 

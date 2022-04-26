@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Pings\Common;
 
 // Dotclear\Plugin\Pings\Common\PingsCore
+use Dotclear\App;
 
 /**
  * Core methods for plugin Pings.
@@ -20,26 +21,26 @@ class PingsCore
 {
     public function __construct()
     {
-        dotclear()->behavior()->add('coreFirstPublicationEntries', [$this, 'doPings']);
+        App::core()->behavior()->add('coreFirstPublicationEntries', [$this, 'doPings']);
     }
 
     public function doPings($posts, $ids): void
     {
-        if (!dotclear()->blog()->settings()->get('pings')->get('pings_active')) {
+        if (!App::core()->blog()->settings()->get('pings')->get('pings_active')) {
             return;
         }
-        if (!dotclear()->blog()->settings()->get('pings')->get('pings_auto')) {
+        if (!App::core()->blog()->settings()->get('pings')->get('pings_auto')) {
             return;
         }
 
-        $pings_uris = dotclear()->blog()->settings()->get('pings')->get('pings_uris');
+        $pings_uris = App::core()->blog()->settings()->get('pings')->get('pings_uris');
         if (empty($pings_uris) || !is_array($pings_uris)) {
             return;
         }
 
         foreach ($pings_uris as $uri) {
             try {
-                PingsAPI::doPings($uri, dotclear()->blog()->name, dotclear()->blog()->url);
+                PingsAPI::doPings($uri, App::core()->blog()->name, App::core()->blog()->url);
             } catch (\Exception) {
             }
         }

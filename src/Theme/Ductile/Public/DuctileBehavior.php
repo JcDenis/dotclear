@@ -11,6 +11,7 @@ namespace Dotclear\Theme\Ductile\Public;
 
 // Dotclear\Theme\Ductile\Public\DuctileBehavior
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Module\Theme\Admin\ConfigTheme;
 
 /**
@@ -48,8 +49,8 @@ class DuctileBehavior
     {
         $this->config = new ConfigTheme();
 
-        dotclear()->behavior()->add('publicHeadContent', [$this, 'behaviorPublicHeadContent']);
-        dotclear()->behavior()->add('publicInsideFooter', [$this, 'behaviorPublicInsideFooter']);
+        App::core()->behavior()->add('publicHeadContent', [$this, 'behaviorPublicHeadContent']);
+        App::core()->behavior()->add('publicInsideFooter', [$this, 'behaviorPublicInsideFooter']);
     }
 
     public function behaviorPublicHeadContent()
@@ -71,7 +72,7 @@ class DuctileBehavior
 
     public function ductileWebfontHelper()
     {
-        $s = dotclear()->blog()->settings()->get('themes')->get(dotclear()->blog()->settings()->get('system')->get('theme') . '_style');
+        $s = App::core()->blog()->settings()->get('themes')->get(App::core()->blog()->settings()->get('system')->get('theme') . '_style');
 
         if (null === $s) {
             return;
@@ -145,7 +146,7 @@ class DuctileBehavior
 
     public function ductileStyleHelper()
     {
-        $s = dotclear()->blog()->settings()->get('themes')->get(dotclear()->blog()->settings()->get('system')->get('theme') . '_style');
+        $s = App::core()->blog()->settings()->get('themes')->get(App::core()->blog()->settings()->get('system')->get('theme') . '_style');
 
         if (null === $s) {
             return;
@@ -323,9 +324,9 @@ class DuctileBehavior
     {
         $res     = '';
         $default = false;
-        $img_url = dotclear()->blog()->url . 'resources/img/';
+        $img_url = App::core()->blog()->url . 'resources/img/';
 
-        $s = dotclear()->blog()->settings()->get('themes')->get(dotclear()->blog()->settings()->get('system')->get('theme') . '_stickers');
+        $s = App::core()->blog()->settings()->get('themes')->get(App::core()->blog()->settings()->get('system')->get('theme') . '_stickers');
 
         if (null === $s) {
             $default = true;
@@ -348,7 +349,7 @@ class DuctileBehavior
         }
 
         if ($default || '' == $res) {
-            $res = $this->setSticker(1, true, __('Subscribe'), dotclear()->blog()->getURLFor('feed', 'atom'), $img_url . 'sticker-feed.png');
+            $res = $this->setSticker(1, true, __('Subscribe'), App::core()->blog()->getURLFor('feed', 'atom'), $img_url . 'sticker-feed.png');
         }
 
         if ('' != $res) {

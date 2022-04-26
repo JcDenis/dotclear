@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Tags\Common;
 
 // Dotclear\Plugin\Tags\Common\TagsXmlrpc
+use Dotclear\App;
 use Dotclear\Database\Cursor;
 use Dotclear\Core\Xmlrpc\Xmlrpc;
 
@@ -22,16 +23,16 @@ class TagsXmlrpc
 {
     public function __construct()
     {
-        dotclear()->behavior()->add('xmlrpcGetPostInfo', [$this, 'getPostInfo']);
-        dotclear()->behavior()->add('xmlrpcAfterNewPost', [$this, 'editPost']);
-        dotclear()->behavior()->add('xmlrpcAfterEditPost', [$this, 'editPost']);
+        App::core()->behavior()->add('xmlrpcGetPostInfo', [$this, 'getPostInfo']);
+        App::core()->behavior()->add('xmlrpcAfterNewPost', [$this, 'editPost']);
+        App::core()->behavior()->add('xmlrpcAfterEditPost', [$this, 'editPost']);
     }
 
     public function getPostInfo(Xmlrpc $x, string $type, array $res): void
     {
         $res = &$res[0];
 
-        $rs = dotclear()->meta()->getMetadata([
+        $rs = App::core()->meta()->getMetadata([
             'meta_type' => 'tag',
             'post_id'   => $res['postid'], ]);
 
@@ -48,10 +49,10 @@ class TagsXmlrpc
     {
         // Check if we have mt_keywords in struct
         if (isset($struct['mt_keywords'])) {
-            dotclear()->meta()->delPostMeta($post_id, 'tag');
+            App::core()->meta()->delPostMeta($post_id, 'tag');
 
-            foreach (dotclear()->meta()->splitMetaValues($struct['mt_keywords']) as $m) {
-                dotclear()->meta()->setPostMeta($post_id, 'tag', $m);
+            foreach (App::core()->meta()->splitMetaValues($struct['mt_keywords']) as $m) {
+                App::core()->meta()->setPostMeta($post_id, 'tag', $m);
             }
         }
     }

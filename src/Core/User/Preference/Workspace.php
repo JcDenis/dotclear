@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\User\Preference;
 
 // Dotclear\Core\User\Preference\Workspace
+use Dotclear\App;
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\InsertStatement;
@@ -78,12 +79,12 @@ class Workspace
             throw new CoreException(sprintf(__('Invalid dcWorkspace: %s'), $name));
         }
 
-        $this->table = dotclear()->prefix . 'pref';
+        $this->table = App::core()->prefix . 'pref';
 
         try {
             $this->getPrefs($rs);
         } catch (\Exception) {
-            trigger_error(__('Unable to retrieve prefs:') . ' ' . dotclear()->con()->error(), E_USER_ERROR);
+            trigger_error(__('Unable to retrieve prefs:') . ' ' . App::core()->con()->error(), E_USER_ERROR);
         }
     }
 

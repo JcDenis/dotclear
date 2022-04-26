@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Module\Theme\Admin;
 
 // Dotclear\Module\Theme\Admin\HandlerTheme
+use Dotclear\App;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
@@ -41,27 +42,27 @@ class HandlerTheme extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        if (dotclear()->themes()?->disableModulesDependencies(dotclear()->adminurl()->get('admin.blog.theme'))) {
+        if (App::core()->themes()?->disableModulesDependencies(App::core()->adminurl()->get('admin.blog.theme'))) {
             exit;
         }
 
         // Module configuration
-        if (dotclear()->themes()?->loadModuleConfiguration()) {
-            dotclear()->themes()->parseModuleConfiguration();
+        if (App::core()->themes()?->loadModuleConfiguration()) {
+            App::core()->themes()->parseModuleConfiguration();
 
             // Page setup
             $this->setPageTitle(__('Blog appearance'));
             $this->setPageHelp('core_blog_theme_conf');
 
             // --BEHAVIOR-- themessToolsHeaders
-            $head = dotclear()->behavior()->call('themessToolsHeaders', true);
+            $head = App::core()->behavior()->call('themessToolsHeaders', true);
             if ($head) {
                 $this->setPageHead($head);
             }
             $this->setPageBreadcrumb([
-                Html::escapeHTML(dotclear()->blog()->name)                          => '',
-                __('Blog appearance')                                               => dotclear()->themes()->getURL('', false),
-                '<span class="page-title">' . __('Theme configuration') . '</span>' => '',
+                Html::escapeHTML(App::core()->blog()->name)                          => '',
+                __('Blog appearance')                                                => App::core()->themes()->getURL('', false),
+                '<span class="page-title">' . __('Theme configuration') . '</span>'  => '',
             ]);
 
             // Stop reading code here
@@ -71,14 +72,14 @@ class HandlerTheme extends AbstractPage
         } else {
             // -- Execute actions --
             try {
-                dotclear()->themes()->doActions();
+                App::core()->themes()->doActions();
             } catch (Exception $e) {
-                dotclear()->themes()->add($e->getMessage());
+                App::core()->themes()->add($e->getMessage());
             }
 
             // -- Plugin install --
-            if (!dotclear()->error()->flag()) {
-                $this->modules_install = dotclear()->themes()->installModules();
+            if (!App::core()->error()->flag()) {
+                $this->modules_install = App::core()->themes()->installModules();
             }
 
             // Page setup
@@ -86,15 +87,15 @@ class HandlerTheme extends AbstractPage
                 ->setPageTitle(__('Themes management'))
                 ->setPageHelp('core_blog_theme')
                 ->setPageHead(
-                    dotclear()->resource()->load('_blog_theme.js') .
-                    dotclear()->resource()->pageTabs() .
+                    App::core()->resource()->load('_blog_theme.js') .
+                    App::core()->resource()->pageTabs() .
 
                     // --BEHAVIOR-- pluginsToolsHeaders
-                    (string) dotclear()->behavior()->call('themesToolsHeaders', false)
+                    (string) App::core()->behavior()->call('themesToolsHeaders', false)
                 )
                 ->setPageBreadcrumb([
-                    Html::escapeHTML(dotclear()->blog()->name)                      => '',
-                    '<span class="page-title">' . __('Blog appearance') . '</span>' => '',
+                    Html::escapeHTML(App::core()->blog()->name)                      => '',
+                    '<span class="page-title">' . __('Blog appearance') . '</span>'  => '',
                 ])
             ;
         }
@@ -109,7 +110,7 @@ class HandlerTheme extends AbstractPage
             echo '<div class="static-msg">' . __('Following themes have been installed:') . '<ul>';
 
             foreach ($this->modules_install['success'] as $k => $v) {
-                $info = implode(' - ', dotclear()->themes()->getSettingsUrls($k, true));
+                $info = implode(' - ', App::core()->themes()->getSettingsUrls($k, true));
                 echo '<li>' . $k . ('' !== $info ? ' → ' . $info : '') . '</li>';
             }
 
@@ -126,21 +127,21 @@ class HandlerTheme extends AbstractPage
         }
 
         if ($this->from_configuration) {
-            echo dotclear()->themes()->displayModuleConfiguration();
+            echo App::core()->themes()->displayModuleConfiguration();
 
             return;
         }
 
         // -- Display modules lists --
-        if (dotclear()->user()->isSuperAdmin()) {
-            if (!dotclear()->error()->flag()) {
+        if (App::core()->user()->isSuperAdmin()) {
+            if (!App::core()->error()->flag()) {
                 if (!empty($_GET['nocache'])) {
-                    dotclear()->notice()->success(__('Manual checking of themes update done successfully.'));
+                    App::core()->notice()->success(__('Manual checking of themes update done successfully.'));
                 }
             }
 
             // Updated modules from repo
-            $modules = dotclear()->themes()->store->get(true);
+            $modules = App::core()->themes()->store->get(true);
             if (!empty($modules)) {
                 echo '<div class="multi-part" id="update" title="' . Html::escapeHTML(__('Update themes')) . '">' .
                 '<h3>' . Html::escapeHTML(__('Update themes')) . '</h3>' .
@@ -149,7 +150,7 @@ class HandlerTheme extends AbstractPage
                     count($modules)
                 ) . '</p>';
 
-                dotclear()->themes()
+                App::core()->themes()
                     ->setList('theme-update')
                     ->setTab('update')
                     ->setData($modules)
@@ -167,22 +168,22 @@ class HandlerTheme extends AbstractPage
 
                     '</div>';
             } else {
-                echo '<form action="' . dotclear()->themes()->getURL('', false) . '" method="get">' .
+                echo '<form action="' . App::core()->themes()->getURL('', false) . '" method="get">' .
                 '<p><input type="hidden" name="nocache" value="1" />' .
                 '<input type="submit" value="' . __('Force checking update of themes') . '" /></p>' .
-                Form::hidden(['handler'], dotclear()->adminurl()->called()) .
+                Form::hidden(['handler'], App::core()->adminurl()->called()) .
                     '</form>';
             }
         }
 
         // Activated modules
-        $modules = dotclear()->themes()->getModules();
+        $modules = App::core()->themes()->getModules();
         if (!empty($modules)) {
             echo '<div class="multi-part" id="themes" title="' . __('Installed themes') . '">' .
             '<h3>' . __('Installed themes') . '</h3>' .
             '<p class="more-info">' . __('You can configure and manage installed themes from this list.') . '</p>';
 
-            dotclear()->themes()
+            App::core()->themes()
                 ->setList('theme-activate')
                 ->setTab('themes')
                 ->setData($modules)
@@ -196,14 +197,14 @@ class HandlerTheme extends AbstractPage
         }
 
         // Deactivated modules
-        if (dotclear()->user()->isSuperAdmin()) {
-            $modules = dotclear()->themes()->getDisabledModules();
+        if (App::core()->user()->isSuperAdmin()) {
+            $modules = App::core()->themes()->getDisabledModules();
             if (!empty($modules)) {
                 echo '<div class="multi-part" id="deactivate" title="' . __('Deactivated themes') . '">' .
                 '<h3>' . __('Deactivated themes') . '</h3>' .
                 '<p class="more-info">' . __('Deactivated themes are installed but not usable. You can activate them from here.') . '</p>';
 
-                dotclear()->themes()
+                App::core()->themes()
                     ->setList('theme-deactivate')
                     ->setTab('themes')
                     ->setData($modules)
@@ -217,16 +218,16 @@ class HandlerTheme extends AbstractPage
             }
         }
 
-        if (dotclear()->user()->isSuperAdmin() && dotclear()->themes()->isWritablePath()) {
+        if (App::core()->user()->isSuperAdmin() && App::core()->themes()->isWritablePath()) {
             // New modules from repo
-            $search  = dotclear()->themes()->getSearch();
-            $modules = $search ? dotclear()->themes()->store->search($search) : dotclear()->themes()->store->get();
+            $search  = App::core()->themes()->getSearch();
+            $modules = $search ? App::core()->themes()->store->search($search) : App::core()->themes()->store->get();
 
             if (!empty($search) || !empty($modules)) {
                 echo '<div class="multi-part" id="new" title="' . __('Add themes') . '">' .
                 '<h3>' . __('Add themes from repository') . '</h3>';
 
-                dotclear()->themes()
+                App::core()->themes()
                     ->setList('theme-new')
                     ->setTab('new')
                     ->setData($modules)
@@ -253,16 +254,16 @@ class HandlerTheme extends AbstractPage
             '<h3>' . __('Add themes from a package') . '</h3>' .
             '<p class="more-info">' . __('You can install themes by uploading or downloading zip files.') . '</p>';
 
-            dotclear()->themes()->displayManualForm();
+            App::core()->themes()->displayManualForm();
 
             echo '</div>';
         }
 
         // --BEHAVIOR-- themessToolsTabs
-        dotclear()->behavior()->call('themesToolsTabs');
+        App::core()->behavior()->call('themesToolsTabs');
 
         // -- Notice for super admin --
-        if (dotclear()->user()->isSuperAdmin() && !dotclear()->themes()->isWritablePath()) {
+        if (App::core()->user()->isSuperAdmin() && !App::core()->themes()->isWritablePath()) {
             echo '<p class="warning">' . __('Some functions are disabled, please give write access to your themes directory to enable them.') . '</p>';
         }
     }

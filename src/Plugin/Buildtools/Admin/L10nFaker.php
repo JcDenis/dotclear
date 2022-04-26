@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Buildtools\Admin;
 
 // Dotclear\Plugin\Buildtools\Admin\L10nFaker
+use Dotclear\App;
 use Dotclear\Plugin\Widgets\Common\WidgetsStack;
 
 /**
@@ -27,7 +28,7 @@ class L10nFaker
 
     public function __construct()
     {
-        $this->bundled_plugins = dotclear()->config()->get('plugin_official');
+        $this->bundled_plugins = App::core()->config()->get('plugin_official');
     }
 
     protected function fake_l10n($str)
@@ -42,17 +43,17 @@ class L10nFaker
         $main   = "<?php\n";
         $plugin = "<?php\n";
         $main .= "# Media sizes\n\n";
-        if (!dotclear()->media()) {
-            foreach (dotclear()->media()->thumb_sizes as $k => $v) {
+        if (!App::core()->media()) {
+            foreach (App::core()->media()->thumb_sizes as $k => $v) {
                 $main .= $this->fake_l10n($v[2]);
             }
         }
-        $post_types = dotclear()->posttype()->getPostTypes();
+        $post_types = App::core()->posttype()->getPostTypes();
         $main .= "\n# Post types\n\n";
         foreach ($post_types as $k => $v) {
             $main .= $this->fake_l10n($v['label']);
         }
-        $ws = dotclear()->user()->preference()->get('favorites'); // Favs old school !
+        $ws = App::core()->user()->preference()->get('favorites'); // Favs old school !
         if ($ws) {
             $main .= "\n# Favorites\n\n";
             foreach ($ws->dumpPrefs() as $k => $v) {
@@ -63,7 +64,7 @@ class L10nFaker
         file_put_contents(\DOTCLEAR_ROOT_DIR . '/Core/_fake_l10n.php', $main);
         $plugin .= "\n# Plugin names\n\n";
         foreach ($this->bundled_plugins as $id) {
-            $p = dotclear()->plugins()?->getModule($id);
+            $p = App::core()->plugins()?->getModule($id);
             if (!$p) {
                 continue; // cope with dev branch and maybe unknow plugins
             }

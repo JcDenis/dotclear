@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Module;
 
 // Dotclear\Module\TraitPrependPublic
+use Dotclear\App;
 
 /**
  * Module public trait Prepend.
@@ -38,11 +39,11 @@ trait TraitPrependPublic
     public function addTemplatePath(): void
     {
         if (is_dir($this->define()->root() . '/templates/')) {
-            dotclear()->behavior()->add('publicBeforeDocument', function () {
-                $tplset = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->get('system')->get('theme'))->templateset();
-                dotclear()->template()->setPath(
-                    dotclear()->template()->getPath(),
-                    $this->define()->root() . '/templates/' . (!empty($tplset) && is_dir($this->define()->root() . '/templates/' . $tplset) ? $tplset : dotclear()->config()->get('template_default'))
+            App::core()->behavior()->add('publicBeforeDocument', function () {
+                $tplset = App::core()->themes()->getModule((string) App::core()->blog()->settings()->get('system')->get('theme'))->templateset();
+                App::core()->template()->setPath(
+                    App::core()->template()->getPath(),
+                    $this->define()->root() . '/templates/' . (!empty($tplset) && is_dir($this->define()->root() . '/templates/' . $tplset) ? $tplset : App::core()->config()->get('template_default'))
                 );
             });
         }
@@ -55,6 +56,6 @@ trait TraitPrependPublic
      */
     protected function isTheme()
     {
-        return dotclear()->blog()->settings()->get('system')->get('theme') == $this->define()->id();
+        return App::core()->blog()->settings()->get('system')->get('theme') == $this->define()->id();
     }
 }

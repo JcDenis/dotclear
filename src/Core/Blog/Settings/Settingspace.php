@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\Blog\Settings;
 
 // Dotclear\Core\Blog\Settings\Settingspace
+use Dotclear\App;
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\InsertStatement;
@@ -78,7 +79,7 @@ class Settingspace
             throw new CoreException(sprintf(__('Invalid setting Namespace: %s'), $name));
         }
 
-        $this->table = dotclear()->prefix . 'setting';
+        $this->table = App::core()->prefix . 'setting';
 
         $this->getSettings($rs);
     }
@@ -112,7 +113,7 @@ class Settingspace
                     ->select()
                 ;
             } catch (\Exception) {
-                trigger_error(__('Unable to retrieve settings:') . ' ' . dotclear()->con()->error(), E_USER_ERROR);
+                trigger_error(__('Unable to retrieve settings:') . ' ' . App::core()->con()->error(), E_USER_ERROR);
             }
         }
         while ($rs->fetch()) {

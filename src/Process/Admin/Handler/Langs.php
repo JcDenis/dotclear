@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\Langs
+use Dotclear\App;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\File\Files;
@@ -38,14 +39,14 @@ class Langs extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        $this->lang_is_writable = is_dir(dotclear()->config()->get('l10n_dir')) && is_writable(dotclear()->config()->get('l10n_dir'));
+        $this->lang_is_writable = is_dir(App::core()->config()->get('l10n_dir')) && is_writable(App::core()->config()->get('l10n_dir'));
         $this->lang_iso_codes   = L10n::getISOCodes();
 
         // Delete a language pack
         if ($this->lang_is_writable && !empty($_POST['delete']) && !empty($_POST['locale_id'])) {
             try {
                 $locale_id = $_POST['locale_id'];
-                if (!isset($this->lang_iso_codes[$locale_id]) || !is_dir(dotclear()->config()->get('l10n_dir') . '/' . $locale_id)) {
+                if (!isset($this->lang_iso_codes[$locale_id]) || !is_dir(App::core()->config()->get('l10n_dir') . '/' . $locale_id)) {
                     throw new AdminException(__('No such installed language'));
                 }
 
@@ -53,26 +54,26 @@ class Langs extends AbstractPage
                     throw new AdminException(__("You can't remove English language."));
                 }
 
-                if (!Files::deltree(dotclear()->config()->get('l10n_dir') . '/' . $locale_id)) {
+                if (!Files::deltree(App::core()->config()->get('l10n_dir') . '/' . $locale_id)) {
                     throw new AdminException(__('Permissions to delete language denied.'));
                 }
 
-                dotclear()->notice()->addSuccessNotice(__('Language has been successfully deleted.'));
-                dotclear()->adminurl()->redirect('admin.langs');
+                App::core()->notice()->addSuccessNotice(__('Language has been successfully deleted.'));
+                App::core()->adminurl()->redirect('admin.langs');
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
         // Download a language pack
         if ($this->lang_is_writable && !empty($_POST['pkg_url'])) {
             try {
-                if (empty($_POST['your_pwd']) || !dotclear()->user()->checkPassword($_POST['your_pwd'])) {
+                if (empty($_POST['your_pwd']) || !App::core()->user()->checkPassword($_POST['your_pwd'])) {
                     throw new AdminException(__('Password verification failed'));
                 }
 
                 $url  = Html::escapeHTML($_POST['pkg_url']);
-                $dest = dotclear()->config()->get('l10n_dir') . '/' . basename($url);
+                $dest = App::core()->config()->get('l10n_dir') . '/' . basename($url);
                 if (!preg_match('#^https://[^.]+\.dotclear\.(net|org)/.*\.zip$#', $url)) {
                     throw new AdminException(__('Invalid language file URL.'));
                 }
@@ -94,25 +95,25 @@ class Langs extends AbstractPage
 
                 @unlink($dest);
                 if (2 == $ret_code) {
-                    dotclear()->notice()->addSuccessNotice(__('Language has been successfully upgraded'));
+                    App::core()->notice()->addSuccessNotice(__('Language has been successfully upgraded'));
                 } else {
-                    dotclear()->notice()->addSuccessNotice(__('Language has been successfully installed.'));
+                    App::core()->notice()->addSuccessNotice(__('Language has been successfully installed.'));
                 }
-                dotclear()->adminurl()->redirect('admin.langs');
+                App::core()->adminurl()->redirect('admin.langs');
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
         // Upload a language pack
         if ($this->lang_is_writable && !empty($_POST['upload_pkg'])) {
             try {
-                if (empty($_POST['your_pwd']) || !dotclear()->user()->checkPassword($_POST['your_pwd'])) {
+                if (empty($_POST['your_pwd']) || !App::core()->user()->checkPassword($_POST['your_pwd'])) {
                     throw new AdminException(__('Password verification failed'));
                 }
 
                 Files::uploadStatus($_FILES['pkg_file']);
-                $dest = dotclear()->config()->get('l10n_dir') . '/' . $_FILES['pkg_file']['name'];
+                $dest = App::core()->config()->get('l10n_dir') . '/' . $_FILES['pkg_file']['name'];
                 if (!move_uploaded_file($_FILES['pkg_file']['tmp_name'], $dest)) {
                     throw new AdminException(__('Unable to move uploaded file.'));
                 }
@@ -127,13 +128,13 @@ class Langs extends AbstractPage
 
                 @unlink($dest);
                 if (2 == $ret_code) {
-                    dotclear()->notice()->addSuccessNotice(__('Language has been successfully upgraded'));
+                    App::core()->notice()->addSuccessNotice(__('Language has been successfully upgraded'));
                 } else {
-                    dotclear()->notice()->addSuccessNotice(__('Language has been successfully installed.'));
+                    App::core()->notice()->addSuccessNotice(__('Language has been successfully installed.'));
                 }
-                dotclear()->adminurl()->redirect('admin.langs');
+                App::core()->adminurl()->redirect('admin.langs');
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
@@ -141,7 +142,7 @@ class Langs extends AbstractPage
         $this
             ->setPageTitle(__('Languages management'))
             ->setPageHelp('core_langs')
-            ->setPageHead(dotclear()->resource()->load('_langs.js'))
+            ->setPageHead(App::core()->resource()->load('_langs.js'))
             ->setPageBreadcrumb([
                 __('System')               => '',
                 __('Languages management') => '',
@@ -154,22 +155,22 @@ class Langs extends AbstractPage
     protected function getPageContent(): void
     {
         if (!empty($_GET['removed'])) {
-            dotclear()->notice()->success(__('Language has been successfully deleted.'));
+            App::core()->notice()->success(__('Language has been successfully deleted.'));
         }
 
         if (!empty($_GET['added'])) {
-            dotclear()->notice()->success((2 == $_GET['added'] ? __('Language has been successfully upgraded') : __('Language has been successfully installed.')));
+            App::core()->notice()->success((2 == $_GET['added'] ? __('Language has been successfully upgraded') : __('Language has been successfully installed.')));
         }
 
         // Get languages list on Dotclear.net
         $dc_langs    = false;
         $feed_reader = new Reader();
-        $feed_reader->setCacheDir(dotclear()->config()->get('cache_dir'));
+        $feed_reader->setCacheDir(App::core()->config()->get('cache_dir'));
         $feed_reader->setTimeout(5);
         $feed_reader->setUserAgent('Dotclear - https://dotclear.org/');
 
         try {
-            $dc_langs = $feed_reader->parse(sprintf(dotclear()->config()->get('l10n_update_url'), dotclear()->config()->get('core_version')));
+            $dc_langs = $feed_reader->parse(sprintf(App::core()->config()->get('l10n_update_url'), App::core()->config()->get('core_version')));
             if (false !== $dc_langs) {
                 $dc_langs = $dc_langs->items;
             }
@@ -181,19 +182,19 @@ class Langs extends AbstractPage
         '<p>' . sprintf(
             __('You can change your user language in your <a href="%1$s">preferences</a> or ' .
             'change your blog\'s main language in your <a href="%2$s">blog settings</a>.'),
-            dotclear()->adminurl()->get('admin.user.pref'),
-            dotclear()->adminurl()->get('admin.blog.pref')
+            App::core()->adminurl()->get('admin.user.pref'),
+            App::core()->adminurl()->get('admin.blog.pref')
         ) . '</p>';
 
         echo '<h3>' . __('Installed languages') . '</h3>';
 
         $locales_content = [];
-        $tmp             = Files::scandir(dotclear()->config()->get('l10n_dir'));
+        $tmp             = Files::scandir(App::core()->config()->get('l10n_dir'));
         foreach ($tmp as $v) {
-            $c = ('.' == $v || '..' == $v || 'en' == $v || !is_dir(dotclear()->config()->get('l10n_dir') . '/' . $v) || !isset($this->lang_iso_codes[$v]));
+            $c = ('.' == $v || '..' == $v || 'en' == $v || !is_dir(App::core()->config()->get('l10n_dir') . '/' . $v) || !isset($this->lang_iso_codes[$v]));
 
             if (!$c) {
-                $locales_content[$v] = dotclear()->config()->get('l10n_dir') . '/' . $v;
+                $locales_content[$v] = App::core()->config()->get('l10n_dir') . '/' . $v;
             }
         }
 
@@ -215,9 +216,9 @@ class Langs extends AbstractPage
                     '<td class="nowrap action">';
 
                 if ($is_deletable) {
-                    echo '<form action="' . dotclear()->adminurl()->root() . '" method="post">' .
+                    echo '<form action="' . App::core()->adminurl()->root() . '" method="post">' .
                     '<div>' .
-                    dotclear()->adminurl()->getHiddenFormFields('admin.langs', ['locale_id' => Html::escapeHTML($k)], true) .
+                    App::core()->adminurl()->getHiddenFormFields('admin.langs', ['locale_id' => Html::escapeHTML($k)], true) .
                     '<input type="submit" class="delete" name="delete" value="' . __('Delete') . '" /> ' .
                         '</div>' .
                         '</form>';
@@ -243,10 +244,10 @@ class Langs extends AbstractPage
                 }
             }
 
-            echo '<form method="post" action="' . dotclear()->adminurl()->root() . '" enctype="multipart/form-data" class="fieldset">' .
+            echo '<form method="post" action="' . App::core()->adminurl()->root() . '" enctype="multipart/form-data" class="fieldset">' .
             '<h4>' . __('Available languages') . '</h4>' .
             '<p>' . sprintf(__('You can download and install a additional language directly from Dotclear.net. ' .
-                'Proposed languages are based on your version: %s.'), '<strong>' . dotclear()->config()->get('core_version') . '</strong>') . '</p>' .
+                'Proposed languages are based on your version: %s.'), '<strong>' . App::core()->config()->get('core_version') . '</strong>') . '</p>' .
             '<p class="field"><label for="pkg_url" class="classic">' . __('Language:') . '</label> ' .
             Form::combo(['pkg_url'], $dc_langs_combo) . '</p>' .
             '<p class="field"><label for="your_pwd1" class="classic required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Your password:') . '</label> ' .
@@ -259,14 +260,14 @@ class Langs extends AbstractPage
                     'autocomplete' => 'current-password', ]
             ) . '</p>' .
             '<p><input type="submit" value="' . __('Install language') . '" />' .
-            dotclear()->adminurl()->getHiddenFormFields('admin.langs', [], true) .
+            App::core()->adminurl()->getHiddenFormFields('admin.langs', [], true) .
                 '</p>' .
                 '</form>';
         }
 
         if ($this->lang_is_writable) {
             // 'Upload language pack' form
-            echo '<form method="post" action="' . dotclear()->adminurl()->root() . '" enctype="multipart/form-data" class="fieldset">' .
+            echo '<form method="post" action="' . App::core()->adminurl()->root() . '" enctype="multipart/form-data" class="fieldset">' .
             '<h4>' . __('Upload a zip file') . '</h4>' .
             '<p>' . __('You can install languages by uploading zip files.') . '</p>' .
             '<p class="field"><label for="pkg_file" class="classic required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Language zip file:') . '</label> ' .
@@ -281,7 +282,7 @@ class Langs extends AbstractPage
                     'autocomplete' => 'current-password', ]
             ) . '</p>' .
             '<p><input type="submit" name="upload_pkg" value="' . __('Upload language') . '" />' .
-            dotclear()->adminurl()->getHiddenFormFields('admin.langs', [], true) .
+            App::core()->adminurl()->getHiddenFormFields('admin.langs', [], true) .
                 '</p>' .
                 '</form>';
         }

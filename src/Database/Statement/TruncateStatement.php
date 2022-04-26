@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Database\Statement;
 
 // Dotclear\Database\Statement\TruncateStatement
+use Dotclear\App;
 
 /**
  * Truncate Statement : small utility to build truncate queries.
@@ -31,7 +32,7 @@ class TruncateStatement extends SqlStatement
     public function statement(): string
     {
         // --BEHAVIOR-- coreBeforeInsertStatement
-        dotclear()->behavior()->call('coreBeforeTruncateStatement', $this);
+        App::core()->behavior()->call('coreBeforeTruncateStatement', $this);
 
         // Check if source given
         if (!count($this->from)) {
@@ -47,7 +48,7 @@ class TruncateStatement extends SqlStatement
         $query = trim($query);
 
         // --BEHAVIOR-- coreAfertInsertStatement
-        dotclear()->behavior()->call('coreAfterTruncateStatement', $this, $query);
+        App::core()->behavior()->call('coreAfterTruncateStatement', $this, $query);
 
         return $query;
     }
@@ -58,7 +59,7 @@ class TruncateStatement extends SqlStatement
     public function truncate(): bool
     {
         if (($sql = $this->statement())) {
-            return dotclear()->con()->execute($sql);
+            return App::core()->con()->execute($sql);
         }
 
         return false;

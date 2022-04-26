@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\RsExt;
 
 // Dotclear\Core\RsExt\RsExtCommentPublic
+use Dotclear\App;
 
 /**
  * Comments record public helpers.
@@ -20,12 +21,12 @@ class RsExtCommentPublic extends RsExtComment
 {
     public function getContent(bool $absolute_urls = false): string
     {
-        if (dotclear()->context() && dotclear()->blog()->settings()->get('system')->get('use_smilies')) {
+        if (App::core()->context() && App::core()->blog()->settings()->get('system')->get('use_smilies')) {
             $c = parent::getContent($absolute_urls);
 
-            dotclear()->context()->getSmilies();
+            App::core()->context()->getSmilies();
 
-            return dotclear()->context()->addSmilies($c);
+            return App::core()->context()->addSmilies($c);
         }
 
         return parent::getContent($absolute_urls);

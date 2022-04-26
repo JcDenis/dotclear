@@ -11,6 +11,7 @@ namespace Dotclear\Core\Blog\Posts;
 
 // Dotclear\Core\Blog\Posts\Posts
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Core\RsExt\RsExtDate;
 use Dotclear\Core\RsExt\RsExtPost;
 use Dotclear\Database\Record;
@@ -74,7 +75,7 @@ class Posts
         $params = new ArrayObject($params);
 
         // --BEHAVIOR-- coreBlogBeforeGetPosts ArrayObject
-        dotclear()->behavior()->call('coreBlogBeforeGetPosts', $params);
+        App::core()->behavior()->call('coreBlogBeforeGetPosts', $params);
 
         if (!$sql) {
             $sql = new SelectStatement(__METHOD__);
@@ -134,18 +135,18 @@ class Posts
         }
 
         $sql
-            ->from(dotclear()->prefix . 'post P', false, true)
+            ->from(App::core()->prefix . 'post P', false, true)
             ->join(
                 JoinStatement::init(__METHOD__)
                     ->type('INNER')
-                    ->from(dotclear()->prefix . 'user U')
+                    ->from(App::core()->prefix . 'user U')
                     ->on('U.user_id = P.user_id')
                     ->statement()
             )
             ->join(
                 JoinStatement::init(__METHOD__)
                     ->type('LEFT OUTER')
-                    ->from(dotclear()->prefix . 'category C')
+                    ->from(App::core()->prefix . 'category C')
                     ->on('P.cat_id = C.cat_id')
                     ->statement()
             )
@@ -163,14 +164,14 @@ class Posts
             // Cope with legacy code
             $sql->where($params['where']);
         } else {
-            $sql->where('P.blog_id = ' . $sql->quote(dotclear()->blog()->id, true));
+            $sql->where('P.blog_id = ' . $sql->quote(App::core()->blog()->id, true));
         }
 
-        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
-            $user_id = dotclear()->user()->userID();
+        if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
+            $user_id = App::core()->user()->userID();
 
             $and = ['post_status = 1'];
-            if (dotclear()->blog()->withoutPassword()) {
+            if (App::core()->blog()->withoutPassword()) {
                 $and[] = 'post_password IS NULL';
             }
             $or = [$sql->andGroup($and)];
@@ -281,8 +282,8 @@ class Posts
 
             if (!empty($words)) {
                 // --BEHAVIOR-- corePostSearch
-                if (dotclear()->behavior()->has('corePostSearch')) {
-                    dotclear()->behavior()->call('corePostSearch', [&$words, &$params, $sql]);
+                if (App::core()->behavior()->has('corePostSearch')) {
+                    App::core()->behavior()->call('corePostSearch', [&$words, &$params, $sql]);
                 }
 
                 foreach ($words as $i => $w) {
@@ -294,7 +295,7 @@ class Posts
 
         if (isset($params['media'])) {
             $sqlExists = SelectStatement::init(__METHOD__)
-                ->from(dotclear()->prefix . 'post_media M')
+                ->from(App::core()->prefix . 'post_media M')
                 ->column('M.post_id')
                 ->where('M.post_id = P.post_id')
             ;
@@ -330,12 +331,12 @@ class Posts
         $rs->extend(new RsExtPost());
 
         // --BEHAVIOR-- coreBlogGetPosts
-        dotclear()->behavior()->call('coreBlogGetPosts', $rs);
+        App::core()->behavior()->call('coreBlogGetPosts', $rs);
 
         $alt = new ArrayObject(['rs' => $rs, 'params' => $params, 'count_only' => $count_only]);
 
         // --BEHAVIOR-- coreBlogAfterGetPosts
-        dotclear()->behavior()->call('coreBlogAfterGetPosts', $rs, $alt);
+        App::core()->behavior()->call('coreBlogAfterGetPosts', $rs, $alt);
 
         return isset($alt['rs']) && $alt['rs'] instanceof Record ? $alt['rs'] : $rs;
     }
@@ -371,8 +372,8 @@ class Posts
         $params['limit']     = 1;
         $params['order']     = 'post_dt ' . $order . ', P.post_id ' . $order;
         $params['sql']       = 'AND ( ' .
-        "   (post_dt = '" . dotclear()->con()->escape($dt) . "' AND P.post_id " . $sign . ' ' . $post_id . ') ' .
-        '   OR post_dt ' . $sign . " '" . dotclear()->con()->escape($dt) . "' " .
+        "   (post_dt = '" . App::core()->con()->escape($dt) . "' AND P.post_id " . $sign . ' ' . $post_id . ') ' .
+        '   OR post_dt ' . $sign . " '" . App::core()->con()->escape($dt) . "' " .
             ') ';
 
         if ($restrict_to_category) {
@@ -380,7 +381,7 @@ class Posts
         }
 
         if ($restrict_to_lang) {
-            $params['sql'] .= $post->f('post_lang') ? 'AND P.post_lang = \'' . dotclear()->con()->escape($post->f('post_lang')) . '\' ' : 'AND P.post_lang IS NULL ';
+            $params['sql'] .= $post->f('post_lang') ? 'AND P.post_lang = \'' . App::core()->con()->escape($post->f('post_lang')) . '\' ' : 'AND P.post_lang IS NULL ';
         }
 
         $rs = $this->getPosts($params);
@@ -404,21 +405,21 @@ class Posts
     public function getLangs(array|ArrayObject $params = []): Record
     {
         $strReq = 'SELECT COUNT(post_id) as nb_post, post_lang ' .
-        'FROM ' . dotclear()->prefix . 'post ' .
-        "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
+        'FROM ' . App::core()->prefix . 'post ' .
+        "WHERE blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .
             "AND post_lang <> '' " .
             'AND post_lang IS NOT NULL ';
 
-        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
+        if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
             $strReq .= 'AND ((post_status = 1 ';
 
-            if (dotclear()->blog()->withoutPassword()) {
+            if (App::core()->blog()->withoutPassword()) {
                 $strReq .= 'AND post_password IS NULL ';
             }
             $strReq .= ') ';
 
-            if (dotclear()->user()->userID()) {
-                $strReq .= "OR user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "')";
+            if (App::core()->user()->userID()) {
+                $strReq .= "OR user_id = '" . App::core()->con()->escape(App::core()->user()->userID()) . "')";
             } else {
                 $strReq .= ') ';
             }
@@ -426,14 +427,14 @@ class Posts
 
         if (isset($params['post_type'])) {
             if ('' != $params['post_type']) {
-                $strReq .= "AND post_type = '" . dotclear()->con()->escape($params['post_type']) . "' ";
+                $strReq .= "AND post_type = '" . App::core()->con()->escape($params['post_type']) . "' ";
             }
         } else {
             $strReq .= "AND post_type = 'post' ";
         }
 
         if (isset($params['lang'])) {
-            $strReq .= "AND post_lang = '" . dotclear()->con()->escape($params['lang']) . "' ";
+            $strReq .= "AND post_lang = '" . App::core()->con()->escape($params['lang']) . "' ";
         }
 
         $strReq .= 'GROUP BY post_lang ';
@@ -444,7 +445,7 @@ class Posts
         }
         $strReq .= 'ORDER BY post_lang ' . $order . ' ';
 
-        return dotclear()->con()->select($strReq);
+        return App::core()->con()->select($strReq);
     }
 
     /**
@@ -489,52 +490,52 @@ class Posts
             $catReq    = 'AND P.cat_id = ' . (int) $params['cat_id'] . ' ';
             $cat_field = ', C.cat_url ';
         } elseif (isset($params['cat_url']) && '' !== $params['cat_url']) {
-            $catReq    = "AND C.cat_url = '" . dotclear()->con()->escape($params['cat_url']) . "' ";
+            $catReq    = "AND C.cat_url = '" . App::core()->con()->escape($params['cat_url']) . "' ";
             $cat_field = ', C.cat_url ';
         }
         if (!empty($params['post_lang'])) {
             $catReq = 'AND P.post_lang = \'' . $params['post_lang'] . '\' ';
         }
 
-        $strReq = 'SELECT DISTINCT(' . dotclear()->con()->dateFormat('post_dt', $dt_f) . ') AS dt ' .
+        $strReq = 'SELECT DISTINCT(' . App::core()->con()->dateFormat('post_dt', $dt_f) . ') AS dt ' .
         $cat_field .
         ',COUNT(P.post_id) AS nb_post ' .
-        'FROM ' . dotclear()->prefix . 'post P LEFT JOIN ' . dotclear()->prefix . 'category C ' .
+        'FROM ' . App::core()->prefix . 'post P LEFT JOIN ' . App::core()->prefix . 'category C ' .
         'ON P.cat_id = C.cat_id ' .
-        "WHERE P.blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
+        "WHERE P.blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .
             $catReq;
 
-        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
+        if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
             $strReq .= 'AND ((post_status = 1 ';
 
-            if (dotclear()->blog()->withoutPassword()) {
+            if (App::core()->blog()->withoutPassword()) {
                 $strReq .= 'AND post_password IS NULL ';
             }
             $strReq .= ') ';
 
-            if (dotclear()->user()->userID()) {
-                $strReq .= "OR P.user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "')";
+            if (App::core()->user()->userID()) {
+                $strReq .= "OR P.user_id = '" . App::core()->con()->escape(App::core()->user()->userID()) . "')";
             } else {
                 $strReq .= ') ';
             }
         }
 
         if (!empty($params['post_type'])) {
-            $strReq .= 'AND post_type' . dotclear()->con()->in($params['post_type']) . ' ';
+            $strReq .= 'AND post_type' . App::core()->con()->in($params['post_type']) . ' ';
         } else {
             $strReq .= "AND post_type = 'post' ";
         }
 
         if (!empty($params['year'])) {
-            $strReq .= 'AND ' . dotclear()->con()->dateFormat('post_dt', '%Y') . " = '" . sprintf('%04d', $params['year']) . "' ";
+            $strReq .= 'AND ' . App::core()->con()->dateFormat('post_dt', '%Y') . " = '" . sprintf('%04d', $params['year']) . "' ";
         }
 
         if (!empty($params['month'])) {
-            $strReq .= 'AND ' . dotclear()->con()->dateFormat('post_dt', '%m') . " = '" . sprintf('%02d', $params['month']) . "' ";
+            $strReq .= 'AND ' . App::core()->con()->dateFormat('post_dt', '%m') . " = '" . sprintf('%02d', $params['month']) . "' ";
         }
 
         if (!empty($params['day'])) {
-            $strReq .= 'AND ' . dotclear()->con()->dateFormat('post_dt', '%d') . " = '" . sprintf('%02d', $params['day']) . "' ";
+            $strReq .= 'AND ' . App::core()->con()->dateFormat('post_dt', '%d') . " = '" . sprintf('%02d', $params['day']) . "' ";
         }
 
         // Get next or previous date
@@ -551,8 +552,8 @@ class Posts
 
             $dt = date('YmdHis', strtotime($dt));
 
-            $strReq .= 'AND ' . dotclear()->con()->dateFormat('post_dt', $dt_fc) . $pdir . "'" . $dt . "' ";
-            $limit = dotclear()->con()->limit(1);
+            $strReq .= 'AND ' . App::core()->con()->dateFormat('post_dt', $dt_fc) . $pdir . "'" . $dt . "' ";
+            $limit = App::core()->con()->limit(1);
         }
 
         $strReq .= 'GROUP BY dt ' . $cat_field;
@@ -565,7 +566,7 @@ class Posts
         $strReq .= 'ORDER BY dt ' . $order . ' ' .
             $limit;
 
-        $rs = dotclear()->con()->select($strReq);
+        $rs = App::core()->con()->select($strReq);
         $rs->extend(new RsExtDate());
 
         return $rs;
@@ -582,24 +583,24 @@ class Posts
      */
     public function addPost(Cursor $cur): int
     {
-        if (!dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id)) {
+        if (!App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)) {
             throw new CoreException(__('You are not allowed to create an entry'));
         }
 
-        dotclear()->con()->writeLock(dotclear()->prefix . 'post');
+        App::core()->con()->writeLock(App::core()->prefix . 'post');
 
         try {
             // Get ID
-            $rs = dotclear()->con()->select(
+            $rs = App::core()->con()->select(
                 'SELECT MAX(post_id) ' .
-                'FROM ' . dotclear()->prefix . 'post '
+                'FROM ' . App::core()->prefix . 'post '
             );
 
             $cur->setField('post_id', $rs->fInt() + 1);
-            $cur->setField('blog_id', (string) dotclear()->blog()->id);
+            $cur->setField('blog_id', (string) App::core()->blog()->id);
             $cur->setField('post_creadt', date('Y-m-d H:i:s'));
             $cur->setField('post_upddt', date('Y-m-d H:i:s'));
-            $cur->setField('post_tz', dotclear()->user()->getInfo('user_tz'));
+            $cur->setField('post_tz', App::core()->user()->getInfo('user_tz'));
 
             // Post excerpt and content
             $this->getPostContent($cur, $cur->getField('post_id'));
@@ -607,25 +608,25 @@ class Posts
 
             $cur->setField('post_url', $this->getPostURL($cur->getField('post_url'), $cur->getField('post_dt'), $cur->getField('post_title'), $cur->getField('post_id')));
 
-            if (!dotclear()->user()->check('publish,contentadmin', dotclear()->blog()->id)) {
+            if (!App::core()->user()->check('publish,contentadmin', App::core()->blog()->id)) {
                 $cur->setField('post_status', -2);
             }
 
             // --BEHAVIOR-- coreBeforePostCreate, Dotclear\Core\Blog, Dotclear\Database\Cursor
-            dotclear()->behavior()->call('coreBeforePostCreate', $this, $cur);
+            App::core()->behavior()->call('coreBeforePostCreate', $this, $cur);
 
             $cur->insert();
-            dotclear()->con()->unlock();
+            App::core()->con()->unlock();
         } catch (Exception $e) {
-            dotclear()->con()->unlock();
+            App::core()->con()->unlock();
 
             throw $e;
         }
 
         // --BEHAVIOR-- coreAfterPostCreate, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        dotclear()->behavior()->call('coreAfterPostCreate', $this, $cur);
+        App::core()->behavior()->call('coreAfterPostCreate', $this, $cur);
 
-        dotclear()->blog()->triggerBlog();
+        App::core()->blog()->triggerBlog();
 
         $this->firstPublicationEntries($cur->getField('post_id'));
 
@@ -642,7 +643,7 @@ class Posts
      */
     public function updPost(int $id, Cursor $cur): void
     {
-        if (!dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id)) {
+        if (!App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)) {
             throw new CoreException(__('You are not allowed to update entries'));
         }
 
@@ -658,20 +659,20 @@ class Posts
             $cur->setField('post_url', $this->getPostURL($cur->getField('post_url'), $cur->getField('post_dt'), $cur->getField('post_title'), $id));
         }
 
-        if (!dotclear()->user()->check('publish,contentadmin', dotclear()->blog()->id)) {
+        if (!App::core()->user()->check('publish,contentadmin', App::core()->blog()->id)) {
             $cur->unsetField('post_status');
         }
 
         $cur->setField('post_upddt', date('Y-m-d H:i:s'));
 
         // If user is only "usage", we need to check the post's owner
-        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
+        if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
             $strReq = 'SELECT post_id ' .
-            'FROM ' . dotclear()->prefix . 'post ' .
+            'FROM ' . App::core()->prefix . 'post ' .
             'WHERE post_id = ' . $id . ' ' .
-            "AND user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "' ";
+            "AND user_id = '" . App::core()->con()->escape(App::core()->user()->userID()) . "' ";
 
-            $rs = dotclear()->con()->select($strReq);
+            $rs = App::core()->con()->select($strReq);
 
             if ($rs->isEmpty()) {
                 throw new CoreException(__('You are not allowed to edit this entry'));
@@ -679,14 +680,14 @@ class Posts
         }
 
         // --BEHAVIOR-- coreBeforePostUpdate, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        dotclear()->behavior()->call('coreBeforePostUpdate', $this, $cur);
+        App::core()->behavior()->call('coreBeforePostUpdate', $this, $cur);
 
         $cur->update('WHERE post_id = ' . $id . ' ');
 
         // --BEHAVIOR-- coreBeforePostUpdate, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        dotclear()->behavior()->call('coreBeforePostUpdate', $this, $cur);
+        App::core()->behavior()->call('coreBeforePostUpdate', $this, $cur);
 
-        dotclear()->blog()->triggerBlog();
+        App::core()->blog()->triggerBlog();
 
         $this->firstPublicationEntries($id);
     }
@@ -712,27 +713,27 @@ class Posts
      */
     public function updPostsStatus(array|ArrayObject $ids, int $status): void
     {
-        if (!dotclear()->user()->check('publish,contentadmin', dotclear()->blog()->id)) {
+        if (!App::core()->user()->check('publish,contentadmin', App::core()->blog()->id)) {
             throw new CoreException(__('You are not allowed to change this entry status'));
         }
 
-        $posts_ids = dotclear()->blog()->cleanIds($ids);
+        $posts_ids = App::core()->blog()->cleanIds($ids);
 
-        $strReq = "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
-        'AND post_id' . dotclear()->con()->in($posts_ids);
+        $strReq = "WHERE blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .
+        'AND post_id' . App::core()->con()->in($posts_ids);
 
         // If user can only publish, we need to check the post's owner
-        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
-            $strReq .= "AND user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "' ";
+        if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
+            $strReq .= "AND user_id = '" . App::core()->con()->escape(App::core()->user()->userID()) . "' ";
         }
 
-        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
+        $cur = App::core()->con()->openCursor(App::core()->prefix . 'post');
 
         $cur->setField('post_status', $status);
         $cur->setField('post_upddt', date('Y-m-d H:i:s'));
 
         $cur->update($strReq);
-        dotclear()->blog()->triggerBlog();
+        App::core()->blog()->triggerBlog();
 
         $this->firstPublicationEntries($posts_ids);
     }
@@ -758,27 +759,27 @@ class Posts
      */
     public function updPostsSelected(array|ArrayObject $ids, bool $selected): void
     {
-        if (!dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id)) {
+        if (!App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)) {
             throw new CoreException(__('You are not allowed to change this entry category'));
         }
 
-        $posts_ids = dotclear()->blog()->cleanIds($ids);
+        $posts_ids = App::core()->blog()->cleanIds($ids);
 
-        $strReq = "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
-        'AND post_id' . dotclear()->con()->in($posts_ids);
+        $strReq = "WHERE blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .
+        'AND post_id' . App::core()->con()->in($posts_ids);
 
         // If user is only usage, we need to check the post's owner
-        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
-            $strReq .= "AND user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "' ";
+        if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
+            $strReq .= "AND user_id = '" . App::core()->con()->escape(App::core()->user()->userID()) . "' ";
         }
 
-        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
+        $cur = App::core()->con()->openCursor(App::core()->prefix . 'post');
 
         $cur->setField('post_selected', (int) $selected);
         $cur->setField('post_upddt', date('Y-m-d H:i:s'));
 
         $cur->update($strReq);
-        dotclear()->blog()->triggerBlog();
+        App::core()->blog()->triggerBlog();
     }
 
     /**
@@ -806,27 +807,27 @@ class Posts
      */
     public function updPostsCategory(array|ArrayObject $ids, int|null $cat_id): void
     {
-        if (!dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id)) {
+        if (!App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)) {
             throw new CoreException(__('You are not allowed to change this entry category'));
         }
 
-        $posts_ids = dotclear()->blog()->cleanIds($ids);
+        $posts_ids = App::core()->blog()->cleanIds($ids);
 
-        $strReq = "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
-        'AND post_id' . dotclear()->con()->in($posts_ids);
+        $strReq = "WHERE blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .
+        'AND post_id' . App::core()->con()->in($posts_ids);
 
         // If user is only usage, we need to check the post's owner
-        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
-            $strReq .= "AND user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "' ";
+        if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
+            $strReq .= "AND user_id = '" . App::core()->con()->escape(App::core()->user()->userID()) . "' ";
         }
 
-        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
+        $cur = App::core()->con()->openCursor(App::core()->prefix . 'post');
 
         $cur->setField('cat_id', $cat_id ?: null);
         $cur->setField('post_upddt', date('Y-m-d H:i:s'));
 
         $cur->update($strReq);
-        dotclear()->blog()->triggerBlog();
+        App::core()->blog()->triggerBlog();
     }
 
     /**
@@ -841,20 +842,20 @@ class Posts
      */
     public function changePostsCategory(int $old_cat_id, ?int $new_cat_id): void
     {
-        if (!dotclear()->user()->check('contentadmin,categories', dotclear()->blog()->id)) {
+        if (!App::core()->user()->check('contentadmin,categories', App::core()->blog()->id)) {
             throw new CoreException(__('You are not allowed to change entries category'));
         }
 
-        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
+        $cur = App::core()->con()->openCursor(App::core()->prefix . 'post');
 
         $cur->setField('cat_id', $new_cat_id ?: null);
         $cur->setField('post_upddt', date('Y-m-d H:i:s'));
 
         $cur->update(
             'WHERE cat_id = ' . $old_cat_id . ' ' .
-            "AND blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' "
+            "AND blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' "
         );
-        dotclear()->blog()->triggerBlog();
+        App::core()->blog()->triggerBlog();
     }
 
     /**
@@ -876,27 +877,27 @@ class Posts
      */
     public function delPosts(array|ArrayObject $ids): void
     {
-        if (!dotclear()->user()->check('delete,contentadmin', dotclear()->blog()->id)) {
+        if (!App::core()->user()->check('delete,contentadmin', App::core()->blog()->id)) {
             throw new CoreException(__('You are not allowed to delete entries'));
         }
 
-        $posts_ids = dotclear()->blog()->cleanIds($ids);
+        $posts_ids = App::core()->blog()->cleanIds($ids);
 
         if (empty($posts_ids)) {
             throw new CoreException(__('No such entry ID'));
         }
 
-        $strReq = 'DELETE FROM ' . dotclear()->prefix . 'post ' .
-        "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
-        'AND post_id' . dotclear()->con()->in($posts_ids);
+        $strReq = 'DELETE FROM ' . App::core()->prefix . 'post ' .
+        "WHERE blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .
+        'AND post_id' . App::core()->con()->in($posts_ids);
 
         // If user can only delete, we need to check the post's owner
-        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
-            $strReq .= "AND user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "' ";
+        if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
+            $strReq .= "AND user_id = '" . App::core()->con()->escape(App::core()->user()->userID()) . "' ";
         }
 
-        dotclear()->con()->execute($strReq);
-        dotclear()->blog()->triggerBlog();
+        App::core()->con()->execute($strReq);
+        App::core()->blog()->triggerBlog();
     }
 
     /**
@@ -905,11 +906,11 @@ class Posts
     public function publishScheduledEntries(): void
     {
         $strReq = 'SELECT post_id, post_dt, post_tz ' .
-        'FROM ' . dotclear()->prefix . 'post ' .
+        'FROM ' . App::core()->prefix . 'post ' .
         'WHERE post_status = -1 ' .
-        "AND blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' ";
+        "AND blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' ";
 
-        $rs = dotclear()->con()->select($strReq);
+        $rs = App::core()->con()->select($strReq);
 
         $now       = Dt::toUTC(time());
         $to_change = new ArrayObject();
@@ -932,17 +933,17 @@ class Posts
         }
         if (count($to_change)) {
             // --BEHAVIOR-- coreBeforeScheduledEntriesPublish, Dotclear\Core\Blog, array
-            dotclear()->behavior()->call('coreBeforeScheduledEntriesPublish', $this, $to_change);
+            App::core()->behavior()->call('coreBeforeScheduledEntriesPublish', $this, $to_change);
 
-            $strReq = 'UPDATE ' . dotclear()->prefix . 'post SET ' .
+            $strReq = 'UPDATE ' . App::core()->prefix . 'post SET ' .
             'post_status = 1 ' .
-            "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
-            'AND post_id' . dotclear()->con()->in((array) $to_change) . ' ';
-            dotclear()->con()->execute($strReq);
-            dotclear()->blog()->triggerBlog();
+            "WHERE blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .
+            'AND post_id' . App::core()->con()->in((array) $to_change) . ' ';
+            App::core()->con()->execute($strReq);
+            App::core()->blog()->triggerBlog();
 
             // --BEHAVIOR-- coreAfterScheduledEntriesPublish, Dotclear\Core\Blog, array
-            dotclear()->behavior()->call('coreAfterScheduledEntriesPublish', $this, $to_change);
+            App::core()->behavior()->call('coreAfterScheduledEntriesPublish', $this, $to_change);
 
             $this->firstPublicationEntries($to_change);
         }
@@ -956,7 +957,7 @@ class Posts
     public function firstPublicationEntries(int|array|ArrayObject $ids): void
     {
         $posts = $this->getPosts([
-            'post_id'       => dotclear()->blog()->cleanIds($ids),
+            'post_id'       => App::core()->blog()->cleanIds($ids),
             'post_status'   => 1,
             'post_firstpub' => 0,
         ]);
@@ -967,14 +968,14 @@ class Posts
         }
 
         if (count($to_change)) {
-            $strReq = 'UPDATE ' . dotclear()->prefix . 'post ' .
+            $strReq = 'UPDATE ' . App::core()->prefix . 'post ' .
             'SET post_firstpub = 1 ' .
-            "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
-            'AND post_id' . dotclear()->con()->in((array) $to_change) . ' ';
-            dotclear()->con()->execute($strReq);
+            "WHERE blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .
+            'AND post_id' . App::core()->con()->in((array) $to_change) . ' ';
+            App::core()->con()->execute($strReq);
 
             // --BEHAVIOR-- coreFirstPublicationEntries, Dotclear\Core\Blog\Posts\Posts, array
-            dotclear()->behavior()->call('coreFirstPublicationEntries', $this, $to_change);
+            App::core()->behavior()->call('coreFirstPublicationEntries', $this, $to_change);
         }
     }
 
@@ -987,17 +988,17 @@ class Posts
     {
         $strReq = 'SELECT P.user_id, user_name, user_firstname, ' .
         'user_displayname, user_email ' .
-        'FROM ' . dotclear()->prefix . 'post P, ' . dotclear()->prefix . 'user U ' .
+        'FROM ' . App::core()->prefix . 'post P, ' . App::core()->prefix . 'user U ' .
         'WHERE P.user_id = U.user_id ' .
-        "AND blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' ";
+        "AND blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' ";
 
         if ($post_type) {
-            $strReq .= "AND post_type = '" . dotclear()->con()->escape($post_type) . "' ";
+            $strReq .= "AND post_type = '" . App::core()->con()->escape($post_type) . "' ";
         }
 
         $strReq .= 'GROUP BY P.user_id, user_name, user_firstname, user_displayname, user_email ';
 
-        return dotclear()->con()->select($strReq);
+        return App::core()->con()->select($strReq);
     }
 
     /**
@@ -1032,15 +1033,15 @@ class Posts
                     $queries[$id] = 'P.cat_id = ' . (int) $id;
                 }
             } else {
-                $queries[$id] = "C.cat_url = '" . dotclear()->con()->escape($id) . "' ";
+                $queries[$id] = "C.cat_url = '" . App::core()->con()->escape($id) . "' ";
             }
         }
 
         if (!empty($sub)) {
-            $rs = dotclear()->con()->select(
-                'SELECT cat_id, cat_url, cat_lft, cat_rgt FROM ' . dotclear()->prefix . 'category ' .
-                "WHERE blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
-                'AND ' . $field . ' ' . dotclear()->con()->in(array_keys($sub))
+            $rs = App::core()->con()->select(
+                'SELECT cat_id, cat_url, cat_lft, cat_rgt FROM ' . App::core()->prefix . 'category ' .
+                "WHERE blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .
+                'AND ' . $field . ' ' . App::core()->con()->in(array_keys($sub))
             );
 
             while ($rs->fetch()) {
@@ -1099,7 +1100,7 @@ class Posts
         }
 
         if ('' == $cur->getField('post_dt')) {
-            $offset = Dt::getTimeOffset(dotclear()->user()->getInfo('user_tz'));
+            $offset = Dt::getTimeOffset(App::core()->user()->getInfo('user_tz'));
             $now    = time() + $offset;
             $cur->setField('post_dt', date('Y-m-d H:i:00', $now));
         }
@@ -1170,38 +1171,38 @@ class Posts
     public function setPostContent(?int $post_id, string $format, string $lang, ?string &$excerpt, ?string &$excerpt_xhtml, string &$content, string &$content_xhtml): void
     {
         if ('wiki' == $format) {
-            dotclear()->wiki()->initWikiPost();
-            dotclear()->wiki()->setOpt('note_prefix', 'pnote-' . ($post_id ?? ''));
-            $tag = match (dotclear()->blog()->settings()->get('system')->get('note_title_tag')) {
+            App::core()->wiki()->initWikiPost();
+            App::core()->wiki()->setOpt('note_prefix', 'pnote-' . ($post_id ?? ''));
+            $tag = match (App::core()->blog()->settings()->get('system')->get('note_title_tag')) {
                 1       => 'h3',
                 2       => 'p',
                 default => 'h4',
             };
-            dotclear()->wiki()->setOpt('note_str', '<div class="footnotes"><' . $tag . ' class="footnotes-title">' .
+            App::core()->wiki()->setOpt('note_str', '<div class="footnotes"><' . $tag . ' class="footnotes-title">' .
                 __('Notes') . '</' . $tag . '>%s</div>');
-            dotclear()->wiki()->setOpt('note_str_single', '<div class="footnotes"><' . $tag . ' class="footnotes-title">' .
+            App::core()->wiki()->setOpt('note_str_single', '<div class="footnotes"><' . $tag . ' class="footnotes-title">' .
                 __('Note') . '</' . $tag . '>%s</div>');
             if (str_starts_with($lang, 'fr')) {
-                dotclear()->wiki()->setOpt('active_fr_syntax', 1);
+                App::core()->wiki()->setOpt('active_fr_syntax', 1);
             }
         }
 
         if ($excerpt) {
-            $excerpt_xhtml = dotclear()->formater()->callEditorFormater('LegacyEditor', $format, $excerpt);
+            $excerpt_xhtml = App::core()->formater()->callEditorFormater('LegacyEditor', $format, $excerpt);
             $excerpt_xhtml = Html::filter($excerpt_xhtml);
         } else {
             $excerpt_xhtml = '';
         }
 
         if ($content) {
-            $content_xhtml = dotclear()->formater()->callEditorFormater('LegacyEditor', $format, $content);
+            $content_xhtml = App::core()->formater()->callEditorFormater('LegacyEditor', $format, $content);
             $content_xhtml = Html::filter($content_xhtml);
         } else {
             $content_xhtml = '';
         }
 
         // --BEHAVIOR-- coreAfterPostContentFormat, array
-        dotclear()->behavior()->call('coreAfterPostContentFormat', [
+        App::core()->behavior()->call('coreAfterPostContentFormat', [
             'excerpt'       => &$excerpt,
             'content'       => &$content,
             'excerpt_xhtml' => &$excerpt_xhtml,
@@ -1239,37 +1240,37 @@ class Posts
             $url = str_replace(
                 array_keys($url_patterns),
                 array_values($url_patterns),
-                dotclear()->blog()->settings()->get('system')->get('post_url_format')
+                App::core()->blog()->settings()->get('system')->get('post_url_format')
             );
         } else {
             $url = Text::tidyURL($url);
         }
 
         // Let's check if URL is taken...
-        $strReq = 'SELECT post_url FROM ' . dotclear()->prefix . 'post ' .
-        "WHERE post_url = '" . dotclear()->con()->escape($url) . "' " .
+        $strReq = 'SELECT post_url FROM ' . App::core()->prefix . 'post ' .
+        "WHERE post_url = '" . App::core()->con()->escape($url) . "' " .
         'AND post_id <> ' . (int) $post_id . ' ' .
-        "AND blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
+        "AND blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .
             'ORDER BY post_url DESC';
 
-        $rs = dotclear()->con()->select($strReq);
+        $rs = App::core()->con()->select($strReq);
 
         if (!$rs->isEmpty()) {
-            if (dotclear()->con()->syntax() == 'mysql') {
-                $clause = "REGEXP '^" . dotclear()->con()->escape(preg_quote($url)) . "[0-9]+$'";
-            } elseif (dotclear()->con()->driver() == 'pgsql') {
-                $clause = "~ '^" . dotclear()->con()->escape(preg_quote($url)) . "[0-9]+$'";
+            if (App::core()->con()->syntax() == 'mysql') {
+                $clause = "REGEXP '^" . App::core()->con()->escape(preg_quote($url)) . "[0-9]+$'";
+            } elseif (App::core()->con()->driver() == 'pgsql') {
+                $clause = "~ '^" . App::core()->con()->escape(preg_quote($url)) . "[0-9]+$'";
             } else {
                 $clause = "LIKE '" .
-                dotclear()->con()->escape(preg_replace(['/%/', '/_/', '/!/'], ['!%', '!_', '!!'], $url)) . "%' ESCAPE '!'";
+                App::core()->con()->escape(preg_replace(['/%/', '/_/', '/!/'], ['!%', '!_', '!!'], $url)) . "%' ESCAPE '!'";
             }
-            $strReq = 'SELECT post_url FROM ' . dotclear()->prefix . 'post ' .
+            $strReq = 'SELECT post_url FROM ' . App::core()->prefix . 'post ' .
             'WHERE post_url ' . $clause . ' ' .
             'AND post_id <> ' . (int) $post_id . ' ' .
-            "AND blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' " .
+            "AND blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .
                 'ORDER BY post_url DESC ';
 
-            $rs = dotclear()->con()->select($strReq);
+            $rs = App::core()->con()->select($strReq);
             $a  = [];
             while ($rs->fetch()) {
                 $a[] = $rs->f('post_url');

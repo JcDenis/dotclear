@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\LegacyEditor\Admin;
 
 // Dotclear\Plugin\LegacyEditor\Admin\LegacyEditorBehavior
+use Dotclear\App;
 use Dotclear\Helper\L10n;
 
 /**
@@ -21,10 +22,10 @@ class LegacyEditorBehavior
 {
     public function __construct()
     {
-        dotclear()->behavior()->add('adminPostEditor', [$this, 'adminPostEditor']);
-        dotclear()->behavior()->add('adminPopupMedia', [$this, 'adminPopupMedia']);
-        dotclear()->behavior()->add('adminPopupLink', [$this, 'adminPopupLink']);
-        dotclear()->behavior()->add('adminPopupPosts', [$this, 'adminPopupPosts']);
+        App::core()->behavior()->add('adminPostEditor', [$this, 'adminPostEditor']);
+        App::core()->behavior()->add('adminPopupMedia', [$this, 'adminPopupMedia']);
+        App::core()->behavior()->add('adminPopupLink', [$this, 'adminPopupLink']);
+        App::core()->behavior()->add('adminPopupPosts', [$this, 'adminPopupPosts']);
     }
 
     /**
@@ -49,28 +50,28 @@ class LegacyEditorBehavior
 
         return
         $this->jsToolBar() .
-        dotclear()->resource()->json('legacy_editor_ctx', $js) .
-        dotclear()->resource()->load('_post_editor.js', 'Plugin', 'LegacyEditor');
+        App::core()->resource()->json('legacy_editor_ctx', $js) .
+        App::core()->resource()->load('_post_editor.js', 'Plugin', 'LegacyEditor');
     }
 
     public function adminPopupMedia(string $editor = ''): string
     {
-        return 'LegacyEditor' != $editor ? '' : dotclear()->resource()->load('jsToolBar/popup_media.js', 'Plugin', 'LegacyEditor');
+        return 'LegacyEditor' != $editor ? '' : App::core()->resource()->load('jsToolBar/popup_media.js', 'Plugin', 'LegacyEditor');
     }
 
     public function adminPopupLink(string $editor = ''): string
     {
-        return 'LegacyEditor' != $editor ? '' : dotclear()->resource()->load('jsToolBar/popup_link.js', 'Plugin', 'LegacyEditor');
+        return 'LegacyEditor' != $editor ? '' : App::core()->resource()->load('jsToolBar/popup_link.js', 'Plugin', 'LegacyEditor');
     }
 
     public function adminPopupPosts(string $editor = ''): string
     {
-        return 'LegacyEditor' != $editor ? '' : dotclear()->resource()->load('jsToolBar/popup_posts.js', 'Plugin', 'LegacyEditor');
+        return 'LegacyEditor' != $editor ? '' : App::core()->resource()->load('jsToolBar/popup_posts.js', 'Plugin', 'LegacyEditor');
     }
 
     protected function jsToolBar(): string
     {
-        $rtl = 'rtl' == L10n::getLanguageTextDirection(dotclear()->lang()) ? 'direction: rtl;' : '';
+        $rtl = 'rtl' == L10n::getLanguageTextDirection(App::core()->lang()) ? 'direction: rtl;' : '';
         $css = <<<EOT
             body {
                 color: #000;
@@ -91,7 +92,7 @@ class LegacyEditorBehavior
         $js = [
             'dialog_url'            => 'popup.php',
             'iframe_css'            => $css,
-            'base_url'              => dotclear()->blog()->host,
+            'base_url'              => App::core()->blog()->host,
             'switcher_visual_title' => __('visual'),
             'switcher_source_title' => __('source'),
             'legend_msg'            => __('You can use the following shortcuts to format your text.'),
@@ -144,23 +145,23 @@ class LegacyEditorBehavior
                 'removeFormat' => ['title' => __('Remove text formating')],
                 'preview'      => ['title' => __('Preview')],
             ],
-            'toolbar_bottom' => dotclear()->user()->getOption('toolbar_bottom'),
+            'toolbar_bottom' => App::core()->user()->getOption('toolbar_bottom'),
         ];
-        if (!dotclear()->user()->check('media,media_admin', dotclear()->blog()->id)) {
+        if (!App::core()->user()->check('media,media_admin', App::core()->blog()->id)) {
             $js['elements']['img_select']['disabled'] = true;
         }
 
         $res =
-        dotclear()->resource()->json('legacy_editor', $js) .
-        dotclear()->resource()->load('jsToolBar/jsToolBar.css', 'Plugin', 'LegacyEditor') .
-        dotclear()->resource()->load('jsToolBar/jsToolBar.js', 'Plugin', 'LegacyEditor');
+        App::core()->resource()->json('legacy_editor', $js) .
+        App::core()->resource()->load('jsToolBar/jsToolBar.css', 'Plugin', 'LegacyEditor') .
+        App::core()->resource()->load('jsToolBar/jsToolBar.js', 'Plugin', 'LegacyEditor');
 
-        if (dotclear()->user()->getOption('enable_wysiwyg')) {
-            $res .= dotclear()->resource()->load('jsToolBar/jsToolBar.wysiwyg.js', 'Plugin', 'LegacyEditor');
+        if (App::core()->user()->getOption('enable_wysiwyg')) {
+            $res .= App::core()->resource()->load('jsToolBar/jsToolBar.wysiwyg.js', 'Plugin', 'LegacyEditor');
         }
 
-        $res .= dotclear()->resource()->load('jsToolBar/jsToolBar.dotclear.js', 'Plugin', 'LegacyEditor') .
-            dotclear()->resource()->load('jsToolBar/jsToolBar.config.js', 'Plugin', 'LegacyEditor');
+        $res .= App::core()->resource()->load('jsToolBar/jsToolBar.dotclear.js', 'Plugin', 'LegacyEditor') .
+            App::core()->resource()->load('jsToolBar/jsToolBar.config.js', 'Plugin', 'LegacyEditor');
 
         return $res;
     }

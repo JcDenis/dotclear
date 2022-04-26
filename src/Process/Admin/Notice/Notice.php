@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Notice;
 
 // Dotclear\Process\Admin\Notice\Notice
+use Dotclear\App;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
@@ -21,7 +22,7 @@ use Exception;
 /**
  * Backend notices handling facilities.
  *
- * Accessible from dotclear()->notice()->
+ * Accessible from App::core()->notice()->
  *
  * @ingroup  Admin
  */
@@ -68,7 +69,7 @@ class Notice
      */
     public function __construct()
     {
-        $this->table = dotclear()->prefix . $this->table_name;
+        $this->table = App::core()->prefix . $this->table_name;
     }
 
     /**
@@ -169,7 +170,7 @@ class Notice
      */
     public function add(Cursor $cur): int
     {
-        dotclear()->con()->writeLock($this->table);
+        App::core()->con()->writeLock($this->table);
 
         try {
             // Get ID
@@ -186,18 +187,18 @@ class Notice
             $this->cursor($cur, $cur->getField('notice_id'));
 
             // --BEHAVIOR-- coreBeforeNoticeCreate
-            dotclear()->behavior()->call('adminBeforeNoticeCreate', $this, $cur);
+            App::core()->behavior()->call('adminBeforeNoticeCreate', $this, $cur);
 
             $cur->insert();
-            dotclear()->con()->unlock();
+            App::core()->con()->unlock();
         } catch (Exception $e) {
-            dotclear()->con()->unlock();
+            App::core()->con()->unlock();
 
             throw $e;
         }
 
         // --BEHAVIOR-- coreAfterNoticeCreate
-        dotclear()->behavior()->call('adminAfterNoticeCreate', $this, $cur);
+        App::core()->behavior()->call('adminAfterNoticeCreate', $this, $cur);
 
         return $cur->getField('notice_id');
     }
@@ -255,17 +256,17 @@ class Notice
         $res = '';
 
         // Return error messages if any
-        if (dotclear()->error()->flag() && !$this->error_displayed) {
+        if (App::core()->error()->flag() && !$this->error_displayed) {
             // --BEHAVIOR-- adminPageNotificationError
-            $notice_error = dotclear()->behavior()->call('adminPageNotificationError');
+            $notice_error = App::core()->behavior()->call('adminPageNotificationError');
 
             if (isset($notice_error) && !empty($notice_error)) {
                 $res .= $notice_error;
             } else {
                 $res .= sprintf(
                     '<div class="error" role="alert"><p><strong>%s</strong></p>%s</div>',
-                    count(dotclear()->error()->dump()) > 1 ? __('Errors:') : __('Error:'),
-                    dotclear()->error()->toHTML()
+                    count(App::core()->error()->dump()) > 1 ? __('Errors:') : __('Error:'),
+                    App::core()->error()->toHTML()
                 );
             }
             $this->error_displayed = true;
@@ -308,7 +309,7 @@ class Notice
                         $notifications = array_merge($notification, @json_decode($lines->f('notice_options'), true));
                     }
                     // --BEHAVIOR-- adminPageNotification, array
-                    $notice = dotclear()->behavior()->call('adminPageNotification', $notification);
+                    $notice = App::core()->behavior()->call('adminPageNotification', $notification);
 
                     $res .= !empty($notice) ? $notice : $this->getNotification($notification);
                 }
@@ -330,7 +331,7 @@ class Notice
      */
     public function addNotice(string $type, string $message, array $options = []): void
     {
-        $cur = dotclear()->con()->openCursor($this->table());
+        $cur = App::core()->con()->openCursor($this->table());
 
         $cur->setField('notice_type', $type);
         $cur->setField('notice_ts', isset($options['ts']) && $options['ts'] ? $options['ts'] : date('Y-m-d H:i:s'));
@@ -394,8 +395,8 @@ class Notice
         if (!isset($notification['with_ts']) || (true == $notification['with_ts'])) {
             $ts = sprintf(
                 '<span class="notice-ts"><time datetime="%s">%s</time></span>',
-                Dt::iso8601(strtotime($notification['ts']), dotclear()->user()->getInfo('user_tz')),
-                Dt::dt2str(__('%H:%M:%S'), $notification['ts'], dotclear()->user()->getInfo('user_tz')),
+                Dt::iso8601(strtotime($notification['ts']), App::core()->user()->getInfo('user_tz')),
+                Dt::dt2str(__('%H:%M:%S'), $notification['ts'], App::core()->user()->getInfo('user_tz')),
             );
         }
 
@@ -419,8 +420,8 @@ class Notice
             if ($timestamp) {
                 $ts = sprintf(
                     '<span class="notice-ts"><time datetime="%s">%s</time></span>',
-                    Dt::iso8601(time(), dotclear()->user()->getInfo('user_tz')),
-                    Dt::str(__('%H:%M:%S'), null, dotclear()->user()->getInfo('user_tz')),
+                    Dt::iso8601(time(), App::core()->user()->getInfo('user_tz')),
+                    Dt::str(__('%H:%M:%S'), null, App::core()->user()->getInfo('user_tz')),
                 );
             }
             $res = ($div ? '<div class="' . $class . '">' : '') . '<p' . ($div ? '' : ' class="' . $class . '"') . '>' .

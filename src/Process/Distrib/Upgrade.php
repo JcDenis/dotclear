@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Distrib;
 
 // Dotclear\Process\Distrib\Upgrade
+use Dotclear\App;
 use Dotclear\Database\Structure;
 use Dotclear\Exception\DistribException;
 use Exception;
@@ -27,23 +28,23 @@ class Upgrade
 {
     public function doUpgrade(): int|false
     {
-        $version = dotclear()->version()->get('core');
+        $version = App::core()->version()->get('core');
 
         if (null === $version) {
             return false;
         }
 
-        if (version_compare($version, dotclear()->config()->get('core_version'), '<') == 1 || str_contains(dotclear()->config()->get('core_version'), 'dev')) {
+        if (version_compare($version, App::core()->config()->get('core_version'), '<') == 1 || str_contains(App::core()->config()->get('core_version'), 'dev')) {
             try {
-                if (dotclear()->con()->driver() == 'sqlite') {
+                if (App::core()->con()->driver() == 'sqlite') {
                     return false; // Need to find a way to upgrade sqlite database
                 }
 
                 // Database upgrade
-                $_s = new Structure(dotclear()->con(), dotclear()->prefix);
+                $_s = new Structure(App::core()->con(), App::core()->prefix);
                 Distrib::getDatabaseStructure($_s);
 
-                $si      = new Structure(dotclear()->con(), dotclear()->prefix);
+                $si      = new Structure(App::core()->con(), App::core()->prefix);
                 $changes = $si->synchronize($_s);
 
                 /* Some other upgrades
@@ -52,12 +53,12 @@ class Upgrade
 
                 // Drop content from session table if changes or if needed
                 if (0 != $changes || $cleanup_sessions) {
-                    dotclear()->con()->execute('DELETE FROM ' . dotclear()->prefix . 'session ');
+                    App::core()->con()->execute('DELETE FROM ' . App::core()->prefix . 'session ');
                 }
 
                 // Empty templates cache directory
                 try {
-                    dotclear()->emptyTemplatesCache();
+                    App::core()->emptyTemplatesCache();
                 } catch (\Exception) {
                 }
 
@@ -83,7 +84,7 @@ class Upgrade
 
         // no growup for now :)
 
-        dotclear()->version()->set('core', dotclear()->config()->get('core_version'));
+        App::core()->version()->set('core', App::core()->config()->get('core_version'));
         Distrib::setBlogDefaultSettings();
 
         return $cleanup_sessions;

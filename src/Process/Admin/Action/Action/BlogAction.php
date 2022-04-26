@@ -11,6 +11,7 @@ namespace Dotclear\Process\Admin\Action\Action;
 
 // Dotclear\Process\Admin\Action\Action\BlogAction
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\Form;
 use Exception;
@@ -31,17 +32,17 @@ class BlogAction extends DefaultBlogAction
         $this->field_entries   = 'blogs';
         $this->cb_title        = __('Blogs');
         $this->loadDefaults();
-        dotclear()->behavior()->call('adminBlogsActionsPage', $this);
+        App::core()->behavior()->call('adminBlogsActionsPage', $this);
 
         // Page setup
         $this
             ->setPageTitle(__('Blogs'))
             ->setPageType($this->in_plugin ? 'plugin' : 'full')
-            ->setPageHead(dotclear()->resource()->load('_blogs_actions.js'))
+            ->setPageHead(App::core()->resource()->load('_blogs_actions.js'))
             ->setPageBreadcrumb([
-                Html::escapeHTML(dotclear()->blog()->name) => '',
-                __('Blogs')                                => dotclear()->adminurl()->get('admin.blogs'),
-                __('Blogs actions')                        => '',
+                Html::escapeHTML(App::core()->blog()->name) => '',
+                __('Blogs')                                 => App::core()->adminurl()->get('admin.blogs'),
+                __('Blogs actions')                         => '',
             ])
         ;
     }
@@ -53,7 +54,7 @@ class BlogAction extends DefaultBlogAction
 
     public function error(Exception $e): void
     {
-        dotclear()->error()->add($e->getMessage());
+        App::core()->error()->add($e->getMessage());
         $this->setPageContent('<p><a class="back" href="' . $this->getRedirection(true) . '">' . __('Back to blogs list') . '</a></p>');
     }
 
@@ -88,7 +89,7 @@ class BlogAction extends DefaultBlogAction
             $params['blog_id'] = $from['blogs'];
         }
 
-        $rs = dotclear()->blogs()->getBlogs($params);
+        $rs = App::core()->blogs()->getBlogs($params);
         while ($rs->fetch()) {
             $this->entries[$rs->f('blog_id')] = [
                 'blog' => $rs->f('blog_id'),

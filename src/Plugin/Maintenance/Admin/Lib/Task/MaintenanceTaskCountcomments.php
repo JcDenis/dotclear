@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Maintenance\Admin\Lib\Task;
 
 // Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskCountcomments
+use Dotclear\App;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
@@ -48,7 +49,7 @@ class MaintenanceTaskCountcomments extends MaintenanceTask
         $sql = new SelectStatement(__METHOD__);
         $sel = $sql
             ->column($sql->count('C.comment_id'))
-            ->from(dotclear()->prefix . 'comment C')
+            ->from(App::core()->prefix . 'comment C')
             ->where([
                 'C.post_id = P.post_id',
                 'C.comment_trackback <> 1',
@@ -59,7 +60,7 @@ class MaintenanceTaskCountcomments extends MaintenanceTask
 
         $sql = UpdateStatement::init(__METHOD__)
             ->set('nb_comment = (' . $sel . ')')
-            ->from(dotclear()->prefix . 'post P')
+            ->from(App::core()->prefix . 'post P')
             ->update()
         ;
 
@@ -67,7 +68,7 @@ class MaintenanceTaskCountcomments extends MaintenanceTask
         $sql = new SelectStatement(__METHOD__);
         $sel = $sql
             ->column($sql->count('C.comment_id'))
-            ->from(dotclear()->prefix . 'comment C')
+            ->from(App::core()->prefix . 'comment C')
             ->where([
                 'C.post_id = P.post_id',
                 'C.comment_trackback = 1',
@@ -78,7 +79,7 @@ class MaintenanceTaskCountcomments extends MaintenanceTask
 
         $sql = UpdateStatement::init(__METHOD__)
             ->set('nb_trackback = (' . $sel . ')')
-            ->from(dotclear()->prefix . 'post P')
+            ->from(App::core()->prefix . 'post P')
             ->update()
         ;
     }

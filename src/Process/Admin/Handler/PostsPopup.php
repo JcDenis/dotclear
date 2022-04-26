@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\PostsPopup
+use Dotclear\App;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Inventory\Inventory\PostMiniInventory;
 use Dotclear\Helper\Html\Form;
@@ -40,7 +41,7 @@ class PostsPopup extends AbstractPage
         $this->page      = !empty($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
         $this->type      = !empty($_GET['type']) ? $_GET['type'] : null;
 
-        $post_types = dotclear()->posttype()->getPostTypes();
+        $post_types = App::core()->posttype()->getPostTypes();
         foreach ($post_types as $k => $v) {
             $this->type_combo[__($k)] = (string) $k;
         }
@@ -62,8 +63,8 @@ class PostsPopup extends AbstractPage
         }
 
         return new PostMiniInventory(
-            dotclear()->blog()->posts()->getPosts($params),
-            dotclear()->blog()->posts()->getPosts($params, true)->fInt()
+            App::core()->blog()->posts()->getPosts($params),
+            App::core()->blog()->posts()->getPosts($params, true)->fInt()
         );
     }
 
@@ -73,16 +74,16 @@ class PostsPopup extends AbstractPage
             ->setPageTitle(__('Add a link to an entry'))
             ->setPageType('popup')
             ->setPageHead(
-                dotclear()->resource()->load('_posts_list.js') .
-                dotclear()->resource()->load('_popup_posts.js') .
-                dotclear()->behavior()->call('adminPopupPosts', $this->plugin_id)
+                App::core()->resource()->load('_posts_list.js') .
+                App::core()->resource()->load('_popup_posts.js') .
+                App::core()->behavior()->call('adminPopupPosts', $this->plugin_id)
             )
         ;
 
         if ('admin.blog.pref' == $this->plugin_id) { // ! ?
             $this->setPageHead(
-                dotclear()->resource()->json('admin.blog.pref', ['base_url' => dotclear()->blog()->url]) .
-                dotclear()->resource()->load('_blog_pref_popup_posts.js')
+                App::core()->resource()->json('admin.blog.pref', ['base_url' => App::core()->blog()->url]) .
+                App::core()->resource()->load('_blog_pref_popup_posts.js')
             );
         }
 
@@ -93,13 +94,13 @@ class PostsPopup extends AbstractPage
     {
         echo '<h2 class="page-title">' . __('Add a link to an entry') . '</h2>' .
 
-        '<form action="' . dotclear()->adminurl()->get('admin.posts.popup') . '" method="get">' .
+        '<form action="' . App::core()->adminurl()->get('admin.posts.popup') . '" method="get">' .
         '<p><label for="type" class="classic">' . __('Entry type:') . '</label> ' . Form::combo('type', $this->type_combo, $this->type) . '' .
         '<noscript><div><input type="submit" value="' . __('Ok') . '" /></div></noscript>' .
         Form::hidden('plugin_id', Html::escapeHTML($this->plugin_id)) . '</p>' .
         '</form>' .
 
-       '<form action="' . dotclear()->adminurl()->get('admin.posts.popup') . '" method="get">' .
+       '<form action="' . App::core()->adminurl()->get('admin.posts.popup') . '" method="get">' .
         '<p><label for="q" class="classic">' . __('Search entry:') . '</label> ' . Form::field('q', 30, 255, Html::escapeHTML($this->q)) .
         ' <input type="submit" value="' . __('Search') . '" />' .
         Form::hidden('plugin_id', Html::escapeHTML($this->plugin_id)) .

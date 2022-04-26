@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\ThemeEditor\Admin;
 
 // Dotclear\Plugin\ThemeEditor\Admin\ThemeEditor
+use Dotclear\App;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
@@ -42,11 +43,11 @@ class ThemeEditor
     public function __construct()
     {
         // Default template set
-        $this->tplset_theme = Path::implodeRoot('Process', 'Public', 'templates', dotclear()->config()->get('template_default'));
-        $this->tplset_name  = dotclear()->config()->get('template_default');
+        $this->tplset_theme = Path::implodeRoot('Process', 'Public', 'templates', App::core()->config()->get('template_default'));
+        $this->tplset_name  = App::core()->config()->get('template_default');
 
         // Current theme
-        $module = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->get('system')->get('theme'));
+        $module = App::core()->themes()->getModule((string) App::core()->blog()->settings()->get('system')->get('theme'));
         if (!$module) {
             throw new AdminException('Blog theme is not set');
         }
@@ -59,7 +60,7 @@ class ThemeEditor
         }
 
         // Parent theme
-        $parent = dotclear()->themes()->getModule((string) $module->parent());
+        $parent = App::core()->themes()->getModule((string) $module->parent());
         if (null != $parent) {
             $this->parent_theme = Path::real($parent->root());
             $this->parent_name  = $parent->name();
@@ -307,7 +308,7 @@ class ThemeEditor
         $this->tpl = array_merge($this->tpl, $this->getFilesInDir($this->user_theme . '/templates/tpl'));
 
         // Then we look in 'default-templates' plugins directory
-        $plugins = dotclear()->plugins()->getModules();
+        $plugins = App::core()->plugins()->getModules();
         foreach ($plugins as $p) {
             // Looking in default-templates directory
             $this->tpl       = array_merge($this->getFilesInDir($p->root() . '/templates/tpl'), $this->tpl);

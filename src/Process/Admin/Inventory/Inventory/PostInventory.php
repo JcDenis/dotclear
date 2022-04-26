@@ -11,6 +11,7 @@ namespace Dotclear\Process\Admin\Inventory\Inventory;
 
 // Dotclear\Process\Admin\Inventory\Inventory\PostInventory
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Helper\Dt;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -54,35 +55,35 @@ class PostInventory extends Inventory
             if ($filter) {
                 $html_block .= '<caption>' . sprintf(__('List of %s entries matching the filter.'), $this->rs_count) . '</caption>';
             } else {
-                $nb_published   = dotclear()->blog()->posts()->getPosts(['post_status' => 1], true)->fInt();
-                $nb_pending     = dotclear()->blog()->posts()->getPosts(['post_status' => -2], true)->fInt();
-                $nb_programmed  = dotclear()->blog()->posts()->getPosts(['post_status' => -1], true)->fInt();
-                $nb_unpublished = dotclear()->blog()->posts()->getPosts(['post_status' => 0], true)->fInt();
+                $nb_published   = App::core()->blog()->posts()->getPosts(['post_status' => 1], true)->fInt();
+                $nb_pending     = App::core()->blog()->posts()->getPosts(['post_status' => -2], true)->fInt();
+                $nb_programmed  = App::core()->blog()->posts()->getPosts(['post_status' => -1], true)->fInt();
+                $nb_unpublished = App::core()->blog()->posts()->getPosts(['post_status' => 0], true)->fInt();
 
                 $html_block .= '<caption>' .
                 sprintf(__('List of entries (%s)'), $this->rs_count) .
                     ($nb_published ?
                     sprintf(
                         __(', <a href="%s">published</a> (1)', ', <a href="%s">published</a> (%s)', $nb_published),
-                        dotclear()->adminurl()->get('admin.posts', ['status' => 1]),
+                        App::core()->adminurl()->get('admin.posts', ['status' => 1]),
                         $nb_published
                     ) : '') .
                     ($nb_pending ?
                     sprintf(
                         __(', <a href="%s">pending</a> (1)', ', <a href="%s">pending</a> (%s)', $nb_pending),
-                        dotclear()->adminurl()->get('admin.posts', ['status' => -2]),
+                        App::core()->adminurl()->get('admin.posts', ['status' => -2]),
                         $nb_pending
                     ) : '') .
                     ($nb_programmed ?
                     sprintf(
                         __(', <a href="%s">programmed</a> (1)', ', <a href="%s">programmed</a> (%s)', $nb_programmed),
-                        dotclear()->adminurl()->get('admin.posts', ['status' => -1]),
+                        App::core()->adminurl()->get('admin.posts', ['status' => -1]),
                         $nb_programmed
                     ) : '') .
                     ($nb_unpublished ?
                     sprintf(
                         __(', <a href="%s">unpublished</a> (1)', ', <a href="%s">unpublished</a> (%s)', $nb_unpublished),
-                        dotclear()->adminurl()->get('admin.posts', ['status' => 0]),
+                        App::core()->adminurl()->get('admin.posts', ['status' => 0]),
                         $nb_unpublished
                     ) : '') .
                     '</caption>';
@@ -100,7 +101,7 @@ class PostInventory extends Inventory
                 'status' => '<th scope="col">' . __('Status') . '</th>',
             ];
             $cols = new ArrayObject($cols);
-            dotclear()->behavior()->call('adminPostListHeader', $this->rs, $cols);
+            App::core()->behavior()->call('adminPostListHeader', $this->rs, $cols);
 
             // Cope with optional columns
             $this->userColumns('posts', $cols);
@@ -143,8 +144,8 @@ class PostInventory extends Inventory
      */
     private function postLine(bool $checked): string
     {
-        if (dotclear()->user()->check('categories', dotclear()->blog()->id)) {
-            $cat_link = '<a href="' . dotclear()->adminurl()->get('admin.category', ['id' => '%s'], '&amp;', true) . '">%s</a>';
+        if (App::core()->user()->check('categories', App::core()->blog()->id)) {
+            $cat_link = '<a href="' . App::core()->adminurl()->get('admin.category', ['id' => '%s'], '&amp;', true) . '">%s</a>';
         } else {
             $cat_link = '%2$s';
         }
@@ -221,7 +222,7 @@ class PostInventory extends Inventory
             ) .
             '</td>',
             'title' => '<td class="maximal" scope="row"><a href="' .
-            dotclear()->posttype()->getPostAdminURL($this->rs->f('post_type'), $this->rs->f('post_id')) . '">' .
+            App::core()->posttype()->getPostAdminURL($this->rs->f('post_type'), $this->rs->f('post_id')) . '">' .
             Html::escapeHTML(trim(Html::clean($this->rs->f('post_title')))) . '</a></td>',
             'date'       => '<td class="nowrap count">' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $this->rs->f('post_dt')) . '</td>',
             'category'   => '<td class="nowrap">' . $cat_title . '</td>',
@@ -231,7 +232,7 @@ class PostInventory extends Inventory
             'status'     => '<td class="nowrap status">' . $img_status . ' ' . $selected . ' ' . $protected . ' ' . $attach . '</td>',
         ];
         $cols = new ArrayObject($cols);
-        dotclear()->behavior()->call('adminPostListValue', $this->rs, $cols);
+        App::core()->behavior()->call('adminPostListValue', $this->rs, $cols);
 
         // Cope with optional columns
         $this->userColumns('posts', $cols);

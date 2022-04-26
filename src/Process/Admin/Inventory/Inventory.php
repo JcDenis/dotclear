@@ -11,6 +11,7 @@ namespace Dotclear\Process\Admin\Inventory;
 
 // Dotclear\Process\Admin\Inventory\Inventory
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Database\Record;
 
 /**
@@ -52,6 +53,6 @@ class Inventory
      */
     public function userColumns(string $type, ArrayObject $cols): void
     {
-        $cols = dotclear()->listoption()->getUserColumns($type, $cols);
+        $cols = App::core()->listoption()->getUserColumns($type, $cols);
     }
 }

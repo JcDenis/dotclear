@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\Comment
+use Dotclear\App;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Html\Form;
@@ -48,13 +49,13 @@ class Comment extends AbstractPage
         // Adding comment (comming from post form, comments tab)
         if (!empty($_POST['add']) && !empty($_POST['post_id'])) {
             try {
-                $rs = dotclear()->blog()->posts()->getPosts(['post_id' => $_POST['post_id'], 'post_type' => '']);
+                $rs = App::core()->blog()->posts()->getPosts(['post_id' => $_POST['post_id'], 'post_type' => '']);
 
                 if ($rs->isEmpty()) {
                     throw new AdminException(__('Entry does not exist.'));
                 }
 
-                $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
+                $cur = App::core()->con()->openCursor(App::core()->prefix . 'comment');
 
                 $cur->setField('comment_author', $_POST['comment_author']);
                 $cur->setField('comment_email', Html::clean($_POST['comment_email']));
@@ -63,18 +64,18 @@ class Comment extends AbstractPage
                 $cur->setField('post_id', (int) $_POST['post_id']);
 
                 // --BEHAVIOR-- adminBeforeCommentCreate
-                dotclear()->behavior()->call('adminBeforeCommentCreate', $cur);
+                App::core()->behavior()->call('adminBeforeCommentCreate', $cur);
 
-                $this->comment_id = dotclear()->blog()->comments()->addComment($cur);
+                $this->comment_id = App::core()->blog()->comments()->addComment($cur);
 
                 // --BEHAVIOR-- adminAfterCommentCreate
-                dotclear()->behavior()->call('adminAfterCommentCreate', $cur, $this->comment_id);
+                App::core()->behavior()->call('adminAfterCommentCreate', $cur, $this->comment_id);
 
-                dotclear()->notice()->addSuccessNotice(__('Comment has been successfully created.'));
+                App::core()->notice()->addSuccessNotice(__('Comment has been successfully created.'));
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
-            Http::redirect(dotclear()->posttype()->getPostAdminURL($rs->f('post_type'), $rs->f('post_id'), false) . '&co=1');
+            Http::redirect(App::core()->posttype()->getPostAdminURL($rs->f('post_type'), $rs->f('post_id'), false) . '&co=1');
         }
 
         $rs         = null;
@@ -84,7 +85,7 @@ class Comment extends AbstractPage
 
         if (!empty($_REQUEST['id'])) {
             try {
-                $rs = dotclear()->blog()->comments()->getComments(['comment_id' => $_REQUEST['id']]);
+                $rs = App::core()->blog()->comments()->getComments(['comment_id' => $_REQUEST['id']]);
                 if (!$rs->isEmpty()) {
                     $this->comment_id      = $rs->fInt('comment_id');
                     $post_id               = $rs->fInt('post_id');
@@ -99,31 +100,31 @@ class Comment extends AbstractPage
                     $this->comment_status  = $rs->fInt('comment_status');
                 }
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
-        if (!$this->comment_id && !dotclear()->error()->flag()) {
-            dotclear()->error()->add(__('No comments'));
+        if (!$this->comment_id && !App::core()->error()->flag()) {
+            App::core()->error()->add(__('No comments'));
         }
 
         $this->commnet_can_edit = $this->commnet_can_delete = $this->commnet_can_publish = false;
-        if (!dotclear()->error()->flag() && isset($rs)) {
-            $this->commnet_can_edit = $this->commnet_can_delete = $this->commnet_can_publish = dotclear()->user()->check('contentadmin', dotclear()->blog()->id);
+        if (!App::core()->error()->flag() && isset($rs)) {
+            $this->commnet_can_edit = $this->commnet_can_delete = $this->commnet_can_publish = App::core()->user()->check('contentadmin', App::core()->blog()->id);
 
-            if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id) && dotclear()->user()->userID() == $rs->f('user_id')) {
+            if (!App::core()->user()->check('contentadmin', App::core()->blog()->id) && App::core()->user()->userID() == $rs->f('user_id')) {
                 $this->commnet_can_edit = true;
-                if (dotclear()->user()->check('delete', dotclear()->blog()->id)) {
+                if (App::core()->user()->check('delete', App::core()->blog()->id)) {
                     $this->commnet_can_delete = true;
                 }
-                if (dotclear()->user()->check('publish', dotclear()->blog()->id)) {
+                if (App::core()->user()->check('publish', App::core()->blog()->id)) {
                     $this->commnet_can_publish = true;
                 }
             }
 
             // update comment
             if (!empty($_POST['update']) && $this->commnet_can_edit) {
-                $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'comment');
+                $cur = App::core()->con()->openCursor(App::core()->prefix . 'comment');
 
                 $cur->setField('comment_author', $_POST['comment_author']);
                 $cur->setField('comment_email', Html::clean($_POST['comment_email']));
@@ -136,36 +137,36 @@ class Comment extends AbstractPage
 
                 try {
                     // --BEHAVIOR-- adminBeforeCommentUpdate
-                    dotclear()->behavior()->call('adminBeforeCommentUpdate', $cur, $this->comment_id);
+                    App::core()->behavior()->call('adminBeforeCommentUpdate', $cur, $this->comment_id);
 
-                    dotclear()->blog()->comments()->updComment($this->comment_id, $cur);
+                    App::core()->blog()->comments()->updComment($this->comment_id, $cur);
 
                     // --BEHAVIOR-- adminAfterCommentUpdate
-                    dotclear()->behavior()->call('adminAfterCommentUpdate', $cur, $this->comment_id);
+                    App::core()->behavior()->call('adminAfterCommentUpdate', $cur, $this->comment_id);
 
-                    dotclear()->notice()->addSuccessNotice(__('Comment has been successfully updated.'));
-                    dotclear()->adminurl()->redirect('admin.comment', ['id' => $this->comment_id]);
+                    App::core()->notice()->addSuccessNotice(__('Comment has been successfully updated.'));
+                    App::core()->adminurl()->redirect('admin.comment', ['id' => $this->comment_id]);
                 } catch (Exception $e) {
-                    dotclear()->error()->add($e->getMessage());
+                    App::core()->error()->add($e->getMessage());
                 }
             }
 
             if (!empty($_POST['delete']) && $this->commnet_can_delete) {
                 try {
                     // --BEHAVIOR-- adminBeforeCommentDelete
-                    dotclear()->behavior()->call('adminBeforeCommentDelete', $this->comment_id);
+                    App::core()->behavior()->call('adminBeforeCommentDelete', $this->comment_id);
 
-                    dotclear()->blog()->comments()->delComment($this->comment_id);
+                    App::core()->blog()->comments()->delComment($this->comment_id);
 
-                    dotclear()->notice()->addSuccessNotice(__('Comment has been successfully deleted.'));
-                    Http::redirect(dotclear()->posttype()->getPostAdminURL($rs->f('post_type'), $rs->f('post_id')) . '&co=1');
+                    App::core()->notice()->addSuccessNotice(__('Comment has been successfully deleted.'));
+                    Http::redirect(App::core()->posttype()->getPostAdminURL($rs->f('post_type'), $rs->f('post_id')) . '&co=1');
                 } catch (Exception $e) {
-                    dotclear()->error()->add($e->getMessage());
+                    App::core()->error()->add($e->getMessage());
                 }
             }
 
             if (!$this->commnet_can_edit) {
-                dotclear()->error()->add(__("You can't edit this comment."));
+                App::core()->error()->add(__("You can't edit this comment."));
             }
         }
 
@@ -174,23 +175,23 @@ class Comment extends AbstractPage
         }
 
         // Page setup
-        $comment_editor = dotclear()->user()->getOption('editor');
+        $comment_editor = App::core()->user()->getOption('editor');
 
         $this
             ->setPageTitle(__('Edit comment'))
             ->setPageHelp('core_comments')
             ->setPageHead(
-                dotclear()->resource()->confirmClose('comment-form') .
-                dotclear()->resource()->load('_comment.js') .
-                dotclear()->behavior()->call('adminPostEditor', $comment_editor['xhtml'], 'comment', ['#comment_content'], 'xhtml') .
+                App::core()->resource()->confirmClose('comment-form') .
+                App::core()->resource()->load('_comment.js') .
+                App::core()->behavior()->call('adminPostEditor', $comment_editor['xhtml'], 'comment', ['#comment_content'], 'xhtml') .
 
                 // --BEHAVIOR-- adminCommentHeaders
-                dotclear()->behavior()->call('adminCommentHeaders')
+                App::core()->behavior()->call('adminCommentHeaders')
             )
             ->setPageBreadcrumb([
-                Html::escapeHTML(dotclear()->blog()->name) => '',
-                Html::escapeHTML($post_title)              => dotclear()->posttype()->getPostAdminURL($post_type, $post_id) . ($this->comment_id ? '&amp;co=1#c' . $this->comment_id : ''),
-                __('Edit comment')                         => '',
+                Html::escapeHTML(App::core()->blog()->name) => '',
+                Html::escapeHTML($post_title)               => App::core()->posttype()->getPostAdminURL($post_type, $post_id) . ($this->comment_id ? '&amp;co=1#c' . $this->comment_id : ''),
+                __('Edit comment')                          => '',
             ])
         ;
 
@@ -204,29 +205,29 @@ class Comment extends AbstractPage
         }
 
         if (!empty($_GET['upd'])) {
-            dotclear()->notice()->success(__('Comment has been successfully updated.'));
+            App::core()->notice()->success(__('Comment has been successfully updated.'));
         }
 
         // Status combo
-        $status_combo = dotclear()->combo()->getCommentStatusesCombo();
+        $status_combo = App::core()->combo()->getCommentStatusesCombo();
 
         $comment_mailto = '';
         if ($this->comment_email) {
             $comment_mailto = '<a href="mailto:' . Html::escapeHTML($this->comment_email)
-            . '?subject=' . rawurlencode(sprintf(__('Your comment on my blog %s'), dotclear()->blog()->name))
+            . '?subject=' . rawurlencode(sprintf(__('Your comment on my blog %s'), App::core()->blog()->name))
             . '&amp;body='
             . rawurlencode(sprintf(__("Hi!\n\nYou wrote a comment on:\n%s\n\n\n"), $this->commnet_post_url))
             . '">' . __('Send an e-mail') . '</a>';
         }
 
-        echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="comment-form">' .
+        echo '<form action="' . App::core()->adminurl()->root() . '" method="post" id="comment-form">' .
         '<div class="fieldset">' .
         '<h3>' . __('Information collected') . '</h3>';
 
-        $show_ip = dotclear()->user()->check('contentadmin', dotclear()->blog()->id);
+        $show_ip = App::core()->user()->check('contentadmin', App::core()->blog()->id);
         if ($show_ip) {
             echo '<p>' . __('IP address:') . ' ' .
-            '<a href="' . dotclear()->adminurl()->get('admin.comments', ['ip' => $this->comment_ip]) . '">' . $this->comment_ip . '</a></p>';
+            '<a href="' . App::core()->adminurl()->get('admin.comments', ['ip' => $this->comment_ip]) . '">' . $this->comment_ip . '</a></p>';
         }
 
         echo '<p>' . __('Date:') . ' ' .
@@ -259,7 +260,7 @@ class Comment extends AbstractPage
         '</p>' .
 
         // --BEHAVIOR-- adminAfterCommentDesc
-        // !dotclear()->behavior()->call('adminAfterCommentDesc', $rs) .
+        // !App::core()->behavior()->call('adminAfterCommentDesc', $rs) .
 
         '<p class="area"><label for="comment_content">' . __('Comment:') . '</label> ' .
         Form::textarea(
@@ -268,13 +269,13 @@ class Comment extends AbstractPage
             10,
             [
                 'default'    => Html::escapeHTML($this->comment_content),
-                'extra_html' => 'lang="' . dotclear()->user()->getInfo('user_lang') . '" spellcheck="true"',
+                'extra_html' => 'lang="' . App::core()->user()->getInfo('user_lang') . '" spellcheck="true"',
             ]
         ) .
         '</p>' .
 
         '<p>' . Form::hidden('id', $this->comment_id) .
-        dotclear()->adminurl()->getHiddenFormFields('admin.comment', [], true) .
+        App::core()->adminurl()->getHiddenFormFields('admin.comment', [], true) .
         '<input type="submit" accesskey="s" name="update" value="' . __('Save') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />';
 

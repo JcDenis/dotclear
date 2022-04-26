@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\RsExt;
 
 // Dotclear\Core\RsExt\RsExtBlog
+use Dotclear\App;
 use Dotclear\Helper\Dt;
 
 /**
@@ -38,7 +39,7 @@ class RsExtBlog extends RsExtend
      */
     public function getISO8601Date(string $tz = ''): string
     {
-        return Dt::iso8601($this->getTS(), $tz ?: dotclear()->blog()->settings()->get('system')->get('blog_timezone'));
+        return Dt::iso8601($this->getTS(), $tz ?: App::core()->blog()->settings()->get('system')->get('blog_timezone'));
     }
 
     /**
@@ -50,7 +51,7 @@ class RsExtBlog extends RsExtend
      */
     public function getRFC822Date(string $tz = ''): string
     {
-        return Dt::rfc822($this->getTS(), $tz ?: dotclear()->blog()->settings()->get('system')->get('blog_timezone'));
+        return Dt::rfc822($this->getTS(), $tz ?: App::core()->blog()->settings()->get('system')->get('blog_timezone'));
     }
 
     /**
@@ -63,7 +64,7 @@ class RsExtBlog extends RsExtend
      */
     public function getDate(string $format = ''): string
     {
-        return Dt::dt2str($format ?: dotclear()->blog()->settings()->get('system')->get('date_format'), $this->rs->f('blog_upddt'));
+        return Dt::dt2str($format ?: App::core()->blog()->settings()->get('system')->get('date_format'), $this->rs->f('blog_upddt'));
     }
 
     /**
@@ -76,6 +77,6 @@ class RsExtBlog extends RsExtend
      */
     public function getTime(string $format): string
     {
-        return Dt::dt2str($format ?: dotclear()->blog()->settings()->get('system')->get('time_format'), $this->rs->f('blog_upddt'));
+        return Dt::dt2str($format ?: App::core()->blog()->settings()->get('system')->get('time_format'), $this->rs->f('blog_upddt'));
     }
 }

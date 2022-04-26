@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Theme\Berlin\Public;
 
 // Dotclear\Theme\Berlin\Public\Prepend
+use Dotclear\App;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependPublic;
@@ -29,7 +30,7 @@ class Prepend extends AbstractPrepend
             return;
         }
 
-        dotclear()->behavior()->add('publicHeadContent', function (): void {
+        App::core()->behavior()->add('publicHeadContent', function (): void {
             echo Html::jsJson('dotclear_berlin', [
                 'show_menu'  => __('Show menu'),
                 'hide_menu'  => __('Hide menu'),

@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\Attachments\Public;
 
 // Dotclear\Plugin\Attachments\Public\AttachmentsTemplate
 use ArrayObject;
+use Dotclear\App;
 
 /**
  * Public templates for plugin Attachments.
@@ -27,21 +28,21 @@ class AttachmentsTemplate
 
     public function __construct()
     {
-        dotclear()->template()->addBlock('Attachments', [$this, 'Attachments']);
-        dotclear()->template()->addBlock('AttachmentsHeader', [$this, 'AttachmentsHeader']);
-        dotclear()->template()->addBlock('AttachmentsFooter', [$this, 'AttachmentsFooter']);
-        dotclear()->template()->addValue('AttachmentMimeType', [$this, 'AttachmentMimeType']);
-        dotclear()->template()->addValue('AttachmentType', [$this, 'AttachmentType']);
-        dotclear()->template()->addValue('AttachmentFileName', [$this, 'AttachmentFileName']);
-        dotclear()->template()->addValue('AttachmentSize', [$this, 'AttachmentSize']);
-        dotclear()->template()->addValue('AttachmentTitle', [$this, 'AttachmentTitle']);
-        dotclear()->template()->addValue('AttachmentThumbnailURL', [$this, 'AttachmentThumbnailURL']);
-        dotclear()->template()->addValue('AttachmentURL', [$this, 'AttachmentURL']);
-        dotclear()->template()->addValue('MediaURL', [$this, 'MediaURL']);
-        dotclear()->template()->addBlock('AttachmentIf', [$this, 'AttachmentIf']);
-        dotclear()->template()->addValue('EntryAttachmentCount', [$this, 'EntryAttachmentCount']);
+        App::core()->template()->addBlock('Attachments', [$this, 'Attachments']);
+        App::core()->template()->addBlock('AttachmentsHeader', [$this, 'AttachmentsHeader']);
+        App::core()->template()->addBlock('AttachmentsFooter', [$this, 'AttachmentsFooter']);
+        App::core()->template()->addValue('AttachmentMimeType', [$this, 'AttachmentMimeType']);
+        App::core()->template()->addValue('AttachmentType', [$this, 'AttachmentType']);
+        App::core()->template()->addValue('AttachmentFileName', [$this, 'AttachmentFileName']);
+        App::core()->template()->addValue('AttachmentSize', [$this, 'AttachmentSize']);
+        App::core()->template()->addValue('AttachmentTitle', [$this, 'AttachmentTitle']);
+        App::core()->template()->addValue('AttachmentThumbnailURL', [$this, 'AttachmentThumbnailURL']);
+        App::core()->template()->addValue('AttachmentURL', [$this, 'AttachmentURL']);
+        App::core()->template()->addValue('MediaURL', [$this, 'MediaURL']);
+        App::core()->template()->addBlock('AttachmentIf', [$this, 'AttachmentIf']);
+        App::core()->template()->addValue('EntryAttachmentCount', [$this, 'EntryAttachmentCount']);
 
-        dotclear()->behavior()->add('tplIfConditions', [$this, 'tplIfConditions']);
+        App::core()->behavior()->add('tplIfConditions', [$this, 'tplIfConditions']);
     }
 
     /*dtd
@@ -50,15 +51,15 @@ class AttachmentsTemplate
     public function Attachments(ArrayObject $attr, string $content): string
     {
         return self::$ton . "\n" .
-            'if (dotclear()->context()->get("posts") !== null) {' . "\n" .
-            'dotclear()->context()->set("attachments", new ArrayObject(dotclear()->media()->getPostMedia(dotclear()->context()->get("posts")->fInt("post_id"),null,"attachment")));' . "\n" .
+            'if (App::core()->context()->get("posts") !== null) {' . "\n" .
+            'App::core()->context()->set("attachments", new ArrayObject(App::core()->media()->getPostMedia(App::core()->context()->get("posts")->fInt("post_id"),null,"attachment")));' . "\n" .
             "?>\n" .
 
-            self::$ton . 'foreach (dotclear()->context()->get("attachments") as $attach_i => $attach_f) : ' .
+            self::$ton . 'foreach (App::core()->context()->get("attachments") as $attach_i => $attach_f) : ' .
             '$GLOBALS[\'attach_i\'] = $attach_i; $GLOBALS[\'attach_f\'] = $attach_f;' .
-            'dotclear()->context()->set("file_url", $attach_f->file_url);' . self::$toff .
+            'App::core()->context()->set("file_url", $attach_f->file_url);' . self::$toff .
             $content .
-            self::$ton . 'endforeach; dotclear()->context()->set("attachments", null); unset($attach_i,$attach_f); dotclear()->context()->set("file_url", null);' . self::$toff .
+            self::$ton . 'endforeach; App::core()->context()->set("attachments", null); unset($attach_i,$attach_f); App::core()->context()->set("file_url", null);' . self::$toff .
 
             self::$ton . '}' . self::$toff . "\n";
     }
@@ -80,7 +81,7 @@ class AttachmentsTemplate
     public function AttachmentsFooter(ArrayObject $attr, string $content): string
     {
         return
-            self::$ton . 'if ($attach_i+1 == count(dotclear()->context()->get("attachments"))) :' . self::$toff .
+            self::$ton . 'if ($attach_i+1 == count(App::core()->context()->get("attachments"))) :' . self::$toff .
             $content .
             self::$ton . 'endif;' . self::$toff;
     }
@@ -100,7 +101,7 @@ class AttachmentsTemplate
     {
         $if = [];
 
-        $operator = isset($attr['operator']) ? dotclear()->template()->getOperator($attr['operator']) : '&&';
+        $operator = isset($attr['operator']) ? App::core()->template()->getOperator($attr['operator']) : '&&';
 
         if (isset($attr['is_image'])) {
             $sign = (bool) $attr['is_image'] ? '' : '!';
@@ -151,7 +152,7 @@ class AttachmentsTemplate
      */
     public function AttachmentMimeType(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf(dotclear()->template()->getFilters($attr), '$attach_f->type') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf(App::core()->template()->getFilters($attr), '$attach_f->type') . ';' . self::$toff;
     }
 
     /*dtd
@@ -159,7 +160,7 @@ class AttachmentsTemplate
      */
     public function AttachmentType(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf(dotclear()->template()->getFilters($attr), '$attach_f->media_type') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf(App::core()->template()->getFilters($attr), '$attach_f->media_type') . ';' . self::$toff;
     }
 
     /*dtd
@@ -167,7 +168,7 @@ class AttachmentsTemplate
      */
     public function AttachmentFileName(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf(dotclear()->template()->getFilters($attr), '$attach_f->basename') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf(App::core()->template()->getFilters($attr), '$attach_f->basename') . ';' . self::$toff;
     }
 
     /*dtd
@@ -179,7 +180,7 @@ class AttachmentsTemplate
     public function AttachmentSize(ArrayObject $attr): string
     {
         return self::$ton . 'echo ' . sprintf(
-            dotclear()->template()->getFilters($attr),
+            App::core()->template()->getFilters($attr),
             empty($attr['full']) ?
             'Dotclear\Helper\File\Files::size($attach_f->size)' :
             '$attach_f->size'
@@ -191,7 +192,7 @@ class AttachmentsTemplate
      */
     public function AttachmentTitle(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf(dotclear()->template()->getFilters($attr), '$attach_f->media_title') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf(App::core()->template()->getFilters($attr), '$attach_f->media_title') . ';' . self::$toff;
     }
 
     /*dtd
@@ -202,7 +203,7 @@ class AttachmentsTemplate
         return
         self::$ton .
         'if (isset($attach_f->media_thumb[\'sq\'])) {' .
-        'echo ' . sprintf(dotclear()->template()->getFilters($attr), '$attach_f->media_thumb[\'sq\']') . ';' .
+        'echo ' . sprintf(App::core()->template()->getFilters($attr), '$attach_f->media_thumb[\'sq\']') . ';' .
             '}' .
             '?>';
     }
@@ -212,12 +213,12 @@ class AttachmentsTemplate
      */
     public function AttachmentURL(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf(dotclear()->template()->getFilters($attr), '$attach_f->file_url') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf(App::core()->template()->getFilters($attr), '$attach_f->file_url') . ';' . self::$toff;
     }
 
     public function MediaURL(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf(dotclear()->template()->getFilters($attr), 'dotclear()->context()->get("file_url")') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf(App::core()->template()->getFilters($attr), 'App::core()->context()->get("file_url")') . ';' . self::$toff;
     }
 
     /*dtd
@@ -230,8 +231,8 @@ class AttachmentsTemplate
      */
     public function EntryAttachmentCount(ArrayObject $attr): string
     {
-        return dotclear()->template()->displayCounter(
-            'dotclear()->context()->get("posts")->countMedia(\'attachment\')',
+        return App::core()->template()->displayCounter(
+            'App::core()->context()->get("posts")->countMedia(\'attachment\')',
             [
                 'none' => 'no attachments',
                 'one'  => 'one attachment',
@@ -246,7 +247,7 @@ class AttachmentsTemplate
     {
         if ('EntryIf' == $tag && isset($attr['has_attachment'])) {
             $sign = (bool) $attr['has_attachment'] ? '' : '!';
-            $if[] = $sign . 'dotclear()->context()->get("posts")->countMedia(\'attachment\')';
+            $if[] = $sign . 'App::core()->context()->get("posts")->countMedia(\'attachment\')';
         }
     }
 }

@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\Pages\Admin;
 
 // Dotclear\Plugin\Pages\Admin\HandlerEdit
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Dt;
 use Dotclear\Helper\Html\Form;
@@ -73,7 +74,7 @@ class HandlerEdit extends AbstractPage
 
     protected function getActionInstance(): ?Action
     {
-        $action = new CommentAction(dotclear()->adminurl()->get('admin.plugin.Page', ['id' => $_REQUEST['id'] ?? ''], '&'));
+        $action = new CommentAction(App::core()->adminurl()->get('admin.plugin.Page', ['id' => $_REQUEST['id'] ?? ''], '&'));
         $action->setEnableRedirSelection(false);
 
         return $action;
@@ -81,19 +82,19 @@ class HandlerEdit extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        Dt::setTZ(dotclear()->user()->getInfo('user_tz'));
+        Dt::setTZ(App::core()->user()->getInfo('user_tz'));
 
         $page_title    = __('New post');
         $next_headlink = $prev_headlink = '';
 
-        $this->post_format   = dotclear()->user()->getOption('post_format');
-        $this->post_editor   = dotclear()->user()->getOption('editor');
-        $this->post_lang     = dotclear()->user()->getInfo('user_lang');
-        $this->post_status   = dotclear()->user()->getInfo('user_post_status');
-        $this->can_edit_page = dotclear()->user()->check('pages,usage', dotclear()->blog()->id);
-        $this->can_publish   = dotclear()->user()->check('pages,publish,contentadmin', dotclear()->blog()->id);
-        $post_headlink       = '<link rel="%s" title="%s" href="' . dotclear()->adminurl()->get('admin.plugin.Page', ['id' => '%s'], '&amp;', true) . '" />';
-        $post_link           = '<a href="' . dotclear()->adminurl()->get('admin.plugin.Page', ['id' => '%s'], '&amp;', true) . '" title="%s">%s</a>';
+        $this->post_format   = App::core()->user()->getOption('post_format');
+        $this->post_editor   = App::core()->user()->getOption('editor');
+        $this->post_lang     = App::core()->user()->getInfo('user_lang');
+        $this->post_status   = App::core()->user()->getInfo('user_post_status');
+        $this->can_edit_page = App::core()->user()->check('pages,usage', App::core()->blog()->id);
+        $this->can_publish   = App::core()->user()->check('pages,publish,contentadmin', App::core()->blog()->id);
+        $post_headlink       = '<link rel="%s" title="%s" href="' . App::core()->adminurl()->get('admin.plugin.Page', ['id' => '%s'], '&amp;', true) . '" />';
+        $post_link           = '<a href="' . App::core()->adminurl()->get('admin.plugin.Page', ['id' => '%s'], '&amp;', true) . '" title="%s">%s</a>';
 
         // If user can't publish
         if (!$this->can_publish) {
@@ -109,10 +110,10 @@ class HandlerEdit extends AbstractPage
             $params['post_type'] = 'page';
             $params['post_id']   = $_REQUEST['id'];
 
-            $this->post = dotclear()->blog()->posts()->getPosts($params);
+            $this->post = App::core()->blog()->posts()->getPosts($params);
 
             if ($this->post->isEmpty()) {
-                dotclear()->error()->add(__('This page does not exist.'));
+                App::core()->error()->add(__('This page does not exist.'));
                 $this->can_view_page = false;
             } else {
                 $this->post_id            = $this->post->fInt('post_id');
@@ -136,8 +137,8 @@ class HandlerEdit extends AbstractPage
                 $this->can_edit_page = $this->post->call('isEditable');
                 $this->can_delete    = $this->post->call('isDeletable');
 
-                $next_rs = dotclear()->blog()->posts()->getNextPost($this->post, 1);
-                $prev_rs = dotclear()->blog()->posts()->getNextPost($this->post, -1);
+                $next_rs = App::core()->blog()->posts()->getNextPost($this->post, 1);
+                $prev_rs = App::core()->blog()->posts()->getNextPost($this->post, -1);
 
                 if (null !== $next_rs) {
                     $this->next_link = sprintf(
@@ -169,8 +170,8 @@ class HandlerEdit extends AbstractPage
                     );
                 }
 
-                if (!dotclear()->blog()->public_path) {
-                    dotclear()->error()->add(
+                if (!App::core()->blog()->public_path) {
+                    App::core()->error()->add(
                         __('There is no writable root directory for the media manager. You should contact your administrator.')
                     );
                 }
@@ -201,7 +202,7 @@ class HandlerEdit extends AbstractPage
                     }
                     $this->post_dt = date('Y-m-d H:i', $this->post_dt);
                 } catch (Exception $e) {
-                    dotclear()->error()->add($e->getMessage());
+                    App::core()->error()->add($e->getMessage());
                 }
             }
 
@@ -217,7 +218,7 @@ class HandlerEdit extends AbstractPage
                 $this->post_url = $_POST['post_url'];
             }
 
-            dotclear()->blog()->posts()->setPostContent(
+            App::core()->blog()->posts()->setPostContent(
                 $this->post_id,
                 $this->post_format,
                 $this->post_lang,
@@ -232,20 +233,20 @@ class HandlerEdit extends AbstractPage
         if (!empty($_POST['delete']) && $this->can_delete) {
             try {
                 // --BEHAVIOR-- adminBeforePostDelete
-                dotclear()->behavior()->call('adminBeforePageDelete', $this->post_id);
-                dotclear()->blog()->posts()->delPost($this->post_id);
-                dotclear()->adminurl()->redirect('admin.plugin.Page');
+                App::core()->behavior()->call('adminBeforePageDelete', $this->post_id);
+                App::core()->blog()->posts()->delPost($this->post_id);
+                App::core()->adminurl()->redirect('admin.plugin.Page');
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
         // Create or update page
         if (!empty($_POST) && !empty($_POST['save']) && $this->can_edit_page && !$this->bad_dt) {
-            $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
+            $cur = App::core()->con()->openCursor(App::core()->prefix . 'post');
 
             // Magic tweak :)
-            dotclear()->blog()->settings()->get('system')->set('post_url_format', '{t}');
+            App::core()->blog()->settings()->get('system')->set('post_url_format', '{t}');
 
             $cur->setField('post_type', 'page');
             $cur->setField('post_dt', $this->post_dt ? date('Y-m-d H:i:00', strtotime($this->post_dt)) : '');
@@ -275,32 +276,32 @@ class HandlerEdit extends AbstractPage
             if ($this->post_id) {
                 try {
                     // --BEHAVIOR-- adminBeforePageUpdate
-                    dotclear()->behavior()->call('adminBeforePageUpdate', $cur, $this->post_id);
+                    App::core()->behavior()->call('adminBeforePageUpdate', $cur, $this->post_id);
 
-                    dotclear()->blog()->posts()->updPost($this->post_id, $cur);
+                    App::core()->blog()->posts()->updPost($this->post_id, $cur);
 
                     // --BEHAVIOR-- adminAfterPageUpdate
-                    dotclear()->behavior()->call('adminAfterPageUpdate', $cur, $this->post_id);
+                    App::core()->behavior()->call('adminAfterPageUpdate', $cur, $this->post_id);
 
-                    dotclear()->adminurl()->redirect('admin.plugin.Page', ['id' => $this->post_id, 'upd' => 1]);
+                    App::core()->adminurl()->redirect('admin.plugin.Page', ['id' => $this->post_id, 'upd' => 1]);
                 } catch (Exception $e) {
-                    dotclear()->error()->add($e->getMessage());
+                    App::core()->error()->add($e->getMessage());
                 }
             } else {
-                $cur->setField('user_id', dotclear()->user()->userID());
+                $cur->setField('user_id', App::core()->user()->userID());
 
                 try {
                     // --BEHAVIOR-- adminBeforePageCreate
-                    dotclear()->behavior()->call('adminBeforePageCreate', $cur);
+                    App::core()->behavior()->call('adminBeforePageCreate', $cur);
 
-                    $return_id = dotclear()->blog()->posts()->addPost($cur);
+                    $return_id = App::core()->blog()->posts()->addPost($cur);
 
                     // --BEHAVIOR-- adminAfterPageCreate
-                    dotclear()->behavior()->call('adminAfterPageCreate', $cur, $return_id);
+                    App::core()->behavior()->call('adminAfterPageCreate', $cur, $return_id);
 
-                    dotclear()->adminurl()->redirect('admin.plugin.Page', ['id' => $return_id, 'crea' => 1]);
+                    App::core()->adminurl()->redirect('admin.plugin.Page', ['id' => $return_id, 'crea' => 1]);
                 } catch (Exception $e) {
-                    dotclear()->error()->add($e->getMessage());
+                    App::core()->error()->add($e->getMessage());
                 }
             }
         }
@@ -332,10 +333,10 @@ class HandlerEdit extends AbstractPage
             ->setPageHelp('page', 'core_wiki')
             ->setPageTitle($page_title . ' - ' . __('Pages'))
             ->setPageHead(
-                dotclear()->resource()->modal() .
-                dotclear()->resource()->json('pages_page', ['confirm_delete_post' => __('Are you sure you want to delete this page?')]) .
-                dotclear()->resource()->load('_post.js') .
-                dotclear()->resource()->load('page.js', 'Plugin', 'Pages')
+                App::core()->resource()->modal() .
+                App::core()->resource()->json('pages_page', ['confirm_delete_post' => __('Are you sure you want to delete this page?')]) .
+                App::core()->resource()->load('_post.js') .
+                App::core()->resource()->load('page.js', 'Plugin', 'Pages')
             )
         ;
 
@@ -348,7 +349,7 @@ class HandlerEdit extends AbstractPage
                 $c_edit = $this->post_editor['xhtml'];
             }
             if ($p_edit == $c_edit) {
-                $this->setPageHead(dotclear()->behavior()->call(
+                $this->setPageHead(App::core()->behavior()->call(
                     'adminPostEditor',
                     $p_edit,
                     'post',
@@ -356,14 +357,14 @@ class HandlerEdit extends AbstractPage
                     $this->post_format
                 ));
             } else {
-                $this->setPageHead(dotclear()->behavior()->call(
+                $this->setPageHead(App::core()->behavior()->call(
                     'adminPostEditor',
                     $p_edit,
                     'post',
                     ['#post_excerpt', '#post_content'],
                     $this->post_format
                 ));
-                $this->setPageHead(dotclear()->behavior()->call(
+                $this->setPageHead(App::core()->behavior()->call(
                     'adminPostEditor',
                     $c_edit,
                     'comment',
@@ -375,18 +376,18 @@ class HandlerEdit extends AbstractPage
 
         $this
             ->setPageHead(
-                dotclear()->resource()->confirmClose('entry-form', 'comment-form') .
+                App::core()->resource()->confirmClose('entry-form', 'comment-form') .
                 // --BEHAVIOR-- adminPostHeaders
-                dotclear()->behavior()->call('adminPageHeaders') .
-                dotclear()->resource()->pageTabs($default_tab) .
+                App::core()->behavior()->call('adminPageHeaders') .
+                App::core()->resource()->pageTabs($default_tab) .
                 $next_headlink . "\n" . $prev_headlink
             )
             ->setPageBreadcrumb([
-                Html::escapeHTML(dotclear()->blog()->name) => '',
-                __('Pages')                                => dotclear()->adminurl()->get('admin.plugin.Pages'),
-                $page_title_edit                           => '',
+                Html::escapeHTML(App::core()->blog()->name) => '',
+                __('Pages')                                 => App::core()->adminurl()->get('admin.plugin.Pages'),
+                $page_title_edit                            => '',
             ], [
-                'x-frame-allow' => dotclear()->blog()->url,
+                'x-frame-allow' => App::core()->blog()->url,
             ])
         ;
 
@@ -395,12 +396,12 @@ class HandlerEdit extends AbstractPage
 
     protected function getPageContent(): void
     {
-        $status_combo = dotclear()->combo()->getPostStatusesCombo();
+        $status_combo = App::core()->combo()->getPostStatusesCombo();
 
-        $rs         = dotclear()->blog()->posts()->getLangs(['order' => 'asc']);
-        $lang_combo = dotclear()->combo()->getLangsCombo($rs, true);
+        $rs         = App::core()->blog()->posts()->getLangs(['order' => 'asc']);
+        $lang_combo = App::core()->combo()->getLangsCombo($rs, true);
 
-        $core_formaters    = dotclear()->formater()->getFormaters();
+        $core_formaters    = App::core()->formater()->getFormaters();
         $available_formats = ['' => ''];
         foreach ($core_formaters as $editor => $formats) {
             foreach ($formats as $format) {
@@ -409,13 +410,13 @@ class HandlerEdit extends AbstractPage
         }
 
         if (!empty($_GET['upd'])) {
-            dotclear()->notice()->success(__('Page has been successfully updated.'));
+            App::core()->notice()->success(__('Page has been successfully updated.'));
         } elseif (!empty($_GET['crea'])) {
-            dotclear()->notice()->success(__('Page has been successfully created.'));
+            App::core()->notice()->success(__('Page has been successfully created.'));
         } elseif (!empty($_GET['attached'])) {
-            dotclear()->notice()->success(__('File has been successfully attached.'));
+            App::core()->notice()->success(__('File has been successfully attached.'));
         } elseif (!empty($_GET['rmattach'])) {
-            dotclear()->notice()->success(__('Attachment has been successfully removed.'));
+            App::core()->notice()->success(__('Attachment has been successfully removed.'));
         }
 
         // XHTML conversion
@@ -424,7 +425,7 @@ class HandlerEdit extends AbstractPage
             $this->post_content = $this->post_content_xhtml;
             $this->post_format  = 'xhtml';
 
-            dotclear()->notice()->message(__('Don\'t forget to validate your XHTML conversion by saving your post.'));
+            App::core()->notice()->message(__('Don\'t forget to validate your XHTML conversion by saving your post.'));
         }
 
         if ($this->post_id && 1 == $this->post->fInt('post_status')) {
@@ -443,7 +444,7 @@ class HandlerEdit extends AbstractPage
             }
 
             // --BEHAVIOR-- adminPostNavLinks
-            dotclear()->behavior()->call('adminPageNavLinks', $this->post ?? null);
+            App::core()->behavior()->call('adminPageNavLinks', $this->post ?? null);
 
             echo '</p>';
         }
@@ -481,7 +482,7 @@ class HandlerEdit extends AbstractPage
                         '<p>' . Form::combo('post_format', $available_formats, $this->post_format, 'maximal') . '</p>' .
                         '<p class="format_control control_wiki">' .
                         '<a id="convert-xhtml" class="button' . ($this->post_id && 'wiki' != $this->post_format ? ' hide' : '') .
-                        '" href="' . dotclear()->adminurl()->get('admin.plugin.Page', ['id' => $this->post_id, 'xconv' => '1']) . '">' .
+                        '" href="' . App::core()->adminurl()->get('admin.plugin.Page', ['id' => $this->post_id, 'xconv' => '1']) . '">' .
                         __('Convert to XHTML') . '</a></p></div>', ], ],
                 'metas-box' => [
                     'title' => __('Filing'),
@@ -499,7 +500,7 @@ class HandlerEdit extends AbstractPage
                         '<p><label for="post_open_comment" class="classic">' .
                         Form::checkbox('post_open_comment', 1, $this->post_open_comment) . ' ' .
                         __('Accept comments') . '</label></p>' .
-                        (dotclear()->blog()->settings()->get('system')->get('allow_comments') ?
+                        (App::core()->blog()->settings()->get('system')->get('allow_comments') ?
                             ($this->isContributionAllowed($this->post_id, strtotime($this->post_dt), true) ?
                                 '' :
                                 '<p class="form-note warn">' .
@@ -509,7 +510,7 @@ class HandlerEdit extends AbstractPage
                         '<p><label for="post_open_tb" class="classic">' .
                         Form::checkbox('post_open_tb', 1, $this->post_open_tb) . ' ' .
                         __('Accept trackbacks') . '</label></p>' .
-                        (dotclear()->blog()->settings()->get('system')->get('allow_trackbacks') ?
+                        (App::core()->blog()->settings()->get('system')->get('allow_trackbacks') ?
                             ($this->isContributionAllowed($this->post_id, strtotime($this->post_dt), false) ?
                                 '' :
                                 '<p class="form-note warn">' .
@@ -559,7 +560,7 @@ class HandlerEdit extends AbstractPage
                     Form::textarea(
                         'post_content',
                         50,
-                        (int) dotclear()->user()->getOption('edit_size'),
+                        (int) App::core()->user()->getOption('edit_size'),
                         [
                             'default'    => Html::escapeHTML($this->post_content),
                             'extra_html' => 'required placeholder="' . __('Content') . '" lang="' . $this->post_lang . '" spellcheck="true"',
@@ -583,11 +584,11 @@ class HandlerEdit extends AbstractPage
             );
 
             // --BEHAVIOR-- adminPostFormItems
-            dotclear()->behavior()->call('adminPageFormItems', $main_items, $sidebar_items, $this->post ?? null);
+            App::core()->behavior()->call('adminPageFormItems', $main_items, $sidebar_items, $this->post ?? null);
 
             echo '<div class="multi-part" title="' . ($this->post_id ? __('Edit page') : __('New page')) .
             sprintf(' &rsaquo; %s', $this->post_format) . '" id="edit-entry">';
-            echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="entry-form">';
+            echo '<form action="' . App::core()->adminurl()->root() . '" method="post" id="entry-form">';
 
             echo '<div id="entry-wrapper">';
             echo '<div id="entry-content"><div class="constrained">';
@@ -598,7 +599,7 @@ class HandlerEdit extends AbstractPage
             }
 
             // --BEHAVIOR-- adminPageForm
-            dotclear()->behavior()->call('adminPageForm', $this->post ?? null);
+            App::core()->behavior()->call('adminPageForm', $this->post ?? null);
 
             echo '<p class="border-top">' .
             ($this->post_id ? Form::hidden('id', $this->post_id) : '') .
@@ -606,17 +607,17 @@ class HandlerEdit extends AbstractPage
                 'accesskey="s" name="save" /> ';
 
             if ($this->post_id) {
-                $preview_url = dotclear()->blog()->getURLFor(
+                $preview_url = App::core()->blog()->getURLFor(
                     'pagespreview',
-                    dotclear()->user()->userID() . '/' .
-                    Http::browserUID(dotclear()->config()->get('master_key') . dotclear()->user()->userID() . dotclear()->user()->cryptLegacy(dotclear()->user()->userID())) .
+                    App::core()->user()->userID() . '/' .
+                    Http::browserUID(App::core()->config()->get('master_key') . App::core()->user()->userID() . App::core()->user()->cryptLegacy(App::core()->user()->userID())) .
                     '/' . $this->post->f('post_url')
                 );
 
                 // Prevent browser caching on preview
                 $preview_url .= (parse_url($preview_url, PHP_URL_QUERY) ? '&' : '?') . 'rand=' . md5((string) rand());
 
-                $blank_preview = dotclear()->user()->preference()->get('interface')->get('blank_preview');
+                $blank_preview = App::core()->user()->preference()->get('interface')->get('blank_preview');
 
                 $preview_class  = $blank_preview ? '' : ' modal';
                 $preview_target = $blank_preview ? '' : ' target="_blank"';
@@ -624,11 +625,11 @@ class HandlerEdit extends AbstractPage
                 echo '<a id="post-preview" href="' . $preview_url . '" class="button' . $preview_class . '" accesskey="p"' . $preview_target . '>' . __('Preview') . ' (p)' . '</a>';
                 echo ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />';
             } else {
-                echo '<a id="post-cancel" href="' . dotclear()->adminurl()->get('admin.home') . '" class="button" accesskey="c">' . __('Cancel') . ' (c)</a>';
+                echo '<a id="post-cancel" href="' . App::core()->adminurl()->get('admin.home') . '" class="button" accesskey="c">' . __('Cancel') . ' (c)</a>';
             }
 
             echo($this->can_delete ? ' <input type="submit" class="delete" value="' . __('Delete') . '" name="delete" />' : '') .
-            dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Page', [], true) .
+            App::core()->adminurl()->getHiddenFormFields('admin.plugin.Page', [], true) .
                 '</p>';
 
             echo '</div></div>'; // End #entry-content
@@ -646,21 +647,21 @@ class HandlerEdit extends AbstractPage
             }
 
             // --BEHAVIOR-- adminPageFormSidebar
-            dotclear()->behavior()->call('adminPageFormSidebar', $this->post ?? null);
+            App::core()->behavior()->call('adminPageFormSidebar', $this->post ?? null);
 
             echo '</div>'; // End #entry-sidebar
 
             echo '</form>';
 
             // --BEHAVIOR-- adminPostForm
-            dotclear()->behavior()->call('adminPageAfterForm', $this->post ?? null);
+            App::core()->behavior()->call('adminPageAfterForm', $this->post ?? null);
 
             echo '</div>'; // End
 
             if ($this->post_id) { // && !empty($this->post_media)) {
-                echo '<form action="' . dotclear()->adminurl()->root() . '" id="attachment-remove-hide" method="post">' .
+                echo '<form action="' . App::core()->adminurl()->root() . '" id="attachment-remove-hide" method="post">' .
                 '<div>' .
-                dotclear()->adminurl()->getHiddenFormFields('admin.post.media', [
+                App::core()->adminurl()->getHiddenFormFields('admin.post.media', [
                     'post_id'  => $this->post_id,
                     'media_id' => '',
                     'remove'   => 1,
@@ -674,19 +675,19 @@ class HandlerEdit extends AbstractPage
         if ($this->post_id) {
             $params = ['post_id' => $this->post_id, 'order' => 'comment_dt ASC'];
 
-            $comments   = dotclear()->blog()->comments()->getComments(array_merge($params, ['comment_trackback' => 0]));
-            $trackbacks = dotclear()->blog()->comments()->getComments(array_merge($params, ['comment_trackback' => 1]));
+            $comments   = App::core()->blog()->comments()->getComments(array_merge($params, ['comment_trackback' => 0]));
+            $trackbacks = App::core()->blog()->comments()->getComments(array_merge($params, ['comment_trackback' => 1]));
 
             // Actions combo box
             $combo_action = [];
-            if ($this->can_edit_page && dotclear()->user()->check('publish,contentadmin', dotclear()->blog()->id)) {
+            if ($this->can_edit_page && App::core()->user()->check('publish,contentadmin', App::core()->blog()->id)) {
                 $combo_action[__('Publish')]         = 'publish';
                 $combo_action[__('Unpublish')]       = 'unpublish';
                 $combo_action[__('Mark as pending')] = 'pending';
                 $combo_action[__('Mark as junk')]    = 'junk';
             }
 
-            if ($this->can_edit_page && dotclear()->user()->check('delete,contentadmin', dotclear()->blog()->id)) {
+            if ($this->can_edit_page && App::core()->user()->check('delete,contentadmin', App::core()->blog()->id)) {
                 $combo_action[__('Delete')] = 'delete';
             }
 
@@ -697,7 +698,7 @@ class HandlerEdit extends AbstractPage
             echo '<p class="top-add"><a class="button add" href="#comment-form">' . __('Add a comment') . '</a></p>';
 
             if ($has_action) {
-                echo '<form action="' . dotclear()->adminurl()->root() . '#comments" method="post">';
+                echo '<form action="' . App::core()->adminurl()->root() . '#comments" method="post">';
             }
 
             echo '<h3>' . __('Trackbacks') . '</h3>';
@@ -721,8 +722,8 @@ class HandlerEdit extends AbstractPage
 
                 '<p class="col right"><label for="action" class="classic">' . __('Selected comments action:') . '</label> ' .
                 Form::combo('action', $combo_action) .
-                Form::hidden('redir', dotclear()->adminurl()->get('admin.plugin.Page', ['id' => $this->post_id, 'co' => 1])) .
-                dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Page', ['id' => $this->post_id], true) .
+                Form::hidden('redir', App::core()->adminurl()->get('admin.plugin.Page', ['id' => $this->post_id, 'co' => 1])) .
+                App::core()->adminurl()->getHiddenFormFields('admin.plugin.Page', ['id' => $this->post_id], true) .
                 '<input type="submit" value="' . __('ok') . '" /></p>' .
                     '</div>' .
                     '</form>';
@@ -733,11 +734,11 @@ class HandlerEdit extends AbstractPage
             echo '<div class="fieldset clear">' .
             '<h3>' . __('Add a comment') . '</h3>' .
 
-            '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="comment-form">' .
+            '<form action="' . App::core()->adminurl()->root() . '" method="post" id="comment-form">' .
             '<div class="constrained">' .
             '<p><label for="comment_author" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Name:') . '</label>' .
             Form::field('comment_author', 30, 255, [
-                'default'    => Html::escapeHTML(dotclear()->user()->userCN()),
+                'default'    => Html::escapeHTML(App::core()->user()->userCN()),
                 'extra_html' => 'required placeholder="' . __('Author') . '"',
             ]) .
             '</p>' .
@@ -745,7 +746,7 @@ class HandlerEdit extends AbstractPage
             '<p><label for="comment_email">' . __('Email:') . '</label>' .
             Form::email('comment_email', [
                 'size'         => 30,
-                'default'      => Html::escapeHTML(dotclear()->user()->getInfo('user_email')),
+                'default'      => Html::escapeHTML(App::core()->user()->getInfo('user_email')),
                 'autocomplete' => 'email',
             ]) .
             '</p>' .
@@ -753,7 +754,7 @@ class HandlerEdit extends AbstractPage
             '<p><label for="comment_site">' . __('Web site:') . '</label>' .
             Form::url('comment_site', [
                 'size'         => 30,
-                'default'      => Html::escapeHTML(dotclear()->user()->getInfo('user_url')),
+                'default'      => Html::escapeHTML(App::core()->user()->getInfo('user_url')),
                 'autocomplete' => 'url',
             ]) .
             '</p>' .
@@ -764,7 +765,7 @@ class HandlerEdit extends AbstractPage
             '</p>' .
 
             '<p>' . Form::hidden('post_id', $this->post_id) .
-            dotclear()->adminurl()->getHiddenFormFields('admin.comment', [], true) .
+            App::core()->adminurl()->getHiddenFormFields('admin.comment', [], true) .
             '<input type="submit" name="add" value="' . __('Save') . '" /></p>' .
             '</div>' . // constrained
 
@@ -781,11 +782,11 @@ class HandlerEdit extends AbstractPage
             return true;
         }
         if ($com) {
-            if (0 == dotclear()->blog()->settings()->get('system')->get('comments_ttl') || $dt > (time() - dotclear()->blog()->settings()->get('system')->get('comments_ttl') * 86400)) {
+            if (0 == App::core()->blog()->settings()->get('system')->get('comments_ttl') || $dt > (time() - App::core()->blog()->settings()->get('system')->get('comments_ttl') * 86400)) {
                 return true;
             }
         } else {
-            if (0 == dotclear()->blog()->settings()->get('system')->get('trackbacks_ttl') || $dt > (time() - dotclear()->blog()->settings()->get('system')->get('trackbacks_ttl') * 86400)) {
+            if (0 == App::core()->blog()->settings()->get('system')->get('trackbacks_ttl') || $dt > (time() - App::core()->blog()->settings()->get('system')->get('trackbacks_ttl') * 86400)) {
                 return true;
             }
         }
@@ -812,7 +813,7 @@ class HandlerEdit extends AbstractPage
         }
 
         while ($rs->fetch()) {
-            $comment_url = dotclear()->adminurl()->get('admin.comment', ['id' => $rs->f('comment_id')]);
+            $comment_url = App::core()->adminurl()->get('admin.comment', ['id' => $rs->f('comment_id')]);
 
             $img              = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
             $this->img_status = '';
@@ -859,7 +860,7 @@ class HandlerEdit extends AbstractPage
             '<td class="maximal">' . Html::escapeHTML($rs->f('comment_author')) . '</td>' .
             '<td class="nowrap">' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $rs->f('comment_dt')) . '</td>' .
             ($this->can_view_ip ?
-                '<td class="nowrap"><a href="' . dotclear()->adminurl()->get('admin.comments', ['ip' => $rs->f('comment_ip')]) . '">' . $rs->f('comment_ip') . '</a></td>' : '') .
+                '<td class="nowrap"><a href="' . App::core()->adminurl()->get('admin.comments', ['ip' => $rs->f('comment_ip')]) . '">' . $rs->f('comment_ip') . '</a></td>' : '') .
             '<td class="nowrap status">' . $this->img_status . '</td>' .
             '<td class="nowrap status"><a href="' . $comment_url . '">' .
             '<img src="?df=images/edit-mini.png" alt="" title="' . __('Edit this comment') . '" /> ' . __('Edit') . '</a></td>' .

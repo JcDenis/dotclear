@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\FairTrackbacks\Common;
 
 // Dotclear\Plugin\FairTrackbacks\Common\FilterFairtrackbacks
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Helper\Network\NetHttp\NetHttp;
 use Dotclear\Plugin\Antispam\Common\Spamfilter;
 use Exception;
@@ -29,10 +30,10 @@ class FilterFairtrackbacks extends Spamfilter
 
     public static function initFairTrackbacks()
     {
-        if (dotclear()->processed('Admin') && (!defined('DC_FAIRTRACKBACKS_FORCE') || !DC_FAIRTRACKBACKS_FORCE)
-            || dotclear()->processed('Public') && defined('DC_FAIRTRACKBACKS_FORCE') && DC_FAIRTRACKBACKS_FORCE
+        if (App::core()->processed('Admin') && (!defined('DC_FAIRTRACKBACKS_FORCE') || !DC_FAIRTRACKBACKS_FORCE)
+            || App::core()->processed('Public') && defined('DC_FAIRTRACKBACKS_FORCE') && DC_FAIRTRACKBACKS_FORCE
         ) {
-            dotclear()->behavior()->add('antispamInitFilters', function (ArrayObject $spamfilters): void {
+            App::core()->behavior()->add('antispamInitFilters', function (ArrayObject $spamfilters): void {
                 $spamfilters[] = __CLASS__;
             });
         }
@@ -58,7 +59,7 @@ class FilterFairtrackbacks extends Spamfilter
             }
 
             // Check incomink link page
-            $post     = dotclear()->blog()->posts()->getPosts(['post_id' => $post_id]);
+            $post     = App::core()->blog()->posts()->getPosts(['post_id' => $post_id]);
             $post_url = $post->getURL();
             $P        = array_merge($default_parse, parse_url($post_url));
 
@@ -67,7 +68,7 @@ class FilterFairtrackbacks extends Spamfilter
             }
 
             $o = NetHttp::initClient($site, $path);
-            $o->setTimeout(dotclear()->config()->get('query_timeout'));
+            $o->setTimeout(App::core()->config()->get('query_timeout'));
             $o->get($path);
 
             // Trackback source does not return 200 status code

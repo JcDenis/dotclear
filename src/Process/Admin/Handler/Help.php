@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\Help
+use Dotclear\App;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Helper\Html\Html;
 
@@ -39,7 +40,7 @@ class Help extends AbstractPage
 
         if ('' != $this->help_title) {
             $this->setPageBreadcrumb([
-                __('Global help') => dotclear()->adminurl()->get('admin.help'),
+                __('Global help') => App::core()->adminurl()->get('admin.help'),
                 $this->help_title => '',
             ]);
         } else {
@@ -48,7 +49,7 @@ class Help extends AbstractPage
 
         $this
             ->setPageTitle(__('Global help'))
-            ->setPageHead(dotclear()->resource()->pageTabs('first-step'))
+            ->setPageHead(App::core()->resource()->pageTabs('first-step'))
         ;
 
         return true;
@@ -59,7 +60,7 @@ class Help extends AbstractPage
         echo $this->help_content;
 
         // Prevents global help link display
-        dotclear()->help()->flag(true);
+        App::core()->help()->flag(true);
     }
 
     private function getHelpContent(...$args): void
@@ -75,7 +76,7 @@ class Help extends AbstractPage
                 continue;
             }
 
-            if (!($f = dotclear()->help()->context($v))) {
+            if (!($f = App::core()->help()->context($v))) {
                 continue;
             }
             if (!file_exists($f) || !is_readable($f)) {

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\Wiki;
 
 // Dotclear\Core\Wiki\Wiki
+use Dotclear\App;
 use Dotclear\Helper\Html\Html;
 
 /**
@@ -98,7 +99,7 @@ class Wiki
         $this->wiki2xhtml()->registerFunction('url:post', [$this, 'wikiPostLink']);
 
         // --BEHAVIOR-- coreInitWikiPost, Wiki2xhtml
-        dotclear()->behavior()->call('coreInitWikiPost', $this->wiki2xhtml);
+        App::core()->behavior()->call('coreInitWikiPost', $this->wiki2xhtml);
     }
 
     /**
@@ -145,7 +146,7 @@ class Wiki
         ]);
 
         // --BEHAVIOR-- coreInitWikiSimpleComment, Dotclear\Helper\Html\Wiki2xhtml
-        dotclear()->behavior()->call('coreInitWikiSimpleComment', $this->wiki2xhtml);
+        App::core()->behavior()->call('coreInitWikiSimpleComment', $this->wiki2xhtml);
     }
 
     /**
@@ -191,7 +192,7 @@ class Wiki
         ]);
 
         // --BEHAVIOR-- coreInitWikiComment, Dotclear\Helper\Html\Wiki2xhtml
-        dotclear()->behavior()->call('coreInitWikiComment', $this->wiki2xhtml);
+        App::core()->behavior()->call('coreInitWikiComment', $this->wiki2xhtml);
     }
 
     /**
@@ -202,7 +203,7 @@ class Wiki
      */
     public function wikiPostLink(string $url, string $content): array
     {
-        if (!dotclear()->blog()) {
+        if (!App::core()->blog()) {
             return [];
         }
 
@@ -211,7 +212,7 @@ class Wiki
             return [];
         }
 
-        $rs = dotclear()->blog()->posts()->getPosts(['post_id' => $post_id]);
+        $rs = App::core()->blog()->posts()->getPosts(['post_id' => $post_id]);
         if ($rs->isEmpty()) {
             return [];
         }

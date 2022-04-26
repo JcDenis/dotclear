@@ -12,6 +12,7 @@ namespace Dotclear\Exception;
 // Dotclear\Exception\PrependException
 use Exception;
 use Throwable;
+use Dotclear\App;
 
 /**
  * Prepend exception.
@@ -26,8 +27,6 @@ class PrependException extends Exception
      * Except in CLI mode, it always displays an html error page.
      * Its construction differ from Exception
      * and it's throw from Prepend processes.
-     *
-     * @uses    dotclear_error()
      *
      * @param string    $message The message
      * @param string    $detail  The detail
@@ -49,6 +48,6 @@ class PrependException extends Exception
                 }
             }
         }
-        dotclear_error($message, $detail, $code, $traces);
+        App::stop($message, $detail, $code, $traces);
     }
 }

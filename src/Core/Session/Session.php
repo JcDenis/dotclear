@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\Session;
 
 // Dotclear\Core\Session\Session
+use Dotclear\App;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\InsertStatement;
 use Dotclear\Database\Statement\SelectStatement;
@@ -71,11 +72,11 @@ class Session
      */
     public function __construct()
     {
-        $this->table         = dotclear()->prefix . 'session';
-        $this->cookie_name   = dotclear()->config()->get('session_name');
+        $this->table         = App::core()->prefix . 'session';
+        $this->cookie_name   = App::core()->config()->get('session_name');
         $this->cookie_path   = '/';
         $this->cookie_domain = '';
-        $this->cookie_secure = dotclear()->config()->get('admin_ssl');
+        $this->cookie_secure = App::core()->config()->get('admin_ssl');
         $this->getTTL();
 
         if (function_exists('ini_set')) {
@@ -95,7 +96,7 @@ class Session
     private function getTTL(): void
     {
         // Session time
-        $ttl = dotclear()->config()->get('session_ttl');
+        $ttl = App::core()->config()->get('session_ttl');
         if (!is_null($ttl)) {
             $tll = (string) $ttl;
             if ('-' != substr(trim($ttl), 0, 1)) {
@@ -283,7 +284,7 @@ class Session
             ->delete()
         ;
 
-        if (0 < dotclear()->con()->changes()) {
+        if (0 < App::core()->con()->changes()) {
             $this->_optimize();
         }
 
@@ -292,7 +293,7 @@ class Session
 
     private function _optimize(): void
     {
-        dotclear()->con()->vacuum($this->table);
+        App::core()->con()->vacuum($this->table);
     }
 
     private function checkID(string $id): ?string

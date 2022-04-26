@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Breadcrumb\Admin;
 
 // Dotclear\Plugin\Breadcrumb\Admin\BreadcrumbBehavior
+use Dotclear\App;
 use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Helper\Html\Form;
 
@@ -22,8 +23,8 @@ class BreadcrumbBehavior
 {
     public function __construct()
     {
-        dotclear()->behavior()->add('adminBlogPreferencesForm', [$this, 'behaviorAdminBlogPreferencesForm']);
-        dotclear()->behavior()->add('adminBeforeBlogSettingsUpdate', [$this, 'behaviorAdminBeforeBlogSettingsUpdate']);
+        App::core()->behavior()->add('adminBlogPreferencesForm', [$this, 'behaviorAdminBlogPreferencesForm']);
+        App::core()->behavior()->add('adminBeforeBlogSettingsUpdate', [$this, 'behaviorAdminBeforeBlogSettingsUpdate']);
     }
 
     public function behaviorAdminBlogPreferencesForm(Settings $settings): void

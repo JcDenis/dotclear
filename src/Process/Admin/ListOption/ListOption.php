@@ -11,6 +11,7 @@ namespace Dotclear\Process\Admin\ListOption;
 
 // Dotclear\Process\Admin\ListOption\ListOption
 use ArrayObject;
+use Dotclear\App;
 
 /**
  * User list option preference library.
@@ -18,7 +19,7 @@ use ArrayObject;
  * Dotclear utility class that provides reuseable user preference
  * across all admin page with lists and filters
  *
- * Accessible from dotclear()->listoption()->
+ * Accessible from App::core()->listoption()->
  *
  * @ingroup  Admin User Preference
  */
@@ -61,10 +62,10 @@ class ListOption
         $cols = new ArrayObject($cols);
 
         // --BEHAVIOR-- adminColumnsLists
-        dotclear()->behavior()->call('adminColumnsLists', $cols);
+        App::core()->behavior()->call('adminColumnsLists', $cols);
 
         // Load user settings
-        $cols_user = @dotclear()->user()->preference()->get('interface')->get('cols');
+        $cols_user = @App::core()->user()->preference()->get('interface')->get('cols');
         if (is_array($cols_user) || $cols_user instanceof ArrayObject) {
             foreach ($cols_user as $ct => $cv) {
                 foreach ($cv as $cn => $cd) {
@@ -97,10 +98,10 @@ class ListOption
     public function getDefaultFilters(): array
     {
         $users = [null, null, null, null, null];
-        if (dotclear()->user()->isSuperAdmin()) {
+        if (App::core()->user()->isSuperAdmin()) {
             $users = [
                 __('Users'),
-                dotclear()->combo()->getUsersSortbyCombo(),
+                App::core()->combo()->getUsersSortbyCombo(),
                 'user_id',
                 'asc',
                 [__('users per page'), 30],
@@ -110,21 +111,21 @@ class ListOption
         return [
             'posts' => [
                 __('Posts'),
-                dotclear()->combo()->getPostsSortbyCombo(),
+                App::core()->combo()->getPostsSortbyCombo(),
                 'post_dt',
                 'desc',
                 [__('entries per page'), 30],
             ],
             'comments' => [
                 __('Comments'),
-                dotclear()->combo()->getCommentsSortbyCombo(),
+                App::core()->combo()->getCommentsSortbyCombo(),
                 'comment_dt',
                 'desc',
                 [__('comments per page'), 30],
             ],
             'blogs' => [
                 __('Blogs'),
-                dotclear()->combo()->getBlogsSortbyCombo(),
+                App::core()->combo()->getBlogsSortbyCombo(),
                 'blog_upddt',
                 'desc',
                 [__('blogs per page'), 30],
@@ -166,9 +167,9 @@ class ListOption
             $sorts = new ArrayObject($sorts);
 
             // --BEHAVIOR-- adminFiltersLists
-            dotclear()->behavior()->call('adminFiltersLists', $sorts);
+            App::core()->behavior()->call('adminFiltersLists', $sorts);
 
-            $sorts_user = @dotclear()->user()->preference()->get('interface')->get('sorts');
+            $sorts_user = @App::core()->user()->preference()->get('interface')->get('sorts');
             if (is_array($sorts_user)) {
                 foreach ($sorts_user as $stype => $sdata) {
                     if (!isset($sorts[$stype])) {

@@ -11,6 +11,7 @@ namespace Dotclear\Core\Meta;
 
 // Dotclear\Core\Meta\Meta
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Database\Record;
 use Dotclear\Database\StaticRecord;
 use Dotclear\Database\Statement\DeleteStatement;
@@ -147,18 +148,18 @@ class Meta
      */
     private function checkPermissionsOnPost(int $post_id): void
     {
-        if (!dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id)) {
+        if (!App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)) {
             throw new CoreException(__('You are not allowed to change this entry status'));
         }
 
         // If user can only publish, we need to check the post's owner
-        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
+        if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
             $sql = new SelectStatement(__METHOD__);
             $rs  = $sql
-                ->from(dotclear()->prefix . 'post')
+                ->from(App::core()->prefix . 'post')
                 ->column('post_id')
                 ->where('post_id = ' . $post_id)
-                ->and('user_id = ' . $sql->quote(dotclear()->user()->userID()))
+                ->and('user_id = ' . $sql->quote(App::core()->user()->userID()))
                 ->select()
             ;
 
@@ -176,7 +177,7 @@ class Meta
     private function updatePostMeta(int $post_id): void
     {
         $rs = SelectStatement::init(__METHOD__)
-            ->from(dotclear()->prefix . $this->table)
+            ->from(App::core()->prefix . $this->table)
             ->columns([
                 'meta_id',
                 'meta_type',
@@ -192,12 +193,12 @@ class Meta
 
         $sql = new UpdateStatement(__METHOD__);
         $sql->set('post_meta = ' . $sql->quote(serialize($meta)))
-            ->from(dotclear()->prefix . 'post')
+            ->from(App::core()->prefix . 'post')
             ->where('post_id = ' . $post_id)
             ->update()
         ;
 
-        dotclear()->blog()->triggerBlog();
+        App::core()->blog()->triggerBlog();
     }
 
     /**
@@ -224,7 +225,7 @@ class Meta
         }
 
         $sql
-            ->from(dotclear()->prefix . $this->table . ' META')
+            ->from(App::core()->prefix . $this->table . ' META')
             ->and('META.post_id = P.post_id')
             ->and('META.meta_id = ' . $sql->quote($params['meta_id']))
         ;
@@ -237,7 +238,7 @@ class Meta
 
         unset($params['meta_id']);
 
-        return dotclear()->blog()->posts()->getPosts($params, $count_only, $sql);
+        return App::core()->blog()->posts()->getPosts($params, $count_only, $sql);
     }
 
     /**
@@ -264,7 +265,7 @@ class Meta
         }
 
         $sql
-            ->from(dotclear()->prefix . $this->table . ' META')
+            ->from(App::core()->prefix . $this->table . ' META')
             ->and('META.post_id = P.post_id')
             ->and('META.meta_id = ' . $sql->quote($params['meta_id']))
         ;
@@ -275,7 +276,7 @@ class Meta
             unset($params['meta_type']);
         }
 
-        return dotclear()->blog()->comments()->getComments($params, $count_only, $sql);
+        return App::core()->blog()->comments()->getComments($params, $count_only, $sql);
     }
 
     /**
@@ -315,15 +316,15 @@ class Meta
         }
 
         $sql
-            ->from(dotclear()->prefix . $this->table . ' M')
+            ->from(App::core()->prefix . $this->table . ' M')
             ->join(
                 JoinStatement::init(__METHOD__)
                     ->type('LEFT')
-                    ->from(dotclear()->prefix . 'post P')
+                    ->from(App::core()->prefix . 'post P')
                     ->on('M.post_id = P.post_id')
                     ->statement()
             )
-            ->where('P.blog_id = ' . $sql->quote(dotclear()->blog()->id))
+            ->where('P.blog_id = ' . $sql->quote(App::core()->blog()->id))
         ;
 
         if (isset($params['meta_type'])) {
@@ -338,11 +339,11 @@ class Meta
             $sql->and('P.post_id' . $sql->in($params['post_id']));
         }
 
-        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
-            $user_id = dotclear()->user()->userID();
+        if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
+            $user_id = App::core()->user()->userID();
 
             $and = ['post_status = 1'];
-            if (dotclear()->blog()->withoutPassword()) {
+            if (App::core()->blog()->withoutPassword()) {
                 $and[] = 'post_password IS NULL';
             }
 
@@ -434,7 +435,7 @@ class Meta
 
         $sql = new InsertStatement(__METHOD__);
         $sql
-            ->from(dotclear()->prefix . $this->table)
+            ->from(App::core()->prefix . $this->table)
             ->columns([
                 'post_id',
                 'meta_id',
@@ -463,7 +464,7 @@ class Meta
         $this->checkPermissionsOnPost($post_id);
 
         $sql = DeleteStatement::init(__METHOD__)
-            ->from(dotclear()->prefix . $this->table)
+            ->from(App::core()->prefix . $this->table)
             ->where('post_id = ' . $post_id)
         ;
 
@@ -501,16 +502,16 @@ class Meta
         $sql = new SelectStatement(__METHOD__);
         $sql
             ->from([
-                dotclear()->prefix . $this->table . ' M',
-                dotclear()->prefix . 'post P',
+                App::core()->prefix . $this->table . ' M',
+                App::core()->prefix . 'post P',
             ])
             ->column('M.post_id')
             ->where('P.post_id = M.post_id')
-            ->and('P.blog_id = ' . $sql->quote(dotclear()->blog()->id))
+            ->and('P.blog_id = ' . $sql->quote(App::core()->blog()->id))
         ;
 
-        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
-            $sql->and('P.user_id = ' . $sql->quote(dotclear()->user()->userID()));
+        if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
+            $sql->and('P.user_id = ' . $sql->quote(App::core()->user()->userID()));
         }
         if (null !== $post_type) {
             $sql->and('P.post_type = ' . $sql->quote($post_type));
@@ -552,7 +553,7 @@ class Meta
         if (!empty($to_remove)) {
             $sqlDel = new DeleteStatement(__METHOD__);
             $sqlDel
-                ->from(dotclear()->prefix . $this->table)
+                ->from(App::core()->prefix . $this->table)
                 ->where('post_id' . $sqlDel->in($to_remove, 'int'))      // Note: will cast all values to integer
                 ->and('meta_id = ' . $sqlDel->quote($meta_id))
             ;
@@ -572,7 +573,7 @@ class Meta
         if (!empty($to_update)) {
             $sqlUpd = new UpdateStatement(__METHOD__);
             $sqlUpd
-                ->from(dotclear()->prefix . $this->table)
+                ->from(App::core()->prefix . $this->table)
                 ->set('meta_id = ' . $sqlUpd->quote($new_meta_id))
                 ->where('post_id' . $sqlUpd->in($to_update, 'int'))
                 ->and('meta_id = ' . $sqlUpd->quote($meta_id))
@@ -607,11 +608,11 @@ class Meta
         $sql
             ->column('M.post_id')
             ->from([
-                dotclear()->prefix . $this->table . ' M',
-                dotclear()->prefix . 'post P',
+                App::core()->prefix . $this->table . ' M',
+                App::core()->prefix . 'post P',
             ])
             ->where('P.post_id = M.post_id')
-            ->and('P.blog_id = ' . $sql->quote(dotclear()->blog()->id))
+            ->and('P.blog_id = ' . $sql->quote(App::core()->blog()->id))
             ->and('meta_id = ' . $sql->quote($meta_id))
         ;
 
@@ -636,7 +637,7 @@ class Meta
 
         $sql = new DeleteStatement(__METHOD__);
         $sql
-            ->from(dotclear()->prefix . $this->table)
+            ->from(App::core()->prefix . $this->table)
             ->where('post_id' . $sql->in($ids, 'int'))
             ->and('meta_id = ' . $sql->quote($meta_id))
         ;

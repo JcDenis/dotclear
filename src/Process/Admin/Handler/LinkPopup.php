@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\LinkPopup
+use Dotclear\App;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\Form;
@@ -34,8 +35,8 @@ class LinkPopup extends AbstractPage
             ->setPageTitle(__('Add a link'))
             ->setPageType('popup')
             ->setPageHead(
-                dotclear()->resource()->load('_popup_link.js') .
-                dotclear()->behavior()->call('adminPopupLink', $plugin_id)
+                App::core()->resource()->load('_popup_link.js') .
+                App::core()->behavior()->call('adminPopupLink', $plugin_id)
             )
         ;
 
@@ -49,8 +50,8 @@ class LinkPopup extends AbstractPage
         $title    = !empty($_GET['title']) ? $_GET['title'] : '';
 
         // Languages combo
-        $rs         = dotclear()->blog()->posts()->getLangs(['order' => 'asc']);
-        $lang_combo = dotclear()->combo()->getLangsCombo($rs, true);
+        $rs         = App::core()->blog()->posts()->getLangs(['order' => 'asc']);
+        $lang_combo = App::core()->combo()->getLangsCombo($rs, true);
 
         echo '<h2 class="page-title">' . __('Add a link') . '</h2>' .
 

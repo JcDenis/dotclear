@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Maintenance\Admin\Lib\Task;
 
 // Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskIndexposts
+use Dotclear\App;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Helper\Text;
@@ -74,7 +75,7 @@ class MaintenanceTaskIndexposts extends MaintenanceTask
         $sql   = new SelectStatement(__METHOD__);
         $count = $sql
             ->column($sql->count('post_id'))
-            ->from(dotclear()->prefix . 'post')
+            ->from(App::core()->prefix . 'post')
             ->select()
             ->fInt()
         ;
@@ -94,7 +95,7 @@ class MaintenanceTaskIndexposts extends MaintenanceTask
         ;
 
         $sql = UpdateStatement::init(__METHOD__)
-            ->from(dotclear()->prefix . 'post')
+            ->from(App::core()->prefix . 'post')
         ;
 
         while ($rs->fetch()) {

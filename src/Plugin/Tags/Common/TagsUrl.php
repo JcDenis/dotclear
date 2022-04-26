@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Tags\Common;
 
 // Dotclear\Plugin\Tags\Common\TagsUrl
+use Dotclear\App;
 use Dotclear\Core\Url\Url;
 
 /**
@@ -21,30 +22,30 @@ class TagsUrl extends Url
 {
     public function __construct()
     {
-        dotclear()->url()->register('tag', 'tag', '^tag/(.+)$', [$this, 'tag']);
-        dotclear()->url()->register('tags', 'tags', '^tags$', [$this, 'tags']);
-        dotclear()->url()->register('tag_feed', 'feed/tag', '^feed/tag/(.+)$', [$this, 'tagFeed']);
+        App::core()->url()->register('tag', 'tag', '^tag/(.+)$', [$this, 'tag']);
+        App::core()->url()->register('tags', 'tags', '^tags$', [$this, 'tags']);
+        App::core()->url()->register('tag_feed', 'feed/tag', '^feed/tag/(.+)$', [$this, 'tagFeed']);
     }
 
     public function tag(?string $args): void
     {
-        $n = dotclear()->url()->getPageNumber($args);
+        $n = App::core()->url()->getPageNumber($args);
 
         if ('' == $args && !$n) {
-            dotclear()->url()->p404();
+            App::core()->url()->p404();
         } elseif (preg_match('%(.*?)/feed/(rss2|atom)?$%u', $args, $m)) {
             $type     = 'atom' == $m[2] ? 'atom' : 'rss2';
             $mime     = 'application/xml';
             $comments = !empty($m[3]);
 
-            dotclear()->context()->set('meta', dotclear()->meta()->computeMetaStats(
-                dotclear()->meta()->getMetadata([
+            App::core()->context()->set('meta', App::core()->meta()->computeMetaStats(
+                App::core()->meta()->getMetadata([
                     'meta_type' => 'tag',
                     'meta_id'   => $m[1], ])
             ));
 
-            if (dotclear()->context()->get('meta')->isEmpty()) {
-                dotclear()->url()->p404();
+            if (App::core()->context()->get('meta')->isEmpty()) {
+                App::core()->url()->p404();
             } else {
                 $tpl = $type;
 
@@ -52,52 +53,52 @@ class TagsUrl extends Url
                     $mime = 'application/atom+xml';
                 }
 
-                dotclear()->url()->serveDocument($tpl . '.xml', $mime);
+                App::core()->url()->serveDocument($tpl . '.xml', $mime);
             }
         } else {
             if ($n) {
-                dotclear()->context()->page_number($n);
+                App::core()->context()->page_number($n);
             }
 
-            dotclear()->context()->set('meta', dotclear()->meta()->computeMetaStats(
-                dotclear()->meta()->getMetadata([
+            App::core()->context()->set('meta', App::core()->meta()->computeMetaStats(
+                App::core()->meta()->getMetadata([
                     'meta_type' => 'tag',
                     'meta_id'   => $args, ])
             ));
 
-            if (dotclear()->context()->get('meta')->isEmpty()) {
-                dotclear()->url()->p404();
+            if (App::core()->context()->get('meta')->isEmpty()) {
+                App::core()->url()->p404();
             } else {
-                dotclear()->url()->serveDocument('tag.html');
+                App::core()->url()->serveDocument('tag.html');
             }
         }
     }
 
     public function tags(?string $args): void
     {
-        dotclear()->url()->serveDocument('tags.html');
+        App::core()->url()->serveDocument('tags.html');
     }
 
     public function tagFeed(?string $args): void
     {
         if (!preg_match('#^(.+)/(atom|rss2)(/comments)?$#', $args, $m)) {
-            dotclear()->url()->p404();
+            App::core()->url()->p404();
         } else {
             $tag      = $m[1];
             $type     = $m[2];
             $comments = !empty($m[3]);
 
-            dotclear()->context()->set('meta', dotclear()->meta()->computeMetaStats(
-                dotclear()->meta()->getMetadata([
+            App::core()->context()->set('meta', App::core()->meta()->computeMetaStats(
+                App::core()->meta()->getMetadata([
                     'meta_type' => 'tag',
                     'meta_id'   => $tag, ])
             ));
 
-            if (dotclear()->context()->get('meta')->isEmpty()) {
+            if (App::core()->context()->get('meta')->isEmpty()) {
                 // The specified tag does not exist.
-                dotclear()->url()->p404();
+                App::core()->url()->p404();
             } else {
-                dotclear()->context()->set('feed_subtitle', ' - ' . __('Tag') . ' - ' . dotclear()->context()->get('meta')->f('meta_id'));
+                App::core()->context()->set('feed_subtitle', ' - ' . __('Tag') . ' - ' . App::core()->context()->get('meta')->f('meta_id'));
 
                 if ('atom' == $type) {
                     $mime = 'application/atom+xml';
@@ -108,14 +109,14 @@ class TagsUrl extends Url
                 $tpl = $type;
                 if ($comments) {
                     $tpl .= '-comments';
-                    dotclear()->context()->set('nb_comment_per_page', (int) dotclear()->blog()->settings()->get('system')->get('nb_comment_per_feed'));
+                    App::core()->context()->set('nb_comment_per_page', (int) App::core()->blog()->settings()->get('system')->get('nb_comment_per_feed'));
                 } else {
-                    dotclear()->context()->set('nb_entry_per_page', (int) dotclear()->blog()->settings()->get('system')->get('nb_post_per_feed'));
-                    dotclear()->context()->set('short_feed_items', (bool) dotclear()->blog()->settings()->get('system')->get('short_feed_items'));
+                    App::core()->context()->set('nb_entry_per_page', (int) App::core()->blog()->settings()->get('system')->get('nb_post_per_feed'));
+                    App::core()->context()->set('short_feed_items', (bool) App::core()->blog()->settings()->get('system')->get('short_feed_items'));
                 }
                 $tpl .= '.xml';
 
-                dotclear()->url()->serveDocument($tpl, $mime);
+                App::core()->url()->serveDocument($tpl, $mime);
             }
         }
     }

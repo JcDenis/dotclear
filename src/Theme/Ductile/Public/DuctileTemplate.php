@@ -11,6 +11,7 @@ namespace Dotclear\Theme\Ductile\Public;
 
 // Dotclear\Theme\Ductile\Public\DuctileTemplate
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Helper\File\Files;
 
 /**
@@ -28,11 +29,11 @@ class DuctileTemplate
 
     public function __construct()
     {
-        dotclear()->template()->addValue('ductileEntriesList', [$this, 'ductileEntriesList']);
-        dotclear()->template()->addBlock('EntryIfContentIsCut', [$this, 'EntryIfContentIsCut']);
-        dotclear()->template()->addValue('ductileNbEntryPerPage', [$this, 'ductileNbEntryPerPage']);
-        dotclear()->template()->addValue('ductileLogoSrc', [$this, 'ductileLogoSrc']);
-        dotclear()->template()->addBlock('IfPreviewIsNotMandatory', [$this, 'IfPreviewIsNotMandatory']);
+        App::core()->template()->addValue('ductileEntriesList', [$this, 'ductileEntriesList']);
+        App::core()->template()->addBlock('EntryIfContentIsCut', [$this, 'EntryIfContentIsCut']);
+        App::core()->template()->addValue('ductileNbEntryPerPage', [$this, 'ductileNbEntryPerPage']);
+        App::core()->template()->addValue('ductileLogoSrc', [$this, 'ductileLogoSrc']);
+        App::core()->template()->addBlock('IfPreviewIsNotMandatory', [$this, 'IfPreviewIsNotMandatory']);
     }
 
     public function ductileNbEntryPerPage(ArrayObject $attr): string
@@ -46,11 +47,11 @@ class DuctileTemplate
     {
         $nb_other = $nb_first = 0;
 
-        $s = dotclear()->blog()->settings()->get('themes')->get(dotclear()->blog()->settings()->get('system')->get('theme') . '_entries_counts');
+        $s = App::core()->blog()->settings()->get('themes')->get(App::core()->blog()->settings()->get('system')->get('theme') . '_entries_counts');
         if (null !== $s) {
             $s = @unserialize($s);
             if (is_array($s)) {
-                switch (dotclear()->url()->type) {
+                switch (App::core()->url()->type) {
                     case 'default':
                     case 'default-page':
                         if (isset($s['default'])) {
@@ -63,9 +64,9 @@ class DuctileTemplate
                         break;
 
                     default:
-                        if (isset($s[dotclear()->url()->type])) {
+                        if (isset($s[App::core()->url()->type])) {
                             // Nb de billets par page défini par la config du thème
-                            $nb_first = $nb_other = (int) $s[dotclear()->url()->type];
+                            $nb_first = $nb_other = (int) $s[App::core()->url()->type];
                         }
 
                         break;
@@ -81,10 +82,10 @@ class DuctileTemplate
         }
 
         if (0 < $nb_other) {
-            dotclear()->context()->set('nb_entry_per_page', $nb_other);
+            App::core()->context()->set('nb_entry_per_page', $nb_other);
         }
         if (0 < $nb_first) {
-            dotclear()->context()->set('nb_entry_first_page', $nb_first);
+            App::core()->context()->set('nb_entry_first_page', $nb_first);
         }
     }
 
@@ -99,14 +100,14 @@ class DuctileTemplate
             $urls = '1';
         }
 
-        $short              = dotclear()->template()->getFilters($attr);
+        $short              = App::core()->template()->getFilters($attr);
         $cut                = $attr['cut_string'];
         $attr['cut_string'] = 0;
-        $full               = dotclear()->template()->getFilters($attr);
+        $full               = App::core()->template()->getFilters($attr);
         $attr['cut_string'] = $cut;
 
-        return self::$ton . 'if (strlen(' . sprintf($full, 'dotclear()->context()->get("posts")->getContent(' . $urls . ')') . ') > ' .
-        'strlen(' . sprintf($short, 'dotclear()->context()->get("posts")->getContent(' . $urls . ')') . ')) :' . self::$toff .
+        return self::$ton . 'if (strlen(' . sprintf($full, 'App::core()->context()->get("posts")->getContent(' . $urls . ')') . ') > ' .
+        'strlen(' . sprintf($short, 'App::core()->context()->get("posts")->getContent(' . $urls . ')') . ')) :' . self::$toff .
             $content .
             self::$ton . 'endif;' . self::$toff;
     }
@@ -138,7 +139,7 @@ class DuctileTemplate
         foreach ($list_types as $v) {
             $ret .= '   case \'' . $v . '\':' . "\n" .
             self::$toff . "\n" .
-            dotclear()->template()->includeFile(['src' => '_entry-' . $v . '.html']) . "\n" .
+            App::core()->template()->includeFile(['src' => '_entry-' . $v . '.html']) . "\n" .
                 self::$ton . "\n" .
                 '       break;' . "\n";
         }
@@ -151,12 +152,12 @@ class DuctileTemplate
 
     public static function ductileEntriesListHelper(string $default): string
     {
-        $s = dotclear()->blog()->settings()->get('themes')->get(dotclear()->blog()->settings()->get('system')->get('theme') . '_entries_lists');
+        $s = App::core()->blog()->settings()->get('themes')->get(App::core()->blog()->settings()->get('system')->get('theme') . '_entries_lists');
         if (null !== $s) {
             $s = @unserialize($s);
             if (is_array($s)) {
-                if (isset($s[dotclear()->url()->type])) {
-                    return $s[dotclear()->url()->type];
+                if (isset($s[App::core()->url()->type])) {
+                    return $s[App::core()->url()->type];
                 }
             }
         }
@@ -171,9 +172,9 @@ class DuctileTemplate
 
     public static function ductileLogoSrcHelper()
     {
-        $img_url = dotclear()->blog()->getURLFor('resources', 'img/logo.png');
+        $img_url = App::core()->blog()->getURLFor('resources', 'img/logo.png');
 
-        $s = dotclear()->blog()->settings()->get('themes')->get(dotclear()->blog()->settings()->get('system')->get('theme') . '_style');
+        $s = App::core()->blog()->settings()->get('themes')->get(App::core()->blog()->settings()->get('system')->get('theme') . '_style');
         if (null === $s) {
             // no settings yet, return default logo
             return $img_url;
@@ -192,7 +193,7 @@ class DuctileTemplate
                         $img_url = $s['logo_src'];
                     } else {
                         // relative URL (base = img folder of ductile theme)
-                        $img_url = dotclear()->blog()->getURLFor('resources', 'img/' . $s['logo_src']);
+                        $img_url = App::core()->blog()->getURLFor('resources', 'img/' . $s['logo_src']);
                     }
                 }
             }
@@ -203,7 +204,7 @@ class DuctileTemplate
 
     public function IfPreviewIsNotMandatory(ArrayObject $attr, string $content): string
     {
-        $s = dotclear()->blog()->settings()->get('themes')->get(dotclear()->blog()->settings()->get('system')->get('theme') . '_style');
+        $s = App::core()->blog()->settings()->get('themes')->get(App::core()->blog()->settings()->get('system')->get('theme') . '_style');
         if (null !== $s) {
             $s = @unserialize($s);
             if (is_array($s)) {

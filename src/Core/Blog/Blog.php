@@ -11,6 +11,7 @@ namespace Dotclear\Core\Blog;
 
 // Dotclear\Core\Blog\Blog
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Core\Blog\Categories\Categories;
 use Dotclear\Core\Blog\Comments\Comments;
 use Dotclear\Core\Blog\Posts\Posts;
@@ -142,13 +143,13 @@ class Blog
     /**
      * Constructor.
      *
-     * Blog methods are accesible from dotclear()->blog()
+     * Blog methods are accesible from App::core()->blog()
      *
      * @param string $id The blog identifier
      */
     public function __construct(string $id)
     {
-        if (null !== ($rs = dotclear()->blogs()->getBlog($id))) {
+        if (null !== ($rs = App::core()->blogs()->getBlog($id))) {
             $this->id     = $id;
             $this->uid    = $rs->f('blog_uid');
             $this->name   = $rs->f('blog_name');
@@ -159,7 +160,7 @@ class Blog
             $this->upddt  = (int) strtotime($rs->f('blog_upddt'));
             $this->status = (int) $rs->f('blog_status');
 
-            $this->public_path = Path::real(Path::fullFromRoot($this->settings()->get('system')->get('public_path'), dotclear()->config()->get('base_dir')));
+            $this->public_path = Path::real(Path::fullFromRoot($this->settings()->get('system')->get('public_path'), App::core()->config()->get('base_dir')));
             $this->public_url  = $this->getURLFor('resources'); // ! to enhance
 
             $this->post_status['-2'] = __('Pending');
@@ -173,7 +174,7 @@ class Blog
             $this->comment_status['1']  = __('Published');
 
             // --BEHAVIOR-- coreBlogConstruct, Dotclear\Core\Blog
-            dotclear()->behavior()->call('coreBlogConstruct', $this);
+            App::core()->behavior()->call('coreBlogConstruct', $this);
         }
     }
 
@@ -182,7 +183,7 @@ class Blog
     /**
      * Get categories instance.
      *
-     * Categories methods are accesible from dotclear()->blog()->categories()
+     * Categories methods are accesible from App::core()->blog()->categories()
      *
      * @return Categories The categories instance
      */
@@ -198,7 +199,7 @@ class Blog
     /**
      * Get comments instance.
      *
-     * Comments methods are accesible from dotclear()->blog()->comments()
+     * Comments methods are accesible from App::core()->blog()->comments()
      *
      * @return Comments The comments instance
      */
@@ -214,7 +215,7 @@ class Blog
     /**
      * Get posts instance.
      *
-     * Posts methods are accesible from dotclear()->blog()->posts()
+     * Posts methods are accesible from App::core()->blog()->posts()
      *
      * @return Posts The posts instance
      */
@@ -230,7 +231,7 @@ class Blog
     /**
      * Get settings instance.
      *
-     * Settings methods are accesible from dotclear()->blog()->settings()
+     * Settings methods are accesible from App::core()->blog()->settings()
      *
      * @return Settings The settings instance
      */
@@ -267,7 +268,7 @@ class Blog
      */
     public function getURLFor(string $type, string|int $value = ''): string
     {
-        $url = dotclear()->url()->getURLFor($type, $value);
+        $url = App::core()->url()->getURLFor($type, $value);
 
         return str_contains($url, 'http') ? $url : $this->url . $url;
     }
@@ -282,12 +283,12 @@ class Blog
         $version = $this->settings()->get('system')->get('jquery_version');
         if ('' == $version) {
             // Version not set, use default one
-            $version = dotclear()->config()->get('jquery_default');
+            $version = App::core()->config()->get('jquery_default');
         } else {
             if (true !== $this->settings()->get('system')->get('jquery_allow_old_version')) {
                 // Use the blog defined version only if more recent than default
-                if (version_compare($version, dotclear()->config()->get('jquery_default'), '<')) {
-                    $version = dotclear()->config()->get('jquery_default');
+                if (version_compare($version, App::core()->config()->get('jquery_default'), '<')) {
+                    $version = App::core()->config()->get('jquery_default');
                 }
             }
         }
@@ -375,7 +376,7 @@ class Blog
      */
     public function triggerBlog(): void
     {
-        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'blog')
+        $cur = App::core()->con()->openCursor(App::core()->prefix . 'blog')
             ->setField('blog_upddt', date('Y-m-d H:i:s'))
         ;
 
@@ -385,7 +386,7 @@ class Blog
         ;
 
         // --BEHAVIOR-- coreBlogAfterTriggerBlog, Dotclear\Database\Cursor
-        dotclear()->behavior()->call('coreBlogAfterTriggerBlog', $cur);
+        App::core()->behavior()->call('coreBlogAfterTriggerBlog', $cur);
     }
 
     /**
@@ -420,7 +421,7 @@ class Blog
         if (empty($affected_posts)) {
             $sql = new SelectStatement(__METHOD__ . 'Id');
             $rs  = $sql
-                ->from(dotclear()->prefix . 'comment ')
+                ->from(App::core()->prefix . 'comment ')
                 ->where('comment_id' . $sql->in($comments_ids))
                 ->group('post_id')
                 ->select()
@@ -444,7 +445,7 @@ class Blog
                 $sql->count('post_id', 'nb_comment'),
                 'comment_trackback',
             ])
-            ->from(dotclear()->prefix . 'comment ')
+            ->from(App::core()->prefix . 'comment ')
             ->where('comment_status = 1')
             ->and('post_id' . $sql->in($affected_posts))
             ->group(['post_id', 'comment_trackback'])
@@ -463,7 +464,7 @@ class Blog
         // Update number of comments on affected posts
         foreach ($affected_posts as $post_id) {
             $sql = UpdateStatement::init(__METHOD__ . $post_id)
-                ->from(dotclear()->prefix . 'post')
+                ->from(App::core()->prefix . 'post')
                 ->where('post_id = ' . $post_id)
             ;
 

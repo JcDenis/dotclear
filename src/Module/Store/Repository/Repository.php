@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Module\Store\Repository;
 
 // Dotclear\Module\Store\Repository\Repository
+use Dotclear\App;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\Network\NetHttp\NetHttp;
 use Dotclear\Module\AbstractModules;
@@ -55,7 +56,7 @@ class Repository
      */
     public function __construct(public AbstractModules $modules, protected string $xml_url, bool $force = false)
     {
-        $this->user_agent = sprintf('Dotclear/%s)', dotclear()->config()->get('core_version'));
+        $this->user_agent = sprintf('Dotclear/%s)', App::core()->config()->get('core_version'));
 
         $this->check($force);
     }
@@ -74,7 +75,7 @@ class Repository
         }
 
         try {
-            $parser = dotclear()->config()->get('store_update_noauto') ? false : RepositoryReader::quickParse($this->xml_url, dotclear()->config()->get('cache_dir'), $force);
+            $parser = App::core()->config()->get('store_update_noauto') ? false : RepositoryReader::quickParse($this->xml_url, App::core()->config()->get('cache_dir'), $force);
         } catch (\Exception) {
             return false;
         }
@@ -104,9 +105,9 @@ class Repository
                 unset($raw_datas[$id]);
             }
             // per module third-party repository
-            if (!empty($module->repository()) && dotclear()->config()->get('store_allow_repo')) {
+            if (!empty($module->repository()) && App::core()->config()->get('store_allow_repo')) {
                 try {
-                    if (false !== ($dcs_parser = RepositoryReader::quickParse($module->repository(), dotclear()->config()->get('cache_dir'), $force))) {
+                    if (false !== ($dcs_parser = RepositoryReader::quickParse($module->repository(), App::core()->config()->get('cache_dir'), $force))) {
                         $dcs_raw_datas = $dcs_parser->getModules();
                         if (isset($dcs_raw_datas[$id]) && $this->compare($dcs_raw_datas[$id]['version'], $module->version(), '>')) {
                             if (!isset($updates[$id]) || $this->compare($dcs_raw_datas[$id]['version'], $raw_datas[$id]['version']['version'], '>')) {

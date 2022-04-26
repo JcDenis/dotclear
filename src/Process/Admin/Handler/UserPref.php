@@ -11,6 +11,7 @@ namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\UserPref
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Core\User\UserContainer;
 use Dotclear\Exception\AdminException;
@@ -81,41 +82,41 @@ class UserPref extends AbstractPage
     {
         $page_title = __('My preferences');
 
-        $this->user = new UserContainer(dotclear()->users()->getUser(dotclear()->user()->userID()));
+        $this->user = new UserContainer(App::core()->users()->getUser(App::core()->user()->userID()));
 
         if (empty($this->user->getOption('editor'))) {
             $this->user->setOption('editor', []);
         }
 
-        $this->user_profile_mails = dotclear()->user()->preference()->get('profile')->get('mails');
-        $this->user_profile_urls  = dotclear()->user()->preference()->get('profile')->get('urls');
+        $this->user_profile_mails = App::core()->user()->preference()->get('profile')->get('mails');
+        $this->user_profile_urls  = App::core()->user()->preference()->get('profile')->get('urls');
 
-        $this->user_dm_doclinks   = dotclear()->user()->preference()->get('dashboard')->get('doclinks');
-        $this->user_dm_dcnews     = dotclear()->user()->preference()->get('dashboard')->get('dcnews');
-        $this->user_dm_quickentry = dotclear()->user()->preference()->get('dashboard')->get('quickentry');
-        $this->user_dm_nofavicons = dotclear()->user()->preference()->get('dashboard')->get('nofavicons');
+        $this->user_dm_doclinks   = App::core()->user()->preference()->get('dashboard')->get('doclinks');
+        $this->user_dm_dcnews     = App::core()->user()->preference()->get('dashboard')->get('dcnews');
+        $this->user_dm_quickentry = App::core()->user()->preference()->get('dashboard')->get('quickentry');
+        $this->user_dm_nofavicons = App::core()->user()->preference()->get('dashboard')->get('nofavicons');
         $this->user_dm_nodcupdate = false;
-        if (dotclear()->user()->isSuperAdmin()) {
-            $this->user_dm_nodcupdate = dotclear()->user()->preference()->get('dashboard')->get('nodcupdate');
+        if (App::core()->user()->isSuperAdmin()) {
+            $this->user_dm_nodcupdate = App::core()->user()->preference()->get('dashboard')->get('nodcupdate');
         }
 
-        $this->user_acc_nodragdrop = dotclear()->user()->preference()->get('accessibility')->get('nodragdrop');
+        $this->user_acc_nodragdrop = App::core()->user()->preference()->get('accessibility')->get('nodragdrop');
 
-        $this->user_ui_theme            = dotclear()->user()->preference()->get('interface')->get('theme');
-        $this->user_ui_enhanceduploader = dotclear()->user()->preference()->get('interface')->get('enhanceduploader');
-        $this->user_ui_blank_preview    = dotclear()->user()->preference()->get('interface')->get('blank_preview');
-        $this->user_ui_hidemoreinfo     = dotclear()->user()->preference()->get('interface')->get('hidemoreinfo');
-        $this->user_ui_hidehelpbutton   = dotclear()->user()->preference()->get('interface')->get('hidehelpbutton');
-        $this->user_ui_showajaxloader   = dotclear()->user()->preference()->get('interface')->get('showajaxloader');
-        $this->user_ui_htmlfontsize     = dotclear()->user()->preference()->get('interface')->get('htmlfontsize');
+        $this->user_ui_theme            = App::core()->user()->preference()->get('interface')->get('theme');
+        $this->user_ui_enhanceduploader = App::core()->user()->preference()->get('interface')->get('enhanceduploader');
+        $this->user_ui_blank_preview    = App::core()->user()->preference()->get('interface')->get('blank_preview');
+        $this->user_ui_hidemoreinfo     = App::core()->user()->preference()->get('interface')->get('hidemoreinfo');
+        $this->user_ui_hidehelpbutton   = App::core()->user()->preference()->get('interface')->get('hidehelpbutton');
+        $this->user_ui_showajaxloader   = App::core()->user()->preference()->get('interface')->get('showajaxloader');
+        $this->user_ui_htmlfontsize     = App::core()->user()->preference()->get('interface')->get('htmlfontsize');
         $this->user_ui_hide_std_favicon = false;
-        if (dotclear()->user()->isSuperAdmin()) {
-            $this->user_ui_hide_std_favicon = dotclear()->user()->preference()->get('interface')->get('hide_std_favicon');
+        if (App::core()->user()->isSuperAdmin()) {
+            $this->user_ui_hide_std_favicon = App::core()->user()->preference()->get('interface')->get('hide_std_favicon');
         }
-        $this->user_ui_iconset            = dotclear()->user()->preference()->get('interface')->get('iconset');
-        $this->user_ui_nofavmenu          = dotclear()->user()->preference()->get('interface')->get('nofavmenu');
-        $this->user_ui_media_nb_last_dirs = dotclear()->user()->preference()->get('interface')->get('media_nb_last_dirs');
-        $this->user_ui_nocheckadblocker   = dotclear()->user()->preference()->get('interface')->get('nocheckadblocker');
+        $this->user_ui_iconset            = App::core()->user()->preference()->get('interface')->get('iconset');
+        $this->user_ui_nofavmenu          = App::core()->user()->preference()->get('interface')->get('nofavmenu');
+        $this->user_ui_media_nb_last_dirs = App::core()->user()->preference()->get('interface')->get('media_nb_last_dirs');
+        $this->user_ui_nocheckadblocker   = App::core()->user()->preference()->get('interface')->get('nocheckadblocker');
 
         $default_tab = !empty($_GET['tab']) ? Html::escapeHTML($_GET['tab']) : 'user-profile';
 
@@ -129,7 +130,7 @@ class UserPref extends AbstractPage
         }
 
         // Format by editors
-        $formaters               = dotclear()->formater()->getFormaters();
+        $formaters               = App::core()->formater()->getFormaters();
         $this->format_by_editors = [];
         foreach ($formaters as $editor => $formats) {
             foreach ($formats as $format) {
@@ -153,9 +154,9 @@ class UserPref extends AbstractPage
             'cat_descr'  => [true, __('Category description')],
         ];
         $this->rte = new ArrayObject($rte);
-        dotclear()->behavior()->call('adminRteFlags', $this->rte);
+        App::core()->behavior()->call('adminRteFlags', $this->rte);
         // Load user settings
-        $rte_flags = @dotclear()->user()->preference()->get('interface')->get('rte_flags');
+        $rte_flags = @App::core()->user()->preference()->get('interface')->get('rte_flags');
         if (is_array($rte_flags)) {
             foreach ($rte_flags as $fk => $fv) {
                 if (isset($this->rte[$fk])) {
@@ -165,21 +166,21 @@ class UserPref extends AbstractPage
         }
 
         // Get default colums (admin lists)
-        $this->cols = dotclear()->listoption()->getUserColumns();
+        $this->cols = App::core()->listoption()->getUserColumns();
 
         // Get default sortby, order, nbperpage (admin lists)
-        $this->sorts = dotclear()->listoption()->getUserFilters();
+        $this->sorts = App::core()->listoption()->getUserFilters();
 
         // Add or update user
         if (isset($_POST['user_name'])) {
             try {
-                $pwd_check = !empty($_POST['cur_pwd']) && dotclear()->user()->checkPassword($_POST['cur_pwd']);
+                $pwd_check = !empty($_POST['cur_pwd']) && App::core()->user()->checkPassword($_POST['cur_pwd']);
 
-                if (dotclear()->user()->allowPassChange() && !$pwd_check && $this->user->getProperty('user_email') != $_POST['user_email']) {
+                if (App::core()->user()->allowPassChange() && !$pwd_check && $this->user->getProperty('user_email') != $_POST['user_email']) {
                     throw new AdminException(__('If you want to change your email or password you must provide your current password.'));
                 }
 
-                $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'user');
+                $cur = App::core()->con()->openCursor(App::core()->prefix . 'user');
 
                 $cur->setField('user_name', $this->user->setProperty('user_name', $_POST['user_name']));
                 $cur->setField('user_firstname', $this->user->setProperty('user_firstname', $_POST['user_firstname']));
@@ -190,7 +191,7 @@ class UserPref extends AbstractPage
                 $cur->setField('user_tz', $this->user->setProperty('user_tz', $_POST['user_tz']));
                 $cur->setField('user_options', new ArrayObject($this->user->getOptions()));
 
-                if (dotclear()->user()->allowPassChange() && !empty($_POST['new_pwd'])) {
+                if (App::core()->user()->allowPassChange() && !empty($_POST['new_pwd'])) {
                     if (!$pwd_check) {
                         throw new AdminException(__('If you want to change your email or password you must provide your current password.'));
                     }
@@ -203,10 +204,10 @@ class UserPref extends AbstractPage
                 }
 
                 // --BEHAVIOR-- adminBeforeUserUpdate
-                dotclear()->behavior()->call('adminBeforeUserProfileUpdate', $cur, dotclear()->user()->userID());
+                App::core()->behavior()->call('adminBeforeUserProfileUpdate', $cur, App::core()->user()->userID());
 
                 // Udate user
-                dotclear()->users()->updUser(dotclear()->user()->userID(), $cur);
+                App::core()->users()->updUser(App::core()->user()->userID(), $cur);
 
                 // Update profile
                 // Sanitize list of secondary mails and urls if any
@@ -217,24 +218,24 @@ class UserPref extends AbstractPage
                 if (!empty($_POST['user_profile_urls'])) {
                     $urls = implode(',', array_filter(filter_var_array(array_map('trim', explode(',', $_POST['user_profile_urls'])), FILTER_VALIDATE_URL)));
                 }
-                dotclear()->user()->preference()->get('profile')->put('mails', $mails, 'string');
-                dotclear()->user()->preference()->get('profile')->put('urls', $urls, 'string');
+                App::core()->user()->preference()->get('profile')->put('mails', $mails, 'string');
+                App::core()->user()->preference()->get('profile')->put('urls', $urls, 'string');
 
                 // --BEHAVIOR-- adminAfterUserUpdate
-                dotclear()->behavior()->call('adminAfterUserProfileUpdate', $cur, dotclear()->user()->userID());
+                App::core()->behavior()->call('adminAfterUserProfileUpdate', $cur, App::core()->user()->userID());
 
-                dotclear()->notice()->addSuccessNotice(__('Personal information has been successfully updated.'));
+                App::core()->notice()->addSuccessNotice(__('Personal information has been successfully updated.'));
 
-                dotclear()->adminurl()->redirect('admin.user.pref');
+                App::core()->adminurl()->redirect('admin.user.pref');
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
         // Update user options
         if (isset($_POST['user_options_submit'])) {
             try {
-                $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'user');
+                $cur = App::core()->con()->openCursor(App::core()->prefix . 'user');
 
                 $cur->setField('user_name', $this->user->getProperty('user_name'));
                 $cur->setField('user_firstname', $this->user->getProperty('user_firstname'));
@@ -257,25 +258,25 @@ class UserPref extends AbstractPage
                 $cur->setField('user_options', new ArrayObject($this->user->getOptions()));
 
                 // --BEHAVIOR-- adminBeforeUserOptionsUpdate
-                dotclear()->behavior()->call('adminBeforeUserOptionsUpdate', $cur, dotclear()->user()->userID());
+                App::core()->behavior()->call('adminBeforeUserOptionsUpdate', $cur, App::core()->user()->userID());
 
                 // Update user prefs
-                dotclear()->user()->preference()->get('accessibility')->put('nodragdrop', !empty($_POST['user_acc_nodragdrop']), 'boolean');
-                dotclear()->user()->preference()->get('interface')->put('theme', $_POST['user_ui_theme'], 'string');
-                dotclear()->user()->preference()->get('interface')->put('enhanceduploader', !empty($_POST['user_ui_enhanceduploader']), 'boolean');
-                dotclear()->user()->preference()->get('interface')->put('blank_preview', !empty($_POST['user_ui_blank_preview']), 'boolean');
-                dotclear()->user()->preference()->get('interface')->put('hidemoreinfo', !empty($_POST['user_ui_hidemoreinfo']), 'boolean');
-                dotclear()->user()->preference()->get('interface')->put('hidehelpbutton', !empty($_POST['user_ui_hidehelpbutton']), 'boolean');
-                dotclear()->user()->preference()->get('interface')->put('showajaxloader', !empty($_POST['user_ui_showajaxloader']), 'boolean');
-                dotclear()->user()->preference()->get('interface')->put('htmlfontsize', $_POST['user_ui_htmlfontsize'], 'string');
-                if (dotclear()->user()->isSuperAdmin()) {
+                App::core()->user()->preference()->get('accessibility')->put('nodragdrop', !empty($_POST['user_acc_nodragdrop']), 'boolean');
+                App::core()->user()->preference()->get('interface')->put('theme', $_POST['user_ui_theme'], 'string');
+                App::core()->user()->preference()->get('interface')->put('enhanceduploader', !empty($_POST['user_ui_enhanceduploader']), 'boolean');
+                App::core()->user()->preference()->get('interface')->put('blank_preview', !empty($_POST['user_ui_blank_preview']), 'boolean');
+                App::core()->user()->preference()->get('interface')->put('hidemoreinfo', !empty($_POST['user_ui_hidemoreinfo']), 'boolean');
+                App::core()->user()->preference()->get('interface')->put('hidehelpbutton', !empty($_POST['user_ui_hidehelpbutton']), 'boolean');
+                App::core()->user()->preference()->get('interface')->put('showajaxloader', !empty($_POST['user_ui_showajaxloader']), 'boolean');
+                App::core()->user()->preference()->get('interface')->put('htmlfontsize', $_POST['user_ui_htmlfontsize'], 'string');
+                if (App::core()->user()->isSuperAdmin()) {
                     // Applied to all users
-                    dotclear()->user()->preference()->get('interface')->put('hide_std_favicon', !empty($_POST['user_ui_hide_std_favicon']), 'boolean', null, true, true);
+                    App::core()->user()->preference()->get('interface')->put('hide_std_favicon', !empty($_POST['user_ui_hide_std_favicon']), 'boolean', null, true, true);
                 }
-                dotclear()->user()->preference()->get('interface')->put('media_nb_last_dirs', (int) $_POST['user_ui_media_nb_last_dirs'], 'integer');
-                dotclear()->user()->preference()->get('interface')->put('media_last_dirs', [], 'array', null, false);
-                dotclear()->user()->preference()->get('interface')->put('media_fav_dirs', [], 'array', null, false);
-                dotclear()->user()->preference()->get('interface')->put('nocheckadblocker', !empty($_POST['user_ui_nocheckadblocker']), 'boolean');
+                App::core()->user()->preference()->get('interface')->put('media_nb_last_dirs', (int) $_POST['user_ui_media_nb_last_dirs'], 'integer');
+                App::core()->user()->preference()->get('interface')->put('media_last_dirs', [], 'array', null, false);
+                App::core()->user()->preference()->get('interface')->put('media_fav_dirs', [], 'array', null, false);
+                App::core()->user()->preference()->get('interface')->put('nocheckadblocker', !empty($_POST['user_ui_nocheckadblocker']), 'boolean');
 
                 // Update user columns (lists)
                 $cu = [];
@@ -288,7 +289,7 @@ class UserPref extends AbstractPage
                         $cu[$col_type] = $ct;
                     }
                 }
-                dotclear()->user()->preference()->get('interface')->put('cols', $cu, 'array');
+                App::core()->user()->preference()->get('interface')->put('cols', $cu, 'array');
 
                 // Update user lists options
                 $su = [];
@@ -309,27 +310,27 @@ class UserPref extends AbstractPage
                         $su[$sort_type][2] = isset($_POST[$k]) ? abs((int) $_POST[$k]) : $sort_data[4][1];
                     }
                 }
-                dotclear()->user()->preference()->get('interface')->put('sorts', $su, 'array');
+                App::core()->user()->preference()->get('interface')->put('sorts', $su, 'array');
                 // All filters
-                dotclear()->user()->preference()->get('interface')->put('auto_filter', !empty($_POST['user_ui_auto_filter']), 'boolean');
+                App::core()->user()->preference()->get('interface')->put('auto_filter', !empty($_POST['user_ui_auto_filter']), 'boolean');
 
                 // Update user xhtml editor flags
                 $rf = [];
                 foreach ($this->rte as $rk => $rv) {
                     $rf[$rk] = isset($_POST['rte_flags']) && in_array($rk, $_POST['rte_flags'], true) ? true : false;
                 }
-                dotclear()->user()->preference()->get('interface')->put('rte_flags', $rf, 'array');
+                App::core()->user()->preference()->get('interface')->put('rte_flags', $rf, 'array');
 
                 // Update user
-                dotclear()->users()->updUser(dotclear()->user()->userID(), $cur);
+                App::core()->users()->updUser(App::core()->user()->userID(), $cur);
 
                 // --BEHAVIOR-- adminAfterUserOptionsUpdate
-                dotclear()->behavior()->call('adminAfterUserOptionsUpdate', $cur, dotclear()->user()->userID());
+                App::core()->behavior()->call('adminAfterUserOptionsUpdate', $cur, App::core()->user()->userID());
 
-                dotclear()->notice()->addSuccessNotice(__('Personal options has been successfully updated.'));
-                dotclear()->adminurl()->redirect('admin.user.pref', [], '#user-options');
+                App::core()->notice()->addSuccessNotice(__('Personal options has been successfully updated.'));
+                App::core()->adminurl()->redirect('admin.user.pref', [], '#user-options');
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
@@ -337,26 +338,26 @@ class UserPref extends AbstractPage
         if (isset($_POST['db-options'])) {
             try {
                 // --BEHAVIOR-- adminBeforeUserOptionsUpdate
-                dotclear()->behavior()->call('adminBeforeDashboardOptionsUpdate', dotclear()->user()->userID());
+                App::core()->behavior()->call('adminBeforeDashboardOptionsUpdate', App::core()->user()->userID());
 
                 // Update user prefs
-                dotclear()->user()->preference()->get('dashboard')->put('doclinks', !empty($_POST['user_dm_doclinks']), 'boolean');
-                dotclear()->user()->preference()->get('dashboard')->put('dcnews', !empty($_POST['user_dm_dcnews']), 'boolean');
-                dotclear()->user()->preference()->get('dashboard')->put('quickentry', !empty($_POST['user_dm_quickentry']), 'boolean');
-                dotclear()->user()->preference()->get('dashboard')->put('nofavicons', empty($_POST['user_dm_nofavicons']), 'boolean');
-                if (dotclear()->user()->isSuperAdmin()) {
-                    dotclear()->user()->preference()->get('dashboard')->put('nodcupdate', !empty($_POST['user_dm_nodcupdate']), 'boolean');
+                App::core()->user()->preference()->get('dashboard')->put('doclinks', !empty($_POST['user_dm_doclinks']), 'boolean');
+                App::core()->user()->preference()->get('dashboard')->put('dcnews', !empty($_POST['user_dm_dcnews']), 'boolean');
+                App::core()->user()->preference()->get('dashboard')->put('quickentry', !empty($_POST['user_dm_quickentry']), 'boolean');
+                App::core()->user()->preference()->get('dashboard')->put('nofavicons', empty($_POST['user_dm_nofavicons']), 'boolean');
+                if (App::core()->user()->isSuperAdmin()) {
+                    App::core()->user()->preference()->get('dashboard')->put('nodcupdate', !empty($_POST['user_dm_nodcupdate']), 'boolean');
                 }
-                dotclear()->user()->preference()->get('interface')->put('iconset', (!empty($_POST['user_ui_iconset']) ? $_POST['user_ui_iconset'] : ''));
-                dotclear()->user()->preference()->get('interface')->put('nofavmenu', empty($_POST['user_ui_nofavmenu']), 'boolean');
+                App::core()->user()->preference()->get('interface')->put('iconset', (!empty($_POST['user_ui_iconset']) ? $_POST['user_ui_iconset'] : ''));
+                App::core()->user()->preference()->get('interface')->put('nofavmenu', empty($_POST['user_ui_nofavmenu']), 'boolean');
 
                 // --BEHAVIOR-- adminAfterUserOptionsUpdate
-                dotclear()->behavior()->call('adminAfterDashboardOptionsUpdate', dotclear()->user()->userID());
+                App::core()->behavior()->call('adminAfterDashboardOptionsUpdate', App::core()->user()->userID());
 
-                dotclear()->notice()->addSuccessNotice(__('Dashboard options has been successfully updated.'));
-                dotclear()->adminurl()->redirect('admin.user.pref', [], '#user-favorites');
+                App::core()->notice()->addSuccessNotice(__('Dashboard options has been successfully updated.'));
+                App::core()->adminurl()->redirect('admin.user.pref', [], '#user-favorites');
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
@@ -366,20 +367,20 @@ class UserPref extends AbstractPage
                 if (empty($_POST['append'])) {
                     throw new AdminException(__('No favorite selected'));
                 }
-                $user_favs = dotclear()->favorite()->getFavoriteIDs(false);
+                $user_favs = App::core()->favorite()->getFavoriteIDs(false);
                 foreach ($_POST['append'] as $k => $v) {
-                    if (dotclear()->favorite()->exists($v)) {
+                    if (App::core()->favorite()->exists($v)) {
                         $user_favs[] = $v;
                     }
                 }
-                dotclear()->favorite()->setFavoriteIDs($user_favs, false);
+                App::core()->favorite()->setFavoriteIDs($user_favs, false);
 
-                if (!dotclear()->error()->flag()) {
-                    dotclear()->notice()->addSuccessNotice(__('Favorites have been successfully added.'));
-                    dotclear()->adminurl()->redirect('admin.user.pref', [], '#user-favorites');
+                if (!App::core()->error()->flag()) {
+                    App::core()->notice()->addSuccessNotice(__('Favorites have been successfully added.'));
+                    App::core()->adminurl()->redirect('admin.user.pref', [], '#user-favorites');
                 }
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
@@ -390,7 +391,7 @@ class UserPref extends AbstractPage
                     throw new AdminException(__('No favorite selected'));
                 }
                 $user_fav_ids = [];
-                foreach (dotclear()->favorite()->getFavoriteIDs(false) as $v) {
+                foreach (App::core()->favorite()->getFavoriteIDs(false) as $v) {
                     $user_fav_ids[$v] = true;
                 }
                 foreach ($_POST['remove'] as $v) {
@@ -398,13 +399,13 @@ class UserPref extends AbstractPage
                         unset($user_fav_ids[$v]);
                     }
                 }
-                dotclear()->favorite()->setFavoriteIDs(array_keys($user_fav_ids), false);
-                if (!dotclear()->error()->flag()) {
-                    dotclear()->notice()->addSuccessNotice(__('Favorites have been successfully removed.'));
-                    dotclear()->adminurl()->redirect('admin.user.pref', [], '#user-favorites');
+                App::core()->favorite()->setFavoriteIDs(array_keys($user_fav_ids), false);
+                if (!App::core()->error()->flag()) {
+                    App::core()->notice()->addSuccessNotice(__('Favorites have been successfully removed.'));
+                    App::core()->adminurl()->redirect('admin.user.pref', [], '#user-favorites');
                 }
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
@@ -420,68 +421,68 @@ class UserPref extends AbstractPage
 
         if (!empty($_POST['saveorder']) && !empty($order)) {
             foreach ($order as $k => $v) {
-                if (!dotclear()->favorite()->exists($v)) {
+                if (!App::core()->favorite()->exists($v)) {
                     unset($order[$k]);
                 }
             }
-            dotclear()->favorite()->setFavoriteIDs($order, false);
-            if (!dotclear()->error()->flag()) {
-                dotclear()->notice()->addSuccessNotice(__('Favorites have been successfully updated.'));
-                dotclear()->adminurl()->redirect('admin.user.pref', [], '#user-favorites');
+            App::core()->favorite()->setFavoriteIDs($order, false);
+            if (!App::core()->error()->flag()) {
+                App::core()->notice()->addSuccessNotice(__('Favorites have been successfully updated.'));
+                App::core()->adminurl()->redirect('admin.user.pref', [], '#user-favorites');
             }
         }
 
         // Replace default favorites by current set (super admin only)
-        if (!empty($_POST['replace']) && dotclear()->user()->isSuperAdmin()) {
-            $user_favs = dotclear()->favorite()->getFavoriteIDs(false);
-            dotclear()->favorite()->setFavoriteIDs($user_favs, true);
+        if (!empty($_POST['replace']) && App::core()->user()->isSuperAdmin()) {
+            $user_favs = App::core()->favorite()->getFavoriteIDs(false);
+            App::core()->favorite()->setFavoriteIDs($user_favs, true);
 
-            if (!dotclear()->error()->flag()) {
-                dotclear()->notice()->addSuccessNotice(__('Default favorites have been successfully updated.'));
-                dotclear()->adminurl()->redirect('admin.user.pref', [], '#user-favorites');
+            if (!App::core()->error()->flag()) {
+                App::core()->notice()->addSuccessNotice(__('Default favorites have been successfully updated.'));
+                App::core()->adminurl()->redirect('admin.user.pref', [], '#user-favorites');
             }
         }
 
         // Reset dashboard items order
         if (!empty($_POST['resetorder'])) {
-            dotclear()->user()->preference()->get('dashboard')->drop('main_order');
-            dotclear()->user()->preference()->get('dashboard')->drop('boxes_order');
-            dotclear()->user()->preference()->get('dashboard')->drop('boxes_items_order');
-            dotclear()->user()->preference()->get('dashboard')->drop('boxes_contents_order');
+            App::core()->user()->preference()->get('dashboard')->drop('main_order');
+            App::core()->user()->preference()->get('dashboard')->drop('boxes_order');
+            App::core()->user()->preference()->get('dashboard')->drop('boxes_items_order');
+            App::core()->user()->preference()->get('dashboard')->drop('boxes_contents_order');
 
-            if (!dotclear()->error()->flag()) {
-                dotclear()->notice()->addSuccessNotice(__('Dashboard items order have been successfully reset.'));
-                dotclear()->adminurl()->redirect('admin.user.pref', [], '#user-favorites');
+            if (!App::core()->error()->flag()) {
+                App::core()->notice()->addSuccessNotice(__('Dashboard items order have been successfully reset.'));
+                App::core()->adminurl()->redirect('admin.user.pref', [], '#user-favorites');
             }
         }
 
         // Page setup
         if (!$this->user_acc_nodragdrop) {
-            $this->setPageHead(dotclear()->resource()->load('_preferences-dragdrop.js'));
+            $this->setPageHead(App::core()->resource()->load('_preferences-dragdrop.js'));
         }
         $this
             ->setPageTitle($page_title)
             ->setpageHelp()
             ->setpageHelp('core_user_pref')
             ->setPageHead(
-                dotclear()->resource()->load('jquery/jquery-ui.custom.js') .
-                dotclear()->resource()->load('jquery/jquery.ui.touch-punch.js') .
-                dotclear()->resource()->json('pwstrength', [
+                App::core()->resource()->load('jquery/jquery-ui.custom.js') .
+                App::core()->resource()->load('jquery/jquery.ui.touch-punch.js') .
+                App::core()->resource()->json('pwstrength', [
                     'min' => sprintf(__('Password strength: %s'), __('weak')),
                     'avg' => sprintf(__('Password strength: %s'), __('medium')),
                     'max' => sprintf(__('Password strength: %s'), __('strong')),
                 ]) .
-                dotclear()->resource()->load('pwstrength.js') .
-                dotclear()->resource()->load('_preferences.js') .
-                dotclear()->resource()->pageTabs($default_tab) .
-                dotclear()->resource()->confirmClose('user-form', 'opts-forms', 'favs-form', 'db-forms') .
+                App::core()->resource()->load('pwstrength.js') .
+                App::core()->resource()->load('_preferences.js') .
+                App::core()->resource()->pageTabs($default_tab) .
+                App::core()->resource()->confirmClose('user-form', 'opts-forms', 'favs-form', 'db-forms') .
 
                 // --BEHAVIOR-- adminPreferencesHeaders
-                dotclear()->behavior()->call('adminPreferencesHeaders')
+                App::core()->behavior()->call('adminPreferencesHeaders')
             )
             ->setPageBreadcrumb([
-                Html::escapeHTML(dotclear()->user()->userID()) => '',
-                $page_title                                    => '',
+                Html::escapeHTML(App::core()->user()->userID()) => '',
+                $page_title                                     => '',
             ])
         ;
 
@@ -490,10 +491,10 @@ class UserPref extends AbstractPage
 
     protected function getPageContent(): void
     {
-        $editors_combo = dotclear()->combo()->getEditorsCombo();
+        $editors_combo = App::core()->combo()->getEditorsCombo();
         $editors       = array_keys($editors_combo);
 
-        $iconsets_combo = dotclear()->combo()->getIconsetCombo();
+        $iconsets_combo = App::core()->combo()->getIconsetCombo();
 
         // Themes
         $theme_combo = [
@@ -511,13 +512,13 @@ class UserPref extends AbstractPage
             __('Largest')  => '87.5%',
         ];
 
-        $auto_filter = dotclear()->user()->preference()->get('interface')->get('auto_filter');
+        $auto_filter = App::core()->user()->preference()->get('interface')->get('auto_filter');
 
         // User profile
         echo '<div class="multi-part" id="user-profile" title="' . __('My profile') . '">';
 
         echo '<h3>' . __('My profile') . '</h3>' .
-        '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="user-form">' .
+        '<form action="' . App::core()->adminurl()->root() . '" method="post" id="user-form">' .
 
         '<p><label for="user_name">' . __('Last Name:') . '</label>' .
         Form::field('user_name', 20, 255, [
@@ -570,12 +571,12 @@ class UserPref extends AbstractPage
         '<p class="form-note info" id="sanitize_urls">' . __('Invalid URLs will be automatically removed from list.') . '</p>' .
 
         '<p><label for="user_lang">' . __('Language for my interface:') . '</label>' .
-        Form::combo('user_lang', dotclear()->combo()->getAdminLangsCombo(), $this->user->getProperty('user_lang'), 'l10n') . '</p>' .
+        Form::combo('user_lang', App::core()->combo()->getAdminLangsCombo(), $this->user->getProperty('user_lang'), 'l10n') . '</p>' .
 
         '<p><label for="user_tz">' . __('My timezone:') . '</label>' .
         Form::combo('user_tz', Dt::getZones(true, true), $this->user->getProperty('user_tz')) . '</p>';
 
-        if (dotclear()->user()->allowPassChange()) {
+        if (App::core()->user()->allowPassChange()) {
             echo '<h4 class="vertical-separator pretty-title">' . __('Change my password') . '</h4>' .
 
             '<p><label for="new_pwd">' . __('New password:') . '</label>' .
@@ -614,7 +615,7 @@ class UserPref extends AbstractPage
         }
 
         echo '<p class="clear vertical-separator">' .
-        dotclear()->adminurl()->getHiddenFormFields('admin.user.pref', [], true) .
+        App::core()->adminurl()->getHiddenFormFields('admin.user.pref', [], true) .
         '<input type="submit" accesskey="s" value="' . __('Update my profile') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
             '</p>' .
@@ -625,7 +626,7 @@ class UserPref extends AbstractPage
         // User options : some from actual user profile, dashboard modules, ...
         echo '<div class="multi-part" id="user-options" title="' . __('My options') . '">';
 
-        echo '<form action="' . dotclear()->adminurl()->root() . '#user-options" method="post" id="opts-forms">' .
+        echo '<form action="' . App::core()->adminurl()->root() . '#user-options" method="post" id="opts-forms">' .
         '<h3>' . __('My options') . '</h3>';
 
         echo '<div class="fieldset">' .
@@ -666,7 +667,7 @@ class UserPref extends AbstractPage
         Form::number('user_ui_media_nb_last_dirs', 0, 999, (string) $this->user_ui_media_nb_last_dirs, '', '', false, 'aria-describedby="user_ui_media_nb_last_dirs_help"') . '</p>' .
         '<p class="clear form-note" id="user_ui_media_nb_last_dirs_help">' . __('Leave empty to ignore, displayed only if Javascript is enabled in your browser.') . '</p>';
 
-        if (dotclear()->user()->isSuperAdmin()) {
+        if (App::core()->user()->isSuperAdmin()) {
             echo '<p><label for="user_ui_hide_std_favicon" class="classic">' .
             Form::checkbox('user_ui_hide_std_favicon', 1, $this->user_ui_hide_std_favicon, '', '', false, 'aria-describedby="user_ui_hide_std_favicon_help"') . ' ' .
             __('Do not use standard favicon') . '</label> ' .
@@ -715,7 +716,7 @@ class UserPref extends AbstractPage
             }
             if (null !== $sort_data[3]) {
                 echo '<p class="field"><label for="sorts_' . $sort_type . '_order">' . __('Sort:') . '</label> ' .
-                Form::combo('sorts_' . $sort_type . '_order', dotclear()->combo()->getOrderCombo(), $sort_data[3]) . '</p>';
+                Form::combo('sorts_' . $sort_type . '_order', App::core()->combo()->getOrderCombo(), $sort_data[3]) . '</p>';
             }
             if (is_array($sort_data[4])) {
                 echo '<p><span class="label ib">' . __('Show') . '</span> <label for="sorts_' . $sort_type . '_nb" class="classic">' .
@@ -744,7 +745,7 @@ class UserPref extends AbstractPage
         Form::combo('user_post_format', $this->available_formats, $this->user->getOption('post_format')) . '</p>';
 
         echo '<p class="field"><label for="user_post_status">' . __('Default entry status:') . '</label>' .
-        Form::combo('user_post_status', dotclear()->combo()->getPostStatusesCombo(), $this->user->getProperty('user_post_status')) . '</p>' .
+        Form::combo('user_post_status', App::core()->combo()->getPostStatusesCombo(), $this->user->getProperty('user_post_status')) . '</p>' .
 
         '<p class="field"><label for="user_edit_size">' . __('Entry edit field height:') . '</label>' .
         Form::number('user_edit_size', 10, 999, (string) $this->user->getOption('edit_size')) . '</p>' .
@@ -772,10 +773,10 @@ class UserPref extends AbstractPage
         echo '<h4 class="pretty-title">' . __('Other options') . '</h4>';
 
         // --BEHAVIOR-- adminPreferencesForm
-        dotclear()->behavior()->call('adminPreferencesForm');
+        App::core()->behavior()->call('adminPreferencesForm');
 
         echo '<p class="clear vertical-separator">' .
-        dotclear()->adminurl()->getHiddenFormFields('admin.user.pref', [], true) .
+        App::core()->adminurl()->getHiddenFormFields('admin.user.pref', [], true) .
         '<input name="user_options_submit" type="submit" accesskey="s" value="' . __('Save my options') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
             '</p>' .
@@ -788,14 +789,14 @@ class UserPref extends AbstractPage
         echo '<h3>' . __('My dashboard') . '</h3>';
 
         // Favorites
-        echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="favs-form" class="two-boxes odd">';
+        echo '<form action="' . App::core()->adminurl()->root() . '" method="post" id="favs-form" class="two-boxes odd">';
 
         echo '<div id="my-favs" class="fieldset"><h4>' . __('My favorites') . '</h4>';
 
         $count    = 0;
-        $user_fav = dotclear()->favorite()->getFavoriteIDs(false);
+        $user_fav = App::core()->favorite()->getFavoriteIDs(false);
         foreach ($user_fav as $id) {
-            $fav = dotclear()->favorite()->getFavorite($id);
+            $fav = App::core()->favorite()->getFavorite($id);
             if (!empty($fav)) {
                 // User favorites only
                 if (0 == $count) {
@@ -803,8 +804,8 @@ class UserPref extends AbstractPage
                 }
 
                 ++$count;
-                $icon = dotclear()->summary()->getIconTheme($fav['small-icon']);
-                $zoom = dotclear()->summary()->getIconTheme($fav['large-icon'], false);
+                $icon = App::core()->summary()->getIconTheme($fav['small-icon']);
+                $zoom = App::core()->summary()->getIconTheme($fav['large-icon'], false);
                 if ('' !== $zoom) {
                     $icon .= ' <span class="zoom">' . $zoom . '</span>';
                 }
@@ -836,7 +837,7 @@ class UserPref extends AbstractPage
                 __('Are you sure you want to remove selected favorites?')
             ) . '\');" /></p>' .
 
-                (dotclear()->user()->isSuperAdmin() ?
+                (App::core()->user()->isSuperAdmin() ?
                 '<div class="info">' .
                 '<p>' . __('If you are a super administrator, you may define this set of favorites to be used by default on all blogs of this installation.') . '</p>' .
                 '<p><input class="reset" type="submit" name="replace" value="' . __('Define as default favorites') . '" />' . '</p>' .
@@ -849,9 +850,9 @@ class UserPref extends AbstractPage
             echo '<p>' . __('Currently no personal favorites.') . '</p>';
         }
 
-        $avail_fav       = dotclear()->favorite()->getFavorites(dotclear()->favorite()->getAvailableFavoritesIDs());
+        $avail_fav       = App::core()->favorite()->getFavorites(App::core()->favorite()->getAvailableFavoritesIDs());
         $default_fav_ids = [];
-        foreach (dotclear()->favorite()->getFavoriteIDs(true) as $v) {
+        foreach (App::core()->favorite()->getFavoriteIDs(true) as $v) {
             $default_fav_ids[$v] = true;
         }
         echo '</div>'; // /box my-fav
@@ -878,8 +879,8 @@ class UserPref extends AbstractPage
             }
 
             ++$count;
-            $icon = dotclear()->summary()->getIconTheme($fav['small-icon']);
-            $zoom = dotclear()->summary()->getIconTheme($fav['large-icon'], false);
+            $icon = App::core()->summary()->getIconTheme($fav['small-icon']);
+            $zoom = App::core()->summary()->getIconTheme($fav['large-icon'], false);
             if ('' !== $zoom) {
                 $icon .= ' <span class="zoom">' . $zoom . '</span>';
             }
@@ -894,14 +895,14 @@ class UserPref extends AbstractPage
         }
 
         echo '<p>' .
-        dotclear()->adminurl()->getHiddenFormFields('admin.user.pref', [], true) .
+        App::core()->adminurl()->getHiddenFormFields('admin.user.pref', [], true) .
         '<input type="submit" name="appendaction" value="' . __('Add to my favorites') . '" /></p>';
         echo '</div>'; // /available favorites
 
         echo '</form>';
 
         // Dashboard items
-        echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="db-forms" class="two-boxes even">' .
+        echo '<form action="' . App::core()->adminurl()->root() . '" method="post" id="db-forms" class="two-boxes even">' .
 
         '<div class="fieldset">' .
         '<h4>' . __('Menu') . '</h4>' .
@@ -938,7 +939,7 @@ class UserPref extends AbstractPage
         Form::checkbox('user_dm_quickentry', 1, $this->user_dm_quickentry) . ' ' .
         __('Display quick entry form') . '</label></p>';
 
-        if (dotclear()->user()->isSuperAdmin()) {
+        if (App::core()->user()->isSuperAdmin()) {
             echo '<p><label for="user_dm_nodcupdate" class="classic">' .
             Form::checkbox('user_dm_nodcupdate', 1, $this->user_dm_nodcupdate) . ' ' .
             __('Do not display Dotclear updates') . '</label></p>';
@@ -947,21 +948,21 @@ class UserPref extends AbstractPage
         echo '</div>';
 
         // --BEHAVIOR-- adminDashboardOptionsForm
-        dotclear()->behavior()->call('adminDashboardOptionsForm', dotclear());
+        App::core()->behavior()->call('adminDashboardOptionsForm', App::core());
 
         echo '<p>' .
         Form::hidden('db-options', '-') .
-        dotclear()->adminurl()->getHiddenFormFields('admin.user.pref', [], true) .
+        App::core()->adminurl()->getHiddenFormFields('admin.user.pref', [], true) .
         '<input type="submit" accesskey="s" value="' . __('Save my dashboard options') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
             '</p>' .
             '</form>';
 
         // Dashboard items order (reset)
-        echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="order-reset" class="two-boxes even">';
+        echo '<form action="' . App::core()->adminurl()->root() . '" method="post" id="order-reset" class="two-boxes even">';
         echo '<div class="fieldset"><h4>' . __('Dashboard items order') . '</h4>';
         echo '<p>' .
-        dotclear()->adminurl()->getHiddenFormFields('admin.user.pref', [], true) .
+        App::core()->adminurl()->getHiddenFormFields('admin.user.pref', [], true) .
         '<input type="submit" name="resetorder" value="' . __('Reset dashboard items order') . '" /></p>';
         echo '</div>';
         echo '</form>';

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Widgets\Common;
 
 // Dotclear\Plugin\Widgets\Common\Widget
+use Dotclear\App;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\Form;
 
@@ -165,8 +166,8 @@ class Widget
     public function checkHomeOnly(string $type, string|int $alt_not_home = 1, string|int $alt_home = 0): bool
     {
         return !(
-            $this->get('homeonly')    == self::HOME_ONLY      && !dotclear()->url()->isHome($type)      && $alt_not_home
-            || $this->get('homeonly') == self::EXCEPT_HOME    && (dotclear()->url()->isHome($type) || $alt_home)
+            $this->get('homeonly')    == self::HOME_ONLY      && !App::core()->url()->isHome($type)      && $alt_not_home
+            || $this->get('homeonly') == self::EXCEPT_HOME    && (App::core()->url()->isHome($type) || $alt_home)
         );
     }
 
@@ -247,7 +248,7 @@ class Widget
             return '';
         }
 
-        $theme = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->get('system')->get('theme'));
+        $theme = App::core()->themes()->getModule((string) App::core()->blog()->settings()->get('system')->get('theme'));
         if (!$theme) {
             return '';
         }
@@ -255,7 +256,7 @@ class Widget
         $wtscheme = $theme->options('widgettitleformat');
         if (empty($wtscheme)) {
             $tplset = $theme->templateset();
-            if (empty($tplset) || dotclear()->config()->get('template_default') == $tplset) {
+            if (empty($tplset) || App::core()->config()->get('template_default') == $tplset) {
                 // Use H2 for mustek based themes
                 $wtscheme = '<h2>%s</h2>';
             } else {
@@ -279,7 +280,7 @@ class Widget
             return '';
         }
 
-        $theme = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->get('system')->get('theme'));
+        $theme = App::core()->themes()->getModule((string) App::core()->blog()->settings()->get('system')->get('theme'));
         if (!$theme) {
             return '';
         }
@@ -287,7 +288,7 @@ class Widget
         $wtscheme = $theme->options('widgetsubtitleformat');
         if (empty($wtscheme)) {
             $tplset = $theme->templateset();
-            if (empty($tplset) || dotclear()->config()->get('template_default') == $tplset) {
+            if (empty($tplset) || App::core()->config()->get('template_default') == $tplset) {
                 // Use H2 for mustek based themes
                 $wtscheme = '<h3>%s</h3>';
             } else {
@@ -433,7 +434,7 @@ class Widget
                 form::field([$iname, $wfid], 20, 255, [
                     'default'    => Html::escapeHTML((string) $s['value']),
                     'class'      => 'maximal' . $class,
-                    'extra_html' => 'lang="' . dotclear()->user()->getInfo('user_lang') . '" spellcheck="true"',
+                    'extra_html' => 'lang="' . App::core()->user()->getInfo('user_lang') . '" spellcheck="true"',
                 ]) .
                 '</p>';
 
@@ -444,7 +445,7 @@ class Widget
                 form::textarea([$iname, $wfid], 30, 8, [
                     'default'    => Html::escapeHTML($s['value']),
                     'class'      => 'maximal' . $class,
-                    'extra_html' => 'lang="' . dotclear()->user()->getInfo('user_lang') . '" spellcheck="true"',
+                    'extra_html' => 'lang="' . App::core()->user()->getInfo('user_lang') . '" spellcheck="true"',
                 ]) .
                 '</p>';
 

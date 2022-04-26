@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\Tags\Admin;
 
 // Dotclear\Plugin\Tags\Admin\TagsBehavior
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
 use Dotclear\Exception\ModuleException;
@@ -27,19 +28,19 @@ class TagsBehavior
 {
     public function __construct()
     {
-        dotclear()->behavior()->add('adminPostFormItems', [$this, 'tagsField']);
-        dotclear()->behavior()->add('adminAfterPostCreate', [$this, 'setTags']);
-        dotclear()->behavior()->add('adminAfterPostUpdate', [$this, 'setTags']);
-        dotclear()->behavior()->add('adminPostHeaders', [$this, 'postHeaders']);
-        dotclear()->behavior()->add('adminPostsActionsPage', [$this, 'adminPostsActionsPage']);
-        dotclear()->behavior()->add('adminPreferencesForm', [$this, 'adminUserForm']);
-        dotclear()->behavior()->add('adminBeforeUserOptionsUpdate', [$this, 'setTagListFormat']);
-        dotclear()->behavior()->add('adminUserForm', [$this, 'adminUserForm']);
-        dotclear()->behavior()->add('adminBeforeUserCreate', [$this, 'setTagListFormat']);
-        dotclear()->behavior()->add('adminBeforeUserUpdate', [$this, 'setTagListFormat']);
-        dotclear()->behavior()->add('adminPageHelpBlock', [$this, 'adminPageHelpBlock']);
-        dotclear()->behavior()->add('adminPostEditor', [$this, 'adminPostEditor']);
-        dotclear()->behavior()->add('ckeditorExtraPlugins', [$this, 'ckeditorExtraPlugins']);
+        App::core()->behavior()->add('adminPostFormItems', [$this, 'tagsField']);
+        App::core()->behavior()->add('adminAfterPostCreate', [$this, 'setTags']);
+        App::core()->behavior()->add('adminAfterPostUpdate', [$this, 'setTags']);
+        App::core()->behavior()->add('adminPostHeaders', [$this, 'postHeaders']);
+        App::core()->behavior()->add('adminPostsActionsPage', [$this, 'adminPostsActionsPage']);
+        App::core()->behavior()->add('adminPreferencesForm', [$this, 'adminUserForm']);
+        App::core()->behavior()->add('adminBeforeUserOptionsUpdate', [$this, 'setTagListFormat']);
+        App::core()->behavior()->add('adminUserForm', [$this, 'adminUserForm']);
+        App::core()->behavior()->add('adminBeforeUserCreate', [$this, 'setTagListFormat']);
+        App::core()->behavior()->add('adminBeforeUserUpdate', [$this, 'setTagListFormat']);
+        App::core()->behavior()->add('adminPageHelpBlock', [$this, 'adminPageHelpBlock']);
+        App::core()->behavior()->add('adminPostEditor', [$this, 'adminPostEditor']);
+        App::core()->behavior()->add('ckeditorExtraPlugins', [$this, 'ckeditorExtraPlugins']);
     }
 
     public function adminPostEditor(string $editor = '', string $context = '', array $tags = [], string $syntax = ''): string
@@ -48,21 +49,21 @@ class TagsBehavior
             return '';
         }
 
-        $tag_url = dotclear()->blog()->getURLFor('tag');
+        $tag_url = App::core()->blog()->getURLFor('tag');
 
         if ('LegacyEditor' == $editor) {
             return
-            dotclear()->resource()->json('legacy_editor_tags', [
+            App::core()->resource()->json('legacy_editor_tags', [
                 'tag' => [
                     'title' => __('Tag'),
                     'url'   => $tag_url,
                 ],
             ]) .
-            dotclear()->resource()->load('legacy-post.js', 'Plugin', 'tags');
+            App::core()->resource()->load('legacy-post.js', 'Plugin', 'tags');
         }
 
         return
-            dotclear()->resource()->json('ck_editor_tags', [
+            App::core()->resource()->json('ck_editor_tags', [
                 'tag_title' => __('Tag'),
                 'tag_url'   => $tag_url,
             ]);
@@ -76,7 +77,7 @@ class TagsBehavior
         $extraPlugins[] = [
             'name'   => 'dctags',
             'button' => 'dcTags',
-            'url'    => dotclear()->resource()->url('ckeditor-tags-plugin.js', 'Plugin', 'Tags', 'js'),
+            'url'    => App::core()->resource()->url('ckeditor-tags-plugin.js', 'Plugin', 'Tags', 'js'),
         ];
     }
 
@@ -101,7 +102,7 @@ class TagsBehavior
         if (!empty($_POST['post_tags'])) {
             $value = $_POST['post_tags'];
         } else {
-            $value = $post ? dotclear()->meta()->getMetaStr((string) $post->f('post_meta'), 'tag') : '';
+            $value = $post ? App::core()->meta()->getMetaStr((string) $post->f('post_meta'), 'tag') : '';
         }
         $sidebar['metas-box']['items']['post_tags'] = '<h5><label class="s-tags" for="post_tags">' . __('Tags') . '</label></h5>' .
         '<div class="p s-tags" id="tags-edit">' . Form::textarea('post_tags', 20, 3, (string) $value, 'maximal') . '</div>';
@@ -111,10 +112,10 @@ class TagsBehavior
     {
         if (isset($_POST['post_tags'])) {
             $tags = $_POST['post_tags'];
-            dotclear()->meta()->delPostMeta($post_id, 'tag');
+            App::core()->meta()->delPostMeta($post_id, 'tag');
 
-            foreach (dotclear()->meta()->splitMetaValues($tags) as $tag) {
-                dotclear()->meta()->setPostMeta($post_id, 'tag', $tag);
+            foreach (App::core()->meta()->splitMetaValues($tags) as $tag) {
+                App::core()->meta()->setPostMeta($post_id, 'tag', $tag);
             }
         }
     }
@@ -126,7 +127,7 @@ class TagsBehavior
             [__CLASS__, 'adminAddTags']
         );
 
-        if (dotclear()->user()->check('delete,contentadmin', dotclear()->blog()->id)) {
+        if (App::core()->user()->check('delete,contentadmin', App::core()->blog()->id)) {
             $ap->addAction(
                 [__('Tags') => [__('Remove tags') => 'tags_remove']],
                 [__CLASS__, 'adminRemoveTags']
@@ -137,11 +138,11 @@ class TagsBehavior
     public function adminAddTags(Action $ap, ArrayObject $post): void
     {
         if (!empty($post['new_tags'])) {
-            $tags  = dotclear()->meta()->splitMetaValues($post['new_tags']);
+            $tags  = App::core()->meta()->splitMetaValues($post['new_tags']);
             $posts = $ap->getRS();
             while ($posts->fetch()) {
                 // Get tags for post
-                $post_meta = dotclear()->meta()->getMetadata([
+                $post_meta = App::core()->meta()->getMetadata([
                     'meta_type' => 'tag',
                     'post_id'   => $posts->fInt('post_id'), ]);
                 $pm = [];
@@ -150,11 +151,11 @@ class TagsBehavior
                 }
                 foreach ($tags as $t) {
                     if (!in_array($t, $pm)) {
-                        dotclear()->meta()->setPostMeta($posts->fInt('post_id'), 'tag', $t);
+                        App::core()->meta()->setPostMeta($posts->fInt('post_id'), 'tag', $t);
                     }
                 }
             }
-            dotclear()->notice()->addSuccessNotice(
+            App::core()->notice()->addSuccessNotice(
                 sprintf(
                     __(
                         'Tag has been successfully added to selected entries',
@@ -165,9 +166,9 @@ class TagsBehavior
             );
             $ap->redirect(true);
         } else {
-            $tag_url = dotclear()->blog()->getURLFor('tag');
+            $tag_url = App::core()->blog()->getURLFor('tag');
 
-            $opts = dotclear()->user()->getOptions();
+            $opts = App::core()->user()->getOptions();
             $type = $opts['tag_list_format'] ?? 'more';
 
             $editor_tags_options = [
@@ -188,18 +189,18 @@ class TagsBehavior
 
             $ap->setPageBreadcrumb(
                 [
-                    Html::escapeHTML(dotclear()->blog()->name) => '',
-                    __('Entries')                              => $ap->getRedirection(true),
-                    __('Add tags to this selection')           => '',
+                    Html::escapeHTML(App::core()->blog()->name) => '',
+                    __('Entries')                               => $ap->getRedirection(true),
+                    __('Add tags to this selection')            => '',
                 ]
             );
             $ap->setPageHead(
-                dotclear()->resource()->metaEditor() .
-                dotclear()->resource()->json('editor_tags_options', $editor_tags_options) .
-                dotclear()->resource()->json('editor_tags_msg', $msg) .
-                dotclear()->resource()->load('jquery/jquery.autocomplete.js') .
-                dotclear()->resource()->load('posts_actions.js', 'Plugin', 'Tags') .
-                dotclear()->resource()->Load('style.css', 'Plugin', 'Tags')
+                App::core()->resource()->metaEditor() .
+                App::core()->resource()->json('editor_tags_options', $editor_tags_options) .
+                App::core()->resource()->json('editor_tags_msg', $msg) .
+                App::core()->resource()->load('jquery/jquery.autocomplete.js') .
+                App::core()->resource()->load('posts_actions.js', 'Plugin', 'Tags') .
+                App::core()->resource()->Load('style.css', 'Plugin', 'Tags')
             );
             $ap->setPageContent(
                 '<form action="' . $ap->getURI() . '" method="post">' .
@@ -207,7 +208,7 @@ class TagsBehavior
                 '<div><label for="new_tags" class="area">' . __('Tags to add:') . '</label> ' .
                 Form::textarea('new_tags', 60, 3) .
                 '</div>' .
-                dotclear()->nonce()->form() . $ap->getHiddenFields() .
+                App::core()->nonce()->form() . $ap->getHiddenFields() .
                 Form::hidden(['action'], 'tags') .
                 '<p><input type="submit" value="' . __('Save') . '" ' .
                     'name="save_tags" /></p>' .
@@ -218,14 +219,14 @@ class TagsBehavior
 
     public function adminRemoveTags(Action $ap, ArrayObject $post): void
     {
-        if (!empty($post['meta_id']) && dotclear()->user()->check('delete,contentadmin', dotclear()->blog()->id)) {
+        if (!empty($post['meta_id']) && App::core()->user()->check('delete,contentadmin', App::core()->blog()->id)) {
             $posts = $ap->getRS();
             while ($posts->fetch()) {
                 foreach ($_POST['meta_id'] as $v) {
-                    dotclear()->meta()->delPostMeta($posts->fInt('post_id'), 'tag', $v);
+                    App::core()->meta()->delPostMeta($posts->fInt('post_id'), 'tag', $v);
                 }
             }
-            dotclear()->notice()->addSuccessNotice(
+            App::core()->notice()->addSuccessNotice(
                 sprintf(
                     __(
                         'Tag has been successfully removed from selected entries',
@@ -239,7 +240,7 @@ class TagsBehavior
             $tags = [];
 
             foreach ($ap->getIDS() as $id) {
-                $post_tags = dotclear()->meta()->getMetadata([
+                $post_tags = App::core()->meta()->getMetadata([
                     'meta_type' => 'tag',
                     'post_id'   => (int) $id, ])->toStatic()->rows();
                 foreach ($post_tags as $v) {
@@ -255,9 +256,9 @@ class TagsBehavior
             }
             $ap->setPageBreadcrumb(
                 [
-                    Html::escapeHTML(dotclear()->blog()->name)     => '',
-                    __('Entries')                                  => 'posts.php',
-                    __('Remove selected tags from this selection') => '',
+                    Html::escapeHTML(App::core()->blog()->name)     => '',
+                    __('Entries')                                   => 'posts.php',
+                    __('Remove selected tags from this selection')  => '',
                 ]
             );
             $posts_count = count($_POST['entries']);
@@ -286,7 +287,7 @@ class TagsBehavior
             $ap->setPageContent(
                 '<p><input type="submit" value="' . __('ok') . '" />' .
 
-                dotclear()->nonce()->form() . $ap->getHiddenFields() .
+                App::core()->nonce()->form() . $ap->getHiddenFields() .
                 Form::hidden(['action'], 'tags_remove') .
                     '</p></div></form>'
             );
@@ -295,9 +296,9 @@ class TagsBehavior
 
     public function postHeaders(): string
     {
-        $tag_url = dotclear()->blog()->getURLFor('tag');
+        $tag_url = App::core()->blog()->getURLFor('tag');
 
-        $opts = dotclear()->user()->getOptions();
+        $opts = App::core()->user()->getOptions();
         $type = $opts['tag_list_format'] ?? 'more';
 
         $editor_tags_options = [
@@ -317,17 +318,17 @@ class TagsBehavior
         ];
 
         return
-        dotclear()->resource()->json('editor_tags_options', $editor_tags_options) .
-        dotclear()->resource()->json('editor_tags_msg', $msg) .
-        dotclear()->resource()->load('jquery/jquery.autocomplete.js') .
-        dotclear()->resource()->load('post.js', 'Plugin', 'Tags') .
-        dotclear()->resource()->load('style.css', 'Plugin', 'Tags');
+        App::core()->resource()->json('editor_tags_options', $editor_tags_options) .
+        App::core()->resource()->json('editor_tags_msg', $msg) .
+        App::core()->resource()->load('jquery/jquery.autocomplete.js') .
+        App::core()->resource()->load('post.js', 'Plugin', 'Tags') .
+        App::core()->resource()->load('style.css', 'Plugin', 'Tags');
     }
 
     public function adminUserForm(?Record $args = null): void
     {
         if (null === $args) {
-            $opts = dotclear()->user()->getOptions();
+            $opts = App::core()->user()->getOptions();
         } elseif ($args instanceof Record) {
             $opts = $args->call('options');
         } else {

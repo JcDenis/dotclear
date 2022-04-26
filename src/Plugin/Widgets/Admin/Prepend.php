@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\Widgets\Admin;
 
 // Dotclear\Plugin\Widgets\Admin\Prepend
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 use Dotclear\Plugin\Widgets\Common\Widgets;
@@ -32,18 +33,18 @@ class Prepend extends AbstractPrepend
         $this->addStandardFavorites();
 
         // Load widgets stack only on widget admin page
-        if (dotclear()->adminurl()->is('admin.plugin.Widgets')) {
-            dotclear()->behavior()->add('adminRteFlags', function (ArrayObject $rte): void {
+        if (App::core()->adminurl()->is('admin.plugin.Widgets')) {
+            App::core()->behavior()->add('adminRteFlags', function (ArrayObject $rte): void {
                 $rte['widgets_text'] = [true, __('Widget\'s textareas')];
             });
-            dotclear()->behavior()->add('adminPrepend', fn () => new WidgetsStack());
+            App::core()->behavior()->add('adminPrepend', fn () => new WidgetsStack());
         }
     }
 
     public function installModule(): ?bool
     {
         $widgets  = new Widgets();
-        $settings = dotclear()->blog()->settings();
+        $settings = App::core()->blog()->settings();
         if (null != $settings->get('widgets')->get('widgets_nav')) {
             $settings->get('widgets')->put('widgets_nav', $widgets->load($settings->get('widgets')->get('widgets_nav'))->store());
         } else {

@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\CKEditor\Admin;
 
 // Dotclear\Plugin\CKEditor\Admin\HandlerPost
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Module\AbstractPage;
 
 /**
@@ -27,7 +28,7 @@ class HandlerPost extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        $s = dotclear()->blog()->settings()->get('dcckeditor');
+        $s = App::core()->blog()->settings()->get('dcckeditor');
 
         header('Content-type: text/javascript');
 
@@ -38,7 +39,7 @@ class HandlerPost extends AbstractPage
         }
 
         $__extraPlugins = new ArrayObject();
-        dotclear()->behavior()->call('ckeditorExtraPlugins', $__extraPlugins, $context);
+        App::core()->behavior()->call('ckeditorExtraPlugins', $__extraPlugins, $context);
         $extraPlugins = $__extraPlugins->getArrayCopy(); ?>
 
 (function($) {
@@ -107,7 +108,7 @@ $(function() {
 
     CKEDITOR.config.skin = 'dotclear,'+dotclear.dcckeditor_plugin_url+'/js/ckeditor-skins/dotclear/';
     CKEDITOR.config.baseHref = dotclear.base_url;
-    CKEDITOR.config.height = '<?php echo dotclear()->user()->getOption('edit_size') * 14; ?>px';
+    CKEDITOR.config.height = '<?php echo App::core()->user()->getOption('edit_size') * 14; ?>px';
 
 <?php if (!empty($s->get('cancollapse_button'))) { ?>
     CKEDITOR.config.toolbarCanCollapse = true;
@@ -263,7 +264,7 @@ if (!empty($extraPlugins)) {
         ],
 
 <?php // footnotes related
-    $tag = match (dotclear()->blog()->settings()->get('system')->get('note_title_tag')) {
+    $tag = match (App::core()->blog()->settings()->get('system')->get('note_title_tag')) {
         1       => 'h3',
         2       => 'p',
         default => 'h4',

@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Dotclear\Iconset\Legacy\Admin;
 
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Helper\File\Path;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
@@ -23,7 +24,7 @@ class Prepend extends AbstractPrepend
 
     public function loadModule(): void
     {
-        dotclear()->behavior()->add('adminIconsetCombo', function (ArrayObject $iconsets): void {
+        App::core()->behavior()->add('adminIconsetCombo', function (ArrayObject $iconsets): void {
             $iconsets['Legacy'] = Path::real(Path::implode(__DIR__, '..'));
         });
     }

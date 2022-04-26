@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\Users;
 
 // Dotclear\Core\Users\Users
+use Dotclear\App;
 use ArrayObject;
 use Dotclear\Core\RsExt\RsExtUser;
 use Dotclear\Core\Blog\Blog;
@@ -88,14 +89,14 @@ class Users
                 ->join(
                     JoinStatement::init(__METHOD__)
                         ->type('LEFT')
-                        ->from(dotclear()->prefix . 'post P')
+                        ->from(App::core()->prefix . 'post P')
                         ->on('U.user_id = P.user_id')
                         ->statement()
                 )
             ;
         }
 
-        $sql->from(dotclear()->prefix . 'user U', false, true);
+        $sql->from(App::core()->prefix . 'user U', false, true);
 
         if (!empty($params['join'])) {
             $sql->join($params['join']);
@@ -179,7 +180,7 @@ class Users
      */
     public function addUser(Cursor $cur): string
     {
-        if (!dotclear()->user()->isSuperAdmin()) {
+        if (!App::core()->user()->isSuperAdmin()) {
             throw new CoreException(__('You are not an administrator'));
         }
 
@@ -199,7 +200,7 @@ class Users
 
         $cur->insert();
 
-        dotclear()->user()->afterAddUser($cur);
+        App::core()->user()->afterAddUser($cur);
 
         return $cur->getField('user_id');
     }
@@ -216,7 +217,7 @@ class Users
     {
         $this->getUserCursor($cur);
 
-        if ((null !== $cur->getField('user_id') || dotclear()->user()->userID() != $user_id) && !dotclear()->user()->isSuperAdmin()) {
+        if ((null !== $cur->getField('user_id') || App::core()->user()->userID() != $user_id) && !App::core()->user()->isSuperAdmin()) {
             throw new CoreException(__('You are not an administrator'));
         }
 
@@ -226,7 +227,7 @@ class Users
             ->update($cur)
         ;
 
-        dotclear()->user()->afterUpdUser($user_id, $cur);
+        App::core()->user()->afterUpdUser($user_id, $cur);
 
         if (null !== $cur->getField('user_id')) {
             $user_id = $cur->getField('user_id');
@@ -237,7 +238,7 @@ class Users
         $rs  = $sql
             ->distinct()
             ->where('user_id = ' . $sql->quote($user_id))
-            ->from(dotclear()->prefix . 'post')
+            ->from(App::core()->prefix . 'post')
             ->select()
         ;
 
@@ -259,11 +260,11 @@ class Users
      */
     public function delUser(string $user_id): void
     {
-        if (!dotclear()->user()->isSuperAdmin()) {
+        if (!App::core()->user()->isSuperAdmin()) {
             throw new CoreException(__('You are not an administrator'));
         }
 
-        if (dotclear()->user()->userID() == $user_id) {
+        if (App::core()->user()->userID() == $user_id) {
             return;
         }
 
@@ -276,11 +277,11 @@ class Users
         $sql = new DeleteStatement(__METHOD__);
         $sql
             ->where('user_id = ' . $sql->quote($user_id))
-            ->from(dotclear()->prefix . 'user')
+            ->from(App::core()->prefix . 'user')
             ->delete()
         ;
 
-        dotclear()->user()->afterDelUser($user_id);
+        App::core()->user()->afterDelUser($user_id);
     }
 
     /**
@@ -296,7 +297,7 @@ class Users
         $rs  = $sql
             ->column('user_id')
             ->where('user_id = ' . $sql->quote($user_id))
-            ->from(dotclear()->prefix . 'user')
+            ->from(App::core()->prefix . 'user')
             ->select()
         ;
 
@@ -327,11 +328,11 @@ class Users
                 'blog_url',
                 'permissions',
             ])
-            ->from(dotclear()->prefix . 'permissions P')
+            ->from(App::core()->prefix . 'permissions P')
             ->join(
                 JoinStatement::init(__METHOD__)
                     ->type('INNER')
-                    ->from(dotclear()->prefix . 'blog B')
+                    ->from(App::core()->prefix . 'blog B')
                     ->on('P.blog_id = B.blog_id')
                     ->statement()
             )
@@ -345,7 +346,7 @@ class Users
             $res[$rs->f('blog_id')] = [
                 'name' => $rs->f('blog_name'),
                 'url'  => $rs->f('blog_url'),
-                'p'    => dotclear()->user()->parsePermissions($rs->f('permissions')),
+                'p'    => App::core()->user()->parsePermissions($rs->f('permissions')),
             ];
         }
 
@@ -366,14 +367,14 @@ class Users
      */
     public function setUserPermissions(string $user_id, array $perms): void
     {
-        if (!dotclear()->user()->isSuperAdmin()) {
+        if (!App::core()->user()->isSuperAdmin()) {
             throw new CoreException(__('You are not an administrator'));
         }
 
         $sql = new DeleteStatement(__METHOD__);
         $sql
             ->where('user_id = ' . $sql->quote($user_id))
-            ->from(dotclear()->prefix . 'permissions')
+            ->from(App::core()->prefix . 'permissions')
             ->delete()
         ;
 
@@ -394,7 +395,7 @@ class Users
      */
     public function setUserBlogPermissions(string $user_id, string $blog_id, array $perms, bool $delete_first = true): void
     {
-        if (!dotclear()->user()->isSuperAdmin()) {
+        if (!App::core()->user()->isSuperAdmin()) {
             throw new CoreException(__('You are not an administrator'));
         }
 
@@ -405,7 +406,7 @@ class Users
             $sql
                 ->where('blog_id = ' . $sql->quote($blog_id))
                 ->and('user_id = ' . $sql->quote($user_id))
-                ->from(dotclear()->prefix . 'permissions')
+                ->from(App::core()->prefix . 'permissions')
                 ->delete()
             ;
         }
@@ -423,7 +424,7 @@ class Users
                     $sql->quote($blog_id),
                     $sql->quote('|' . implode('|', array_keys($perms)) . '|'),
                 ]])
-                ->from(dotclear()->prefix . 'permissions')
+                ->from(App::core()->prefix . 'permissions')
                 ->insert()
             ;
         }
@@ -442,7 +443,7 @@ class Users
         $sql = new UpdateStatement(__METHOD__);
         $sql
             ->set('user_default_blog = ' . $sql->quote($blog_id))
-            ->from(dotclear()->prefix . 'user')
+            ->from(App::core()->prefix . 'user')
             ->update()
         ;
     }
@@ -471,7 +472,7 @@ class Users
             if (6 > strlen($cur->getField('user_pwd'))) {
                 throw new CoreException(__('Password must contain at least 6 characters.'));
             }
-            $cur->setField('user_pwd', dotclear()->user()->crypt($cur->getField('user_pwd')));
+            $cur->setField('user_pwd', App::core()->user()->crypt($cur->getField('user_pwd')));
         }
 
         if (null !== $cur->getField('user_lang') && !preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $cur->getField('user_lang'))) {

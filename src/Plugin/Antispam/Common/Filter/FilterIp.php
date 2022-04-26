@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Antispam\Common\Filter;
 
 // Dotclear\Plugin\Antispam\Common\Filter\FilterIp
+use Dotclear\App;
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\InsertStatement;
@@ -38,7 +39,7 @@ class FilterIp extends Spamfilter
     public function __construct()
     {
         parent::__construct();
-        $this->table = dotclear()->prefix . 'spamrule';
+        $this->table = App::core()->prefix . 'spamrule';
     }
 
     protected function setInfo(): void
@@ -84,13 +85,13 @@ class FilterIp extends Spamfilter
         // Add IP to list
         if (!empty($_POST['addip'])) {
             try {
-                $global = !empty($_POST['globalip']) && dotclear()->user()->isSuperAdmin();
+                $global = !empty($_POST['globalip']) && App::core()->user()->isSuperAdmin();
 
                 $this->addIP($ip_type, $_POST['addip'], $global);
-                dotclear()->notice()->addSuccessNotice(__('IP address has been successfully added.'));
+                App::core()->notice()->addSuccessNotice(__('IP address has been successfully added.'));
                 Http::redirect($url . '&ip_type=' . $ip_type);
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
@@ -98,10 +99,10 @@ class FilterIp extends Spamfilter
         if (!empty($_POST['delip']) && is_array($_POST['delip'])) {
             try {
                 $this->removeRule($_POST['delip']);
-                dotclear()->notice()->addSuccessNotice(__('IP addresses have been successfully removed.'));
+                App::core()->notice()->addSuccessNotice(__('IP addresses have been successfully removed.'));
                 Http::redirect($url . '&ip_type=' . $ip_type);
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
@@ -128,12 +129,12 @@ class FilterIp extends Spamfilter
         form::hidden(['ip_type'], $type) .
         '<label class="classic" for="addip_' . $type . '">' . __('Add an IP address: ') . '</label> ' .
         form::field(['addip', 'addip_' . $type], 18, 255);
-        if (dotclear()->user()->isSuperAdmin()) {
+        if (App::core()->user()->isSuperAdmin()) {
             $res .= '<label class="classic" for="globalip_' . $type . '">' . form::checkbox(['globalip', 'globalip_' . $type], 1) . ' ' .
             __('Global IP (used for all blogs)') . '</label> ';
         }
 
-        $res .= dotclear()->nonce()->form() .
+        $res .= App::core()->nonce()->form() .
         '</p>' .
         '<p><input type="submit" value="' . __('Add') . '"/></p>' .
             '</form>';
@@ -158,7 +159,7 @@ class FilterIp extends Spamfilter
                 $disabled_ip = false;
                 $p_style     = '';
                 if (!$rs->f('blog_id')) {
-                    $disabled_ip = !dotclear()->user()->isSuperAdmin();
+                    $disabled_ip = !App::core()->user()->isSuperAdmin();
                     $p_style .= ' global';
                 }
 
@@ -191,7 +192,7 @@ class FilterIp extends Spamfilter
 
             $res .= '</div>' .
             '<p><input class="submit delete" type="submit" value="' . __('Delete') . '"/>' .
-            dotclear()->nonce()->form() .
+            App::core()->nonce()->form() .
             form::hidden(['ip_type'], $type) .
                 '</p>' .
                 '</form>';
@@ -239,7 +240,7 @@ class FilterIp extends Spamfilter
         $content = $pattern . ':' . $ip . ':' . $mask;
 
         $old = $this->getRuleCIDR($type, $global, $ip, $mask);
-        $cur = dotclear()->con()->openCursor($this->table);
+        $cur = App::core()->con()->openCursor($this->table);
 
         if ($old->isEmpty()) {
             $sql = new InsertStatement(__METHOD__);
@@ -258,7 +259,7 @@ class FilterIp extends Spamfilter
                         ->fInt() + 1,
                     $sql->quote($type),
                     $sql->quote($content),
-                    $global && dotclear()->user()->isSuperAdmin() ? 'NULL' : $sql->quote(dotclear()->blog()->id),
+                    $global && App::core()->user()->isSuperAdmin() ? 'NULL' : $sql->quote(App::core()->blog()->id),
                 ]])
                 ->from($this->table)
                 ->insert()
@@ -288,7 +289,7 @@ class FilterIp extends Spamfilter
             ])
             ->where('rule_type = ' . $sql->quote($type))
             ->and($sql->orGroup([
-                'blog_id = ' . $sql->quote(dotclear()->blog()->id),
+                'blog_id = ' . $sql->quote(App::core()->blog()->id),
                 'blog_id IS NULL',
             ]))
             ->order([
@@ -311,7 +312,7 @@ class FilterIp extends Spamfilter
             ->and(
                 $global ?
                 'blog_id IS NULL' :
-                'blog_id = ' . $sql->quote(dotclear()->blog()->id)
+                'blog_id = ' . $sql->quote(App::core()->blog()->id)
             )
             ->from($this->table)
             ->select()
@@ -326,7 +327,7 @@ class FilterIp extends Spamfilter
             ->column('rule_content')
             ->where('rule_type = ' . $sql->quote($type))
             ->and($sql->orGroup([
-                'blog_id = ' . $sql->quote(dotclear()->blog()->id),
+                'blog_id = ' . $sql->quote(App::core()->blog()->id),
                 'blog_id IS NULL',
             ]))
             ->order('rule_content ASC')
@@ -357,8 +358,8 @@ class FilterIp extends Spamfilter
             $sql->where('rule_id = ' . $ids);
         }
 
-        if (!dotclear()->user()->isSuperAdmin()) {
-            $sql->and('blog_id = ' . $sql->quote(dotclear()->blog()->id));
+        if (!App::core()->user()->isSuperAdmin()) {
+            $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
         }
 
         $sql

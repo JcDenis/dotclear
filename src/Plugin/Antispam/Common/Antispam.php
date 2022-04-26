@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\Antispam\Common;
 
 // Dotclear\Plugin\Antispam\Common\Antispam
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
@@ -36,18 +37,18 @@ class Antispam
 
     public function __construct()
     {
-        if (dotclear()->processed('Public')) {
-            dotclear()->behavior()->add('publicBeforeCommentCreate', [$this, 'isSpam']);
-            dotclear()->behavior()->add('publicBeforeTrackbackCreate', [$this, 'isSpam']);
-            dotclear()->behavior()->add('publicBeforeDocument', [$this, 'purgeOldSpam']);
-        } elseif (dotclear()->processed('Admin')) {
-            dotclear()->behavior()->add('coreAfterCommentUpdate', [$this, 'trainFilters']);
-            dotclear()->behavior()->add('adminAfterCommentDesc', [$this, 'statusMessage']);
-            dotclear()->behavior()->add('adminDashboardHeaders', [$this, 'dashboardHeaders']);
-            dotclear()->behavior()->add('adminCommentsActionsPage', [$this, 'commentsActionsPage']);
-            dotclear()->behavior()->add('coreBlogGetComments', [$this, 'blogGetComments']);
-            dotclear()->behavior()->add('adminCommentListHeader', [$this, 'commentListHeader']);
-            dotclear()->behavior()->add('adminCommentListValue', [$this, 'commentListValue']);
+        if (App::core()->processed('Public')) {
+            App::core()->behavior()->add('publicBeforeCommentCreate', [$this, 'isSpam']);
+            App::core()->behavior()->add('publicBeforeTrackbackCreate', [$this, 'isSpam']);
+            App::core()->behavior()->add('publicBeforeDocument', [$this, 'purgeOldSpam']);
+        } elseif (App::core()->processed('Admin')) {
+            App::core()->behavior()->add('coreAfterCommentUpdate', [$this, 'trainFilters']);
+            App::core()->behavior()->add('adminAfterCommentDesc', [$this, 'statusMessage']);
+            App::core()->behavior()->add('adminDashboardHeaders', [$this, 'dashboardHeaders']);
+            App::core()->behavior()->add('adminCommentsActionsPage', [$this, 'commentsActionsPage']);
+            App::core()->behavior()->add('coreBlogGetComments', [$this, 'blogGetComments']);
+            App::core()->behavior()->add('adminCommentListHeader', [$this, 'commentListHeader']);
+            App::core()->behavior()->add('adminCommentListValue', [$this, 'commentListValue']);
         }
     }
 
@@ -56,7 +57,7 @@ class Antispam
         $spamfilters = new ArrayObject($this->defaultFilters());
 
         // --BEHAVIOR-- antispamInitFilters , ArrayObject
-        dotclear()->behavior()->call('antispamInitFilters', $spamfilters);
+        App::core()->behavior()->call('antispamInitFilters', $spamfilters);
         $spamfilters = $spamfilters->getArrayCopy();
 
         $this->filters = new Spamfilters();
@@ -125,17 +126,17 @@ class Antispam
 
     public function dashboardHeaders(): string
     {
-        return dotclear()->resource()->load('dashboard.js', 'Plugin', 'Antispam');
+        return App::core()->resource()->load('dashboard.js', 'Plugin', 'Antispam');
     }
 
     public function countSpam(): int
     {
-        return dotclear()->blog()->comments()->getComments(['comment_status' => -2], true)->fInt();
+        return App::core()->blog()->comments()->getComments(['comment_status' => -2], true)->fInt();
     }
 
     public function countPublishedComments(): int
     {
-        return dotclear()->blog()->comments()->getComments(['comment_status' => 1], true)->fInt();
+        return App::core()->blog()->comments()->getComments(['comment_status' => 1], true)->fInt();
     }
 
     public function delAllSpam(?string $beforeDate = null): void
@@ -143,14 +144,14 @@ class Antispam
         $sql = new SelectStatement(__METHOD__);
         $sql
             ->column('comment_id')
-            ->from(dotclear()->prefix . 'comment C')
+            ->from(App::core()->prefix . 'comment C')
             ->join(
                 JoinStatement::init(__METHOD__)
-                    ->from(dotclear()->prefix . 'post P')
+                    ->from(App::core()->prefix . 'post P')
                     ->on('P.post_id = C.post_id')
                     ->statement()
             )
-            ->where('blog_id = ' . $sql->quote(dotclear()->blog()->id))
+            ->where('blog_id = ' . $sql->quote(App::core()->blog()->id))
             ->and('comment_status = -2')
         ;
 
@@ -170,7 +171,7 @@ class Antispam
 
         $sql = new DeleteStatement(__METHOD__);
         $sql
-            ->from(dotclear()->prefix . 'comment')
+            ->from(App::core()->prefix . 'comment')
             ->where('comment_id' . $sql->in($r))
             ->delete()
         ;
@@ -178,8 +179,8 @@ class Antispam
 
     public function getUserCode(): string
     {
-        $code = pack('a32', dotclear()->user()->userID()) .
-        hash(dotclear()->config()->get('crypt_algo'), dotclear()->user()->cryptLegacy(dotclear()->user()->getInfo('user_pwd')));
+        $code = pack('a32', App::core()->user()->userID()) .
+        hash(App::core()->config()->get('crypt_algo'), App::core()->user()->cryptLegacy(App::core()->user()->getInfo('user_pwd')));
 
         return bin2hex($code);
     }
@@ -202,7 +203,7 @@ class Antispam
                 'user_pwd',
             ])
             ->where('user_id = ' . $sql->quote($user_id))
-            ->from(dotclear()->prefix . 'user')
+            ->from(App::core()->prefix . 'user')
             ->select()
         ;
 
@@ -210,11 +211,11 @@ class Antispam
             return false;
         }
 
-        if (hash(dotclear()->config()->get('crypt_algo'), dotclear()->user()->cryptLegacy($rs->f('user_pwd'))) != $pwd) {
+        if (hash(App::core()->config()->get('crypt_algo'), App::core()->user()->cryptLegacy($rs->f('user_pwd'))) != $pwd) {
             return false;
         }
 
-        $permissions = dotclear()->blogs()->getBlogPermissions(dotclear()->blog()->id);
+        $permissions = App::core()->blogs()->getBlogPermissions(App::core()->blog()->id);
 
         if (empty($permissions[$rs->f('user_id')])) {
             return false;
@@ -229,15 +230,15 @@ class Antispam
         $defaultModerationTTL = '7';
         $init                 = false;
 
-        $dateLastPurge = dotclear()->blog()->settings()->get('antispam')->get('antispam_date_last_purge');
+        $dateLastPurge = App::core()->blog()->settings()->get('antispam')->get('antispam_date_last_purge');
         if (null === $dateLastPurge) {
             $init = true;
-            dotclear()->blog()->settings()->get('antispam')->put('antispam_date_last_purge', $defaultDateLastPurge, 'integer', 'Antispam Date Last Purge (unix timestamp)', true, false);
+            App::core()->blog()->settings()->get('antispam')->put('antispam_date_last_purge', $defaultDateLastPurge, 'integer', 'Antispam Date Last Purge (unix timestamp)', true, false);
             $dateLastPurge = $defaultDateLastPurge;
         }
-        $moderationTTL = dotclear()->blog()->settings()->get('antispam')->get('antispam_moderation_ttl');
+        $moderationTTL = App::core()->blog()->settings()->get('antispam')->get('antispam_moderation_ttl');
         if (null === $moderationTTL) {
-            dotclear()->blog()->settings()->get('antispam')->put('antispam_moderation_ttl', $defaultModerationTTL, 'integer', 'Antispam Moderation TTL (days)', true, false);
+            App::core()->blog()->settings()->get('antispam')->put('antispam_moderation_ttl', $defaultModerationTTL, 'integer', 'Antispam Moderation TTL (days)', true, false);
             $moderationTTL = $defaultModerationTTL;
         }
 
@@ -250,7 +251,7 @@ class Antispam
         if (86400 < (time() - $dateLastPurge)) {
             // update dateLastPurge
             if (!$init) {
-                dotclear()->blog()->settings()->get('antispam')->put('antispam_date_last_purge', time(), null, null, true, false);
+                App::core()->blog()->settings()->get('antispam')->put('antispam_date_last_purge', time(), null, null, true, false);
             }
             $date = date('Y-m-d H:i:s', time() - $moderationTTL * 86400);
             self::delAllSpam($date);
@@ -287,8 +288,8 @@ class Antispam
     public function commentsActionsPage(Action $ap): void
     {
         $ip_filter_active = true;
-        if (null !== dotclear()->blog()->settings()->get('antispam')->get('antispam_filters')) {
-            $filters_opt = dotclear()->blog()->settings()->get('antispam')->get('antispam_filters');
+        if (null !== App::core()->blog()->settings()->get('antispam')->get('antispam_filters')) {
+            $filters_opt = App::core()->blog()->settings()->get('antispam')->get('antispam_filters');
             if (is_array($filters_opt)) {
                 $ip_filter_active = isset($filters_opt['FilterIp']) && is_array($filters_opt['FilterIp']) && 1 == $filters_opt['FilterIp'][0];
             }
@@ -296,7 +297,7 @@ class Antispam
 
         if ($ip_filter_active) {
             $blocklist_actions = [__('Blocklist IP') => 'blocklist'];
-            if (dotclear()->user()->isSuperAdmin()) {
+            if (App::core()->user()->isSuperAdmin()) {
                 $blocklist_actions[__('Blocklist IP (global)')] = 'blocklist_global';
             }
 
@@ -315,7 +316,7 @@ class Antispam
             throw new ModuleException(__('No comment selected'));
         }
 
-        $global = !empty($action) && 'blocklist_global' == $action && dotclear()->user()->isSuperAdmin();
+        $global = !empty($action) && 'blocklist_global' == $action && App::core()->user()->isSuperAdmin();
 
         $rs = $ap->getRS();
 
@@ -332,7 +333,7 @@ class Antispam
             }
         }
 
-        dotclear()->notice()->addSuccessNotice(__('IP addresses for selected comments have been blocklisted.'));
+        App::core()->notice()->addSuccessNotice(__('IP addresses for selected comments have been blocklisted.'));
         $ap->redirect(true);
     }
 }

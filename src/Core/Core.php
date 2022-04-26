@@ -12,6 +12,7 @@ namespace Dotclear\Core;
 // Dotclear\Core\Core
 use Closure;
 use Throwable;
+use Dotclear\App;
 use Dotclear\Core\Blog\Blog;
 use Dotclear\Core\Blogs\Blogs;
 use Dotclear\Core\Formater\Formater;
@@ -267,7 +268,7 @@ class Core
      * This method is mark as <b>final</b>
      * to cope with singleton instance.
      *
-     * Singleton Core is accessible from function dotclear()
+     * Singleton Core is accessible from function App::core()
      *
      * @param null|string $blog_id Blog ID on first public process call
      *
@@ -292,7 +293,7 @@ class Core
      * Instanciate a core autoloader for custom
      * third party (plugins/themes) specifics needs
      *
-     * Autoload methods are accesible from dotclear()->autoload()
+     * Autoload methods are accesible from App::core()->autoload()
      *
      * @return Autoload The autoload instance
      */
@@ -308,7 +309,7 @@ class Core
     /**
      * Get behavior instance.
      *
-     * Behavior methods are accesible from dotclear()->behavior()
+     * Behavior methods are accesible from App::core()->behavior()
      *
      * @return Behavior The behaviors instance
      */
@@ -324,7 +325,7 @@ class Core
     /**
      * Get blog instance.
      *
-     * Blog methods are accesible from dotclear()->blog()
+     * Blog methods are accesible from App::core()->blog()
      *
      * @return null|Blog The blog instance
      */
@@ -336,7 +337,7 @@ class Core
     /**
      * Get blogs instance.
      *
-     * Blogs methods are accesible from dotclear()->blogs()
+     * Blogs methods are accesible from App::core()->blogs()
      *
      * @return Blogs The blogs instance
      */
@@ -352,7 +353,7 @@ class Core
     /**
      * Get database connection instance.
      *
-     * Database connection methods are accesible from dotclear()->con()
+     * Database connection methods are accesible from App::core()->con()
      *
      * @return AbstractConnection The connection instance
      */
@@ -421,14 +422,14 @@ class Core
     /**
      * Get dotclear configuration instance.
      *
-     * Configuration methods are accesible from dotclear()->config()
+     * Configuration methods are accesible from App::core()->config()
      *
      * @return Configuration The configuration instance
      */
     public function config(): Configuration
     {
         if (!($this->config instanceof Configuration)) {
-            $config_file  = defined('DOTCLEAR_CONFIG_PATH') && is_file(\DOTCLEAR_CONFIG_PATH) ? \DOTCLEAR_CONFIG_PATH : [];
+            $config_file  = defined('DOTCLEAR_CONFIG_PATH') && is_file(DOTCLEAR_CONFIG_PATH) ? DOTCLEAR_CONFIG_PATH : [];
             $this->config = new Configuration($this->getDefaultConfig(), $config_file);
 
             // Alias that could be required before first connection instance
@@ -441,7 +442,7 @@ class Core
     /**
      * Get formater instance.
      *
-     * Formater methods are accesible from dotclear()->formater()
+     * Formater methods are accesible from App::core()->formater()
      *
      * @return Formater The formater instance
      */
@@ -457,7 +458,7 @@ class Core
     /**
      * Get log instance.
      *
-     * Log methods are accesible from dotclear()->log()
+     * Log methods are accesible from App::core()->log()
      *
      * @return Log The log instance
      */
@@ -475,7 +476,7 @@ class Core
      *
      * Caller MUST cope with Media instance failure.
      *
-     * Media methods are accesible from dotclear()->media()
+     * Media methods are accesible from App::core()->media()
      *
      * @param bool $reload Force reload of Media instance
      * @param bool $throw  Throw Exception on instance failure
@@ -501,7 +502,7 @@ class Core
     /**
      * Get meta instance.
      *
-     * Meta methods are accesible from dotclear()->meta()
+     * Meta methods are accesible from App::core()->meta()
      *
      * @return Meta The meta instance
      */
@@ -517,7 +518,7 @@ class Core
     /**
      * Get nonce instance.
      *
-     * Nonce methods are accesible from dotclear()->nonce()
+     * Nonce methods are accesible from App::core()->nonce()
      *
      * @return Nonce The nonce instance
      */
@@ -533,7 +534,7 @@ class Core
     /**
      * Get posttype instance.
      *
-     * PostType methods are accesible from dotclear()->posttype()
+     * PostType methods are accesible from App::core()->posttype()
      *
      * @return PostType The post type instance
      */
@@ -549,7 +550,7 @@ class Core
     /**
      * Get reser server instance.
      *
-     * RestServer methods are accesible from dotclear()->rest()
+     * RestServer methods are accesible from App::core()->rest()
      *
      * @return RestServer The REST server instance
      */
@@ -565,7 +566,7 @@ class Core
     /**
      * Get session instance.
      *
-     * Session methods are accesible from dotclear()->session()
+     * Session methods are accesible from App::core()->session()
      *
      * @return Session The session instance
      */
@@ -581,7 +582,7 @@ class Core
     /**
      * Get url (public) instance.
      *
-     * Public URL methods are accesible from dotclear()->url()
+     * Public URL methods are accesible from App::core()->url()
      *
      * @return Url The public URL instance
      */
@@ -600,7 +601,7 @@ class Core
      * You can set constant DOTCLEAR_USER_CLASS to whatever you want.
      * Your new class *should* inherits Core User class.
      *
-     * User methods are accesible from dotclear()->user()
+     * User methods are accesible from App::core()->user()
      *
      * @return User The user instance
      */
@@ -637,7 +638,7 @@ class Core
     /**
      * Get users instance.
      *
-     * Users methods are accesible from dotclear()->users()
+     * Users methods are accesible from App::core()->users()
      *
      * @return Users The users instance
      */
@@ -653,7 +654,7 @@ class Core
     /**
      * Get version instance.
      *
-     * Version methods are accesible from dotclear()->version()
+     * Version methods are accesible from App::core()->version()
      *
      * @return Version The version instance
      */
@@ -669,7 +670,7 @@ class Core
     /**
      * Get wiki (wiki2xhtml) instance.
      *
-     * Wiki synthax methods are accesible from dotclear()->wiki()
+     * Wiki synthax methods are accesible from App::core()->wiki()
      *
      * @return Wiki The wiki synthax instance
      */
@@ -694,15 +695,15 @@ class Core
         if (!defined('DOTCLEAR_CONFIG_PATH')) {
             if (isset($_SERVER['DOTCLEAR_CONFIG_PATH'])) {
                 define('DOTCLEAR_CONFIG_PATH', $_SERVER['DOTCLEAR_CONFIG_PATH']);
-            } elseif (isset($_SERVER['REDIRECT_\DOTCLEAR_CONFIG_PATH'])) {
-                define('DOTCLEAR_CONFIG_PATH', $_SERVER['REDIRECT_\DOTCLEAR_CONFIG_PATH']);
+            } elseif (isset($_SERVER['REDIRECT_DOTCLEAR_CONFIG_PATH'])) {
+                define('DOTCLEAR_CONFIG_PATH', $_SERVER['REDIRECT_DOTCLEAR_CONFIG_PATH']);
             } else {
                 define('DOTCLEAR_CONFIG_PATH', Path::implodeRoot('config.php'));
             }
         }
 
         // No configuration ? start installalation process
-        if (!is_file(\DOTCLEAR_CONFIG_PATH)) {
+        if (!is_file(DOTCLEAR_CONFIG_PATH)) {
             // Stop core process here in installalation process
             if ('Install' == $this->process) {
                 return;
@@ -953,7 +954,7 @@ class Core
         if (!$this->production() && !empty($detail)) {
             $message = $detail;
         // If error code is higher than 630 and in plublic, then show a standard message
-        } elseif (630 <= $code && !in_array(dotclear()->processed(), ['Admin', 'Install'])) {
+        } elseif (630 <= $code && !in_array(App::core()->processed(), ['Admin', 'Install'])) {
             $title   = __('Site temporarily unavailable');
             $message = __('<p>We apologize for this temporary unavailability.<br />Thank you for your understanding.</p>');
         }
@@ -994,8 +995,8 @@ class Core
      */
     public function emptyTemplatesCache(): void // ! move this
     {
-        if (is_dir(Path::implode(dotclear()->config()->get('cache_dir'), 'cbtpl'))) {
-            Files::deltree(Path::implode(dotclear()->config()->get('cache_dir'), 'cbtpl'));
+        if (is_dir(Path::implode(App::core()->config()->get('cache_dir'), 'cbtpl'))) {
+            Files::deltree(Path::implode(App::core()->config()->get('cache_dir'), 'cbtpl'));
         }
     }
 

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Module;
 
 // Dotclear\Module\TraitPrependAdmin
+use Dotclear\App;
 use Dotclear\Process\Admin\Favorite\Favorite;
 
 /**
@@ -51,25 +52,25 @@ trait TraitPrependAdmin
      */
     protected function addStandardMenu(?string $menu = null, ?string $permissions = ''): void
     {
-        if (!dotclear()->adminurl()->exists('admin.plugin.' . $this->define()->id())) {
+        if (!App::core()->adminurl()->exists('admin.plugin.' . $this->define()->id())) {
             return;
         }
-        if (!$menu || !isset(dotclear()->summary()[$menu])) {
+        if (!$menu || !isset(App::core()->summary()[$menu])) {
             $menu = 'Plugins';
         }
         if ('' === $permissions) {
             $permissions = $this->define()->permissions();
         }
 
-        dotclear()->summary()[$menu]->addItem(
+        App::core()->summary()[$menu]->addItem(
             $this->define()->name(),
-            dotclear()->adminurl()->get('admin.plugin.' . $this->define()->id()),
+            App::core()->adminurl()->get('admin.plugin.' . $this->define()->id()),
             [
                 '?df=' . $this->define()->type() . '/' . $this->define()->id() . '/icon.svg',
                 '?df=' . $this->define()->type() . '/' . $this->define()->id() . '/icon-dark.svg',
             ],
-            dotclear()->adminurl()->is('admin.plugin.' . $this->define()->id()),
-            null === $permissions ? dotclear()->user()->isSuperAdmin() : dotclear()->user()->check($permissions, dotclear()->blog()->id)
+            App::core()->adminurl()->is('admin.plugin.' . $this->define()->id()),
+            null === $permissions ? App::core()->user()->isSuperAdmin() : App::core()->user()->check($permissions, App::core()->blog()->id)
         );
     }
 
@@ -82,11 +83,11 @@ trait TraitPrependAdmin
      */
     protected function addStandardFavorites(?string $permissions = null): void
     {
-        if (!dotclear()->adminurl()->exists('admin.plugin.' . $this->define()->id())) {
+        if (!App::core()->adminurl()->exists('admin.plugin.' . $this->define()->id())) {
             return;
         }
 
-        dotclear()->behavior()->add('adminDashboardFavorites', function (Favorite $favs): void {
+        App::core()->behavior()->add('adminDashboardFavorites', function (Favorite $favs): void {
             $favs->register($this->define()->id(), $this->favorites);
         });
 
@@ -94,7 +95,7 @@ trait TraitPrependAdmin
 
         $this->favorites = [
             'title'       => $this->define()->name(),
-            'url'         => dotclear()->adminurl()->get('admin.plugin.' . $this->define()->id()),
+            'url'         => App::core()->adminurl()->get('admin.plugin.' . $this->define()->id()),
             'small-icon'  => [sprintf($url, ''), sprintf($url, '-dark')],
             'large-icon'  => [sprintf($url, ''), sprintf($url, '-dark')],
             'permissions' => $permissions ?: $this->define()->permissions(),

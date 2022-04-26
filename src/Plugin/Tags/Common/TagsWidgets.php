@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Tags\Common;
 
 // Dotclear\Plugin\Tags\Common\TagsWidgets
+use Dotclear\App;
 use Dotclear\Database\Record;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Plugin\Widgets\Common\Widget;
@@ -24,8 +25,8 @@ class TagsWidgets
 {
     public function __construct()
     {
-        dotclear()->behavior()->add('initWidgets', [$this, 'initWidgets']);
-        dotclear()->behavior()->add('initDefaultWidgets', [$this, 'initDefaultWidgets']);
+        App::core()->behavior()->add('initWidgets', [$this, 'initWidgets']);
+        App::core()->behavior()->add('initDefaultWidgets', [$this, 'initDefaultWidgets']);
     }
 
     public function initWidgets(Widgets $w): void
@@ -71,7 +72,7 @@ class TagsWidgets
 
     public function tagsWidget(Widget $widget): string
     {
-        if ($widget->isOffline() || !$widget->checkHomeOnly(dotclear()->url()->type)) {
+        if ($widget->isOffline() || !$widget->checkHomeOnly(App::core()->url()->type)) {
             return '';
         }
 
@@ -98,8 +99,8 @@ class TagsWidgets
             $params['limit'] = abs((int) $widget->get('limit'));
         }
 
-        $rs = dotclear()->meta()->computeMetaStats(
-            dotclear()->meta()->getMetadata($params)
+        $rs = App::core()->meta()->computeMetaStats(
+            App::core()->meta()->getMetadata($params)
         );
 
         if ($rs->isEmpty()) {
@@ -113,29 +114,29 @@ class TagsWidgets
 
         $res = '<ul>';
 
-        if ('post' == dotclear()->url()->type && dotclear()->context()->get('posts') instanceof Record) {
-            dotclear()->context()->set('meta', dotclear()->meta()->getMetaRecordset((string) dotclear()->context()->get('posts')->f('post_meta'), 'tag'));
+        if ('post' == App::core()->url()->type && App::core()->context()->get('posts') instanceof Record) {
+            App::core()->context()->set('meta', App::core()->meta()->getMetaRecordset((string) App::core()->context()->get('posts')->f('post_meta'), 'tag'));
         }
         while ($rs->fetch()) {
             $class = '';
-            if ('post' == dotclear()->url()->type && dotclear()->context()->get('posts') instanceof Record) {
-                while (dotclear()->context()->get('meta')->fetch()) {
-                    if (dotclear()->context()->get('meta')->f('meta_id') == $rs->f('meta_id')) {
+            if ('post' == App::core()->url()->type && App::core()->context()->get('posts') instanceof Record) {
+                while (App::core()->context()->get('meta')->fetch()) {
+                    if (App::core()->context()->get('meta')->f('meta_id') == $rs->f('meta_id')) {
                         $class = ' class="tag-current"';
 
                         break;
                     }
                 }
             }
-            $res .= '<li' . $class . '><a href="' . dotclear()->blog()->getURLFor('tag', rawurlencode($rs->f('meta_id'))) . '" ' .
+            $res .= '<li' . $class . '><a href="' . App::core()->blog()->getURLFor('tag', rawurlencode($rs->f('meta_id'))) . '" ' .
             'class="tag' . $rs->f('roundpercent') . '">' .
             $rs->f('meta_id') . '</a> </li>';
         }
 
         $res .= '</ul>';
 
-        if (dotclear()->url()->getURLFor('tags') && !is_null($widget->get('alltagslinktitle')) && '' !== $widget->get('alltagslinktitle')) {
-            $res .= '<p><strong><a href="' . dotclear()->blog()->getURLFor('tags') . '">' .
+        if (App::core()->url()->getURLFor('tags') && !is_null($widget->get('alltagslinktitle')) && '' !== $widget->get('alltagslinktitle')) {
+            $res .= '<p><strong><a href="' . App::core()->blog()->getURLFor('tags') . '">' .
             Html::escapeHTML($widget->get('alltagslinktitle')) . '</a></strong></p>';
         }
 

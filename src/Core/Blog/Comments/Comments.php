@@ -11,6 +11,7 @@ namespace Dotclear\Core\Blog\Comments;
 
 // Dotclear\Core\Blog\Comments\Comments
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Core\RsExt\RsExtComment;
 use Dotclear\Database\Record;
 use Dotclear\Database\Cursor;
@@ -111,18 +112,18 @@ class Comments
         }
 
         $sql
-            ->from(dotclear()->prefix . 'comment C')
+            ->from(App::core()->prefix . 'comment C')
             ->join(
                 JoinStatement::init(__METHOD__)
                     ->type('INNER')
-                    ->from(dotclear()->prefix . 'post P')
+                    ->from(App::core()->prefix . 'post P')
                     ->on('C.post_id = P.post_id')
                     ->statement()
             )
             ->join(
                 JoinStatement::init(__METHOD__)
                     ->type('INNER')
-                    ->from(dotclear()->prefix . 'user U')
+                    ->from(App::core()->prefix . 'user U')
                     ->on('P.user_id = U.user_id')
                     ->statement()
             )
@@ -136,18 +137,18 @@ class Comments
             // Cope with legacy code
             $sql->where($params['where']);
         } else {
-            $sql->where('P.blog_id = ' . $sql->quote(dotclear()->blog()->id, true));
+            $sql->where('P.blog_id = ' . $sql->quote(App::core()->blog()->id, true));
         }
 
-        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
-            $user_id = dotclear()->user()->userID();
+        if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
+            $user_id = App::core()->user()->userID();
 
             $and = [
                 'comment_status = 1',
                 'P.post_status = 1',
             ];
 
-            if (dotclear()->blog()->withoutPassword()) {
+            if (App::core()->blog()->withoutPassword()) {
                 $and[] = 'post_password IS NULL';
             }
 
@@ -220,8 +221,8 @@ class Comments
 
             if (!empty($words)) {
                 // --BEHAVIOR coreCommentSearch
-                if (dotclear()->behavior()->has('coreCommentSearch')) {
-                    dotclear()->behavior()->call('coreCommentSearch', [&$words, &$sql, &$params]);
+                if (App::core()->behavior()->has('coreCommentSearch')) {
+                    App::core()->behavior()->call('coreCommentSearch', [&$words, &$sql, &$params]);
                 }
 
                 foreach ($words as $i => $w) {
@@ -255,7 +256,7 @@ class Comments
         $rs->extend(new RsExtComment());
 
         // --BEHAVIOR-- coreBlogGetComments, Dotclear\Database\Record
-        dotclear()->behavior()->call('coreBlogGetComments', $rs);
+        App::core()->behavior()->call('coreBlogGetComments', $rs);
 
         return $rs;
     }
@@ -271,14 +272,14 @@ class Comments
      */
     public function addComment(Cursor $cur): int
     {
-        dotclear()->con()->writeLock(dotclear()->prefix . 'comment');
+        App::core()->con()->writeLock(App::core()->prefix . 'comment');
 
         try {
             // Get ID
             $sql = new SelectStatement(__METHOD__);
             $id  = $sql
                 ->column($sql->max('comment_id'))
-                ->from(dotclear()->prefix . 'comment')
+                ->from(App::core()->prefix . 'comment')
                 ->select()
                 ->fInt()
             ;
@@ -286,9 +287,9 @@ class Comments
             $cur->setField('comment_id', $id + 1);
             $cur->setField('comment_upddt', date('Y-m-d H:i:s'));
 
-            $offset = Dt::getTimeOffset(dotclear()->blog()->settings()->get('system')->get('blog_timezone'));
+            $offset = Dt::getTimeOffset(App::core()->blog()->settings()->get('system')->get('blog_timezone'));
             $cur->setField('comment_dt', date('Y-m-d H:i:s', time() + $offset));
-            $cur->setField('comment_tz', dotclear()->blog()->settings()->get('system')->get('blog_timezone'));
+            $cur->setField('comment_tz', App::core()->blog()->settings()->get('system')->get('blog_timezone'));
 
             $this->getCommentCursor($cur);
 
@@ -297,22 +298,22 @@ class Comments
             }
 
             // --BEHAVIOR-- coreBeforeCommentCreate, Dotclear\Core\Blog, Dotclear\Database\Record
-            dotclear()->behavior()->call('coreBeforeCommentCreate', $this, $cur);
+            App::core()->behavior()->call('coreBeforeCommentCreate', $this, $cur);
 
             $cur->insert();
-            dotclear()->con()->unlock();
+            App::core()->con()->unlock();
         } catch (Exception $e) {
-            dotclear()->con()->unlock();
+            App::core()->con()->unlock();
 
             throw $e;
         }
 
         // --BEHAVIOR-- coreAfterCommentCreate, Dotclear\Core\Blog, Dotclear\Database\Record
-        dotclear()->behavior()->call('coreAfterCommentCreate', $this, $cur);
+        App::core()->behavior()->call('coreAfterCommentCreate', $this, $cur);
 
-        dotclear()->blog()->triggerComment($cur->getField('comment_id'));
+        App::core()->blog()->triggerComment($cur->getField('comment_id'));
         if (-2 != $cur->getField('comment_status')) {
-            dotclear()->blog()->triggerBlog();
+            App::core()->blog()->triggerBlog();
         }
 
         return $cur->getField('comment_id');
@@ -328,7 +329,7 @@ class Comments
      */
     public function updComment(int $id, Cursor $cur): void
     {
-        if (!dotclear()->user()->check('usage,contentadmin', dotclear()->blog()->id)) {
+        if (!App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)) {
             throw new CoreException(__('You are not allowed to update comments'));
         }
 
@@ -343,8 +344,8 @@ class Comments
         }
 
         // If user is only usage, we need to check the post's owner
-        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
-            if ($rs->f('user_id') != dotclear()->user()->userID()) {
+        if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
+            if ($rs->f('user_id') != App::core()->user()->userID()) {
                 throw new CoreException(__('You are not allowed to update this comment'));
             }
         }
@@ -353,20 +354,20 @@ class Comments
 
         $cur->setField('comment_upddt', date('Y-m-d H:i:s'));
 
-        if (!dotclear()->user()->check('publish,contentadmin', dotclear()->blog()->id)) {
+        if (!App::core()->user()->check('publish,contentadmin', App::core()->blog()->id)) {
             $cur->unsetField('comment_status');
         }
 
         // --BEHAVIOR-- coreBeforeCommentUpdate, Dotclear\Database\Cursor, Dotclear\Database\Record
-        dotclear()->behavior()->call('coreBeforeCommentUpdate', $cur, $rs);
+        App::core()->behavior()->call('coreBeforeCommentUpdate', $cur, $rs);
 
         $cur->update('WHERE comment_id = ' . $id . ' ');
 
         // --BEHAVIOR-- coreAfterCommentUpdate, Dotclear\Database\Cursor, Dotclear\Database\Record
-        dotclear()->behavior()->call('coreAfterCommentUpdate', $cur, $rs);
+        App::core()->behavior()->call('coreAfterCommentUpdate', $cur, $rs);
 
-        dotclear()->blog()->triggerComment($id);
-        dotclear()->blog()->triggerBlog();
+        App::core()->blog()->triggerComment($id);
+        App::core()->blog()->triggerBlog();
     }
 
     /**
@@ -390,23 +391,23 @@ class Comments
      */
     public function updCommentsStatus(array|ArrayObject $ids, int $status): void
     {
-        if (!dotclear()->user()->check('publish,contentadmin', dotclear()->blog()->id)) {
+        if (!App::core()->user()->check('publish,contentadmin', App::core()->blog()->id)) {
             throw new CoreException(__("You are not allowed to change this comment's status"));
         }
 
-        $co_ids = dotclear()->blog()->cleanIds($ids);
+        $co_ids = App::core()->blog()->cleanIds($ids);
 
         $sql = new UpdateStatement(__METHOD__);
         $sql
             ->set('comment_status = ' . $status)
             ->where('comment_id' . $sql->in($co_ids))
             ->and('post_id IN (' . $this->getPostOwnerStatement() . ')')
-            ->from(dotclear()->prefix . 'comment')
+            ->from(App::core()->prefix . 'comment')
             ->update()
         ;
 
-        dotclear()->blog()->triggerComments($co_ids);
-        dotclear()->blog()->triggerBlog();
+        App::core()->blog()->triggerComments($co_ids);
+        App::core()->blog()->triggerBlog();
     }
 
     /**
@@ -428,11 +429,11 @@ class Comments
      */
     public function delComments(array|ArrayObject $ids): void
     {
-        if (!dotclear()->user()->check('delete,contentadmin', dotclear()->blog()->id)) {
+        if (!App::core()->user()->check('delete,contentadmin', App::core()->blog()->id)) {
             throw new CoreException(__('You are not allowed to delete comments'));
         }
 
-        $co_ids = dotclear()->blog()->cleanIds($ids);
+        $co_ids = App::core()->blog()->cleanIds($ids);
 
         if (empty($co_ids)) {
             throw new CoreException(__('No such comment ID'));
@@ -445,7 +446,7 @@ class Comments
             ->column('post_id')
             ->where('comment_id' . $sql->in($co_ids))
             ->group('post_id')
-            ->from(dotclear()->prefix . 'comment')
+            ->from(App::core()->prefix . 'comment')
             ->select()
         ;
 
@@ -457,12 +458,12 @@ class Comments
         $sql
             ->where('comment_id' . $sql->in($co_ids))
             ->and('post_id ' . $this->getPostOwnerStatement())
-            ->from(dotclear()->prefix . 'comment')
+            ->from(App::core()->prefix . 'comment')
             ->delete()
         ;
 
-        dotclear()->blog()->triggerComments($co_ids, true, $affected_posts);
-        dotclear()->blog()->triggerBlog();
+        App::core()->blog()->triggerComments($co_ids, true, $affected_posts);
+        App::core()->blog()->triggerBlog();
     }
 
     /**
@@ -472,7 +473,7 @@ class Comments
      */
     public function delJunkComments(): void
     {
-        if (!dotclear()->user()->check('delete,contentadmin', dotclear()->blog()->id)) {
+        if (!App::core()->user()->check('delete,contentadmin', App::core()->blog()->id)) {
             throw new CoreException(__('You are not allowed to delete comments'));
         }
 
@@ -480,11 +481,11 @@ class Comments
         $sql
             ->where('comment_status = -2')
             ->and('post_id ' . $this->getPostOwnerStatement())
-            ->from(dotclear()->prefix . 'comment')
+            ->from(App::core()->prefix . 'comment')
             ->delete()
         ;
 
-        dotclear()->blog()->triggerBlog();
+        App::core()->blog()->triggerBlog();
     }
 
     /**
@@ -497,13 +498,13 @@ class Comments
         $sql = new SelectStatement(__METHOD__);
         $sql
             ->column('tp.post_id')
-            ->where('tp.blog_id = ' . $sql->quote(dotclear()->blog()->id))
-            ->from(dotclear()->prefix . 'post tp')
+            ->where('tp.blog_id = ' . $sql->quote(App::core()->blog()->id))
+            ->from(App::core()->prefix . 'post tp')
         ;
 
         // If user can only delete, we need to check the post's owner
-        if (!dotclear()->user()->check('contentadmin', dotclear()->blog()->id)) {
-            $sql->and('tp.user_id = ' . $sql->quote(dotclear()->user()->userID()));
+        if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
+            $sql->and('tp.user_id = ' . $sql->quote(App::core()->user()->userID()));
         }
 
         return $sql->statement();
@@ -539,7 +540,7 @@ class Comments
         }
 
         if (null === $cur->getField('comment_status')) {
-            $cur->setField('comment_status', (int) dotclear()->blog()->settings()->get('system')->get('comments_pub'));
+            $cur->setField('comment_status', (int) App::core()->blog()->settings()->get('system')->get('comments_pub'));
         }
 
         // Words list

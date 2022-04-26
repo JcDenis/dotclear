@@ -11,6 +11,7 @@ namespace Dotclear\Module\Store\Repository;
 
 // Dotclear\Module\Store\Repository\RepositoryParser
 use SimpleXMLElement;
+use Dotclear\App;
 use Dotclear\Exception\CoreException;
 
 /**
@@ -102,9 +103,9 @@ class RepositoryParser
             $item['tags'] = $tags;
 
             // First filter right now. If level is DEVELOPMENT, all modules are parse
-            if (!dotclear()->production()
-                || dotclear()->version()->compare(dotclear()->config()->get('core_version'), $item['dc_min'], '>=', false)
-                && dotclear()->version()->compare(dotclear()->config()->get('core_version_break'), $item['dc_min'], '<=', false)
+            if (!App::core()->production()
+                || App::core()->version()->compare(App::core()->config()->get('core_version'), $item['dc_min'], '>=', false)
+                && App::core()->version()->compare(App::core()->config()->get('core_version_break'), $item['dc_min'], '<=', false)
             ) {
                 $this->items[$item['id']] = $item;
             }

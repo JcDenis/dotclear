@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\Pings\Admin;
 
 // Dotclear\Plugin\Pings\Admin\PingsBehavior
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
 use Dotclear\Helper\Html\Form;
@@ -26,13 +27,13 @@ class PingsBehavior
 {
     public function __construct()
     {
-        dotclear()->behavior()->add('adminPostHeaders', [$this, 'pingJS']);
-        dotclear()->behavior()->add('adminPostFormItems', [$this, 'pingsFormItems']);
-        dotclear()->behavior()->add('adminAfterPostCreate', [$this, 'doPings']);
-        dotclear()->behavior()->add('adminAfterPostUpdate', [$this, 'doPings']);
+        App::core()->behavior()->add('adminPostHeaders', [$this, 'pingJS']);
+        App::core()->behavior()->add('adminPostFormItems', [$this, 'pingsFormItems']);
+        App::core()->behavior()->add('adminAfterPostCreate', [$this, 'doPings']);
+        App::core()->behavior()->add('adminAfterPostUpdate', [$this, 'doPings']);
 
         // Admin help
-        dotclear()->behavior()->add('adminPageHelpBlock', function (ArrayObject $blocks): void {
+        App::core()->behavior()->add('adminPageHelpBlock', function (ArrayObject $blocks): void {
             $found = false;
             foreach ($blocks as $block) {
                 if ('core_post' == $block) {
@@ -50,16 +51,16 @@ class PingsBehavior
 
     public function pingJS(): string
     {
-        return dotclear()->resource()->load('post.js', 'Plugin', 'Pings');
+        return App::core()->resource()->load('post.js', 'Plugin', 'Pings');
     }
 
     public function pingsFormItems(ArrayObject $main, ArrayObject $sidebar, ?Record $post, string $type = null): void
     {
-        if (!dotclear()->blog()->settings()->get('pings')->get('pings_active')) {
+        if (!App::core()->blog()->settings()->get('pings')->get('pings_active')) {
             return;
         }
 
-        $pings_uris = dotclear()->blog()->settings()->get('pings')->get('pings_uris');
+        $pings_uris = App::core()->blog()->settings()->get('pings')->get('pings_uris');
         if (empty($pings_uris) || !is_array($pings_uris)) {
             return;
         }
@@ -87,11 +88,11 @@ class PingsBehavior
             return;
         }
 
-        if (!dotclear()->blog()->settings()->get('pings')->get('pings_active')) {
+        if (!App::core()->blog()->settings()->get('pings')->get('pings_active')) {
             return;
         }
 
-        $pings_uris = dotclear()->blog()->settings()->get('pings')->get('pings_uris');
+        $pings_uris = App::core()->blog()->settings()->get('pings')->get('pings_uris');
         if (empty($pings_uris) || !is_array($pings_uris)) {
             return;
         }
@@ -99,7 +100,7 @@ class PingsBehavior
         foreach ($_POST['pings_do'] as $uri) {
             if (in_array($uri, $pings_uris)) {
                 try {
-                    PingsAPI::doPings($uri, dotclear()->blog()->name, dotclear()->blog()->url);
+                    PingsAPI::doPings($uri, App::core()->blog()->name, App::core()->blog()->url);
                 } catch (\Exception) {
                 }
             }

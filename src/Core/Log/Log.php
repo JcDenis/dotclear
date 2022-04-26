@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\Log;
 
 // Dotclear\Core\Log\Log
+use Dotclear\App;
 use Dotclear\Core\RsExt\RsExtLog;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\JoinStatement;
@@ -62,7 +63,7 @@ class Log
     public function get(array $params = [], bool $count_only = false): Record
     {
         $sql = SelectStatement::init(__METHOD__)
-            ->from(dotclear()->prefix . $this->log_table . ' L')
+            ->from(App::core()->prefix . $this->log_table . ' L')
         ;
 
         if ($count_only) {
@@ -84,7 +85,7 @@ class Log
             $sql->join(
                 JoinStatement::init(__METHOD__)
                     ->type('LEFT')
-                    ->from(dotclear()->prefix . $this->user_table . ' U')
+                    ->from(App::core()->prefix . $this->user_table . ' U')
                     ->on('U.user_id = L.user_id')
                     ->statement()
             );
@@ -95,7 +96,7 @@ class Log
                 $sql->where('L.blog_id = ' . $sql->quote($params['blog_id']));
             }
         } else {
-            $sql->where('L.blog_id = ' . $sql->quote(dotclear()->blog()->id));
+            $sql->where('L.blog_id = ' . $sql->quote(App::core()->blog()->id));
         }
 
         if (!empty($params['user_id'])) {
@@ -140,34 +141,34 @@ class Log
      */
     public function add(Cursor $cur): int
     {
-        dotclear()->con()->writeLock(dotclear()->prefix . $this->log_table);
+        App::core()->con()->writeLock(App::core()->prefix . $this->log_table);
 
         try {
             // Get ID
             $id = SelectStatement::init(__METHOD__)
                 ->column('MAX(log_id)')
-                ->from(dotclear()->prefix . $this->log_table)
+                ->from(App::core()->prefix . $this->log_table)
                 ->select()->fInt();
 
             $cur->setField('log_id', $id + 1);
-            $cur->setField('blog_id', (string) dotclear()->blog()->id);
+            $cur->setField('blog_id', (string) App::core()->blog()->id);
             $cur->setField('log_dt', date('Y-m-d H:i:s'));
 
             $this->cursor($cur, $cur->getField('log_id'));
 
             // --BEHAVIOR-- coreBeforeLogCreate, Dotclear\Core\Log, Dotclear\Database\Cursor
-            dotclear()->behavior()->call('coreBeforeLogCreate', $this, $cur);
+            App::core()->behavior()->call('coreBeforeLogCreate', $this, $cur);
 
             $cur->insert();
-            dotclear()->con()->unlock();
+            App::core()->con()->unlock();
         } catch (Exception $e) {
-            dotclear()->con()->unlock();
+            App::core()->con()->unlock();
 
             throw $e;
         }
 
         // --BEHAVIOR-- coreAfterLogCreate, Dotclear\Core\Log, Dotclear\Database\Cursor
-        dotclear()->behavior()->call('coreAfterLogCreate', $this, $cur);
+        App::core()->behavior()->call('coreAfterLogCreate', $this, $cur);
 
         return $cur->getField('log_id');
     }
@@ -188,7 +189,7 @@ class Log
         }
 
         $sql
-            ->from(dotclear()->prefix . $this->log_table)
+            ->from(App::core()->prefix . $this->log_table)
             ->run()
         ;
     }

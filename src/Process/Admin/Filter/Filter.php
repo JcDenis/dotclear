@@ -11,6 +11,7 @@ namespace Dotclear\Process\Admin\Filter;
 
 // Dotclear\Process\Admin\Filter\Filter
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -59,7 +60,7 @@ class Filter extends Filters
      */
     public function userOptions(?string $option = null): int|string|array|ArrayObject
     {
-        return dotclear()->listoption()->getUserFilters($this->type, $option);
+        return App::core()->listoption()->getUserFilters($this->type, $option);
     }
 
     /**
@@ -67,7 +68,7 @@ class Filter extends Filters
      */
     protected function parseOptions(): void
     {
-        $options = dotclear()->listoption()->getUserFilters($this->type);
+        $options = App::core()->listoption()->getUserFilters($this->type);
         if (!empty($options)) {
             $this->has_user_pref = true;
         }
@@ -87,11 +88,11 @@ class Filter extends Filters
         }
         if (!empty($options[3])) {
             $this->filters['order'] = DefaultFilter::init('order', $this->userOptions('order'))
-                ->options(dotclear()->combo()->getOrderCombo())
+                ->options(App::core()->combo()->getOrderCombo())
             ;
 
             if (!empty($_GET['order'])
-                && in_array($_GET['order'], dotclear()->combo()->getOrderCombo(), true)
+                && in_array($_GET['order'], App::core()->combo()->getOrderCombo(), true)
                 && $this->userOptions('order') != $_GET['order']
             ) {
                 $this->show(true);
@@ -304,13 +305,13 @@ class Filter extends Filters
             'show_filters'      => $this->show(),
             'filter_posts_list' => __('Show filters and display options'),
             'cancel_the_filter' => __('Cancel filters and display options'),
-            'filter_reset_url'  => $reset_url ?: dotclear()->adminurl()->get(dotclear()->adminurl()->called()),
+            'filter_reset_url'  => $reset_url ?: App::core()->adminurl()->get(App::core()->adminurl()->called()),
         ];
 
         return
-            dotclear()->resource()->json('filter_controls', $js) .
-            dotclear()->resource()->json('filter_options', ['auto_filter' => dotclear()->user()->preference()->get('interface')->get('auto_filter')]) .
-            dotclear()->resource()->load('filter-controls.js');
+            App::core()->resource()->json('filter_controls', $js) .
+            App::core()->resource()->json('filter_options', ['auto_filter' => App::core()->user()->preference()->get('interface')->get('auto_filter')]) .
+            App::core()->resource()->load('filter-controls.js');
     }
 
     /**
@@ -327,7 +328,7 @@ class Filter extends Filters
             $adminurl = $adminurl[0];
         }
 
-        echo '<form action="' . dotclear()->adminurl()->get($adminurl) . $tab . '" method="get" id="filters-form">' .
+        echo '<form action="' . App::core()->adminurl()->get($adminurl) . $tab . '" method="get" id="filters-form">' .
         '<h3 class="out-of-screen-if-js">' . __('Show filters and display options') . '</h3>' .
 
         '<div class="table">';

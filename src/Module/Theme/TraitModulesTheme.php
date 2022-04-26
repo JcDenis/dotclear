@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Module\Theme;
 
 // Dotclear\Module\Theme\TraitModulesTheme
+use Dotclear\App;
 use Dotclear\Helper\File\Path;
 
 /**
@@ -26,11 +27,11 @@ trait TraitModulesTheme
 
     public function getModulesPath(): array
     {
-        $paths = dotclear()->config()->get('theme_dirs');
+        $paths = App::core()->config()->get('theme_dirs');
 
         // If a theme directory is set for current blog, it will be added to the end of paths
-        if (dotclear()->blog()) {
-            $path = trim((string) dotclear()->blog()->settings()->get('system')->get('module_theme_dir'));
+        if (App::core()->blog()) {
+            $path = trim((string) App::core()->blog()->settings()->get('system')->get('module_theme_dir'));
             if (!empty($path) && false !== ($dir = Path::real(str_starts_with('\\', $path) ? $path : Path::implodeRoot($path), true))) {
                 $paths[] = $dir;
             }
@@ -41,7 +42,7 @@ trait TraitModulesTheme
 
     public function getStoreURL(): string
     {
-        return (string) dotclear()->blog()->settings()->get('system')->get('store_theme_url');
+        return (string) App::core()->blog()->settings()->get('system')->get('store_theme_url');
     }
 
     public function useStoreCache(): bool
@@ -51,7 +52,7 @@ trait TraitModulesTheme
 
     public function getDistributedModules(): array
     {
-        return dotclear()->config()->get('theme_official');
+        return App::core()->config()->get('theme_official');
     }
 
     /**
@@ -68,8 +69,8 @@ trait TraitModulesTheme
         $suffix = $suffix ? '/' . $suffix : '';
         $path   = [];
 
-        if (null !== dotclear()->blog()) {
-            $theme = $this->getModule((string) dotclear()->blog()->settings()->get('system')->get('theme'));
+        if (null !== App::core()->blog()) {
+            $theme = $this->getModule((string) App::core()->blog()->settings()->get('system')->get('theme'));
             if (!$theme) {
                 $theme = $this->getModule('Berlin');
             }

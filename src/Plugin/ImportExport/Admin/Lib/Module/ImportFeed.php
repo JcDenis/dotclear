@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 
 // Dotclear\Plugin\ImportExport\Admin\Lib\Module\ImportFeed
+use Dotclear\App;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\Text;
 use Dotclear\Helper\Html\Form;
@@ -106,7 +107,7 @@ class ImportFeed extends Module
         $this->feed_url = $_POST['feed_url'];
 
         // Check feed URL
-        if (dotclear()->blog()->settings()->get('system')->get('import_feed_url_control')) {
+        if (App::core()->blog()->settings()->get('system')->get('import_feed_url_control')) {
             // Get IP from URL
             $bits = parse_url($this->feed_url);
             if (!$bits || !isset($bits['host'])) {
@@ -121,21 +122,21 @@ class ImportFeed extends Module
             }
             // Check feed IP
             $flag = FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6;
-            if (dotclear()->blog()->settings()->get('system')->get('import_feed_no_private_ip')) {
+            if (App::core()->blog()->settings()->get('system')->get('import_feed_no_private_ip')) {
                 $flag |= FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE;
             }
             if (!filter_var($ip, $flag)) {
                 throw new ModuleException(__('Cannot retrieve feed URL.'));
             }
             // IP control (white list regexp)
-            if (dotclear()->blog()->settings()->get('system')->get('import_feed_ip_regexp') != '') {
-                if (!preg_match(dotclear()->blog()->settings()->get('system')->get('import_feed_ip_regexp'), $ip)) {
+            if (App::core()->blog()->settings()->get('system')->get('import_feed_ip_regexp') != '') {
+                if (!preg_match(App::core()->blog()->settings()->get('system')->get('import_feed_ip_regexp'), $ip)) {
                     throw new ModuleException(__('Cannot retrieve feed URL.'));
                 }
             }
             // Port control (white list regexp)
-            if (dotclear()->blog()->settings()->get('system')->get('import_feed_port_regexp') != '' && isset($bits['port'])) {
-                if (!preg_match(dotclear()->blog()->settings()->get('system')->get('import_feed_port_regexp'), (string) $bits['port'])) {
+            if (App::core()->blog()->settings()->get('system')->get('import_feed_port_regexp') != '' && isset($bits['port'])) {
+                if (!preg_match(App::core()->blog()->settings()->get('system')->get('import_feed_port_regexp'), (string) $bits['port'])) {
                     throw new ModuleException(__('Cannot retrieve feed URL.'));
                 }
             }
@@ -149,11 +150,11 @@ class ImportFeed extends Module
             throw new ModuleException(__('No items in feed.'));
         }
 
-        $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'post');
-        dotclear()->con()->begin();
+        $cur = App::core()->con()->openCursor(App::core()->prefix . 'post');
+        App::core()->con()->begin();
         foreach ($feed->items as $item) {
             $cur->clean();
-            $cur->setField('user_id', dotclear()->user()->userID());
+            $cur->setField('user_id', App::core()->user()->userID());
             $cur->setField('post_content', $item->content ?: $item->description);
             $cur->setField('post_title', $item->title ?: Text::cutString(Html::clean($cur->getField('post_content')), 60));
             $cur->setField('post_format', 'xhtml');
@@ -161,36 +162,36 @@ class ImportFeed extends Module
             $cur->setField('post_dt', @strftime('%Y-%m-%d %H:%M:%S', $item->TS));
 
             try {
-                $post_id = dotclear()->blog()->addPost($cur);
+                $post_id = App::core()->blog()->addPost($cur);
             } catch (Exception $e) {
-                dotclear()->con()->rollback();
+                App::core()->con()->rollback();
 
                 throw $e;
             }
 
             foreach ($item->subject as $subject) {
-                dotclear()->meta()->setPostMeta($post_id, 'tag', dotclear()->meta()::sanitizeMetaID($subject));
+                App::core()->meta()->setPostMeta($post_id, 'tag', App::core()->meta()::sanitizeMetaID($subject));
             }
         }
 
-        dotclear()->con()->commit();
+        App::core()->con()->commit();
         Http::redirect($this->getURL() . '&do=ok');
     }
 
     public function gui(): void
     {
         if ($this->status) {
-            dotclear()->notice()->success(__('Content successfully imported.'));
+            App::core()->notice()->success(__('Content successfully imported.'));
         }
 
         echo '<form action="' . $this->getURL(true) . '" method="post">' .
-        '<p>' . sprintf(__('Add a feed content to the current blog: <strong>%s</strong>.'), Html::escapeHTML(dotclear()->blog()->name)) . '</p>' .
+        '<p>' . sprintf(__('Add a feed content to the current blog: <strong>%s</strong>.'), Html::escapeHTML(App::core()->blog()->name)) . '</p>' .
 
         '<p><label for="feed_url">' . __('Feed URL:') . '</label>' .
         Form::url('feed_url', 50, 300, Html::escapeHTML($this->feed_url)) . '</p>' .
 
         '<p>' .
-        dotclear()->nonce()->form() .
+        App::core()->nonce()->form() .
         Form::hidden(['handler'], 'admin.plugin.ImportExport') .
         Form::hidden(['do'], 1) .
         '<input type="submit" value="' . __('Import') . '" /></p>' .

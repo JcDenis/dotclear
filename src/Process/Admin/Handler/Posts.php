@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\Posts
+use Dotclear\App;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Action\Action\PostAction;
 use Dotclear\Process\Admin\Inventory\Inventory\PostInventory;
@@ -31,7 +32,7 @@ class Posts extends AbstractPage
 
     protected function getActionInstance(): ?PostAction
     {
-        return new PostAction(dotclear()->adminurl()->get('admin.posts'));
+        return new PostAction(App::core()->adminurl()->get('admin.posts'));
     }
 
     protected function getFilterInstance(): ?PostFilter
@@ -52,17 +53,17 @@ class Posts extends AbstractPage
             'user_id'    => 'P.user_id', ];
 
         // --BEHAVIOR-- adminPostsSortbyLexCombo
-        dotclear()->behavior()->call('adminPostsSortbyLexCombo', [&$sortby_lex]);
+        App::core()->behavior()->call('adminPostsSortbyLexCombo', [&$sortby_lex]);
 
         $params['order'] = (array_key_exists($this->filter->get('sortby'), $sortby_lex) ?
-            dotclear()->con()->lexFields($sortby_lex[$this->filter->get('sortby')]) :
+            App::core()->con()->lexFields($sortby_lex[$this->filter->get('sortby')]) :
             $this->filter->get('sortby')) . ' ' . $this->filter->get('order');
 
         $params['no_content'] = true;
 
         return new PostInventory(
-            dotclear()->blog()->posts()->getPosts($params),
-            dotclear()->blog()->posts()->getPosts($params, true)->fInt()
+            App::core()->blog()->posts()->getPosts($params),
+            App::core()->blog()->posts()->getPosts($params, true)->fInt()
         );
     }
 
@@ -72,11 +73,11 @@ class Posts extends AbstractPage
         $this->setPageTitle(__('Posts'));
         $this->setPageHead(
             $this->filter->js() .
-            dotclear()->resource()->load('_posts_list.js')
+            App::core()->resource()->load('_posts_list.js')
         );
         $this->setPageBreadcrumb([
-            Html::escapeHTML(dotclear()->blog()->name) => '',
-            __('Posts')                                => '',
+            Html::escapeHTML(App::core()->blog()->name) => '',
+            __('Posts')                                 => '',
         ]);
 
         return true;
@@ -85,12 +86,12 @@ class Posts extends AbstractPage
     protected function getPageContent(): void
     {
         if (!empty($_GET['upd'])) {
-            dotclear()->notice()->success(__('Selected entries have been successfully updated.'));
+            App::core()->notice()->success(__('Selected entries have been successfully updated.'));
         } elseif (!empty($_GET['del'])) {
-            dotclear()->notice()->success(__('Selected entries have been successfully deleted.'));
+            App::core()->notice()->success(__('Selected entries have been successfully deleted.'));
         }
-        if (!dotclear()->error()->flag()) {
-            echo '<p class="top-add"><a class="button add" href="' . dotclear()->adminurl()->get('admin.post') . '">' . __('New post') . '</a></p>';
+        if (!App::core()->error()->flag()) {
+            echo '<p class="top-add"><a class="button add" href="' . App::core()->adminurl()->get('admin.post') . '">' . __('New post') . '</a></p>';
 
             // filters
             $this->filter->display('admin.posts');
@@ -99,7 +100,7 @@ class Posts extends AbstractPage
             $this->inventory->display(
                 $this->filter->get('page'),
                 $this->filter->get('nb'),
-                '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-entries">' .
+                '<form action="' . App::core()->adminurl()->root() . '" method="post" id="form-entries">' .
 
                 '%s' .
 
@@ -109,7 +110,7 @@ class Posts extends AbstractPage
                 '<p class="col right"><label for="action" class="classic">' . __('Selected entries action:') . '</label> ' .
                 Form::combo('action', $this->action->getCombo()) .
                 '<input id="do-action" type="submit" value="' . __('ok') . '" disabled /></p>' .
-                dotclear()->adminurl()->getHiddenFormFields('admin.posts', $this->filter->values(), true) .
+                App::core()->adminurl()->getHiddenFormFields('admin.posts', $this->filter->values(), true) .
                 '</div>' .
                 '</form>',
                 $this->filter->show()

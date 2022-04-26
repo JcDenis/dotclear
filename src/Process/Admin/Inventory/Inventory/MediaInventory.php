@@ -11,6 +11,7 @@ namespace Dotclear\Process\Admin\Inventory\Inventory;
 
 // Dotclear\Process\Admin\Inventory\Inventory\MediaInventory
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Core\Media\Media;
 use Dotclear\Core\Media\Manager\Item;
 use Dotclear\Helper\Html\Form;
@@ -117,7 +118,7 @@ class MediaInventory extends Inventory
 
         if ($f->d) {
             // Folder
-            $link = dotclear()->adminurl()->get('admin.media', array_merge($filters->values(), ['d' => Html::sanitizeURL($f->relname)]));
+            $link = App::core()->adminurl()->get('admin.media', array_merge($filters->values(), ['d' => Html::sanitizeURL($f->relname)]));
             if ($f->parent) {
                 $fname = '..';
                 $class .= ' media-folder-up';
@@ -128,9 +129,9 @@ class MediaInventory extends Inventory
             // Item
             $params = new ArrayObject(array_merge($filters->values(), ['id' => $f->media_id]));
 
-            dotclear()->behavior()->call('adminMediaURLParams', $params);
+            App::core()->behavior()->call('adminMediaURLParams', $params);
 
-            $link = dotclear()->adminurl()->get('admin.media.item', (array) $params);
+            $link = App::core()->adminurl()->get('admin.media.item', (array) $params);
             if ($f->media_priv) {
                 $class .= ' media-private';
             }
@@ -157,7 +158,7 @@ class MediaInventory extends Inventory
                 if ($filters->get('post_id')) {
                     // Media attachment button
                     $act .= '<a class="attach-media" title="' . __('Attach this file to entry') . '" href="' .
-                    dotclear()->adminurl()->get(
+                    App::core()->adminurl()->get(
                         'admin.post.media',
                         ['media_id' => $f->media_id, 'post_id' => $filters->get('post_id'), 'attach' => 1, 'link_type' => $filters->get('link_type')]
                     ) .
@@ -181,7 +182,7 @@ class MediaInventory extends Inventory
                 }
             } else {
                 $act .= '<a class="media-remove" ' .
-                'href="' . dotclear()->adminurl()->get($page_adminurl, array_merge($filters->values(), ['remove' => rawurlencode($file)])) . '">' .
+                'href="' . App::core()->adminurl()->get($page_adminurl, array_merge($filters->values(), ['remove' => rawurlencode($file)])) . '">' .
                 '<img src="?df=images/trash.png" alt="' . __('Delete') . '" title="' . __('delete') . '" /></a>';
             }
         }

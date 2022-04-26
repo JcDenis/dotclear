@@ -11,6 +11,7 @@ namespace Dotclear\Process\Admin\Action\Action;
 
 // Dotclear\Process\Admin\Action\Action\DefaultCommentAction
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Exception\AdminException;
 use Dotclear\Process\Admin\Action\Action;
 
@@ -23,7 +24,7 @@ abstract class DefaultCommentAction extends Action
 {
     protected function loadCommentAction(Action $ap): void
     {
-        if (dotclear()->user()->check('publish,contentadmin', dotclear()->blog()->id)) {
+        if (App::core()->user()->check('publish,contentadmin', App::core()->blog()->id)) {
             $ap->addAction(
                 [__('Status') => [
                     __('Publish')         => 'publish',
@@ -35,7 +36,7 @@ abstract class DefaultCommentAction extends Action
             );
         }
 
-        if (dotclear()->user()->check('delete,contentadmin', dotclear()->blog()->id)) {
+        if (App::core()->user()->check('delete,contentadmin', App::core()->blog()->id)) {
             $ap->addAction(
                 [__('Delete') => [
                     __('Delete') => 'delete', ]],
@@ -58,9 +59,9 @@ abstract class DefaultCommentAction extends Action
             default     => 1,
         };
 
-        dotclear()->blog()->comments()->updCommentsStatus($co_ids, $status);
+        App::core()->blog()->comments()->updCommentsStatus($co_ids, $status);
 
-        dotclear()->notice()->addSuccessNotice(__('Selected comments have been successfully updated.'));
+        App::core()->notice()->addSuccessNotice(__('Selected comments have been successfully updated.'));
         $ap->redirect(true);
     }
 
@@ -73,14 +74,14 @@ abstract class DefaultCommentAction extends Action
         // Backward compatibility
         foreach ($co_ids as $comment_id) {
             // --BEHAVIOR-- adminBeforeCommentDelete
-            dotclear()->behavior()->call('adminBeforeCommentDelete', $comment_id);
+            App::core()->behavior()->call('adminBeforeCommentDelete', $comment_id);
         }
 
         // --BEHAVIOR-- adminBeforeCommentsDelete
-        dotclear()->behavior()->call('adminBeforeCommentsDelete', $co_ids);
+        App::core()->behavior()->call('adminBeforeCommentsDelete', $co_ids);
 
-        dotclear()->blog()->comments()->delComments($co_ids);
-        dotclear()->notice()->addSuccessNotice(__('Selected comments have been successfully deleted.'));
+        App::core()->blog()->comments()->delComments($co_ids);
+        App::core()->notice()->addSuccessNotice(__('Selected comments have been successfully deleted.'));
         $ap->redirect(false);
     }
 }

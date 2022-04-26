@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Maintenance\Admin\Lib\Task;
 
 // Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskSynchpostsmeta
+use Dotclear\App;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
@@ -63,15 +64,15 @@ class MaintenanceTaskSynchpostsmeta extends MaintenanceTask
     protected function synchronizeAllPostsmeta(?int $start = null, ?int $limit = null): ?int
     {
         $sql = SelectStatement::init(__METHOD__)
-            ->from(dotclear()->prefix . 'post')
+            ->from(App::core()->prefix . 'post')
         ;
 
         $sql_mid = SelectStatement::init(__METHOD__)
-            ->from(dotclear()->prefix . 'meta')
+            ->from(App::core()->prefix . 'meta')
         ;
 
         $sql_upd = UpdateStatement::init(__METHOD__)
-            ->from(dotclear()->prefix . 'post')
+            ->from(App::core()->prefix . 'post')
         ;
 
         // Get number of posts
@@ -112,7 +113,7 @@ class MaintenanceTaskSynchpostsmeta extends MaintenanceTask
                 ->update()
             ;
         }
-        dotclear()->blog()->triggerBlog();
+        App::core()->blog()->triggerBlog();
 
         // Return next step
         return $start + $limit > $count ? null : $start + $limit;

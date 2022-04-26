@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\Nonce;
 
 // Dotclear\Core\Nonce\Nonce
+use Dotclear\App;
 use Dotclear\Helper\Html\Form;
 
 /**
@@ -26,7 +27,7 @@ class Nonce
      */
     public function get(): string
     {
-        return dotclear()->user()->cryptLegacy(session_id());
+        return App::core()->user()->cryptLegacy(session_id());
     }
 
     /**

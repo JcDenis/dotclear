@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\RsExt;
 
 // Dotclear\Core\RsExt\RsExtComment
+use Dotclear\App;
 use Dotclear\Core\User\Preference\Preference;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Dt;
@@ -39,7 +40,7 @@ class RsExtComment extends RsExtend
     public function getDate(string $format, string $type = ''): string
     {
         if (!$format) {
-            $format = dotclear()->blog()->settings()->get('system')->get('date_format');
+            $format = App::core()->blog()->settings()->get('system')->get('date_format');
         }
 
         return 'upddt' == $type ?
@@ -59,7 +60,7 @@ class RsExtComment extends RsExtend
     public function getTime(string $format, string $type = ''): string
     {
         if (!$format) {
-            $format = dotclear()->blog()->settings()->get('system')->get('time_format');
+            $format = App::core()->blog()->settings()->get('system')->get('time_format');
         }
 
         return 'upddt' == $type ?
@@ -121,7 +122,7 @@ class RsExtComment extends RsExtend
     {
         $res = $this->rs->f('comment_content');
 
-        $res = dotclear()->blog()->settings()->get('system')->get('comments_nofollow') ?
+        $res = App::core()->blog()->settings()->get('system')->get('comments_nofollow') ?
             preg_replace_callback('#<a(.*?href=".*?".*?)>#ms', [$this, 'noFollowURL'], $res) :
             preg_replace_callback('#<a(.*?href=".*?".*?)>#ms', [$this, 'UgcURL'], $res);
 
@@ -155,7 +156,7 @@ class RsExtComment extends RsExtend
      */
     public function getPostURL(): string
     {
-        return dotclear()->blog()->url . dotclear()->posttype()->getPostPublicURL(
+        return App::core()->blog()->url . App::core()->posttype()->getPostPublicURL(
             $this->rs->f('post_type'),
             Html::sanitizeURL($this->rs->f('post_url'))
         );
@@ -175,7 +176,7 @@ class RsExtComment extends RsExtend
         }
 
         $rel = 'ugc';
-        if (dotclear()->blog()->settings()->get('system')->get('comments_nofollow')) {
+        if (App::core()->blog()->settings()->get('system')->get('comments_nofollow')) {
             $rel .= ' nofollow';
         }
 
@@ -224,7 +225,7 @@ class RsExtComment extends RsExtend
      */
     public function getFeedID(): string
     {
-        return 'urn:md5:' . md5(dotclear()->blog()->uid . $this->rs->f('comment_id'));
+        return 'urn:md5:' . md5(App::core()->blog()->uid . $this->rs->f('comment_id'));
     }
 
     /**

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Module\Iconset\Admin;
 
 // Dotclear\Module\Iconset\Admin\ModulesIconset
+use Dotclear\App;
 use Dotclear\Module\AbstractModules;
 use Dotclear\Module\TraitModulesAdmin;
 use Dotclear\Module\Iconset\TraitModulesIconset;
@@ -26,35 +27,35 @@ class ModulesIconset extends AbstractModules
 
     protected function register(): bool
     {
-        dotclear()->adminurl()->register(
+        App::core()->adminurl()->register(
             'admin.iconset',
             'Dotclear\\Module\\Iconset\\Admin\\HandlerIconset'
         );
-        dotclear()->summary()->register(
+        App::core()->summary()->register(
             'System',
             __('Iconset management'),
             'admin.iconset',
             'images/menu/no-icon.svg',
-            dotclear()->user()->isSuperAdmin()
+            App::core()->user()->isSuperAdmin()
         );
-        dotclear()->favorite()->register('iconsets', [
+        App::core()->favorite()->register('iconsets', [
             'title'      => __('Iconsets management'),
-            'url'        => dotclear()->adminurl()->get('admin.iconset'),
+            'url'        => App::core()->adminurl()->get('admin.iconset'),
             'small-icon' => 'images/menu/no-icon.svg',
             'large-icon' => 'images/menu/no-icon.svg',
         ]);
 
-        return dotclear()->adminurl()->is('admin.iconset');
+        return App::core()->adminurl()->is('admin.iconset');
     }
 
     public function getModulesURL(array $param = []): string
     {
-        return dotclear()->adminurl()->get('admin.iconset', $param);
+        return App::core()->adminurl()->get('admin.iconset', $param);
     }
 
     public function getModuleURL(string $id, array $param = []): string
     {
-        return dotclear()->adminurl()->get('admin.iconset.' . $id, $param);
+        return App::core()->adminurl()->get('admin.iconset.' . $id, $param);
     }
     /*
         public function displayModules(array $cols = ['name', 'version', 'desc'], array $actions = [], bool $nav_limit = false): static

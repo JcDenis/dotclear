@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\Blog
+use Dotclear\App;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Helper\Html\Form;
@@ -48,18 +49,18 @@ class Blog extends AbstractPage
             ->setPageHelp('core_blog_new')
             ->setPageTitle(__('New blog'))
             ->setPageHead(
-                dotclear()->resource()->confirmClose('blog-form')
+                App::core()->resource()->confirmClose('blog-form')
             )
             ->setPageBreadcrumb([
                 __('System')   => '',
-                __('Blogs')    => dotclear()->adminurl()->get('admin.blogs'),
+                __('Blogs')    => App::core()->adminurl()->get('admin.blogs'),
                 __('New blog') => '',
             ])
         ;
 
         // Create a blog
         if (!isset($_POST['id']) && isset($_POST['create'])) {
-            $cur                                         = dotclear()->con()->openCursor(dotclear()->prefix . 'blog');
+            $cur                                         = App::core()->con()->openCursor(App::core()->prefix . 'blog');
             $cur->setField('blog_id', $this->blog_id     = $_POST['blog_id']);
             $cur->setField('blog_url', $this->blog_url   = $_POST['blog_url']);
             $cur->setField('blog_name', $this->blog_name = $_POST['blog_name']);
@@ -67,14 +68,14 @@ class Blog extends AbstractPage
 
             try {
                 // --BEHAVIOR-- adminBeforeBlogCreate
-                dotclear()->behavior()->call('adminBeforeBlogCreate', $cur, $this->blog_id);
+                App::core()->behavior()->call('adminBeforeBlogCreate', $cur, $this->blog_id);
 
-                dotclear()->blogs()->addBlog($cur);
+                App::core()->blogs()->addBlog($cur);
 
                 // Default settings and override some
                 $blog_settings = new Settings($cur->getField('blog_id'));
-                $blog_settings->get('system')->put('lang', dotclear()->user()->getInfo('user_lang'));
-                $blog_settings->get('system')->put('blog_timezone', dotclear()->user()->getInfo('user_tz'));
+                $blog_settings->get('system')->put('lang', App::core()->user()->getInfo('user_lang'));
+                $blog_settings->get('system')->put('blog_timezone', App::core()->user()->getInfo('user_tz'));
 
                 if ('?' == substr($this->blog_url, -1)) {
                     $blog_settings->get('system')->put('url_scan', 'query_string');
@@ -83,12 +84,12 @@ class Blog extends AbstractPage
                 }
 
                 // --BEHAVIOR-- adminAfterBlogCreate
-                dotclear()->behavior()->call('adminAfterBlogCreate', $cur, $this->blog_id, $blog_settings);
+                App::core()->behavior()->call('adminAfterBlogCreate', $cur, $this->blog_id, $blog_settings);
 
-                dotclear()->notice()->addSuccessNotice(sprintf(__('Blog "%s" successfully created'), Html::escapeHTML($cur->getField('blog_name'))));
-                dotclear()->adminurl()->redirect('admin.blog', ['id' => $cur->getField('blog_id'), 'edit_blog_mode' => 1]);
+                App::core()->notice()->addSuccessNotice(sprintf(__('Blog "%s" successfully created'), Html::escapeHTML($cur->getField('blog_name'))));
+                App::core()->adminurl()->redirect('admin.blog', ['id' => $cur->getField('blog_id'), 'edit_blog_mode' => 1]);
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
@@ -97,7 +98,7 @@ class Blog extends AbstractPage
 
     protected function getPageContent(): void
     {
-        echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="blog-form">' .
+        echo '<form action="' . App::core()->adminurl()->root() . '" method="post" id="blog-form">' .
 
         '<p><label class="required" for="blog_id"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Blog ID:') . '</label> ' .
         Form::field(
@@ -118,7 +119,7 @@ class Blog extends AbstractPage
             255,
             [
                 'default'    => Html::escapeHTML($this->blog_name),
-                'extra_html' => 'required placeholder="' . __('Blog name') . '" lang="' . dotclear()->user()->getInfo('user_lang') . '" ' .
+                'extra_html' => 'required placeholder="' . __('Blog name') . '" lang="' . App::core()->user()->getInfo('user_lang') . '" ' .
                     'spellcheck="true"',
             ]
         ) . '</p>' .
@@ -140,13 +141,13 @@ class Blog extends AbstractPage
             5,
             [
                 'default'    => Html::escapeHTML($this->blog_desc),
-                'extra_html' => 'lang="' . dotclear()->user()->getInfo('user_lang') . '" spellcheck="true"',
+                'extra_html' => 'lang="' . App::core()->user()->getInfo('user_lang') . '" spellcheck="true"',
             ]
         ) . '</p>' .
 
         '<p><input type="submit" accesskey="s" name="create" value="' . __('Create') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
-        dotclear()->adminurl()->getHiddenFormFields('admin.blog', [], true) .
+        App::core()->adminurl()->getHiddenFormFields('admin.blog', [], true) .
         '</p>' .
         '</form>';
     }

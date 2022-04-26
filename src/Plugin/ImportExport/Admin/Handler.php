@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\ImportExport\Admin;
 
 // Dotclear\Plugin\ImportExport\Admin\Handler
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
 use Exception;
@@ -32,7 +33,7 @@ class Handler extends AbstractPage
         $modules = new ArrayObject(['import' => [], 'export' => []]);
 
         // --BEHAVIOR-- importExportModules
-        dotclear()->behavior()->call('importExportModules', $modules);
+        App::core()->behavior()->call('importExportModules', $modules);
 
         $type = null;
         if (!empty($_REQUEST['type']) && in_array($_REQUEST['type'], ['export', 'import'])) {
@@ -51,7 +52,7 @@ class Handler extends AbstractPage
             try {
                 $module->process($_REQUEST['do']);
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
@@ -60,16 +61,16 @@ class Handler extends AbstractPage
             ->setPageTitle(__('Import/Export'))
             ->setPageHelp('import')
             ->setPageHead(
-                dotclear()->resource()->load('style.css', 'Plugin', 'ImportExport') .
-                dotclear()->resource()->json('ie_msg', ['please_wait' => __('Please wait...')]) .
-                dotclear()->resource()->load('script.js', 'Plugin', 'ImportExport')
+                App::core()->resource()->load('style.css', 'Plugin', 'ImportExport') .
+                App::core()->resource()->json('ie_msg', ['please_wait' => __('Please wait...')]) .
+                App::core()->resource()->load('script.js', 'Plugin', 'ImportExport')
             )
         ;
 
         if ($type && null !== $module) {
             $this->setPageBreadcrumb([
                 __('Plugins')                   => '',
-                __('Import/Export')             => dotclear()->adminurl()->get('admin.plugin.ImportExport'),
+                __('Import/Export')             => App::core()->adminurl()->get('admin.plugin.ImportExport'),
                 html::escapeHTML($module->name) => '',
             ]);
 
@@ -94,7 +95,7 @@ class Handler extends AbstractPage
                 '<h3>' . __('Export') . '</h3>' .
                 '<p class="info">' . sprintf(
                     __('Export functions are in the page %s.'),
-                    '<a href="' . dotclear()->adminurl()->get('admin.plugin.Maintenance', ['tab' => 'backup']) . '#backup">' . __('Maintenance') . '</a>'
+                    '<a href="' . App::core()->adminurl()->get('admin.plugin.Maintenance', ['tab' => 'backup']) . '#backup">' . __('Maintenance') . '</a>'
                 ) . '</p>'
             );
         }

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Blogroll\Admin;
 
 // Dotclear\Plugin\Blogroll\Admin\Handler
+use Dotclear\App;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Html\Form;
@@ -53,7 +54,7 @@ class Handler extends AbstractPage
 
             try {
                 Files::uploadStatus($_FILES['links_file']);
-                $ifile = dotclear()->config()->get('cache_dir') . '/' . md5(uniqid());
+                $ifile = App::core()->config()->get('cache_dir') . '/' . md5(uniqid());
                 if (!move_uploaded_file($_FILES['links_file']['tmp_name'], $ifile)) {
                     throw new ModuleException(__('Unable to move uploaded file.'));
                 }
@@ -73,7 +74,7 @@ class Handler extends AbstractPage
                     throw new ModuleException(__('Nothing to import'));
                 }
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
@@ -86,17 +87,17 @@ class Handler extends AbstractPage
                 try {
                     $this->br_blogroll->addLink($this->br_link_title, $this->br_link_href, $this->br_link_desc, '');
                 } catch (Exception $e) {
-                    dotclear()->error()->add($e->getMessage());
+                    App::core()->error()->add($e->getMessage());
                     $default_tab = 'import-links';
                 }
             }
 
-            dotclear()->notice()->addSuccessNotice(__('links have been successfully imported.'));
-            dotclear()->adminurl()->redirect('admin.plugin.Blogroll');
+            App::core()->notice()->addSuccessNotice(__('links have been successfully imported.'));
+            App::core()->adminurl()->redirect('admin.plugin.Blogroll');
         }
 
         if (!empty($_POST['cancel_import'])) {
-            dotclear()->error()->add(__('Import operation cancelled.'));
+            App::core()->error()->add(__('Import operation cancelled.'));
             $default_tab = 'import-links';
         }
 
@@ -110,10 +111,10 @@ class Handler extends AbstractPage
             try {
                 $this->br_blogroll->addLink($this->br_link_title, $this->br_link_href, $this->br_link_desc, $this->br_link_lang);
 
-                dotclear()->notice()->addSuccessNotice(__('Link has been successfully created.'));
-                dotclear()->adminurl()->redirect('admin.plugin.Blogroll');
+                App::core()->notice()->addSuccessNotice(__('Link has been successfully created.'));
+                App::core()->adminurl()->redirect('admin.plugin.Blogroll');
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
                 $default_tab = 'add-link';
             }
         }
@@ -124,10 +125,10 @@ class Handler extends AbstractPage
 
             try {
                 $this->br_blogroll->addCategory($this->br_cat_title);
-                dotclear()->notice()->addSuccessNotice(__('category has been successfully created.'));
-                dotclear()->adminurl()->redirect('admin.plugin.Blogroll');
+                App::core()->notice()->addSuccessNotice(__('category has been successfully created.'));
+                App::core()->adminurl()->redirect('admin.plugin.Blogroll');
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
                 $default_tab = 'add-cat';
             }
         }
@@ -138,15 +139,15 @@ class Handler extends AbstractPage
                 try {
                     $this->br_blogroll->delItem((int) $v);
                 } catch (Exception $e) {
-                    dotclear()->error()->add($e->getMessage());
+                    App::core()->error()->add($e->getMessage());
 
                     break;
                 }
             }
 
-            if (!dotclear()->error()->flag()) {
-                dotclear()->notice()->addSuccessNotice(__('Items have been successfully removed.'));
-                dotclear()->adminurl()->redirect('admin.plugin.Blogroll');
+            if (!App::core()->error()->flag()) {
+                App::core()->notice()->addSuccessNotice(__('Items have been successfully removed.'));
+                App::core()->adminurl()->redirect('admin.plugin.Blogroll');
             }
         }
 
@@ -167,13 +168,13 @@ class Handler extends AbstractPage
                 try {
                     $this->br_blogroll->updateOrder((int) $l, (int) $pos);
                 } catch (Exception $e) {
-                    dotclear()->error()->add($e->getMessage());
+                    App::core()->error()->add($e->getMessage());
                 }
             }
 
-            if (!dotclear()->error()->flag()) {
-                dotclear()->notice()->addSuccessNotice(__('Items order has been successfully updated'));
-                dotclear()->adminurl()->redirect('admin.plugin.Blogroll');
+            if (!App::core()->error()->flag()) {
+                App::core()->notice()->addSuccessNotice(__('Items order has been successfully updated'));
+                App::core()->adminurl()->redirect('admin.plugin.Blogroll');
             }
         }
 
@@ -182,20 +183,20 @@ class Handler extends AbstractPage
             ->setPageTitle(__('Blogroll'))
             ->setPageHelp('blogroll')
             ->setPageBreadcrumb([
-                Html::escapeHTML(dotclear()->blog()->name) => '',
-                __('Blogroll')                             => '',
+                Html::escapeHTML(App::core()->blog()->name) => '',
+                __('Blogroll')                              => '',
             ])
             ->setPageHead(
-                dotclear()->resource()->confirmClose('links-form', 'add-link-form', 'add-category-form') .
-                dotclear()->resource()->pageTabs($default_tab)
+                App::core()->resource()->confirmClose('links-form', 'add-link-form', 'add-category-form') .
+                App::core()->resource()->pageTabs($default_tab)
             )
         ;
 
-        if (!dotclear()->user()->preference()->get('accessibility')->get('nodragdrop')) {
+        if (!App::core()->user()->preference()->get('accessibility')->get('nodragdrop')) {
             $this->setPageHead(
-                dotclear()->resource()->load('jquery/jquery-ui.custom.js') .
-                dotclear()->resource()->load('jquery/jquery.ui.touch-punch.js') .
-                dotclear()->resource()->load('blogroll.js', 'Plugin', 'Blogroll')
+                App::core()->resource()->load('jquery/jquery-ui.custom.js') .
+                App::core()->resource()->load('jquery/jquery.ui.touch-punch.js') .
+                App::core()->resource()->load('blogroll.js', 'Plugin', 'Blogroll')
             );
         }
 
@@ -210,7 +211,7 @@ class Handler extends AbstractPage
         try {
             $rs = $this->br_blogroll->getLinks();
         } catch (Exception $e) {
-            dotclear()->error()->add($e->getMessage());
+            App::core()->error()->add($e->getMessage());
         }
 
         echo '<div class="multi-part" id="main-list" title="' . __('Blogroll') . '">';
@@ -219,7 +220,7 @@ class Handler extends AbstractPage
             echo '<div><p>' . __('The link list is empty.') . '</p></div>';
         } else {
             echo '
-            <form action="' . dotclear()->adminurl()->root() . '" method="post" id="links-form">
+            <form action="' . App::core()->adminurl()->root() . '" method="post" id="links-form">
             <div class="table-outer">
             <table class="dragable">
             <thead>
@@ -251,10 +252,10 @@ class Handler extends AbstractPage
                 ) . '</td>';
 
                 if ($rs->fInt('is_cat')) {
-                    echo '<td colspan="5"><strong><a href="' . dotclear()->adminurl()->get('admin.plugin.Blogroll', ['edit' => 1, 'id' => $rs->f('link_id')]) . '">' .
+                    echo '<td colspan="5"><strong><a href="' . App::core()->adminurl()->get('admin.plugin.Blogroll', ['edit' => 1, 'id' => $rs->f('link_id')]) . '">' .
                     Html::escapeHTML($rs->f('link_desc')) . '</a></strong></td>';
                 } else {
-                    echo '<td><a href="' . dotclear()->adminurl()->get('admin.plugin.Blogroll', ['edit' => 1, 'id' => $rs->f('link_id')]) . '">' .
+                    echo '<td><a href="' . App::core()->adminurl()->get('admin.plugin.Blogroll', ['edit' => 1, 'id' => $rs->f('link_id')]) . '">' .
                     Html::escapeHTML($rs->f('link_title')) . '</a></td>' .
                     '<td>' . Html::escapeHTML($rs->f('link_desc')) . '</td>' .
                     '<td>' . Html::escapeHTML($rs->f('link_href')) . '</td>' .
@@ -270,7 +271,7 @@ class Handler extends AbstractPage
             <div class="two-cols">
             <p class="col">' .
             Form::hidden('links_order', '') .
-            dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Blogroll', [], true) . '
+            App::core()->adminurl()->getHiddenFormFields('admin.plugin.Blogroll', [], true) . '
             <input type="submit" name="saveorder" value="' . __('Save order') . '" />
             <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />
             </p>
@@ -285,7 +286,7 @@ class Handler extends AbstractPage
         </div>
 
         <div class="multi-part clear" id="add-link" title="' . __('Add a link') . '">
-        <form action="' . dotclear()->adminurl()->root() . '" method="post" id="add-link-form">
+        <form action="' . App::core()->adminurl()->root() . '" method="post" id="add-link-form">
         <h3>' . __('Add a new link') . '</h3>
         <p class="col"><label for="link_title" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Title:') . '</label> ' .
         Form::field('link_title', 30, 255, [
@@ -308,7 +309,7 @@ class Handler extends AbstractPage
         '<p class="col"><label for="link_lang">' . __('Language:') . '</label> ' .
         Form::field('link_lang', 5, 5, $this->br_link_lang) .
         '</p>' .
-        '<p>' . dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Blogroll', [], true) .
+        '<p>' . App::core()->adminurl()->getHiddenFormFields('admin.plugin.Blogroll', [], true) .
         '<input type="submit" name="add_link" value="' . __('Save') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
         '</p>' .
@@ -316,7 +317,7 @@ class Handler extends AbstractPage
         '</div>';
 
         echo '<div class="multi-part" id="add-cat" title="' . __('Add a category') . '">' .
-        '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="add-category-form">' .
+        '<form action="' . App::core()->adminurl()->root() . '" method="post" id="add-category-form">' .
         '<h3>' . __('Add a new category') . '</h3>' .
         '<p><label for="cat_title" class=" classic required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Title:') . '</label> ' .
         Form::field('cat_title', 30, 255, [
@@ -324,7 +325,7 @@ class Handler extends AbstractPage
             'extra_html' => 'required placeholder="' . __('Title') . '"',
         ]) .
         '</p>' .
-        '<p>' . dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Blogroll', [], true) .
+        '<p>' . App::core()->adminurl()->getHiddenFormFields('admin.plugin.Blogroll', [], true) .
         '<input type="submit" name="add_cat" value="' . __('Save') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
         '</p>' .
@@ -333,17 +334,17 @@ class Handler extends AbstractPage
 
         echo '<div class="multi-part" id="import-links" title="' . __('Import links') . '">';
         if (null === $this->br_imported) {
-            echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="import-links-form" enctype="multipart/form-data">' .
+            echo '<form action="' . App::core()->adminurl()->root() . '" method="post" id="import-links-form" enctype="multipart/form-data">' .
             '<h3>' . __('Import links') . '</h3>' .
             '<p><label for="links_file" class=" classic required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('OPML or XBEL File:') . '</label> ' .
             '<input type="file" id="links_file" name="links_file" required /></p>' .
-            '<p>' . dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Blogroll', [], true) .
+            '<p>' . App::core()->adminurl()->getHiddenFormFields('admin.plugin.Blogroll', [], true) .
             '<input type="submit" name="import_links" value="' . __('Import') . '" />' .
             ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
             '</p>' .
             '</form>';
         } else {
-            echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="import-links-form">' .
+            echo '<form action="' . App::core()->adminurl()->root() . '" method="post" id="import-links-form">' .
             '<h3>' . __('Import links') . '</h3>';
             if (empty($this->br_imported)) {
                 echo '<p>' . __('Nothing to import') . '</p>';
@@ -374,7 +375,7 @@ class Handler extends AbstractPage
                 '<p class="col checkboxes-helpers"></p>' .
 
                 '<p class="col right">' .
-                dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Blogroll', [], true) .
+                App::core()->adminurl()->getHiddenFormFields('admin.plugin.Blogroll', [], true) .
                 '<input type="submit" name="cancel_import" value="' . __('Cancel') . '" />&nbsp;' .
                 '<input type="submit" name="import_links_do" value="' . __('Import') . '" /></p>' .
                     '</div>';

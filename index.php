@@ -24,6 +24,6 @@ if (isset($_SERVER['DC_BLOG_ID'])) {
     $blog = 'default';
 }
 
-require_once implode(DIRECTORY_SEPARATOR, [__DIR__, 'src', 'functions.php']);
+require_once implode(DIRECTORY_SEPARATOR, [__DIR__, 'src', 'App.php']);
 
-dotclear_run('public', $blog);
+Dotclear\App::run('public', $blog);

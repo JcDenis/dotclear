@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\Auth
+use Dotclear\App;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Mail;
 use Dotclear\Helper\Html\Form;
@@ -99,14 +100,14 @@ class Auth extends AbstractPage
 
         // If we have a session cookie, go to index.php
         if (isset($_SESSION['sess_user_id'])) {
-            dotclear()->adminurl()->redirect('admin.home');
+            App::core()->adminurl()->redirect('admin.home');
         }
 
-        $this->auth_change_pwd       = dotclear()->user()->allowPassChange() && isset($_POST['new_pwd'], $_POST['new_pwd_c'], $_POST['login_data']);
+        $this->auth_change_pwd       = App::core()->user()->allowPassChange() && isset($_POST['new_pwd'], $_POST['new_pwd_c'], $_POST['login_data']);
         $this->auth_login_data       = !empty($_POST['login_data']) ? Html::escapeHTML($_POST['login_data']) : null;
-        $this->auth_recover          = dotclear()->user()->allowPassChange() && !empty($_REQUEST['recover']);
+        $this->auth_recover          = App::core()->user()->allowPassChange() && !empty($_REQUEST['recover']);
         $this->auth_safe_mode        = !empty($_REQUEST['safe_mode']);
-        $this->auth_akey             = dotclear()->user()->allowPassChange() && !empty($_GET['akey']) ? $_GET['akey'] : null;
+        $this->auth_akey             = App::core()->user()->allowPassChange() && !empty($_GET['akey']) ? $_GET['akey'] : null;
         $this->auth_id               =
         $this->auth_pwd              =
         $this->auth_key              =
@@ -178,15 +179,15 @@ class Auth extends AbstractPage
         $this->auth_email = !empty($_POST['user_email']) ? Html::escapeHTML($_POST['user_email']) : '';
 
         try {
-            $recover_key = dotclear()->user()->setRecoverKey($this->auth_id, $this->auth_email);
+            $recover_key = App::core()->user()->setRecoverKey($this->auth_id, $this->auth_email);
 
             $subject = Mail::B64Header('Dotclear ' . __('Password reset'));
             $message = __('Someone has requested to reset the password for the following site and username.') . "\n\n" .
-            dotclear()->adminurl()->get('admin.auth') . "\n" . __('Username:') . ' ' . $this->auth_id . "\n\n" .
+            App::core()->adminurl()->get('admin.auth') . "\n" . __('Username:') . ' ' . $this->auth_id . "\n\n" .
             __('To reset your password visit the following address, otherwise just ignore this email and nothing will happen.') . "\n" .
-                dotclear()->adminurl()->get('admin.auth', ['akey' => $recover_key]);
+                App::core()->adminurl()->get('admin.auth', ['akey' => $recover_key]);
 
-            $headers[] = 'From: ' . (dotclear()->config()->get('admin_mailform') != '' ? dotclear()->config()->get('admin_mailform') : 'dotclear@local');
+            $headers[] = 'From: ' . (App::core()->config()->get('admin_mailform') != '' ? App::core()->config()->get('admin_mailform') : 'dotclear@local');
             $headers[] = 'Content-Type: text/plain; charset=UTF-8;';
 
             Mail::sendMail($this->auth_email, $subject, $message, $headers);
@@ -199,14 +200,14 @@ class Auth extends AbstractPage
     protected function sendNewPassword(): void
     {
         try {
-            $recover_res = dotclear()->user()->recoverUserPassword($this->auth_akey);
+            $recover_res = App::core()->user()->recoverUserPassword($this->auth_akey);
 
             $subject = mb_encode_mimeheader('Dotclear ' . __('Your new password'), 'UTF-8', 'B');
             $message = __('Username:') . ' ' . $recover_res['user_id'] . "\n" .
             __('Password:') . ' ' . $recover_res['new_pass'] . "\n\n" .
-            preg_replace('/\?(.*)$/', '', dotclear()->adminurl()->get('admin.auth'));
+            preg_replace('/\?(.*)$/', '', App::core()->adminurl()->get('admin.auth'));
 
-            $headers[] = 'From: ' . (dotclear()->config()->get('admin_mailform') != '' ? dotclear()->config()->get('admin_mailform') : 'dotclear@local');
+            $headers[] = 'From: ' . (App::core()->config()->get('admin_mailform') != '' ? App::core()->config()->get('admin_mailform') : 'dotclear@local');
             $headers[] = 'Content-Type: text/plain; charset=UTF-8;';
 
             Mail::sendMail($recover_res['user_email'], $subject, $message, $headers);
@@ -240,13 +241,13 @@ class Auth extends AbstractPage
                 if (is_array($user_id)) {
                     $this->auth_id  = trim((string) $data['user_id']);
                     $this->auth_key = substr($data['cookie_admin'], 0, 40);
-                    $check_user     = dotclear()->user()->checkUser($this->auth_id, null, $this->auth_key) === true;
+                    $check_user     = App::core()->user()->checkUser($this->auth_id, null, $this->auth_key) === true;
                 } else {
                     $this->auth_id = trim((string) $user_id);
                 }
             }
 
-            if (!dotclear()->user()->allowPassChange() || !$check_user) {
+            if (!App::core()->user()->allowPassChange() || !$check_user) {
                 $this->auth_change_pwd = false;
 
                 throw new AdminException();
@@ -256,24 +257,24 @@ class Auth extends AbstractPage
                 throw new AdminException(__("Passwords don't match"));
             }
 
-            if (dotclear()->user()->checkUser($this->auth_id, $_POST['new_pwd']) === true) {
+            if (App::core()->user()->checkUser($this->auth_id, $_POST['new_pwd']) === true) {
                 throw new AdminException(__("You didn't change your password."));
             }
 
-            $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'user');
+            $cur = App::core()->con()->openCursor(App::core()->prefix . 'user');
             $cur->setField('user_change_pwd', 0);
             $cur->setField('user_pwd', $_POST['new_pwd']);
-            dotclear()->users()->updUser(dotclear()->user()->userID(), $cur);
+            App::core()->users()->updUser(App::core()->user()->userID(), $cur);
 
-            dotclear()->session()->start();
+            App::core()->session()->start();
             $_SESSION['sess_user_id']     = $this->auth_id;
-            $_SESSION['sess_browser_uid'] = Http::browserUID(dotclear()->config()->get('master_key'));
+            $_SESSION['sess_browser_uid'] = Http::browserUID(App::core()->config()->get('master_key'));
 
             if ($data['user_remember']) {
-                setcookie('dc_admin', $data['cookie_admin'], strtotime('+15 days'), '', '', dotclear()->config()->get('admin_ssl'));
+                setcookie('dc_admin', $data['cookie_admin'], strtotime('+15 days'), '', '', App::core()->config()->get('admin_ssl'));
             }
 
-            dotclear()->adminurl()->redirect('admin.home');
+            App::core()->adminurl()->redirect('admin.home');
         } catch (\Exception $e) {
             $this->auth_error = $e->getMessage();
         }
@@ -282,49 +283,49 @@ class Auth extends AbstractPage
     protected function logon(): void
     {
         // We check the user
-        $check_user = dotclear()->user()->checkUser($this->auth_id, $this->auth_pwd, $this->auth_key, false) === true;
+        $check_user = App::core()->user()->checkUser($this->auth_id, $this->auth_pwd, $this->auth_key, false) === true;
         if ($check_user) {
-            $check_perms = dotclear()->user()->findUserBlog() !== false;
+            $check_perms = App::core()->user()->findUserBlog() !== false;
         } else {
             $check_perms = false;
         }
 
-        $cookie_admin = Http::browserUID(dotclear()->config()->get('master_key') . $this->auth_id .
-            dotclear()->user()->cryptLegacy($this->auth_id)) . bin2hex(pack('a32', $this->auth_id));
+        $cookie_admin = Http::browserUID(App::core()->config()->get('master_key') . $this->auth_id .
+            App::core()->user()->cryptLegacy($this->auth_id)) . bin2hex(pack('a32', $this->auth_id));
 
-        if ($check_perms && dotclear()->user()->mustChangePassword()) {
+        if ($check_perms && App::core()->user()->mustChangePassword()) {
             $this->auth_login_data = join('/', [
                 base64_encode($this->auth_id),
                 $cookie_admin,
                 empty($_POST['user_remember']) ? '0' : '1',
             ]);
 
-            if (!dotclear()->user()->allowPassChange()) {
+            if (!App::core()->user()->allowPassChange()) {
                 $this->auth_error = __('You have to change your password before you can login.');
             } else {
                 $this->auth_error        = __('In order to login, you have to change your password now.');
                 $this->auth_change_pwd   = true;
             }
-        } elseif ($check_perms && !empty($_POST['safe_mode']) && !dotclear()->user()->isSuperAdmin()) {
+        } elseif ($check_perms && !empty($_POST['safe_mode']) && !App::core()->user()->isSuperAdmin()) {
             $this->auth_error = __('Safe Mode can only be used for super administrators.');
         } elseif ($check_perms) {
-            dotclear()->session()->start();
+            App::core()->session()->start();
             $_SESSION['sess_user_id']     = $this->auth_id;
-            $_SESSION['sess_browser_uid'] = Http::browserUID(dotclear()->config()->get('master_key'));
+            $_SESSION['sess_browser_uid'] = Http::browserUID(App::core()->config()->get('master_key'));
 
             if (!empty($_POST['blog'])) {
                 $_SESSION['sess_blog_id'] = $_POST['blog'];
             }
 
-            if (!empty($_POST['safe_mode']) && dotclear()->user()->isSuperAdmin()) {
+            if (!empty($_POST['safe_mode']) && App::core()->user()->isSuperAdmin()) {
                 $_SESSION['sess_safe_mode'] = true;
             }
 
             if (!empty($_POST['user_remember'])) {
-                setcookie('dc_admin', $cookie_admin, strtotime('+15 days'), '', '', dotclear()->config()->get('admin_ssl'));
+                setcookie('dc_admin', $cookie_admin, strtotime('+15 days'), '', '', App::core()->config()->get('admin_ssl'));
             }
 
-            dotclear()->adminurl()->redirect('admin.home');
+            App::core()->adminurl()->redirect('admin.home');
         } else {
             if ($check_user) {
                 $this->auth_error = __('Insufficient permissions');
@@ -333,7 +334,7 @@ class Auth extends AbstractPage
             }
             if (isset($_COOKIE['dc_admin'])) {
                 unset($_COOKIE['dc_admin']);
-                setcookie('dc_admin', '', -600, '', '', dotclear()->config()->get('admin_ssl'));
+                setcookie('dc_admin', '', -600, '', '', App::core()->config()->get('admin_ssl'));
             }
         }
     }
@@ -353,36 +354,36 @@ class Auth extends AbstractPage
 
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo dotclear()->lang(); ?>">
+<html lang="<?php echo App::core()->lang(); ?>">
 <head>
   <meta charset="UTF-8" />
   <meta http-equiv="Content-Script-Type" content="text/javascript" />
   <meta http-equiv="Content-Style-Type" content="text/css" />
-  <meta http-equiv="Content-Language" content="<?php echo dotclear()->lang(); ?>" />
+  <meta http-equiv="Content-Language" content="<?php echo App::core()->lang(); ?>" />
   <meta name="ROBOTS" content="NOARCHIVE,NOINDEX,NOFOLLOW" />
   <meta name="GOOGLEBOT" content="NOSNIPPET" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title><?php echo Html::escapeHTML(dotclear()->config()->get('vendor_name')); ?></title>
+  <title><?php echo Html::escapeHTML(App::core()->config()->get('vendor_name')); ?></title>
   <link rel="icon" type="image/png" href="?df=images/favicon96-logout.png" />
   <link rel="shortcut icon" href="?df=images/favicon.ico" type="image/x-icon" />
 
 
 <?php
-        echo dotclear()->resource()->common(); ?>
+        echo App::core()->resource()->common(); ?>
 
     <link rel="stylesheet" href="?df=css/default.css" type="text/css" media="screen" />
 
 <?php
         // --BEHAVIOR-- loginPageHTMLHead
-        dotclear()->behavior()->call('loginPageHTMLHead');
+        App::core()->behavior()->call('loginPageHTMLHead');
 
-        echo dotclear()->resource()->json('pwstrength', [
+        echo App::core()->resource()->json('pwstrength', [
             'min' => sprintf(__('Password strength: %s'), __('weak')),
             'avg' => sprintf(__('Password strength: %s'), __('medium')),
             'max' => sprintf(__('Password strength: %s'), __('strong')),
         ]) .
-            dotclear()->resource()->load('pwstrength.js') .
-            dotclear()->resource()->load('_auth.js'); ?>
+            App::core()->resource()->load('pwstrength.js') .
+            App::core()->resource()->load('_auth.js'); ?>
 </head>
 <?php
     }
@@ -392,8 +393,8 @@ class Auth extends AbstractPage
         ?>
 <body id="dotclear-admin" class="auth">
 
-<form action="<?php echo dotclear()->adminurl()->get('admin.auth'); ?>" method="post" id="login-screen">
-<h1 role="banner"><?php echo Html::escapeHTML(dotclear()->config()->get('vendor_name')); ?></h1>
+<form action="<?php echo App::core()->adminurl()->get('admin.auth'); ?>" method="post" id="login-screen">
+<h1 role="banner"><?php echo Html::escapeHTML(App::core()->config()->get('vendor_name')); ?></h1>
 
 <?php
         if ($this->auth_error) {
@@ -404,7 +405,7 @@ class Auth extends AbstractPage
         }
 
         if ($this->auth_akey) {
-            echo '<p><a href="' . dotclear()->adminurl()->get('admin.auth') . '">' . __('Back to login screen') . '</a></p>';
+            echo '<p><a href="' . App::core()->adminurl()->get('admin.auth') . '">' . __('Back to login screen') . '</a></p>';
         } elseif ($this->auth_recover) {
             echo '<div class="fieldset" role="main"><h2>' . __('Request a new password') . '</h2>' .
             '<p><label for="user_id">' . __('Username:') . '</label> ' .
@@ -435,7 +436,7 @@ class Auth extends AbstractPage
 
             '<details open id="issue">' . "\n" .
             '<summary>' . __('Other option') . '</summary>' . "\n" .
-            '<p><a href="' . dotclear()->adminurl()->get('admin.auth') . '">' . __('Back to login screen') . '</a></p>' .
+            '<p><a href="' . App::core()->adminurl()->get('admin.auth') . '">' . __('Back to login screen') . '</a></p>' .
             '</details>';
         } elseif ($this->auth_change_pwd) {
             echo '<div class="fieldset"><h2>' . __('Change your password') . '</h2>' .
@@ -463,8 +464,8 @@ class Auth extends AbstractPage
             Form::hidden('login_data', $this->auth_login_data) . '</p>' .
             '</div>';
         } else {
-            if (is_callable([dotclear()->user(), 'authForm'])) {
-                echo dotclear()->user()->authForm($this->auth_id);
+            if (is_callable([App::core()->user(), 'authForm'])) {
+                echo App::core()->user()->authForm($this->auth_id);
             } else {
                 if ($this->auth_safe_mode) {
                     echo '<div class="fieldset" role="main">';
@@ -519,13 +520,13 @@ class Auth extends AbstractPage
                 echo '<details ' . ($this->auth_safe_mode ? 'open ' : '') . 'id="issue">' . "\n";
                 if ($this->auth_safe_mode) {
                     echo '<summary>' . __('Other option') . '</summary>' . "\n";
-                    echo '<p><a href="' . dotclear()->adminurl()->get('admin.auth') . '" id="normal_mode_link">' . __('Get back to normal authentication') . '</a></p>';
+                    echo '<p><a href="' . App::core()->adminurl()->get('admin.auth') . '" id="normal_mode_link">' . __('Get back to normal authentication') . '</a></p>';
                 } else {
                     echo '<summary>' . __('Connection issue?') . '</summary>' . "\n";
-                    if (dotclear()->user()->allowPassChange()) {
-                        echo '<p><a href="' . dotclear()->adminurl()->get('admin.auth', ['recover' => 1]) . '">' . __('I forgot my password') . '</a></p>';
+                    if (App::core()->user()->allowPassChange()) {
+                        echo '<p><a href="' . App::core()->adminurl()->get('admin.auth', ['recover' => 1]) . '">' . __('I forgot my password') . '</a></p>';
                     }
-                    echo '<p><a href="' . dotclear()->adminurl()->get('admin.auth', ['safe_mode' => 1]) . '" id="safe_mode_link">' . __('I want to log in in safe mode') . '</a></p>';
+                    echo '<p><a href="' . App::core()->adminurl()->get('admin.auth', ['safe_mode' => 1]) . '" id="safe_mode_link">' . __('I want to log in in safe mode') . '</a></p>';
                 }
                 echo '</details>';
             }

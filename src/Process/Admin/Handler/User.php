@@ -11,6 +11,7 @@ namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\User
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Core\User\UserContainer;
 use Dotclear\Core\User\Preference\Preference;
@@ -56,13 +57,13 @@ class User extends AbstractPage
 
         $this->user = new UserContainer();
 
-        $this->user->setProperty('user_lang', dotclear()->user()->getInfo('user_lang'));
-        $this->user->setProperty('user_tz', dotclear()->user()->getInfo('user_tz'));
+        $this->user->setProperty('user_lang', App::core()->user()->getInfo('user_lang'));
+        $this->user->setProperty('user_tz', App::core()->user()->getInfo('user_tz'));
 
         // Get user if we have an ID
         if (!empty($_REQUEST['id'])) {
             try {
-                $rs = dotclear()->users()->getUser($_REQUEST['id']);
+                $rs = App::core()->users()->getUser($_REQUEST['id']);
 
                 $this->user->parseFromRecord($rs);
 
@@ -72,14 +73,14 @@ class User extends AbstractPage
 
                 $page_title = $this->user->getProperty('user_id');
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
         // Add or update user
         if (isset($_POST['user_name'])) {
             try {
-                if (empty($_POST['your_pwd']) || !dotclear()->user()->checkPassword($_POST['your_pwd'])) {
+                if (empty($_POST['your_pwd']) || !App::core()->user()->checkPassword($_POST['your_pwd'])) {
                     throw new AdminException(__('Password verification failed'));
                 }
 
@@ -94,11 +95,11 @@ class User extends AbstractPage
                 $this->user->setProperty('user_tz', Html::escapeHTML($_POST['user_tz']));
                 $this->user->setProperty('user_post_status', Html::escapeHTML($_POST['user_post_status']));
 
-                if ($this->user->getProperty('user_id') == dotclear()->user()->userID() && dotclear()->user()->isSuperAdmin()) {
+                if ($this->user->getProperty('user_id') == App::core()->user()->userID() && App::core()->user()->isSuperAdmin()) {
                     // force super_user to true if current user
                     $this->user->setProperty('user_super', true);
                 }
-                if (dotclear()->user()->allowPassChange()) {
+                if (App::core()->user()->allowPassChange()) {
                     $this->user->setProperty('user_change_pwd', !empty($_POST['user_change_pwd']) ? 1 : 0);
                 }
 
@@ -116,15 +117,15 @@ class User extends AbstractPage
                     $this->user->setOption('edit_size', 10);
                 }
 
-                $cur = $this->user->parseToCursor(dotclear()->con()->openCursor(dotclear()->prefix . 'user'));
+                $cur = $this->user->parseToCursor(App::core()->con()->openCursor(App::core()->prefix . 'user'));
                 $cur->setField('user_options', new ArrayObject($this->user->getOptions()));
 
                 // Udate user
                 if (!empty($_REQUEST['id'])) {
                     // --BEHAVIOR-- adminBeforeUserUpdate
-                    dotclear()->behavior()->call('adminBeforeUserUpdate', $cur, $this->user->getProperty('user_id'));
+                    App::core()->behavior()->call('adminBeforeUserUpdate', $cur, $this->user->getProperty('user_id'));
 
-                    $new_id = dotclear()->users()->updUser($this->user->getProperty('user_id'), $cur);
+                    $new_id = App::core()->users()->updUser($this->user->getProperty('user_id'), $cur);
 
                     // Update profile
                     // Sanitize list of secondary mails and urls if any
@@ -140,25 +141,25 @@ class User extends AbstractPage
                     $user_prefs->get('profile')->put('urls', $urls, 'string');
 
                     // --BEHAVIOR-- adminAfterUserUpdate
-                    dotclear()->behavior()->call('adminAfterUserUpdate', $cur, $new_id);
+                    App::core()->behavior()->call('adminAfterUserUpdate', $cur, $new_id);
 
-                    if ($this->user->getProperty('user_id') == dotclear()->user()->userID() && $this->user->getProperty('user_id') != $new_id) {
-                        dotclear()->session()->destroy();
+                    if ($this->user->getProperty('user_id') == App::core()->user()->userID() && $this->user->getProperty('user_id') != $new_id) {
+                        App::core()->session()->destroy();
                     }
 
-                    dotclear()->notice()->addSuccessNotice(__('User has been successfully updated.'));
-                    dotclear()->adminurl()->redirect('admin.user', ['id' => $new_id]);
+                    App::core()->notice()->addSuccessNotice(__('User has been successfully updated.'));
+                    App::core()->adminurl()->redirect('admin.user', ['id' => $new_id]);
                 }
                 // Add user
                 else {
-                    if (dotclear()->users()->getUsers(['user_id' => $cur->getField('user_id')], true)->fInt() > 0) {
+                    if (App::core()->users()->getUsers(['user_id' => $cur->getField('user_id')], true)->fInt() > 0) {
                         throw new AdminException(sprintf(__('User "%s" already exists.'), Html::escapeHTML($cur->getField('user_id'))));
                     }
 
                     // --BEHAVIOR-- adminBeforeUserCreate
-                    dotclear()->behavior()->call('adminBeforeUserCreate', $cur);
+                    App::core()->behavior()->call('adminBeforeUserCreate', $cur);
 
-                    $new_id = dotclear()->users()->addUser($cur);
+                    $new_id = App::core()->users()->addUser($cur);
 
                     // Update profile
                     // Sanitize list of secondary mails and urls if any
@@ -174,18 +175,18 @@ class User extends AbstractPage
                     $user_prefs->get('profile')->put('urls', $urls, 'string');
 
                     // --BEHAVIOR-- adminAfterUserCreate
-                    dotclear()->behavior()->call('adminAfterUserCreate', $cur, $new_id);
+                    App::core()->behavior()->call('adminAfterUserCreate', $cur, $new_id);
 
-                    dotclear()->notice()->addSuccessNotice(__('User has been successfully created.'));
-                    dotclear()->notice()->addWarningNotice(__('User has no permission, he will not be able to login yet. See below to add some.'));
+                    App::core()->notice()->addSuccessNotice(__('User has been successfully created.'));
+                    App::core()->notice()->addWarningNotice(__('User has no permission, he will not be able to login yet. See below to add some.'));
                     if (!empty($_POST['saveplus'])) {
-                        dotclear()->adminurl()->redirect('admin.user');
+                        App::core()->adminurl()->redirect('admin.user');
                     } else {
-                        dotclear()->adminurl()->redirect('admin.user', ['id' => $new_id]);
+                        App::core()->adminurl()->redirect('admin.user', ['id' => $new_id]);
                     }
                 }
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
@@ -194,19 +195,19 @@ class User extends AbstractPage
             ->setPageTitle($page_title)
             ->setPageHelp('core_user')
             ->setPageHead(
-                dotclear()->resource()->confirmClose('user-form') .
-                dotclear()->resource()->json('pwstrength', [
+                App::core()->resource()->confirmClose('user-form') .
+                App::core()->resource()->json('pwstrength', [
                     'min' => sprintf(__('Password strength: %s'), __('weak')),
                     'avg' => sprintf(__('Password strength: %s'), __('medium')),
                     'max' => sprintf(__('Password strength: %s'), __('strong')),
                 ]) .
-                dotclear()->resource()->load('pwstrength.js') .
-                dotclear()->resource()->load('_user.js') .
-                dotclear()->behavior()->call('adminUserHeaders')
+                App::core()->resource()->load('pwstrength.js') .
+                App::core()->resource()->load('_user.js') .
+                App::core()->behavior()->call('adminUserHeaders')
             )
             ->setPageBreadcrumb([
                 __('System') => '',
-                __('Users')  => dotclear()->adminurl()->get('admin.users'),
+                __('Users')  => App::core()->adminurl()->get('admin.users'),
                 $page_title  => '',
             ])
         ;
@@ -217,16 +218,16 @@ class User extends AbstractPage
     protected function getPageContent(): void
     {
         if (!empty($_GET['upd'])) {
-            dotclear()->notice()->success(__('User has been successfully updated.'));
+            App::core()->notice()->success(__('User has been successfully updated.'));
         }
 
         if (!empty($_GET['add'])) {
-            dotclear()->notice()->success(__('User has been successfully created.'));
+            App::core()->notice()->success(__('User has been successfully created.'));
         }
 
-        $formaters_combo = dotclear()->combo()->getFormatersCombo();
+        $formaters_combo = App::core()->combo()->getFormatersCombo();
 
-        echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="user-form">' .
+        echo '<form action="' . App::core()->adminurl()->root() . '" method="post" id="user-form">' .
         '<div class="two-cols">' .
 
         '<div class="col">' .
@@ -241,7 +242,7 @@ class User extends AbstractPage
         '</p>' .
         '<p class="form-note info" id="user_id_help">' . __('At least 2 characters using letters, numbers or symbols.') . '</p>';
 
-        if ($this->user->getProperty('user_id') == dotclear()->user()->userID()) {
+        if ($this->user->getProperty('user_id') == App::core()->user()->userID()) {
             echo '<p class="warning" id="user_id_warning">' . __('Warning:') . ' ' .
             __('If you change your username, you will have to log in again.') . '</p>';
         }
@@ -274,13 +275,13 @@ class User extends AbstractPage
         ) .
             '</p>';
 
-        if (dotclear()->user()->allowPassChange()) {
+        if (App::core()->user()->allowPassChange()) {
             echo '<p><label for="user_change_pwd" class="classic">' .
             Form::checkbox('user_change_pwd', '1', $this->user->getProperty('user_change_pwd')) . ' ' .
             __('Password change required to connect') . '</label></p>';
         }
 
-        $super_disabled = $this->user->getProperty('user_super') && $this->user->getProperty('user_id') == dotclear()->user()->userID();
+        $super_disabled = $this->user->getProperty('user_super') && $this->user->getProperty('user_id') == App::core()->user()->userID();
 
         echo '<p><label for="user_super" class="classic">' .
         Form::checkbox(
@@ -352,7 +353,7 @@ class User extends AbstractPage
         '<h3>' . __('Options') . '</h3>' .
         '<h4>' . __('Interface') . '</h4>' .
         '<p><label for="user_lang">' . __('Language:') . '</label> ' .
-        Form::combo('user_lang', dotclear()->combo()->getAdminLangsCombo(), $this->user->getProperty('user_lang'), 'l10n') .
+        Form::combo('user_lang', App::core()->combo()->getAdminLangsCombo(), $this->user->getProperty('user_lang'), 'l10n') .
         '</p>' .
 
         '<p><label for="user_tz">' . __('Timezone:') . '</label> ' .
@@ -369,7 +370,7 @@ class User extends AbstractPage
         ) .
 
         '<p><label for="user_post_status">' . __('Default entry status:') . '</label> ' .
-        Form::combo('user_post_status', dotclear()->combo()->getPostStatusesCombo(), $this->user->getProperty('user_post_status')) .
+        Form::combo('user_post_status', App::core()->combo()->getPostStatusesCombo(), $this->user->getProperty('user_post_status')) .
         '</p>' .
 
         '<p><label for="user_edit_size">' . __('Entry edit field height:') . '</label> ' .
@@ -377,7 +378,7 @@ class User extends AbstractPage
             '</p>';
 
         // --BEHAVIOR-- adminUserForm
-        dotclear()->behavior()->call('adminUserForm', $this->user->getProperty('user_id') ? dotclear()->users()->getUser($this->user->getProperty('user_id')) : null);
+        App::core()->behavior()->call('adminUserForm', $this->user->getProperty('user_id') ? App::core()->users()->getUser($this->user->getProperty('user_id')) : null);
 
         echo '</div>' .
             '</div>';
@@ -397,7 +398,7 @@ class User extends AbstractPage
         ('' != $this->user->getProperty('user_id') ? '' : ' <input type="submit" name="saveplus" value="' . __('Save and create another') . '" />') .
         ('' != $this->user->getProperty('user_id') ? Form::hidden('id', $this->user->getProperty('user_id')) : '') .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
-        dotclear()->adminurl()->getHiddenFormFields('admin.user', [], true) .
+        App::core()->adminurl()->getHiddenFormFields('admin.user', [], true) .
             '</p>' .
 
             '</form>';
@@ -410,26 +411,26 @@ class User extends AbstractPage
         '<h3>' . __('Permissions') . '</h3>';
 
         if (!$this->user->getProperty('user_super')) {
-            echo '<form action="' . dotclear()->adminurl()->root() . '" method="post">' .
+            echo '<form action="' . App::core()->adminurl()->root() . '" method="post">' .
             '<p><input type="submit" value="' . __('Add new permissions') . '" />' .
-            dotclear()->adminurl()->getHiddenFormFields('admin.user.actions', [
-                'redir'   => dotclear()->adminurl()->get('admin.user', ['id' => $this->user->getProperty('user_id')]),
+            App::core()->adminurl()->getHiddenFormFields('admin.user.actions', [
+                'redir'   => App::core()->adminurl()->get('admin.user', ['id' => $this->user->getProperty('user_id')]),
                 'action'  => 'blogs',
                 'users[]' => $this->user->getProperty('user_id'),
             ], true) . '</p>' .
                 '</form>';
 
-            $permissions = dotclear()->users()->getUserPermissions($this->user->getProperty('user_id'));
-            $perm_types  = dotclear()->user()->getPermissionsTypes();
+            $permissions = App::core()->users()->getUserPermissions($this->user->getProperty('user_id'));
+            $perm_types  = App::core()->user()->getPermissionsTypes();
 
             if (count($permissions) == 0) {
                 echo '<p>' . __('No permissions so far.') . '</p>';
             } else {
                 foreach ($permissions as $k => $v) {
                     if (count($v['p']) > 0) {
-                        echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" class="perm-block">' .
+                        echo '<form action="' . App::core()->adminurl()->root() . '" method="post" class="perm-block">' .
                         '<p class="blog-perm">' . __('Blog:') . ' <a href="' .
-                        dotclear()->adminurl()->get('admin.blog', ['id' => Html::escapeHTML($k)]) . '">' .
+                        App::core()->adminurl()->get('admin.blog', ['id' => Html::escapeHTML($k)]) . '">' .
                         Html::escapeHTML($v['name']) . '</a> (' . Html::escapeHTML($k) . ')</p>';
 
                         echo '<ul class="ul-perm">';
@@ -440,8 +441,8 @@ class User extends AbstractPage
                         }
                         echo '</ul>' .
                         '<p class="add-perm"><input type="submit" class="reset" value="' . __('Change permissions') . '" />' .
-                        dotclear()->adminurl()->getHiddenFormFields('admin.user.actions', [
-                            'redir'   => dotclear()->adminurl()->get('admin.user', ['id' => $this->user->getProperty('user_id')]),
+                        App::core()->adminurl()->getHiddenFormFields('admin.user.actions', [
+                            'redir'   => App::core()->adminurl()->get('admin.user', ['id' => $this->user->getProperty('user_id')]),
                             'action'  => 'perms',
                             'users[]' => $this->user->getProperty('user_id'),
                             'blogs[]' => $k,
@@ -458,11 +459,11 @@ class User extends AbstractPage
         // Informations (direct links)
         echo '<div class="clear fieldset">' .
         '<h3>' . __('Direct links') . '</h3>';
-        echo '<p><a href="' . dotclear()->adminurl()->get(
+        echo '<p><a href="' . App::core()->adminurl()->get(
             'admin.posts',
             ['user_id' => $this->user->getProperty('user_id')]
         ) . '">' . __('List of posts') . '</a>';
-        echo '<p><a href="' . dotclear()->adminurl()->get(
+        echo '<p><a href="' . App::core()->adminurl()->get(
             'admin.comments',
             [
                 'email' => $this->user->getProperty('user_email'),

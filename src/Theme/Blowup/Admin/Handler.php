@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Theme\Blowup\Admin;
 
 // Dotclear\Theme\Blowup\Admin\Handler
+use Dotclear\App;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\File\Files;
@@ -116,12 +117,12 @@ class Handler extends AbstractPage
 
         $this->Blowup_can_write_images = $this->Blowup_config->canWriteImages();
 
-        if (dotclear()->error()->flag()) {
-            $this->Blowup_notices = dotclear()->error()->toHTML();
-            dotclear()->error()->reset();
+        if (App::core()->error()->flag()) {
+            $this->Blowup_notices = App::core()->error()->toHTML();
+            App::core()->error()->reset();
         }
 
-        $Blowup_style = (string) dotclear()->blog()->settings()->get('themes')->get('Blowup_style');
+        $Blowup_style = (string) App::core()->blog()->settings()->get('themes')->get('Blowup_style');
         $Blowup_user  = @unserialize($Blowup_style);
         if (is_array($Blowup_user)) {
             $this->Blowup_user = array_merge($this->Blowup_user, $Blowup_user);
@@ -211,13 +212,13 @@ class Handler extends AbstractPage
                     $this->Blowup_config->createCss($this->Blowup_user);
                 }
 
-                dotclear()->blog()->settings()->get('themes')->put('Blowup_style', serialize($this->Blowup_user));
-                dotclear()->blog()->triggerBlog();
+                App::core()->blog()->settings()->get('themes')->put('Blowup_style', serialize($this->Blowup_user));
+                App::core()->blog()->triggerBlog();
 
-                dotclear()->notice()->addSuccessNotice(__('Theme configuration has been successfully updated.'));
-                dotclear()->adminurl()->redirect('admin.plugin.Blowup');
+                App::core()->notice()->addSuccessNotice(__('Theme configuration has been successfully updated.'));
+                App::core()->adminurl()->redirect('admin.plugin.Blowup');
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
@@ -226,7 +227,7 @@ class Handler extends AbstractPage
             ->setPageTitle(__('Blowup configuration'))
             ->setPageHelp('BlowupConfig')
             ->setPageHead(
-                dotclear()->resource()->json('Blowup', [
+                App::core()->resource()->json('Blowup', [
                     'Blowup_public_url' => $this->Blowup_config->imagesURL(),
                     'msg'               => [
                         'predefined_styles'      => __('Predefined styles'),
@@ -234,12 +235,12 @@ class Handler extends AbstractPage
                         'predefined_style_title' => __('Choose a predefined style'),
                     ],
                 ]) .
-                dotclear()->resource()->load('config.js', 'Theme', 'Blowup')
+                App::core()->resource()->load('config.js', 'Theme', 'Blowup')
             )
             ->setPageBreadcrumb([
-                Html::escapeHTML(dotclear()->blog()->name) => '',
-                __('Blog appearance')                      => dotclear()->adminurl()->get('admin.blog.theme'),
-                __('Blowup configuration')                 => '',
+                Html::escapeHTML(App::core()->blog()->name) => '',
+                __('Blog appearance')                       => App::core()->adminurl()->get('admin.blog.theme'),
+                __('Blowup configuration')                  => '',
             ])
         ;
 
@@ -248,10 +249,10 @@ class Handler extends AbstractPage
 
     protected function getPageContent(): void
     {
-        echo '<p><a class="back" href="' . dotclear()->adminurl()->get('admin.blog.theme') . '">' . __('Back to Blog appearance') . '</a></p>';
+        echo '<p><a class="back" href="' . App::core()->adminurl()->get('admin.blog.theme') . '">' . __('Back to Blog appearance') . '</a></p>';
 
         if (!$this->Blowup_can_write_images) {
-            dotclear()->notice()->message(
+            App::core()->notice()->message(
                 __('For the following reasons, images cannot be created. You won\'t be able to change some background properties.') .
                 $this->Blowup_notices,
                 false,
@@ -259,7 +260,7 @@ class Handler extends AbstractPage
             );
         }
 
-        echo '<form id="theme_config" action="' . dotclear()->adminurl()->root() . '" method="post" enctype="multipart/form-data">';
+        echo '<form id="theme_config" action="' . App::core()->adminurl()->root() . '" method="post" enctype="multipart/form-data">';
 
         echo '<div class="fieldset"><h3>' . __('Customization') . '</h3>' .
         '<h4>' . __('General') . '</h4>';
@@ -321,7 +322,7 @@ class Handler extends AbstractPage
 
         if ($this->Blowup_can_write_images) {
             if ('custom' == $this->Blowup_user['top_image'] && $this->Blowup_user['uploaded']) {
-                $preview_image = Http::concatURL(dotclear()->blog()->url, $this->Blowup_config->imagesURL() . '/page-t.png');
+                $preview_image = Http::concatURL(App::core()->blog()->url, $this->Blowup_config->imagesURL() . '/page-t.png');
             } else {
                 $preview_image = '?df=Theme/Blowup/Common/resources/alpha-img/page-t/' . $this->Blowup_user['top_image'] . '.png';
             }
@@ -332,7 +333,7 @@ class Handler extends AbstractPage
             '<p>' . __('Choose "Custom..." to upload your own image.') . '</p>' .
 
             '<p id="uploader"><label for="upfile">' . __('Add your image:') . '</label> ' .
-            ' (' . sprintf(__('JPEG or PNG file, 800 pixels wide, maximum size %s'), Files::size((int) dotclear()->config()->get('media_upload_maxsize'))) . ')' .
+            ' (' . sprintf(__('JPEG or PNG file, 800 pixels wide, maximum size %s'), Files::size((int) App::core()->config()->get('media_upload_maxsize'))) . ')' .
             '<input type="file" name="upfile" id="upfile" size="35" />' .
             '</p>' .
 
@@ -470,7 +471,7 @@ class Handler extends AbstractPage
             '</div>';
 
         echo '<p class="clear"><input type="submit" value="' . __('Save') . '" />' .
-        dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Blowup', [], true) . '</p>' .
+        App::core()->adminurl()->getHiddenFormFields('admin.plugin.Blowup', [], true) . '</p>' .
             '</form>';
     }
 }

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\User;
 
 // Dotclear\Core\User\User
+use Dotclear\App;
 use Dotclear\Core\RsExt\RsExtUser;
 use Dotclear\Core\User\Preference\Preference;
 use Dotclear\Database\Statement\SelectStatement;
@@ -120,7 +121,7 @@ class User
         $sql = new SelectStatement(__METHOD__);
         $sql
             ->columns(array_keys($this->user->getCurrentProperties()))
-            ->from(dotclear()->prefix . $this->user_table)
+            ->from(App::core()->prefix . $this->user_table)
             ->where('user_id = ' . $sql->quote($user_id))
         ;
 
@@ -154,7 +155,7 @@ class User
                 $ret = password_get_info($rs->f('user_pwd'));
                 if (is_array($ret) && isset($ret['algo']) && 0 == $ret['algo']) {
                     // hash not done with password_hash() function, check by old fashion way
-                    if (Crypt::hmac(dotclear()->config()->get('master_key'), $pwd, dotclear()->config()->get('crypt_algo')) == $user_pwd) {
+                    if (Crypt::hmac(App::core()->config()->get('master_key'), $pwd, App::core()->config()->get('crypt_algo')) == $user_pwd) {
                         // Password Ok, need to store it in new fashion way
                         $user_pwd = $this->crypt($pwd);
                         $rehash   = true;
@@ -176,14 +177,14 @@ class User
                 $sql = new UpdateStatement(__METHOD__);
                 $sql
                     ->set('user_pwd = ' . $sql->quote($user_pwd))
-                    ->from(dotclear()->prefix . $this->user_table)
+                    ->from(App::core()->prefix . $this->user_table)
                     ->where('user_id = ' . $sql->quote($rs->f('user_id')))
                     ->update()
                 ;
             }
         } elseif ('' != $user_key) {
             // Avoid time attacks by measuring server response time during comparison
-            if (!hash_equals(Http::browserUID(dotclear()->config()->get('master_key') . $rs->f('user_id') . $this->cryptLegacy($rs->f('user_id'))), $user_key)) {
+            if (!hash_equals(Http::browserUID(App::core()->config()->get('master_key') . $rs->f('user_id') . $this->cryptLegacy($rs->f('user_id'))), $user_key)) {
                 return false;
             }
         }
@@ -226,7 +227,7 @@ class User
      */
     public function cryptLegacy(string $pwd): string
     {
-        return Crypt::hmac(dotclear()->config()->get('master_key'), $pwd, dotclear()->config()->get('crypt_algo'));
+        return Crypt::hmac(App::core()->config()->get('master_key'), $pwd, App::core()->config()->get('crypt_algo'));
     }
 
     /**
@@ -244,7 +245,7 @@ class User
      */
     public function sessionExists(): bool
     {
-        return isset($_COOKIE[dotclear()->config()->get('session_name')]);
+        return isset($_COOKIE[App::core()->config()->get('session_name')]);
     }
 
     /**
@@ -256,23 +257,23 @@ class User
      */
     public function checkSession(?string $uid = null): bool
     {
-        dotclear()->session()->start();
+        App::core()->session()->start();
 
         // If session does not exist, logout.
         if (!isset($_SESSION['sess_user_id'])) {
-            dotclear()->session()->destroy();
+            App::core()->session()->destroy();
 
             return false;
         }
 
         // Check here for user and IP address
         $this->checkUser($_SESSION['sess_user_id']);
-        $uid = $uid ?: Http::browserUID(dotclear()->config()->get('master_key'));
+        $uid = $uid ?: Http::browserUID(App::core()->config()->get('master_key'));
 
         $user_can_log = null !== $this->userID() && $uid == $_SESSION['sess_browser_uid'];
 
         if (!$user_can_log) {
-            dotclear()->session()->destroy();
+            App::core()->session()->destroy();
 
             return false;
         }
@@ -397,7 +398,7 @@ class User
             $sql = new SelectStatement(__METHOD__);
             $rs  = $sql
                 ->column('blog_id')
-                ->from(dotclear()->prefix . $this->blog_table)
+                ->from(App::core()->prefix . $this->blog_table)
                 ->where('blog_id = ' . $sql->quote($blog_id))
                 ->select()
             ;
@@ -410,7 +411,7 @@ class User
         $sql = new SelectStatement(__METHOD__);
         $rs  = $sql
             ->column('permissions')
-            ->from(dotclear()->prefix . $this->perm_table)
+            ->from(App::core()->prefix . $this->perm_table)
             ->where('user_id = ' . $sql->quote($this->user->getProperty('user_id')))
             ->and('blog_id = ' . $sql->quote($blog_id))
             ->and($sql->orGroup([
@@ -434,7 +435,7 @@ class User
     public function getBlogCount(): int
     {
         if (null === $this->blog_count) {
-            $this->blog_count = dotclear()->blogs()->getBlogs([], true)->fInt();
+            $this->blog_count = App::core()->blogs()->getBlogs([], true)->fInt();
         }
 
         return $this->blog_count;
@@ -456,7 +457,7 @@ class User
         if ($this->user->getProperty('user_super')) {
             $sql
                 ->column('blog_id')
-                ->from(dotclear()->prefix . $this->blog_table)
+                ->from(App::core()->prefix . $this->blog_table)
                 ->order('blog_id ASC')
                 ->limit(1)
             ;
@@ -464,8 +465,8 @@ class User
             $sql
                 ->column('P.blog_id')
                 ->from([
-                    dotclear()->prefix . $this->perm_table . ' P',
-                    dotclear()->prefix . $this->blog_table . ' B',
+                    App::core()->prefix . $this->perm_table . ' P',
+                    App::core()->prefix . $this->blog_table . ' B',
                 ])
                 ->where('user_id = ' . $sql->quote($this->user->getProperty('user_id')))
                 ->and('P.blog_id = B.blog_id')
@@ -591,7 +592,7 @@ class User
         $sql = new SelectStatement(__METHOD__);
         $rs  = $sql
             ->column('user_id')
-            ->from(dotclear()->prefix . $this->user_table)
+            ->from(App::core()->prefix . $this->user_table)
             ->where('user_id = ' . $sql->quote($user_id))
             ->and('user_email = ' . $sql->quote($user_email))
             ->select()
@@ -606,7 +607,7 @@ class User
         $sql = new UpdateStatement(__METHOD__);
         $sql
             ->set('user_recover_key = ' . $sql->quote($key))
-            ->from(dotclear()->prefix . $this->user_table)
+            ->from(App::core()->prefix . $this->user_table)
             ->where('user_id = ' . $sql->quote($user_id))
             ->update()
         ;
@@ -629,7 +630,7 @@ class User
         $sql = new SelectStatement(__METHOD__);
         $rs  = $sql
             ->columns(['user_id', 'user_email'])
-            ->from(dotclear()->prefix . $this->user_table)
+            ->from(App::core()->prefix . $this->user_table)
             ->where('user_recover_key = ' . $sql->quote($recover_key))
             ->select()
         ;
@@ -645,7 +646,7 @@ class User
             ->set('user_pwd = ' . $sql->quote($this->crypt($new_pass)))
             ->set('user_recover_key = NULL')
             ->set('user_change_pwd = 1') // User will have to change this temporary password at next login
-            ->from(dotclear()->prefix . $this->user_table)
+            ->from(App::core()->prefix . $this->user_table)
             ->where('user_recover_key = ' . $sql->quote($recover_key))
             ->update()
         ;

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\CKEditor\Admin;
 
 // Dotclear\Plugin\CKEditor\Admin\Handler
+use Dotclear\App;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
@@ -35,9 +36,9 @@ class Handler extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        $s          = dotclear()->blog()->settings()->get('dcckeditor');
+        $s          = App::core()->blog()->settings()->get('dcckeditor');
         $this->ckes = [
-            'is_admin'                    => dotclear()->user()->check('admin,contentadmin', dotclear()->blog()->id) || dotclear()->user()->isSuperAdmin(),
+            'is_admin'                    => App::core()->user()->check('admin,contentadmin', App::core()->blog()->id) || App::core()->user()->isSuperAdmin(),
             'active'                      => $s->get('active'),
             'alignment_buttons'           => $s->get('alignment_buttons'),
             'list_buttons'                => $s->get('list_buttons'),
@@ -58,7 +59,7 @@ class Handler extends AbstractPage
         if (!empty($_POST['saveconfig'])) {
             try {
                 $this->ckes['active'] = (empty($_POST['dcckeditor_active'])) ? false : true;
-                dotclear()->blog()->settings()->get('dcckeditor')->put('active', $this->ckes['active'], 'boolean');
+                App::core()->blog()->settings()->get('dcckeditor')->put('active', $this->ckes['active'], 'boolean');
 
                 // change other settings only if they were in html page
                 if ($this->ckes['was_actived']) {
@@ -117,12 +118,12 @@ class Handler extends AbstractPage
                     $this->ckes['disable_native_spellchecker'] = (empty($_POST['dcckeditor_disable_native_spellchecker'])) ? false : true;
                     $s->put('disable_native_spellchecker', $this->ckes['disable_native_spellchecker'], 'boolean');
                 }
-                dotclear()->blog()->triggerBlog(); // !
+                App::core()->blog()->triggerBlog(); // !
 
-                dotclear()->notice()->addSuccessNotice(__('The configuration has been updated.'));
-                dotclear()->adminurl()->redirect('admin.plugin.CKEditor');
+                App::core()->notice()->addSuccessNotice(__('The configuration has been updated.'));
+                App::core()->adminurl()->redirect('admin.plugin.CKEditor');
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
@@ -141,7 +142,7 @@ class Handler extends AbstractPage
         if ($this->ckes['is_admin']) {
             echo '
             <h3 class="hidden-if-js">' . __('Settings') . '</h3>
-            <form action="' . dotclear()->adminurl()->root() . '" enctype="multipart/form-data" method="post">
+            <form action="' . App::core()->adminurl()->root() . '" enctype="multipart/form-data" method="post">
             <div class="fieldset">
             <h3>' . __('Plugin activation') . '</h3>
             <p><label class="classic" for="dcckeditor_active">' .
@@ -222,7 +223,7 @@ class Handler extends AbstractPage
 
             echo '
             <p><input name="p" type="hidden" value="dcCKEditor"/>' .
-            dotclear()->adminurl()->getHiddenFormFields('admin.plugin.CKEditor', [], true) . '
+            App::core()->adminurl()->getHiddenFormFields('admin.plugin.CKEditor', [], true) . '
             <input name="saveconfig" type="submit" value="' . __('Save configuration') . '"/>
             <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />
             </p>

@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\Blogroll\Common;
 
 // Dotclear\Plugin\Blogroll\Common\Blogroll
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\InsertStatement;
@@ -41,8 +42,8 @@ class Blogroll
                 'link_xfn',
                 'link_position',
             ])
-            ->where('blog_id = ' . $sql->quote(dotclear()->blog()->id))
-            ->from(dotclear()->prefix . $this->table)
+            ->where('blog_id = ' . $sql->quote(App::core()->blog()->id))
+            ->from(App::core()->prefix . $this->table)
             ->order('link_position')
         ;
 
@@ -67,8 +68,8 @@ class Blogroll
                 $sql->count('link_id', 'nb_link'),
                 'link_lang as post_lang',
             ])
-            ->from(dotclear()->prefix . $this->table)
-            ->where('blog_id = ' . $sql->quote(dotclear()->blog()->id))
+            ->from(App::core()->prefix . $this->table)
+            ->where('blog_id = ' . $sql->quote(App::core()->blog()->id))
             ->and("link_id <> ''")
             ->and('link_id IS NOT NULL')
             ->order('link_lang ' . (!empty($params['order']) && preg_match('/^(desc|asc)$/i', $params['order']) ? $params['order'] : 'desc'))
@@ -108,23 +109,23 @@ class Blogroll
                 'link_id',
             ])
             ->line([[
-                $sql->quote(dotclear()->blog()->id),
+                $sql->quote(App::core()->blog()->id),
                 $sql->quote($title),
                 $sql->quote($href),
                 $sql->quote($desc),
                 $sql->quote($lang),
                 $sql->quote($xfn),
                 SelectStatement::init(__METHOD__)
-                    ->from(dotclear()->prefix . $this->table)
+                    ->from(App::core()->prefix . $this->table)
                     ->column($sql->max('link_id'))
                     ->select()
                     ->fInt() + 1,
             ]])
-            ->from(dotclear()->prefix . $this->table)
+            ->from(App::core()->prefix . $this->table)
             ->insert()
         ;
 
-        dotclear()->blog()->triggerBlog();
+        App::core()->blog()->triggerBlog();
     }
 
     public function updateLink(int $id, string $title, string $href, string $desc = '', string $lang = '', string $xfn = ''): void
@@ -147,12 +148,12 @@ class Blogroll
                 'link_xfn = ' . $sql->quote($xfn),
             ])
             ->where('link_id = ' . $id)
-            ->and('blog_id = ' . $sql->quote(dotclear()->blog()->id))
-            ->from(dotclear()->prefix . $this->table)
+            ->and('blog_id = ' . $sql->quote(App::core()->blog()->id))
+            ->from(App::core()->prefix . $this->table)
             ->update()
         ;
 
-        dotclear()->blog()->triggerBlog();
+        App::core()->blog()->triggerBlog();
     }
 
     public function updateCategory(int $id, string $desc): void
@@ -165,12 +166,12 @@ class Blogroll
         $sql
             ->set('link_desc = ' . $sql->quote($desc))
             ->where('link_id = ' . $id)
-            ->and('blog_id = ' . $sql->quote(dotclear()->blog()->id))
-            ->from(dotclear()->prefix . $this->table)
+            ->and('blog_id = ' . $sql->quote(App::core()->blog()->id))
+            ->from(App::core()->prefix . $this->table)
             ->update()
         ;
 
-        dotclear()->blog()->triggerBlog();
+        App::core()->blog()->triggerBlog();
     }
 
     public function addCategory(string $title): int
@@ -182,7 +183,7 @@ class Blogroll
         $sql = new InsertStatement(__METHOD__);
 
         $id = SelectStatement::init(__METHOD__)
-            ->from(dotclear()->prefix . $this->table)
+            ->from(App::core()->prefix . $this->table)
             ->column($sql->max('link_id'))
             ->select()
             ->fInt() + 1;
@@ -196,17 +197,17 @@ class Blogroll
                 'link_id',
             ])
             ->line([[
-                $sql->quote(dotclear()->blog()->id),
+                $sql->quote(App::core()->blog()->id),
                 $sql->quote(''),
                 $sql->quote(''),
                 $sql->quote($title),
                 $id,
             ]])
-            ->from(dotclear()->prefix . $this->table)
+            ->from(App::core()->prefix . $this->table)
             ->insert()
         ;
 
-        dotclear()->blog()->triggerBlog();
+        App::core()->blog()->triggerBlog();
 
         return $id;
     }
@@ -216,12 +217,12 @@ class Blogroll
         $sql = new DeleteStatement(__METHOD__);
         $sql
             ->where('link_id = ' . $id)
-            ->and('blog_id = ' . $sql->quote(dotclear()->blog()->id))
-            ->from(dotclear()->prefix . $this->table)
+            ->and('blog_id = ' . $sql->quote(App::core()->blog()->id))
+            ->from(App::core()->prefix . $this->table)
             ->delete()
         ;
 
-        dotclear()->blog()->triggerBlog();
+        App::core()->blog()->triggerBlog();
     }
 
     public function updateOrder(int $id, int $position): void
@@ -230,12 +231,12 @@ class Blogroll
         $sql
             ->set('link_position = ' . $position)
             ->where('link_id = ' . $id)
-            ->and('blog_id = ' . $sql->quote(dotclear()->blog()->id))
-            ->from(dotclear()->prefix . $this->table)
+            ->and('blog_id = ' . $sql->quote(App::core()->blog()->id))
+            ->from(App::core()->prefix . $this->table)
             ->update()
         ;
 
-        dotclear()->blog()->triggerBlog();
+        App::core()->blog()->triggerBlog();
     }
 
     private function setLinksData(StaticRecord $rs): void

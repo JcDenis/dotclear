@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Module\Plugin\Admin;
 
 // Dotclear\Module\Plugin\Admin\ModulesPlugin
+use Dotclear\App;
 use Dotclear\Module\AbstractModules;
 use Dotclear\Module\TraitModulesAdmin;
 use Dotclear\Module\Plugin\TraitModulesPlugin;
@@ -26,34 +27,34 @@ class ModulesPlugin extends AbstractModules
 
     protected function register(): bool
     {
-        dotclear()->adminurl()->register(
+        App::core()->adminurl()->register(
             'admin.plugins',
             'Dotclear\\Module\\Plugin\\Admin\\HandlerPlugin'
         );
-        dotclear()->summary()->register(
+        App::core()->summary()->register(
             'System',
             __('Plugins management'),
             'admin.plugins',
             ['images/menu/plugins.svg', 'images/menu/plugins-dark.svg'],
-            dotclear()->user()->isSuperAdmin()
+            App::core()->user()->isSuperAdmin()
         );
-        dotclear()->favorite()->register('plugins', [
+        App::core()->favorite()->register('plugins', [
             'title'      => __('Plugins management'),
-            'url'        => dotclear()->adminurl()->get('admin.plugins'),
+            'url'        => App::core()->adminurl()->get('admin.plugins'),
             'small-icon' => ['images/menu/plugins.svg', 'images/menu/plugins-dark.svg'],
             'large-icon' => ['images/menu/plugins.svg', 'images/menu/plugins-dark.svg'],
         ]);
 
-        return dotclear()->adminurl()->is('admin.plugins');
+        return App::core()->adminurl()->is('admin.plugins');
     }
 
     public function getModulesURL(array $param = []): string
     {
-        return dotclear()->adminurl()->get('admin.plugins', $param);
+        return App::core()->adminurl()->get('admin.plugins', $param);
     }
 
     public function getModuleURL(string $id, array $param = []): string
     {
-        return dotclear()->adminurl()->get('admin.plugin.' . $id, $param);
+        return App::core()->adminurl()->get('admin.plugin.' . $id, $param);
     }
 }

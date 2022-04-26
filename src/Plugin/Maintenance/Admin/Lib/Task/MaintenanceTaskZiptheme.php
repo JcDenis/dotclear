@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Maintenance\Admin\Lib\Task;
 
 // Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskZiptheme
+use Dotclear\App;
 use Dotclear\Helper\File\Zip\Zip;
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
@@ -35,7 +36,7 @@ class MaintenanceTaskZiptheme extends MaintenanceTask
     public function execute(): int|bool
     {
         // Get theme path
-        $theme = dotclear()->themes()->getModule((string) dotclear()->blog()->settings()->get('system')->get('theme'));
+        $theme = App::core()->themes()->getModule((string) App::core()->blog()->settings()->get('system')->get('theme'));
         if (!$theme) {
             return false;
         }

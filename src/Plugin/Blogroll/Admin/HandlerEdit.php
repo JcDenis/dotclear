@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Blogroll\Admin;
 
 // Dotclear\Plugin\Blogroll\Admin\HandlerEdit
+use Dotclear\App;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
@@ -54,17 +55,17 @@ class HandlerEdit extends AbstractPage
             $this->br_has_rs = !$rs->isEmpty();
             $this->br_is_cat = (bool) $rs->fInt('is_cat');
         } catch (Exception $e) {
-            dotclear()->error()->add($e->getMessage());
+            App::core()->error()->add($e->getMessage());
         }
 
-        if (!dotclear()->error()->flag() && $this->br_has_rs) {
+        if (!App::core()->error()->flag() && $this->br_has_rs) {
             $this->br_link_title = $rs->f('link_title');
             $this->br_link_href  = $rs->f('link_href');
             $this->br_link_desc  = $rs->f('link_desc');
             $this->br_link_lang  = $rs->f('link_lang');
             $this->br_link_xfn   = $rs->f('link_xfn');
         } else {
-            dotclear()->error()->add(__('No such link or title'));
+            App::core()->error()->add(__('No such link or title'));
         }
 
         // Update a link
@@ -101,10 +102,10 @@ class HandlerEdit extends AbstractPage
 
             try {
                 $this->br_blogroll->updateLink($this->br_id, $this->br_link_title, $this->br_link_href, $this->br_link_desc, $this->br_link_lang, trim((string) $this->br_link_xfn));
-                dotclear()->notice()->addSuccessNotice(__('Link has been successfully updated'));
-                dotclear()->adminurl()->redirect('admin.plugin.Blogroll', ['edit' => 1, 'id' => $this->br_id]);
+                App::core()->notice()->addSuccessNotice(__('Link has been successfully updated'));
+                App::core()->adminurl()->redirect('admin.plugin.Blogroll', ['edit' => 1, 'id' => $this->br_id]);
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
@@ -114,10 +115,10 @@ class HandlerEdit extends AbstractPage
 
             try {
                 $this->br_blogroll->updateCategory($this->br_id, $this->br_link_desc);
-                dotclear()->notice()->addSuccessNotice(__('Category has been successfully updated'));
-                dotclear()->adminurl()->redirect('admin.plugin.Blogroll', ['edit' => 1, 'id' => $this->br_id]);
+                App::core()->notice()->addSuccessNotice(__('Category has been successfully updated'));
+                App::core()->adminurl()->redirect('admin.plugin.Blogroll', ['edit' => 1, 'id' => $this->br_id]);
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
@@ -126,8 +127,8 @@ class HandlerEdit extends AbstractPage
             ->setPageTitle(__('Blogroll'))
             ->setPageHelp('blogroll')
             ->setPageBreadcrumb([
-                Html::escapeHTML(dotclear()->blog()->name) => '',
-                __('Blogroll')                             => dotclear()->adminurl()->get('admin.plugin.Blogroll'),
+                Html::escapeHTML(App::core()->blog()->name) => '',
+                __('Blogroll')                              => App::core()->adminurl()->get('admin.plugin.Blogroll'),
             ])
         ;
 
@@ -138,28 +139,28 @@ class HandlerEdit extends AbstractPage
     {
         // Languages combo
         $links      = $this->br_blogroll->getLangs(['order' => 'asc']);
-        $lang_combo = dotclear()->combo()->getLangsCombo($links, true);
+        $lang_combo = App::core()->combo()->getLangsCombo($links, true);
 
-        echo '<p><a class="back" href="' . dotclear()->adminurl()->get('admin.plugin.Blogroll') . '">' . __('Return to blogroll') . '</a></p>';
+        echo '<p><a class="back" href="' . App::core()->adminurl()->get('admin.plugin.Blogroll') . '">' . __('Return to blogroll') . '</a></p>';
 
         if ($this->br_has_rs && $this->br_is_cat) {
-            echo '<form action="' . dotclear()->adminurl()->root() . '" method="post">' .
+            echo '<form action="' . App::core()->adminurl()->root() . '" method="post">' .
             '<h3>' . __('Edit category') . '</h3>' .
 
             '<p><label for="link_desc" class="required classic"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Title:') . '</label> ' .
             Form::field('link_desc', 30, 255, [
                 'default'    => Html::escapeHTML($this->br_link_desc),
-                'extra_html' => 'required placeholder="' . __('Title') . '" lang="' . dotclear()->user()->getInfo('user_lang') . '" spellcheck="true"',
+                'extra_html' => 'required placeholder="' . __('Title') . '" lang="' . App::core()->user()->getInfo('user_lang') . '" spellcheck="true"',
             ]) .
 
             Form::hidden('edit', 1) .
             Form::hidden('id', $this->br_id) .
-            dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Blogroll', [], true) .
+            App::core()->adminurl()->getHiddenFormFields('admin.plugin.Blogroll', [], true) .
             '<input type="submit" name="edit_cat" value="' . __('Save') . '"/></p>' .
                 '</form>';
         }
         if ($this->br_has_rs && !$this->br_is_cat) {
-            echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" class="two-cols fieldset">' .
+            echo '<form action="' . App::core()->adminurl()->root() . '" method="post" class="two-cols fieldset">' .
 
             '<div class="col30 first-col">' .
             '<h3>' . __('Edit link') . '</h3>' .
@@ -167,7 +168,7 @@ class HandlerEdit extends AbstractPage
             '<p><label for="link_title" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Title:') . '</label> ' .
             Form::field('link_title', 30, 255, [
                 'default'    => Html::escapeHTML($this->br_link_title),
-                'extra_html' => 'required placeholder="' . __('Title') . '" lang="' . dotclear()->user()->getInfo('user_lang') . '" spellcheck="true"',
+                'extra_html' => 'required placeholder="' . __('Title') . '" lang="' . App::core()->user()->getInfo('user_lang') . '" spellcheck="true"',
             ]) .
             '</p>' .
 
@@ -186,7 +187,7 @@ class HandlerEdit extends AbstractPage
                 255,
                 [
                     'default'    => Html::escapeHTML($this->br_link_desc),
-                    'extra_html' => 'lang="' . dotclear()->user()->getInfo('user_lang') . '" spellcheck="true"',
+                    'extra_html' => 'lang="' . App::core()->user()->getInfo('user_lang') . '" spellcheck="true"',
                 ]
             ) . '</p>' .
 
@@ -340,7 +341,7 @@ class HandlerEdit extends AbstractPage
             '<p class="clear">' .
             Form::hidden('edit', 1) .
             Form::hidden('id', $this->br_id) .
-            dotclear()->adminurl()->getHiddenFormFields('admin.plugin.Blogroll', [], true) .
+            App::core()->adminurl()->getHiddenFormFields('admin.plugin.Blogroll', [], true) .
             '<input type="submit" name="edit_link" value="' . __('Save') . '"/></p>' .
 
                 '</form>';

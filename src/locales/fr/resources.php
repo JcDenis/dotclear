@@ -5,11 +5,10 @@
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-if (!function_exists('dotclear')) {
-    return;
-}
-dotclear()->help()->news('https://fr.dotclear.org/blog/feed/category/News/atom');
-dotclear()->help()->doc([
+use Dotclear\App;
+
+App::core()->help()->news('https://fr.dotclear.org/blog/feed/category/News/atom');
+App::core()->help()->doc([
     "Accueil de l'aide Dotclear"               => 'https://fr.dotclear.org/documentation/2.0',
     'Présentation de Dotclear'                 => 'https://fr.dotclear.org/documentation/2.0/overview/tour',
     "Manuel de l'utilisateur"                  => 'https://fr.dotclear.org/documentation/2.0/usage',

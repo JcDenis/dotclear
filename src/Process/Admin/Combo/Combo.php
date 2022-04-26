@@ -11,6 +11,7 @@ namespace Dotclear\Process\Admin\Combo;
 
 // Dotclear\Process\Admin\Combo\Combo
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Core\User\UserContainer;
 use Dotclear\Database\Record;
 use Dotclear\Helper\Html\FormSelectOption;
@@ -24,7 +25,7 @@ use Dotclear\Helper\L10n;
  * Dotclear utility class that provides reuseable combos across all admin
  * form::combo -compatible format
  *
- * Accessible from dotclear()->combo()->
+ * Accessible from App::core()->combo()->
  *
  * @ingroup  Admin Combo
  */
@@ -65,7 +66,7 @@ class Combo
     public function getPostStatusesCombo(): array
     {
         $status_combo = [];
-        foreach (dotclear()->blog()->getAllPostStatus() as $k => $v) {
+        foreach (App::core()->blog()->getAllPostStatus() as $k => $v) {
             $status_combo[$v] = (string) $k;
         }
 
@@ -161,7 +162,7 @@ class Combo
         $lang_combo = [];
         $langs      = L10n::getISOcodes(true, true);
         foreach ($langs as $k => $v) {
-            $lang_avail   = 'en' == $v || is_dir(dotclear()->config()->get('l10n_dir') . '/' . $v);
+            $lang_avail   = 'en' == $v || is_dir(App::core()->config()->get('l10n_dir') . '/' . $v);
             $lang_combo[] = new FormSelectOption($k, $v, $lang_avail ? 'avail10n' : '');
         }
 
@@ -176,7 +177,7 @@ class Combo
     public function getEditorsCombo(): array
     {
         $editors_combo = [];
-        foreach (dotclear()->formater()->getEditors() as $v) {
+        foreach (App::core()->formater()->getEditors() as $v) {
             $editors_combo[$v] = $v;
         }
 
@@ -194,11 +195,11 @@ class Combo
     {
         $formaters_combo = [];
         if (!empty($editor_id)) {
-            foreach (dotclear()->formater()->getFormaters($editor_id) as $formater) {
+            foreach (App::core()->formater()->getFormaters($editor_id) as $formater) {
                 $formaters_combo[$formater] = $formater;
             }
         } else {
-            foreach (dotclear()->formater()->getFormaters() as $editor => $formaters) {
+            foreach (App::core()->formater()->getFormaters() as $editor => $formaters) {
                 foreach ($formaters as $formater) {
                     $formaters_combo[$editor][$formater] = $formater;
                 }
@@ -218,7 +219,7 @@ class Combo
         $iconsets_combo = new ArrayObject([__('Default') => '']);
 
         // --BEHAVIOR-- adminPostsSortbyCombo , ArrayObject
-        dotclear()->behavior()->call('adminIconsetCombo', $iconsets_combo);
+        App::core()->behavior()->call('adminIconsetCombo', $iconsets_combo);
 
         return $iconsets_combo->getArrayCopy();
     }
@@ -231,7 +232,7 @@ class Combo
     public function getBlogStatusesCombo(): array
     {
         $status_combo = [];
-        foreach (dotclear()->blogs()->getAllBlogStatus() as $k => $v) {
+        foreach (App::core()->blogs()->getAllBlogStatus() as $k => $v) {
             $status_combo[$v] = (string) $k;
         }
 
@@ -246,7 +247,7 @@ class Combo
     public function getCommentStatusesCombo(): array
     {
         $status_combo = [];
-        foreach (dotclear()->blog()->getAllCommentStatus() as $k => $v) {
+        foreach (App::core()->blog()->getAllCommentStatus() as $k => $v) {
             $status_combo[$v] = (string) $k;
         }
 
@@ -284,7 +285,7 @@ class Combo
             __('Number of trackbacks') => 'nb_trackback',
         ]);
         // --BEHAVIOR-- adminPostsSortbyCombo , ArrayObject
-        dotclear()->behavior()->call('adminPostsSortbyCombo', $sortby_combo);
+        App::core()->behavior()->call('adminPostsSortbyCombo', $sortby_combo);
 
         return $sortby_combo->getArrayCopy();
     }
@@ -306,7 +307,7 @@ class Combo
             __('Spam filter') => 'comment_spam_filter',
         ]);
         // --BEHAVIOR-- adminCommentsSortbyCombo , ArrayObject
-        dotclear()->behavior()->call('adminCommentsSortbyCombo', $sortby_combo);
+        App::core()->behavior()->call('adminCommentsSortbyCombo', $sortby_combo);
 
         return $sortby_combo->getArrayCopy();
     }
@@ -325,7 +326,7 @@ class Combo
             __('Status')      => 'blog_status',
         ]);
         // --BEHAVIOR-- adminBlogsSortbyCombo , ArrayObject
-        dotclear()->behavior()->call('adminBlogsSortbyCombo', $sortby_combo);
+        App::core()->behavior()->call('adminBlogsSortbyCombo', $sortby_combo);
 
         return $sortby_combo->getArrayCopy();
     }
@@ -338,7 +339,7 @@ class Combo
     public function getUsersSortbyCombo(): array
     {
         $sortby_combo = new ArrayObject([]);
-        if (dotclear()->user()->isSuperAdmin()) {
+        if (App::core()->user()->isSuperAdmin()) {
             $sortby_combo = new ArrayObject([
                 __('Username')          => 'user_id',
                 __('Last Name')         => 'user_name',
@@ -347,7 +348,7 @@ class Combo
                 __('Number of entries') => 'nb_post',
             ]);
             // --BEHAVIOR-- adminUsersSortbyCombo , ArrayObject
-            dotclear()->behavior()->call('adminUsersSortbyCombo', $sortby_combo);
+            App::core()->behavior()->call('adminUsersSortbyCombo', $sortby_combo);
         }
 
         return $sortby_combo->getArrayCopy();

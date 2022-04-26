@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\Services
+use Dotclear\App;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Service\RestMethods;
 
@@ -28,7 +29,7 @@ class Services extends AbstractPage
     protected function getPagePrepend(): ?bool
     {
         new RestMethods();
-        dotclear()->rest()->serve();
+        App::core()->rest()->serve();
 
         return null;
     }

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Database\Statement;
 
 // Dotclear\Database\Statement\SqlStatement
+use Dotclear\App;
 
 /**
  * SQL Statement : small utility to build SQL queries.
@@ -376,7 +377,7 @@ class SqlStatement
      */
     public function escape(string $value): string
     {
-        return dotclear()->con()->escape($value);
+        return App::core()->con()->escape($value);
     }
 
     /**
@@ -387,7 +388,7 @@ class SqlStatement
      */
     public function quote($value, bool $escape = true): string
     {
-        return "'" . ($escape ? dotclear()->con()->escape($value) : $value) . "'";
+        return "'" . ($escape ? App::core()->con()->escape($value) : $value) . "'";
     }
 
     /**
@@ -420,7 +421,7 @@ class SqlStatement
             }
         }
 
-        return dotclear()->con()->in($list);
+        return App::core()->con()->in($list);
     }
 
     /**
@@ -431,7 +432,7 @@ class SqlStatement
      */
     public function dateFormat(string $field, string $pattern): string
     {
-        return dotclear()->con()->dateFormat($field, $pattern);
+        return App::core()->con()->dateFormat($field, $pattern);
     }
 
     /**
@@ -452,9 +453,9 @@ class SqlStatement
      */
     public function regexp(string $value): string
     {
-        if (dotclear()->con()->syntax() == 'mysql') {
+        if (App::core()->con()->syntax() == 'mysql') {
             $clause = "REGEXP '^" . $this->escape(preg_quote($value)) . "[0-9]+$'";
-        } elseif (dotclear()->con()->syntax() == 'postgresql') {
+        } elseif (App::core()->con()->syntax() == 'postgresql') {
             $clause = "~ '^" . $this->escape(preg_quote($value)) . "[0-9]+$'";
         } else {
             $clause = "LIKE '" .

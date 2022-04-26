@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\BlogPref
+use Dotclear\App;
 use Dotclear\Core\User\UserContainer;
 use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Exception\AdminException;
@@ -52,21 +53,21 @@ class BlogPref extends AbstractPage
     {
         // Blog params
         if ($this->standalone) {
-            $this->blog_id       = dotclear()->blog()->id;
-            $this->blog_status   = dotclear()->blog()->status;
-            $this->blog_name     = dotclear()->blog()->name;
-            $this->blog_desc     = dotclear()->blog()->desc;
-            $this->blog_settings = dotclear()->blog()->settings();
-            $this->blog_url      = dotclear()->blog()->url;
+            $this->blog_id       = App::core()->blog()->id;
+            $this->blog_status   = App::core()->blog()->status;
+            $this->blog_name     = App::core()->blog()->name;
+            $this->blog_desc     = App::core()->blog()->desc;
+            $this->blog_settings = App::core()->blog()->settings();
+            $this->blog_url      = App::core()->blog()->url;
 
-            $this->blog_action = dotclear()->adminurl()->get('admin.blog.pref');
-            $redir             = dotclear()->adminurl()->get('admin.blog.pref');
+            $this->blog_action = App::core()->adminurl()->get('admin.blog.pref');
+            $redir             = App::core()->adminurl()->get('admin.blog.pref');
         } else {
             try {
                 if (empty($_REQUEST['id'])) {
                     throw new AdminException(__('No given blog id.'));
                 }
-                $rs = dotclear()->blogs()->getBlog($_REQUEST['id']);
+                $rs = App::core()->blogs()->getBlog($_REQUEST['id']);
 
                 if (!$rs) {
                     throw new AdminException(__('No such blog.'));
@@ -79,15 +80,15 @@ class BlogPref extends AbstractPage
                 $this->blog_settings = new Settings($this->blog_id);
                 $this->blog_url      = $rs->f('blog_url');
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
 
-            $this->blog_action = dotclear()->adminurl()->get('admin.blog');
-            $redir             = dotclear()->adminurl()->get('admin.blog', ['id' => '%s'], '&', true);
+            $this->blog_action = App::core()->adminurl()->get('admin.blog');
+            $redir             = App::core()->adminurl()->get('admin.blog', ['id' => '%s'], '&', true);
         }
 
         // Update a blog
-        if ($this->blog_id && !empty($_POST) && dotclear()->user()->check('admin', $this->blog_id)) {
+        if ($this->blog_id && !empty($_POST) && App::core()->user()->check('admin', $this->blog_id)) {
             // URL scan modes
             $url_scan_combo = [
                 'PATH_INFO'    => 'path_info',
@@ -95,15 +96,15 @@ class BlogPref extends AbstractPage
             ];
 
             // Status combo
-            $status_combo = dotclear()->combo()->getBlogStatusescombo();
+            $status_combo = App::core()->combo()->getBlogStatusescombo();
 
-            $cur = dotclear()->con()->openCursor(dotclear()->prefix . 'blog');
+            $cur = App::core()->con()->openCursor(App::core()->prefix . 'blog');
             $cur->setField('blog_id', $_POST['blog_id']);
             $cur->setField('blog_url', preg_replace('/\?+$/', '?', $_POST['blog_url']));
             $cur->setField('blog_name', $_POST['blog_name']);
             $cur->setField('blog_desc', $_POST['blog_desc']);
 
-            if (dotclear()->user()->isSuperAdmin() && in_array($_POST['blog_status'], $status_combo)) {
+            if (App::core()->user()->isSuperAdmin() && in_array($_POST['blog_status'], $status_combo)) {
                 $cur->setField('blog_status', (int) $_POST['blog_status']);
             }
 
@@ -154,7 +155,7 @@ class BlogPref extends AbstractPage
 
             try {
                 if ($cur->getField('blog_id') != null && $cur->getField('blog_id') != $this->blog_id) {
-                    $rs = dotclear()->blogs()->getBlog($cur->getField('blog_id'));
+                    $rs = App::core()->blogs()->getBlog($cur->getField('blog_id'));
 
                     if ($rs) {
                         throw new AdminException(__('This blog ID is already used.'));
@@ -162,22 +163,22 @@ class BlogPref extends AbstractPage
                 }
 
                 // --BEHAVIOR-- adminBeforeBlogUpdate
-                dotclear()->behavior()->call('adminBeforeBlogUpdate', $cur, $this->blog_id);
+                App::core()->behavior()->call('adminBeforeBlogUpdate', $cur, $this->blog_id);
 
                 if (!preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $_POST['lang'])) {
                     throw new AdminException(__('Invalid language code'));
                 }
 
-                dotclear()->blogs()->updBlog($this->blog_id, $cur);
+                App::core()->blogs()->updBlog($this->blog_id, $cur);
 
                 // --BEHAVIOR-- adminAfterBlogUpdate
-                dotclear()->behavior()->call('adminAfterBlogUpdate', $cur, $this->blog_id);
+                App::core()->behavior()->call('adminAfterBlogUpdate', $cur, $this->blog_id);
 
                 if ($cur->getField('blog_id') != null && $cur->getField('blog_id') != $this->blog_id) {
-                    if (dotclear()->blog()->id == $this->blog_id) {
-                        dotclear()->setBlog($cur->getField('blog_id'));
+                    if (App::core()->blog()->id == $this->blog_id) {
+                        App::core()->setBlog($cur->getField('blog_id'));
                         $_SESSION['sess_blog_id'] = $cur->getField('blog_id');
-                        $this->blog_settings      = dotclear()->blog()->settings();
+                        $this->blog_settings      = App::core()->blog()->settings();
                     } else {
                         $this->blog_settings = new Settings($cur->getField('blog_id'));
                     }
@@ -233,23 +234,23 @@ class BlogPref extends AbstractPage
                 $this->blog_settings->get('system')->put('static_home_url', $_POST['static_home_url']);
 
                 // --BEHAVIOR-- adminBeforeBlogSettingsUpdate
-                dotclear()->behavior()->call('adminBeforeBlogSettingsUpdate', $this->blog_settings);
+                App::core()->behavior()->call('adminBeforeBlogSettingsUpdate', $this->blog_settings);
 
-                if (dotclear()->user()->isSuperAdmin() && in_array($_POST['url_scan'], $url_scan_combo)) {
+                if (App::core()->user()->isSuperAdmin() && in_array($_POST['url_scan'], $url_scan_combo)) {
                     $this->blog_settings->get('system')->put('url_scan', $_POST['url_scan']);
                 }
-                dotclear()->notice()->addSuccessNotice(__('Blog has been successfully updated.'));
+                App::core()->notice()->addSuccessNotice(__('Blog has been successfully updated.'));
 
                 Http::redirect(sprintf($redir, $this->blog_id));
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
         // Page setup
-        $desc_editor = dotclear()->user()->getOption('editor');
+        $desc_editor = App::core()->user()->getOption('editor');
         $rte_flag    = true;
-        $rte_flags   = @dotclear()->user()->preference()->get('interface')->get('rte_flags');
+        $rte_flags   = @App::core()->user()->preference()->get('interface')->get('rte_flags');
         if (is_array($rte_flags) && in_array('blog_descr', $rte_flags)) {
             $rte_flag = $rte_flags['blog_descr'];
         }
@@ -258,25 +259,25 @@ class BlogPref extends AbstractPage
             ->setPageTitle(__('Blog settings'))
             ->setPageHelp('core_blog_pref')
             ->setPageHead(
-                dotclear()->resource()->json('blog_pref', [
+                App::core()->resource()->json('blog_pref', [
                     'warning_path_info'    => __('Warning: except for special configurations, it is generally advised to have a trailing "/" in your blog URL in PATH_INFO mode.'),
                     'warning_query_string' => __('Warning: except for special configurations, it is generally advised to have a trailing "?" in your blog URL in QUERY_STRING mode.'),
                 ]) .
-                dotclear()->resource()->confirmClose('blog-form') .
-                ($rte_flag ? dotclear()->behavior()->call('adminPostEditor', $desc_editor['xhtml'], 'blog_desc', ['#blog_desc'], 'xhtml') : '') .
-                dotclear()->resource()->load('_blog_pref.js') .
+                App::core()->resource()->confirmClose('blog-form') .
+                ($rte_flag ? App::core()->behavior()->call('adminPostEditor', $desc_editor['xhtml'], 'blog_desc', ['#blog_desc'], 'xhtml') : '') .
+                App::core()->resource()->load('_blog_pref.js') .
 
                 // --BEHAVIOR-- adminBlogPreferencesHeaders
-                dotclear()->behavior()->call('adminBlogPreferencesHeaders') .
+                App::core()->behavior()->call('adminBlogPreferencesHeaders') .
 
-                dotclear()->resource()->pageTabs()
+                App::core()->resource()->pageTabs()
             )
             ->setPageBreadcrumb($this->standalone ? [
                 Html::escapeHTML($this->blog_name) => '',
                 __('Blog settings')                => '',
             ] : [
                 __('System')                                                     => '',
-                __('Blogs')                                                      => dotclear()->adminurl()->get('admin.blogs'),
+                __('Blogs')                                                      => App::core()->adminurl()->get('admin.blogs'),
                 __('Blog settings') . ' : ' . Html::escapeHTML($this->blog_name) => '',
             ])
         ;
@@ -291,10 +292,10 @@ class BlogPref extends AbstractPage
         }
 
         // Language codes
-        $lang_combo = dotclear()->combo()->getAdminLangsCombo();
+        $lang_combo = App::core()->combo()->getAdminLangsCombo();
 
         // Status combo
-        $status_combo = dotclear()->combo()->getBlogStatusescombo();
+        $status_combo = App::core()->combo()->getBlogStatusescombo();
 
         // Date format combo
         $now                = time();
@@ -351,14 +352,14 @@ class BlogPref extends AbstractPage
         $img_default_size_combo[__('original')] = 'o';
 
         try {
-            if (!dotclear()->media()) {
+            if (!App::core()->media()) {
                 throw new AdminException('No media path');
             }
-            foreach (dotclear()->media()->thumb_sizes as $code => $size) {
+            foreach (App::core()->media()->thumb_sizes as $code => $size) {
                 $img_default_size_combo[__($size[2])] = $code;
             }
         } catch (Exception $e) {
-            dotclear()->error()->add($e->getMessage());
+            App::core()->error()->add($e->getMessage());
         }
 
         // Image default alignment combo
@@ -385,12 +386,12 @@ class BlogPref extends AbstractPage
 
         // jQuery available versions
         $jquery_root           = Path::implodeRoot('Core', 'resources', 'js', 'jquery');
-        $jquery_versions_combo = [__('Default') . ' (' . dotclear()->config()->get('jquery_default') . ')' => ''];
+        $jquery_versions_combo = [__('Default') . ' (' . App::core()->config()->get('jquery_default') . ')' => ''];
         if (is_dir($jquery_root) && is_readable($jquery_root)) {
             if (false !== ($d = @dir($jquery_root))) {
                 while (false !== ($entry = $d->read())) {
                     if ('.' != $entry && '..' != $entry && substr($entry, 0, 1) != '.' && is_dir($jquery_root . '/' . $entry)) {
-                        if (dotclear()->config()->get('jquery_default') != $entry) {
+                        if (App::core()->config()->get('jquery_default') != $entry) {
                             $jquery_versions_combo[$entry] = $entry;
                         }
                     }
@@ -399,11 +400,11 @@ class BlogPref extends AbstractPage
         }
 
         if (!empty($_GET['add'])) {
-            dotclear()->notice()->success(__('Blog has been successfully created.'));
+            App::core()->notice()->success(__('Blog has been successfully created.'));
         }
 
         if (!empty($_GET['upd'])) {
-            dotclear()->notice()->success(__('Blog has been successfully updated.'));
+            App::core()->notice()->success(__('Blog has been successfully updated.'));
         }
 
         echo '<div class="multi-part" id="params" title="' . __('Parameters') . '">' .
@@ -411,7 +412,7 @@ class BlogPref extends AbstractPage
             '<form action="' . $this->blog_action . '" method="post" id="blog-form">';
 
         echo '<div class="fieldset"><h4>' . __('Blog details') . '</h4>' .
-        dotclear()->nonce()->form();
+        App::core()->nonce()->form();
 
         echo '<p><label for="blog_name" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Blog name:') . '</label>' .
         Form::field(
@@ -435,7 +436,7 @@ class BlogPref extends AbstractPage
             ]
         ) . '</p>';
 
-        if (dotclear()->user()->isSuperAdmin()) {
+        if (App::core()->user()->isSuperAdmin()) {
             echo '<p><label for="blog_status">' . __('Blog status:') . '</label>' .
             Form::combo('blog_status', $status_combo, $this->blog_status) . '</p>';
         } else {
@@ -729,7 +730,7 @@ class BlogPref extends AbstractPage
 
         echo '<div id="advanced-pref"><h3>' . __('Advanced parameters') . '</h3>';
 
-        if (dotclear()->user()->isSuperAdmin()) {
+        if (App::core()->user()->isSuperAdmin()) {
             echo '<div class="fieldset"><h4>' . __('Blog details') . '</h4>';
             echo '<p><label for="blog_id" class="required"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Blog ID:') . '</label>' .
             Form::field('blog_id', 30, 32, Html::escapeHTML($this->blog_id), '', '', false, 'required placeholder="' . __('Blog ID') . '" aria-describedby="blog_id_help blog_id_warn"') . '</p>' .
@@ -750,14 +751,14 @@ class BlogPref extends AbstractPage
 
             try {
                 // Test URL of blog by testing it's ATOM feed
-                $file    = $this->blog_url . dotclear()->url()->getURLFor('feed', 'atom');
+                $file    = $this->blog_url . App::core()->url()->getURLFor('feed', 'atom');
                 $path    = '';
                 $status  = '404';
                 $content = '';
 
                 $client = NetHttp::initClient($file, $path);
                 if (false !== $client) {
-                    $client->setTimeout(dotclear()->config()->get('query_timeout'));
+                    $client->setTimeout(App::core()->config()->get('query_timeout'));
                     $client->setUserAgent($_SERVER['HTTP_USER_AGENT']);
                     $client->get($path);
                     $status  = $client->getStatus();
@@ -784,7 +785,7 @@ class BlogPref extends AbstractPage
                     }
                 }
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
             echo '</div>';
         }
@@ -794,7 +795,7 @@ class BlogPref extends AbstractPage
         '<p><label for="post_url_format">' . __('New post URL format:') . '</label>' .
         Form::combo('post_url_format', $post_url_combo, Html::escapeHTML($this->blog_settings->get('system')->get('post_url_format')), '', '', false, 'aria-describedby="post_url_format_help"') .
         '</p>' .
-        '<p class="chosen form-note" id="post_url_format_help">' . __('Sample:') . ' ' . dotclear()->blog()->posts()->getPostURL('', date('Y-m-d H:i:00', $now), __('Dotclear'), 42) . '</p>' .
+        '<p class="chosen form-note" id="post_url_format_help">' . __('Sample:') . ' ' . App::core()->blog()->posts()->getPostURL('', date('Y-m-d H:i:00', $now), __('Dotclear'), 42) . '</p>' .
         '</p>' .
 
         '<p><label for="note_title_tag">' . __('HTML tag for the title of the notes on the blog:') . '</label>' .
@@ -810,10 +811,10 @@ class BlogPref extends AbstractPage
             echo '<p>' . __('XML/RPC interface is active. You should set the following parameters on your XML/RPC client:') . '</p>' .
             '<ul>' .
             '<li>' . __('Server URL:') . ' <strong><code>' .
-            sprintf(dotclear()->config()->get('xmlrpc_url'), dotclear()->blog()->url, dotclear()->blog()->id) .
+            sprintf(App::core()->config()->get('xmlrpc_url'), App::core()->blog()->url, App::core()->blog()->id) .
             '</code></strong></li>' .
             '<li>' . __('Blogging system:') . ' <strong><code>Movable Type</code></strong></li>' .
-            '<li>' . __('User name:') . ' <strong><code>' . dotclear()->user()->userID() . '</code></strong></li>' .
+            '<li>' . __('User name:') . ' <strong><code>' . App::core()->user()->userID() . '</code></strong></li>' .
             '<li>' . __('Password:') . ' <strong><code>&lt;' . __('your password') . '&gt;</code></strong></li>' .
             '<li>' . __('Blog ID:') . ' <strong><code>1</code></strong></li>' .
                 '</ul>';
@@ -860,7 +861,7 @@ class BlogPref extends AbstractPage
         echo '<div id="plugins-pref"><h3>' . __('Plugins parameters') . '</h3>';
 
         // --BEHAVIOR-- adminBlogPreferencesForm
-        dotclear()->behavior()->call('adminBlogPreferencesForm', $this->blog_settings);
+        App::core()->behavior()->call('adminBlogPreferencesForm', $this->blog_settings);
 
         echo '</div>'; // End 3rd party, aka plugins
 
@@ -870,13 +871,13 @@ class BlogPref extends AbstractPage
             '</p>' .
             '</form>';
 
-        if (dotclear()->user()->isSuperAdmin() && dotclear()->blog()->id != $this->blog_id) {
-            echo '<form action="' . dotclear()->adminurl()->root() . '" method="post">' .
+        if (App::core()->user()->isSuperAdmin() && App::core()->blog()->id != $this->blog_id) {
+            echo '<form action="' . App::core()->adminurl()->root() . '" method="post">' .
             '<p><input type="submit" class="delete" value="' . __('Delete this blog') . '" />' .
-            dotclear()->adminurl()->getHiddenFormFields('admin.blog.del', ['blog_id' => $this->blog_id], true) . '</p>' .
+            App::core()->adminurl()->getHiddenFormFields('admin.blog.del', ['blog_id' => $this->blog_id], true) . '</p>' .
                 '</form>';
         } else {
-            if (dotclear()->blog()->id == $this->blog_id) {
+            if (App::core()->blog()->id == $this->blog_id) {
                 echo '<p class="message">' . __('The current blog cannot be deleted.') . '</p>';
             } else {
                 echo '<p class="message">' . __('Only superadmin can delete a blog.') . '</p>';
@@ -888,8 +889,8 @@ class BlogPref extends AbstractPage
         //
         // Users on the blog (with permissions)
 
-        $blog_users = dotclear()->blogs()->getBlogPermissions($this->blog_id, dotclear()->user()->isSuperAdmin());
-        $perm_types = dotclear()->user()->getPermissionsTypes();
+        $blog_users = App::core()->blogs()->getBlogPermissions($this->blog_id, App::core()->user()->isSuperAdmin());
+        $perm_types = App::core()->user()->getPermissionsTypes();
 
         echo '<div class="multi-part" id="users" title="' . __('Users') . '">' .
         '<h3 class="out-of-screen-if-js">' . __('Users on this blog') . '</h3>';
@@ -897,8 +898,8 @@ class BlogPref extends AbstractPage
         if (empty($blog_users)) {
             echo '<p>' . __('No users') . '</p>';
         } else {
-            if (dotclear()->user()->isSuperAdmin()) {
-                $user_url_p = '<a href="' . dotclear()->adminurl()->get('admin.user', ['id' => '%1$s'], '&amp;', true) . '">%1$s</a>';
+            if (App::core()->user()->isSuperAdmin()) {
+                $user_url_p = '<a href="' . App::core()->adminurl()->get('admin.user', ['id' => '%1$s'], '&amp;', true) . '">%1$s</a>';
             } else {
                 $user_url_p = '%1$s';
             }
@@ -906,10 +907,10 @@ class BlogPref extends AbstractPage
             // Sort users list on user_id key
             Lexical::lexicalKeySort($blog_users);
 
-            $post_type       = dotclear()->posttype()->getPostTypes();
-            $current_blog_id = dotclear()->blog()->id;
-            if (dotclear()->blog()->id != $this->blog_id) {
-                dotclear()->setBlog($this->blog_id);
+            $post_type       = App::core()->posttype()->getPostTypes();
+            $current_blog_id = App::core()->blog()->id;
+            if (App::core()->blog()->id != $this->blog_id) {
+                App::core()->setBlog($this->blog_id);
             }
 
             echo '<div>';
@@ -924,7 +925,7 @@ class BlogPref extends AbstractPage
                         $v['displayname']
                     )) . ')</h4>';
 
-                    if (dotclear()->user()->isSuperAdmin()) {
+                    if (App::core()->user()->isSuperAdmin()) {
                         echo '<p>' . __('Email:') . ' ' .
                             ('' != $v['email'] ? '<a href="mailto:' . $v['email'] . '">' . $v['email'] . '</a>' : __('(none)')) .
                             '</p>';
@@ -937,7 +938,7 @@ class BlogPref extends AbstractPage
                             'post_type' => $type,
                             'user_id'   => $k,
                         ];
-                        echo '<li>' . sprintf(__('%1$s: %2$s'), __($pt_info['label']), dotclear()->blog()->posts()->getPosts($params, true)->fInt()) . '</li>';
+                        echo '<li>' . sprintf(__('%1$s: %2$s'), __($pt_info['label']), App::core()->blog()->posts()->getPosts($params, true)->fInt()) . '</li>';
                     }
                     echo '</ul>';
 
@@ -962,11 +963,11 @@ class BlogPref extends AbstractPage
                     }
                     echo '</ul>';
 
-                    if (!$v['super'] && dotclear()->user()->isSuperAdmin()) {
-                        echo '<form action="' . dotclear()->adminurl()->root() . '" method="post">' .
+                    if (!$v['super'] && App::core()->user()->isSuperAdmin()) {
+                        echo '<form action="' . App::core()->adminurl()->root() . '" method="post">' .
                         '<p class="change-user-perm"><input type="submit" class="reset" value="' . __('Change permissions') . '" />' .
-                        dotclear()->adminurl()->getHiddenFormFields('admin.user.actions', [
-                            'redir'   => dotclear()->adminurl()->get('admin.blog.pref', ['id' => $k], '&'),
+                        App::core()->adminurl()->getHiddenFormFields('admin.user.actions', [
+                            'redir'   => App::core()->adminurl()->get('admin.blog.pref', ['id' => $k], '&'),
                             'action'  => 'perms',
                             'users[]' => $k,
                             'blogs[]' => $this->blog_id,
@@ -977,8 +978,8 @@ class BlogPref extends AbstractPage
                 }
             }
             echo '</div>';
-            if (dotclear()->blog()->id != $current_blog_id) {
-                dotclear()->setBlog($current_blog_id);
+            if (App::core()->blog()->id != $current_blog_id) {
+                App::core()->setBlog($current_blog_id);
             }
         }
 

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Database\Statement;
 
 // Dotclear\Database\Statement\InsertStatement
+use Dotclear\App;
 
 /**
  * Insert Statement : small utility to build insert queries.
@@ -95,7 +96,7 @@ class InsertStatement extends SqlStatement
     public function statement(): string
     {
         // --BEHAVIOR-- coreBeforeInsertStatement
-        dotclear()->behavior()->call('coreBeforeInsertStatement', $this);
+        App::core()->behavior()->call('coreBeforeInsertStatement', $this);
 
         // Check if source given
         if (!count($this->from)) {
@@ -130,7 +131,7 @@ class InsertStatement extends SqlStatement
         $query = trim($query);
 
         // --BEHAVIOR-- coreAfertInsertStatement
-        dotclear()->behavior()->call('coreAfterInsertStatement', $this, $query);
+        App::core()->behavior()->call('coreAfterInsertStatement', $this, $query);
 
         return $query;
     }
@@ -143,7 +144,7 @@ class InsertStatement extends SqlStatement
     public function insert(): bool
     {
         if (($sql = $this->statement())) {
-            return dotclear()->con()->execute($sql);
+            return App::core()->con()->execute($sql);
         }
 
         return false;

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Database\Statement;
 
 // Dotclear\Database\Statement\UpdateStatement
+use Dotclear\App;
 use Dotclear\Database\Cursor;
 
 /**
@@ -109,7 +110,7 @@ class UpdateStatement extends SqlStatement
     public function whereStatement(): string
     {
         // --BEHAVIOR-- coreBeforeUpdateWhereStatement
-        dotclear()->behavior()->call('coreBeforeUpdateWhereStatement', $this);
+        App::core()->behavior()->call('coreBeforeUpdateWhereStatement', $this);
 
         $query = '';
 
@@ -134,7 +135,7 @@ class UpdateStatement extends SqlStatement
         $query = trim($query);
 
         // --BEHAVIOR-- coreAfertUpdateWhereStatement
-        dotclear()->behavior()->call('coreAfterUpdateWhereStatement', $this, $query);
+        App::core()->behavior()->call('coreAfterUpdateWhereStatement', $this, $query);
 
         return $query;
     }
@@ -147,7 +148,7 @@ class UpdateStatement extends SqlStatement
     public function statement(): string
     {
         // --BEHAVIOR-- coreBeforeUpdateStatement
-        dotclear()->behavior()->call('coreBeforeUpdateStatement', $this);
+        App::core()->behavior()->call('coreBeforeUpdateStatement', $this);
 
         // Check if source given
         if (!count($this->from)) {
@@ -186,7 +187,7 @@ class UpdateStatement extends SqlStatement
         $query = trim($query);
 
         // --BEHAVIOR-- coreAfertUpdateStatement
-        dotclear()->behavior()->call('coreAfterUpdateStatement', $this, $query);
+        App::core()->behavior()->call('coreAfterUpdateStatement', $this, $query);
 
         return $query;
     }
@@ -203,7 +204,7 @@ class UpdateStatement extends SqlStatement
         }
 
         if (($sql = $this->statement())) {
-            return dotclear()->con()->execute($sql);
+            return App::core()->con()->execute($sql);
         }
 
         return false;

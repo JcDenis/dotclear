@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\Blogroll\Public;
 
 // Dotclear\Plugin\Blogroll\Public\BlogrollTemplate
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Plugin\Blogroll\Common\Blogroll;
@@ -30,8 +31,8 @@ class BlogrollTemplate
 
     public function __construct()
     {
-        dotclear()->template()->addValue('Blogroll', [$this, 'blogroll']);
-        dotclear()->template()->addValue('BlogrollXbelLink', [$this, 'blogrollXbelLink']);
+        App::core()->template()->addValue('Blogroll', [$this, 'blogroll']);
+        App::core()->template()->addValue('BlogrollXbelLink', [$this, 'blogrollXbelLink']);
     }
 
     public function blogroll(ArrayObject $attr): string
@@ -65,7 +66,7 @@ class BlogrollTemplate
 
     public function blogrollXbelLink(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf(dotclear()->template()->getFilters($attr), 'dotclear()->blog()->getURLFor("xbel")') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf(App::core()->template()->getFilters($attr), 'App::core()->blog()->getURLFor("xbel")') . ';' . self::$toff;
     }
 
     public static function getList(string $cat_title = '<h3>%s</h3>', string $block = '<ul>%s</ul>', string $item = '<li>%s</li>', ?string $category = null): string

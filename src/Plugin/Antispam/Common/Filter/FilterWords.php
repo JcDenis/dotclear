@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Antispam\Common\Filter;
 
 // Dotclear\Plugin\Antispam\Common\Filter\FilterWords
+use Dotclear\App;
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\InsertStatement;
@@ -37,7 +38,7 @@ class FilterWords extends Spamfilter
     public function __construct()
     {
         parent::__construct();
-        $this->table = dotclear()->prefix . 'spamrule';
+        $this->table = App::core()->prefix . 'spamrule';
     }
 
     protected function setInfo(): void
@@ -82,23 +83,23 @@ class FilterWords extends Spamfilter
         if (!empty($_POST['createlist'])) {
             try {
                 $this->defaultWordsList();
-                dotclear()->notice()->addSuccessNotice(__('Words have been successfully added.'));
+                App::core()->notice()->addSuccessNotice(__('Words have been successfully added.'));
                 Http::redirect($url);
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
         // Adding a word
         if (!empty($_POST['swa'])) {
-            $globalsw = !empty($_POST['globalsw']) && dotclear()->user()->isSuperAdmin();
+            $globalsw = !empty($_POST['globalsw']) && App::core()->user()->isSuperAdmin();
 
             try {
                 $this->addRule($_POST['swa'], $globalsw);
-                dotclear()->notice()->addSuccessNotice(__('Word has been successfully added.'));
+                App::core()->notice()->addSuccessNotice(__('Word has been successfully added.'));
                 Http::redirect($url);
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
@@ -106,10 +107,10 @@ class FilterWords extends Spamfilter
         if (!empty($_POST['swd']) && is_array($_POST['swd'])) {
             try {
                 $this->removeRule($_POST['swd']);
-                dotclear()->notice()->addSuccessNotice(__('Words have been successfully removed.'));
+                App::core()->notice()->addSuccessNotice(__('Words have been successfully removed.'));
                 Http::redirect($url);
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
@@ -118,12 +119,12 @@ class FilterWords extends Spamfilter
         $res = '<form action="' . Html::escapeURL($url) . '" method="post" class="fieldset">' .
         '<p><label class="classic" for="swa">' . __('Add a word ') . '</label> ' . Form::field('swa', 20, 128);
 
-        if (dotclear()->user()->isSuperAdmin()) {
+        if (App::core()->user()->isSuperAdmin()) {
             $res .= '<label class="classic" for="globalsw">' . Form::checkbox('globalsw', 1) .
             __('Global word (used for all blogs)') . '</label> ';
         }
 
-        $res .= dotclear()->nonce()->form() .
+        $res .= App::core()->nonce()->form() .
         '</p>' .
         '<p><input type="submit" value="' . __('Add') . '"/></p>' .
             '</form>';
@@ -144,7 +145,7 @@ class FilterWords extends Spamfilter
                 $p_style = '';
 
                 if (!$rs->f('blog_id')) {
-                    $disabled_word = !dotclear()->user()->isSuperAdmin();
+                    $disabled_word = !App::core()->user()->isSuperAdmin();
                     $p_style .= ' global';
                 }
 
@@ -178,17 +179,17 @@ class FilterWords extends Spamfilter
 
             $res .= '</div>' .
             '<p>' . Form::hidden(['spamwords'], 1) .
-            dotclear()->nonce()->form() .
+            App::core()->nonce()->form() .
             '<input class="submit delete" type="submit" value="' . __('Delete selected words') . '"/></p>' .
                 '</form>';
         }
 
-        if (dotclear()->user()->isSuperAdmin()) {
+        if (App::core()->user()->isSuperAdmin()) {
             $res .= '<form action="' . Html::escapeURL($url) . '" method="post">' .
             '<p><input type="submit" value="' . __('Create default wordlist') . '" />' .
             Form::hidden(['spamwords'], 1) .
             Form::hidden(['createlist'], 1) .
-            dotclear()->nonce()->form() . '</p>' .
+            App::core()->nonce()->form() . '</p>' .
                 '</form>';
         }
 
@@ -207,7 +208,7 @@ class FilterWords extends Spamfilter
             ])
             ->where('rule_type = ' . $sql->quote('word'))
             ->and($sql->orGroup([
-                'blog_id = ' . $sql->quote(dotclear()->blog()->id),
+                'blog_id = ' . $sql->quote(App::core()->blog()->id),
                 'blog_id IS NULL',
             ]))
             ->order([
@@ -229,7 +230,7 @@ class FilterWords extends Spamfilter
         ;
 
         if (!$general) {
-            $sql->and('blog_id = ' . $sql->quote(dotclear()->blog()->id));
+            $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
         }
 
         $rs = $sql->select();
@@ -244,9 +245,9 @@ class FilterWords extends Spamfilter
                 ->set('rule_type = ' . $sql->quote('word'))
                 ->set('rule_content = ' . $sql->quote($content))
                 ->set(
-                    true === $general && dotclear()->user()->isSuperAdmin() ?
+                    true === $general && App::core()->user()->isSuperAdmin() ?
                     'blog_id = NULL' :
-                    'blog_id = ' . $sql->quote(dotclear()->blog()->id)
+                    'blog_id = ' . $sql->quote(App::core()->blog()->id)
                 )
                 ->where('rule_id = ' . $rs->fInt('rule_id'))
                 ->from($this->table)
@@ -264,7 +265,7 @@ class FilterWords extends Spamfilter
                 ->line([[
                     $sql->quote('word'),
                     $sql->quote($content),
-                    $general && dotclear()->user()->isSuperAdmin() ? 'NULL' : $sql->quote(dotclear()->blog()->id),
+                    $general && App::core()->user()->isSuperAdmin() ? 'NULL' : $sql->quote(App::core()->blog()->id),
                     SelectStatement::init(__METHOD__)
                         ->column($sql->max('rule_id'))
                         ->from($this->table)
@@ -290,8 +291,8 @@ class FilterWords extends Spamfilter
             $sql->where('rule_id = ' . $ids);
         }
 
-        if (!dotclear()->user()->isSuperAdmin()) {
-            $sql->and('blog_id = ' . $sql->quote(dotclear()->blog()->id));
+        if (!App::core()->user()->isSuperAdmin()) {
+            $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
         }
 
         $sql

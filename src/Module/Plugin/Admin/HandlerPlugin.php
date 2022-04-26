@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Module\Plugin\Admin;
 
 // Dotclear\Module\Plugin\Admin\HandlerPlugin
+use Dotclear\App;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Module\AbstractPage;
@@ -42,27 +43,27 @@ class HandlerPlugin extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        if (dotclear()->plugins()?->disableModulesDependencies(dotclear()->adminurl()->get('admin.plugins'))) {
+        if (App::core()->plugins()?->disableModulesDependencies(App::core()->adminurl()->get('admin.plugins'))) {
             exit;
         }
 
         // Module configuration
-        if (dotclear()->plugins()?->loadModuleConfiguration()) {
-            dotclear()->plugins()->parseModuleConfiguration();
+        if (App::core()->plugins()?->loadModuleConfiguration()) {
+            App::core()->plugins()->parseModuleConfiguration();
 
             // Page setup
             $this->setPageTitle(__('Plugins management'));
             $this->setPageHelp('core_plugins_conf');
 
             // --BEHAVIOR-- pluginsToolsHeaders
-            $head = dotclear()->behavior()->call('pluginsToolsHeaders', true);
+            $head = App::core()->behavior()->call('pluginsToolsHeaders', true);
             if ($head) {
                 $this->setPageHead($head);
             }
             $this->setPageBreadcrumb([
-                Html::escapeHTML(dotclear()->blog()->name)                           => '',
-                __('Plugins management')                                             => dotclear()->plugins()->getURL('', false),
-                '<span class="page-title">' . __('Plugin configuration') . '</span>' => '',
+                Html::escapeHTML(App::core()->blog()->name)                           => '',
+                __('Plugins management')                                              => App::core()->plugins()->getURL('', false),
+                '<span class="page-title">' . __('Plugin configuration') . '</span>'  => '',
             ]);
 
             // Stop reading code here
@@ -72,14 +73,14 @@ class HandlerPlugin extends AbstractPage
         } else {
             // -- Execute actions --
             try {
-                dotclear()->plugins()->doActions();
+                App::core()->plugins()->doActions();
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
 
             // -- Plugin install --
-            if (!dotclear()->error()->flag()) {
-                $this->modules_install = dotclear()->plugins()->installModules();
+            if (!App::core()->error()->flag()) {
+                $this->modules_install = App::core()->plugins()->installModules();
             }
 
             // Page setup
@@ -87,11 +88,11 @@ class HandlerPlugin extends AbstractPage
                 ->setPageTitle(__('Plugins management'))
                 ->setPageHelp('core_plugins')
                 ->setPageHead(
-                    dotclear()->resource()->load('_plugins.js') .
-                    dotclear()->resource()->pageTabs() .
+                    App::core()->resource()->load('_plugins.js') .
+                    App::core()->resource()->pageTabs() .
 
                     // --BEHAVIOR-- pluginsToolsHeaders
-                    (string) dotclear()->behavior()->call('pluginsToolsHeaders', false)
+                    (string) App::core()->behavior()->call('pluginsToolsHeaders', false)
                 )
                 ->setPageBreadcrumb([
                     __('System')             => '',
@@ -110,7 +111,7 @@ class HandlerPlugin extends AbstractPage
             echo '<div class="static-msg">' . __('Following plugins have been installed:') . '<ul>';
 
             foreach ($this->modules_install['success'] as $k => $v) {
-                $info = implode(' - ', dotclear()->plugins()->getSettingsUrls($k, true));
+                $info = implode(' - ', App::core()->plugins()->getSettingsUrls($k, true));
                 echo '<li>' . $k . ('' !== $info ? ' → ' . $info : '') . '</li>';
             }
 
@@ -127,21 +128,21 @@ class HandlerPlugin extends AbstractPage
         }
 
         if ($this->from_configuration) {
-            echo dotclear()->plugins()->displayModuleConfiguration();
+            echo App::core()->plugins()->displayModuleConfiguration();
 
             return;
         }
 
         // -- Display modules lists --
-        if (dotclear()->user()->isSuperAdmin()) {
-            if (!dotclear()->error()->flag()) {
+        if (App::core()->user()->isSuperAdmin()) {
+            if (!App::core()->error()->flag()) {
                 if (!empty($_GET['nocache'])) {
-                    dotclear()->notice()->success(__('Manual checking of plugins update done successfully.'));
+                    App::core()->notice()->success(__('Manual checking of plugins update done successfully.'));
                 }
             }
 
             // Updated modules from repo
-            $modules = dotclear()->plugins()->store->get(true);
+            $modules = App::core()->plugins()->store->get(true);
             if (!empty($modules)) {
                 echo '<div class="multi-part" id="update" title="' . Html::escapeHTML(__('Update plugins')) . '">' .
                 '<h3>' . Html::escapeHTML(__('Update plugins')) . '</h3>' .
@@ -150,7 +151,7 @@ class HandlerPlugin extends AbstractPage
                     count($modules)
                 ) . '</p>';
 
-                dotclear()->plugins()
+                App::core()->plugins()
                     ->setList('plugin-update')
                     ->setTab('update')
                     ->setData($modules)
@@ -168,10 +169,10 @@ class HandlerPlugin extends AbstractPage
 
                     '</div>';
             } else {
-                echo '<form action="' . dotclear()->plugins()->getURL('', false) . '" method="get">' .
+                echo '<form action="' . App::core()->plugins()->getURL('', false) . '" method="get">' .
                 '<p><input type="hidden" name="nocache" value="1" />' .
                 '<input type="submit" value="' . __('Force checking update of plugins') . '" /></p>' .
-                Form::hidden(['handler'], dotclear()->adminurl()->called()) .
+                Form::hidden(['handler'], App::core()->adminurl()->called()) .
                     '</form>';
             }
         }
@@ -179,12 +180,12 @@ class HandlerPlugin extends AbstractPage
         echo '<div class="multi-part" id="plugins" title="' . __('Installed plugins') . '">';
 
         // Activated modules
-        $modules = dotclear()->plugins()->getModules();
+        $modules = App::core()->plugins()->getModules();
         if (!empty($modules)) {
-            echo '<h3>' . (dotclear()->user()->isSuperAdmin() ? __('Activated plugins') : __('Installed plugins')) . '</h3>' .
+            echo '<h3>' . (App::core()->user()->isSuperAdmin() ? __('Activated plugins') : __('Installed plugins')) . '</h3>' .
             '<p class="more-info">' . __('You can configure and manage installed plugins from this list.') . '</p>';
 
-            dotclear()->plugins()
+            App::core()->plugins()
                 ->setList('plugin-activate')
                 ->setTab('plugins')
                 ->setData($modules)
@@ -196,13 +197,13 @@ class HandlerPlugin extends AbstractPage
         }
 
         // Deactivated modules
-        if (dotclear()->user()->isSuperAdmin()) {
-            $modules = dotclear()->plugins()->getDisabledModules();
+        if (App::core()->user()->isSuperAdmin()) {
+            $modules = App::core()->plugins()->getDisabledModules();
             if (!empty($modules)) {
                 echo '<h3>' . __('Deactivated plugins') . '</h3>' .
                 '<p class="more-info">' . __('Deactivated plugins are installed but not usable. You can activate them from here.') . '</p>';
 
-                dotclear()->plugins()
+                App::core()->plugins()
                     ->setList('plugin-deactivate')
                     ->setTab('plugins')
                     ->setData($modules)
@@ -216,16 +217,16 @@ class HandlerPlugin extends AbstractPage
 
         echo '</div>';
 
-        if (dotclear()->user()->isSuperAdmin() && dotclear()->plugins()->isWritablePath()) {
+        if (App::core()->user()->isSuperAdmin() && App::core()->plugins()->isWritablePath()) {
             // New modules from repo
-            $search  = dotclear()->plugins()->getSearch();
-            $modules = $search ? dotclear()->plugins()->store->search($search) : dotclear()->plugins()->store->get();
+            $search  = App::core()->plugins()->getSearch();
+            $modules = $search ? App::core()->plugins()->store->search($search) : App::core()->plugins()->store->get();
 
             if (!empty($search) || !empty($modules)) {
                 echo '<div class="multi-part" id="new" title="' . __('Add plugins') . '">' .
                 '<h3>' . __('Add plugins from repository') . '</h3>';
 
-                dotclear()->plugins()
+                App::core()->plugins()
                     ->setList('plugin-new')
                     ->setTab('new')
                     ->setData($modules)
@@ -252,16 +253,16 @@ class HandlerPlugin extends AbstractPage
             '<h3>' . __('Add plugins from a package') . '</h3>' .
             '<p class="more-info">' . __('You can install plugins by uploading or downloading zip files.') . '</p>';
 
-            dotclear()->plugins()->displayManualForm();
+            App::core()->plugins()->displayManualForm();
 
             echo '</div>';
         }
 
         // --BEHAVIOR-- pluginsToolsTabs
-        dotclear()->behavior()->call('pluginsToolsTabs');
+        App::core()->behavior()->call('pluginsToolsTabs');
 
         // -- Notice for super admin --
-        if (dotclear()->user()->isSuperAdmin() && !dotclear()->plugins()->isWritablePath()) {
+        if (App::core()->user()->isSuperAdmin() && !App::core()->plugins()->isWritablePath()) {
             echo '<p class="warning">' . __('Some functions are disabled, please give write access to your plugins directory to enable them.') . '</p>';
         }
     }

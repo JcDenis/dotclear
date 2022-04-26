@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\Blog\Settings;
 
 // Dotclear\Core\Blog\Settings\Settings
+use Dotclear\App;
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\SelectStatement;
@@ -51,7 +52,7 @@ class Settings
      */
     public function __construct(protected string|null $blog_id)
     {
-        $this->table = dotclear()->prefix . 'setting';
+        $this->table = App::core()->prefix . 'setting';
         $this->loadSettings();
     }
 
@@ -80,7 +81,7 @@ class Settings
                 ->select()
             ;
         } catch (\Exception) {
-            trigger_error(__('Unable to retrieve namespaces:') . ' ' . dotclear()->con()->error(), E_USER_ERROR);
+            trigger_error(__('Unable to retrieve namespaces:') . ' ' . App::core()->con()->error(), E_USER_ERROR);
         }
 
         // Prevent empty tables (install phase, for instance)
@@ -247,7 +248,7 @@ class Settings
      */
     public function updateSetting(Record $rs): void
     {
-        $cur = dotclear()->con()->openCursor($this->table)
+        $cur = App::core()->con()->openCursor($this->table)
             ->setField('setting_id', $rs->f('setting_id'))
             ->setField('setting_value', $rs->f('setting_value'))
             ->setField('setting_type', $rs->f('setting_type'))
@@ -289,6 +290,6 @@ class Settings
             ->delete()
         ;
 
-        return dotclear()->con()->changes();
+        return App::core()->con()->changes();
     }
 }

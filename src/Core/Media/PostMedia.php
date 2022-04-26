@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\Media;
 
 // Dotclear\Core\Media\PostMedia
+use Dotclear\App;
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\InsertStatement;
@@ -54,11 +55,11 @@ class PostMedia
                 'M.user_id',
                 'PM.post_id',
             ])
-            ->from(dotclear()->prefix . 'media M')
+            ->from(App::core()->prefix . 'media M')
             ->join(
                 JoinStatement::init(__METHOD__)
                     ->type('INNER')
-                    ->from(dotclear()->prefix . $this->table . ' PM')
+                    ->from(App::core()->prefix . $this->table . ' PM')
                     ->on('M.media_id = PM.media_id')
                     ->statement()
             )
@@ -111,7 +112,7 @@ class PostMedia
         }
 
         $sql = new InsertStatement(__METHOD__);
-        $sql->from(dotclear()->prefix . $this->table)
+        $sql->from(App::core()->prefix . $this->table)
             ->columns([
                 'post_id',
                 'media_id',
@@ -125,7 +126,7 @@ class PostMedia
             ->insert()
         ;
 
-        dotclear()->blog()->triggerBlog();
+        App::core()->blog()->triggerBlog();
     }
 
     /**
@@ -138,7 +139,7 @@ class PostMedia
     public function removePostMedia(int $post_id, int $media_id, ?string $link_type = null): void
     {
         $sql = DeleteStatement::init(__METHOD__)
-            ->from(dotclear()->prefix . $this->table)
+            ->from(App::core()->prefix . $this->table)
             ->where('post_id = ' . $post_id)
             ->and('media_id = ' . $media_id)
         ;
@@ -148,6 +149,6 @@ class PostMedia
         }
         $sql->delete();
 
-        dotclear()->blog()->triggerBlog();
+        App::core()->blog()->triggerBlog();
     }
 }

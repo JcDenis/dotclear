@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Resource;
 
 // Dotclear\Process\Admin\Resource\Resource
+use Dotclear\App;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Html;
@@ -62,7 +63,7 @@ class Resource
             $src = implode('/', [$type, $id, $src]);
         }
 
-        return dotclear()->config()->get('admin_url') . (str_contains($src, '?') ? '' : '?') . $this->query . '=' . $src;
+        return App::core()->config()->get('admin_url') . (str_contains($src, '?') ? '' : '?') . $this->query . '=' . $src;
     }
 
     /**
@@ -169,7 +170,7 @@ class Resource
 
         $url = Html::escapeHTML($url);
 
-        $url .= '&amp;v=' . ($version ?? (!dotclear()->production() ? md5(uniqid()) : dotclear()->config()->get('core_version')));
+        $url .= '&amp;v=' . ($version ?? (!App::core()->production() ? md5(uniqid()) : App::core()->config()->get('core_version')));
 
         if ($preload) {
             return '<link rel="preload" href="' . $url . '" as="' . ($option ?: 'style') . '" />' . "\n";
@@ -195,7 +196,7 @@ class Resource
 
         // Check if it in Var path
         $var_src  = explode('/', $src);
-        $var_path = dotclear()->config()->get('var_dir');
+        $var_path = App::core()->config()->get('var_dir');
         if (1 < count($var_src) && array_shift($var_src) == 'var' && !empty($var_path) && is_dir($var_path)) {
             $dirs[] = $var_path;
             $src    = implode('/', $var_src);
@@ -232,7 +233,7 @@ class Resource
         $dirs[] = Path::implodeRoot('Core', 'resources', 'js');
 
         // Search dirs
-        Files::serveFile($src, $dirs, dotclear()->config()->get('file_sever_type'));
+        Files::serveFile($src, $dirs, App::core()->config()->get('file_sever_type'));
     }
 
     /**
@@ -253,12 +254,12 @@ class Resource
     public function common(): string
     {
         $nocheckadblocker = null;
-        if (dotclear()->user()->preference()) {
-            $nocheckadblocker = dotclear()->user()->preference()->get('interface')->get('nocheckadblocker');
+        if (App::core()->user()->preference()) {
+            $nocheckadblocker = App::core()->user()->preference()->get('interface')->get('nocheckadblocker');
         }
 
         $js = [
-            'nonce' => dotclear()->nonce()->get(),
+            'nonce' => App::core()->nonce()->get(),
 
             'img_plus_src' => '?df=images/expand.svg',
             'img_plus_txt' => '▶',
@@ -268,7 +269,7 @@ class Resource
             'img_minus_txt' => '▼',
             'img_minus_alt' => __('hide'),
 
-            'adblocker_check' => dotclear()->config()->get('admin_adblocker_check') && true !== $nocheckadblocker,
+            'adblocker_check' => App::core()->config()->get('admin_adblocker_check') && true !== $nocheckadblocker,
         ];
 
         $js_msg = [
@@ -342,9 +343,9 @@ class Resource
         $this->load('prepend.js') .
         $this->load('jquery/jquery.js') .
         (
-            !dotclear()->production() ?
+            !App::core()->production() ?
             $this->json('dotclear_jquery', [
-                'mute' => false === dotclear()->blog()?->settings()->get('system')->get('jquery_migrate_mute'),
+                'mute' => false === App::core()->blog()?->settings()->get('system')->get('jquery_migrate_mute'),
             ]) .
             $this->load('jquery-mute.js') .
             $this->load('jquery/jquery-migrate.js') :
@@ -366,8 +367,8 @@ class Resource
     public function toggles(): string
     {
         $js = [];
-        if (dotclear()->user()->preference()) {
-            $unfolded_sections = explode(',', (string) dotclear()->user()->preference()->get('toggles')->get('unfolded_sections'));
+        if (App::core()->user()->preference()) {
+            $unfolded_sections = explode(',', (string) App::core()->user()->preference()->get('toggles')->get('unfolded_sections'));
             foreach ($unfolded_sections as $k => &$v) {
                 if ('' !== $v) {
                     $js[$unfolded_sections[$k]] = true;
@@ -395,7 +396,7 @@ class Resource
         $params = array_merge($params, [
             'sess_id=' . session_id(),
             'sess_uid=' . $_SESSION['sess_browser_uid'],
-            'xd_check=' . dotclear()->nonce()->get(),
+            'xd_check=' . App::core()->nonce()->get(),
         ]);
 
         $js_msg = [

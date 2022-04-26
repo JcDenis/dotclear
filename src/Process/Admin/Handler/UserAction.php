@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\UserAction
+use Dotclear\App;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Html\Form;
@@ -39,7 +40,7 @@ class UserAction extends AbstractPage
         $this->users = [];
         if (!empty($_POST['users']) && is_array($_POST['users'])) {
             foreach ($_POST['users'] as $u) {
-                if (dotclear()->users()->userExists($u)) {
+                if (App::core()->users()->userExists($u)) {
                     $this->users[] = $u;
                 }
             }
@@ -48,7 +49,7 @@ class UserAction extends AbstractPage
         $this->blogs = [];
         if (!empty($_POST['blogs']) && is_array($_POST['blogs'])) {
             foreach ($_POST['blogs'] as $b) {
-                if (dotclear()->blogs()->blogExists($b)) {
+                if (App::core()->blogs()->blogExists($b)) {
                     $this->blogs[] = $b;
                 }
             }
@@ -60,7 +61,7 @@ class UserAction extends AbstractPage
             if (isset($_POST['redir']) && !str_contains($_POST['redir'], '://')) {
                 $this->user_redir = $_POST['redir'];
             } else {
-                $this->user_redir = dotclear()->adminurl()->get('admin.users', [
+                $this->user_redir = App::core()->adminurl()->get('admin.users', [
                     'q'      => $_POST['q'] ?? '',
                     'sortby' => $_POST['sortby'] ?? '',
                     'order'  => $_POST['order'] ?? '',
@@ -70,30 +71,30 @@ class UserAction extends AbstractPage
             }
 
             if (empty($this->users)) {
-                dotclear()->error()->add(__('No blog or user given.'));
+                App::core()->error()->add(__('No blog or user given.'));
             }
 
             // --BEHAVIOR-- adminUsersActions
-            dotclear()->behavior()->call('adminUsersActions', $this->users, $this->blogs, $this->user_action, $this->user_redir);
+            App::core()->behavior()->call('adminUsersActions', $this->users, $this->blogs, $this->user_action, $this->user_redir);
 
             // Delete users
             if ('deleteuser' == $this->user_action && !empty($this->users)) {
                 foreach ($this->users as $u) {
                     try {
-                        if (dotclear()->user()->userID() == $u) {
+                        if (App::core()->user()->userID() == $u) {
                             throw new AdminException(__('You cannot delete yourself.'));
                         }
 
                         // --BEHAVIOR-- adminBeforeUserDelete
-                        dotclear()->behavior()->call('adminBeforeUserDelete', $u);
+                        App::core()->behavior()->call('adminBeforeUserDelete', $u);
 
-                        dotclear()->users()->delUser($u);
+                        App::core()->users()->delUser($u);
                     } catch (Exception $e) {
-                        dotclear()->error()->add($e->getMessage());
+                        App::core()->error()->add($e->getMessage());
                     }
                 }
-                if (!dotclear()->error()->flag()) {
-                    dotclear()->notice()->addSuccessNotice(__('User has been successfully deleted.'));
+                if (!App::core()->error()->flag()) {
+                    App::core()->notice()->addSuccessNotice(__('User has been successfully deleted.'));
                     Http::redirect($this->user_redir);
                 }
             }
@@ -101,7 +102,7 @@ class UserAction extends AbstractPage
             // Update users perms
             if ('updateperm' == $this->user_action && !empty($this->users) && !empty($this->blogs)) {
                 try {
-                    if (empty($_POST['your_pwd']) || !dotclear()->user()->checkPassword($_POST['your_pwd'])) {
+                    if (empty($_POST['your_pwd']) || !App::core()->user()->checkPassword($_POST['your_pwd'])) {
                         throw new AdminException(__('Password verification failed'));
                     }
 
@@ -117,14 +118,14 @@ class UserAction extends AbstractPage
                                 }
                             }
 
-                            dotclear()->users()->setUserBlogPermissions($u, $b, $set_perms, true);
+                            App::core()->users()->setUserBlogPermissions($u, $b, $set_perms, true);
                         }
                     }
                 } catch (Exception $e) {
-                    dotclear()->error()->add($e->getMessage());
+                    App::core()->error()->add($e->getMessage());
                 }
-                if (!dotclear()->error()->flag()) {
-                    dotclear()->notice()->addSuccessNotice(__('User has been successfully updated.'));
+                if (!App::core()->error()->flag()) {
+                    App::core()->notice()->addSuccessNotice(__('User has been successfully updated.'));
                     Http::redirect($this->user_redir);
                 }
             }
@@ -133,13 +134,13 @@ class UserAction extends AbstractPage
         if (!empty($this->users) && empty($this->blogs) && 'blogs' == $this->user_action) {
             $this->setPageBreadcrumb([
                 __('System')      => '',
-                __('Users')       => dotclear()->adminurl()->get('admin.users'),
+                __('Users')       => App::core()->adminurl()->get('admin.users'),
                 __('Permissions') => '',
             ]);
         } else {
             $this->setPageBreadcrumb([
                 __('System')  => '',
-                __('Users')   => dotclear()->adminurl()->get('admin.users'),
+                __('Users')   => App::core()->adminurl()->get('admin.users'),
                 __('Actions') => '',
             ]);
         }
@@ -148,9 +149,9 @@ class UserAction extends AbstractPage
             ->setPageTitle(__('Users'))
             ->setPageHelp('core_users')
             ->setPageHead(
-                dotclear()->resource()->load('_users_actions.js') .
+                App::core()->resource()->load('_users_actions.js') .
                 // --BEHAVIOR-- adminUsersActionsHeaders
-                dotclear()->behavior()->call('adminUsersActionsHeaders')
+                App::core()->behavior()->call('adminUsersActionsHeaders')
             )
         ;
 
@@ -182,7 +183,7 @@ class UserAction extends AbstractPage
         echo '<p><a class="back" href="' . Html::escapeURL($this->user_redir) . '">' . __('Back to user profile') . '</a></p>';
 
         // --BEHAVIOR-- adminUsersActionsContent
-        dotclear()->behavior()->call('adminUsersActionsContent', $this->user_action, $hidden_fields);
+        App::core()->behavior()->call('adminUsersActionsContent', $this->user_action, $hidden_fields);
 
         // Blog list where to set permissions
         if (!empty($this->users) && empty($this->blogs) && 'blogs' == $this->user_action) {
@@ -191,13 +192,13 @@ class UserAction extends AbstractPage
             $user_list = [];
 
             try {
-                $rs      = dotclear()->blogs()->getBlogs();
+                $rs      = App::core()->blogs()->getBlogs();
                 $nb_blog = $rs->count();
             } catch (\Exception) {
             }
 
             foreach ($this->users as $u) {
-                $user_list[] = '<a href="' . dotclear()->adminurl()->get('admin.user', ['id' => $u]) . '">' . $u . '</a>';
+                $user_list[] = '<a href="' . App::core()->adminurl()->get('admin.user', ['id' => $u]) . '">' . $u . '</a>';
             }
 
             echo '<p>' . sprintf(
@@ -208,7 +209,7 @@ class UserAction extends AbstractPage
             if (0 == $nb_blog) {
                 echo '<p><strong>' . __('No blog') . '</strong></p>';
             } else {
-                echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-blogs">' .
+                echo '<form action="' . App::core()->adminurl()->root() . '" method="post" id="form-blogs">' .
                 '<div class="table-outer clear">' .
                 '<table><tr>' .
                 '<th class="nowrap" colspan="2">' . __('Blog ID') . '</th>' .
@@ -220,7 +221,7 @@ class UserAction extends AbstractPage
 
                 while ($rs->fetch()) {
                     $img_status = 1 == $rs->fInt('blog_status') ? 'check-on' : (0 == $rs->fInt('blog_status') ? 'check-off' : 'check-wrn');
-                    $txt_status = dotclear()->blogs()->getBlogStatus($rs->fInt('blog_status'));
+                    $txt_status = App::core()->blogs()->getBlogStatus($rs->fInt('blog_status'));
                     $img_status = sprintf('<img src="?df=images/%1$s.png" alt="%2$s" title="%2$s" />', $img_status, $txt_status);
 
                     echo '<tr class="line">' .
@@ -237,7 +238,7 @@ class UserAction extends AbstractPage
                     '<td class="maximal">' . Html::escapeHTML($rs->f('blog_name')) . '</td>' .
                     '<td class="nowrap"><a class="outgoing" href="' . Html::escapeHTML($rs->f('blog_url')) . '">' . Html::escapeHTML($rs->f('blog_url')) .
                     ' <img src="?df=images/outgoing-link.svg" alt="" /></a></td>' .
-                    '<td class="nowrap">' . dotclear()->blogs()->countBlogPosts($rs->f('blog_id')) . '</td>' .
+                    '<td class="nowrap">' . App::core()->blogs()->countBlogPosts($rs->f('blog_id')) . '</td>' .
                         '<td class="status">' . $img_status . '</td>' .
                         '</tr>';
                 }
@@ -246,7 +247,7 @@ class UserAction extends AbstractPage
                 '<p class="checkboxes-helpers"></p>' .
                 '<p><input id="do-action" type="submit" value="' . __('Set permissions') . '" />' .
                 $hidden_fields .
-                dotclear()->adminurl()->getHiddenFormFields('admin.user.actions', ['action' => 'perms'], true) . '</p>' .
+                App::core()->adminurl()->getHiddenFormFields('admin.user.actions', ['action' => 'perms'], true) . '</p>' .
                     '</form>';
             }
 
@@ -254,24 +255,24 @@ class UserAction extends AbstractPage
         } elseif (!empty($this->blogs) && !empty($this->users) && 'perms' == $this->user_action) {
             $user_perm = $user_list = [];
             if (count($this->users) == 1) {
-                $user_perm = dotclear()->users()->getUserPermissions($this->users[0]);
+                $user_perm = App::core()->users()->getUserPermissions($this->users[0]);
             }
 
             foreach ($this->users as $u) {
-                $user_list[] = '<a href="' . dotclear()->adminurl()->get('admin.user', ['id' => $u]) . '">' . $u . '</a>';
+                $user_list[] = '<a href="' . App::core()->adminurl()->get('admin.user', ['id' => $u]) . '">' . $u . '</a>';
             }
 
             echo '<p>' . sprintf(
                 __('You are about to change permissions on the following blogs for users %s.'),
                 implode(', ', $user_list)
             ) . '</p>' .
-            '<form id="permissions-form" action="' . dotclear()->adminurl()->root() . '" method="post">';
+            '<form id="permissions-form" action="' . App::core()->adminurl()->root() . '" method="post">';
 
             foreach ($this->blogs as $b) {
-                echo '<h3>' . ('Blog:') . ' <a href="' . dotclear()->adminurl()->get('admin.blog', ['id' => Html::escapeHTML($b)]) . '">' . Html::escapeHTML($b) . '</a>' .
+                echo '<h3>' . ('Blog:') . ' <a href="' . App::core()->adminurl()->get('admin.blog', ['id' => Html::escapeHTML($b)]) . '">' . Html::escapeHTML($b) . '</a>' .
                 Form::hidden(['blogs[]'], $b) . '</h3>';
                 $unknown_perms = $user_perm;
-                foreach (dotclear()->user()->getPermissionsTypes() as $perm_id => $perm) {
+                foreach (App::core()->user()->getPermissionsTypes() as $perm_id => $perm) {
                     $checked = false;
 
                     if (count($this->users) == 1) {
@@ -319,7 +320,7 @@ class UserAction extends AbstractPage
             ) . '</p>' .
             '<p><input type="submit" accesskey="s" value="' . __('Save') . '" />' .
             $hidden_fields .
-            dotclear()->adminurl()->getHiddenFormFields('admin.user.actions', ['action' => 'updateperm'], true) . '</p>' .
+            App::core()->adminurl()->getHiddenFormFields('admin.user.actions', ['action' => 'updateperm'], true) . '</p>' .
                 '</div>' .
                 '</form>';
         }

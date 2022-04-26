@@ -7,9 +7,10 @@
  */
 declare(strict_types=1);
 
-// Dotclear\Module\Iconset\TraitModulesIconset
-
 namespace Dotclear\Module\Iconset;
+
+// Dotclear\Module\Iconset\TraitModulesIconset
+use Dotclear\App;
 
 /**
  * Iconset modules methods.
@@ -25,12 +26,12 @@ trait TraitModulesIconset
 
     public function getModulesPath(): array
     {
-        return dotclear()->config()->get('iconset_dirs');
+        return App::core()->config()->get('iconset_dirs');
     }
 
     public function getStoreURL(): string
     {
-        return (string) dotclear()->blog()->settings()->get('system')->get('store_iconset_url');
+        return (string) App::core()->blog()->settings()->get('system')->get('store_iconset_url');
     }
 
     public function useStoreCache(): bool
@@ -40,6 +41,6 @@ trait TraitModulesIconset
 
     public function getDistributedModules(): array
     {
-        return dotclear()->config()->get('iconset_official');
+        return App::core()->config()->get('iconset_official');
     }
 }

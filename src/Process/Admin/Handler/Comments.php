@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\Comments
+use Dotclear\App;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Action\Action\CommentAction;
 use Dotclear\Process\Admin\Inventory\Inventory\CommentInventory;
@@ -32,7 +33,7 @@ class Comments extends AbstractPage
 
     protected function getActionInstance(): ?CommentAction
     {
-        return new CommentAction(dotclear()->adminurl()->get('admin.comments'));
+        return new CommentAction(App::core()->adminurl()->get('admin.comments'));
     }
 
     protected function getFilterInstance(): ?CommentFilter
@@ -52,10 +53,10 @@ class Comments extends AbstractPage
             'comment_spam_filter' => 'comment_spam_filter', ];
 
         // --BEHAVIOR-- adminCommentsSortbyLexCombo
-        dotclear()->behavior()->call('adminCommentsSortbyLexCombo', [&$sortby_lex]);
+        App::core()->behavior()->call('adminCommentsSortbyLexCombo', [&$sortby_lex]);
 
         $params['order'] = (array_key_exists($this->filter->get('sortby'), $sortby_lex) ?
-            dotclear()->con()->lexFields($sortby_lex[$this->filter->get('sortby')]) :
+            App::core()->con()->lexFields($sortby_lex[$this->filter->get('sortby')]) :
             $this->filter->get('sortby')) . ' ' . $this->filter->get('order');
 
         // default filter ? do not display spam
@@ -65,8 +66,8 @@ class Comments extends AbstractPage
         $params['no_content'] = true;
 
         return new CommentInventory(
-            dotclear()->blog()->comments()->getComments($params),
-            dotclear()->blog()->comments()->getComments($params, true)->fInt()
+            App::core()->blog()->comments()->getComments($params),
+            App::core()->blog()->comments()->getComments($params, true)->fInt()
         );
     }
 
@@ -74,11 +75,11 @@ class Comments extends AbstractPage
     {
         if (!empty($_POST['delete_all_spam'])) {
             try {
-                dotclear()->blog()->comments()->delJunkComments();
+                App::core()->blog()->comments()->delJunkComments();
                 $_SESSION['comments_del_spam'] = true;
-                dotclear()->adminurl()->redirect('admin.comments');
+                App::core()->adminurl()->redirect('admin.comments');
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
@@ -86,10 +87,10 @@ class Comments extends AbstractPage
         $this
             ->setPageTitle(__('Comments and trackbacks'))
             ->setPageHelp('core_comments')
-            ->setPageHead(dotclear()->resource()->load('_comments.js') . $this->filter->js())
+            ->setPageHead(App::core()->resource()->load('_comments.js') . $this->filter->js())
             ->setPageBreadcrumb([
-                Html::escapeHTML(dotclear()->blog()->name) => '',
-                __('Comments and trackbacks')              => '',
+                Html::escapeHTML(App::core()->blog()->name) => '',
+                __('Comments and trackbacks')               => '',
             ])
         ;
 
@@ -99,46 +100,46 @@ class Comments extends AbstractPage
     protected function getPageContent(): void
     {
         if (!empty($_GET['upd'])) {
-            dotclear()->notice()->success(__('Selected comments have been successfully updated.'));
+            App::core()->notice()->success(__('Selected comments have been successfully updated.'));
         } elseif (!empty($_GET['del'])) {
-            dotclear()->notice()->success(__('Selected comments have been successfully deleted.'));
+            App::core()->notice()->success(__('Selected comments have been successfully deleted.'));
         }
 
-        if (dotclear()->error()->flag()) {
+        if (App::core()->error()->flag()) {
             return;
         }
 
         $combo_action = [];
         $default      = '';
-        if (dotclear()->user()->check('delete,contentadmin', dotclear()->blog()->id) && -2 == $this->filter->get('status')) {
+        if (App::core()->user()->check('delete,contentadmin', App::core()->blog()->id) && -2 == $this->filter->get('status')) {
             $default = 'delete';
         }
 
         if (isset($_SESSION['comments_del_spam'])) {
-            dotclear()->notice()->message(__('Spam comments have been successfully deleted.'));
+            App::core()->notice()->message(__('Spam comments have been successfully deleted.'));
             unset($_SESSION['comments_del_spam']);
         }
 
-        $spam_count = dotclear()->blog()->comments()->getComments(['comment_status' => -2], true)->fInt();
+        $spam_count = App::core()->blog()->comments()->getComments(['comment_status' => -2], true)->fInt();
         if (0 < $spam_count) {
-            echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" class="fieldset">';
+            echo '<form action="' . App::core()->adminurl()->root() . '" method="post" class="fieldset">';
 
             if (!$this->filter->show() || -2 != $this->filter->get('status')) {
                 if (1 == $spam_count) {
                     echo '<p>' . sprintf(__('You have one spam comment.'), '<strong>' . $spam_count . '</strong>') . ' ' .
-                    '<a href="' . dotclear()->adminurl()->get('admin.comments', ['status' => -2]) . '">' . __('Show it.') . '</a></p>';
+                    '<a href="' . App::core()->adminurl()->get('admin.comments', ['status' => -2]) . '">' . __('Show it.') . '</a></p>';
                 } else {
                     echo '<p>' . sprintf(__('You have %s spam comments.'), '<strong>' . $spam_count . '</strong>') . ' ' .
-                    '<a href="' . dotclear()->adminurl()->get('admin.comments', ['status' => -2]) . '">' . __('Show them.') . '</a></p>';
+                    '<a href="' . App::core()->adminurl()->get('admin.comments', ['status' => -2]) . '">' . __('Show them.') . '</a></p>';
                 }
             }
 
             echo '<p>' .
-            dotclear()->adminurl()->getHiddenFormFields('admin.comments', [], true) .
+            App::core()->adminurl()->getHiddenFormFields('admin.comments', [], true) .
             '<input name="delete_all_spam" class="delete" type="submit" value="' . __('Delete all spams') . '" /></p>';
 
             // --BEHAVIOR-- adminCommentsSpamForm
-            dotclear()->behavior()->call('adminCommentsSpamForm');
+            App::core()->behavior()->call('adminCommentsSpamForm');
 
             echo '</form>';
         }
@@ -149,7 +150,7 @@ class Comments extends AbstractPage
         $this->inventory->display(
             $this->filter->get('page'),
             $this->filter->get('nb'),
-            '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-comments">' .
+            '<form action="' . App::core()->adminurl()->root() . '" method="post" id="form-comments">' .
 
             '%s' .
 
@@ -163,13 +164,13 @@ class Comments extends AbstractPage
                 ['default' => $default, 'extra_html' => 'title="' . __('Actions') . '"']
             ) .
             '<input id="do-action" type="submit" value="' . __('ok') . '" /></p>' .
-            dotclear()->adminurl()->getHiddenFormFields('admin.comments', $this->filter->values(true), true) .
+            App::core()->adminurl()->getHiddenFormFields('admin.comments', $this->filter->values(true), true) .
             '</div>' .
 
             '</form>',
             $this->filter->show(),
             ($this->filter->show() || -2 == $this->filter->get('status')),
-            dotclear()->user()->check('contentadmin', dotclear()->blog()->id)
+            App::core()->user()->check('contentadmin', App::core()->blog()->id)
         );
     }
 }

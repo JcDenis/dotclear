@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\Categories
+use Dotclear\App;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Database\Record;
 use Dotclear\Exception\AdminException;
@@ -43,21 +44,21 @@ class Categories extends AbstractPage
             $cat_id = (int) $keys[0];
 
             // Check if category to delete exists
-            $category = dotclear()->blog()->categories()->getCategory($cat_id);
+            $category = App::core()->blog()->categories()->getCategory($cat_id);
             if ($category->isEmpty()) {
-                dotclear()->notice()->addErrorNotice(__('This category does not exist.'));
-                dotclear()->adminurl()->redirect('admin.categories');
+                App::core()->notice()->addErrorNotice(__('This category does not exist.'));
+                App::core()->adminurl()->redirect('admin.categories');
             }
             $name = $category->f('cat_title');
             unset($category);
 
             try {
                 // Delete category
-                dotclear()->blog()->categories()->delCategory($cat_id);
-                dotclear()->notice()->addSuccessNotice(sprintf(__('The category "%s" has been successfully deleted.'), Html::escapeHTML($name)));
-                dotclear()->adminurl()->redirect('admin.categories');
+                App::core()->blog()->categories()->delCategory($cat_id);
+                App::core()->notice()->addSuccessNotice(sprintf(__('The category "%s" has been successfully deleted.'), Html::escapeHTML($name)));
+                App::core()->adminurl()->redirect('admin.categories');
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
@@ -72,7 +73,7 @@ class Categories extends AbstractPage
                 $mov_cat = $mov_cat ?: null;
                 $name    = '';
                 if (null !== $mov_cat) {
-                    $category = dotclear()->blog()->categories()->getCategory($mov_cat);
+                    $category = App::core()->blog()->categories()->getCategory($mov_cat);
                     if ($category->isEmpty()) {
                         throw new AdminException(__('Category where to move entries does not exist'));
                     }
@@ -81,15 +82,15 @@ class Categories extends AbstractPage
                 }
                 // Move posts
                 if ($mov_cat != $cat_id) {
-                    dotclear()->blog()->posts()->changePostsCategory($cat_id, $mov_cat);
+                    App::core()->blog()->posts()->changePostsCategory($cat_id, $mov_cat);
                 }
-                dotclear()->notice()->addSuccessNotice(sprintf(
+                App::core()->notice()->addSuccessNotice(sprintf(
                     __('The entries have been successfully moved to category "%s"'),
                     Html::escapeHTML($name)
                 ));
-                dotclear()->adminurl()->redirect('admin.categories');
+                App::core()->adminurl()->redirect('admin.categories');
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
@@ -99,35 +100,35 @@ class Categories extends AbstractPage
 
             foreach ($categories as $category) {
                 if (!empty($category->item_id) && !empty($category->left) && !empty($category->right)) {
-                    dotclear()->blog()->categories()->updCategoryPosition((int) $category->item_id, $category->left, $category->right);
+                    App::core()->blog()->categories()->updCategoryPosition((int) $category->item_id, $category->left, $category->right);
                 }
             }
 
-            dotclear()->notice()->addSuccessNotice(__('Categories have been successfully reordered.'));
-            dotclear()->adminurl()->redirect('admin.categories');
+            App::core()->notice()->addSuccessNotice(__('Categories have been successfully reordered.'));
+            App::core()->adminurl()->redirect('admin.categories');
         }
 
         // Reset order
         if (!empty($_POST['reset'])) {
             try {
-                dotclear()->blog()->categories()->resetCategoriesOrder();
-                dotclear()->notice()->addSuccessNotice(__('Categories order has been successfully reset.'));
-                dotclear()->adminurl()->redirect('admin.categories');
+                App::core()->blog()->categories()->resetCategoriesOrder();
+                App::core()->notice()->addSuccessNotice(__('Categories order has been successfully reset.'));
+                App::core()->adminurl()->redirect('admin.categories');
             } catch (Exception $e) {
-                dotclear()->error()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
         }
 
-        $this->categories = dotclear()->blog()->categories()->getCategories();
+        $this->categories = App::core()->blog()->categories()->getCategories();
 
         // Page setup
-        if (!dotclear()->user()->preference()->get('accessibility')->get('nodragdrop')
-            && dotclear()->user()->check('categories', dotclear()->blog()->id)
+        if (!App::core()->user()->preference()->get('accessibility')->get('nodragdrop')
+            && App::core()->user()->check('categories', App::core()->blog()->id)
             && 1 < $this->categories->count()) {
             $this->setPageHead(
-                dotclear()->resource()->load('jquery/jquery-ui.custom.js') .
-                dotclear()->resource()->load('jquery/jquery.ui.touch-punch.js') .
-                dotclear()->resource()->load('jquery/jquery.mjs.nestedSortable.js')
+                App::core()->resource()->load('jquery/jquery-ui.custom.js') .
+                App::core()->resource()->load('jquery/jquery.ui.touch-punch.js') .
+                App::core()->resource()->load('jquery/jquery.mjs.nestedSortable.js')
             );
         }
 
@@ -135,12 +136,12 @@ class Categories extends AbstractPage
             ->setPageTitle(__('Categories'))
             ->setPageHelp('core_categories')
             ->setPageHead(
-                dotclear()->resource()->confirmClose('form-categories') .
-                dotclear()->resource()->load('_categories.js')
+                App::core()->resource()->confirmClose('form-categories') .
+                App::core()->resource()->load('_categories.js')
             )
             ->setPageBreadcrumb([
-                Html::escapeHTML(dotclear()->blog()->name) => '',
-                __('Categories')                           => '',
+                Html::escapeHTML(App::core()->blog()->name) => '',
+                __('Categories')                            => '',
             ])
         ;
 
@@ -150,24 +151,24 @@ class Categories extends AbstractPage
     protected function getPageContent(): void
     {
         if (!empty($_GET['del'])) {
-            dotclear()->notice()->success(__('The category has been successfully removed.'));
+            App::core()->notice()->success(__('The category has been successfully removed.'));
         }
         if (!empty($_GET['reord'])) {
-            dotclear()->notice()->success(__('Categories have been successfully reordered.'));
+            App::core()->notice()->success(__('Categories have been successfully reordered.'));
         }
         if (!empty($_GET['move'])) {
-            dotclear()->notice()->success(__('Entries have been successfully moved to the category you choose.'));
+            App::core()->notice()->success(__('Entries have been successfully moved to the category you choose.'));
         }
 
-        $categories_combo = dotclear()->combo()->getCategoriesCombo($this->categories);
+        $categories_combo = App::core()->combo()->getCategoriesCombo($this->categories);
 
-        echo '<p class="top-add"><a class="button add" href="' . dotclear()->adminurl()->get('admin.category') . '">' . __('New category') . '</a></p>';
+        echo '<p class="top-add"><a class="button add" href="' . App::core()->adminurl()->get('admin.category') . '">' . __('New category') . '</a></p>';
 
         echo '<div class="col">';
         if ($this->categories->isEmpty()) {
             echo '<p>' . __('No category so far.') . '</p>';
         } else {
-            echo '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-categories">' .
+            echo '<form action="' . App::core()->adminurl()->root() . '" method="post" id="form-categories">' .
                 '<div id="categories">';
 
             $ref_level = $level = $this->categories->fInt('level') - 1;
@@ -185,9 +186,9 @@ class Categories extends AbstractPage
                 }
 
                 echo '<p class="cat-title"><label class="classic" for="cat_' . $this->categories->f('cat_id') . '"><a href="' .
-                dotclear()->adminurl()->get('admin.category', ['id' => $this->categories->f('cat_id')]) . '">' . Html::escapeHTML($this->categories->f('cat_title')) .
+                App::core()->adminurl()->get('admin.category', ['id' => $this->categories->f('cat_id')]) . '">' . Html::escapeHTML($this->categories->f('cat_title')) .
                 '</a></label> </p>' .
-                '<p class="cat-nb-posts">(<a href="' . dotclear()->adminurl()->get('admin.posts', ['cat_id' => $this->categories->f('cat_id')]) . '">' .
+                '<p class="cat-nb-posts">(<a href="' . App::core()->adminurl()->get('admin.posts', ['cat_id' => $this->categories->f('cat_id')]) . '">' .
                 sprintf((1 < $this->categories->fInt('nb_post') ? __('%d entries') : __('%d entry')), $this->categories->fInt('nb_post')) . '</a>' .
                 ', ' . __('total:') . ' ' . $this->categories->f('nb_total') . ')</p>' .
                 '<p class="cat-url">' . __('URL:') . ' <code>' . Html::escapeHTML($this->categories->f('cat_url')) . '</code></p>';
@@ -222,8 +223,8 @@ class Categories extends AbstractPage
 
             echo '<div class="clear">';
 
-            if (dotclear()->user()->check('categories', dotclear()->blog()->id) && 1 < $this->categories->count()) {
-                if (!dotclear()->user()->preference()->get('accessibility')->get('nodragdrop')) {
+            if (App::core()->user()->check('categories', App::core()->blog()->id) && 1 < $this->categories->count()) {
+                if (!App::core()->user()->preference()->get('accessibility')->get('nodragdrop')) {
                     echo '<p class="form-note hidden-if-no-js">' . __('To rearrange categories order, move items by drag and drop, then click on “Save categories order” button.') . '</p>';
                 }
                 echo '<p><span class="hidden-if-no-js">' .
@@ -235,7 +236,7 @@ class Categories extends AbstractPage
             }
 
             echo '<input type="submit" class="reset" name="reset" value="' . __('Reorder all categories on the top level') . '" />' .
-            dotclear()->adminurl()->getHiddenFormFields('admin.categories', [], true) . '</p>' .
+            App::core()->adminurl()->getHiddenFormFields('admin.categories', [], true) . '</p>' .
                 '</div></form>';
         }
 

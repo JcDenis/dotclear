@@ -11,6 +11,7 @@ namespace Dotclear\Process\Admin\Action\Action;
 
 // Dotclear\Process\Admin\Action\Action\CommentAction
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Exception;
@@ -35,23 +36,23 @@ class CommentAction extends DefaultCommentAction
         // Page setup
         $this->setPageTitle(__('Comments'));
         $this->setPageType($this->in_plugin ? 'plugin' : 'full');
-        $this->setPageHead(dotclear()->resource()->load('_posts_actions.js'));
+        $this->setPageHead(App::core()->resource()->load('_posts_actions.js'));
         $this->setPageBreadcrumb([
-            Html::escapeHTML(dotclear()->blog()->name) => '',
-            __('Comments')                             => dotclear()->adminurl()->get('admin.comments'),
-            __('Comments actions')                     => '',
+            Html::escapeHTML(App::core()->blog()->name) => '',
+            __('Comments')                              => App::core()->adminurl()->get('admin.comments'),
+            __('Comments actions')                      => '',
         ]);
     }
 
     protected function loadDefaults(): void
     {
         $this->loadCommentAction($this);
-        dotclear()->behavior()->call('adminCommentsActionsPage', $this);
+        App::core()->behavior()->call('adminCommentsActionsPage', $this);
     }
 
     public function error(Exception $e): void
     {
-        dotclear()->error()->add($e->getMessage());
+        App::core()->error()->add($e->getMessage());
         $this->setPageContent('<p><a class="back" href="' . $this->getRedirection(true) . '">' . __('Back') . '</a></p>');
     }
 
@@ -95,7 +96,7 @@ class CommentAction extends DefaultCommentAction
         if (!isset($from['full_content']) || empty($from['full_content'])) {
             $params['no_content'] = true;
         }
-        $co = dotclear()->blog()->comments()->getComments($params);
+        $co = App::core()->blog()->comments()->getComments($params);
         while ($co->fetch()) {
             $this->entries[$co->comment_id] = [
                 'title'  => $co->post_title,

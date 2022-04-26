@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\Pages\Admin;
 
 // Dotclear\Plugin\Pages\Admin\PagesInventory
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Process\Admin\Page\Pager;
 use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Helper\Html\Form;
@@ -51,7 +52,7 @@ class PagesInventory extends Inventory
             ];
 
             $cols = new ArrayObject($cols);
-            dotclear()->behavior()->call('adminPagesListHeader', $this->rs, $cols);
+            App::core()->behavior()->call('adminPagesListHeader', $this->rs, $cols);
 
             // Cope with optional columns
             $this->userColumns('pages', $cols);
@@ -162,7 +163,7 @@ class PagesInventory extends Inventory
                 ]
             ) . '</td>',
             'title' => '<td class="maximal" scope="row"><a href="' .
-            dotclear()->posttype()->getPostAdminURL($this->rs->f('post_type'), $this->rs->f('post_id')) . '">' .
+            App::core()->posttype()->getPostAdminURL($this->rs->f('post_type'), $this->rs->f('post_id')) . '">' .
             Html::escapeHTML($this->rs->f('post_title')) . '</a></td>',
             'date'       => '<td class="nowrap">' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $this->rs->f('post_dt')) . '</td>',
             'author'     => '<td class="nowrap">' . $this->rs->f('user_id') . '</td>',
@@ -172,7 +173,7 @@ class PagesInventory extends Inventory
         ];
 
         $cols = new ArrayObject($cols);
-        dotclear()->behavior()->call('adminPagesListValue', $this->rs, $cols);
+        App::core()->behavior()->call('adminPagesListValue', $this->rs, $cols);
 
         // Cope with optional columns
         $this->userColumns('pages', $cols);

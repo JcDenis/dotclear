@@ -11,6 +11,7 @@ namespace Dotclear\Helper\Html;
 
 // Dotclear\Helper\Html\Html
 use ArrayObject;
+use Dotclear\App;
 
 /**
  * Basic html tool.
@@ -200,7 +201,7 @@ class Html
      */
     public static function filter(string $str): string
     {
-        if (!dotclear()->blog()?->settings()->get('system')->get('enable_html_filter')) {
+        if (!App::core()->blog()?->settings()->get('system')->get('enable_html_filter')) {
             return $str;
         }
 
@@ -211,7 +212,7 @@ class Html
         ]);
 
         // --BEHAVIOR-- HTMLfilter, \ArrayObject
-        dotclear()->behavior()->call('HTMLfilter', $options);
+        App::core()->behavior()->call('HTMLfilter', $options);
 
         $filter = new HtmlFilter($options['keep_aria'], $options['keep_data'], $options['keep_js']);
 
@@ -232,7 +233,7 @@ class Html
     {
         return $src .
             (str_contains($src, '?') ? '&amp;' : '?') .
-            'v=' . (!dotclear()->production() ? md5(uniqid()) : ($v ?: dotclear()->config()->get('core_version')));
+            'v=' . (!App::core()->production() ? md5(uniqid()) : ($v ?: App::core()->config()->get('core_version')));
     }
 
     /**
@@ -282,7 +283,7 @@ class Html
      */
     public static function jsJson(string $id, mixed $vars): string
     {
-        // Use echo self::jsLoad(dotclear()->blog()->public_url . '/util.js'); to use the JS dotclear.getData() decoder in public mode
+        // Use echo self::jsLoad(App::core()->blog()->public_url . '/util.js'); to use the JS dotclear.getData() decoder in public mode
         return '<script type="application/json" id="' . Html::escapeHTML($id) . '-data">' . "\n" .
             json_encode($vars, JSON_HEX_TAG | JSON_UNESCAPED_SLASHES) . "\n" . '</script>';
     }

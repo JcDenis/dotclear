@@ -11,6 +11,7 @@ namespace Dotclear\Core\Blogs;
 
 // Dotclear\Core\Blogs\Blogs
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Core\RsExt\RsExtBlog;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
@@ -77,19 +78,19 @@ class Blogs
     {
         $strReq = 'SELECT U.user_id AS user_id, user_super, user_name, user_firstname, ' .
         'user_displayname, user_email, permissions ' .
-        'FROM ' . dotclear()->prefix . 'user U ' .
-        'JOIN ' . dotclear()->prefix . 'permissions P ON U.user_id = P.user_id ' .
-        "WHERE blog_id = '" . dotclear()->con()->escape($blog_id) . "' ";
+        'FROM ' . App::core()->prefix . 'user U ' .
+        'JOIN ' . App::core()->prefix . 'permissions P ON U.user_id = P.user_id ' .
+        "WHERE blog_id = '" . App::core()->con()->escape($blog_id) . "' ";
 
         if ($with_super) {
             $strReq .= 'UNION ' .
             'SELECT U.user_id AS user_id, user_super, user_name, user_firstname, ' .
             'user_displayname, user_email, NULL AS permissions ' .
-            'FROM ' . dotclear()->prefix . 'user U ' .
+            'FROM ' . App::core()->prefix . 'user U ' .
                 'WHERE user_super = 1 ';
         }
 
-        $rs = dotclear()->con()->select($strReq);
+        $rs = App::core()->con()->select($strReq);
 
         $res = [];
 
@@ -100,7 +101,7 @@ class Blogs
                 'displayname' => $rs->f('user_displayname'),
                 'email'       => $rs->f('user_email'),
                 'super'       => (bool) $rs->f('user_super'),
-                'p'           => dotclear()->user()->parsePermissions($rs->f('permissions')),
+                'p'           => App::core()->user()->parsePermissions($rs->f('permissions')),
             ];
         }
 
@@ -141,7 +142,7 @@ class Blogs
 
         if ($count_only) {
             $strReq = 'SELECT count(B.blog_id) ' .
-            'FROM ' . dotclear()->prefix . 'blog B ' .
+            'FROM ' . App::core()->prefix . 'blog B ' .
                 '%1$s ' .
                 'WHERE NULL IS NULL ' .
                 '%2$s ';
@@ -157,32 +158,32 @@ class Blogs
                 }
                 $strReq .= ' ';
             }
-            $strReq .= 'FROM ' . dotclear()->prefix . 'blog B ' .
+            $strReq .= 'FROM ' . App::core()->prefix . 'blog B ' .
                 '%1$s ' .
                 'WHERE NULL IS NULL ' .
                 '%2$s ';
 
             if (!empty($params['order'])) {
-                $strReq .= 'ORDER BY ' . dotclear()->con()->escape($params['order']) . ' ';
+                $strReq .= 'ORDER BY ' . App::core()->con()->escape($params['order']) . ' ';
             } else {
                 $strReq .= 'ORDER BY B.blog_id ASC ';
             }
 
             if (!empty($params['limit'])) {
-                $strReq .= dotclear()->con()->limit($params['limit']);
+                $strReq .= App::core()->con()->limit($params['limit']);
             }
         }
 
-        if (dotclear()->user()->userID() && !dotclear()->user()->isSuperAdmin()) {
-            $join  = 'INNER JOIN ' . dotclear()->prefix . 'permissions PE ON B.blog_id = PE.blog_id ';
-            $where = "AND PE.user_id = '" . dotclear()->con()->escape(dotclear()->user()->userID()) . "' " .
+        if (App::core()->user()->userID() && !App::core()->user()->isSuperAdmin()) {
+            $join  = 'INNER JOIN ' . App::core()->prefix . 'permissions PE ON B.blog_id = PE.blog_id ';
+            $where = "AND PE.user_id = '" . App::core()->con()->escape(App::core()->user()->userID()) . "' " .
                 "AND (permissions LIKE '%|usage|%' OR permissions LIKE '%|admin|%' OR permissions LIKE '%|contentadmin|%') " .
                 'AND blog_status IN (1,0) ';
-        } elseif (!dotclear()->user()->userID()) {
+        } elseif (!App::core()->user()->userID()) {
             $where = 'AND blog_status IN (1,0) ';
         }
 
-        if (isset($params['blog_status']) && '' !== $params['blog_status'] && dotclear()->user()->isSuperAdmin()) {
+        if (isset($params['blog_status']) && '' !== $params['blog_status'] && App::core()->user()->isSuperAdmin()) {
             $where .= 'AND blog_status = ' . (int) $params['blog_status'] . ' ';
         }
 
@@ -190,21 +191,21 @@ class Blogs
             if (!is_array($params['blog_id'])) {
                 $params['blog_id'] = [$params['blog_id']];
             }
-            $where .= 'AND B.blog_id ' . dotclear()->con()->in($params['blog_id']);
+            $where .= 'AND B.blog_id ' . App::core()->con()->in($params['blog_id']);
         }
 
         if (!empty($params['q'])) {
             $params['q'] = strtolower(str_replace('*', '%', $params['q']));
             $where .= 'AND (' .
-            "LOWER(B.blog_id) LIKE '" . dotclear()->con()->escape($params['q']) . "' " .
-            "OR LOWER(B.blog_name) LIKE '" . dotclear()->con()->escape($params['q']) . "' " .
-            "OR LOWER(B.blog_url) LIKE '" . dotclear()->con()->escape($params['q']) . "' " .
+            "LOWER(B.blog_id) LIKE '" . App::core()->con()->escape($params['q']) . "' " .
+            "OR LOWER(B.blog_name) LIKE '" . App::core()->con()->escape($params['q']) . "' " .
+            "OR LOWER(B.blog_url) LIKE '" . App::core()->con()->escape($params['q']) . "' " .
                 ') ';
         }
 
         $strReq = sprintf($strReq, $join, $where);
 
-        $rs = dotclear()->con()->select($strReq);
+        $rs = App::core()->con()->select($strReq);
         $rs->extend(new RsExtBlog());
 
         return $rs;
@@ -219,7 +220,7 @@ class Blogs
      */
     public function addBlog(Cursor $cur): void
     {
-        if (!dotclear()->user()->isSuperAdmin()) {
+        if (!App::core()->user()->isSuperAdmin()) {
             throw new CoreException(__('You are not an administrator'));
         }
 
@@ -244,7 +245,7 @@ class Blogs
 
         $cur->setField('blog_upddt', date('Y-m-d H:i:s'));
 
-        $cur->update("WHERE blog_id = '" . dotclear()->con()->escape($blog_id) . "'");
+        $cur->update("WHERE blog_id = '" . App::core()->con()->escape($blog_id) . "'");
     }
 
     /**
@@ -285,14 +286,14 @@ class Blogs
      */
     public function delBlog(string $blog_id): void
     {
-        if (!dotclear()->user()->isSuperAdmin()) {
+        if (!App::core()->user()->isSuperAdmin()) {
             throw new CoreException(__('You are not an administrator'));
         }
 
-        $strReq = 'DELETE FROM ' . dotclear()->prefix . 'blog ' .
-        "WHERE blog_id = '" . dotclear()->con()->escape($blog_id) . "' ";
+        $strReq = 'DELETE FROM ' . App::core()->prefix . 'blog ' .
+        "WHERE blog_id = '" . App::core()->con()->escape($blog_id) . "' ";
 
-        dotclear()->con()->execute($strReq);
+        App::core()->con()->execute($strReq);
     }
 
     /**
@@ -305,10 +306,10 @@ class Blogs
     public function blogExists(string $blog_id): bool
     {
         $strReq = 'SELECT blog_id ' .
-        'FROM ' . dotclear()->prefix . 'blog ' .
-        "WHERE blog_id = '" . dotclear()->con()->escape($blog_id) . "' ";
+        'FROM ' . App::core()->prefix . 'blog ' .
+        "WHERE blog_id = '" . App::core()->con()->escape($blog_id) . "' ";
 
-        $rs = dotclear()->con()->select($strReq);
+        $rs = App::core()->con()->select($strReq);
 
         return !$rs->isEmpty();
     }
@@ -324,13 +325,13 @@ class Blogs
     public function countBlogPosts(string $blog_id, ?string $post_type = null): int
     {
         $strReq = 'SELECT COUNT(post_id) ' .
-        'FROM ' . dotclear()->prefix . 'post ' .
-        "WHERE blog_id = '" . dotclear()->con()->escape($blog_id) . "' ";
+        'FROM ' . App::core()->prefix . 'post ' .
+        "WHERE blog_id = '" . App::core()->con()->escape($blog_id) . "' ";
 
         if ($post_type) {
-            $strReq .= "AND post_type = '" . dotclear()->con()->escape($post_type) . "' ";
+            $strReq .= "AND post_type = '" . App::core()->con()->escape($post_type) . "' ";
         }
 
-        return dotclear()->con()->select($strReq)->fInt();
+        return App::core()->con()->select($strReq)->fInt();
     }
 }

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Akismet\Common;
 
 // Dotclear\Plugin\Akismet\Common\Akismet
+use Dotclear\App;
 use Dotclear\Helper\Network\NetHttp\Client;
 use Dotclear\Helper\Network\Http;
 use Exception;
@@ -31,7 +32,7 @@ class Akismet extends Client
         $this->ak_path = sprintf($this->ak_path, $this->ak_version, '%s');
         $this->ak_host = $this->ak_key . '.' . $this->base_host;
 
-        parent::__construct($this->ak_host, 80, dotclear()->config()->get('query_timeout'));
+        parent::__construct($this->ak_host, 80, App::core()->config()->get('query_timeout'));
     }
 
     public function verify(): bool

@@ -11,6 +11,7 @@ namespace Dotclear\Process\Admin\AdminUrl;
 
 // Dotclear\Process\Admin\AdminUrl\AdminUrl
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Network\Http;
@@ -18,7 +19,7 @@ use Dotclear\Helper\Network\Http;
 /**
  * Admin URL handler.
  *
- * Accessible from dotclear()->adminurl()->
+ * Accessible from App::core()->adminurl()->
  *
  * @ingroup  Admin Handler
  */
@@ -45,7 +46,7 @@ class AdminUrl
      */
     public function root(): string
     {
-        return dotclear()->config()->get('admin_url');
+        return App::core()->config()->get('admin_url');
     }
 
     /**
@@ -222,7 +223,7 @@ class AdminUrl
             $str .= Form::hidden([$k], $v);
         }
         if ($nonce) {
-            $str .= dotclear()->nonce()->form();
+            $str .= App::core()->nonce()->form();
         }
 
         return $str;
@@ -244,7 +245,7 @@ class AdminUrl
     public function setup()
     {
         $this->initDefaultURLs();
-        dotclear()->behavior()->call('adminURLs', $this);
+        App::core()->behavior()->call('adminURLs', $this);
     }
 
     /**

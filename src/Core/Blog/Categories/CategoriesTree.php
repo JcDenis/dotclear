@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\Blog\Categories;
 
 // Dotclear\Core\Blog\Categories\CategoriesTree
+use Dotclear\App;
 use Dotclear\Database\NestedTree;
 use Dotclear\Database\Record;
 
@@ -43,10 +44,10 @@ class CategoriesTree extends NestedTree
      */
     public function __construct()
     {
-        parent::__construct(dotclear()->con());
+        parent::__construct(App::core()->con());
 
-        $this->table         = dotclear()->prefix . 'category';
-        $this->add_condition = ['blog_id' => "'" . dotclear()->con()->escape(dotclear()->blog()->id) . "'"];
+        $this->table         = App::core()->prefix . 'category';
+        $this->add_condition = ['blog_id' => "'" . App::core()->con()->escape(App::core()->blog()->id) . "'"];
     }
 
     /**

@@ -11,6 +11,7 @@ namespace Dotclear\Core\Blog\Categories;
 
 // Dotclear\Core\Blog\Categories\Categories
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\JoinStatement;
@@ -73,7 +74,7 @@ class Categories
         if (isset($params['without_empty']) && (false == $params['without_empty'])) {
             $without_empty = false;
         } else {
-            $without_empty = false == dotclear()->user()->userID(); // Get all categories if in admin display
+            $without_empty = false == App::core()->user()->userID(); // Get all categories if in admin display
         }
 
         $start = isset($params['start']) ? (int) $params['start'] : 0;
@@ -246,19 +247,19 @@ class Categories
                 'C.cat_id',
                 $sql->count('P.post_id', 'nb_post'),
             ])
-            ->from(dotclear()->prefix . 'category AS C')
+            ->from(App::core()->prefix . 'category AS C')
             ->join(
                 JoinStatement::init(__METHOD__)
-                    ->from(dotclear()->prefix . 'post P')
+                    ->from(App::core()->prefix . 'post P')
                     ->on('C.cat_id = P.cat_id')
-                    ->and('P.blog_id = ' . $sql->quote(dotclear()->blog()->id))
+                    ->and('P.blog_id = ' . $sql->quote(App::core()->blog()->id))
                     ->statement()
             )
-            ->where('C.blog_id = ' . $sql->quote(dotclear()->blog()->id))
+            ->where('C.blog_id = ' . $sql->quote(App::core()->blog()->id))
             ->group('C.cat_id')
         ;
 
-        if (!dotclear()->user()->userID()) {
+        if (!App::core()->user()->userID()) {
             $sql->and('P.post_status = 1');
         }
 
@@ -287,7 +288,7 @@ class Categories
      */
     public function addCategory(Cursor $cur, int $parent = 0): int
     {
-        if (!dotclear()->user()->check('categories', dotclear()->blog()->id)) {
+        if (!App::core()->user()->check('categories', App::core()->blog()->id)) {
             throw new CoreException(__('You are not allowed to add categories'));
         }
 
@@ -310,10 +311,10 @@ class Categories
         $cur->setField('cat_url', implode('/', $url));
 
         $this->getCategoryCursor($cur);
-        $cur->setField('blog_id', (string) dotclear()->blog()->id);
+        $cur->setField('blog_id', (string) App::core()->blog()->id);
 
         // --BEHAVIOR-- coreBeforeCategoryCreate, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        dotclear()->behavior()->call('coreBeforeCategoryCreate', $this, $cur);
+        App::core()->behavior()->call('coreBeforeCategoryCreate', $this, $cur);
 
         $id = $this->categoriestree()->addNode($cur, $parent);
         if (false !== $id) {
@@ -326,9 +327,9 @@ class Categories
         }
 
         // --BEHAVIOR-- coreAfterCategoryCreate, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        dotclear()->behavior()->call('coreAfterCategoryCreate', $this, $cur);
+        App::core()->behavior()->call('coreAfterCategoryCreate', $this, $cur);
 
-        dotclear()->blog()->triggerBlog();
+        App::core()->blog()->triggerBlog();
 
         return (int) $cur->getField('cat_id');
     }
@@ -343,7 +344,7 @@ class Categories
      */
     public function updCategory(int $id, Cursor $cur): void
     {
-        if (!dotclear()->user()->check('categories', dotclear()->blog()->id)) {
+        if (!App::core()->user()->check('categories', App::core()->blog()->id)) {
             throw new CoreException(__('You are not allowed to update categories'));
         }
 
@@ -363,17 +364,17 @@ class Categories
         $this->getCategoryCursor($cur, $id);
 
         // --BEHAVIOR-- coreBeforeCategoryUpdate, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        dotclear()->behavior()->call('coreBeforeCategoryUpdate', $this, $cur);
+        App::core()->behavior()->call('coreBeforeCategoryUpdate', $this, $cur);
 
         $cur->update(
             'WHERE cat_id = ' . (int) $id . ' ' .
-            "AND blog_id = '" . dotclear()->con()->escape(dotclear()->blog()->id) . "' "
+            "AND blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' "
         );
 
         // --BEHAVIOR-- coreAfterCategoryUpdate, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        dotclear()->behavior()->call('coreAfterCategoryUpdate', $this, $cur);
+        App::core()->behavior()->call('coreAfterCategoryUpdate', $this, $cur);
 
-        dotclear()->blog()->triggerBlog();
+        App::core()->blog()->triggerBlog();
     }
 
     /**
@@ -386,7 +387,7 @@ class Categories
     public function updCategoryPosition(int $id, int $left, int $right): void
     {
         $this->categoriestree()->updatePosition($id, $left, $right);
-        dotclear()->blog()->triggerBlog();
+        App::core()->blog()->triggerBlog();
     }
 
     /**
@@ -398,7 +399,7 @@ class Categories
     public function setCategoryParent(int $id, int $parent): void
     {
         $this->categoriestree()->setNodeParent($id, $parent);
-        dotclear()->blog()->triggerBlog();
+        App::core()->blog()->triggerBlog();
     }
 
     /**
@@ -411,7 +412,7 @@ class Categories
     public function setCategoryPosition(int $id, int $sibling, string $move): void
     {
         $this->categoriestree()->setNodePosition($id, $sibling, $move);
-        dotclear()->blog()->triggerBlog();
+        App::core()->blog()->triggerBlog();
     }
 
     /**
@@ -423,16 +424,16 @@ class Categories
      */
     public function delCategory(int $id): void
     {
-        if (!dotclear()->user()->check('categories', dotclear()->blog()->id)) {
+        if (!App::core()->user()->check('categories', App::core()->blog()->id)) {
             throw new CoreException(__('You are not allowed to delete categories'));
         }
 
         $sql = new SelectStatement(__METHOD__);
         $rs  = $sql
             ->column($sql->count('post_id', 'nb_post'))
-            ->from(dotclear()->prefix . 'post')
+            ->from(App::core()->prefix . 'post')
             ->where('cat_id = ' . $id)
-            ->and('blog_id = ' . $sql->quote(dotclear()->blog()->id))
+            ->and('blog_id = ' . $sql->quote(App::core()->blog()->id))
             ->select()
         ;
 
@@ -441,7 +442,7 @@ class Categories
         }
 
         $this->categoriestree()->deleteNode($id, true);
-        dotclear()->blog()->triggerBlog();
+        App::core()->blog()->triggerBlog();
     }
 
     /**
@@ -449,12 +450,12 @@ class Categories
      */
     public function resetCategoriesOrder(): void
     {
-        if (!dotclear()->user()->check('categories', dotclear()->blog()->id)) {
+        if (!App::core()->user()->check('categories', App::core()->blog()->id)) {
             throw new CoreException(__('You are not allowed to reset categories order'));
         }
 
         $this->categoriestree()->resetOrder();
-        dotclear()->blog()->triggerBlog();
+        App::core()->blog()->triggerBlog();
     }
 
     /**
@@ -471,9 +472,9 @@ class Categories
         $sql = new SelectStatement(__METHOD__);
         $sql
             ->column('cat_url')
-            ->from(dotclear()->prefix . 'category')
+            ->from(App::core()->prefix . 'category')
             ->where('cat_url = ' . $sql->quote($url))
-            ->and('blog_id = ' . $sql->quote(dotclear()->blog()->id))
+            ->and('blog_id = ' . $sql->quote(App::core()->blog()->id))
             ->order('cat_url DESC')
         ;
 
@@ -487,9 +488,9 @@ class Categories
             $sql = new SelectStatement(__METHOD__);
             $sql
                 ->column('cat_url')
-                ->from(dotclear()->prefix . 'category')
+                ->from(App::core()->prefix . 'category')
                 ->where('cat_url' . $sql->regexp($url))
-                ->and('blog_id = ' . $sql->quote(dotclear()->blog()->id))
+                ->and('blog_id = ' . $sql->quote(App::core()->blog()->id))
                 ->order('cat_url DESC')
             ;
 

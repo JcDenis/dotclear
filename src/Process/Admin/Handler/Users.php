@@ -11,6 +11,7 @@ namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\Users
 use ArrayObject;
+use Dotclear\App;
 use Dotclear\Core\RsExt\RsExtUser;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Inventory\Inventory\UserInventory;
@@ -47,19 +48,19 @@ class Users extends AbstractPage
             'user_displayname' => 'user_displayname', ];
 
         // --BEHAVIOR-- adminUsersSortbyLexCombo
-        dotclear()->behavior()->call('adminUsersSortbyLexCombo', [&$sortby_lex]);
+        App::core()->behavior()->call('adminUsersSortbyLexCombo', [&$sortby_lex]);
 
         $params['order'] = (array_key_exists($this->filter->get('sortby'), $sortby_lex) ?
-            dotclear()->con()->lexFields($sortby_lex[$this->filter->get('sortby')]) :
+            App::core()->con()->lexFields($sortby_lex[$this->filter->get('sortby')]) :
             $this->filter->get('sortby')) . ' ' . $this->filter->get('order');
 
         $params = new ArrayObject($params);
 
         // --BEHAVIOR-- adminGetUsers
-        dotclear()->behavior()->call('adminGetUsers', $params);
+        App::core()->behavior()->call('adminGetUsers', $params);
 
-        $rs       = dotclear()->users()->getUsers($params);
-        $count    = dotclear()->users()->getUsers($params, true)->fInt();
+        $rs       = App::core()->users()->getUsers($params);
+        $count    = App::core()->users()->getUsers($params, true)->fInt();
         $rsStatic = $rs->toStatic();
         if ('nb_post' != $this->filter->get('sortby')) {
             // Sort user list using lexical order if necessary
@@ -76,7 +77,7 @@ class Users extends AbstractPage
         $this
             ->setPageTitle(__('Users'))
             ->setPageHelp('core_users')
-            ->setPageHead(dotclear()->resource()->load('_users.js') . $this->filter->js())
+            ->setPageHead(App::core()->resource()->load('_users.js') . $this->filter->js())
             ->setPageBreadcrumb([
                 __('System') => '',
                 __('Users')  => '',
@@ -88,15 +89,15 @@ class Users extends AbstractPage
 
     protected function getPageContent(): void
     {
-        if (dotclear()->error()->flag()) {
+        if (App::core()->error()->flag()) {
             return;
         }
 
         if (!empty($_GET['del'])) {
-            dotclear()->notice()->message(__('User has been successfully removed.'));
+            App::core()->notice()->message(__('User has been successfully removed.'));
         }
         if (!empty($_GET['upd'])) {
-            dotclear()->notice()->message(__('The permissions have been successfully updated.'));
+            App::core()->notice()->message(__('The permissions have been successfully updated.'));
         }
 
         $combo_action = [
@@ -105,9 +106,9 @@ class Users extends AbstractPage
         ];
 
         // --BEHAVIOR-- adminUsersActionsCombo
-        dotclear()->behavior()->call('adminUsersActionsCombo', [&$combo_action]);
+        App::core()->behavior()->call('adminUsersActionsCombo', [&$combo_action]);
 
-        echo '<p class="top-add"><strong><a class="button add" href="' . dotclear()->adminurl()->get('admin.user') . '">' . __('New user') . '</a></strong></p>';
+        echo '<p class="top-add"><strong><a class="button add" href="' . App::core()->adminurl()->get('admin.user') . '">' . __('New user') . '</a></strong></p>';
 
         $this->filter->display('admin.users');
 
@@ -115,7 +116,7 @@ class Users extends AbstractPage
         $this->inventory->display(
             $this->filter->get('page'),
             $this->filter->get('nb'),
-            '<form action="' . dotclear()->adminurl()->root() . '" method="post" id="form-users">' .
+            '<form action="' . App::core()->adminurl()->root() . '" method="post" id="form-users">' .
 
             '%s' .
 
@@ -129,7 +130,7 @@ class Users extends AbstractPage
             '<input id="do-action" type="submit" value="' . __('ok') . '" />' .
             '</p>' .
             '</div>' .
-            dotclear()->adminurl()->getHiddenFormFields('admin.user.actions', $this->filter->values(true), true) .
+            App::core()->adminurl()->getHiddenFormFields('admin.user.actions', $this->filter->values(true), true) .
             '</form>',
             $this->filter->show()
         );
