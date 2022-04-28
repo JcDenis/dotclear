@@ -10,8 +10,9 @@ declare(strict_types=1);
 namespace Dotclear\Process\Distrib;
 
 // Dotclear\Process\Distrib\Prepend
-use Dotclear\Exception\DistribException;
 use Dotclear\Core\Core;
+use Dotclear\Exception\DistribException;
+use Dotclear\Helper\File\Path;
 use Exception;
 
 /**
@@ -34,7 +35,7 @@ class Prepend extends Core
         } elseif (isset($_SERVER['DOTCLEAR_CONFIG_PATH'])) {
             $dc_conf = realpath($_SERVER['DOTCLEAR_CONFIG_PATH']);
         } else {
-            $dc_conf = \DOTCLEAR_ROOT_DIR . '/config.php';
+            $dc_conf = Path::implodeRoot('config.php');
         }
 
         if (!is_file($dc_conf)) {

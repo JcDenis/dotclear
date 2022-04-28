@@ -13,7 +13,7 @@ namespace Dotclear;
  * Application.
  *
  * Run process from this class.
- * 
+ *
  * @ingroup Process Core
  */
 class App
@@ -26,20 +26,15 @@ class App
      */
     final public static function run(string $process, ?string $blog_id = null)
     {
-        // Define Dotclear root directory
-        if (!defined('DOTCLEAR_ROOT_DIR')) {
-            define('DOTCLEAR_ROOT_DIR', __DIR__);
-        }
-
         // Third party autoload (PSR-4 compliant)
         $file = __DIR__ . '/../vendor/autoload.php';
         if (file_exists($file)) {
             require $file;
         // Dotclear autoload
         } else {
-            require_once implode(DIRECTORY_SEPARATOR, [\DOTCLEAR_ROOT_DIR, 'Helper', 'Autoload.php']);
+            require_once implode(DIRECTORY_SEPARATOR, [__DIR__, 'Helper', 'Autoload.php']);
             $autoload = new \Dotclear\Helper\Autoload();
-            $autoload->addNamespace('Dotclear', \DOTCLEAR_ROOT_DIR);
+            $autoload->addNamespace('Dotclear', __DIR__);
         }
 
         // Find process (Admin|Public|Install|...)

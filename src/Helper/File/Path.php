@@ -149,25 +149,21 @@ class Path
      */
     public static function fullFromRoot(string $p, string $root): string
     {
-        if (substr($p, 0, 1) == '/') {
-            return $p;
-        }
-
-        return $root . '/' . $p;
+        return str_starts_with($p, '/') ? $p : $root . '/' . $p;
     }
 
     /**
      * Implode path chunks from Dotclear root directory.
+     * 
+     * Dotclear root directory path is the "src" directory path.
      *
-     * @param string $args The path chunks
+     * @param string ...$args The path chunks
      *
      * @return string The cleaned joined path
      */
     public static function implodeRoot(string ...$args): string
     {
-        if (defined('DOTCLEAR_ROOT_DIR')) {
-            array_unshift($args, \DOTCLEAR_ROOT_DIR);
-        }
+        array_unshift($args, __DIR__, '..', '..');
 
         return self::real(implode(DIRECTORY_SEPARATOR, $args), false);
     }
@@ -175,7 +171,7 @@ class Path
     /**
      * Implode path chunks.
      *
-     * @param string $args The path chunks
+     * @param string ...$args The path chunks
      *
      * @return string The cleaned joined path
      */

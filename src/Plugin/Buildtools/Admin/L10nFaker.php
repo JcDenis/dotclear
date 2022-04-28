@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\Buildtools\Admin;
 
 // Dotclear\Plugin\Buildtools\Admin\L10nFaker
 use Dotclear\App;
+use Dotclear\Helper\File\Path;
 use Dotclear\Plugin\Widgets\Common\WidgetsStack;
 
 /**
@@ -61,7 +62,7 @@ class L10nFaker
                 $main .= $this->fake_l10n($fav['title']);
             }
         }
-        file_put_contents(\DOTCLEAR_ROOT_DIR . '/Core/_fake_l10n.php', $main);
+        file_put_contents(Path::implodeRoot('Core', '_fake_l10n.php'), $main);
         $plugin .= "\n# Plugin names\n\n";
         foreach ($this->bundled_plugins as $id) {
             $p = App::core()->plugins()?->getModule($id);
@@ -75,7 +76,7 @@ class L10nFaker
         foreach ($widgets as $w) {
             $plugin .= $this->fake_l10n($w->desc());
         }
-        mkdir(__DIR__ . '/../../_fake_plugin');
-        file_put_contents(__DIR__ . '/../../_fake_plugin/_fake_l10n.php', $plugin);
+        mkdir(Path::implode(__DIR__, '..', '..', '_fake_plugin'));
+        file_put_contents(Path::implode(__DIR__, '..', '..', '_fake_plugin', '_fake_l10n.php'), $plugin);
     }
 }

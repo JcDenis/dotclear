@@ -68,12 +68,12 @@ class Wizard
             try {
                 if ('sqlite' == $DBDRIVER) {
                     if (!str_contains($DBNAME, '/')) {
-                        $sqlite_db_directory = implode(DIRECTORY_SEPARATOR, [\DOTCLEAR_ROOT_DIR, '..', 'db']);
+                        $sqlite_db_directory = App::core()->config()->get('sqlite_dir');
                         Files::makeDir($sqlite_db_directory, true);
 
                         // Can we write sqlite_db_directory ?
                         if (!is_writable($sqlite_db_directory)) {
-                            throw new InstallException(sprintf(__('Cannot write "%s" directory.'), Path::real($sqlite_db_directory, false)));
+                            throw new InstallException(sprintf(__('Cannot write "%s" directory.'), $sqlite_db_directory));
                         }
                         $DBNAME = $sqlite_db_directory . $DBNAME;
                     }

@@ -1050,9 +1050,10 @@ class Core
             'production'            => [null, true],
             'query_timeout'         => [null, 4],
             'reverse_proxy'         => [null, true],
-            'root_dir'              => [false, Path::implodeRoot()], // Alias for \DOTCLEAR_ROOT_DIR
+            'root_dir'              => [false, Path::implodeRoot()],
             'session_name'          => [null, 'dcxd'],
             'session_ttl'           => [null, '-120 minutes'],
+            'sqlite_dir'            => [null, Path::implodeRoot('..', 'db')],
             'store_allow_repo'      => [null, true],
             'store_update_noauto'   => [null, false],
             'template_default'      => [null, 'mustek'],

@@ -15,10 +15,6 @@ use Dotclear\Database\Structure;
 use Dotclear\Exception\DistribException;
 use Exception;
 
-if (!defined('DOTCLEAR_OLD_ROOT_DIR')) {
-    define('DOTCLEAR_OLD_ROOT_DIR', \DOTCLEAR_ROOT_DIR . '/../');
-}
-
 /**
  * Dotclear distribution upgrade methods.
  *
