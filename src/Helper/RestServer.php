@@ -134,4 +134,14 @@ class RestServer
         header('Content-Type: text/xml; charset=' . $encoding);
         echo $this->rsp->toXML(true, $encoding);
     }
+
+    /**
+     * Dump functions stack
+     * 
+     * @return array<string,callable> The registered functions
+     */
+    public function dump(): array
+    {
+        return $this->functions;
+    }
 }
