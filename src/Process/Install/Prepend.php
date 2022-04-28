@@ -75,13 +75,13 @@ class Prepend extends Core
         }
 
         // Load parent (or part of) to get some constants
-        if (!defined('DOTCLEAR_CONFIG_PATH')) {
+        if (null === $this->config_path) {
             parent::process();
         }
 
         // No configuration ? start installalation process
-        if (!is_file(DOTCLEAR_CONFIG_PATH)) {
-            new Wizard();
+        if (!is_file($this->config_path)) {
+            new Wizard($this->config_path);
         } else {
             new Install();
         }

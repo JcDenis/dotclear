@@ -1068,7 +1068,7 @@ msgstr "DC_ADMIN_URL nie jest zdefiniowane, powinieneś zaktualizować swój pli
 msgid "See <a href=\"https://dotclear.org/documentation/2.0/admin/config\">documentation</a> for more information."
 msgstr ""
 
-msgid "The cache directory does not exist or is not writable. You must create this directory with sufficient rights and affect this location to \"DC_TPL_CACHE\" in inc/config.php file."
+msgid "The cache directory does not exist or is not writable. You must create this directory with sufficient rights and affect this location to \"cache_dir\" in dotclear.conf.php file."
 msgstr ""
 
 msgid "The cache directory does not exist or is not writable. You should contact your administrator."
@@ -1291,7 +1291,7 @@ msgid "Path <strong>%s</strong> is not writable."
 msgstr "Katalog cache %s nie jest zapisywalny."
 
 #, fuzzy
-msgid "Dotclear installation wizard could not create configuration file for you. You must change folder right or create the <strong>config.php</strong> file manually, please refer to <a href=\"https://dotclear.org/documentation/2.0/admin/install\">the documentation</a> to learn how to do this."
+msgid "Dotclear installation wizard could not create configuration file for you. You must change folder right or create the <strong>dotclear.conf.php</strong> file manually, please refer to <a href=\"https://dotclear.org/documentation/2.0/admin/install\">the documentation</a> to learn how to do this."
 msgstr "Z powyższych powodów Dotclear nie może być zainstalowany. Zajrzyj do <a href=\"https://dotclear.org/documentation/2.0/admin/install\">dokumentacji</a> aby dowiedzieć się jak poradzić sobie z problemem."
 
 #, fuzzy, php-format
@@ -1322,8 +1322,8 @@ msgstr "Aby zakończyć instalację Dotclear i rozpocząć pisanie Twojego bloga
 msgid "Attention:"
 msgstr "Uwaga:"
 
-msgid "this wizard may not function on every host. If it does not work for you, please refer to <a href=\"https://dotclear.org/documentation/2.0/admin/install\">the documentation</a> to learn how to create the <strong>config.php</strong> file manually."
-msgstr "ten kreator może nie działać na niektórych serwerach. Jeżeli nie działa Tobie, proszę zajrzeć do <a href=\"https://dotclear.org/documentation/2.0/admin/install\">dokumentacji</a> aby dowiedzieć sie jak utworzyć plik <strong>config.php</strong> ręcznie."
+msgid "this wizard may not function on every host. If it does not work for you, please refer to <a href=\"https://dotclear.org/documentation/2.0/admin/install\">the documentation</a> to learn how to create the <strong>dotclear.conf.php</strong> file manually."
+msgstr "ten kreator może nie działać na niektórych serwerach. Jeżeli nie działa Tobie, proszę zajrzeć do <a href=\"https://dotclear.org/documentation/2.0/admin/install\">dokumentacji</a> aby dowiedzieć sie jak utworzyć plik <strong>dotclear.conf.php</strong> ręcznie."
 
 msgid "System information"
 msgstr "Informacje o systemie"
@@ -4261,7 +4261,7 @@ msgid " (copy)"
 msgstr ""
 
 #, fuzzy
-msgid "Unable to modify _config.php"
+msgid "Unable to modify dotclear.conf.php"
 msgstr "Nie można otworzyć pliku."
 
 #, fuzzy
@@ -4375,8 +4375,8 @@ msgid "Unable to connect to database"
 msgstr "Nie można połączyć się z bazą danych."
 
 #, php-format
-msgid "<p>This either means that the username and password information in your <strong>config.php</strong> file is incorrect or we can't contact the database server at \"<em>%s</em>\". This could mean your host's database server is down.</p> <ul><li>Are you sure you have the correct username and password?</li><li>Are you sure that you have typed the correct hostname?</li><li>Are you sure that the database server is running?</li></ul><p>If you're unsure what these terms mean you should probably contact your host. If you still need help you can always visit the <a href=\"https://forum.dotclear.net/\">Dotclear Support Forums</a>.</p>"
-msgstr "<p>To oznacza że nazwa użytkownika i hasło w Twoim pliku <strong>config.php</strong> jest niepoprawna albo dostęp do bazy danych pod \"<em>%s</em>\" jest niemożliwy. To może również oznaczać że serwer bazy danych nie pracuje.</p> <ul><li>Jesteś pewny że podałeś prawidłową nazwę użytkownika i hasło?</li><li>Jesteś pewny że podałeś prawidłowo adres hosta?</li><li>Jesteś pewny że serwer bazy danych pracuje?</li></ul><p>Jeżeli nie zrozumiałeś znaczeń użytych w pytaniach powinieneś skontaktować się z administratorem. Jeżeli dalej będziesz potrzebował pomocy, zawsze możesz odwiedzić <a href=\"https://forum.dotclear.net/\">Dotclear Support Forums</a>.</p>"
+msgid "<p>This either means that the username and password information in your <strong>dotclear.conf.php</strong> file is incorrect or we can't contact the database server at \"<em>%s</em>\". This could mean your host's database server is down.</p> <ul><li>Are you sure you have the correct username and password?</li><li>Are you sure that you have typed the correct hostname?</li><li>Are you sure that the database server is running?</li></ul><p>If you're unsure what these terms mean you should probably contact your host. If you still need help you can always visit the <a href=\"https://forum.dotclear.net/\">Dotclear Support Forums</a>.</p>"
+msgstr "<p>To oznacza że nazwa użytkownika i hasło w Twoim pliku <strong>dotclear.conf.php</strong> jest niepoprawna albo dostęp do bazy danych pod \"<em>%s</em>\" jest niemożliwy. To może również oznaczać że serwer bazy danych nie pracuje.</p> <ul><li>Jesteś pewny że podałeś prawidłową nazwę użytkownika i hasło?</li><li>Jesteś pewny że podałeś prawidłowo adres hosta?</li><li>Jesteś pewny że serwer bazy danych pracuje?</li></ul><p>Jeżeli nie zrozumiałeś znaczeń użytych w pytaniach powinieneś skontaktować się z administratorem. Jeżeli dalej będziesz potrzebował pomocy, zawsze możesz odwiedzić <a href=\"https://forum.dotclear.net/\">Dotclear Support Forums</a>.</p>"
 
 msgid "The following error was encountered while trying to read the database:"
 msgstr "Podczas odczytu z bazy danych wystąpił następujący błąd:"

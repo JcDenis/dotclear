@@ -13,6 +13,7 @@ namespace Dotclear\Process\Distrib;
 use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Database\AbstractConnection;
 use Dotclear\Database\Structure;
+use Dotclear\Helper\File\Path;
 use Exception;
 
 /**
@@ -26,7 +27,7 @@ class Distrib
 {
     public static function getConfigFile(): string
     {
-        $file = implode(DIRECTORY_SEPARATOR, [__DIR__, 'config.php.distrib']);
+        $file = Path::implode(__DIR__, 'dotclear.conf.distrib');
         if (!is_file($file)) {
             throw new Exception(sprintf(__('File %s does not exist.'), $file));
         }

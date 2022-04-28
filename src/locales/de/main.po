@@ -1022,7 +1022,7 @@ msgstr "%s ist nicht definiert, das solltest du in der Konfigurationsdatei erled
 msgid "See <a href=\"https://dotclear.org/documentation/2.0/admin/config\">documentation</a> for more information."
 msgstr ""
 
-msgid "The cache directory does not exist or is not writable. You must create this directory with sufficient rights and affect this location to \"DC_TPL_CACHE\" in inc/config.php file."
+msgid "The cache directory does not exist or is not writable. You must create this directory with sufficient rights and affect this location to \"cache_dir\" in dotclear.conf.php file."
 msgstr ""
 
 msgid "The cache directory does not exist or is not writable. You should contact your administrator."
@@ -1241,7 +1241,7 @@ msgid "Path <strong>%s</strong> is not writable."
 msgstr "Das Cache-Verzeichnis <strong>%s</strong> ist nicht beschreibbar."
 
 #, fuzzy
-msgid "Dotclear installation wizard could not create configuration file for you. You must change folder right or create the <strong>config.php</strong> file manually, please refer to <a href=\"https://dotclear.org/documentation/2.0/admin/install\">the documentation</a> to learn how to do this."
+msgid "Dotclear installation wizard could not create configuration file for you. You must change folder right or create the <strong>dotclear.conf.php</strong> file manually, please refer to <a href=\"https://dotclear.org/documentation/2.0/admin/install\">the documentation</a> to learn how to do this."
 msgstr "Aus folgendem Grund kann Dotclear nicht installiert werden. Bitte schaue in der <a href=\"https://dotclear.org/documentation/2.0/admin/install\">Dokumentation (Englisch)</a> nach, um Lösungen zu finden."
 
 #, php-format
@@ -1271,8 +1271,8 @@ msgstr "Um die Installation von Dotclear abzuschließen und deinen Blog bearbeit
 msgid "Attention:"
 msgstr "Achtung:"
 
-msgid "this wizard may not function on every host. If it does not work for you, please refer to <a href=\"https://dotclear.org/documentation/2.0/admin/install\">the documentation</a> to learn how to create the <strong>config.php</strong> file manually."
-msgstr "Dieser Assistent könnte nicht auf jedem Server verwendbar sein. Sollte es nicht funktionieren, dann schaue in der <a href=\"https://dotclear.org/documentation/2.0/admin/install\">Dokumentation (Englisch)</a> nach, wie man die <strong>config.php</strong> selbst ausfüllen kann."
+msgid "this wizard may not function on every host. If it does not work for you, please refer to <a href=\"https://dotclear.org/documentation/2.0/admin/install\">the documentation</a> to learn how to create the <strong>dotclear.conf.php</strong> file manually."
+msgstr "Dieser Assistent könnte nicht auf jedem Server verwendbar sein. Sollte es nicht funktionieren, dann schaue in der <a href=\"https://dotclear.org/documentation/2.0/admin/install\">Dokumentation (Englisch)</a> nach, wie man die <strong>dotclear.conf.php</strong> selbst ausfüllen kann."
 
 msgid "System information"
 msgstr "System-Informationen"
@@ -3986,7 +3986,7 @@ msgid " (copy)"
 msgstr ""
 
 #, fuzzy
-msgid "Unable to modify _config.php"
+msgid "Unable to modify dotclear.conf.php"
 msgstr "Datei konnte nicht geöffnet werden."
 
 #, fuzzy
@@ -4102,8 +4102,8 @@ msgid "Unable to connect to database"
 msgstr "Keine Verbindung zur Datenbank"
 
 #, php-format
-msgid "<p>This either means that the username and password information in your <strong>config.php</strong> file is incorrect or we can't contact the database server at \"<em>%s</em>\". This could mean your host's database server is down.</p> <ul><li>Are you sure you have the correct username and password?</li><li>Are you sure that you have typed the correct hostname?</li><li>Are you sure that the database server is running?</li></ul><p>If you're unsure what these terms mean you should probably contact your host. If you still need help you can always visit the <a href=\"https://forum.dotclear.net/\">Dotclear Support Forums</a>.</p>"
-msgstr "<p>Dies bedeutet, dass entweder dein Benutzername und dein Passwort in deiner <strong>config.php</strong>-Datei falsch sind, oder wir können die Datenbank auf dem Server \"<em>%s</em>\" nicht finden. Dies könnte bedeuten, dass dein Datenbankserver zur Zeit abgeschaltet ist.</p> <ul><li>Bist du sicher, dass du den Benutzernamen und das Passwort korrekt geschrieben hast?</li><li>Bist du sicher, dass du den Servernamen korrekt geschrieben hast?</li><li>Bist du sicher, dass der Datenbankserver zur Zeit erreichbar ist?</li></ul><p>Wenn du nicht weißt, was diese Begriffe bedeuten, dann solltest du deinen Provider kontaktieren. Für weitere Hilfe besuche bitte unsere Website <a href=\"https://forum.dotclear.net/\">Dotclear-Support-Forums</a>.</p>"
+msgid "<p>This either means that the username and password information in your <strong>dotclear.conf.php</strong> file is incorrect or we can't contact the database server at \"<em>%s</em>\". This could mean your host's database server is down.</p> <ul><li>Are you sure you have the correct username and password?</li><li>Are you sure that you have typed the correct hostname?</li><li>Are you sure that the database server is running?</li></ul><p>If you're unsure what these terms mean you should probably contact your host. If you still need help you can always visit the <a href=\"https://forum.dotclear.net/\">Dotclear Support Forums</a>.</p>"
+msgstr "<p>Dies bedeutet, dass entweder dein Benutzername und dein Passwort in deiner <strong>dotclear.conf.php</strong>-Datei falsch sind, oder wir können die Datenbank auf dem Server \"<em>%s</em>\" nicht finden. Dies könnte bedeuten, dass dein Datenbankserver zur Zeit abgeschaltet ist.</p> <ul><li>Bist du sicher, dass du den Benutzernamen und das Passwort korrekt geschrieben hast?</li><li>Bist du sicher, dass du den Servernamen korrekt geschrieben hast?</li><li>Bist du sicher, dass der Datenbankserver zur Zeit erreichbar ist?</li></ul><p>Wenn du nicht weißt, was diese Begriffe bedeuten, dann solltest du deinen Provider kontaktieren. Für weitere Hilfe besuche bitte unsere Website <a href=\"https://forum.dotclear.net/\">Dotclear-Support-Forums</a>.</p>"
 
 msgid "The following error was encountered while trying to read the database:"
 msgstr "Bei dem Versuch, Deine Datenbank zu lesen, trat folgender Fehler auf:"

@@ -31,7 +31,7 @@ use Dotclear\Process\Distrib\Distrib;
  */
 class Wizard
 {
-    public function __construct()
+    public function __construct(string $config_path)
     {
         $root_url = preg_replace(
             ['%admin/.*?$%', '%index.php.*?$%', '%/$%'],
@@ -47,10 +47,10 @@ class Wizard
             L10n::set(Path::implode(App::core()->config()->get('l10n_dir'), $dlang, 'main'));
         }
 
-        if (!is_writable(dirname(DOTCLEAR_CONFIG_PATH))) {
-            $err = '<p>' . sprintf(__('Path <strong>%s</strong> is not writable.'), Path::real(dirname(DOTCLEAR_CONFIG_PATH), false)) . '</p>' .
+        if (!is_writable(dirname($config_path))) {
+            $err = '<p>' . sprintf(__('Path <strong>%s</strong> is not writable.'), Path::real(dirname($config_path), false)) . '</p>' .
             '<p>' . __('Dotclear installation wizard could not create configuration file for you. ' .
-                'You must change folder right or create the <strong>config.php</strong> ' .
+                'You must change folder right or create the <strong>dotclear.conf.php</strong> ' .
                 'file manually, please refer to ' .
                 '<a href="https://dotclear.org/documentation/2.0/admin/install">' .
                 'the documentation</a> to learn how to do this.') . '</p>';
@@ -103,12 +103,12 @@ class Wizard
                 if (!Text::isEmail($ADMINMAILFROM)) {
                     throw new InstallException(__('Master email is not valid.'));
                 }
-                // Can we write config.php
-                if (!is_writable(dirname(DOTCLEAR_CONFIG_PATH))) {
-                    throw new InstallException(sprintf(__('Cannot write %s file.'), DOTCLEAR_CONFIG_PATH));
+                // Can we write dotclear.conf.php
+                if (!is_writable(dirname($config_path))) {
+                    throw new InstallException(sprintf(__('Cannot write %s file.'), $config_path));
                 }
 
-                // Creates config.php file
+                // Creates dotclear.conf.php file
                 $full_conf = Distrib::getConfigFile();
 
                 $this->writeConfigValue('database_driver', $DBDRIVER, $full_conf);
@@ -124,13 +124,13 @@ class Wizard
                 $this->writeConfigValue('admin_mailform', $admin_email, $full_conf);
                 $this->writeConfigValue('master_key', md5(uniqid()), $full_conf);
 
-                $fp = @fopen(DOTCLEAR_CONFIG_PATH, 'wb');
+                $fp = @fopen($config_path, 'wb');
                 if (false === $fp) {
-                    throw new InstallException(sprintf(__('Cannot write %s file.'), DOTCLEAR_CONFIG_PATH));
+                    throw new InstallException(sprintf(__('Cannot write %s file.'), $config_path));
                 }
                 fwrite($fp, $full_conf);
                 fclose($fp);
-                chmod(DOTCLEAR_CONFIG_PATH, 0666);
+                chmod($config_path, 0666);
 
                 $con->close();
 
@@ -175,7 +175,7 @@ class Wizard
             '<p class="message"><strong>' . __('Attention:') . '</strong> ' .
             __('this wizard may not function on every host. If it does not work for you, ' .
                 'please refer to <a href="https://dotclear.org/documentation/2.0/admin/install">' .
-                'the documentation</a> to learn how to create the <strong>config.php</strong> ' .
+                'the documentation</a> to learn how to create the <strong>dotclear.conf.php</strong> ' .
                 'file manually.') . '</p>';
         }
 

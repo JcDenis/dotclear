@@ -18,8 +18,6 @@
 - [ ] rework Dt class to use php DateTime class
 - [ ] fix public context and template
 - [ ] use sql statement everywhere it is possible
-- [ ] move root functions into dotclear namespace
-- [ ] move config outside src path
 
 ### Idea
 
@@ -42,7 +40,7 @@
 - Allow per blog path for plugins and themes
 - Use XML file for modules definition
 - Use virtual URLs for all resources
-- Remove GLOBALS (no more global $core;)
+- Remove GLOBALS (no more global $core nor $core passed as argument)
 - Use singleton dotclear() instance accessible from every where
 - Use doxygen for code documentation (not complete)
 - ...

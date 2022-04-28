@@ -1073,7 +1073,7 @@ msgstr "DC_ADMIN_URL не определен, вам нужно отредакт
 msgid "See <a href=\"https://dotclear.org/documentation/2.0/admin/config\">documentation</a> for more information."
 msgstr ""
 
-msgid "The cache directory does not exist or is not writable. You must create this directory with sufficient rights and affect this location to \"DC_TPL_CACHE\" in inc/config.php file."
+msgid "The cache directory does not exist or is not writable. You must create this directory with sufficient rights and affect this location to \"cache_dir\" in dotclear.conf.php file."
 msgstr ""
 
 msgid "The cache directory does not exist or is not writable. You should contact your administrator."
@@ -1294,7 +1294,7 @@ msgid "Path <strong>%s</strong> is not writable."
 msgstr "Директория для кэширования %s не доступна для записи."
 
 #, fuzzy
-msgid "Dotclear installation wizard could not create configuration file for you. You must change folder right or create the <strong>config.php</strong> file manually, please refer to <a href=\"https://dotclear.org/documentation/2.0/admin/install\">the documentation</a> to learn how to do this."
+msgid "Dotclear installation wizard could not create configuration file for you. You must change folder right or create the <strong>dotclear.conf.php</strong> file manually, please refer to <a href=\"https://dotclear.org/documentation/2.0/admin/install\">the documentation</a> to learn how to do this."
 msgstr "По вышеуказанным причинам, Dotclear не установлен. Пожалуйста почитайте < href=\"https://dotclear.org/documentation/2.0/admin/install\">Му-му(документацию)n</a>, чтобы узнать как решить проблему."
 
 #, fuzzy, php-format
@@ -1325,8 +1325,8 @@ msgstr "Для того, чтобы завершить установку Dotcle
 msgid "Attention:"
 msgstr "Внимание:"
 
-msgid "this wizard may not function on every host. If it does not work for you, please refer to <a href=\"https://dotclear.org/documentation/2.0/admin/install\">the documentation</a> to learn how to create the <strong>config.php</strong> file manually."
-msgstr "этот мастер может функционировать не на каждом хостинге. Если на вашем не работает, почитайте<a href=\"https://dotclear.org/documentation/2.0/admin/install\">Му-му(the documentation)</a>чтобы узнать, как создать файл<strong>config.php</strong> руками. "
+msgid "this wizard may not function on every host. If it does not work for you, please refer to <a href=\"https://dotclear.org/documentation/2.0/admin/install\">the documentation</a> to learn how to create the <strong>dotclear.conf.php</strong> file manually."
+msgstr "этот мастер может функционировать не на каждом хостинге. Если на вашем не работает, почитайте<a href=\"https://dotclear.org/documentation/2.0/admin/install\">Му-му(the documentation)</a>чтобы узнать, как создать файл<strong>dotclear.conf.php</strong> руками. "
 
 msgid "System information"
 msgstr "Информация о системе"
@@ -4275,7 +4275,7 @@ msgid " (copy)"
 msgstr ""
 
 #, fuzzy
-msgid "Unable to modify _config.php"
+msgid "Unable to modify dotclear.conf.php"
 msgstr "Невозможно открыть файл."
 
 #, fuzzy
@@ -4391,8 +4391,8 @@ msgid "Unable to connect to database"
 msgstr "Невозможно соединиться с базой данных"
 
 #, php-format
-msgid "<p>This either means that the username and password information in your <strong>config.php</strong> file is incorrect or we can't contact the database server at \"<em>%s</em>\". This could mean your host's database server is down.</p> <ul><li>Are you sure you have the correct username and password?</li><li>Are you sure that you have typed the correct hostname?</li><li>Are you sure that the database server is running?</li></ul><p>If you're unsure what these terms mean you should probably contact your host. If you still need help you can always visit the <a href=\"https://forum.dotclear.net/\">Dotclear Support Forums</a>.</p>"
-msgstr "<p>Это может означать, что имя пользователя и  пароль в вашем <strong>config.php</strong> файле неправильное или, нет связи с сервером базы данных в \"<em>%s</em>\". Возможно, проблемы с сервером базы данных на вашем хостинге.</p> <ul><li>Вы уверены, что ввели корректные  имя пользователя и пароль?</li><li>Вы уверены, что набрали правильный hostname?</li><li>Вы уверены, что сервер базы данных на хосте работает?</li></ul><p>Если Вы  не уверены в каком-то из названных пунктов, возможно необходимо обратиться к саппорту вашего хостинга. Если Вам все еще нужна помощь, посетите<a href=\"https://forum.dotclear.net/\">Форум поддержки Dotclear</a>.</p>"
+msgid "<p>This either means that the username and password information in your <strong>dotclear.conf.php</strong> file is incorrect or we can't contact the database server at \"<em>%s</em>\". This could mean your host's database server is down.</p> <ul><li>Are you sure you have the correct username and password?</li><li>Are you sure that you have typed the correct hostname?</li><li>Are you sure that the database server is running?</li></ul><p>If you're unsure what these terms mean you should probably contact your host. If you still need help you can always visit the <a href=\"https://forum.dotclear.net/\">Dotclear Support Forums</a>.</p>"
+msgstr "<p>Это может означать, что имя пользователя и  пароль в вашем <strong>dotclear.conf.php</strong> файле неправильное или, нет связи с сервером базы данных в \"<em>%s</em>\". Возможно, проблемы с сервером базы данных на вашем хостинге.</p> <ul><li>Вы уверены, что ввели корректные  имя пользователя и пароль?</li><li>Вы уверены, что набрали правильный hostname?</li><li>Вы уверены, что сервер базы данных на хосте работает?</li></ul><p>Если Вы  не уверены в каком-то из названных пунктов, возможно необходимо обратиться к саппорту вашего хостинга. Если Вам все еще нужна помощь, посетите<a href=\"https://forum.dotclear.net/\">Форум поддержки Dotclear</a>.</p>"
 
 msgid "The following error was encountered while trying to read the database:"
 msgstr "При попытке чтения базы данных обнаружена следующая ошибка:"

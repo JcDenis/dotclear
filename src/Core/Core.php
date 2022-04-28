@@ -175,16 +175,22 @@ class Core
     private static $instance;
 
     /**
-     * @var string $process
-     *             Current Process
+     * @var null|string $config_path
+     *                  Configuration file path
      */
-    protected $process;
+    protected $config_path;
 
     /**
      * @var string $lang
      *             Current lang
      */
     protected $lang                 = 'en';
+
+    /**
+     * @var string $process
+     *             Current Process
+     */
+    protected $process;
 
     /**
      * @var array<int,array> $top_behaviors
@@ -396,7 +402,7 @@ class Core
             } catch (Exception $e) {
                 $msg = sprintf(
                     __('<p>This either means that the username and password information in ' .
-                    'your <strong>config.php</strong> file is incorrect or we can\'t contact ' .
+                    'your <strong>dotclear.conf.php</strong> file is incorrect or we can\'t contact ' .
                     'the database server at "<em>%s</em>". This could mean your ' .
                     'host\'s database server is down.</p> ' .
                     '<ul><li>Are you sure you have the correct username and password?</li>' .
@@ -429,7 +435,7 @@ class Core
     public function config(): Configuration
     {
         if (!($this->config instanceof Configuration)) {
-            $config_file  = defined('DOTCLEAR_CONFIG_PATH') && is_file(DOTCLEAR_CONFIG_PATH) ? DOTCLEAR_CONFIG_PATH : [];
+            $config_file  = (null !== $this->config_path && is_file($this->config_path) ? $this->config_path : []);
             $this->config = new Configuration($this->getDefaultConfig(), $config_file);
 
             // Alias that could be required before first connection instance
@@ -692,18 +698,20 @@ class Core
     protected function process(string $_ = null): void
     {
         // Find configuration file
-        if (!defined('DOTCLEAR_CONFIG_PATH')) {
-            if (isset($_SERVER['DOTCLEAR_CONFIG_PATH'])) {
-                define('DOTCLEAR_CONFIG_PATH', $_SERVER['DOTCLEAR_CONFIG_PATH']);
+        if (null === $this->config_path) {
+            if (defined('DOTCLEAR_CONFIG_PATH')) {
+                $this->config_path = DOTCLEAR_CONFIG_PATH;
+            } elseif (isset($_SERVER['DOTCLEAR_CONFIG_PATH'])) {
+                $this->config_path = $_SERVER['DOTCLEAR_CONFIG_PATH'];
             } elseif (isset($_SERVER['REDIRECT_DOTCLEAR_CONFIG_PATH'])) {
-                define('DOTCLEAR_CONFIG_PATH', $_SERVER['REDIRECT_DOTCLEAR_CONFIG_PATH']);
+                $this->config_path = $_SERVER['REDIRECT_DOTCLEAR_CONFIG_PATH'];
             } else {
-                define('DOTCLEAR_CONFIG_PATH', Path::implodeRoot('config.php'));
+                $this->config_path = Path::implodeRoot('..', 'dotclear.conf.php');
             }
         }
 
         // No configuration ? start installalation process
-        if (!is_file(DOTCLEAR_CONFIG_PATH)) {
+        if (!is_file($this->config_path)) {
             // Stop core process here in installalation process
             if ('Install' == $this->process) {
                 return;
@@ -1003,7 +1011,8 @@ class Core
     /**
      * Default Dotclear configuration.
      *
-     * This configuration must be completed by the config.php file.
+     * This configuration must be completed by 
+     * the dotclear.conf.php file.
      *
      * @return array Initial configuation
      */

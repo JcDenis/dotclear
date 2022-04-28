@@ -214,7 +214,7 @@ class Home extends AbstractPage
         // Check cache directory
         if (App::core()->user()->isSuperAdmin()) {
             if (!is_dir(App::core()->config()->get('cache_dir')) || !is_writable(App::core()->config()->get('cache_dir'))) {
-                $err[] = '<p>' . __('The cache directory does not exist or is not writable. You must create this directory with sufficient rights and affect this location to "cache_dir" in config.php file.') . '</p>';
+                $err[] = '<p>' . __('The cache directory does not exist or is not writable. You must create this directory with sufficient rights and affect this location to "cache_dir" in dotclear.conf.php file.') . '</p>';
             }
         } else {
             if (!is_dir(App::core()->config()->get('cache_dir')) || !is_writable(App::core()->config()->get('cache_dir'))) {

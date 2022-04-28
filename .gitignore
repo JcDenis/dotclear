@@ -7,7 +7,7 @@
 /behat.yml
 /build-tools/ckeditor/ckbuilder.jar
 /var
-/src/config.php
+dotclear.conf.php
 
 # composer stuff
 /vendor

@@ -35,7 +35,7 @@ class Prepend extends Core
         } elseif (isset($_SERVER['DOTCLEAR_CONFIG_PATH'])) {
             $dc_conf = realpath($_SERVER['DOTCLEAR_CONFIG_PATH']);
         } else {
-            $dc_conf = Path::implodeRoot('config.php');
+            $dc_conf = Path::implodeRoot('..', 'dotclear.conf.php');
         }
 
         if (!is_file($dc_conf)) {

@@ -1003,8 +1003,8 @@ msgstr "%s ei ole määritelty, muokkaa asetustiedostoasi."
 msgid "See <a href=\"https://dotclear.org/documentation/2.0/admin/config\">documentation</a> for more information."
 msgstr "Katso tarkemmin <a href=\"https://dotclear.org/documentation/2.0/admin/config\">dokumentaatiosta</a>."
 
-msgid "The cache directory does not exist or is not writable. You must create this directory with sufficient rights and affect this location to \"DC_TPL_CACHE\" in inc/config.php file."
-msgstr "Välimuistihakemistoa ei ole tai sinne ei voida kirjoittaa. Luo tämä hakemisto riittävin oikeuksin sekä merkitse kyseinen hakemisto-osoite kohtaan \"DC_TPL_CACHE\" tiedostossa inc/config.php."
+msgid "The cache directory does not exist or is not writable. You must create this directory with sufficient rights and affect this location to \"cache_dir\" in dotclear.conf.php file."
+msgstr "Välimuistihakemistoa ei ole tai sinne ei voida kirjoittaa. Luo tämä hakemisto riittävin oikeuksin sekä merkitse kyseinen hakemisto-osoite kohtaan \"cache_dir\" tiedostossa dotclear.conf.php."
 
 msgid "The cache directory does not exist or is not writable. You should contact your administrator."
 msgstr "Välimuistihakemistoa ei ole tai sinne ei voida kirjoittaa. Ota yhteys järjestelmänvalvojaasi."
@@ -1220,8 +1220,8 @@ msgstr "Yllämainituista syistä Dotclearia ei saatu asennettua. Katso <a href=\
 msgid "Path <strong>%s</strong> is not writable."
 msgstr "Polkuun <strong>%s</strong> ei voida kirjoittaa."
 
-msgid "Dotclear installation wizard could not create configuration file for you. You must change folder right or create the <strong>config.php</strong> file manually, please refer to <a href=\"https://dotclear.org/documentation/2.0/admin/install\">the documentation</a> to learn how to do this."
-msgstr "Dotclear-asennusvelho ei kyennyt luomaan asetustiedostoa puolestasi. Muuta hakemiston käyttöoikeuksia tai luo <strong>config.php</strong> itse, katso toimintaohjeita <a href=\"https://dotclear.org/documentation/2.0/admin/install\">asennusohjeesta</a>."
+msgid "Dotclear installation wizard could not create configuration file for you. You must change folder right or create the <strong>dotclear.conf.php</strong> file manually, please refer to <a href=\"https://dotclear.org/documentation/2.0/admin/install\">the documentation</a> to learn how to do this."
+msgstr "Dotclear-asennusvelho ei kyennyt luomaan asetustiedostoa puolestasi. Muuta hakemiston käyttöoikeuksia tai luo <strong>dotclear.conf.php</strong> itse, katso toimintaohjeita <a href=\"https://dotclear.org/documentation/2.0/admin/install\">asennusohjeesta</a>."
 
 #, php-format
 msgid "Cannot write \"%s\" directory."
@@ -1250,8 +1250,8 @@ msgstr "Dotclearin asennuksen loppuunsaattamiseksi tarvitaan enää tieto siitä
 msgid "Attention:"
 msgstr "Tärkeä huomautus:"
 
-msgid "this wizard may not function on every host. If it does not work for you, please refer to <a href=\"https://dotclear.org/documentation/2.0/admin/install\">the documentation</a> to learn how to create the <strong>config.php</strong> file manually."
-msgstr "Tämä asennusvelho ei ehkä toimi kaikissa verkkopalvelimissa. Jos et onnistu asentamaan näin, lue <a href=\"https://dotclear.org/documentation/2.0/admin/install\">asennusohjeesta</a>, kuinka voit itse luoda <strong>config.php</strong>-tiedoston."
+msgid "this wizard may not function on every host. If it does not work for you, please refer to <a href=\"https://dotclear.org/documentation/2.0/admin/install\">the documentation</a> to learn how to create the <strong>dotclear.conf.php</strong> file manually."
+msgstr "Tämä asennusvelho ei ehkä toimi kaikissa verkkopalvelimissa. Jos et onnistu asentamaan näin, lue <a href=\"https://dotclear.org/documentation/2.0/admin/install\">asennusohjeesta</a>, kuinka voit itse luoda <strong>dotclear.conf.php</strong>-tiedoston."
 
 msgid "System information"
 msgstr "Järjestelmän tiedot"
@@ -3927,8 +3927,8 @@ msgstr " (kopio %s)"
 msgid " (copy)"
 msgstr " (kopio)"
 
-msgid "Unable to modify _config.php"
-msgstr "_config.php-tiedostoa ei voi muokata"
+msgid "Unable to modify dotclear.conf.php"
+msgstr "dotclear.conf.php-tiedostoa ei voi muokata"
 
 msgid "Destination folder already exist"
 msgstr "Kohdehakemisto on jo olemassa"
@@ -4040,8 +4040,8 @@ msgid "Unable to connect to database"
 msgstr "Tietokantaan ei saada yhteyttä"
 
 #, php-format
-msgid "<p>This either means that the username and password information in your <strong>config.php</strong> file is incorrect or we can't contact the database server at \"<em>%s</em>\". This could mean your host's database server is down.</p> <ul><li>Are you sure you have the correct username and password?</li><li>Are you sure that you have typed the correct hostname?</li><li>Are you sure that the database server is running?</li></ul><p>If you're unsure what these terms mean you should probably contact your host. If you still need help you can always visit the <a href=\"https://forum.dotclear.net/\">Dotclear Support Forums</a>.</p>"
-msgstr "<p>Tämä tarkoittaa joko sitä, että käyttäjänimi- ja salasanatietonne <strong>config.php-tiedostossanne</strong> ovat virheellisiä, tai että tietokantapalvelimeen ei saada yhteyttä osoitteessa \"<em>%s</em>\". Tämä voi merkitä sitä, että palvelun isäntäkoneen tietokantapalvelin on kaatunut.</p> <ul><li>Oletko varma, että käyttäjänimesi ja salasanasi ovat oikein?</li> <li>Oletko varma, että olet syöttänyt oikean isäntäkoneen nimen?</li> <li>Oletko varma, että tietokantapalvelin on toiminnassa?</li></ul> <p>Jos olet epävarma näistä seikoista, kannattaa ottaa yhteys isäntäkoneen ylläpitäjään tai palveluntarjoajaasi. Apua on myös tarjolla <a href=\"https://forum.dotclear.net/\">Dotclearin tukipalstoilta</a>.</p>"
+msgid "<p>This either means that the username and password information in your <strong>dotclear.conf.php</strong> file is incorrect or we can't contact the database server at \"<em>%s</em>\". This could mean your host's database server is down.</p> <ul><li>Are you sure you have the correct username and password?</li><li>Are you sure that you have typed the correct hostname?</li><li>Are you sure that the database server is running?</li></ul><p>If you're unsure what these terms mean you should probably contact your host. If you still need help you can always visit the <a href=\"https://forum.dotclear.net/\">Dotclear Support Forums</a>.</p>"
+msgstr "<p>Tämä tarkoittaa joko sitä, että käyttäjänimi- ja salasanatietonne <strong>dotclear.conf.php-tiedostossanne</strong> ovat virheellisiä, tai että tietokantapalvelimeen ei saada yhteyttä osoitteessa \"<em>%s</em>\". Tämä voi merkitä sitä, että palvelun isäntäkoneen tietokantapalvelin on kaatunut.</p> <ul><li>Oletko varma, että käyttäjänimesi ja salasanasi ovat oikein?</li> <li>Oletko varma, että olet syöttänyt oikean isäntäkoneen nimen?</li> <li>Oletko varma, että tietokantapalvelin on toiminnassa?</li></ul> <p>Jos olet epävarma näistä seikoista, kannattaa ottaa yhteys isäntäkoneen ylläpitäjään tai palveluntarjoajaasi. Apua on myös tarjolla <a href=\"https://forum.dotclear.net/\">Dotclearin tukipalstoilta</a>.</p>"
 
 msgid "The following error was encountered while trying to read the database:"
 msgstr "Seuraava virhe sattui yritettäessä lukea tietokantaa:"

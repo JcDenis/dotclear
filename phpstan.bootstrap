@@ -2,7 +2,7 @@
 // Mock some global constants
 //define('DOTCLEAR_ERROR_FILE', '');
 //define('DOTCLEAR_BEHAVIOR_TRACE', '');
-define('DOTCLEAR_CONFIG_PATH', __DIR__ . '/src/config.php');
+//define('DOTCLEAR_CONFIG_PATH', '');
 //define('DOTCLEAR_AUTH_SESS_UID', '');	
 //define('DOTCLEAR_SCH_CLASS', '');
 //define('DOTCLEAR_CON_CLASS', '');
