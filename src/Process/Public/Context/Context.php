@@ -482,7 +482,7 @@ class Context
             [App::core()->blog()->public_path . '/smilies/smilies.txt'],
             array_values(App::core()->themes()->getThemePath('Public' . $src)),
             array_values(App::core()->themes()->getThemePath('Common' . $src)),
-            [App::core()->config()->get('root_dir') . '/Public' . $src]
+            [Path::implodeRoot('Process', 'Public', $src)]
         );
 
         foreach ($paths as $file) {

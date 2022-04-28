@@ -1050,7 +1050,6 @@ class Core
             'production'            => [null, true],
             'query_timeout'         => [null, 4],
             'reverse_proxy'         => [null, true],
-            'root_dir'              => [false, Path::implodeRoot()],
             'session_name'          => [null, 'dcxd'],
             'session_ttl'           => [null, '-120 minutes'],
             'sqlite_dir'            => [null, Path::implodeRoot('..', 'db')],

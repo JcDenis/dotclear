@@ -13,6 +13,7 @@ namespace Dotclear\Process\Admin\Handler;
 use Dotclear\App;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\File\Files;
+use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Zip\Unzip;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -129,7 +130,7 @@ class Update extends AbstractPage
 
                 switch ($this->upd_step) {
                     case 'check':
-                        $this->upd_updater->checkIntegrity(App::core()->config()->get('digests_dir'), App::core()->config()->get('root_dir'));
+                        $this->upd_updater->checkIntegrity(App::core()->config()->get('digests_dir'), Path::implodeRoot());
                         App::core()->adminurl()->redirect('admin.update', ['step' => 'download']);
 
                         break;
@@ -153,7 +154,7 @@ class Update extends AbstractPage
                         $this->upd_updater->backup(
                             $zip_file,
                             'dotclear/digests',
-                            App::core()->config()->get('root_dir'),
+                            Path::implodeRoot(),
                             App::core()->config()->get('digests_dir'),
                             App::core()->config()->get('backup_dir') . '/backup-' . App::core()->config()->get('core_version') . '.zip'
                         );
@@ -166,7 +167,7 @@ class Update extends AbstractPage
                             $zip_file,
                             'dotclear/digests',
                             'dotclear',
-                            App::core()->config()->get('root_dir'),
+                            Path::implodeRoot(),
                             App::core()->config()->get('digests_dir')
                         );
 

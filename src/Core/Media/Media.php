@@ -141,7 +141,7 @@ class Media extends Manager
 
         $this->path = (string) App::core()->blog()->settings()->get('system')->get('public_path');
         // !
-        $this->addExclusion(App::core()->config()->get('root_dir'));
+        $this->addExclusion(Path::implodeRoot());
         $this->addExclusion(__DIR__ . '/../');
 
         $this->exclude_pattern = App::core()->blog()->settings()->get('system')->get('media_exclusion');
