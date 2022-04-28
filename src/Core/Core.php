@@ -1011,7 +1011,7 @@ class Core
     /**
      * Default Dotclear configuration.
      *
-     * This configuration must be completed by 
+     * This configuration must be completed by
      * the dotclear.conf.php file.
      *
      * @return array Initial configuation

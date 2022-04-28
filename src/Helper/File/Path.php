@@ -154,7 +154,7 @@ class Path
 
     /**
      * Implode path chunks from Dotclear root directory.
-     * 
+     *
      * Dotclear root directory path is the "src" directory path.
      *
      * @param string ...$args The path chunks

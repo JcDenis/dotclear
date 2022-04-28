@@ -21,15 +21,15 @@ class App
     /**
      * Run process.
      *
-     * @param string $process The process (admin,install,public...)
-     * @param string $blog_id The blog id for public process
+     * @param string      $process The process (admin,install,public...)
+     * @param null|string $blog_id The blog id for public process
      */
     final public static function run(string $process, ?string $blog_id = null)
     {
         // Third party autoload (PSR-4 compliant)
-        $file = __DIR__ . '/../vendor/autoload.php';
+        $file = implode(DIRECTORY_SEPARATOR, [__DIR__, '..', 'vendor', 'autoload.php']);
         if (file_exists($file)) {
-            require $file;
+            require_once $file;
         // Dotclear autoload
         } else {
             require_once implode(DIRECTORY_SEPARATOR, [__DIR__, 'Helper', 'Autoload.php']);
@@ -72,11 +72,9 @@ class App
     /**
      * Call singleton core.
      *
-     * @param ?string $blog_id
-     *
      * @return null|object Singleton core instance
      */
-    final public static function core(?string $blog_id = null)
+    final public static function core()
     {
         if (class_exists('Dotclear\\Core\\Core')) {
             return \Dotclear\Core\Core::singleton();
@@ -88,7 +86,7 @@ class App
     }
 
     /**
-     * Display errors.
+     * Stop process and display errors.
      *
      * @param string                $message The message
      * @param string                $detail  The detail

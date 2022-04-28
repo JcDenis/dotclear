@@ -136,8 +136,8 @@ class RestServer
     }
 
     /**
-     * Dump functions stack
-     * 
+     * Dump functions stack.
+     *
      * @return array<string,callable> The registered functions
      */
     public function dump(): array
