@@ -13,8 +13,8 @@
     "php": ">=8.0.0"
   },
   "require-dev": {
-    "phpstan/phpstan": "^1.5",
-    "FriendsOfPHP/PHP-CS-Fixer": "^3.8"
+    "phpstan/phpstan": "^1.6",
+    "friendsofphp/php-cs-fixer": "^3.8"
   },
   "config": {
     "bin-dir": "bin/"
