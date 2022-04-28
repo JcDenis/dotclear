@@ -96,7 +96,7 @@ class UserContainer extends AbstractContainer
             'edit_size'      => 24,
             'enable_wysiwyg' => true,
             'toolbar_bottom' => false,
-            'editor'         => ['xhtml' => 'dcCKEditor', 'wiki' => 'LegacyEditor'],
+            'editor'         => ['xhtml' => 'CKEditor', 'wiki' => 'LegacyEditor'],
             'post_format'    => 'xhtml',
         ];
     }

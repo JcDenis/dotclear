@@ -11,7 +11,7 @@
             editor.getSelection().getSelectedElement() != null ||
             editor.getSelection().getNative().toString().replace(/\s*/, '') != ''
           ) {
-            $.toolbarPopup('?handler=admin.link.popup&plugin_id=dcCKEditor');
+            $.toolbarPopup('?handler=admin.link.popup&plugin_id=CKEditor');
           }
         },
       });
@@ -34,7 +34,7 @@
 
           editor.getSelection().selectElement(element);
 
-          let popup_url = '?handler=admin.link.popup&plugin_id=dcCKEditor';
+          let popup_url = '?handler=admin.link.popup&plugin_id=CKEditor';
           if (element.getAttribute('href')) {
             popup_url += `&href=${element.getAttribute('href')}`;
           }

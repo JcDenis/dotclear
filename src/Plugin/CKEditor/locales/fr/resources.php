@@ -7,4 +7,4 @@
  */
 use Dotclear\App;
 
-App::core()->help()->context('dcCKEditor', __DIR__ . '/help/config_help.html');
+App::core()->help()->context('CKEditor', __DIR__ . '/help/config_help.html');

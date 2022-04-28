@@ -4427,7 +4427,7 @@ body.wysiwygDoc {
 .wysiwygDoc samp {
   font-family: "Andale Mono", AndaleMono, Consolas, Monaco, "Courier New", monospace; }
 
-/* dcCKEditor */
+/* CKEditor */
 .cke textarea.cke_source {
   font-family: "Andale Mono", AndaleMono, Consolas, Monaco, "Courier New", monospace;
   font-size: 100%; }

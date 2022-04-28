@@ -863,7 +863,7 @@ msgstr ""
 msgid "URL field cannot be empty."
 msgstr ""
 
-msgid "dcCKEditor"
+msgid "CKEditor"
 msgstr ""
 
 #, fuzzy
@@ -873,7 +873,7 @@ msgstr "blog instellingen"
 msgid "Plugin activation"
 msgstr ""
 
-msgid "Enable dcCKEditor plugin"
+msgid "Enable CKEditor plugin"
 msgstr ""
 
 msgid "Add alignment buttons"

@@ -886,7 +886,7 @@ msgstr "Externes Medium"
 msgid "URL field cannot be empty."
 msgstr ""
 
-msgid "dcCKEditor"
+msgid "CKEditor"
 msgstr ""
 
 #, fuzzy
@@ -897,7 +897,7 @@ msgstr "Nustatymo pavadinimas"
 msgid "Plugin activation"
 msgstr "Aktyvus"
 
-msgid "Enable dcCKEditor plugin"
+msgid "Enable CKEditor plugin"
 msgstr ""
 
 #, fuzzy

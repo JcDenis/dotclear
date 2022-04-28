@@ -857,7 +857,7 @@ msgstr "Externes Bild"
 msgid "URL field cannot be empty."
 msgstr "URL Feld darf nicht leer sein."
 
-msgid "dcCKEditor"
+msgid "CKEditor"
 msgstr ""
 
 #, fuzzy
@@ -868,7 +868,7 @@ msgstr "Einstellungs ID"
 msgid "Plugin activation"
 msgstr "Aktivierung"
 
-msgid "Enable dcCKEditor plugin"
+msgid "Enable CKEditor plugin"
 msgstr ""
 
 msgid "Add alignment buttons"

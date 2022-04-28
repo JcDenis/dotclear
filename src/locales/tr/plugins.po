@@ -865,7 +865,7 @@ msgstr ""
 msgid "URL field cannot be empty."
 msgstr ""
 
-msgid "dcCKEditor"
+msgid "CKEditor"
 msgstr ""
 
 #, fuzzy
@@ -876,7 +876,7 @@ msgstr "Ayar adı:"
 msgid "Plugin activation"
 msgstr "Sayfa başlığı"
 
-msgid "Enable dcCKEditor plugin"
+msgid "Enable CKEditor plugin"
 msgstr ""
 
 msgid "Add alignment buttons"

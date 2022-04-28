@@ -187,7 +187,7 @@ class Combo
     /**
      * Return a combo containing all available formaters by editor in admin.
      *
-     * @param string $editor_id The editor identifier (LegacyEditor, dcCKEditor, ...)
+     * @param string $editor_id The editor identifier (LegacyEditor, CKEditor, ...)
      *
      * @return array The formaters combo
      */

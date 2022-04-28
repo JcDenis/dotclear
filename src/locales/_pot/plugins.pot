@@ -1132,141 +1132,141 @@ msgstr ""
 msgid "404"
 msgstr ""
 
-#: plugins/dcCKEditor/_post_config.php:313
+#: plugins/CKEditor/_post_config.php:313
 msgid "Note(s)"
 msgstr ""
 
-#: plugins/dcCKEditor/inc/_config.php:80 plugins/dcLegacyEditor/index.php:25
+#: plugins/CKEditor/inc/_config.php:80 plugins/dcLegacyEditor/index.php:25
 msgid "The configuration has been updated."
 msgstr ""
 
-#: plugins/dcCKEditor/inc/dc.ckeditor.behaviors.php:49
+#: plugins/CKEditor/inc/dc.ckeditor.behaviors.php:49
 #: plugins/dcLegacyEditor/inc/dc.legacy.editor.behaviors.php:136
 msgid "Media chooser"
 msgstr ""
 
-#: plugins/dcCKEditor/inc/dc.ckeditor.behaviors.php:50
+#: plugins/CKEditor/inc/dc.ckeditor.behaviors.php:50
 #: plugins/dcLegacyEditor/inc/dc.legacy.editor.behaviors.php:137
 msgid "m"
 msgstr ""
 
-#: plugins/dcCKEditor/inc/dc.ckeditor.behaviors.php:51
+#: plugins/CKEditor/inc/dc.ckeditor.behaviors.php:51
 #: plugins/dcLegacyEditor/inc/dc.legacy.editor.behaviors.php:140
 msgid "Link to an entry"
 msgstr ""
 
-#: plugins/dcCKEditor/inc/dc.ckeditor.behaviors.php:52
+#: plugins/CKEditor/inc/dc.ckeditor.behaviors.php:52
 #: plugins/dcLegacyEditor/inc/dc.legacy.editor.behaviors.php:124
 msgid "Link"
 msgstr ""
 
-#: plugins/dcCKEditor/inc/dc.ckeditor.behaviors.php:53
+#: plugins/CKEditor/inc/dc.ckeditor.behaviors.php:53
 #: plugins/dcLegacyEditor/inc/dc.legacy.editor.behaviors.php:125
 msgid "l"
 msgstr ""
 
-#: plugins/dcCKEditor/inc/dc.ckeditor.behaviors.php:54
+#: plugins/CKEditor/inc/dc.ckeditor.behaviors.php:54
 #: plugins/dcLegacyEditor/inc/dc.legacy.editor.behaviors.php:131
 msgid "External image"
 msgstr ""
 
-#: plugins/dcCKEditor/inc/dc.ckeditor.behaviors.php:55
+#: plugins/CKEditor/inc/dc.ckeditor.behaviors.php:55
 msgid "URL field cannot be empty."
 msgstr ""
 
-#: plugins/dcCKEditor/tpl/index.php:8
-msgid "dcCKEditor"
+#: plugins/CKEditor/tpl/index.php:8
+msgid "CKEditor"
 msgstr ""
 
-#: plugins/dcCKEditor/tpl/index.php:11 plugins/dcLegacyEditor/tpl/index.php:9
+#: plugins/CKEditor/tpl/index.php:11 plugins/dcLegacyEditor/tpl/index.php:9
 msgid "Settings"
 msgstr ""
 
-#: plugins/dcCKEditor/tpl/index.php:16 plugins/dcLegacyEditor/tpl/index.php:12
+#: plugins/CKEditor/tpl/index.php:16 plugins/dcLegacyEditor/tpl/index.php:12
 msgid "Plugin activation"
 msgstr ""
 
-#: plugins/dcCKEditor/tpl/index.php:21
-msgid "Enable dcCKEditor plugin"
+#: plugins/CKEditor/tpl/index.php:21
+msgid "Enable CKEditor plugin"
 msgstr ""
 
-#: plugins/dcCKEditor/tpl/index.php:33
+#: plugins/CKEditor/tpl/index.php:33
 msgid "Add alignment buttons"
 msgstr ""
 
-#: plugins/dcCKEditor/tpl/index.php:39
+#: plugins/CKEditor/tpl/index.php:39
 msgid "Add lists buttons"
 msgstr ""
 
-#: plugins/dcCKEditor/tpl/index.php:45
+#: plugins/CKEditor/tpl/index.php:45
 msgid "Add text color button"
 msgstr ""
 
-#: plugins/dcCKEditor/tpl/index.php:51
+#: plugins/CKEditor/tpl/index.php:51
 msgid "Add background text color button"
 msgstr ""
 
-#: plugins/dcCKEditor/tpl/index.php:56
+#: plugins/CKEditor/tpl/index.php:56
 msgid "Custom colors list:"
 msgstr ""
 
-#: plugins/dcCKEditor/tpl/index.php:61
+#: plugins/CKEditor/tpl/index.php:61
 msgid "Add colors without # separated by a comma."
 msgstr ""
 
-#: plugins/dcCKEditor/tpl/index.php:62
+#: plugins/CKEditor/tpl/index.php:62
 msgid "Leave empty to use the default palette:"
 msgstr ""
 
-#: plugins/dcCKEditor/tpl/index.php:64
+#: plugins/CKEditor/tpl/index.php:64
 msgid "Example of custom color list:"
 msgstr ""
 
-#: plugins/dcCKEditor/tpl/index.php:69
+#: plugins/CKEditor/tpl/index.php:69
 msgid "Colors per row in palette:"
 msgstr ""
 
-#: plugins/dcCKEditor/tpl/index.php:74
+#: plugins/CKEditor/tpl/index.php:74
 msgid "Leave empty to use default (6)"
 msgstr ""
 
-#: plugins/dcCKEditor/tpl/index.php:79
+#: plugins/CKEditor/tpl/index.php:79
 msgid "Add collapse button"
 msgstr ""
 
-#: plugins/dcCKEditor/tpl/index.php:85
+#: plugins/CKEditor/tpl/index.php:85
 msgid "Add format selection"
 msgstr ""
 
-#: plugins/dcCKEditor/tpl/index.php:90
+#: plugins/CKEditor/tpl/index.php:90
 msgid "Custom formats"
 msgstr ""
 
-#: plugins/dcCKEditor/tpl/index.php:95
+#: plugins/CKEditor/tpl/index.php:95
 msgid "Default formats are p;h1;h2;h3;h4;h5;h6;pre;address"
 msgstr ""
 
-#: plugins/dcCKEditor/tpl/index.php:100
+#: plugins/CKEditor/tpl/index.php:100
 msgid "Add table button"
 msgstr ""
 
-#: plugins/dcCKEditor/tpl/index.php:106
+#: plugins/CKEditor/tpl/index.php:106
 msgid "Add clipboard buttons"
 msgstr ""
 
-#: plugins/dcCKEditor/tpl/index.php:110
+#: plugins/CKEditor/tpl/index.php:110
 msgid "Copy, Paste, Paste Text, Paste from Word"
 msgstr ""
 
-#: plugins/dcCKEditor/tpl/index.php:115
+#: plugins/CKEditor/tpl/index.php:115
 msgid "Add undo/redo buttons"
 msgstr ""
 
-#: plugins/dcCKEditor/tpl/index.php:121
+#: plugins/CKEditor/tpl/index.php:121
 msgid "Disables the built-in spell checker if the browser provides one"
 msgstr ""
 
-#: plugins/dcCKEditor/tpl/index.php:130 plugins/dcLegacyEditor/tpl/index.php:24
+#: plugins/CKEditor/tpl/index.php:130 plugins/dcLegacyEditor/tpl/index.php:24
 #: plugins/simpleMenu/index.php:555
 msgid "Save configuration"
 msgstr ""

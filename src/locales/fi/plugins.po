@@ -857,8 +857,8 @@ msgstr "Ulkoinen kuva"
 msgid "URL field cannot be empty."
 msgstr "URL-kenttä ei voi olla tyhjä"
 
-msgid "dcCKEditor"
-msgstr "dcCKEditor"
+msgid "CKEditor"
+msgstr "CKEditor"
 
 msgid "Settings"
 msgstr "Asetukset"
@@ -866,8 +866,8 @@ msgstr "Asetukset"
 msgid "Plugin activation"
 msgstr "Liitännäisen käyttöönotto"
 
-msgid "Enable dcCKEditor plugin"
-msgstr "Ota dcCKEditor-liitännäinen käyttöön"
+msgid "Enable CKEditor plugin"
+msgstr "Ota CKEditor-liitännäinen käyttöön"
 
 msgid "Add alignment buttons"
 msgstr "Lisää kohdistusnapit"

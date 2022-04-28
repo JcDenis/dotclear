@@ -130,8 +130,8 @@ class Handler extends AbstractPage
         // Page setup
         $this
             ->setPageTitle('CKEditor')
-            ->setPageHelp('dcCKEditor')
-            ->setPageBreadcrumb([__('Plugins') => '', __('dcCKEditor') => ''])
+            ->setPageHelp('CKEditor')
+            ->setPageBreadcrumb([__('Plugins') => '', __('CKEditor') => ''])
         ;
 
         return true;
@@ -147,7 +147,7 @@ class Handler extends AbstractPage
             <h3>' . __('Plugin activation') . '</h3>
             <p><label class="classic" for="dcckeditor_active">' .
             Form::checkbox('dcckeditor_active', 1, $this->ckes['active']) .
-            __('Enable dcCKEditor plugin') . '</label></p>
+            __('Enable CKEditor plugin') . '</label></p>
             </div>';
 
             if ($this->ckes['active']) {
@@ -222,7 +222,7 @@ class Handler extends AbstractPage
             }
 
             echo '
-            <p><input name="p" type="hidden" value="dcCKEditor"/>' .
+            <p><input name="p" type="hidden" value="CKEditor"/>' .
             App::core()->adminurl()->getHiddenFormFields('admin.plugin.CKEditor', [], true) . '
             <input name="saveconfig" type="submit" value="' . __('Save configuration') . '"/>
             <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />

@@ -856,8 +856,8 @@ msgstr "Image externe"
 msgid "URL field cannot be empty."
 msgstr "Le champ URL ne peut être vide."
 
-msgid "dcCKEditor"
-msgstr "dcCKEditor"
+msgid "CKEditor"
+msgstr "CKEditor"
 
 msgid "Settings"
 msgstr "Réglages"
@@ -865,8 +865,8 @@ msgstr "Réglages"
 msgid "Plugin activation"
 msgstr "Activation"
 
-msgid "Enable dcCKEditor plugin"
-msgstr "Activer le plugin dcCKEditor"
+msgid "Enable CKEditor plugin"
+msgstr "Activer le plugin CKEditor"
 
 msgid "Add alignment buttons"
 msgstr "Ajouter les boutons d'alignement"

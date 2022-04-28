@@ -886,7 +886,7 @@ msgstr "Externí média"
 msgid "URL field cannot be empty."
 msgstr ""
 
-msgid "dcCKEditor"
+msgid "CKEditor"
 msgstr ""
 
 #, fuzzy
@@ -897,7 +897,7 @@ msgstr "Klíč nastavené"
 msgid "Plugin activation"
 msgstr "Aktivní"
 
-msgid "Enable dcCKEditor plugin"
+msgid "Enable CKEditor plugin"
 msgstr ""
 
 #, fuzzy

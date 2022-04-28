@@ -886,7 +886,7 @@ msgstr "Внешние медиа"
 msgid "URL field cannot be empty."
 msgstr ""
 
-msgid "dcCKEditor"
+msgid "CKEditor"
 msgstr ""
 
 #, fuzzy
@@ -897,7 +897,7 @@ msgstr "Название настройки"
 msgid "Plugin activation"
 msgstr "Активный"
 
-msgid "Enable dcCKEditor plugin"
+msgid "Enable CKEditor plugin"
 msgstr ""
 
 #, fuzzy

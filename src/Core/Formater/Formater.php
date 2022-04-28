@@ -34,7 +34,7 @@ class Formater
      * transform text. The function must be a valid callback and takes one
      * argument: the string to transform. It returns the transformed string.
      *
-     * @param string               $editor   The editor identifier (LegacyEditor, dcCKEditor, ...)
+     * @param string               $editor   The editor identifier (LegacyEditor, CKEditor, ...)
      * @param string               $formater The formater name
      * @param array|Closure|string $callback The function to use, must be a valid and callable callback
      */
@@ -75,7 +75,7 @@ class Formater
      * return empty() array if editor is not active.
      * It can happens when a user choose an editor and admin deactivate that editor later
      *
-     * @param string $editor The editor identifier (LegacyEditor, dcCKEditor, ...)
+     * @param string $editor The editor identifier (LegacyEditor, CKEditor, ...)
      *
      * @return array<string, array> The formaters
      */
@@ -102,7 +102,7 @@ class Formater
      * If <b>$formater</b> is a valid formater, it returns <b>$str</b>
      * transformed using that formater.
      *
-     * @param string $editor   The editor identifier (LegacyEditor, dcCKEditor, ...)
+     * @param string $editor   The editor identifier (LegacyEditor, CKEditor, ...)
      * @param string $formater The formater name
      * @param string $str      The string to transform
      *

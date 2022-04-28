@@ -887,7 +887,7 @@ msgstr "Külső média"
 msgid "URL field cannot be empty."
 msgstr ""
 
-msgid "dcCKEditor"
+msgid "CKEditor"
 msgstr ""
 
 #, fuzzy
@@ -898,7 +898,7 @@ msgstr "Beálíltás neve"
 msgid "Plugin activation"
 msgstr "Aktív"
 
-msgid "Enable dcCKEditor plugin"
+msgid "Enable CKEditor plugin"
 msgstr ""
 
 #, fuzzy
