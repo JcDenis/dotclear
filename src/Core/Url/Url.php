@@ -514,7 +514,7 @@ class Url
         App::core()->context()->set('current_tpl', '404.html');
         App::core()->context()->set('content_type', 'text/html');
 
-        echo App::core()->template()->getData(App::core()->context()->set('current_tpl'));
+        echo App::core()->template()->getData(App::core()->context()->get('current_tpl'));
 
         // --BEHAVIOR-- publicAfterDocument
         App::core()->behavior()->call('publicAfterDocument');
