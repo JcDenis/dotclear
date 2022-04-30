@@ -86,10 +86,10 @@ return [
     //'iconset_dirs' => [Path::implodeRoot('Iconset')],
 
     // Template cache directory
-    //'cache_dir' => Path::implodeRoot('..', 'cache'),
+    //'cache_dir' => Path::implodeBase('cache'),
 
     // Var directory
-    //'var_dir' => Path::implodeRoot('..', 'var'),
+    //'var_dir' => Path::implodeBase('var'),
 
     // Cryptographic algorithm
     'crypt_algo' => 'sha512',

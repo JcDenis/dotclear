@@ -28,7 +28,8 @@
 
 - Require PHP 8.1
 - Convert to full PHP namespace
-- Composer compliant (not tested)
+- Composer autoload compliant
+- Composer packages compliant (not yet available, see testing feature at <https://github.com/JcDenis/dotclear-blog>)
 - PSR4, PSR12 compliant
 - Include used Clearbricks libraries
 - Use configuration array instead of DC_xx constants

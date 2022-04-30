@@ -153,6 +153,28 @@ class Path
     }
 
     /**
+     * Implode path chunks from base directory.
+     *
+     * This check if dotclear is installed in standalone mode 
+     * or with composer and return a base directory.
+     *
+     * @param string ...$args The path chunks
+     *
+     * @return string The cleaned joined path
+     */
+    public static function implodeBase(string ...$args): string
+    {
+        // check if dotclear core run under composer or standalone
+        $composer = str_ends_with(self::implodeRoot('..', '..', '..'), 'vendor');
+        // find base directory path
+        $base     = ($composer ? self::implodeRoot('..', '..', '..', '..') : self::ImplodeRoot('..'));
+
+        array_unshift($args, $base);
+
+        return self::real(implode(DIRECTORY_SEPARATOR, $args), false);
+    }
+
+    /**
      * Implode path chunks from Dotclear root directory.
      *
      * Dotclear root directory path is the "src" directory path.

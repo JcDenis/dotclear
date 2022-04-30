@@ -706,7 +706,7 @@ class Core
             } elseif (isset($_SERVER['REDIRECT_DOTCLEAR_CONFIG_PATH'])) {
                 $this->config_path = $_SERVER['REDIRECT_DOTCLEAR_CONFIG_PATH'];
             } else {
-                $this->config_path = Path::implodeRoot('..', 'dotclear.conf.php');
+                $this->config_path = Path::implodeBase('dotclear.conf.php');
             }
         }
 
@@ -1023,9 +1023,9 @@ class Core
             'admin_mailform'        => [null, ''],
             'admin_ssl'             => [null, true],
             'admin_url'             => [null, ''],
-            'backup_dir'            => [null, Path::implodeRoot()],
-            'base_dir'              => [null, Path::implodeRoot('..')],
-            'cache_dir'             => [null, Path::implodeRoot('..', 'cache')],
+            'backup_dir'            => [null, Path::implodeBase()],
+            'base_dir'              => [null, Path::implodeBase()],
+            'cache_dir'             => [null, Path::implodeBase('cache')],
             'core_update_channel'   => [null, 'stable'],
             'core_update_noauto'    => [null, false],
             'core_update_url'       => [null, 'https://download.dotclear.org/versions.xml'],
@@ -1039,7 +1039,7 @@ class Core
             'database_persist'      => [null, true],
             'database_prefix'       => [null, 'dc_'],
             'database_user'         => [true, ''],
-            'digests_dir'           => [null, Path::implodeRoot('..', 'digests')],
+            'digests_dir'           => [null, Path::implodeBase('digests')],
             'file_serve_type'       => [null, ['ico', 'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'css', 'js', 'swf', 'svg', 'woff', 'woff2', 'ttf', 'otf', 'eot', 'html', 'xml', 'json', 'txt', 'zip']],
             'force_scheme_443'      => [null, true],
             'iconset_dirs'          => [null, []], // [null, [Path::implodeRoot('Iconset')],
@@ -1061,14 +1061,14 @@ class Core
             'reverse_proxy'         => [null, true],
             'session_name'          => [null, 'dcxd'],
             'session_ttl'           => [null, '-120 minutes'],
-            'sqlite_dir'            => [null, Path::implodeRoot('..', 'db')],
+            'sqlite_dir'            => [null, Path::implodeBase('db')],
             'store_allow_repo'      => [null, true],
             'store_update_noauto'   => [null, false],
             'template_default'      => [null, 'mustek'],
             'theme_dirs'            => [null, [Path::implodeRoot('Theme')]],
             'theme_official'        => [false, ['Berlin', 'BlueSilence', 'Blowup', 'CustomCSS', 'Ductile']],
             'theme_update_url'      => [null, 'https://update.dotaddict.org/dc2/themes.xml'],
-            'var_dir'               => [null, Path::implodeRoot('..', 'var')],
+            'var_dir'               => [null, Path::implodeBase('var')],
             'vendor_name'           => [null, 'Dotclear'],
             'xmlrpc_url'            => [null, '%1$sxmlrpc/%2$s'],
         ];

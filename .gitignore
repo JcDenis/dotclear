@@ -1,12 +1,12 @@
+/build-tools/ckeditor/ckbuilder.jar
 /cache
+/digests
 /doc
-\.php-cs-fixer.cache
-\.htaccess
 /inc
 /public
-/behat.yml
-/build-tools/ckeditor/ckbuilder.jar
 /var
+\.php-cs-fixer.cache
+\.htaccess
 dotclear.conf.php
 
 # composer stuff
