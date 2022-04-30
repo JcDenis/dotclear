@@ -3,10 +3,13 @@
 // See https://mlocati.github.io/php-cs-fixer-configurator/#version:3.8 for documentation
 
 $finder = PhpCsFixer\Finder::create()
+    ->in(__DIR__)
     ->exclude('node_modules')
     ->exclude('vendor')
-    //->in(__DIR__);
-    ->in(__DIR__ . '/src');
+    // for now don't look at build tools
+    ->exclude('build-tools')
+    // php-cs-fixer always corrupts this file, so ignore it
+    ->notName('NestedTree.php');
 
 $config = new PhpCsFixer\Config();
 

@@ -1,7 +1,7 @@
 <?php
 /**
  * Run admin process.
- * 
+ *
  * @file \admin\index.php
  *
  * This file is the admin (backend) access point

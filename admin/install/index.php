@@ -1,7 +1,7 @@
 <?php
 /**
  * Run install process.
- * 
+ *
  * @file \admin\install\index.php
  *
  * @copyright Olivier Meunier & Association Dotclear
