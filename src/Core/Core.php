@@ -1052,7 +1052,7 @@ class Core
             'media_upload_maxsize'  => [false, Files::getMaxUploadFilesize()],
             'master_key'            => [true, ''],
             'module_allow_multi'    => [null, false],
-            'php_next_required'     => [false, '7.4'],
+            'php_next_required'     => [false, '8.1'],
             'plugin_dirs'           => [null, [Path::implodeRoot('Plugin')]],
             'plugin_official'       => [false, ['AboutConfig', 'Akismet', 'Antispam', 'Attachments', 'Blogroll', 'Dclegacy', 'FairTrackbacks', 'ImportExport', 'Maintenance', 'Pages', 'Pings', 'SimpleMenu', 'Tags', 'ThemeEditor', 'UserPref', 'Widgets', 'LegacyEditor', 'CKEditor', 'Breadcrumb']],
             'plugin_update_url'     => [null,  'https://update.dotaddict.org/dc2/plugins.xml'],
