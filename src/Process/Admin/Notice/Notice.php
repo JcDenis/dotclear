@@ -331,10 +331,18 @@ class Notice
      */
     public function addNotice(string $type, string $message, array $options = []): void
     {
+        $now = function () {
+            Dt::setTZ(App::core()->user()->getInfo('user_tz')); // Set user TZ
+            $dt = date('Y-m-d H:i:s');
+            Dt::setTZ('UTC');                           // Back to default TZ
+
+            return $dt;
+        };
+
         $cur = App::core()->con()->openCursor($this->table());
 
         $cur->setField('notice_type', $type);
-        $cur->setField('notice_ts', isset($options['ts']) && $options['ts'] ? $options['ts'] : date('Y-m-d H:i:s'));
+        $cur->setField('notice_ts', isset($options['ts']) && $options['ts'] ? $options['ts'] : $now());
         $cur->setField('notice_msg', $message);
         $cur->setField('notice_options', json_encode($options));
 

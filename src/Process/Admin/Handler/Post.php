@@ -902,7 +902,7 @@ class Post extends AbstractPage
 
                     echo '<ul class="nice">';
                     while ($pings->fetch()) {
-                        echo '<li>' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $pings->ping_dt) . ' - ' .
+                        echo '<li>' . Dt::dt2str(__('%Y-%m-%d %H:%M'), (string) $pings->ping_dt) . ' - ' .
                         $pings->ping_url . '</li>';
                     }
                     echo '</ul>';

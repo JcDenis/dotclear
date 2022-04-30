@@ -167,7 +167,7 @@ class Search extends AbstractPage
         }
 
         if (0 < $this->s_count) {
-            printf('<h3>' . __('one result', __('%d results'), $this->s_count) . '</h3>', $this->s_count);
+            printf('<h3>' . __('one entry found', '%d entries found', $this->s_count) . '</h3>', $this->s_count);
         }
 
         $this->s_list->display(
@@ -222,7 +222,7 @@ class Search extends AbstractPage
         }
 
         if (0 < $this->s_count) {
-            printf('<h3>' . __('one comment found', __('%d comments found'), $this->s_count) . '</h3>', $this->s_count);
+            printf('<h3>' . __('one comment found', '%d comments found', $this->s_count) . '</h3>', $this->s_count);
         }
 
         $this->s_list->display(

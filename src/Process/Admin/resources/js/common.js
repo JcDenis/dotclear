@@ -509,9 +509,9 @@ dotclear.responsiveCellHeaders = (table, selector, offset = 0, thead = false) =>
   try {
     const THarray = [];
     const ths = table.getElementsByTagName('th');
-    for (let i = 0; i < ths.length; i++) {
-      for (let colspan = ths[i].colSpan; colspan > 0; colspan--) {
-        THarray.push(ths[i].innerText.replace('▶', ''));
+    for (const th of ths) {
+      for (let colspan = th.colSpan; colspan > 0; colspan--) {
+        THarray.push(th.innerText.replace('▶', ''));
       }
     }
     const styleElm = document.createElement('style');
@@ -755,7 +755,8 @@ $(() => {
 
   if (dotclear.debug) {
     // debug mode: double click on header switch current theme
-    document.querySelector('#header').addEventListener('dblclick', (e) => {
+    const header = document.querySelector('#header') ? document.querySelector('#header') : document.querySelector('h1');
+    header.addEventListener('dblclick', (e) => {
       const elt = document.documentElement;
       let theme = elt.dataset.theme;
       if (theme == null || theme === '') {

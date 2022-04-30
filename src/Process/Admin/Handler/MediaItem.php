@@ -509,7 +509,12 @@ class MediaItem extends AbstractPage
                     Form::radio(['alignment'], $k, $v[1]) . ' ' . $v[0] . '</label><br /> ';
                 }
 
-                echo Form::hidden('public_player', Html::escapeHTML(Media::audioPlayer($this->item_file->type, $this->item_file->file_url)));
+                $url = $this->item_file->file_url;
+                if (App::core()->blog()->host === substr($url, 0, strlen(App::core()->blog()->host))) {
+                    $url = substr($url, strlen(App::core()->blog()->host));
+                }
+                echo Form::hidden('blog_host', Html::escapeHTML(App::core()->blog()->host));
+                echo Form::hidden('public_player', Html::escapeHTML(Media::audioPlayer($this->item_file->type, $url)));
                 echo '</p>';
                 echo '</div>';
             } elseif ('video' == $file_type[0]) {
@@ -542,7 +547,12 @@ class MediaItem extends AbstractPage
                     Form::radio(['alignment'], $k, $v[1]) . ' ' . $v[0] . '</label><br /> ';
                 }
 
-                echo Form::hidden('public_player', Html::escapeHTML(Media::videoPlayer($this->item_file->type, $this->item_file->file_url)));
+                $url = $this->item_file->file_url;
+                if (App::core()->blog()->host === substr($url, 0, strlen(App::core()->blog()->host))) {
+                    $url = substr($url, strlen(App::core()->blog()->host));
+                }
+                echo Form::hidden('blog_host', Html::escapeHTML(App::core()->blog()->host));
+                echo Form::hidden('public_player', Html::escapeHTML(Media::videoPlayer($this->item_file->type, $url)));
                 echo '</p>';
                 echo '</div>';
             } else {

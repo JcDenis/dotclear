@@ -360,11 +360,6 @@ abstract class AbstractPage
         (App::core()->production() ? '' : ' debug-mode') .
         '">' . "\n" .
 
-        '<ul id="prelude">' .
-        '<li><a href="#content">' . __('Go to the content') . '</a></li>' .
-        '<li><a href="#main-menu">' . __('Go to the menu') . '</a></li>' .
-        '<li><a href="#help">' . __('Go to help') . '</a></li>' .
-        '</ul>' . "\n" .
         '<header id="header" role="banner">' .
         '<h1><a href="' . App::core()->adminurl()->get('admin.home') . '"><span class="hidden">' . App::core()->config()->get('vendor_name') . '</span></a></h1>' . "\n";
 
@@ -373,6 +368,13 @@ abstract class AbstractPage
         '<p><a href="' . App::core()->blog()->url . '" class="outgoing" title="' . __('Go to site') .
         '">' . __('Go to site') . '<img src="?df=images/outgoing-link.svg" alt="" /></a>' .
         '</p></form>' .
+
+        '<ul id="prelude">' .
+        '<li><a href="#content">' . __('Go to the content') . '</a></li>' .
+        '<li><a href="#main-menu">' . __('Go to the menu') . '</a></li>' .
+        '<li><a href="#help">' . __('Go to help') . '</a></li>' .
+        '</ul>' . "\n" .
+
         '<ul id="top-info-user">' .
         '<li><a class="' . (preg_match('"' . preg_quote(App::core()->adminurl()->get('admin.home')) . '$"', $_SERVER['REQUEST_URI']) ? ' active' : '') . '" href="' . App::core()->adminurl()->get('admin.home') . '">' . __('My dashboard') . '</a></li>' .
         '<li><a class="smallscreen' . (preg_match('"' . preg_quote(App::core()->adminurl()->get('admin.user.pref')) . '(\?.*)?$"', $_SERVER['REQUEST_URI']) ? ' active' : '') .
@@ -635,7 +637,7 @@ abstract class AbstractPage
         $global_vars = implode(', ', array_keys($GLOBALS));
 
         $res = '<div id="debug"><div>' .
-        '<p>memory usage: ' . memory_get_usage() . ' (' . Files::size(memory_get_usage()) . ')</p>';
+        '<p>PHP memory usage: ' . memory_get_usage() . ' (' . Files::size(memory_get_usage()) . ')</p>';
 
         if (function_exists('xdebug_get_profiler_filename')) {
             $res .= '<p>Elapsed time: ' . xdebug_time_index() . ' seconds</p>';
@@ -667,7 +669,7 @@ abstract class AbstractPage
         $res .= '<p>Core elapsed time: ' . Statistic::time() . ' | Core consumed memory: ' . Statistic::memory() . '</p>';
 
         $loaded_files = App::core()->autoload()->getLoadedFiles();
-        $res .= '<p>Autoloader provided files : ' . count($loaded_files) . ' (' . App::core()->autoload()->getRequestsCount() . ' requests)</p>';
+        $res .= '<p>Dotclear autoloader provided files : ' . count($loaded_files) . ' (' . App::core()->autoload()->getRequestsCount() . ' requests)</p>';
         // $res .= '<ul><li>' . implode('</li><li>', $loaded_files) . '</li></lu>';
 
         $res .= '<p>Global vars: ' . $global_vars . '</p>' .
