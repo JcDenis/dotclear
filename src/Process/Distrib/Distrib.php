@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Distrib;
 
 // Dotclear\process\Distrib\Distrib
+use ArrayObject;
 use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Database\AbstractConnection;
 use Dotclear\Database\Structure;
@@ -314,12 +315,10 @@ class Distrib
         }
     }
 
-    public static function checkRequirements(AbstractConnection $con, array &$err): bool
+    public static function checkRequirements(AbstractConnection $con, ArrayObject $err): bool
     {
-        $err = [];
-
-        if (version_compare(phpversion(), '8.0', '<')) {
-            $err[] = sprintf(__('PHP version is %s (%s or earlier needed).'), phpversion(), '8.0');
+        if (version_compare(phpversion(), '8.1', '<')) {
+            $err[] = sprintf(__('PHP version is %s (%s or earlier needed).'), phpversion(), '8.1');
         }
 
         if (!function_exists('mb_detect_encoding')) {

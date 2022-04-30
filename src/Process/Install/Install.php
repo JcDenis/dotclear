@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Install;
 
 // Dotclear\Process\Install\Install
+use ArrayObject;
 use DateTimeZone;
 use Dotclear\App;
 use Dotclear\Core\User\UserContainer;
@@ -67,10 +68,10 @@ class Install
         }
 
         // Check system capabilites
-        $_e = [];
-        if (!Distrib::checkRequirements(App::core()->con(), $_e)) { // ! no need to con, and change _e to arrayobject
+        $_e = new ArrayObject();
+        if (!Distrib::checkRequirements(App::core()->con(), $_e)) {
             $can_install = false;
-            $err         = '<p>' . __('Dotclear cannot be installed.') . '</p><ul><li>' . implode('</li><li>', $_e) . '</li></ul>';
+            $err         = '<p>' . __('Dotclear cannot be installed.') . '</p><ul><li>' . implode('</li><li>', $_e->getArrayCopy()) . '</li></ul>';
         }
 
         // Get information and perform install

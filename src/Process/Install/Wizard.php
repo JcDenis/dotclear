@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Install;
 
 // Dotclear\Process\Install\Wizard
+use ArrayObject;
 use Dotclear\App;
 use Dotclear\Database\AbstractConnection;
 use Dotclear\Database\AbstractSchema;
@@ -87,11 +88,11 @@ class Wizard
                 }
 
                 // Checks system capabilites
-                $_e = [];
+                $_e = new ArrayObject();
                 if (!Distrib::checkRequirements($con, $_e)) {
                     $can_install = false;
 
-                    throw new InstallException('<p>' . __('Dotclear cannot be installed.') . '</p><ul><li>' . implode('</li><li>', $_e) . '</li></ul>');
+                    throw new InstallException('<p>' . __('Dotclear cannot be installed.') . '</p><ul><li>' . implode('</li><li>', $_e->getArrayCopy()) . '</li></ul>');
                 }
 
                 // Check if dotclear is already installed
