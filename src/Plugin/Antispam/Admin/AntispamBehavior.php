@@ -32,6 +32,7 @@ class AntispamBehavior
         // Admin behaviors
         App::core()->behavior()->add('adminDashboardFavsIcon', [$this, 'behaviorAdminDashboardFavsIcon']);
 
+        // @phpstan-ignore-next-line (Failed to judge constant)
         if (false == DC_ANTISPAM_CONF_SUPER || App::core()->user()->isSuperAdmin()) {
             App::core()->behavior()->add('adminBlogPreferencesForm', [$this, 'behaviorAdminBlogPreferencesForm']);
             App::core()->behavior()->add('adminBeforeBlogSettingsUpdate', [$this, 'behaviorAdminBeforeBlogSettingsUpdate']);

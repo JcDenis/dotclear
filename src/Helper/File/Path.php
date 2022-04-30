@@ -155,7 +155,7 @@ class Path
     /**
      * Implode path chunks from base directory.
      *
-     * This check if dotclear is installed in standalone mode 
+     * This check if dotclear is installed in standalone mode
      * or with composer and return a base directory.
      *
      * @param string ...$args The path chunks
