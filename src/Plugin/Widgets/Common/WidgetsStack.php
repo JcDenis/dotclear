@@ -470,7 +470,7 @@ class WidgetsStack
         $__widgets = new Widgets();
 
         $__widgets
-            ->create('search', __('Search engine'), [$this, 'search'], null, 'Search engine form')
+            ->create('search', __('Search engine'), [$this, 'search'], null, __('Search engine form'))
             ->addTitle(__('Search'))
             ->setting('placeholder', __('Placeholder (HTML5 only, optional):'), '')
             ->addHomeOnly()
@@ -480,7 +480,7 @@ class WidgetsStack
         ;
 
         $__widgets
-            ->create('navigation', __('Navigation links'), [$this, 'navigation'], null, 'List of navigation links')
+            ->create('navigation', __('Navigation links'), [$this, 'navigation'], null, __('List of navigation links'))
             ->addTitle()
             ->addHomeOnly()
             ->addContentOnly()
@@ -489,7 +489,7 @@ class WidgetsStack
         ;
 
         $__widgets
-            ->create('bestof', __('Selected entries'), [$this, 'bestof'], null, 'List of selected entries')
+            ->create('bestof', __('Selected entries'), [$this, 'bestof'], null, __('List of selected entries'))
             ->addTitle(__('Best of me'))
             ->setting('orderby', __('Sort:'), 'asc', 'combo', [__('Ascending') => 'asc', __('Descending') => 'desc'])
             ->addHomeOnly()
@@ -499,7 +499,7 @@ class WidgetsStack
         ;
 
         $__widgets
-            ->create('langs', __('Blog languages'), [$this, 'langs'], null, 'List of available languages')
+            ->create('langs', __('Blog languages'), [$this, 'langs'], null, __('List of available languages'))
             ->addTitle(__('Languages'))
             ->addHomeOnly()
             ->addContentOnly()
@@ -508,7 +508,7 @@ class WidgetsStack
         ;
 
         $__widgets
-            ->create('categories', __('List of categories'), [$this, 'categories'], null, 'List of categories')
+            ->create('categories', __('List of categories'), [$this, 'categories'], null, __('List of categories'))
             ->addTitle(__('Categories'))
             ->setting('postcount', __('With entries counts'), 0, 'check')
             ->setting('subcatscount', __('Include sub cats in count'), false, 'check')
@@ -520,7 +520,7 @@ class WidgetsStack
         ;
 
         $__widgets
-            ->create('subscribe', __('Subscribe links'), [$this, 'subscribe'], null, 'Feed subscription links (RSS or Atom)')
+            ->create('subscribe', __('Subscribe links'), [$this, 'subscribe'], null, __('Feed subscription links (RSS or Atom)'))
             ->addTitle(__('Subscribe'))
             ->setting('type', __('Feeds type:'), 'atom', 'combo', ['Atom' => 'atom', 'RSS' => 'rss2'])
             ->addHomeOnly()
@@ -530,7 +530,7 @@ class WidgetsStack
         ;
 
         $__widgets
-            ->create('feed', __('Feed reader'), [$this, 'feed'], null, 'List of last entries from feed (RSS or Atom)')
+            ->create('feed', __('Feed reader'), [$this, 'feed'], null, __('List of last entries from feed (RSS or Atom)'))
             ->addTitle(__('Somewhere else'))
             ->setting('url', __('Feed URL:'), '')
             ->setting('limit', __('Entries limit:'), 10)
@@ -541,7 +541,7 @@ class WidgetsStack
         ;
 
         $__widgets
-            ->create('text', __('Text'), [$this, 'text'], null, 'Simple text')
+            ->create('text', __('Text'), [$this, 'text'], null, __('Simple text'))
             ->addTitle()
             ->setting('text', __('Text:'), '', 'textarea')
             ->addHomeOnly()
@@ -555,7 +555,7 @@ class WidgetsStack
         while ($rs->fetch()) {
             $categories[str_repeat('&nbsp;&nbsp;', $rs->fInt('level') - 1) . (0 == $rs->fInt('level') - 1 ? '' : '&bull; ') . Html::escapeHTML($rs->f('cat_title'))] = $rs->f('cat_id');
         }
-        $widget = $__widgets->create('lastposts', __('Last entries'), [$this, 'lastposts'], null, 'List of last entries published');
+        $widget = $__widgets->create('lastposts', __('Last entries'), [$this, 'lastposts'], null, __('List of last entries published'));
         $widget
             ->addTitle(__('Last entries'))
             ->setting('category', __('Category:'), '', 'combo', $categories)
@@ -573,7 +573,7 @@ class WidgetsStack
         unset($rs, $categories, $widget);
 
         $__widgets
-            ->create('lastcomments', __('Last comments'), [$this, 'lastcomments'], null, 'List of last comments published')
+            ->create('lastcomments', __('Last comments'), [$this, 'lastcomments'], null, __('List of last comments published'))
             ->addTitle(__('Last comments'))
             ->setting('limit', __('Comments limit:'), 10)
             ->addHomeOnly()
