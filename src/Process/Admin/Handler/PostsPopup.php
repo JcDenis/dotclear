@@ -100,16 +100,16 @@ class PostsPopup extends AbstractPage
         Form::hidden(['plugin_id'], Html::escapeHTML($this->plugin_id)) .
         Form::hidden(['q'], Html::escapeHTML($this->q)) .
         Form::hidden(['popup'], '1') .
-        Form::hidden(['handler'] , 'admin.posts.popup') . '</p>' .
+        Form::hidden(['handler'], 'admin.posts.popup') . '</p>' .
         '</form>' .
 
        '<form action="' . App::core()->adminurl()->get('admin.posts.popup') . '" method="get">' .
         '<p><label for="q" class="classic">' . __('Search entry:') . '</label> ' . Form::field('q', 30, 255, Html::escapeHTML($this->q)) .
         ' <input type="submit" value="' . __('Search') . '" />' .
         Form::hidden(['plugin_id'], Html::escapeHTML($this->plugin_id)) .
-        Form::hidden(['type'], Html::escapeHTML($this->type)) . 
+        Form::hidden(['type'], Html::escapeHTML($this->type)) .
         Form::hidden(['popup'], '1') .
-        Form::hidden(['handler'] , 'admin.posts.popup') .
+        Form::hidden(['handler'], 'admin.posts.popup') .
         '</p></form>' .
 
         '<div id="form-entries">'; // I know it's not a form but we just need the ID

@@ -57,12 +57,12 @@ class ThumbSize
      */
     public function set(string $code, ?int $size = null, ?bool $crop = null, ?string $name = null)
     {
-    	if (!$this->exists($code)) {
-    		$this->codes[$code] = $code;
-    		$this->sizes[$code] = 0;
-    		$this->crops[$code] = false;
-    		$this->names[$code] = '';
-    	}
+        if (!$this->exists($code)) {
+            $this->codes[$code] = $code;
+            $this->sizes[$code] = 0;
+            $this->crops[$code] = false;
+            $this->names[$code] = '';
+        }
         if (null !== $size) {
             $this->sizes[$code] = $size;
         }

@@ -93,10 +93,10 @@ class PostType
     }
 
     /**
-     * Check if a post type exists
-     * 
+     * Check if a post type exists.
+     *
      * @param string $post_type The post type
-     * 
+     *
      * @return bool True if it exists
      */
     public function exists(string $post_type): bool

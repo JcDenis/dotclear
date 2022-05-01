@@ -5,7 +5,8 @@
 $finder = PhpCsFixer\Finder::create()
     ->in(__DIR__)
     ->exclude('node_modules')
-    ->exclude('vendor')
+    // exclude from .gitignore rules
+    ->ignoreVCSIgnored(true)
     // for now don't look at build tools
     ->exclude('build-tools')
     // php-cs-fixer always corrupts this file, so ignore it

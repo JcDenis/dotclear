@@ -11,6 +11,7 @@
 - [ ] change signature of Combos behaviors (to ArrayObject)
 - [ ] update all scss files
 - [ ] rework process (avoid abstract extends abstract extends abstract...)
+- [ ] rework Modules with less files
 - [ ] use array instead of constant for all DOTLCEAR_xxx stuff
 - [ ] check extends class vs public method, ex: dotclear()->url->getPageNumber()
 - [ ] use class for html form elements and static method for simple cases
@@ -24,6 +25,7 @@
 
 - Merge Distrib into Install
 - Use container instead of array and ArrayObject (ie for getBLogs())
+- Move build-tools features into Plugin BuildTools
 
 ### Done
 

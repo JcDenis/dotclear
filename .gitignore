@@ -16,4 +16,4 @@ dotclear.conf.php
 /bin/phpstan.phar
 /vendor
 /composer.phar
-composer.lock
+/composer.lock
