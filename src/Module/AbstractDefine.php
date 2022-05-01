@@ -206,8 +206,6 @@ abstract class AbstractDefine
                 __('Module "%s" has no name.'),
                 '<strong>' . Html::escapeHTML($this->nid()) . '</strong>'
             ));
-        } else {
-            $this->properties['name'] = __($this->properties['name']);
         }
 
         if (empty($this->properties['description'])) {
@@ -215,8 +213,6 @@ abstract class AbstractDefine
                 __('Module "%s" has no description.'),
                 '<strong>' . Html::escapeHTML($this->nid()) . '</strong>'
             ));
-        } else {
-            $this->properties['description'] = __($this->properties['description']);
         }
 
         if (empty($this->properties['author'])) {
@@ -397,11 +393,15 @@ abstract class AbstractDefine
     /**
      * Get module name.
      *
+     * @param bool $trans Translate property
+     *
      * @return string Module name
      */
-    public function name(): string
+    public function name(bool $trans = true): string
     {
-        return $this->properties['name'] ?: '';
+        $v = $this->properties['name'] ?: '';
+
+        return $trans ? __($v) : $v;
     }
 
     /**
@@ -417,11 +417,15 @@ abstract class AbstractDefine
     /**
      * Get module description.
      *
+     * @param bool $trans Do not translate property
+     *
      * @return string Module description
      */
-    public function description(): string
+    public function description(bool $trans = true): string
     {
-        return $this->properties['description'] ?: '';
+        $v = $this->properties['description'] ?: '';
+
+        return $trans ? __($v) : $v;
     }
 
     /**
