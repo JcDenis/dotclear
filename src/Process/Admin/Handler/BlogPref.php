@@ -355,8 +355,8 @@ class BlogPref extends AbstractPage
             if (!App::core()->media()) {
                 throw new AdminException('No media path');
             }
-            foreach (App::core()->media()->thumb_sizes as $code => $size) {
-                $img_default_size_combo[__($size[2])] = $code;
+            foreach (App::core()->media()->thumbsize()->getNames() as $code => $name) {
+                $img_default_size_combo[$name] = $code;
             }
         } catch (Exception $e) {
             App::core()->error()->add($e->getMessage());

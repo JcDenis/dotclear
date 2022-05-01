@@ -40,6 +40,12 @@ use Exception;
 class Media extends Manager
 {
     /**
+     * @var ThumbSize $thumbsize
+     *                Thumb sizes definitions instance
+     */
+    private $thumbsize;
+
+    /**
      * @var string $table
      *             Media table name
      */
@@ -86,21 +92,6 @@ class Media extends Manager
      *             Thumbnail file pattern (webp)
      * */
     public $thumb_tp_webp = '%s/.%s_%s.webp';
-
-    /**
-     * @var array<string,array> $thumb_sizes
-     *                          Thumbnail sizes:
-     *                          - m: medium image
-     *                          - s: small image
-     *                          - t: thumbnail image
-     *                          - sq: square image
-     */
-    public $thumb_sizes = [
-        'm'  => [448, 'ratio', 'medium'],
-        's'  => [240, 'ratio', 'small'],
-        't'  => [100, 'ratio', 'thumbnail'],
-        'sq' => [48, 'crop', 'square'],
-    ];
 
     /**
      * @var string $icon_img
@@ -171,18 +162,31 @@ class Media extends Manager
         $this->addFileHandler('image/webp', 'recreate', [$this, 'imageThumbCreate']);
 
         // Thumbnails sizes
-        $this->thumb_sizes['m'][0] = abs(App::core()->blog()->settings()->get('system')->get('media_img_m_size'));
-        $this->thumb_sizes['s'][0] = abs(App::core()->blog()->settings()->get('system')->get('media_img_s_size'));
-        $this->thumb_sizes['t'][0] = abs(App::core()->blog()->settings()->get('system')->get('media_img_t_size'));
-
-        // Thumbnails sizes names
-        $this->thumb_sizes['m'][2]  = __($this->thumb_sizes['m'][2]);
-        $this->thumb_sizes['s'][2]  = __($this->thumb_sizes['s'][2]);
-        $this->thumb_sizes['t'][2]  = __($this->thumb_sizes['t'][2]);
-        $this->thumb_sizes['sq'][2] = __($this->thumb_sizes['sq'][2]);
+        $this->thumbsize()
+            ->set('m', abs(App::core()->blog()->settings()->get('system')->get('media_img_m_size')), false, __('medium'))
+            ->set('s', abs(App::core()->blog()->settings()->get('system')->get('media_img_s_size')), false, __('small'))
+            ->set('t', abs(App::core()->blog()->settings()->get('system')->get('media_img_t_size')), false, __('thumbnail'))
+            ->set('sq', 48, true, __('square'))
+        ;
 
         // --BEHAVIOR-- coreMediaConstruct
         App::core()->behavior()->call('coreMediaConstruct', $this);
+    }
+
+    /**
+     * Get thumb sizes definitions instance.
+     *
+     * ThumbSize methods are accesible from App::core()->media()->thumbsize()
+     *
+     * @return MediaThumbSize The thumb sizes definitions stack
+     */
+    public function thumbsize(): ThumbSize
+    {
+        if (!($this->thumbsize instanceof ThumbSize)) {
+            $this->thumbsize = new ThumbSize();
+        }
+
+        return $this->thumbsize;
     }
 
     /**
@@ -377,11 +381,11 @@ class Media extends Manager
                 $thumb_url_alt = preg_replace('#(?<!:)/+#', '/', $thumb_url_alt);
             }
 
-            foreach ($this->thumb_sizes as $suffix => $s) {
-                if (file_exists(sprintf($thumb, $suffix))) {
-                    $f->media_thumb[$suffix] = sprintf($thumb_url, $suffix);
-                } elseif (($alpha || $webp) && file_exists(sprintf($thumb_alt, $suffix))) {
-                    $f->media_thumb[$suffix] = sprintf($thumb_url_alt, $suffix);
+            foreach ($this->thumbsize()->getCodes() as $code) {
+                if (file_exists(sprintf($thumb, $code))) {
+                    $f->media_thumb[$code] = sprintf($thumb_url, $code);
+                } elseif (($alpha || $webp) && file_exists(sprintf($thumb_alt, $code))) {
+                    $f->media_thumb[$code] = sprintf($thumb_url_alt, $code);
                 }
             }
 
@@ -1226,11 +1230,11 @@ class Media extends Manager
                 $this->imageThumbRemove($f);
             }
 
-            foreach ($this->thumb_sizes as $suffix => $s) {
-                $thumb_file = sprintf($thumb, $suffix);
-                if (!file_exists($thumb_file) && 0 < $s[0] && ('sq' == $suffix || $w > $s[0] || $h > $s[0])) {
-                    $rate = (100 > $s[0] ? 95 : (600 > $s[0] ? 90 : 85));
-                    $img->resize($s[0], $s[0], $s[1]);
+            foreach ($this->thumbsize()->getSizes() as $code => $size) {
+                $thumb_file = sprintf($thumb, $code);
+                if (!file_exists($thumb_file) && 0 < $size && ('sq' == $code || $w > $size || $h > $size)) {
+                    $rate = (100 > $size ? 95 : (600 > $size ? 90 : 85));
+                    $img->resize($size, $size, $this->thumbsize()->getCrop($code));
                     $img->output(($alpha || $webp ? strtolower($p['extension']) : 'jpeg'), $thumb_file, $rate);
                     $img->loadImage($file);
                 }
@@ -1279,9 +1283,9 @@ class Media extends Manager
                 '%s'
             );
 
-            foreach ($this->thumb_sizes as $suffix => $s) {
+            foreach ($this->thumbsize()->getCodes() as $code) {
                 try {
-                    parent::moveFile(sprintf($thumb_old, $suffix), sprintf($thumb_new, $suffix));
+                    parent::moveFile(sprintf($thumb_old, $code), sprintf($thumb_new, $code));
                 } catch (\Exception) {
                 }
             }
@@ -1307,9 +1311,9 @@ class Media extends Manager
             '%s'
         );
 
-        foreach ($this->thumb_sizes as $suffix => $s) {
+        foreach ($this->thumbsize()->getCodes() as $code) {
             try {
-                parent::removeFile(sprintf($thumb, $suffix));
+                parent::removeFile(sprintf($thumb, $code));
             } catch (\Exception) {
             }
         }

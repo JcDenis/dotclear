@@ -611,8 +611,7 @@ class Context
         }
 
         try {
-            $sizes = implode('|', array_keys(App::core()->media()->thumb_sizes)) . '|o';
-            if (!preg_match('/^' . $sizes . '$/', $size)) {
+            if (!preg_match('/^' . implode('|', App::core()->media()->thumbsize()->getCodes()) . '|o$/', $size)) {
                 $size = 's';
             }
             $p_url  = App::core()->blog()->public_url;
@@ -699,8 +698,7 @@ class Context
         $res = false;
 
         try {
-            $sizes = implode('|', array_keys(App::core()->media()->thumb_sizes));
-            if (preg_match('/^\.(.+)_(' . $sizes . ')$/', $base, $m)) {
+            if (preg_match('/^\.(.+)_(' . implode('|', App::core()->media()->thumbsize()->getCodes()) . ')$/', $base, $m)) {
                 $base = $m[1];
             }
 

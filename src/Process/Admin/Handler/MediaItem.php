@@ -365,7 +365,7 @@ class MediaItem extends AbstractPage
                     $s_checked = ($s == $defaults['size']);
                     echo '<label class="classic">' .
                     Form::radio(['src'], Html::escapeHTML($v), $s_checked) . ' ' .
-                    App::core()->media()->thumb_sizes[$s][2] . '</label><br /> ';
+                    App::core()->media()->thumbsize()->getName($s) . '</label><br /> ';
                 }
                 $s_checked = (!isset($this->item_file->media_thumb[$defaults['size']]));
                 echo '<label class="classic">' .
@@ -426,7 +426,7 @@ class MediaItem extends AbstractPage
                     $s_checked = ($s == $defaults['size']);
                     echo '<label class="classic">' .
                     Form::radio(['src'], Html::escapeHTML($v), $s_checked) . ' ' .
-                    App::core()->media()->thumb_sizes[$s][2] . '</label><br /> ';
+                    App::core()->media()->thumbsize()->getName($s) . '</label><br /> ';
                 }
                 $s_checked = (!isset($this->item_file->media_thumb[$defaults['size']]));
                 echo '<label class="classic">' .
@@ -613,7 +613,7 @@ class MediaItem extends AbstractPage
         if ($this->item_file->media_image) {
             $thumb_size = !empty($_GET['size']) ? $_GET['size'] : 's';
 
-            if (!isset(App::core()->media()->thumb_sizes[$thumb_size]) && 'o' != $thumb_size) {
+            if (!App::core()->media()->thumbsize()->exists($thumb_size) && 'o' != $thumb_size) {
                 $thumb_size = 's';
             }
 
@@ -636,7 +636,7 @@ class MediaItem extends AbstractPage
                 printf($strong_link, '<a href="' . App::core()->adminurl()->get('admin.media.item', array_merge(
                     $this->item_page_url_params,
                     ['size' => $s, 'tab' => 'media-details-tab']
-                )) . '">' . App::core()->media()->thumb_sizes[$s][2] . '</a> | ');
+                )) . '">' . App::core()->media()->thumbsize()->getName($s) . '</a> | ');
             }
             echo '<a href="' . App::core()->adminurl()->get('admin.media.item', array_merge($this->item_page_url_params, ['size' => 'o', 'tab' => 'media-details-tab'])) . '">' . __('original') . '</a>';
             echo '</p>';
