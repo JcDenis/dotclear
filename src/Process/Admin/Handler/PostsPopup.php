@@ -36,10 +36,10 @@ class PostsPopup extends AbstractPage
 
     protected function getInventoryInstance(): ?PostMiniInventory
     {
-        $this->plugin_id = !empty($_GET['plugin_id']) ? Html::sanitizeURL($_GET['plugin_id']) : '';
-        $this->q         = !empty($_GET['q']) ? $_GET['q'] : null;
-        $this->page      = !empty($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
-        $this->type      = !empty($_GET['type']) ? $_GET['type'] : null;
+        $this->plugin_id = !empty($_REQUEST['plugin_id']) ? Html::sanitizeURL($_REQUEST['plugin_id']) : '';
+        $this->q         = !empty($_REQUEST['q']) ? $_REQUEST['q'] : null;
+        $this->page      = !empty($_REQUEST['page']) ? max(1, (int) $_REQUEST['page']) : 1;
+        $this->type      = !empty($_REQUEST['type']) ? $_REQUEST['type'] : null;
 
         $post_types = App::core()->posttype()->getPostTypes();
         foreach ($post_types as $k => $v) {
@@ -97,14 +97,19 @@ class PostsPopup extends AbstractPage
         '<form action="' . App::core()->adminurl()->get('admin.posts.popup') . '" method="get">' .
         '<p><label for="type" class="classic">' . __('Entry type:') . '</label> ' . Form::combo('type', $this->type_combo, $this->type) . '' .
         '<noscript><div><input type="submit" value="' . __('Ok') . '" /></div></noscript>' .
-        Form::hidden('plugin_id', Html::escapeHTML($this->plugin_id)) . '</p>' .
+        Form::hidden(['plugin_id'], Html::escapeHTML($this->plugin_id)) .
+        Form::hidden(['q'], Html::escapeHTML($this->q)) .
+        Form::hidden(['popup'], '1') .
+        Form::hidden(['handler'] , 'admin.posts.popup') . '</p>' .
         '</form>' .
 
        '<form action="' . App::core()->adminurl()->get('admin.posts.popup') . '" method="get">' .
         '<p><label for="q" class="classic">' . __('Search entry:') . '</label> ' . Form::field('q', 30, 255, Html::escapeHTML($this->q)) .
         ' <input type="submit" value="' . __('Search') . '" />' .
-        Form::hidden('plugin_id', Html::escapeHTML($this->plugin_id)) .
-        Form::hidden('type', Html::escapeHTML($this->type)) .
+        Form::hidden(['plugin_id'], Html::escapeHTML($this->plugin_id)) .
+        Form::hidden(['type'], Html::escapeHTML($this->type)) . 
+        Form::hidden(['popup'], '1') .
+        Form::hidden(['handler'] , 'admin.posts.popup') .
         '</p></form>' .
 
         '<div id="form-entries">'; // I know it's not a form but we just need the ID
