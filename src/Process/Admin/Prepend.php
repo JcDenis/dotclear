@@ -148,7 +148,6 @@ class Prepend extends Core
     {
         if (!($this->favorite instanceof Favorite)) {
             $this->favorite = new Favorite();
-            $this->favorite->setup();
         }
 
         return $this->favorite;
@@ -191,7 +190,6 @@ class Prepend extends Core
     {
         if (!($this->summary instanceof Summary)) {
             $this->summary = new Summary();
-            $this->summary->setup();
         }
 
         return $this->summary;
@@ -406,6 +404,10 @@ class Prepend extends Core
             } catch (Exception $e) {
                 // $this->throwException(__('Unable to load modules.'), $e->getMessage(), 640, $e);
             }
+
+            // Finalize menu and favorites
+            $this->summary()->setup();
+            $this->favorite()->setup();
 
             // Stop if no themes found
             if (!$this->themes) {
