@@ -10,6 +10,8 @@ declare(strict_types=1);
 namespace Dotclear\Helper\File;
 
 // Dotclear\Helper\File\Path
+use Error;
+use Exception;
 
 /**
  * Basic path handling tool.
@@ -88,8 +90,11 @@ class Path
 
         $p = $_start . implode('/', $res);
 
-        // @todo \@ is not sufficient to avoid E_WARNING on some config
-        if ($strict && !@file_exists($p)) {
+        try {
+            if ($strict && !file_exists($p)) {
+                return false;
+            }
+        } catch (Exception|Error) {
             return false;
         }
 

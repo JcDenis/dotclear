@@ -342,8 +342,7 @@ class ConfigTheme
      */
     public function dropCss(string $folder, string $theme): void
     {
-        $file = Path::real($this->cssPath($folder) . '/' . $theme . '.css');
-        if (!$file) {
+        if (false === ($file = Path::real($this->cssPath($folder) . '/' . $theme . '.css')) {
             return;
         }
         if (is_writable(dirname($file))) {

@@ -41,7 +41,7 @@ class Prepend extends AbstractPrepend
             // Check if it's not an officially distributed theme
             $path = App::core()->themes()->getModulesPath();
             if (!App::core()->production()
-                || !str_contains(Path::real($theme->root()), Path::real((string) array_pop($path)))
+                || !str_contains(Path::real($theme->root(), false), Path::real((string) array_pop($path), false))
                 || !App::core()->themes()->isDistributedModule($theme->id())
             ) {
                 return '<p><a href="' . App::core()->adminurl()->get('admin.plugin.ThemeEditor') . '" class="button">' . __('Edit theme files') . '</a></p>';

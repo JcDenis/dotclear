@@ -150,20 +150,16 @@ class Summary extends ArrayObject
                 $name = $m[1] ?? '';
                 $ext  = $m[2] ?? '';
                 if ('' !== $name && '' !== $ext) {
-                    $icon = Path::real(self::$iconset . '/resources/' . $name . $ext, true);
-                    if (false !== $icon) {
-                        // Find same (name and extension)
-                        if (is_file($icon) && is_readable($icon) && in_array(Files::getExtension($icon), $allow_types)) {
-                            return '?df=Iconset/' . $module . '/resources/' . $name . $ext;
-                        }
+                    $icon = Path::real(self::$iconset . '/resources/' . $name . $ext);
+                    // Find same (name and extension)
+                    if (false !== $icon && is_file($icon) && is_readable($icon) && in_array(Files::getExtension($icon), $allow_types)) {
+                        return '?df=Iconset/' . $module . '/resources/' . $name . $ext;
                     }
                     // Look for other extensions
                     foreach ($allow_types as $ext) {
-                        $icon = Path::real(self::$iconset . '/resources/' . $name . '.' . $ext, true);
-                        if (false !== $icon) {
-                            if (is_file($icon) && is_readable($icon)) {
-                                return '?df=Iconset/' . $module . '/resources/' . $name . '.' . $ext;
-                            }
+                        $icon = Path::real(self::$iconset . '/resources/' . $name . '.' . $ext);
+                        if (false !== $icon && is_file($icon) && is_readable($icon)) {
+                            return '?df=Iconset/' . $module . '/resources/' . $name . '.' . $ext;
                         }
                     }
 

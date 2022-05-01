@@ -34,8 +34,7 @@ class MaintenanceTaskCSP extends MaintenanceTask
 
     public function execute(): int|bool
     {
-        $csp_file = Path::real(App::core()->config()->get('var_dir')) . '/csp/csp_report.json';
-        if (file_exists($csp_file)) {
+        if (false !== ($csp_file = Path::real(App::core()->config()->get('var_dir') . '/csp/csp_report.json'))) {
             unlink($csp_file);
         }
 
