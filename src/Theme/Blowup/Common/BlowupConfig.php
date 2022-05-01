@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Theme\Blowup\Common;
 
 // Dotclear\Theme\Blowup\Common\BlowupConfig
+use ArrayObject;
 use Dotclear\App;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\File\Files;
@@ -109,7 +110,7 @@ class BlowupConfig
         return $this->utils->canWriteCss($this->css_folder, $create);
     }
 
-    protected function backgroundImg(&$css, $selector, $value, $image)
+    protected function backgroundImg($css, $selector, $value, $image)
     {
         $this->utils->backgroundImg($this->img_folder, $css, $selector, $value, $image);
     }
@@ -160,7 +161,7 @@ class BlowupConfig
             return;
         }
 
-        $css = [];
+        $css = new ArrayObject();
 
         /* Sidebar position
         ---------------------------------------------- */

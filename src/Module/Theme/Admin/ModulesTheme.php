@@ -711,6 +711,8 @@ class ModulesTheme extends AbstractModules
             $new_id  = sprintf('%sClone%s', $module->id(), $counter);
             $new_dir = sprintf('%sClone%s', $root . $module->id(), $counter);
         }
+        $old_ns  = 'Dotclear\\' . $module->type() . '\\' . $module->id();
+        $new_ns  = 'Dotclear\\' . $module->type() . '\\' . $new_id;
 
         if (!is_dir($new_dir)) {
             try {
@@ -728,11 +730,19 @@ class ModulesTheme extends AbstractModules
                     $rel = substr($file, strlen($module->root()));
                     copy($file, $new_dir . $rel);
 
-                    if (in_array(substr($rel, -4), ['.xml', '.php'])) {
+                    // replace only full namespace
+                    if ('.php' == substr($rel, -4)) {
+                        $buf = file_get_contents($new_dir . $rel);
+                        $buf = str_replace($old_ns, $new_ns, $buf);
+                        file_put_contents($new_dir . $rel, $buf);
+                    // replace all reference that look like module id
+                    } elseif ('define.xml' == substr($rel, -10)) {
                         $buf = file_get_contents($new_dir . $rel);
                         $buf = str_replace($module->id(), $new_id, $buf);
                         file_put_contents($new_dir . $rel, $buf);
                     }
+                    // @todo Find what to replace in .po and .js files
+
                 }
             } catch (Exception $e) {
                 Files::deltree($new_dir);

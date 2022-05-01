@@ -120,18 +120,18 @@ class ConfigTheme
     /**
      * Return full information about constrat ratio.
      *
-     * @param string $color      text color
-     * @param string $background background color
-     * @param string $size       font size
-     * @param bool   $bold       bold font
+     * @param null|string $color      text color
+     * @param null|string $background background color
+     * @param null|string $size       font size
+     * @param null|bool   $bold       bold font
      *
      * @return string contrast ratio including WCAG level
      */
-    public function contrastRatio(string $color, string $background, string $size = '', bool $bold = false): string
+    public function contrastRatio(?string $color, ?string $background, ?string $size = '', ?bool $bold = false): string
     {
         if (('' != $color) && ('' != $background)) {
             $ratio = $this->computeContrastRatio($color, $background);
-            $level = $this->contrastRatioLevel($ratio, $size, $bold);
+            $level = $this->contrastRatioLevel($ratio, (string) $size, (bool) $bold);
 
             return
             sprintf(__('ratio %.1f'), $ratio) .
@@ -296,11 +296,11 @@ class ConfigTheme
      * @param ArrayObject $css      CSS associated array
      * @param string      $selector selector
      * @param string      $prop     property
-     * @param string      $value    value
+     * @param null|string $value    value
      */
-    public function prop(ArrayObject $css, string $selector, string $prop, string $value): void
+    public function prop(ArrayObject $css, string $selector, string $prop, ?string $value): void
     {
-        if ($value) {
+        if ('' != $value) {
             $css[$selector][$prop] = $value;
         }
     }
@@ -311,13 +311,12 @@ class ConfigTheme
      * @param string $folder   image folder
      * @param array  $css      CSS associated array
      * @param string $selector selector
-     * @param bool   $value    false for default, true if image should be set
+     * @param mixed   $value    false for default, true if image should be set
      * @param string $image    image filename
      */
-    public function backgroundImg(string $folder, array &$css, string $selector, bool $value, string $image): void
+    public function backgroundImg(string $folder, ArrayObject $css, string $selector, mixed $value, string $image): void
     {
-        $file = $this->imagesPath($folder) . '/' . $image;
-        if ($value && file_exists($file)) {
+        if ('' != $value && file_exists($this->imagesPath($folder) . '/' . $image)) {
             $css[$selector]['background-image'] = 'url(' . $this->imagesURL($folder) . '/' . $image . ')';
         }
     }

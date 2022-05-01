@@ -27,8 +27,8 @@ class Prepend extends AbstractPrepend
     public function loadModule(): void
     {
         App::core()->behavior()->add('adminCurrentThemeDetails', function (AbstractDefine $module): string {
-            return 'Blowup' == $module->id() && App::core()->user()->check('admin', App::core()->blog()->id) ?
-                '<p><a href="' . App::core()->adminurl()->get('admin.plugin.Blowup') . '" class="button submit">' . __('Configure theme') . '</a></p>'
+            return $this->define()->id() == $module->id() && App::core()->user()->check('admin', App::core()->blog()->id) ?
+                '<p><a href="' . App::core()->adminurl()->get('admin.plugin.' . $this->define()->id()) . '" class="button submit">' . __('Configure theme') . '</a></p>'
                 : '';
         });
     }

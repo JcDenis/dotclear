@@ -74,7 +74,7 @@ class HandlerTheme extends AbstractPage
             try {
                 App::core()->themes()->doActions();
             } catch (Exception $e) {
-                App::core()->themes()->add($e->getMessage());
+                App::core()->error()->add($e->getMessage());
             }
 
             // -- Plugin install --
