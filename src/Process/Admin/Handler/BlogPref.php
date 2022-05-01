@@ -938,7 +938,7 @@ class BlogPref extends AbstractPage
                             'post_type' => $type,
                             'user_id'   => $k,
                         ];
-                        echo '<li>' . sprintf(__('%1$s: %2$s'), __($pt_info['label']), App::core()->blog()->posts()->getPosts($params, true)->fInt()) . '</li>';
+                        echo '<li>' . sprintf(__('%1$s: %2$s'), $pt_info['label'], App::core()->blog()->posts()->getPosts($params, true)->fInt()) . '</li>';
                     }
                     echo '</ul>';
 

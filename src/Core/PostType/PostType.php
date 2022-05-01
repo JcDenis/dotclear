@@ -85,10 +85,22 @@ class PostType
     /**
      * Get the post types.
      *
-     * @return array The post types
+     * @return array<string,array> The post types
      */
     public function getPostTypes(): array
     {
         return $this->post_types;
+    }
+
+    /**
+     * Check if a post type exists
+     * 
+     * @param string $post_type The post type
+     * 
+     * @return bool True if it exists
+     */
+    public function exists(string $post_type): bool
+    {
+        return array_key_exists($post_type, $this->post_types);
     }
 }

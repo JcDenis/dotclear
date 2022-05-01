@@ -43,7 +43,7 @@ class PostsPopup extends AbstractPage
 
         $post_types = App::core()->posttype()->getPostTypes();
         foreach ($post_types as $k => $v) {
-            $this->type_combo[__($k)] = (string) $k;
+            $this->type_combo[$v['label']] = (string) $k;
         }
         if (!in_array($this->type, $this->type_combo)) {
             $this->type = null;

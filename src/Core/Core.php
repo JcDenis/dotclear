@@ -815,7 +815,7 @@ class Core
         $this->registerTopBehaviors();
 
         // Register Core post types
-        $this->posttype()->setPostType('post', '?handler=admin.post&id=%d', $this->url()->getURLFor('post', '%s'), 'Posts');
+        $this->posttype()->setPostType('post', '?handler=admin.post&id=%d', $this->url()->getURLFor('post', '%s'), __('Posts'));
 
         // Register shutdown function
         register_shutdown_function([$this, 'shutdown']);

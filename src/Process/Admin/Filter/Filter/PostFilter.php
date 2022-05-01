@@ -30,7 +30,7 @@ class PostFilter extends Filter
     {
         parent::__construct($type);
 
-        if (empty($this->post_type) || !array_key_exists($this->post_type, App::core()->posttype()->getPostTypes())) {
+        if (!App::core()->posttype()->exists($this->post_type)) {
             $this->post_type = 'post';
         }
         if ('post' != $this->post_type) {

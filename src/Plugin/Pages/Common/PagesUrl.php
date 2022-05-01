@@ -32,7 +32,7 @@ class PagesUrl extends Url
         App::core()->url()->register('pages', 'pages', '^pages/(.+)$', [$this, 'pages']);
         App::core()->url()->register('pagespreview', 'pagespreview', '^pagespreview/(.+)$', [$this, 'pagespreview']);
 
-        App::core()->posttype()->setPostType('page', '?handler=admin.plugin.Page&id=%d', App::core()->url()->getURLFor('pages', '%s'), 'Pages');
+        App::core()->posttype()->setPostType('page', '?handler=admin.plugin.Page&id=%d', App::core()->url()->getURLFor('pages', '%s'), __('Pages'));
     }
 
     public function pages(string $args): void
