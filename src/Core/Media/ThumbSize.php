@@ -79,7 +79,7 @@ class ThumbSize
     /**
      * Check if a code exists.
      *
-     * @param string The code
+     * @param string $code The code
      *
      * @return bool True if code Exists
      */
@@ -91,7 +91,7 @@ class ThumbSize
     /**
      * Get all thumb size codes.
      *
-     * @return array<string, string> The codes
+     * @return array<string,string> The codes
      */
     public function getCodes(): array
     {
@@ -113,7 +113,7 @@ class ThumbSize
     /**
      * Get all thumb size sizes.
      *
-     * @return array<string, int> The sizes
+     * @return array<string,int> The sizes
      */
     public function getSizes(): array
     {
@@ -129,7 +129,7 @@ class ThumbSize
      */
     public function isCrop(string $code): bool
     {
-        return $this->exists($code) ? $this->crop[$code] : false;
+        return $this->exists($code) ? $this->crops[$code] : false;
     }
 
     /**
@@ -147,7 +147,7 @@ class ThumbSize
     /**
      * Get all thumb size resize styles.
      *
-     * @return array<string, bool> The style
+     * @return array<string,bool> The style
      */
     public function getCrops(): array
     {
@@ -170,7 +170,7 @@ class ThumbSize
     /**
      * Get all thumb size names.
      *
-     * @return array<string, string> The names
+     * @return array<string,string> The names
      */
     public function getNames(): array
     {

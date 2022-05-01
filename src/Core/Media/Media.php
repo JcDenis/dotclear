@@ -178,7 +178,7 @@ class Media extends Manager
      *
      * ThumbSize methods are accesible from App::core()->media()->thumbsize()
      *
-     * @return MediaThumbSize The thumb sizes definitions stack
+     * @return ThumbSize The thumb sizes definitions stack
      */
     public function thumbsize(): ThumbSize
     {
