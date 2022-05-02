@@ -376,9 +376,8 @@ abstract class AbstractPage
         '</ul>' . "\n" .
 
         '<ul id="top-info-user">' .
-        '<li><a class="' . (preg_match('"' . preg_quote(App::core()->adminurl()->get('admin.home')) . '$"', $_SERVER['REQUEST_URI']) ? ' active' : '') . '" href="' . App::core()->adminurl()->get('admin.home') . '">' . __('My dashboard') . '</a></li>' .
-        '<li><a class="smallscreen' . (preg_match('"' . preg_quote(App::core()->adminurl()->get('admin.user.pref')) . '(\?.*)?$"', $_SERVER['REQUEST_URI']) ? ' active' : '') .
-        '" href="' . App::core()->adminurl()->get('admin.user.pref') . '">' . __('My preferences') . '</a></li>' .
+        '<li><a class="' . (App::core()->adminurl()->is('admin.home') ? ' active' : '') . '" href="' . App::core()->adminurl()->get('admin.home') . '">' . __('My dashboard') . '</a></li>' .
+        '<li><a class="smallscreen' . (App::core()->adminurl()->is('admin.user.pref') ? ' active' : '') . '" href="' . App::core()->adminurl()->get('admin.user.pref') . '">' . __('My preferences') . '</a></li>' .
         '<li><a href="' . App::core()->adminurl()->get('admin.home', ['logout' => 1]) . '" class="logout"><span class="nomobile">' . sprintf(__('Logout %s'), App::core()->user()->userID()) .
             '</span><img src="?df=images/logout.svg" alt="" /></a></li>' .
             '</ul>' .
