@@ -8,20 +8,13 @@
 parameters:
   level: 5
 
-  bootstrapFiles:
-    - phpstan.bootstrap
-
-  fileExtensions:
-    - php
-
-  scanFiles:
+  paths:
     - index.php
     - admin/index.php
     - admin/install/index.php
-    - src/Process/Distrib/upgrade-cli.php
-
-  paths:
     - src
+
+  phpVersion: 80100
 
 # Notes:
 #

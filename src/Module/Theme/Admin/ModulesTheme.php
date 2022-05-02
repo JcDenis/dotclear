@@ -69,15 +69,14 @@ class ModulesTheme extends AbstractModules
         $sort_field = $this->getSort();
 
         // Sort modules by id
-        $modules = $this->getSearch() === null ? $this->sortModules($this->data, $sort_field, $this->sort_asc) : $this->data;
+        $modules = null === $this->getSearch() ? $this->sortModules($this->data, $sort_field, $this->sort_asc) : $this->data;
 
         $res   = '';
         $count = 0;
         foreach ($modules as $id => $module) {
             // Show only requested modules
-            if ($nav_limit && $this->getSearch() === null) {
-                $properties = $module->properties();
-                $char       = substr($properties[$sort_field], 0, 1);
+            if ($nav_limit && null === $this->getSearch()) {
+                $char = substr((string) $module->get($sort_field), 0, 1);
                 if (!in_array($char, $this->nav_list)) {
                     $char = $this->nav_special;
                 }

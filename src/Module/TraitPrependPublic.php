@@ -40,7 +40,7 @@ trait TraitPrependPublic
     /**
      * Helper to check if current blog theme is this module.
      *
-     * @return bool True if blog theme is this modle
+     * @return bool True if blog theme is this module
      */
     protected function isTheme()
     {

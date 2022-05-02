@@ -80,7 +80,7 @@ abstract class AbstractModules
     /**
      * Check Process specifics on modules load.
      *
-     * Only use in Admin Process. (TraitModulesAdmin)
+     * Only used in Admin Process. (TraitModulesAdmin)
      */
     protected function loadModulesProcess(): void
     {
@@ -89,7 +89,7 @@ abstract class AbstractModules
     /**
      * Check Process specifics on module load.
      *
-     * Only use in Admin Process. (TraitModulesAdmin)
+     * Only used in Admin Process. (TraitModulesAdmin)
      *
      * @param string $id Current module id
      */
@@ -100,7 +100,7 @@ abstract class AbstractModules
     /**
      * Check Process specifics on modules define load.
      *
-     * Only use in Admin Process. (TraitModulesAdmin)
+     * Only used in Admin Process. (TraitModulesAdmin)
      *
      * @param ModuleDefine $define Current module to check
      *
@@ -125,13 +125,8 @@ abstract class AbstractModules
 
         // Loop through each modules root path
         foreach ($this->getModulesPath() as $root) {
-            // Check dir
-            if (empty($root) || !is_dir($root) || !is_readable($root)) {
-                continue;
-            }
-
-            // Open dir
-            if (false === ($handle = @dir($root))) {
+            // Check and open dir
+            if (empty($root) || !is_dir($root) || !is_readable($root) || false === ($handle = @dir($root))) {
                 continue;
             }
 

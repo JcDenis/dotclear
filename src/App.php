@@ -27,7 +27,7 @@ class App
      * @param string      $process The process (admin,install,public...)
      * @param null|string $blog_id The blog id for public process
      */
-    final public static function run(string $process, ?string $blog_id = null)
+    final public static function run(string $process, ?string $blog_id = null): void
     {
         // Third party autoload (PSR-4 compliant)
         $file = implode(DIRECTORY_SEPARATOR, [__DIR__, '..', 'vendor', 'autoload.php']);
@@ -77,7 +77,7 @@ class App
      *
      * @return null|object Singleton core instance
      */
-    final public static function core()
+    final public static function core(): ?object
     {
         if (class_exists('Dotclear\\Core\\Core')) {
             return \Dotclear\Core\Core::singleton();
