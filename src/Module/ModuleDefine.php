@@ -61,7 +61,7 @@ class ModuleDefine extends Configuration
         parent::__construct($this->getDefaultConfig(), $args);
 
         if (is_string($args)) {
-            $this->set('root', $args);
+            $this->set('root', dirname($args));
         } else {
             if (!empty($args['root']) && is_string($args['root']) && is_dir($args['root'])) {
                 $this->set('root', $args['root']);
