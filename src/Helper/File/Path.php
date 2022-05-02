@@ -169,10 +169,7 @@ class Path
      */
     public static function implodeBase(string ...$args): string
     {
-        // check if dotclear core run under composer or standalone
-        $composer = str_ends_with(self::implodeRoot('..', '..', '..'), 'vendor');
-        // find base directory path
-        $base     = ($composer ? self::implodeRoot('..', '..', '..', '..') : self::ImplodeRoot('..'));
+        $base  = (self::inComposer() ? self::implodeRoot('..', '..', '..', '..') : self::ImplodeRoot('..'));
 
         array_unshift($args, $base);
 
@@ -205,5 +202,15 @@ class Path
     public static function implode(string ...$args): string
     {
         return self::real(implode(DIRECTORY_SEPARATOR, $args), false);
+    }
+
+    /**
+     * Check if dotclear core run under composer or standalone.
+     *
+     * @return bool True if it runs under composer package
+     */
+    public static function inComposer(): bool
+    {
+        return str_ends_with(self::implodeRoot('..', '..', '..'), 'vendor');
     }
 }
