@@ -13,7 +13,7 @@ namespace Dotclear\Module\Iconset\Admin;
 use Dotclear\App;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Module\AbstractPage;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
 
 /**

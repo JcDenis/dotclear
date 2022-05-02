@@ -14,8 +14,9 @@ use Dotclear\App;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\File\Files;
-use Dotclear\Module\AbstractPage;
+use Dotclear\Helper\File\Path;
 use Dotclear\Module\Theme\Admin\ConfigTheme;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
 
 /**
@@ -25,6 +26,7 @@ use Exception;
  */
 class Handler extends AbstractPage
 {
+    private $Ductile_id         = '';
     private $Ductile_list_types = [];
     private $Ductile_user       = [
         // HTML
@@ -104,6 +106,8 @@ class Handler extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
+        // Little trick to get real module id (in case of cloned theme)
+        $this->Ductile_id     = basename(Path::implode(__DIR__, '..'));
         $this->Ductile_config = new ConfigTheme();
 
         $this->Ductile_list_types = [
@@ -279,7 +283,7 @@ class Handler extends AbstractPage
             ->setPageHead(App::core()->resource()->pageTabs())
             ->setPageBreadcrumb([
                 Html::escapeHTML(App::core()->blog()->name) => '',
-                __('Blog appearance')                       => App::core()->adminurl()->get('admin.blog.theme'),
+                __('Blog appearance')                       => App::core()->adminurl()->get('admin.theme'),
                 __('Ductile configuration')                 => '',
             ])
         ;
@@ -288,7 +292,7 @@ class Handler extends AbstractPage
             $this->setpageHead(
                 App::core()->resource()->load('jquery/jquery-ui.custom.js') .
                 App::core()->resource()->load('jquery/jquery.ui.touch-punch.js') .
-                App::core()->resource()->load('config.js', 'Theme', 'Ductile')
+                App::core()->resource()->load('config.js', 'Theme', $this->Ductile_id)
             );
         }
 
@@ -415,7 +419,7 @@ class Handler extends AbstractPage
 
         echo '<p><input type="hidden" name="conf_tab" value="html" /></p>';
         echo '<p class="clear">' . Form::hidden('ds_order', '') . '<input type="submit" value="' . __('Save') . '" />' .
-        App::core()->adminurl()->getHiddenFormFields('admin.plugin.Ductile', [], true) . '</p>';
+        App::core()->adminurl()->getHiddenFormFields('admin.theme.' . $this->Ductile_id, [], true) . '</p>';
         echo '</form>';
 
         echo '</div>'; // Close tab
@@ -478,7 +482,7 @@ class Handler extends AbstractPage
             $this->Ductile_user['blog_title_c'],
             '#ffffff',
             (!empty($this->Ductile_user['blog_title_s']) ? $this->Ductile_user['blog_title_s'] : '2em'),
-            $this->Ductile_user['blog_title_w']
+            (bool) $this->Ductile_user['blog_title_w']
         ) .
             '</p>';
 
@@ -498,7 +502,7 @@ class Handler extends AbstractPage
             $this->Ductile_user['post_title_c'],
             '#ffffff',
             (!empty($this->Ductile_user['post_title_s']) ? $this->Ductile_user['post_title_s'] : '2.5em'),
-            $this->Ductile_user['post_title_w']
+            (bool) $this->Ductile_user['post_title_w']
         ) .
             '</p>';
 
@@ -527,7 +531,7 @@ class Handler extends AbstractPage
             $this->Ductile_user['post_link_v_c'],
             '#ffffff',
             '1em',
-            $this->Ductile_user['post_link_w']
+            (bool) $this->Ductile_user['post_link_w']
         ) .
         '</p>' .
 
@@ -537,7 +541,7 @@ class Handler extends AbstractPage
             $this->Ductile_user['post_link_f_c'],
             '#ebebee',
             '1em',
-            $this->Ductile_user['post_link_w']
+            (bool) $this->Ductile_user['post_link_w']
         ) .
             '</p>';
 
@@ -559,7 +563,7 @@ class Handler extends AbstractPage
             $this->Ductile_user['blog_title_c_m'],
             '#d7d7dc',
             (!empty($this->Ductile_user['blog_title_s_m']) ? $this->Ductile_user['blog_title_s_m'] : '1.8em'),
-            $this->Ductile_user['blog_title_w_m']
+            (bool) $this->Ductile_user['blog_title_w_m']
         ) .
             '</p>';
 
@@ -579,7 +583,7 @@ class Handler extends AbstractPage
             $this->Ductile_user['post_title_c_m'],
             '#ffffff',
             (!empty($this->Ductile_user['post_title_s_m']) ? $this->Ductile_user['post_title_s_m'] : '1.5em'),
-            $this->Ductile_user['post_title_w_m']
+            (bool) $this->Ductile_user['post_title_w_m']
         ) .
             '</p>';
 
@@ -588,7 +592,7 @@ class Handler extends AbstractPage
 
         echo '<p><input type="hidden" name="conf_tab" value="css" /></p>';
         echo '<p class="clear border-top"><input type="submit" value="' . __('Save') . '" />' .
-        App::core()->adminurl()->getHiddenFormFields('admin.plugin.Ductile', [], true) . '</p>';
+        App::core()->adminurl()->getHiddenFormFields('admin.theme.' . $this->Ductile_id, [], true) . '</p>';
         echo '</form>';
 
         echo '</div>'; // Close tab

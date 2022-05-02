@@ -15,8 +15,8 @@ use Dotclear\Exception\AdminException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Module\Store\Repository\Repository;
 use Dotclear\Helper\Network\Http;
+use Dotclear\Module\Store\Repository\Repository;
 use Exception;
 
 /**
@@ -144,16 +144,28 @@ trait TraitModulesAdmin
     abstract protected function register(): bool;
 
     /** Get store url */
-    abstract public function getStoreURL(): string;
+    public function getStoreURL(): string
+    {
+        return (string) App::core()->blog()->settings()->get('system')->get('store_' . $this->getModulesType(true) . '_url');
+    }
 
     /** Get store cache usage */
-    abstract public function useStoreCache(): bool;
+    public function useStoreCache(): bool
+    {
+        return empty($_GET['nocache']);
+    }
 
     /** Get modules Page URL */
-    abstract public function getModulesURL(array $params = []): string;
+    public function getModulesURL(array $param = []): string
+    {
+        return App::core()->adminurl()->get('admin.' . $this->getModulesType(true), $param);
+    }
 
     /** Get module Page URL */
-    abstract public function getModuleURL(string $id, array $params = []): string;
+    public function getModuleURL(string $id, array $param = []): string
+    {
+        return App::core()->adminurl()->get('admin.' . $this->getModulesType(true) . '.' . $id, $param);
+    }
 
     /**
      * Load modules Admin specifics.
@@ -179,8 +191,8 @@ trait TraitModulesAdmin
     {
         // If module has a Admin Page, create an admin url
         $class = 'Dotclear\\' . $this->getModulesType() . '\\' . $id . '\\Admin\\' . 'Handler';
-        if (is_subclass_of($class, 'Dotclear\\Module\\AbstractPage')) {
-            App::core()->adminurl()->register('admin.plugin.' . $id, $class);
+        if (is_subclass_of($class, 'Dotclear\\Process\\Admin\\Page\\AbstractPage')) {
+            App::core()->adminurl()->register('admin.' . $this->getModulesType(true) . '.' . $id, $class);
         }
     }
 
@@ -809,18 +821,14 @@ trait TraitModulesAdmin
                     echo '</ul></div>';
                 }
 
-                $config = $index = false;
-                if (!empty($module->type())) {
-                    $config = is_subclass_of(
-                        'Dotclear\\' . $module->type() . '\\' . $id . '\\Admin\\Config',
-                        'Dotclear\\Module\\AbstractConfig'
-                    );
-
-                    $index = is_subclass_of(
-                        'Dotclear\\' . $module->type() . '\\' . $id . '\\Admin\\Page',
-                        'Dotclear\\Module\\AbstractPage'
-                    );
-                }
+                $config = is_subclass_of(
+                    'Dotclear\\' . $module->type() . '\\' . $id . '\\Admin\\Config',
+                    'Dotclear\\Module\\AbstractConfig'
+                );
+                $index = is_subclass_of(
+                    'Dotclear\\' . $module->type() . '\\' . $id . '\\Admin\\Handler',
+                    'Dotclear\\Process\\Admin\\Page\\AbstractPage'
+                );
 
                 if ($config || $index || !empty($module->section()) || !empty($module->tags()) || !empty($module->settings())
                     || !empty($module->repository()) && App::core()->config()->get('store_allow_repo') && !App::core()->production()
@@ -889,89 +897,77 @@ trait TraitModulesAdmin
         }
         // Reset
         $st     = [];
-        $config = $index = false;
-
-        if ($module->type()) { // should be always true
-            $config = is_subclass_of(
-                'Dotclear\\' . $module->type() . '\\' . $id . '\\Admin\\Config',
-                'Dotclear\\Module\\AbstractConfig'
-            );
-
-            $index = is_subclass_of(
-                'Dotclear\\' . $module->type() . '\\' . $id . '\\Admin\\Handler',
-                'Dotclear\\Module\\AbstractPage'
-            );
-        }
+        $config = is_subclass_of(
+            'Dotclear\\' . $module->type() . '\\' . $id . '\\Admin\\Config',
+            'Dotclear\\Module\\AbstractConfig'
+        );
+        $index = is_subclass_of(
+            'Dotclear\\' . $module->type() . '\\' . $id . '\\Admin\\Handler',
+            'Dotclear\\Process\\Admin\\Page\\AbstractPage'
+        );
 
         $settings = $module->settings();
-        if ($self) {
-            if (isset($settings['self']) && false === $settings['self']) {
-                $self = false;
-            }
+        if ($self && isset($settings['self']) && empty($settings['self'])) {
+            $self = false;
         }
         if ($config || $index || !empty($settings)) {
-            if ($config) {
-                if (!$check || App::core()->user()->isSuperAdmin() || App::core()->user()->check($module->permissions(), App::core()->blog()->id)) {
-                    $params = ['module' => $id, 'conf' => '1'];
-                    if (!$module->standaloneConfig() && !$self) {
-                        $params['redir'] = $this->getModuleURL($id);
-                    }
-                    $st['config'] = '<a class="module-config" href="' .
-                    $this->getModulesURL($params) .
-                    '">' . __('Configure module') . '</a>';
+            if ($config && (!$check || App::core()->user()->isSuperAdmin() || App::core()->user()->check($module->permissions(), App::core()->blog()->id))) {
+                $params = ['module' => $id, 'conf' => '1'];
+                if (!$module->standaloneConfig() && !$self) {
+                    $params['redir'] = $this->getModuleURL($id);
                 }
+                $st['config'] = '<a class="module-config" href="' .
+                $this->getModulesURL($params) .
+                '">' . __('Configure module') . '</a>';
             }
-            if (is_array($settings)) {
-                foreach ($settings as $sk => $sv) {
-                    switch ($sk) {
-                        case 'blog':
-                            if (!$check || App::core()->user()->isSuperAdmin() || App::core()->user()->check('admin', App::core()->blog()->id)) {
-                                $st['blog'] = '<a class="module-config" href="' .
-                                App::core()->adminurl()->get('admin.blog.pref') . $sv .
-                                '">' . __('Module settings (in blog parameters)') . '</a>';
-                            }
 
-                            break;
+            foreach ($settings as $sk => $sv) {
+                switch ($sk) {
+                    case 'blog':
+                        if (!$check || App::core()->user()->isSuperAdmin() || App::core()->user()->check('admin', App::core()->blog()->id)) {
+                            $st['blog'] = '<a class="module-config" href="' .
+                            App::core()->adminurl()->get('admin.blog.pref') . $sv .
+                            '">' . __('Module settings (in blog parameters)') . '</a>';
+                        }
 
-                        case 'pref':
-                            if (!$check || App::core()->user()->isSuperAdmin() || App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)) {
-                                $st['pref'] = '<a class="module-config" href="' .
-                                App::core()->adminurl()->get('admin.user.pref') . $sv .
-                                '">' . __('Module settings (in user preferences)') . '</a>';
-                            }
+                        break;
 
-                            break;
+                    case 'pref':
+                        if (!$check || App::core()->user()->isSuperAdmin() || App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)) {
+                            $st['pref'] = '<a class="module-config" href="' .
+                            App::core()->adminurl()->get('admin.user.pref') . $sv .
+                            '">' . __('Module settings (in user preferences)') . '</a>';
+                        }
 
-                        case 'self':
-                            if ($self) {
-                                if (!$check || App::core()->user()->isSuperAdmin() || App::core()->user()->check($module->permissions(), App::core()->blog()->id)) {
-                                    $st['self'] = '<a class="module-config" href="' .
-                                    $this->getModuleURL($id) . $sv .
-                                    '">' . __('Module settings') . '</a>';
-                                }
-                                // No need to use default index.php
-                                $index = false;
-                            }
+                        break;
 
-                            break;
-
-                        case 'other':
+                    case 'self':
+                        if ($self) {
                             if (!$check || App::core()->user()->isSuperAdmin() || App::core()->user()->check($module->permissions(), App::core()->blog()->id)) {
-                                $st['other'] = '<a class="module-config" href="' .
-                                $sv .
+                                $st['self'] = '<a class="module-config" href="' .
+                                $this->getModuleURL($id) . $sv .
                                 '">' . __('Module settings') . '</a>';
                             }
+                            // No need to use default module handler
+                            $index = false;
+                        }
 
-                            break;
-                    }
+                        break;
+
+                    case 'other':
+                        if (!$check || App::core()->user()->isSuperAdmin() || App::core()->user()->check($module->permissions(), App::core()->blog()->id)) {
+                            $st['other'] = '<a class="module-config" href="' .
+                            $sv .
+                            '">' . __('Module settings') . '</a>';
+                        }
+
+                        break;
                 }
             }
-            if ($index && $self) {
-                if (!$check || App::core()->user()->isSuperAdmin() || App::core()->user()->check($module->permissions(), App::core()->blog()->id)) {
-                    $st['index'] = '<a class="module-config" href="' .
-                    $this->getModuleURL($id) .
-                    '">' . __('Module settings') . '</a>';
-                }
+            if ($index && $self && (!$check || App::core()->user()->isSuperAdmin() || App::core()->user()->check($module->permissions(), App::core()->blog()->id))) {
+                $st['index'] = '<a class="module-config" href="' .
+                $this->getModuleURL($id) .
+                '">' . __('Dedicated module page') . '</a>';
             }
         }
 

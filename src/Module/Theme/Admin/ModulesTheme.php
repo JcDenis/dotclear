@@ -35,35 +35,30 @@ class ModulesTheme extends AbstractModules
     protected function register(): bool
     {
         App::core()->adminurl()->register(
-            'admin.blog.theme',
+            'admin.theme',
             'Dotclear\\Module\\Theme\\Admin\\HandlerTheme'
         );
         App::core()->summary()->register(
             'Blog',
             __('Blog appearance'),
-            'admin.blog.theme',
+            'admin.theme',
             ['images/menu/themes.svg', 'images/menu/themes-dark.svg'],
             App::core()->user()->check('admin', App::core()->blog()->id)
         );
         App::core()->favorite()->register('blog_theme', [
             'title'       => __('Blog appearance'),
-            'url'         => App::core()->adminurl()->get('admin.blog.theme'),
+            'url'         => App::core()->adminurl()->get('admin.theme'),
             'small-icon'  => ['images/menu/themes.svg', 'images/menu/themes-dark.svg'],
             'large-icon'  => ['images/menu/themes.svg', 'images/menu/themes-dark.svg'],
             'permissions' => 'admin',
         ]);
 
-        return App::core()->adminurl()->is('admin.blog.theme');
-    }
-
-    public function getModulesURL(array $param = []): string
-    {
-        return App::core()->adminurl()->get('admin.blog.theme', $param);
+        return App::core()->adminurl()->is('admin.theme');
     }
 
     public function getModuleURL(string $id, array $param = []): string
     {
-        return App::core()->adminurl()->get('admin.blog.theme', array_merge(['id' => $id], $param));
+        return App::core()->adminurl()->get('admin.theme', array_merge(['id' => $id], $param));
     }
 
     public function displayData(array $cols = ['name', 'version', 'description'], array $actions = [], bool $nav_limit = false): static
@@ -224,8 +219,11 @@ class ModulesTheme extends AbstractModules
 
                 $line .= '<div class="current-actions">';
 
-                $config_class = 'Dotclear\\' . $module->type() . '\\' . $id . '\\Admin\\Config';
-                if (is_subclass_of($config_class, 'Dotclear\\Module\\AbstractConfig')) {
+                $config = is_subclass_of(
+                    'Dotclear\\' . $module->type() . '\\' . $id . '\\Admin\\Config',
+                    'Dotclear\\Module\\AbstractConfig'
+                );
+                if ($config) {
                     $params = ['module' => $id, 'conf' => '1'];
                     if (!$module->standaloneConfig()) {
                         $params['redir'] = $this->getModuleURL($id);
@@ -257,7 +255,7 @@ class ModulesTheme extends AbstractModules
         echo $res .
             '</div>';
 
-        if (!$count && $this->getSearch() === null) {
+        if (!$count && null === $this->getSearch()) {
             echo '<p class="message">' . __('No themes matched your search.') . '</p>';
         } elseif ((in_array('checkbox', $cols) || 1 < $count) && !empty($actions) && App::core()->user()->isSuperAdmin()) {
             $buttons = $this->getGlobalActions($actions, in_array('checkbox', $cols));

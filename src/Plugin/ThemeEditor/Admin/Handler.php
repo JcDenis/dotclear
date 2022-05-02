@@ -14,7 +14,7 @@ use Dotclear\App;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Module\AbstractPage;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
 
 /**
@@ -42,7 +42,7 @@ class Handler extends AbstractPage
                 ->setPageHelp('themeEditor')
                 ->setPageBreadcrumb([
                     Html::escapeHTML(App::core()->blog()->name) => '',
-                    __('Blog appearance')                       => App::core()->adminurl()->get('admin.blog.theme'),
+                    __('Blog appearance')                       => App::core()->adminurl()->get('admin.theme'),
                     __('Edit theme files')                      => '',
                 ])
             ;
@@ -101,7 +101,7 @@ class Handler extends AbstractPage
             ->setPageHead(App::core()->resource()->confirmClose('settings', 'menuitemsappend', 'additem', 'menuitems'))
             ->setPageBreadcrumb([
                 Html::escapeHTML(App::core()->blog()->name) => '',
-                __('Blog appearance')                       => App::core()->adminurl()->get('admin.blog.theme'),
+                __('Blog appearance')                       => App::core()->adminurl()->get('admin.theme'),
                 __('Edit theme files')                      => '',
             ])
         ;

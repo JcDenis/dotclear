@@ -11,7 +11,6 @@ namespace Dotclear\Module\Theme\Public;
 
 // Dotclear\Module\Theme\Public\ModulesTheme
 use Dotclear\Module\AbstractModules;
-use Dotclear\Module\TraitModulesPublic;
 use Dotclear\Module\Theme\TraitModulesTheme;
 
 /**
@@ -21,6 +20,5 @@ use Dotclear\Module\Theme\TraitModulesTheme;
  */
 class ModulesTheme extends AbstractModules
 {
-    use TraitModulesPublic;
     use TraitModulesTheme;
 }

@@ -13,9 +13,9 @@ namespace Dotclear\Plugin\Pages\Admin;
 use Dotclear\App;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\Form;
-use Dotclear\Module\AbstractPage;
 use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Inventory\Inventory;
+use Dotclear\Process\Admin\Page\AbstractPage;
 
 /**
  * Admin page for plugin Pages.

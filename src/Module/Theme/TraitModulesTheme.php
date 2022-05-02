@@ -20,41 +20,6 @@ use Dotclear\Helper\File\Path;
  */
 trait TraitModulesTheme
 {
-    public function getModulesType(): string
-    {
-        return 'Theme';
-    }
-
-    public function getModulesPath(): array
-    {
-        $paths = App::core()->config()->get('theme_dirs');
-
-        // If a theme directory is set for current blog, it will be added to the end of paths
-        if (App::core()->blog()) {
-            $path = trim((string) App::core()->blog()->settings()->get('system')->get('module_theme_dir'));
-            if (!empty($path) && false !== ($dir = Path::real(str_starts_with('\\', $path) ? $path : Path::implodeRoot($path), true))) {
-                $paths[] = $dir;
-            }
-        }
-
-        return $paths;
-    }
-
-    public function getStoreURL(): string
-    {
-        return (string) App::core()->blog()->settings()->get('system')->get('store_theme_url');
-    }
-
-    public function useStoreCache(): bool
-    {
-        return empty($_GET['nocache']);
-    }
-
-    public function getDistributedModules(): array
-    {
-        return App::core()->config()->get('theme_official');
-    }
-
     /**
      * Get current theme path.
      *

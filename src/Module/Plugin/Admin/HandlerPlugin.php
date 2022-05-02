@@ -13,7 +13,7 @@ namespace Dotclear\Module\Plugin\Admin;
 use Dotclear\App;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Module\AbstractPage;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
 
 /**
@@ -43,7 +43,7 @@ class HandlerPlugin extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        if (App::core()->plugins()?->disableModulesDependencies(App::core()->adminurl()->get('admin.plugins'))) {
+        if (App::core()->plugins()?->disableModulesDependencies(App::core()->adminurl()->get('admin.plugin'))) {
             exit;
         }
 

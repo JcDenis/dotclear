@@ -366,11 +366,13 @@ class ModuleDefine extends Configuration
     /**
      * Get module type.
      *
+     * @param bool $to_lower True for lowercase
+     *
      * @return string Module type
      */
-    public function type(): string
+    public function type(bool $to_lower = false): string
     {
-        return $this->get('type');
+        return $to_lower ? strtolower($this->get('type')) : $this->get('type');
     }
 
     /**

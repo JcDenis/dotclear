@@ -19,18 +19,6 @@ use Dotclear\App;
  */
 trait TraitPrependPublic
 {
-    /** This method is not used on Public process. */
-    public function checkModule(): bool
-    {
-        return true;
-    }
-
-    /** This method is not used on Public process. */
-    public function installModule(): ?bool
-    {
-        return null;
-    }
-
     /**
      * Add template path.
      *

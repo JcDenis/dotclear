@@ -11,8 +11,6 @@ namespace Dotclear\Module\Plugin\Public;
 
 // Dotclear\Module\Plugin\Public\ModulesPlugin
 use Dotclear\Module\AbstractModules;
-use Dotclear\Module\TraitModulesPublic;
-use Dotclear\Module\Plugin\TraitModulesPlugin;
 
 /**
  * Plugin modules public methods.
@@ -21,6 +19,4 @@ use Dotclear\Module\Plugin\TraitModulesPlugin;
  */
 class ModulesPlugin extends AbstractModules
 {
-    use TraitModulesPublic;
-    use TraitModulesPlugin;
 }

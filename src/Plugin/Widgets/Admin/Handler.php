@@ -14,9 +14,9 @@ use ArrayObject;
 use Dotclear\App;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Module\AbstractPage;
 use Dotclear\Plugin\Widgets\Common\Widgets;
 use Dotclear\Plugin\Widgets\Common\WidgetsStack;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
 
 /**

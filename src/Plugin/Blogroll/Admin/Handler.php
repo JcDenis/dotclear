@@ -15,8 +15,8 @@ use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Module\AbstractPage;
 use Dotclear\Plugin\Blogroll\Common\Blogroll;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
 
 /**

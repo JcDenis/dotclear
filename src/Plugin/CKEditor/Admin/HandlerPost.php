@@ -12,7 +12,7 @@ namespace Dotclear\Plugin\CKEditor\Admin;
 // Dotclear\Plugin\CKEditor\Admin\HandlerPost
 use ArrayObject;
 use Dotclear\App;
-use Dotclear\Module\AbstractPage;
+use Dotclear\Process\Admin\Page\AbstractPage;
 
 /**
  * Admin post page CKEditor integration.

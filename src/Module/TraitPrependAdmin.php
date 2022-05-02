@@ -26,18 +26,6 @@ trait TraitPrependAdmin
      */
     private $favorites = [];
 
-    /** This method is optionnal on Admin process. */
-    public function checkModule(): bool
-    {
-        return true;
-    }
-
-    /** This method is optionnal on Admin process. */
-    public function installModule(): ?bool
-    {
-        return null;
-    }
-
     /**
      * Helper to add a standard admin menu item
      * according to module define properties.
@@ -52,7 +40,7 @@ trait TraitPrependAdmin
      */
     protected function addStandardMenu(?string $menu = null, ?string $permissions = ''): void
     {
-        if (!App::core()->adminurl()->exists('admin.plugin.' . $this->define()->id())) {
+        if (!App::core()->adminurl()->exists('admin.' . $this->define()->type(true) . '.' . $this->define()->id())) {
             return;
         }
         if (!$menu || !isset(App::core()->summary()[$menu])) {
@@ -64,12 +52,12 @@ trait TraitPrependAdmin
 
         App::core()->summary()[$menu]->addItem(
             $this->define()->name(),
-            App::core()->adminurl()->get('admin.plugin.' . $this->define()->id()),
+            App::core()->adminurl()->get('admin.' . $this->define()->type(true) . '.' . $this->define()->id()),
             [
                 '?df=' . $this->define()->type() . '/' . $this->define()->id() . '/icon.svg',
                 '?df=' . $this->define()->type() . '/' . $this->define()->id() . '/icon-dark.svg',
             ],
-            App::core()->adminurl()->is('admin.plugin.' . $this->define()->id()),
+            App::core()->adminurl()->is('admin.' . $this->define()->type(true) . '.' . $this->define()->id()),
             null === $permissions ? App::core()->user()->isSuperAdmin() : App::core()->user()->check($permissions, App::core()->blog()->id)
         );
     }
@@ -83,7 +71,7 @@ trait TraitPrependAdmin
      */
     protected function addStandardFavorites(?string $permissions = null): void
     {
-        if (!App::core()->adminurl()->exists('admin.plugin.' . $this->define()->id())) {
+        if (!App::core()->adminurl()->exists('admin.' . $this->define()->type(true) . '.' . $this->define()->id())) {
             return;
         }
 
@@ -95,7 +83,7 @@ trait TraitPrependAdmin
 
         $this->favorites = [
             'title'       => $this->define()->name(),
-            'url'         => App::core()->adminurl()->get('admin.plugin.' . $this->define()->id()),
+            'url'         => App::core()->adminurl()->get('admin.' . $this->define()->type(true) . '.' . $this->define()->id()),
             'small-icon'  => [sprintf($url, ''), sprintf($url, '-dark')],
             'large-icon'  => [sprintf($url, ''), sprintf($url, '-dark')],
             'permissions' => $permissions ?: $this->define()->permissions(),

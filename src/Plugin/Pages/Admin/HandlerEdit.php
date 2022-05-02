@@ -17,9 +17,9 @@ use Dotclear\Helper\Dt;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
-use Dotclear\Module\AbstractPage;
 use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Action\Action\CommentAction;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
 
 /**

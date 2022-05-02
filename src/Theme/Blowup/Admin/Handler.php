@@ -14,8 +14,8 @@ use Dotclear\App;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\File\Files;
-use Dotclear\Module\AbstractPage;
 use Dotclear\Helper\Network\Http;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Theme\Blowup\Common\BlowupConfig;
 use Exception;
 
@@ -216,7 +216,7 @@ class Handler extends AbstractPage
                 App::core()->blog()->triggerBlog();
 
                 App::core()->notice()->addSuccessNotice(__('Theme configuration has been successfully updated.'));
-                App::core()->adminurl()->redirect('admin.plugin.Blowup');
+                App::core()->adminurl()->redirect('admin.theme.Blowup');
             } catch (Exception $e) {
                 App::core()->error()->add($e->getMessage());
             }
@@ -239,7 +239,7 @@ class Handler extends AbstractPage
             )
             ->setPageBreadcrumb([
                 Html::escapeHTML(App::core()->blog()->name) => '',
-                __('Blog appearance')                       => App::core()->adminurl()->get('admin.blog.theme'),
+                __('Blog appearance')                       => App::core()->adminurl()->get('admin.theme'),
                 __('Blowup configuration')                  => '',
             ])
         ;
@@ -249,7 +249,7 @@ class Handler extends AbstractPage
 
     protected function getPageContent(): void
     {
-        echo '<p><a class="back" href="' . App::core()->adminurl()->get('admin.blog.theme') . '">' . __('Back to Blog appearance') . '</a></p>';
+        echo '<p><a class="back" href="' . App::core()->adminurl()->get('admin.theme') . '">' . __('Back to Blog appearance') . '</a></p>';
 
         if (!$this->Blowup_can_write_images) {
             App::core()->notice()->message(
@@ -471,7 +471,7 @@ class Handler extends AbstractPage
             '</div>';
 
         echo '<p class="clear"><input type="submit" value="' . __('Save') . '" />' .
-        App::core()->adminurl()->getHiddenFormFields('admin.plugin.Blowup', [], true) . '</p>' .
+        App::core()->adminurl()->getHiddenFormFields('admin.theme.Blowup', [], true) . '</p>' .
             '</form>';
     }
 }

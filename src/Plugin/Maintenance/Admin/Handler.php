@@ -11,11 +11,11 @@ namespace Dotclear\Plugin\Maintenance\Admin;
 
 // Dotclear\Plugin\Maintenance\Admin\Handler
 use Dotclear\App;
+use Dotclear\Helper\Dt;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Module\AbstractPage;
 use Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance;
-use Dotclear\Helper\Dt;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
 
 /**

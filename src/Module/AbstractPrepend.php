@@ -44,11 +44,13 @@ abstract class AbstractPrepend
      * Check Module during process (Amdin, Public, Install, ...).
      *
      * Module can check their specifics requirements here.
-     * This methods must exists and return True or False.
      *
      * @return bool False to stop module loading, True to go on
      */
-    abstract public function checkModule(): bool;
+    public function checkModule(): bool
+    {
+        return true;
+    }
 
     /**
      * Load Module during process (Amdin, Public, Install, ...).
@@ -64,10 +66,12 @@ abstract class AbstractPrepend
      *
      * For exemple, if module required Prepend class
      * to set up settings, database table, etc...
-     * Prepend class must be present in current process sub folder.
      * For now only Admin process support install method.
      *
      * @return bool True on success
      */
-    abstract public function installModule(): ?bool;
+    public function installModule(): ?bool
+    {
+        return null;
+    }
 }

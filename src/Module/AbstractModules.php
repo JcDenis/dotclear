@@ -30,24 +30,6 @@ abstract class AbstractModules
     use ErrorTrait;
 
     /**
-     * @var array<string,ModuleDefine> $modules_enabled
-     *                                 List of enabled modules
-     */
-    protected $modules_enabled = [];
-
-    /**
-     * @var array<string,ModuleDefine> $modules_disabled
-     *                                 List of disabled modules
-     */
-    protected $modules_disabled = [];
-
-    /**
-     * @var array<string,string> $modules_version
-     *                           List of modules versions
-     */
-    protected $modules_version = [];
-
-    /**
      * @var null|string $id
      *                  Loading process, module id
      * */
@@ -78,48 +60,56 @@ abstract class AbstractModules
     private $modules_prepend = [];
 
     /**
-     * Get modules type.
-     *
-     * @return string The modules type
+     * @var array<string,ModuleDefine> $modules_enabled
+     *                                 List of enabled modules
      */
-    abstract public function getModulesType(): string;
+    private $modules_enabled = [];
 
     /**
-     * Get modules path.
-     *
-     * If more than one path exists, new module goes in this last path.
-     *
-     * @return array The modules path
+     * @var array<string,ModuleDefine> $modules_disabled
+     *                                 List of disabled modules
      */
-    abstract public function getModulesPath(): array;
+    private $modules_disabled = [];
 
     /**
-     * Get list of distributed modules (by id).
-     *
-     * @return array List of distributed modules ids
+     * @var array<string,string> $modules_version
+     *                           List of modules versions
      */
-    abstract public function getDistributedModules(): array;
+    private $modules_version = [];
 
     /**
      * Check Process specifics on modules load.
+     *
+     * Only use in Admin Process. (TraitModulesAdmin)
      */
-    abstract protected function loadModulesProcess(): void;
+    protected function loadModulesProcess(): void
+    {
+    }
 
     /**
      * Check Process specifics on module load.
      *
+     * Only use in Admin Process. (TraitModulesAdmin)
+     *
      * @param string $id Current module id
      */
-    abstract protected function loadModuleProcess(string $id): void;
+    protected function loadModuleProcess(string $id): void
+    {
+    }
 
     /**
      * Check Process specifics on modules define load.
+     *
+     * Only use in Admin Process. (TraitModulesAdmin)
      *
      * @param ModuleDefine $define Current module to check
      *
      * @return bool Module is OK
      */
-    abstract protected function loadModuleDefineProcess(ModuleDefine $define): bool;
+    protected function loadModuleDefineProcess(ModuleDefine $define): bool
+    {
+        return true;
+    }
 
     /**
      * Constructor, load Modules.
@@ -349,6 +339,54 @@ abstract class AbstractModules
                 }
             }
         }
+    }
+
+    /**
+     * Get modules type.
+     *
+     * @param bool $to_lower True to return type in lowercase
+     *
+     * @return string The modules type
+     */
+    public function getModulesType($to_lower = false): string
+    {
+        // Little trick to get magically mmodules type according to class name
+        $res = substr($this::class, strrpos($this::class, '\\') + 8);
+
+        return $to_lower ? strtolower($res) : $res;
+    }
+
+    /**
+     * Get modules path.
+     *
+     * If more than one path exists, new module goes in this last path.
+     *
+     * @return array The modules path
+     */
+    public function getModulesPath(): array
+    {
+        $type  = $this->getModulesType(true);
+        $paths = App::core()->config()->get($type . '_dirs');
+
+        // If a module directory is set for current blog, it will be added to the end of paths
+        if (App::core()->blog()) {
+            $path = trim((string) App::core()->blog()->settings()->get('system')->get('module_' . $type . '_dir'));
+            if (!empty($path) && false !== ($dir = Path::real(str_starts_with('\\', $path) ? $path : Path::implodeRoot($path), true))) {
+                $paths[] = $dir;
+            }
+        }
+
+        return $paths;
+    }
+
+    /**
+     * Get list of distributed modules (by id).
+     *
+     * @return array List of distributed modules ids
+     */
+    public function getDistributedModules(): array
+    {
+        return App::core()->config()->get($this->getModulesType(true) . '_official');
     }
 
     /**

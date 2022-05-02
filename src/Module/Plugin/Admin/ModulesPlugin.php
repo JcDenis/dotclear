@@ -13,7 +13,6 @@ namespace Dotclear\Module\Plugin\Admin;
 use Dotclear\App;
 use Dotclear\Module\AbstractModules;
 use Dotclear\Module\TraitModulesAdmin;
-use Dotclear\Module\Plugin\TraitModulesPlugin;
 
 /**
  * Plugin modules admin methods.
@@ -23,38 +22,27 @@ use Dotclear\Module\Plugin\TraitModulesPlugin;
 class ModulesPlugin extends AbstractModules
 {
     use TraitModulesAdmin;
-    use TraitModulesPlugin;
 
     protected function register(): bool
     {
         App::core()->adminurl()->register(
-            'admin.plugins',
+            'admin.plugin',
             'Dotclear\\Module\\Plugin\\Admin\\HandlerPlugin'
         );
         App::core()->summary()->register(
             'System',
             __('Plugins management'),
-            'admin.plugins',
+            'admin.plugin',
             ['images/menu/plugins.svg', 'images/menu/plugins-dark.svg'],
             App::core()->user()->isSuperAdmin()
         );
         App::core()->favorite()->register('plugins', [
             'title'      => __('Plugins management'),
-            'url'        => App::core()->adminurl()->get('admin.plugins'),
+            'url'        => App::core()->adminurl()->get('admin.plugin'),
             'small-icon' => ['images/menu/plugins.svg', 'images/menu/plugins-dark.svg'],
             'large-icon' => ['images/menu/plugins.svg', 'images/menu/plugins-dark.svg'],
         ]);
 
-        return App::core()->adminurl()->is('admin.plugins');
-    }
-
-    public function getModulesURL(array $param = []): string
-    {
-        return App::core()->adminurl()->get('admin.plugins', $param);
-    }
-
-    public function getModuleURL(string $id, array $param = []): string
-    {
-        return App::core()->adminurl()->get('admin.plugin.' . $id, $param);
+        return App::core()->adminurl()->is('admin.plugin');
     }
 }

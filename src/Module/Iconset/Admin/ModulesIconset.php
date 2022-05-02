@@ -13,7 +13,6 @@ namespace Dotclear\Module\Iconset\Admin;
 use Dotclear\App;
 use Dotclear\Module\AbstractModules;
 use Dotclear\Module\TraitModulesAdmin;
-use Dotclear\Module\Iconset\TraitModulesIconset;
 
 /**
  * Iconset modules admin methods.
@@ -23,7 +22,6 @@ use Dotclear\Module\Iconset\TraitModulesIconset;
 class ModulesIconset extends AbstractModules
 {
     use TraitModulesAdmin;
-    use TraitModulesIconset;
 
     protected function register(): bool
     {
@@ -47,21 +45,4 @@ class ModulesIconset extends AbstractModules
 
         return App::core()->adminurl()->is('admin.iconset');
     }
-
-    public function getModulesURL(array $param = []): string
-    {
-        return App::core()->adminurl()->get('admin.iconset', $param);
-    }
-
-    public function getModuleURL(string $id, array $param = []): string
-    {
-        return App::core()->adminurl()->get('admin.iconset.' . $id, $param);
-    }
-    /*
-        public function displayModules(array $cols = ['name', 'version', 'desc'], array $actions = [], bool $nav_limit = false): static
-        {
-
-            return $this;
-        }
-    */
 }

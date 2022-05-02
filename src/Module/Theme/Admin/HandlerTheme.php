@@ -13,7 +13,7 @@ namespace Dotclear\Module\Theme\Admin;
 use Dotclear\App;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Module\AbstractPage;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
 
 /**
@@ -42,7 +42,7 @@ class HandlerTheme extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        if (App::core()->themes()?->disableModulesDependencies(App::core()->adminurl()->get('admin.blog.theme'))) {
+        if (App::core()->themes()?->disableModulesDependencies(App::core()->adminurl()->get('admin.theme'))) {
             exit;
         }
 

@@ -13,8 +13,8 @@ namespace Dotclear\Plugin\Blogroll\Admin;
 use Dotclear\App;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Module\AbstractPage;
 use Dotclear\Plugin\Blogroll\Common\Blogroll;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
 
 /**
