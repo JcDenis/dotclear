@@ -306,7 +306,7 @@ class Core
     public function autoload(): Autoload
     {
         if (!($this->autoload instanceof Autoload)) {
-            $this->autoload = new Autoload('', '', true);
+            $this->autoload = new Autoload(prepend: true);
         }
 
         return $this->autoload;
@@ -727,9 +727,11 @@ class Core
         }
 
         // In non production environment, display all errors
-        if (!$this->production()) {
+        if ($this->production()) {
+            ini_set('display_errors', '0');
+        } else {
             ini_set('display_errors', '1');
-            error_reporting(E_ALL | E_STRICT);
+            error_reporting(E_ALL);
         }
 
         // Start l10n

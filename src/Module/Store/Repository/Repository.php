@@ -14,6 +14,7 @@ use Dotclear\App;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\Network\NetHttp\NetHttp;
 use Dotclear\Module\AbstractModules;
+use Dotclear\Module\ModuleDefine;
 use Exception;
 
 /**
@@ -126,8 +127,7 @@ class Repository
                 $updates[$id]['root_writable']   = $module->writable();
                 $updates[$id]['current_version'] = $module->version();
 
-                $class        = 'Dotclear\\Module\\' . $this->modules->getModulesType() . '\\Define' . $this->modules->getModulesType();
-                $updates[$id] = new $class($id, []);
+                $updates[$id] = new ModuleDefine($this->modules->getModulesType(), $id, []);
 
                 if (!empty($updates[$id]->error()->flag())) {
                     unset($updates[$id]);
@@ -138,8 +138,7 @@ class Repository
         // Convert new modules from array to Define object
         foreach ($raw_datas as $id => $properties) {
             $properties['type'] = $this->modules->getModulesType();
-            $class              = 'Dotclear\\Module\\' . $this->modules->getModulesType() . '\\Define' . $this->modules->getModulesType();
-            $raw_datas[$id]     = new $class($id, $properties);
+            $raw_datas[$id]     = new ModuleDefine($this->modules->getModulesType(), $id, $properties);
 
             if (!empty($raw_datas[$id]->error()->flag())) {
                 unset($raw_datas[$id]);

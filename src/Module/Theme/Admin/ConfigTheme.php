@@ -308,11 +308,11 @@ class ConfigTheme
     /**
      * Store background image property in CSS associated array.
      *
-     * @param string $folder   image folder
-     * @param array  $css      CSS associated array
-     * @param string $selector selector
-     * @param mixed   $value    false for default, true if image should be set
-     * @param string $image    image filename
+     * @param string      $folder   image folder
+     * @param ArrayObject $css      CSS associated array
+     * @param string      $selector selector
+     * @param mixed       $value    false for default, true if image should be set
+     * @param string      $image    image filename
      */
     public function backgroundImg(string $folder, ArrayObject $css, string $selector, mixed $value, string $image): void
     {

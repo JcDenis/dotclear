@@ -30,14 +30,14 @@ abstract class AbstractModules
     use ErrorTrait;
 
     /**
-     * @var array<string,AbstractDefine> $modules_enabled
-     *                                   List of enabled modules
+     * @var array<string,ModuleDefine> $modules_enabled
+     *                                 List of enabled modules
      */
     protected $modules_enabled = [];
 
     /**
-     * @var array<string,AbstractDefine> $modules_disabled
-     *                                   List of disabled modules
+     * @var array<string,ModuleDefine> $modules_disabled
+     *                                 List of disabled modules
      */
     protected $modules_disabled = [];
 
@@ -60,8 +60,8 @@ abstract class AbstractModules
     private $disabled_mode = false;
 
     /**
-     * @var null|AbstractDefine $disabled_meta
-     *                          Loading process, disabled module
+     * @var null|ModuleDefine $disabled_meta
+     *                        Loading process, disabled module
      */
     private $disabled_meta;
 
@@ -115,11 +115,11 @@ abstract class AbstractModules
     /**
      * Check Process specifics on modules define load.
      *
-     * @param AbstractDefine $define Current module to check
+     * @param ModuleDefine $define Current module to check
      *
      * @return bool Module is OK
      */
-    abstract protected function loadModuleDefineProcess(AbstractDefine $define): bool;
+    abstract protected function loadModuleDefineProcess(ModuleDefine $define): bool;
 
     /**
      * Constructor, load Modules.
@@ -220,9 +220,8 @@ abstract class AbstractModules
         ob_start();
 
         try {
-            $class  = 'Dotclear\\Module\\' . $this->getModulesType() . '\\Define' . $this->getModulesType();
-            $define = new $class($id, $dir . '/define.xml');
-        } catch (ModuleException) {
+            $define = new ModuleDefine($this->getModulesType(), $id, $dir);
+        } catch (Exception) {
             ob_end_clean();
 
             return;
@@ -231,7 +230,7 @@ abstract class AbstractModules
 
         // Stop on error in module definition
         if ($define->error()->flag()) {
-            $this->error()->add($define->error()->dump());
+            $this->error()->add(implode("\n", $define->error()->dump()));
 
             return;
         }
@@ -305,31 +304,31 @@ abstract class AbstractModules
         foreach ($modules as $id => $module) {
             // Grab missing dependencies
             $missing = [];
-            foreach ($module->requires() as $dep) {
+            foreach ($module->requires() as $k => $v) {
                 // Module not present
-                if (!isset($modules[$dep[0]]) && 'core' != $dep[0]) {
-                    $missing[$dep[0]] = sprintf(__('Requires %s module which is not installed'), $dep[0]);
+                if (!isset($modules[$k]) && 'core' != strtolower($k)) {
+                    $missing[] = sprintf(__('Requires %s module which is not installed'), $k);
                 // Module present, but version missing
-                } elseif (count($dep) > 1 && version_compare(('core' == $dep[0] ? $dc_version : $modules[$dep[0]]->version()), $dep[1]) == -1) {
-                    if ('core' == $dep[0]) {
-                        $missing[$dep[0]] = sprintf(
+                } elseif (-1 == version_compare(('core' == strtolower($k) ? $dc_version : $modules[$k]->version()), $v)) {
+                    if ('core' == strtolower($k)) {
+                        $missing[] = sprintf(
                             __('Requires Dotclear version %s, but version %s is installed'),
-                            $dep[1],
+                            $v,
                             $dc_version
                         );
                     } else {
-                        $missing[$dep[0]] = sprintf(
+                        $missing[] = sprintf(
                             __('Requires %s module version %s, but version %s is installed'),
-                            $dep[0],
-                            $dep[1],
-                            $modules[$dep[0]]->version()
+                            $k,
+                            $v,
+                            $modules[$k]->version()
                         );
                     }
                     // Module is disabled
-                } elseif ('core' != $dep[0] && !$modules[$dep[0]]->enabled()) {
-                    $missing[$dep[0]] = sprintf(__('Requires %s module which is disabled'), $dep[0]);
-                } elseif ('core' != $dep[0]) {
-                    $modules[$dep[0]]->depParents($id);
+                } elseif ('core' != strtolower($k) && !$modules[$k]->enabled()) {
+                    $missing[] = sprintf(__('Requires %s module which is disabled'), $k);
+                } elseif ('core' != strtolower($k)) {
+                    $modules[$k]->depParents($id);
                 }
             }
             // Set module to disable
@@ -722,12 +721,12 @@ abstract class AbstractModules
      *
      * Version A < B = -1, A > B = 1, or compare name
      *
-     * @param AbstractDefine $a The module A
-     * @param AbstractDefine $b The module B
+     * @param ModuleDefine $a The module A
+     * @param ModuleDefine $b The module B
      *
      * @return int The comparison result
      */
-    private function defaultSortModules(AbstractDefine $a, AbstractDefine $b): int
+    private function defaultSortModules(ModuleDefine $a, ModuleDefine $b): int
     {
         if ($a->priority() == $b->priority()) {
             return strcasecmp($a->name(), $b->name());

@@ -45,14 +45,14 @@ trait TraitModulesAdmin
     protected $list_id = 'unknown';
 
     /**
-     * @var array<string,AbstractDefine> $data
-     *                                   Current modules
+     * @var array<string,ModuleDefine> $data
+     *                                 Current modules
      */
     protected $data = [];
 
     /**
-     * @var AbstractDefine|false $config_module
-     *                           Module ID to configure
+     * @var false|ModuleDefine $config_module
+     *                         Module ID to configure
      */
     protected $config_module = false;
 
@@ -189,7 +189,7 @@ trait TraitModulesAdmin
      *
      * @see AbstractModules::loadModuleDefine()
      */
-    protected function loadModuleDefineProcess(AbstractDefine $define): bool
+    protected function loadModuleDefineProcess(ModuleDefine $define): bool
     {
         if (!$define->permissions() && !App::core()->user()->isSuperAdmin()) {
             return false;
@@ -556,7 +556,7 @@ trait TraitModulesAdmin
         $this->data = [];
         if (!empty($modules) && is_array($modules)) {
             foreach ($modules as $id => $module) {
-                if (is_subclass_of($module, 'Dotclear\\Module\\AbstractDefine') && $module->type() == $this->getModulesType()) {
+                if (is_a($module, 'Dotclear\\Module\\ModuleDefine') && $module->type() == $this->getModulesType()) {
                     $this->data[$id] = $module;
                 }
             }
@@ -645,7 +645,7 @@ trait TraitModulesAdmin
 
         $count = 0;
         foreach ($modules as $id => $module) {
-            if (!is_subclass_of($module, 'Dotclear\\Module\\AbstractDefine')) {
+            if (!is_a($module, 'Dotclear\\Module\\ModuleDefine')) {
                 continue;
             }
             // Show only requested modules
@@ -981,13 +981,13 @@ trait TraitModulesAdmin
     /**
      * Get action buttons to add to modules list.
      *
-     * @param string         $id      The module ID
-     * @param AbstractDefine $module  The module info
-     * @param array          $actions Actions keys
+     * @param string       $id      The module ID
+     * @param ModuleDefine $module  The module info
+     * @param array        $actions Actions keys
      *
      * @return array Array of actions buttons
      */
-    protected function getActions(string $id, AbstractDefine $module, array $actions): array
+    protected function getActions(string $id, ModuleDefine $module, array $actions): array
     {
         $submits = [];
 
@@ -1182,7 +1182,7 @@ trait TraitModulesAdmin
             }
             Http::redirect($this->getURL());
 
-        // Install //! waiting for store modules to be from AbstractDefine
+        // Install //! waiting for store modules to be from ModuleDefine
         } elseif (App::core()->user()->isSuperAdmin() && !empty($_POST['install'])) {
             if (is_array($_POST['install'])) {
                 $modules = array_keys($_POST['install']);
@@ -1295,7 +1295,7 @@ trait TraitModulesAdmin
             }
             Http::redirect($this->getURL());
 
-        // Update //! waiting for store modules to be from AbstractDefine
+        // Update //! waiting for store modules to be from ModuleDefine
         } elseif (App::core()->user()->isSuperAdmin() && !empty($_POST['update'])) {
             if (is_array($_POST['update'])) {
                 $modules = array_keys($_POST['update']);
@@ -1482,10 +1482,6 @@ trait TraitModulesAdmin
             App::core()->error()->add(__('Insufficient permissions'));
 
             return false;
-        }
-
-        if (!defined('DOTCLEAR_CONTEXT_MODULE')) {
-            define('DOTCLEAR_CONTEXT_MODULE', true);
         }
 
         $this->config_module  = $module;

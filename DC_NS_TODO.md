@@ -5,14 +5,12 @@
 - [ ] repare and test Xmlrpc
 - [ ] move all modules (themes,plugins) features to Modules
 - [ ] check plural from class name, except double class (Blog|Blogs)
-- [ ] fix use of path::real to use strict mode only when it is needed (php strict error on type)
 - [ ] convert amdin page action into Action
 - [ ] remove or include to core a maximum of clearbricks class/methods
 - [ ] change signature of Combos behaviors (to ArrayObject)
 - [ ] update all scss files
 - [ ] rework process (avoid abstract extends abstract extends abstract...)
 - [ ] rework Modules with less files
-- [ ] use array instead of constant for all DOTLCEAR_xxx stuff
 - [ ] check extends class vs public method, ex: dotclear()->url->getPageNumber()
 - [ ] use class for html form elements and static method for simple cases
 - [ ] remove maximum php magic methods and/or add equivalent methods
@@ -20,12 +18,15 @@
 - [ ] fix public context and template
 - [ ] use sql statement everywhere it is possible
 - [ ] update build-tools and makefile
+- [ ] complete module clone (.po, .js)
+- [ ] fix disabled module
 
 ### Idea
 
 - Merge Distrib into Install
 - Use container instead of array and ArrayObject (ie for getBLogs())
 - Move build-tools features into Plugin BuildTools
+- Use array for permissions
 
 ### Done
 

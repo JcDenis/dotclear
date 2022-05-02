@@ -14,7 +14,7 @@ use Dotclear\App;
 use Dotclear\Database\Cursor;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\File\Path;
-use Dotclear\Module\AbstractDefine;
+use Dotclear\Module\ModuleDefine;
 use Dotclear\Module\AbstractPrepend;
 use Dotclear\Module\TraitPrependAdmin;
 use Exception;
@@ -35,7 +35,7 @@ class Prepend extends AbstractPrepend
         App::core()->behavior()->add('adminPreferencesForm', [$this, 'behaviorAdminPreferencesForm']);
     }
 
-    public function behaviorAdminCurrentThemeDetails(AbstractDefine $theme): string
+    public function behaviorAdminCurrentThemeDetails(ModuleDefine $theme): string
     {
         if ('default' != $theme->id() && App::core()->user()->isSuperAdmin()) {
             // Check if it's not an officially distributed theme

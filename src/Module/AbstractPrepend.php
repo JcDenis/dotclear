@@ -24,18 +24,18 @@ abstract class AbstractPrepend
     /**
      * Constructor.
      *
-     * @param AbstractDefine $define Module Define instance
+     * @param ModuleDefine $define Module Define instance
      */
-    public function __construct(private AbstractDefine $define)
+    public function __construct(private ModuleDefine $define)
     {
     }
 
     /**
      * Get module definitions.
      *
-     * @return AbstractDefine Module Define instance
+     * @return ModuleDefine Module Define instance
      */
-    protected function define(): AbstractDefine
+    protected function define(): ModuleDefine
     {
         return $this->define;
     }

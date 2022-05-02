@@ -15,7 +15,7 @@ use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Module\AbstractDefine;
+use Dotclear\Module\ModuleDefine;
 use Dotclear\Module\AbstractModules;
 use Dotclear\Module\TraitModulesAdmin;
 use Dotclear\Module\Theme\TraitModulesTheme;
@@ -275,7 +275,7 @@ class ModulesTheme extends AbstractModules
         return $this;
     }
 
-    protected function getActions(string $id, AbstractDefine $module, array $actions): array
+    protected function getActions(string $id, ModuleDefine $module, array $actions): array
     {
         $submits = [];
 
@@ -742,7 +742,6 @@ class ModulesTheme extends AbstractModules
                         file_put_contents($new_dir . $rel, $buf);
                     }
                     // @todo Find what to replace in .po and .js files
-
                 }
             } catch (Exception $e) {
                 Files::deltree($new_dir);

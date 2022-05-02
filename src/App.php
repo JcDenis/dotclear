@@ -9,6 +9,9 @@ declare(strict_types=1);
 
 namespace Dotclear;
 
+use Error;
+use Exception;
+
 /**
  * Application.
  *
@@ -50,7 +53,7 @@ class App
             ob_end_flush();
 
             // Try to display unexpected Exceptions as much cleaned as we can
-        } catch (\Exception|\Error $e) {
+        } catch (Exception|Error $e) {
             ob_end_clean();
 
             try {
@@ -63,7 +66,7 @@ class App
                     }
                 }
                 self::stop(get_class($e), $e->getMessage(), $e->getCode(), $traces);
-            } catch (\Exception|\Error) {
+            } catch (Exception|Error) {
             }
             self::stop('Unexpected error', 'Sorry, execution of the script is halted.', $e->getCode());
         }

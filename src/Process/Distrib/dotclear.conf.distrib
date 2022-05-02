@@ -10,7 +10,7 @@ declare(strict_types=1);
 use Dotclear\App;
 use Dotclear\Helper\File\Path;
 
-if (!App::core()?->processed()) {
+if (!class_exists('Dotclear\App')) {
     exit(1);
 }
 

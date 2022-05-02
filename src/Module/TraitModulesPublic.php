@@ -29,7 +29,7 @@ trait TraitModulesPublic
     }
 
     /** This method is not used on Public process. */
-    protected function loadModuleDefineProcess(AbstractDefine $define): bool
+    protected function loadModuleDefineProcess(ModuleDefine $define): bool
     {
         return true;
     }

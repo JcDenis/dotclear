@@ -87,7 +87,22 @@ class Configuration
      */
     public function get(string $key): mixed
     {
-        return array_key_exists($key, $this->stack) ? $this->stack[$key] : null;
+        return $this->exists($key) ? $this->stack[$key] : null;
+    }
+
+    /**
+     * Set a configuration value.
+     *
+     * This can be done only from child class.
+     *
+     * @param string $key   The key
+     * @param mixed  $value The value
+     */
+    protected function set(string $key, mixed $value): void
+    {
+        if ($this->exists($key) && gettype($this->stack[$key]) == gettype($value)) {
+            $this->stack[$key] = $value;
+        }
     }
 
     /**
@@ -99,7 +114,7 @@ class Configuration
      */
     public function exists(string $key): bool
     {
-        return isset($this->stack[$key]);
+        return array_key_exists($key, $this->stack);
     }
 
     /**
