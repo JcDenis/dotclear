@@ -963,8 +963,8 @@ class Core
         // If in non production env and there are some details
         if (!$this->production() && !empty($detail)) {
             $message = $detail;
-        // If error code is higher than 630 and in plublic, then show a standard message
-        } elseif (630 <= $code && !in_array(App::core()->processed(), ['Admin', 'Install'])) {
+        // If in production env, set a standard message
+        } elseif ($this->production()) {
             $title   = __('Site temporarily unavailable');
             $message = __('<p>We apologize for this temporary unavailability.<br />Thank you for your understanding.</p>');
         }

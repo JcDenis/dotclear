@@ -11,6 +11,8 @@ namespace Dotclear\Helper;
 
 // Dotclear\Helper\Configuration
 use Dotclear\Exception\HelperException;
+use Exception;
+use Error;
 
 /**
  * Configuration stacker.
@@ -127,12 +129,18 @@ class Configuration
         if (!isset(static::$files[$file])) {
             static::$files[$file] = true;
             ob_start();
-            $new = is_file($file) ? require_once $file : null;
+
+            try {
+                $new = is_file($file) ? require_once $file : null;
+                // Try to catch as much errors a we can without stopping process
+            } catch (Exception|Error) {
+                $new = '';
+            }
             ob_end_clean();
         }
 
         if (!is_array($new)) {
-            throw new HelperException('Configuration file not found.');
+            throw new HelperException('Configuration file not found or is not valid.');
         }
 
         return $new;

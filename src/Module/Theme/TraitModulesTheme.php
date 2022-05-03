@@ -39,6 +39,9 @@ trait TraitModulesTheme
             if (!$theme) {
                 $theme = $this->getModule('Berlin');
             }
+            if (!$theme) {
+                return [];
+            }
             $path[$theme->id()] = $theme->root() . $suffix;
 
             if ($theme->parent()) {
