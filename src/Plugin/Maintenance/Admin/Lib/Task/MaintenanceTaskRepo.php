@@ -30,7 +30,7 @@ class MaintenanceTaskRepo extends MaintenanceTask
         $this->success = __('Repositories cache directory emptied.');
         $this->error   = __('Failed to empty repositories cache directory.');
 
-        $this->description = __("It may be useful to empty this cache when ... Notice : with some hosters, the repositories cache cannot be emptied with this plugin. You may then have to delete the directory <strong>/cbrepo/</strong> directly on the server with your FTP software.");
+        $this->description = __('It may be useful to empty this cache when ... Notice : with some hosters, the repositories cache cannot be emptied with this plugin. You may then have to delete the directory <strong>/cbrepo/</strong> directly on the server with your FTP software.');
     }
 
     public function execute(): int|bool

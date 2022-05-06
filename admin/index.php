@@ -8,7 +8,7 @@
  * of the blogs plateform.
  *
  * If you move admin access point (this file),
- * require path below must match functions.php file path.
+ * require path below must match src\App.php file path.
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only

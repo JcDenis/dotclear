@@ -75,6 +75,8 @@ class App
     /**
      * Call singleton core.
      *
+     * App:core() is callable from everywhere in code.
+     *
      * @return null|object Singleton core instance
      */
     final public static function core(): ?object

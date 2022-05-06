@@ -256,7 +256,7 @@ class Core
     }
 
     /**
-     * Disablemagic  wakeup method.
+     * Disable magic wakeup method.
      *
      * This method is mark as <b>final</b>
      * to cope with singleton instance.
@@ -269,12 +269,12 @@ class Core
     /**
      * Get core unique instance.
      *
-     * Use a two stage instanciation (construct then process).
+     * Use a two-stage instanciation (construct then process).
      *
      * This method is mark as <b>final</b>
      * to cope with singleton instance.
      *
-     * Singleton Core is accessible from function App::core()
+     * Singleton Core is accessible from App::core()
      *
      * @param null|string $blog_id Blog ID on first public process call
      *
@@ -299,7 +299,7 @@ class Core
      * Instanciate a core autoloader for custom
      * third party (plugins/themes) specifics needs
      *
-     * Autoload methods are accesible from App::core()->autoload()
+     * Autoload methods are accesible App::core()->autoload()
      *
      * @return Autoload The autoload instance
      */
@@ -554,7 +554,7 @@ class Core
     }
 
     /**
-     * Get reser server instance.
+     * Get REST server instance.
      *
      * RestServer methods are accesible from App::core()->rest()
      *
@@ -604,8 +604,9 @@ class Core
     /**
      * Get user (auth) instance.
      *
-     * You can set constant DOTCLEAR_USER_CLASS to whatever you want.
-     * Your new class *should* inherits Core User class.
+     * To use a custom user authentication class,
+     * you can set constant DOTCLEAR_USER_CLASS to whatever you want.
+     * Your new class *should* inherits Dotclear\Core\User\User class.
      *
      * User methods are accesible from App::core()->user()
      *
@@ -854,6 +855,12 @@ class Core
     /**
      * Check production environment.
      *
+     * In production, errors are not fully explain,
+     * repositories check Dotclear minimum version,
+     * Core statisics are not available, etc...
+     *
+     * production mode is set in dotclear configuration file.
+     *
      * @return bool True for production env
      */
     public function production(): bool
@@ -863,6 +870,10 @@ class Core
 
     /**
      * Check rescue mode.
+     *
+     * In rescue mode, modules are read but not loaded.
+     *
+     * rescue mode is set from admin logging page.
      *
      * @return bool True for rescue mode
      */
