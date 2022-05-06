@@ -14,6 +14,7 @@ dotclear.conf.php
 /bin/php-cs-fixer.phar
 /bin/phpstan.bat
 /bin/phpstan.phar
+/bin/phpstan
 /vendor
 /composer.phar
 /composer.lock
