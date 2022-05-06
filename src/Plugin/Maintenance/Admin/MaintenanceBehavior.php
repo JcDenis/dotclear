@@ -58,6 +58,7 @@ class MaintenanceBehavior
             ->addGroup('l10n', __('Translations'), ['summary' => __('Maintain translations')])
 
             ->addTask($ns . 'MaintenanceTaskCache')
+            ->addTask($ns . 'MaintenanceTaskRepo')
             ->addTask($ns . 'MaintenanceTaskCSP')
             ->addTask($ns . 'MaintenanceTaskIndexposts')
             ->addTask($ns . 'MaintenanceTaskIndexcomments')
