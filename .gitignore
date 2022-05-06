@@ -12,6 +12,7 @@ dotclear.conf.php
 # composer stuff
 /bin/php-cs-fixer.bat
 /bin/php-cs-fixer.phar
+/bin/php-cs-fixer
 /bin/phpstan.bat
 /bin/phpstan.phar
 /bin/phpstan
