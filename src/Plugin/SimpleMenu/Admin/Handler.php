@@ -42,7 +42,7 @@ class Handler extends AbstractPage
     private $sm_pages_combo      = [];
     private $sm_tags_combo       = [];
 
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
         return 'usage,contentadmin';
     }

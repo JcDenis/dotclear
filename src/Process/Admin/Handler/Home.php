@@ -27,7 +27,7 @@ class Home extends AbstractPage
     private $home_dragndrop_msg   = ['dashboard', 'toggles', 'accessibility'];
     private $home_plugins_install = [];
 
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
         // Set default blog
         if (!empty($_GET['default_blog'])) {

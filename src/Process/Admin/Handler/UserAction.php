@@ -30,9 +30,9 @@ class UserAction extends AbstractPage
     private $users       = [];
     private $blogs       = [];
 
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
-        return null;
+        return '';
     }
 
     protected function getPagePrepend(): ?bool

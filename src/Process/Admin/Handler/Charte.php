@@ -20,7 +20,7 @@ use Dotclear\Process\Admin\Page\AbstractPage;
  */
 class Charte extends AbstractPage
 {
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
         $this->setPageType('standalone');
 

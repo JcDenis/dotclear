@@ -43,10 +43,9 @@ class IconsetHandler extends AbstractPage
     private $m_from_configuration = false;
 
     // AbstractPage method
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
-        // Super admin
-        return null;
+        return '';
     }
 
     // AbstractPage method

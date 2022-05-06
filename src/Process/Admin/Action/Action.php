@@ -342,9 +342,9 @@ abstract class Action extends AbstractPage
      * Force no check permissions for Action page
      * each Action manages their own perms.
      */
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
-        return false;
+        return true;
     }
 
     /**

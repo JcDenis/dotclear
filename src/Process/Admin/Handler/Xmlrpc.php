@@ -22,9 +22,9 @@ use Dotclear\Helper\Network\Http;
  */
 class Xmlrpc extends AbstractPage
 {
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
-        return false;
+        return true;
     }
 
     protected function getPagePrepend(): ?bool

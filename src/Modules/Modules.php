@@ -88,9 +88,16 @@ class Modules
      * @param bool   $no_load Only create Modules instance without loading them
      * @param string $name    The modules manager name
      * @param string $group   The modules manager menu group
+     * @param bool   $admin   Allow admin to view modules manager
      */
-    public function __construct(private string $type = 'Plugin', private string $lang = '', private $no_load = false, private string $name = '', private string $group = '')
-    {
+    public function __construct(
+        private string $type = 'Plugin',
+        private string $lang = '',
+        private bool $no_load = false,
+        private string $name = '',
+        private string $group = '',
+        bool $admin = false
+    ) {
         if ($this->no_load) {
             return;
         }
@@ -98,18 +105,23 @@ class Modules
         $this->loadModules();
 
         if (App::core()->processed('Admin')) {
-            $this->register();
+            $this->register($admin);
         }
     }
 
     /**
-     * Register modules manager on admin url/menu/favs.
+     * Register modules manager on admin url,menu,favs.
      *
-     * This method is only available in Admin Process and
-     * returns False to indicate it must not be used.
+     * This method is only available in Admin Process.
+     *
+     * @param bool $admin Allow admin to view modules manager
      */
-    protected function register(): void
+    protected function register(bool $admin): void
     {
+        if (!$admin && !App::core()->user()->isSuperAdmin() || !App::core()->user()->check('admin', App::core()->blog()->id)) {
+            return;
+        }
+
         $name    = empty($this->name) ? __('Plugins management') : $this->name;
         $icons   = ['images/menu/' . $this->getType(true) . 's.svg', 'images/menu/' . $this->getType(true) . 's-dark.svg'];
         $handler = 'admin.' . $this->getType(true);
@@ -123,7 +135,7 @@ class Modules
             $name,
             $handler,
             $icons,
-            App::core()->user()->isSuperAdmin()
+            true
         );
         App::core()->favorite()->register($this->getType(), [
             'title'      => $name,

@@ -99,7 +99,7 @@ class Handler extends AbstractPage
         'Monospace' => 'Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace',
     ];
 
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
         return 'admin';
     }

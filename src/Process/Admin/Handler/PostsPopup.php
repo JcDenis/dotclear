@@ -29,7 +29,7 @@ class PostsPopup extends AbstractPage
     private $type;
     private $type_combo = [];
 
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
         return 'usage,contentadmin';
     }

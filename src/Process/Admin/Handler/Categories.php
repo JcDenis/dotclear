@@ -31,7 +31,7 @@ class Categories extends AbstractPage
      */
     private $categories;
 
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
         return 'categories';
     }

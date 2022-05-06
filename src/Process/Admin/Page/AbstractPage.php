@@ -110,32 +110,29 @@ abstract class AbstractPage
      */
     public function __construct(protected string $handler = 'admin.home')
     {
-        // No permissions required
-        if (false === ($permissions = $this->getPermissions())) {
+        $permissions = $this->getPermissions();
+
+        // No permissions required for the page or user is Super Admin
+        if (true === $permissions || App::core()->user()->isSuperAdmin()) {
             return;
         }
 
-        // Super Admin
-        if (App::core()->user()->isSuperAdmin()) {
-            return;
-        }
-
-        // Has required permissions
+        // User has not required permissions
         if (is_string($permissions) && App::core()->blog() && App::core()->user()->check($this->getPermissions(), App::core()->blog()->id)) {
             return;
         }
 
         // Check if dashboard is not the current page and if it is granted for the user
-        if ('admin.home' != $this->handler && App::core()->blog() && App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)) {
+        if (is_string($permissions) && 'admin.home' != $this->handler && App::core()->blog() && App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)) {
             // Go back to the dashboard
             App::core()->adminurl()->redirect('admin.home');
         }
 
-        // Not enought permissions
+        // On all other case, user has not enought permissions, remove its session
         if (session_id()) {
             App::core()->session()->destroy();
         }
-        // Go to auth page
+        // Then go to auth page
         App::core()->adminurl()->redirect('admin.auth');
     }
 
@@ -816,12 +813,13 @@ abstract class AbstractPage
      *
      * Permissions must be :
      * a comma separated list of permission 'admin,media',
-     * or null for superAdmin,
-     * or false for no permissions
+     * or empty string for super admin
+     * or true to force allow
+     * or false to force disallow
      *
-     * @return null|false|string The permissions
+     * @return bool|string The permissions
      */
-    abstract protected function getPermissions(): string|null|false;
+    abstract protected function getPermissions(): string|bool;
 
     /**
      * Do something after contruct.

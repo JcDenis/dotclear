@@ -42,7 +42,7 @@ class ThemeHandler extends AbstractPage
     private $m_from_configuration = false;
 
     // AbstractPage method
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
         return 'admin';
     }

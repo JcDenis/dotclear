@@ -26,9 +26,9 @@ class Handler extends AbstractPage
 {
     private $pings_uris = [];
 
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
-        return null;
+        return '';
     }
 
     protected function getPagePrepend(): ?bool

@@ -340,9 +340,9 @@ class Auth extends AbstractPage
     }
 
     // Don't check premissions to show this page
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
-        return false;
+        return true;
     }
 
     protected function getPageBegin(): void

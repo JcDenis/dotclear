@@ -73,7 +73,7 @@ class UserPref extends AbstractPage
     private $user_ui_media_nb_last_dirs = '';
     private $user_ui_nocheckadblocker   = '';
 
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
         return 'usage,contentadmin';
     }

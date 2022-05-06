@@ -44,9 +44,9 @@ class BlogPref extends AbstractPage
         parent::__construct($handler);
     }
 
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
-        return $this->standalone ? 'admin' : null;
+        return $this->standalone ? 'admin' : '';
     }
 
     protected function getPagePrepend(): ?bool

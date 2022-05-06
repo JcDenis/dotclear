@@ -247,7 +247,7 @@ class Prepend extends Core
     public function plugins(): ?Modules
     {
         if (!($this->plugins instanceof Modules)) {
-            $this->plugins = new Modules(lang: $this->lang);
+            $this->plugins = new Modules(admin: true, lang: $this->lang);
             $this->adminLoadModulesResources($this->plugins);
         }
 
@@ -263,6 +263,7 @@ class Prepend extends Core
     {
         if (!($this->themes instanceof Modules)) {
             $this->themes = new Modules(
+                admin: true,
                 type: 'Theme',
                 lang: $this->lang,
                 name: __('Blog appearance'),

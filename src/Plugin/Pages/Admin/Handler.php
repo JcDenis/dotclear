@@ -27,7 +27,7 @@ class Handler extends AbstractPage
     private $p_page = 1;
     private $p_nbbp = 30;
 
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
         return 'pages,contentadmin';
     }

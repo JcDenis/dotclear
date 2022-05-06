@@ -67,7 +67,7 @@ class HandlerEdit extends AbstractPage
     private $bad_dt     = false;
     private $img_status = '';
 
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
         return 'pages,contentadmin';
     }

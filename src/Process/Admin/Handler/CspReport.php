@@ -28,9 +28,9 @@ use Dotclear\Helper\File\Files;
 class CspReport extends AbstractPage
 {
     /** This forced no permissions on csp report page */
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
-        return false;
+        return true;
     }
 
     public function getPagePrepend(): ?bool

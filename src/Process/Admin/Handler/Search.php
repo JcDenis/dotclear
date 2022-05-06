@@ -34,7 +34,7 @@ class Search extends AbstractPage
     private $s_list;
     private $s_actions;
 
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
         return 'usage,contentadmin';
     }

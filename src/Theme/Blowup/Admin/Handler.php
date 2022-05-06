@@ -91,7 +91,7 @@ class Handler extends AbstractPage
 
     protected $Blowup_config;
 
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
         return 'admin';
     }

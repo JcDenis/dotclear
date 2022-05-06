@@ -39,7 +39,7 @@ class Comment extends AbstractPage
     private $commnet_can_delete      = false;
     private $commnet_can_publish     = false;
 
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
         return 'usage,contentadmin';
     }

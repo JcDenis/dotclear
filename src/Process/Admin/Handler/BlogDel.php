@@ -26,9 +26,9 @@ class BlogDel extends AbstractPage
     private $blog_id   = '';
     private $blog_name = '';
 
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
-        return null;
+        return '';
     }
 
     protected function getPagePrepend(): ?bool

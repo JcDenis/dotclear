@@ -46,9 +46,9 @@ class User extends AbstractPage
      */
     private $user_profile_urls = '';
 
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
-        return null;
+        return '';
     }
 
     protected function getPagePrepend(): ?bool

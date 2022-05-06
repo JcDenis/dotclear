@@ -32,7 +32,7 @@ class Category extends AbstractPage
     private $cat_siblings        = [];
     private $cat_allowed_parents = [];
 
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
         return 'categories';
     }

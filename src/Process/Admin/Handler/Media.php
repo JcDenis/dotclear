@@ -73,7 +73,7 @@ class Media extends AbstractPage
      */
     private $media_uploader;
 
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
         return 'media,media_admin';
     }

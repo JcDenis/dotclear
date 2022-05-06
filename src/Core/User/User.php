@@ -322,7 +322,7 @@ class User
             }
 
             foreach ($p as $v) {
-                if (isset($b[$v])) {
+                if (!empty($v) && isset($b[$v])) {
                     return true;
                 }
             }

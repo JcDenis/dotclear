@@ -24,7 +24,7 @@ class Help extends AbstractPage
     private $help_title   = '';
     private $help_content = '';
 
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
         return 'usage,contentadmin';
     }

@@ -21,9 +21,9 @@ use Dotclear\Process\Admin\Service\RestMethods;
  */
 class Services extends AbstractPage
 {
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
-        return false;
+        return true;
     }
 
     protected function getPagePrepend(): ?bool

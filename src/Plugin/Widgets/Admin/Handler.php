@@ -44,10 +44,9 @@ class Handler extends AbstractPage
      */
     private $widgets_custom;
 
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
-        // Super admin
-        return null;
+        return '';
     }
 
     protected function getPagePrepend(): ?bool

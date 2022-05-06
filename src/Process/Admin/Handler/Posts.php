@@ -25,7 +25,7 @@ use Dotclear\Helper\Html\Html;
  */
 class Posts extends AbstractPage
 {
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
         return 'usage,contentadmin';
     }

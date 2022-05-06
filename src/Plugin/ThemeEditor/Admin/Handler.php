@@ -28,10 +28,9 @@ class Handler extends AbstractPage
     private $te_editor;
     private $te_file;
 
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
-        // Super admin
-        return null;
+        return '';
     }
 
     protected function getPagePrepend(): ?bool

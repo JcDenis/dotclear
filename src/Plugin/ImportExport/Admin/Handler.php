@@ -23,7 +23,7 @@ use Exception;
  */
 class Handler extends AbstractPage
 {
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
         return 'admin';
     }

@@ -31,7 +31,7 @@ class Handler extends AbstractPage
     private $m_code;
     private $m_tab = '';
 
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
         return 'admin';
     }

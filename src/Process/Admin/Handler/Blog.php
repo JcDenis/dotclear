@@ -29,7 +29,7 @@ class Blog extends AbstractPage
     private $blog_desc = '';
     private $blog_url  = '';
 
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
         return 'usage,contentadmin';
     }

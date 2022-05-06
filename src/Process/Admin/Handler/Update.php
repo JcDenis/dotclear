@@ -36,9 +36,9 @@ class Update extends AbstractPage
     private $upd_new_version = '';
     private $upd_archives    = [];
 
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
-        return null;
+        return '';
     }
 
     protected function getPagePrepend(): ?bool

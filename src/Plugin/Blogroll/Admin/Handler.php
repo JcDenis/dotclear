@@ -34,7 +34,7 @@ class Handler extends AbstractPage
     private $br_link_lang  = '';
     private $br_cat_title  = '';
 
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
         return 'blogroll';
     }

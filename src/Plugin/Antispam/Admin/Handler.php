@@ -30,7 +30,7 @@ class Handler extends AbstractPage
     private $a_gui = false;
     private $a_tab;
 
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
         return 'admin';
     }

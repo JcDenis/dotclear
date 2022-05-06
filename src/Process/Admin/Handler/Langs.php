@@ -32,9 +32,9 @@ class Langs extends AbstractPage
     private $lang_is_writable = false;
     private $lang_iso_codes   = [];
 
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
-        return null;
+        return '';
     }
 
     protected function getPagePrepend(): ?bool

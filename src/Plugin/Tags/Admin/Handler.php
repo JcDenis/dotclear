@@ -32,7 +32,7 @@ class Handler extends AbstractPage
     private $t_page        = 1;
     private $t_nb_per_page = 30;
 
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
         return 'usage,contentadmin';
     }

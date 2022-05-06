@@ -44,7 +44,7 @@ class MediaItem extends AbstractPage
     private $item_dirs_combo;
     private $media_writable;
 
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
         return 'media,media_admin';
     }

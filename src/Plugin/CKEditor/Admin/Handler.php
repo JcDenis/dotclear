@@ -29,7 +29,7 @@ class Handler extends AbstractPage
      */
     private $ckes;
 
-    protected function getPermissions(): string|null|false
+    protected function getPermissions(): string|bool
     {
         return 'admin';
     }
