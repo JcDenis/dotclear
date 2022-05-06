@@ -11,18 +11,15 @@ namespace Dotclear\Plugin\ImportExport\Admin;
 
 // Dotclear\Plugin\ImportExport\Admin\Prepend
 use Dotclear\App;
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependAdmin;
+use Dotclear\Modules\ModulePrepend;
 
 /**
  * Admin prepend for plugin ImportExport.
  *
  * @ingroup  Plugin ImportExport
  */
-class Prepend extends AbstractPrepend
+class Prepend extends ModulePrepend
 {
-    use TraitPrependAdmin;
-
     public function loadModule(): void
     {
         // Menu and favs

@@ -7,18 +7,17 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Module\Theme\Admin;
+namespace Dotclear\Modules\Theme;
 
-// Dotclear\Module\Theme\Admin\ModulesTheme
+// Dotclear\Modules\Theme\ThemeList
 use Dotclear\App;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Module\ModuleDefine;
-use Dotclear\Module\AbstractModules;
-use Dotclear\Module\TraitModulesAdmin;
-use Dotclear\Module\Theme\TraitModulesTheme;
+use Dotclear\Modules\ModuleDefine;
+use Dotclear\Modules\Modules;
+use Dotclear\Modules\Plugin\PluginList;
 use Dotclear\Helper\Network\Http;
 use Exception;
 
@@ -27,40 +26,8 @@ use Exception;
  *
  * @ingroup  Module Admin Theme
  */
-class ModulesTheme extends AbstractModules
+class ThemeList extends PluginList
 {
-    use TraitModulesAdmin;
-    use TraitModulesTheme;
-
-    protected function register(): bool
-    {
-        App::core()->adminurl()->register(
-            'admin.theme',
-            'Dotclear\\Module\\Theme\\Admin\\HandlerTheme'
-        );
-        App::core()->summary()->register(
-            'Blog',
-            __('Blog appearance'),
-            'admin.theme',
-            ['images/menu/themes.svg', 'images/menu/themes-dark.svg'],
-            App::core()->user()->check('admin', App::core()->blog()->id)
-        );
-        App::core()->favorite()->register('blog_theme', [
-            'title'       => __('Blog appearance'),
-            'url'         => App::core()->adminurl()->get('admin.theme'),
-            'small-icon'  => ['images/menu/themes.svg', 'images/menu/themes-dark.svg'],
-            'large-icon'  => ['images/menu/themes.svg', 'images/menu/themes-dark.svg'],
-            'permissions' => 'admin',
-        ]);
-
-        return App::core()->adminurl()->is('admin.theme');
-    }
-
-    public function getModuleURL(string $id, array $param = []): string
-    {
-        return App::core()->adminurl()->get('admin.theme', array_merge(['id' => $id], $param));
-    }
-
     public function displayData(array $cols = ['name', 'version', 'description'], array $actions = [], bool $nav_limit = false): static
     {
         echo '<form action="' . $this->getURL() . '" method="post" class="modules-form-actions">' .
@@ -85,8 +52,8 @@ class ModulesTheme extends AbstractModules
                 }
             }
 
-            $current = App::core()->blog()->settings()->get('system')->get('theme') == $id && $this->hasModule($id);
-            $distrib = $this->isDistributedModule($id) ? ' dc-box' : '';
+            $current = App::core()->blog()->settings()->get('system')->get('theme') == $id && $this->modules()->hasModule($id);
+            $distrib = $this->modules()->isDistributedModule($id) ? ' dc-box' : '';
             $line    = '<div class="box ' . ($current ? 'medium current-theme' : 'theme') . $distrib . '">';
 
             if (in_array('name', $cols) && !$current) {
@@ -117,14 +84,8 @@ class ModulesTheme extends AbstractModules
                 if (preg_match('#^http(s)?://#', $module->screenshot())) {
                     $sshot = $module->screenshot();
                 // Screenshot from installed module
-                } else {
-                    foreach ($this->getModulesPath() as $psshot) {
-                        if (file_exists($psshot . '/' . $id . '/screenshot.jpg')) {
-                            $sshot = '?df=Theme/' . $id . '/screenshot.jpg';
-
-                            break;
-                        }
-                    }
+                } elseif (file_exists($module->root() . '/screenshot.jpg')) {
+                    $sshot = '?df=Theme/' . $id . '/screenshot.jpg';
                 }
                 // Default screenshot
                 if (!$sshot) {
@@ -173,7 +134,7 @@ class ModulesTheme extends AbstractModules
             }
 
             if (in_array('parent', $cols) && !empty($module->parent())) {
-                if ($this->hasModule($module->parent())) {
+                if ($this->modules()->hasModule($module->parent())) {
                     $line .= '<span class="module-parent-ok">' . sprintf(__('(built on "%s")'), Html::escapeHTML($module->parent())) . '</span> ';
                 } else {
                     $line .= '<span class="module-parent-missing">' . sprintf(__('(requires "%s")'), Html::escapeHTML($module->parent())) . '</span> ';
@@ -207,20 +168,17 @@ class ModulesTheme extends AbstractModules
             // Plugins actions
             if ($current) {
                 // _GET actions
-                foreach ($this->getModulesPath() as $psstyle) {
-                    if (file_exists($psstyle . '/' . $id . '/Public/resources/style.css')
-                        || file_exists($psstyle . '/' . $id . '/Common/resources/style.css')) {
-                        $line .= '<p><a href="' . App::core()->blog()->getURLFor('resources', 'Theme/' . $id . '/style.css') . '">' . __('View stylesheet') . '</a></p>';
-
-                        break;
-                    }
+                if (file_exists($module->root() . '/Public/resources/style.css')
+                    || file_exists($module->root() . '/Common/resources/style.css')
+                ) {
+                    $line .= '<p><a href="' . App::core()->blog()->getURLFor('resources', 'Theme/' . $id . '/style.css') . '">' . __('View stylesheet') . '</a></p>';
                 }
 
                 $line .= '<div class="current-actions">';
 
                 $config = is_subclass_of(
                     'Dotclear\\' . $module->type() . '\\' . $id . '\\Admin\\Config',
-                    'Dotclear\\Module\\AbstractConfig'
+                    'Dotclear\\Modules\\ModuleConfig'
                 );
                 if ($config) {
                     $params = ['module' => $id, 'conf' => '1'];
@@ -293,7 +251,7 @@ class ModulesTheme extends AbstractModules
             }
         }
 
-        if ($this->isDistributedModule($id) && ($pos = array_search('delete', $actions, true))) {
+        if ($this->modules()->isDistributedModule($id) && ($pos = array_search('delete', $actions, true))) {
             // Remove 'delete' action for officially distributed themes
             unset($actions[$pos]);
         }
@@ -407,14 +365,14 @@ class ModulesTheme extends AbstractModules
                 $modules = array_keys($_POST['select']);
                 $id      = $modules[0];
 
-                if (!$this->hasModule($id)) {
+                if (!$this->modules()->hasModule($id)) {
                     throw new ModuleException(__('No such theme.'));
                 }
 
                 App::core()->blog()->settings()->get('system')->put('theme', $id);
                 App::core()->blog()->triggerBlog();
 
-                $module = $this->getModule($id);
+                $module = $this->modules()->getModule($id);
                 App::core()->notice()->addSuccessNotice(sprintf(__('Theme %s has been successfully selected.'), Html::escapeHTML($module->name())));
                 Http::redirect($this->getURL() . '#themes');
             }
@@ -428,7 +386,7 @@ class ModulesTheme extends AbstractModules
                     $modules = array_keys($_POST['activate']);
                 }
 
-                $list = $this->getDisabledModules();
+                $list = $this->modules()->getDisabledModules();
                 if (empty($list)) {
                     throw new ModuleException(__('No such theme.'));
                 }
@@ -442,7 +400,7 @@ class ModulesTheme extends AbstractModules
                     // --BEHAVIOR-- themeBeforeActivate
                     App::core()->behavior()->call('themeBeforeActivate', $id);
 
-                    $this->activateModule($id);
+                    $this->modules()->activateModule($id);
 
                     // --BEHAVIOR-- themeAfterActivate
                     App::core()->behavior()->call('themeAfterActivate', $id);
@@ -459,7 +417,7 @@ class ModulesTheme extends AbstractModules
                     $modules = array_keys($_POST['deactivate']);
                 }
 
-                $list = $this->getModules();
+                $list = $this->modules()->getModules();
                 if (empty($list)) {
                     throw new ModuleException(__('No such theme.'));
                 }
@@ -480,7 +438,7 @@ class ModulesTheme extends AbstractModules
                     // --BEHAVIOR-- themeBeforeDeactivate
                     App::core()->behavior()->call('themeBeforeDeactivate', $module);
 
-                    $this->deactivateModule($id);
+                    $this->modules()->deactivateModule($id);
 
                     // --BEHAVIOR-- themeAfterDeactivate
                     App::core()->behavior()->call('themeAfterDeactivate', $module);
@@ -503,7 +461,7 @@ class ModulesTheme extends AbstractModules
 
                 $count = 0;
                 foreach ($modules as $id) {
-                    if (!$this->hasModule($id)) {
+                    if (!$this->modules()->hasModule($id)) {
                         throw new ModuleException(__('No such theme.'));
                     }
 
@@ -527,17 +485,17 @@ class ModulesTheme extends AbstractModules
                     $modules = array_keys($_POST['delete']);
                 }
 
-                $list = $this->getDisabledModules();
+                $list = $this->modules()->getDisabledModules();
 
                 $failed = false;
                 $count  = 0;
                 foreach ($modules as $id) {
                     if (!isset($list[$id])) {
-                        if (!$this->hasModule($id)) {
+                        if (!$this->modules()->hasModule($id)) {
                             throw new ModuleException(__('No such theme.'));
                         }
 
-                        $module = $this->getModule($id);
+                        $module = $this->modules()->getModule($id);
 
                         if (!$this->isDeletablePath($module->root())) {
                             $failed = true;
@@ -548,12 +506,12 @@ class ModulesTheme extends AbstractModules
                         // --BEHAVIOR-- themeBeforeDelete
                         App::core()->behavior()->call('themeBeforeDelete', $module);
 
-                        $this->deleteModule($id);
+                        $this->modules()->deleteModule($id);
 
                         // --BEHAVIOR-- themeAfterDelete
                         App::core()->behavior()->call('themeAfterDelete', $module);
                     } else {
-                        $this->deleteModule($id, true);
+                        $this->modules()->deleteModule($id, true);
                     }
 
                     ++$count;
@@ -575,7 +533,7 @@ class ModulesTheme extends AbstractModules
                     $modules = array_keys($_POST['install']);
                 }
 
-                $list = $this->store->get();
+                $list = $this->store()->get();
 
                 if (empty($list)) {
                     throw new ModuleException(__('No such theme.'));
@@ -592,7 +550,7 @@ class ModulesTheme extends AbstractModules
                     // --BEHAVIOR-- themeBeforeAdd
                     App::core()->behavior()->call('themeBeforeAdd', $module);
 
-                    $this->store->process($module->file(), $dest);
+                    $this->store()->process($module->file(), $dest);
 
                     // --BEHAVIOR-- themeAfterAdd
                     App::core()->behavior()->call('themeAfterAdd', $module);
@@ -609,7 +567,7 @@ class ModulesTheme extends AbstractModules
                     $modules = array_keys($_POST['update']);
                 }
 
-                $list = $this->store->get(true);
+                $list = $this->store()->get(true);
                 if (empty($list)) {
                     throw new ModuleException(__('No such theme.'));
                 }
@@ -625,7 +583,7 @@ class ModulesTheme extends AbstractModules
                     // --BEHAVIOR-- themeBeforeUpdate
                     App::core()->behavior()->call('themeBeforeUpdate', $module);
 
-                    $this->store->process($module->file(), $dest);
+                    $this->store()->process($module->file(), $dest);
 
                     // --BEHAVIOR-- themeAfterUpdate
                     App::core()->behavior()->call('themeAfterUpdate', $module);
@@ -664,7 +622,7 @@ class ModulesTheme extends AbstractModules
                 // --BEHAVIOR-- themeBeforeAdd
                 App::core()->behavior()->call('themeBeforeAdd', null);
 
-                $ret_code = $this->store->install($dest);
+                $ret_code = $this->store()->install($dest);
 
                 // --BEHAVIOR-- themeAfterAdd
                 App::core()->behavior()->call('themeAfterAdd', null);
@@ -696,14 +654,14 @@ class ModulesTheme extends AbstractModules
             throw new ModuleException(__('Themes folder unreadable'));
         }
 
-        $module = $this->getModule($id);
+        $module = $this->modules()->getModule($id);
         if (!$module) {
             throw new ModuleException('Theme is unknown');
         }
         $counter = 0;
         $new_id  = sprintf('%sClone', $module->id());
         $new_dir = sprintf('%sClone', $root . $module->id());
-        while (is_dir($new_dir) || $this->hasModule($new_id)) {
+        while (is_dir($new_dir) || $this->modules()->hasModule($new_id)) {
             ++$counter;
             $new_id  = sprintf('%sClone%s', $module->id(), $counter);
             $new_dir = sprintf('%sClone%s', $root . $module->id(), $counter);

@@ -12,8 +12,7 @@ namespace Dotclear\Plugin\Blogroll\Admin;
 // Dotclear\Plugin\Blogroll\Admin\Prepend
 use Dotclear\App;
 use Dotclear\Database\Structure;
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependAdmin;
+use Dotclear\Modules\ModulePrepend;
 use Dotclear\Plugin\Blogroll\Common\BlogrollWidgets;
 
 /**
@@ -21,10 +20,8 @@ use Dotclear\Plugin\Blogroll\Common\BlogrollWidgets;
  *
  * @ingroup  Plugin Blogroll
  */
-class Prepend extends AbstractPrepend
+class Prepend extends ModulePrepend
 {
-    use TraitPrependAdmin;
-
     public function loadModule(): void
     {
         // Menu and favs

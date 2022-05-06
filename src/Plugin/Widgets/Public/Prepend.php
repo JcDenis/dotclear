@@ -11,8 +11,7 @@ namespace Dotclear\Plugin\Widgets\Public;
 
 // Dotclear\Plugin\Widgets\Public\Prepend
 use Dotclear\App;
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependPublic;
+use Dotclear\Modules\ModulePrepend;
 use Dotclear\Plugin\Widgets\Common\WidgetsStack;
 
 /**
@@ -20,10 +19,8 @@ use Dotclear\Plugin\Widgets\Common\WidgetsStack;
  *
  * @ingroup  Plugin Widgets
  */
-class Prepend extends AbstractPrepend
+class Prepend extends ModulePrepend
 {
-    use TraitPrependPublic;
-
     public function loadModule(): void
     {
         // Load Widgets stack on public prepend

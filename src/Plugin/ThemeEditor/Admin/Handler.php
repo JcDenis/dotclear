@@ -213,7 +213,7 @@ class Handler extends AbstractPage
     {
         $theme = App::core()->themes()->getModule((string) App::core()->blog()->settings()->get('system')->get('theme'));
         if ($theme && 'default' != $theme->id() && App::core()->user()->isSuperAdmin()) {
-            $path = App::core()->themes()->getModulesPath();
+            $path = App::core()->themes()->getPaths();
 
             return !App::core()->production()
                 || !str_contains(Path::real($theme->root(), false), Path::real((string) array_pop($path), false))

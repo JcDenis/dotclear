@@ -15,13 +15,10 @@ namespace Dotclear\Iconset\Legacy\Admin;
 use ArrayObject;
 use Dotclear\App;
 use Dotclear\Helper\File\Path;
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependAdmin;
+use Dotclear\Modules\ModulePrepend;
 
-class Prepend extends AbstractPrepend
+class Prepend extends ModulePrepend
 {
-    use TraitPrependAdmin;
-
     public function loadModule(): void
     {
         App::core()->behavior()->add('adminIconsetCombo', function (ArrayObject $iconsets): void {

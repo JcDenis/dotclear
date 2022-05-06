@@ -10,8 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Akismet\Admin;
 
 // Dotclear\Plugin\Akismet\Admin\Prepend
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependAdmin;
+use Dotclear\Modules\ModulePrepend;
 use Dotclear\Plugin\Akismet\Common\AkismetBehavior;
 
 /**
@@ -19,10 +18,8 @@ use Dotclear\Plugin\Akismet\Common\AkismetBehavior;
  *
  * @ingroup  Plugin Akismet
  */
-class Prepend extends AbstractPrepend
+class Prepend extends ModulePrepend
 {
-    use TraitPrependAdmin;
-
     public function loadModule(): void
     {
         new AkismetBehavior();

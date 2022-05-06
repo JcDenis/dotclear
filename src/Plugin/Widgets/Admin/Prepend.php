@@ -12,8 +12,7 @@ namespace Dotclear\Plugin\Widgets\Admin;
 // Dotclear\Plugin\Widgets\Admin\Prepend
 use ArrayObject;
 use Dotclear\App;
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependAdmin;
+use Dotclear\Modules\ModulePrepend;
 use Dotclear\Plugin\Widgets\Common\Widgets;
 use Dotclear\Plugin\Widgets\Common\WidgetsStack;
 
@@ -22,10 +21,8 @@ use Dotclear\Plugin\Widgets\Common\WidgetsStack;
  *
  * @ingroup  Plugin Widgets
  */
-class Prepend extends AbstractPrepend
+class Prepend extends ModulePrepend
 {
-    use TraitPrependAdmin;
-
     public function loadModule(): void
     {
         // Menu and Favorties

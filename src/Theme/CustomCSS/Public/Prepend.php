@@ -11,18 +11,15 @@ namespace Dotclear\Theme\CustomCSS\Public;
 
 // Dotclear\Theme\CustomCSS\Admin\Prepend
 use Dotclear\App;
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependPublic;
+use Dotclear\Modules\ModulePrepend;
 
 /**
  * Public prepend for theme CustomCSS.
  *
  * @ingroup  Theme CustomCSS
  */
-class Prepend extends AbstractPrepend
+class Prepend extends ModulePrepend
 {
-    use TraitPrependPublic;
-
     public function loadModule(): void
     {
         if (!$this->isTheme()) {

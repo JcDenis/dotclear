@@ -10,8 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Tags\Public;
 
 // Dotclear\Plugin\Tags\Public\Prepend
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependPublic;
+use Dotclear\Modules\ModulePrepend;
 use Dotclear\Plugin\Tags\Common\TagsUrl;
 use Dotclear\Plugin\Tags\Common\TagsXmlrpc;
 use Dotclear\Plugin\Tags\Common\TagsWidgets;
@@ -21,10 +20,8 @@ use Dotclear\Plugin\Tags\Common\TagsWidgets;
  *
  * @ingroup  Plugin Tags
  */
-class Prepend extends AbstractPrepend
+class Prepend extends ModulePrepend
 {
-    use TraitPrependPublic;
-
     public function loadModule(): void
     {
         // Localized string we find in template

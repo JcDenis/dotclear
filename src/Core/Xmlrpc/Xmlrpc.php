@@ -454,7 +454,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
 
         if (App::core()->plugins()) {
             foreach (App::core()->plugins()->getModules() as $module) {
-                App::core()->plugins()->loadModuleL10N($module->id(), App::core()->lang(), 'xmlrpc');
+                App::core()->plugins()->loadModuleL10N($module->id(), (string) App::core()->lang(), 'xmlrpc');
             }
         }
 

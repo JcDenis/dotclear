@@ -11,18 +11,15 @@ namespace Dotclear\Plugin\Attachments\Admin;
 
 // Dotclear\Plugin\Attachments\Admin\Prepend
 use Dotclear\App;
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependAdmin;
+use Dotclear\Modules\ModulePrepend;
 
 /**
  * Admin prepend for plugin Attachments.
  *
  * @ingroup  Plugin Attachments
  */
-class Prepend extends AbstractPrepend
+class Prepend extends ModulePrepend
 {
-    use TraitPrependAdmin;
-
     public function loadModule(): void
     {
         if (!App::core()->media()) {

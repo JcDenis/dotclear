@@ -14,6 +14,7 @@ use Dotclear\App;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Modules\Modules;
 
 /**
  * Admin file URL helper.
@@ -210,21 +211,19 @@ class Resource
             $module_id   = array_shift($module_src);
 
             // Check module type
-            $modules_class = 'Dotclear\\Module\\' . $module_type . '\\Admin\\Modules' . $module_type;
-            if (is_subclass_of($modules_class, 'Dotclear\\Module\\AbstractModules')) {
-                $modules = new $modules_class(null, true);
-                // Chek if module path exists
-                foreach ($modules->getModulesPath() as $modules_path) {
-                    if (is_dir(Path::implode($modules_path, $module_id))) {
-                        $dirs[] = Path::implode($modules_path, $module_id, 'Admin', 'resources');
-                        $dirs[] = Path::implode($modules_path, $module_id, 'Common', 'resources');
-                        $dirs[] = Path::implode($modules_path, $module_id); // required for icons
-                        $src    = implode('/', $module_src);
+            $modules = new Modules(type: $module_type, no_load: true);
+            // Chek if module path exists
+            foreach ($modules->getPaths() as $modules_path) {
+                if (is_dir(Path::implode($modules_path, $module_id))) {
+                    $dirs[] = Path::implode($modules_path, $module_id, 'Admin', 'resources');
+                    $dirs[] = Path::implode($modules_path, $module_id, 'Common', 'resources');
+                    $dirs[] = Path::implode($modules_path, $module_id); // required for icons
+                    $src    = implode('/', $module_src);
 
-                        break;
-                    }
+                    break;
                 }
             }
+            unset($modules);
         }
 
         // List other available file paths

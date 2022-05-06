@@ -21,6 +21,7 @@ use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Text;
+use Dotclear\Modules\Modules;
 use Exception;
 
 /**
@@ -1118,25 +1119,22 @@ class Url
                 $module_id   = array_shift($module_args);
 
                 // Check module type
-                $modules_class = 'Dotclear\\Module\\' . $module_type . '\\Public\\Modules' . $module_type;
-                if (is_subclass_of($modules_class, 'Dotclear\\Module\\AbstractModules')) {
-                    $modules = new $modules_class(null, true);
-                    // Chek if module path exists
-                    foreach ($modules->getModulesPath() as $modules_path) {
-                        if (is_dir(Path::implode($modules_path, $module_id))) {
-                            $dirs[] = Path::implode($modules_path, $module_id, 'Public', 'resources');
-                            $dirs[] = Path::implode($modules_path, $module_id, 'Common', 'resources');
-                            $args   = implode('/', $module_args);
+                $modules = new Modules(type: $module_type, no_load: true);
+                // Chek if module path exists
+                foreach ($modules->getPaths() as $modules_path) {
+                    if (is_dir(Path::implode($modules_path, $module_id))) {
+                        $dirs[] = Path::implode($modules_path, $module_id, 'Public', 'resources');
+                        $dirs[] = Path::implode($modules_path, $module_id, 'Common', 'resources');
+                        $args   = implode('/', $module_args);
 
-                            break;
-                        }
+                        break;
                     }
                 }
             }
         }
 
         // Current Theme paths
-        if (empty($dirs) && App::core()->themes()) {
+        if (empty($dirs)) {
             $dirs = array_merge(
                 array_values(App::core()->themes()->getThemePath('Public/resources')),
                 array_values(App::core()->themes()->getThemePath('Common/resources'))

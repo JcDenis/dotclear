@@ -16,10 +16,7 @@ use Dotclear\Helper\Lexical;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Network\Http;
-use Dotclear\Module\AbstractModules;
-use Dotclear\Module\Iconset\Admin\ModulesIconset;
-use Dotclear\Module\Plugin\Admin\ModulesPlugin;
-use Dotclear\Module\Theme\Admin\ModulesTheme;
+use Dotclear\Modules\Modules;
 use Dotclear\Process\Admin\AdminUrl\AdminUrl;
 use Dotclear\Process\Admin\Combo\Combo;
 use Dotclear\Process\Admin\Favorite\Favorite;
@@ -86,20 +83,20 @@ class Prepend extends Core
     private $resource;
 
     /**
-     * @var null|ModulesPlugin $plugins
-     *                         ModulesPlugin instance
+     * @var null|Modules $plugins
+     *                   Plugin Modules instance
      */
     private $plugins;
 
     /**
-     * @var null|ModulesIconset $iconsets
-     *                          ModulesIconset instance
+     * @var null|Modules $iconsets
+     *                   Iconset Modules instance
      */
     private $iconsets;
 
     /**
-     * @var null|ModulesTheme $themes
-     *                        ModulesTheme instance
+     * @var null|Modules $themes
+     *                   Theme Modules instance
      */
     private $themes;
 
@@ -226,12 +223,16 @@ class Prepend extends Core
     /**
      * Get iconsets instance.
      *
-     * @return null|ModulesIconset Iconsets instance
+     * @return null|Modules Iconsets instance
      */
-    public function iconsets(): ?ModulesIconset
+    public function iconsets(): ?Modules
     {
-        if (!($this->iconsets instanceof ModulesIconset) && !empty($this->config()->get('iconset_dirs'))) {
-            $this->iconsets = new ModulesIconset($this->lang);
+        if (!($this->iconsets instanceof Modules) && !empty($this->config()->get('iconset_dirs'))) {
+            $this->iconsets = new Modules(
+                type: 'Iconset',
+                lang: $this->lang,
+                name: __('Iconsets management')
+            );
             $this->adminLoadModulesResources($this->iconsets);
         }
 
@@ -241,12 +242,12 @@ class Prepend extends Core
     /**
      * Get plguins instance.
      *
-     * @return null|ModulesPlugin Plugins instance
+     * @return null|Modules Plugins instance
      */
-    public function plugins(): ?ModulesPlugin
+    public function plugins(): ?Modules
     {
-        if (!($this->plugins instanceof ModulesPlugin) && !empty($this->config()->get('plugin_dirs'))) {
-            $this->plugins = new ModulesPlugin($this->lang);
+        if (!($this->plugins instanceof Modules)) {
+            $this->plugins = new Modules(lang: $this->lang);
             $this->adminLoadModulesResources($this->plugins);
         }
 
@@ -256,12 +257,17 @@ class Prepend extends Core
     /**
      * Get themes instance.
      *
-     * @return null|ModulesTheme Themes instance
+     * @return null|Modules Themes instance
      */
-    public function themes(): ?ModulesTheme
+    public function themes(): ?Modules
     {
-        if (!($this->themes instanceof ModulesTheme) && !empty($this->config()->get('theme_dirs'))) {
-            $this->themes = new ModulesTheme($this->lang);
+        if (!($this->themes instanceof Modules)) {
+            $this->themes = new Modules(
+                type: 'Theme',
+                lang: $this->lang,
+                name: __('Blog appearance'),
+                group: 'Blog'
+            );
             $this->adminLoadModulesResources($this->themes);
         }
 
@@ -398,7 +404,7 @@ class Prepend extends Core
 
             // Load modules (by calling them a first time)
             try {
-                $this->iconsets();
+                // $this->iconsets();
                 $this->plugins();
                 $this->themes();
             } catch (Exception $e) {
@@ -481,9 +487,9 @@ class Prepend extends Core
     /**
      * Load modules locales resources.
      *
-     * @param AbstractModules $modules Modules instance
+     * @param Modules $modules Modules instance
      */
-    private function adminLoadModulesResources(AbstractModules $modules): void
+    private function adminLoadModulesResources(Modules $modules): void
     {
         // Load lang resources for each module
         foreach ($modules->getModules() as $module) {

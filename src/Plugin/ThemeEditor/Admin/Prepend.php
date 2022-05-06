@@ -14,9 +14,8 @@ use Dotclear\App;
 use Dotclear\Database\Cursor;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\File\Path;
-use Dotclear\Module\ModuleDefine;
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependAdmin;
+use Dotclear\Modules\ModuleDefine;
+use Dotclear\Modules\ModulePrepend;
 use Exception;
 
 /**
@@ -24,10 +23,8 @@ use Exception;
  *
  * @ingroup  Plugin ThemeEditor
  */
-class Prepend extends AbstractPrepend
+class Prepend extends ModulePrepend
 {
-    use TraitPrependAdmin;
-
     public function loadModule(): void
     {
         App::core()->behavior()->add('adminCurrentThemeDetails', [$this, 'behaviorAdminCurrentThemeDetails']);
@@ -39,7 +36,7 @@ class Prepend extends AbstractPrepend
     {
         if ('default' != $theme->id() && App::core()->user()->isSuperAdmin()) {
             // Check if it's not an officially distributed theme
-            $path = App::core()->themes()->getModulesPath();
+            $path = App::core()->themes()->getPaths();
             if (!App::core()->production()
                 || !str_contains(Path::real($theme->root(), false), Path::real((string) array_pop($path), false))
                 || !App::core()->themes()->isDistributedModule($theme->id())

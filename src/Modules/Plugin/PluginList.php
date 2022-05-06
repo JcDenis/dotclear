@@ -7,66 +7,39 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Module;
+namespace Dotclear\Modules\Plugin;
 
-// Dotclear\Module\TraitModulesAdmin
+// Dotclear\Modules\Plugin\PluginList
 use Dotclear\App;
-use Dotclear\Exception\AdminException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
-use Dotclear\Module\Store\Repository\Repository;
+use Dotclear\Exception\AdminException;
+use Dotclear\Modules\ModuleConfig;
+use Dotclear\Modules\ModuleDefine;
+use Dotclear\Modules\Modules;
+use Dotclear\Modules\Repository\Repository;
 use Exception;
 
 /**
- * Module Admin specific methods.
+ * Modules list manager.
  *
  * @ingroup  Module
  */
-trait TraitModulesAdmin
+class PluginList
 {
     /**
-     * @var Repository $store
-     *                 Store instance
-     */
-    public $store;
-
-    /**
-     * @var bool $store_cache
-     *           Use store result in cache
-     */
-    protected $store_cache = true;
-
-    /**
      * @var string $list_id
-     *             Current list ID
+     *             Current list id
      */
     protected $list_id = 'unknown';
 
     /**
      * @var array<string,ModuleDefine> $data
-     *                                 Current modules
+     *                                 Current modules list
      */
     protected $data = [];
-
-    /**
-     * @var false|ModuleDefine $config_module
-     *                         Module ID to configure
-     */
-    protected $config_module = false;
-
-    /**
-     * @var AbstractConfig|false $config_class
-     *                           Module class to configure
-     */
-    protected $config_class = false;
-
-    /**
-     * @var string $config_content
-     *             Module configuration page content
-     */
-    protected $config_content = '';
 
     /**
      * @var false|string $path
@@ -140,77 +113,139 @@ trait TraitModulesAdmin
      */
     protected $sort_asc = true;
 
-    /** Register module on admin url/menu/favs,... */
-    abstract protected function register(): bool;
+    /**
+     * @var false|ModuleDefine $config_module
+     *                         Module definition
+     */
+    protected $config_module = false;
 
-    /** Get store url */
-    public function getStoreURL(): string
+    /**
+     * @var false|ModuleConfig $config_class
+     *                         Module class to configure
+     */
+    protected $config_class = false;
+
+    /**
+     * @var string $config_content
+     *             Module configuration page content
+     */
+    protected $config_content = '';
+
+    /**
+     * @var Repository $store
+     *                 Store instance
+     */
+    public $store;
+
+    /**
+     * @var bool $store_cache
+     *           Use store result in cache
+     */
+    protected $store_cache = true;
+
+    public function __construct(private Modules $modules)
     {
-        return (string) App::core()->blog()->settings()->get('system')->get('store_' . $this->getModulesType(true) . '_url');
+        if (!App::core()->processed('Admin')) {
+            throw new Exception(__('Modules list only available on admin process.'));
+        }
+
+        $this->setPath();
+        $this->setURL($this->getModulesURL());
+        $this->setIndex(__('other'));
+        $this->store = new Repository($this->modules(), $this->getStoreURL(), !$this->useStoreCache());
     }
 
-    /** Get store cache usage */
+    /**
+     * Get Modules.
+     *
+     * @return Modules The modules instance
+     */
+    public function modules(): Modules
+    {
+        return $this->modules;
+    }
+
+    /**
+     * Get manager Page URL.
+     *
+     * @param array<string,int|string> $param Additionnal URL params
+     *
+     * @return string The manager admin page URL
+     */
+    public function getModulesURL(array $param = []): string
+    {
+        return App::core()->adminurl()->get('admin.' . $this->modules()->getType(true), $param);
+    }
+
+    /**
+     * Get a module Page URL.
+     *
+     * @param string                   $id    The module id
+     * @param array<string,int|string> $param Additionnal URL params
+     *
+     * @return string The module admin page URL
+     */
+    public function getModuleURL(string $id, array $param = []): string
+    {
+        return App::core()->adminurl()->get('admin.' . $this->modules()->getType(true) . '.' . $id, $param);
+    }
+
+    /**
+     * Sort modules list by specific field.
+     *
+     * @param array  $modules Array of modules
+     * @param string $field   Field to sort from
+     * @param bool   $asc     Sort asc if true, else decs
+     *
+     * @return array Array of sorted modules
+     */
+    public function sortModules(array $modules, string $field, bool $asc = true): array
+    {
+        $origin = $sorter = $final = [];
+
+        foreach ($modules as $id => $module) {
+            $properties = $module->properties();
+            $origin[]   = $module;
+            $sorter[]   = $properties[$field] ?? $field;
+        }
+
+        array_multisort($sorter, $asc ? SORT_ASC : SORT_DESC, $origin);
+
+        foreach ($origin as $module) {
+            $final[$module->id()] = $module;
+        }
+
+        return $final;
+    }
+
+    /**
+     * Get Store.
+     *
+     * @return Repository The store instance
+     */
+    public function store(): Repository
+    {
+        return $this->store;
+    }
+
+    /**
+     * Get manager store url.
+     *
+     * @return string The store URL
+     */
+    public function getStoreURL(): string
+    {
+        return (string) App::core()->blog()->settings()->get('system')->get('store_' . $this->modules()->getType(true) . '_url');
+    }
+
+    /**
+     * Check if manager store use cache.
+     *
+     * @return bool True to use cache
+     */
     public function useStoreCache(): bool
     {
         return empty($_GET['nocache']);
-    }
-
-    /** Get modules Page URL */
-    public function getModulesURL(array $param = []): string
-    {
-        return App::core()->adminurl()->get('admin.' . $this->getModulesType(true), $param);
-    }
-
-    /** Get module Page URL */
-    public function getModuleURL(string $id, array $param = []): string
-    {
-        return App::core()->adminurl()->get('admin.' . $this->getModulesType(true) . '.' . $id, $param);
-    }
-
-    /**
-     * Load modules Admin specifics.
-     *
-     * @see AbstractModules::loadModules()
-     */
-    protected function loadModulesProcess(): void
-    {
-        if ($this->register()) {
-            $this->setPath();
-            $this->setURL($this->getModulesURL());
-            $this->setIndex(__('other'));
-            $this->store = new Repository($this, $this->getStoreURL(), $this->useStoreCache());
-        }
-    }
-
-    /**
-     * Load module Admin specifics.
-     *
-     * @see AbstractModules::loadModules()
-     */
-    protected function loadModuleProcess(string $id): void
-    {
-        // If module has a Admin Page, create an admin url
-        $class = 'Dotclear\\' . $this->getModulesType() . '\\' . $id . '\\Admin\\' . 'Handler';
-        if (is_subclass_of($class, 'Dotclear\\Process\\Admin\\Page\\AbstractPage')) {
-            App::core()->adminurl()->register('admin.' . $this->getModulesType(true) . '.' . $id, $class);
-        }
-    }
-
-    /**
-     * Check module permissions on Admin on load.
-     *
-     * @see AbstractModules::loadModuleDefine()
-     */
-    protected function loadModuleDefineProcess(ModuleDefine $define): bool
-    {
-        if (!$define->permissions() && !App::core()->user()->isSuperAdmin()) {
-            return false;
-        }
-        if ($define->permissions() && !App::core()->user()->check($define->permissions(), App::core()->blog()->id)) {
-            return false;
-        }
-
-        return true;
     }
 
     // / @name Modules list methods
@@ -218,15 +253,15 @@ trait TraitModulesAdmin
     /**
      * Begin a new list.
      *
-     * @param string $id New list ID
+     * @param string $id The new list id
      *
      * @return static self instance
      */
     public function setList(string $id): static
     {
-        $this->data     = [];
-        $this->page_tab = '';
-        $this->list_id  = $id;
+        $this->page_tab  = '';
+        $this->data      = [];
+        $this->list_id   = $id;
 
         return $this;
     }
@@ -249,7 +284,7 @@ trait TraitModulesAdmin
      */
     protected function setPath(): void
     {
-        $paths = $this->getModulesPath();
+        $paths = $this->modules()->getPaths();
         $path  = array_pop($paths);
         unset($paths);
 
@@ -554,12 +589,12 @@ trait TraitModulesAdmin
     }
     // @}
 
-    // / @name Modules methods
+    // / @name Data methods
     // @{
     /**
      * Set modules.
      *
-     * @param array $modules The modules
+     * @param array<string,ModuleDefine> $modules The modules
      *
      * @return static self instance
      */
@@ -568,7 +603,7 @@ trait TraitModulesAdmin
         $this->data = [];
         if (!empty($modules) && is_array($modules)) {
             foreach ($modules as $id => $module) {
-                if (is_a($module, 'Dotclear\\Module\\ModuleDefine') && $module->type() == $this->getModulesType()) {
+                if (is_a($module, 'Dotclear\\Modules\\ModuleDefine') && $module->type() == $this->modules()->getType()) {
                     $this->data[$id] = $module;
                 }
             }
@@ -657,9 +692,6 @@ trait TraitModulesAdmin
 
         $count = 0;
         foreach ($modules as $id => $module) {
-            if (!is_a($module, 'Dotclear\\Module\\ModuleDefine')) {
-                continue;
-            }
             // Show only requested modules
             if ($nav_limit && $this->getSearch() === null) {
                 $properties = $module->properties();
@@ -774,7 +806,7 @@ trait TraitModulesAdmin
 
             if (in_array('distrib', $cols)) {
                 ++$tds;
-                echo '<td class="module-distrib">' . ($this->isDistributedModule($id) ?
+                echo '<td class="module-distrib">' . ($this->modules()->isDistributedModule($id) ?
                     '<img src="?df=images/dotclear_pw.png" alt="' .
                     __('Plugin from official distribution') . '" title="' .
                     __('Plugin from official distribution') . '" />'
@@ -823,7 +855,7 @@ trait TraitModulesAdmin
 
                 $config = is_subclass_of(
                     'Dotclear\\' . $module->type() . '\\' . $id . '\\Admin\\Config',
-                    'Dotclear\\Module\\AbstractConfig'
+                    'Dotclear\\Modules\\ModuleConfig'
                 );
                 $index = is_subclass_of(
                     'Dotclear\\' . $module->type() . '\\' . $id . '\\Admin\\Handler',
@@ -891,7 +923,7 @@ trait TraitModulesAdmin
     public function getSettingsUrls(string $id, bool $check = false, bool $self = true): array
     {
         // Check if module exists
-        $module = $this->getModule($id);
+        $module = $this->modules()->getModule($id);
         if (!$module) {
             return [];
         }
@@ -899,7 +931,7 @@ trait TraitModulesAdmin
         $st     = [];
         $config = is_subclass_of(
             'Dotclear\\' . $module->type() . '\\' . $id . '\\Admin\\Config',
-            'Dotclear\\Module\\AbstractConfig'
+            'Dotclear\\Modules\\ModuleConfig'
         );
         $index = is_subclass_of(
             'Dotclear\\' . $module->type() . '\\' . $id . '\\Admin\\Handler',
@@ -1134,17 +1166,17 @@ trait TraitModulesAdmin
                 $modules = array_keys($_POST['delete']);
             }
 
-            $list = $this->getDisabledModules();
+            $list = $this->modules()->getDisabledModules();
 
             $failed = false;
             $count  = 0;
             foreach ($modules as $id) {
                 if (!isset($list[$id])) {
-                    if (!$this->hasModule($id)) {
+                    if (!$this->modules()->hasModule($id)) {
                         throw new AdminException(__('No such plugin.'));
                     }
 
-                    $module = $this->getModule($id);
+                    $module = $this->modules()->getModule($id);
 
                     if (!$this->isDeletablePath($module->root())) {
                         $failed = true;
@@ -1155,12 +1187,12 @@ trait TraitModulesAdmin
                     // --BEHAVIOR-- moduleBeforeDelete
                     App::core()->behavior()->call('pluginBeforeDelete', $module);
 
-                    $this->deleteModule($id);
+                    $this->modules()->deleteModule($id);
 
                     // --BEHAVIOR-- moduleAfterDelete
                     App::core()->behavior()->call('pluginAfterDelete', $module);
                 } else {
-                    $this->deleteModule($id, true);
+                    $this->modules()->deleteModule($id, true);
                 }
 
                 ++$count;
@@ -1184,7 +1216,7 @@ trait TraitModulesAdmin
                 $modules = array_keys($_POST['install']);
             }
 
-            $list = $this->store->get();
+            $list = $this->store()->get();
 
             if (empty($list)) {
                 throw new AdminException(__('No such plugin.'));
@@ -1201,7 +1233,7 @@ trait TraitModulesAdmin
                 // --BEHAVIOR-- moduleBeforeAdd
                 App::core()->behavior()->call('pluginBeforeAdd', $module);
 
-                $this->store->process($module->file(), $dest);
+                $this->store()->process($module->file(), $dest);
 
                 // --BEHAVIOR-- moduleAfterAdd
                 App::core()->behavior()->call('pluginAfterAdd', $module);
@@ -1220,7 +1252,7 @@ trait TraitModulesAdmin
                 $modules = array_keys($_POST['activate']);
             }
 
-            $list = $this->getDisabledModules();
+            $list = $this->modules()->getDisabledModules();
             if (empty($list)) {
                 throw new AdminException(__('No such plugin.'));
             }
@@ -1234,7 +1266,7 @@ trait TraitModulesAdmin
                 // --BEHAVIOR-- moduleBeforeActivate
                 App::core()->behavior()->call('pluginBeforeActivate', $id);
 
-                $this->activateModule($id);
+                $this->modules()->activateModule($id);
 
                 // --BEHAVIOR-- moduleAfterActivate
                 App::core()->behavior()->call('pluginAfterActivate', $id);
@@ -1253,7 +1285,7 @@ trait TraitModulesAdmin
                 $modules = array_keys($_POST['deactivate']);
             }
 
-            $list = $this->getModules();
+            $list = $this->modules()->getModules();
             if (empty($list)) {
                 throw new AdminException(__('No such plugin.'));
             }
@@ -1274,7 +1306,7 @@ trait TraitModulesAdmin
                 // --BEHAVIOR-- moduleBeforeDeactivate
                 App::core()->behavior()->call('pluginBeforeDeactivate', $module);
 
-                $this->deactivateModule($id);
+                $this->modules()->deactivateModule($id);
 
                 // --BEHAVIOR-- moduleAfterDeactivate
                 App::core()->behavior()->call('pluginAfterDeactivate', $module);
@@ -1297,7 +1329,7 @@ trait TraitModulesAdmin
                 $modules = array_keys($_POST['update']);
             }
 
-            $list = $this->store->get(true);
+            $list = $this->store()->get(true);
             if (empty($list)) {
                 throw new AdminException(__('No such plugin.'));
             }
@@ -1320,7 +1352,7 @@ trait TraitModulesAdmin
                 // --BEHAVIOR-- moduleBeforeUpdate
                 App::core()->behavior()->call('pluginBeforeUpdate', $module);
 
-                $this->store->process($module->file(), $dest);
+                $this->store()->process($module->file(), $dest);
 
                 // --BEHAVIOR-- moduleAfterUpdate
                 App::core()->behavior()->call('pluginAfterUpdate', $module);
@@ -1353,13 +1385,13 @@ trait TraitModulesAdmin
             } else {
                 $url  = urldecode($_POST['pkg_url']);
                 $dest = $this->getPath() . '/' . basename($url);
-                $this->store->download($url, $dest);
+                $this->store()->download($url, $dest);
             }
 
             // --BEHAVIOR-- moduleBeforeAdd
             App::core()->behavior()->call('pluginBeforeAdd', null);
 
-            $ret_code = $this->store->install($dest);
+            $ret_code = $this->store()->install($dest);
 
             // --BEHAVIOR-- moduleAfterAdd
             App::core()->behavior()->call('pluginAfterAdd', null);
@@ -1453,8 +1485,8 @@ trait TraitModulesAdmin
             $id = $_REQUEST['module'];
         }
 
-        // Check module
-        $module = $this->getModule($id);
+        // Check module and get its definition
+        $module = $this->modules()->getModule($id);
         if (!$module) {
             App::core()->error()->add(__('Unknown module ID'));
 
@@ -1463,7 +1495,7 @@ trait TraitModulesAdmin
 
         // Check config
         $class = 'Dotclear\\' . $module->type() . '\\' . $module->id() . '\\' . App::core()->processed() . '\\Config';
-        if (!is_subclass_of($class, 'Dotclear\\Module\\AbstractConfig')) {
+        if (!is_subclass_of($class, 'Dotclear\\Modules\\ModuleConfig')) {
             App::core()->error()->add(__('This module has no configuration file.'));
 
             return false;
@@ -1472,9 +1504,7 @@ trait TraitModulesAdmin
         $class = new $class($this->getURL(['module' => $module->id(), 'conf' => 1]));
 
         // Check permissions
-        if (!App::core()->user()->isSuperAdmin()
-            && !App::core()->user()->check((string) $class->getPermissions(), App::core()->blog()->id)
-        ) {
+        if (!App::core()->user()->check($class->getPermissions(), App::core()->blog()->id)) {
             App::core()->error()->add(__('Insufficient permissions'));
 
             return false;

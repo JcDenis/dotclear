@@ -11,18 +11,15 @@ namespace Dotclear\Plugin\Attachments\Public;
 
 // Dotclear\Plugin\Attachments\Public\Prepend
 use Dotclear\App;
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependPublic;
+use Dotclear\Modules\ModulePrepend;
 
 /**
  * Public prepend for plugin Attachments.
  *
  * @ingroup  Plugin Attachments
  */
-class Prepend extends AbstractPrepend
+class Prepend extends ModulePrepend
 {
-    use TraitPrependPublic;
-
     public function loadModule(): void
     {
         if (!App::core()->media()) {

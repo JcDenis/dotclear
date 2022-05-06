@@ -12,8 +12,7 @@ namespace Dotclear\Plugin\SimpleMenu\Admin;
 // Dotclear\Plugin\SimpleMenu\Admin\Prepend
 use Dotclear\App;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependAdmin;
+use Dotclear\Modules\ModulePrepend;
 use Dotclear\Plugin\SimpleMenu\Common\SimpleMenuWidgets;
 
 /**
@@ -21,10 +20,8 @@ use Dotclear\Plugin\SimpleMenu\Common\SimpleMenuWidgets;
  *
  * @ingroup  Plugin SimpleMenu
  */
-class Prepend extends AbstractPrepend
+class Prepend extends ModulePrepend
 {
-    use TraitPrependAdmin;
-
     public function loadModule(): void
     {
         $this->addStandardMenu('Blog');

@@ -10,8 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Antispam\Public;
 
 // Dotclear\Plugin\Antispam\Public\Prepend
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependPublic;
+use Dotclear\Modules\ModulePrepend;
 use Dotclear\Plugin\Antispam\Common\Antispam;
 use Dotclear\Plugin\Antispam\Common\AntispamUrl;
 
@@ -20,10 +19,8 @@ use Dotclear\Plugin\Antispam\Common\AntispamUrl;
  *
  * @ingroup  Plugin Antispam
  */
-class Prepend extends AbstractPrepend
+class Prepend extends ModulePrepend
 {
-    use TraitPrependPublic;
-
     public function loadModule(): void
     {
         new Antispam();

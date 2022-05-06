@@ -11,8 +11,7 @@ namespace Dotclear\Plugin\Pings\Admin;
 
 // Dotclear\Plugin\Pings\Admin\Prepend
 use Dotclear\App;
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependAdmin;
+use Dotclear\Modules\ModulePrepend;
 use Dotclear\Plugin\Pings\Common\PingsCore;
 
 /**
@@ -20,10 +19,8 @@ use Dotclear\Plugin\Pings\Common\PingsCore;
  *
  * @ingroup  Plugin Pings
  */
-class Prepend extends AbstractPrepend
+class Prepend extends ModulePrepend
 {
-    use TraitPrependAdmin;
-
     public function loadModule(): void
     {
         // Menu and favs

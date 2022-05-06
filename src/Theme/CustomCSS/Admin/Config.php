@@ -12,22 +12,22 @@ namespace Dotclear\Theme\CustomCSS\Admin;
 // Dotclear\Theme\CustomCSS\Admin\Config
 use Dotclear\App;
 use Dotclear\Exception\ModuleException;
-use Dotclear\Module\AbstractConfig;
+use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\L10n;
-use Dotclear\Helper\File\Path;
+use Dotclear\Modules\ModuleConfig;
 
 /**
  * Admin config page for theme CustomCSS.
  *
  * @ingroup  Theme CustomCSS
  */
-class Config extends AbstractConfig
+class Config extends ModuleConfig
 {
     private $customcss_file = '';
 
-    public function getPermissions(): ?string
+    public function getPermissions(): string
     {
         return 'admin';
     }

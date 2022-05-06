@@ -12,18 +12,15 @@ namespace Dotclear\Theme\Berlin\Public;
 // Dotclear\Theme\Berlin\Public\Prepend
 use Dotclear\App;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependPublic;
+use Dotclear\Modules\ModulePrepend;
 
 /**
  * Public prepend for theme Berlin.
  *
  * @ingroup  Theme Berlin
  */
-class Prepend extends AbstractPrepend
+class Prepend extends ModulePrepend
 {
-    use TraitPrependPublic;
-
     public function loadModule(): void
     {
         if (!$this->isTheme()) {

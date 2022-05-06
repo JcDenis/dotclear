@@ -7,12 +7,13 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Module\Iconset\Admin;
+namespace Dotclear\Modules\Iconset;
 
-// Dotclear\Module\Iconset\Admin\HandlerIconset
+// Dotclear\Modules\Iconset\IconsetHandler
 use Dotclear\App;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Modules\Plugin\PluginList;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
 
@@ -21,41 +22,52 @@ use Exception;
  *
  * @ingroup  Module Admin Iconset
  */
-class HandlerIconset extends AbstractPage
+class IconsetHandler extends AbstractPage
 {
     /**
-     * @var array<string,array> $modules_install
-     *                          Freashly installed modules
+     * @var PluginList $m_list
+     *                 Modules list manager
      */
-    private $modules_install = [];
+    private $m_list;
 
     /**
-     * @var bool $from_configuration
+     * @var array<string,array> $m_installed
+     *                          Freashly installed modules
+     */
+    private $m_installed = [];
+
+    /**
+     * @var bool $m_from_configuration
      *           Use a configuration method
      */
-    private $from_configuration = false;
+    private $m_from_configuration = false;
 
+    // AbstractPage method
     protected function getPermissions(): string|null|false
     {
         // Super admin
         return null;
     }
 
+    // AbstractPage method
     protected function getPagePrepend(): ?bool
     {
-        if (App::core()->iconsets()?->disableModulesDependencies(App::core()->adminurl()->get('admin.iconset'))) {
+        // @todo create Module Iconset own admin modules list
+        $this->m_list = new PluginList(App::core()->iconsets());
+
+        if ($this->m_list->modules()->disableDependencies(App::core()->adminurl()->get('admin.iconset'))) {
             exit;
         }
         // -- Execute actions --
         try {
-            App::core()->iconsets()->doActions();
+            $this->m_list->doActions();
         } catch (Exception $e) {
             App::core()->error()->add($e->getMessage());
         }
 
         // -- Plugin install --
         if (!App::core()->error()->flag()) {
-            $this->modules_install = App::core()->iconsets()->installModules();
+            $this->m_installed = $this->m_list->modules()->installModules();
         }
 
         // Page setup
@@ -78,31 +90,32 @@ class HandlerIconset extends AbstractPage
         return true;
     }
 
+    // AbstractPage method
     protected function getPageContent(): void
     {
         // Modules install messages
-        if (!empty($this->modules_install['success'])) {
+        if (!empty($this->m_installed['success'])) {
             echo '<div class="static-msg">' . __('Following modules have been installed:') . '<ul>';
 
-            foreach ($this->modules_install['success'] as $k => $v) {
-                $info = implode(' - ', App::core()->iconsets()->getSettingsUrls($k, true));
+            foreach ($this->m_installed['success'] as $k => $v) {
+                $info = implode(' - ', $this->m_list->getSettingsUrls($k, true));
                 echo '<li>' . $k . ('' !== $info ? ' → ' . $info : '') . '</li>';
             }
 
             echo '</ul></div>';
         }
-        if (!empty($this->modules_install['failure'])) {
+        if (!empty($this->m_installed['failure'])) {
             echo '<div class="error">' . __('Following modules have not been installed:') . '<ul>';
 
-            foreach ($this->modules_install['failure'] as $k => $v) {
+            foreach ($this->m_installed['failure'] as $k => $v) {
                 echo '<li>' . $k . ' (' . $v . ')</li>';
             }
 
             echo '</ul></div>';
         }
 
-        if ($this->from_configuration) {
-            echo App::core()->iconsets()->displayModuleConfiguration();
+        if ($this->m_from_configuration) {
+            echo $this->m_list->displayModuleConfiguration();
 
             return;
         }
@@ -116,7 +129,7 @@ class HandlerIconset extends AbstractPage
             }
 
             // Updated modules from repo
-            $modules = App::core()->iconsets()->store->get(true);
+            $modules = $this->m_list->store()->get(true);
             if (!empty($modules)) {
                 echo '<div class="multi-part" id="update" title="' . Html::escapeHTML(__('Update modules')) . '">' .
                 '<h3>' . Html::escapeHTML(__('Update modules')) . '</h3>' .
@@ -125,7 +138,7 @@ class HandlerIconset extends AbstractPage
                     count($modules)
                 ) . '</p>';
 
-                App::core()->iconsets()
+                $this->m_list
                     ->setList('module-update')
                     ->setTab('update')
                     ->setData($modules)
@@ -145,7 +158,7 @@ class HandlerIconset extends AbstractPage
 
                     '</div>';
             } else {
-                echo '<form action="' . App::core()->iconsets()->getURL('', false) . '" method="get">' .
+                echo '<form action="' . $this->m_list->getURL('', false) . '" method="get">' .
                 '<p><input type="hidden" name="nocache" value="1" />' .
                 '<input type="submit" value="' . __('Force checking update of modules') . '" />' .
                 Form::hidden(['handler'], App::core()->adminurl()->called()) .
@@ -156,12 +169,12 @@ class HandlerIconset extends AbstractPage
         echo '<div class="multi-part" id="modules" title="' . __('Installed modules') . '">';
 
         // Activated modules
-        $modules = App::core()->iconsets()->getModules();
+        $modules = $this->m_list->modules()->getModules();
         if (!empty($modules)) {
             echo '<h3>' . (App::core()->user()->isSuperAdmin() ? __('Activated modules') : __('Installed modules')) . '</h3>' .
             '<p class="more-info">' . __('You can configure and manage installed modules from this list.') . '</p>';
 
-            App::core()->iconsets()
+            $this->m_list
                 ->setList('module-activate')
                 ->setTab('modules')
                 ->setData($modules)
@@ -174,12 +187,12 @@ class HandlerIconset extends AbstractPage
 
         // Deactivated modules
         if (App::core()->user()->isSuperAdmin()) {
-            $modules = App::core()->iconsets()->getDisabledModules();
+            $modules = $this->m_list->modules()->getDisabledModules();
             if (!empty($modules)) {
                 echo '<h3>' . __('Deactivated modules') . '</h3>' .
                 '<p class="more-info">' . __('Deactivated modules are installed but not usable. You can activate them from here.') . '</p>';
 
-                App::core()->iconsets()
+                $this->m_list
                     ->setList('module-deactivate')
                     ->setTab('modules')
                     ->setData($modules)
@@ -193,16 +206,16 @@ class HandlerIconset extends AbstractPage
 
         echo '</div>';
 
-        if (App::core()->user()->isSuperAdmin() && App::core()->iconsets()->isWritablePath()) {
+        if (App::core()->user()->isSuperAdmin() && $this->m_list->isWritablePath()) {
             // New modules from repo
-            $search  = App::core()->iconsets()->getSearch();
-            $modules = $search ? App::core()->iconsets()->store->search($search) : App::core()->iconsets()->store->get();
+            $search  = $this->m_list->getSearch();
+            $modules = $search ? $this->m_list->store()->search($search) : $this->m_list->store()->get();
 
             if (!empty($search) || !empty($modules)) {
                 echo '<div class="multi-part" id="new" title="' . __('Add modules') . '">' .
                 '<h3>' . __('Add modules from repository') . '</h3>';
 
-                App::core()->iconsets()
+                $this->m_list
                     ->setList('module-new')
                     ->setTab('new')
                     ->setData($modules)
@@ -229,7 +242,7 @@ class HandlerIconset extends AbstractPage
             '<h3>' . __('Add modules from a package') . '</h3>' .
             '<p class="more-info">' . __('You can install modules by uploading or downloading zip files.') . '</p>';
 
-            App::core()->iconsets()->displayManualForm();
+            $this->m_list->displayManualForm();
 
             echo '</div>';
         }
@@ -238,7 +251,7 @@ class HandlerIconset extends AbstractPage
         App::core()->behavior()->call('modulesToolsTabs');
 
         // -- Notice for super admin --
-        if (App::core()->user()->isSuperAdmin() && !App::core()->iconsets()->isWritablePath()) {
+        if (App::core()->user()->isSuperAdmin() && !$this->m_list->isWritablePath()) {
             echo '<p class="warning">' . __('Some functions are disabled, please give write access to your modules directory to enable them.') . '</p>';
         }
     }

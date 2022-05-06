@@ -11,18 +11,15 @@ namespace Dotclear\Plugin\LegacyEditor\Admin;
 
 // Dotclear\Plugin\LegacyEditor\Admin\Prepend
 use Dotclear\App;
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependAdmin;
+use Dotclear\Modules\ModulePrepend;
 
 /**
  * Admin prepend for plugin LegacyEditor.
  *
  * @ingroup  Plugin LegacyEditor
  */
-class Prepend extends AbstractPrepend
+class Prepend extends ModulePrepend
 {
-    use TraitPrependAdmin;
-
     public function loadModule(): void
     {
         if (!App::core()->blog()->settings()->get('LegacyEditor')->get('active')) {

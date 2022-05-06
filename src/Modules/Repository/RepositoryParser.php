@@ -7,9 +7,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Module\Store\Repository;
+namespace Dotclear\Modules\Repository;
 
-// Dotclear\Module\Store\Repository\RepositoryParser
+// Dotclear\Modules\Repository\RepositoryParser
 use SimpleXMLElement;
 use Dotclear\App;
 use Dotclear\Exception\CoreException;

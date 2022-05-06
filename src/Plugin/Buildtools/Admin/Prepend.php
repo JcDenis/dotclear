@@ -12,8 +12,7 @@ namespace Dotclear\Plugin\Buildtools\Admin;
 // Dotclear\Plugin\Buildtools\Admin\Prepend
 use Dotclear\App;
 use Dotclear\Helper\File\Path;
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependAdmin;
+use Dotclear\Modules\ModulePrepend;
 use Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance;
 
 /**
@@ -21,10 +20,8 @@ use Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance;
  *
  * @ingroup  Plugin Buildtools
  */
-class Prepend extends AbstractPrepend
+class Prepend extends ModulePrepend
 {
-    use TraitPrependAdmin;
-
     public function checkModule(): bool
     {
         return !Path::inComposer();

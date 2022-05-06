@@ -63,7 +63,7 @@ class Home extends AbstractPage
 
         // Module Plugin //! move this to Modules Plugin
         if (App::core()->plugins()) {
-            if (App::core()->plugins()->disableModulesDependencies(App::core()->adminurl()->get('admin.home'))) {
+            if (App::core()->plugins()->disableDependencies(App::core()->adminurl()->get('admin.home'))) {
                 exit;
             }
 

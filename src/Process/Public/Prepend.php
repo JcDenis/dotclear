@@ -17,8 +17,7 @@ use Dotclear\Database\Record;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\Lexical;
 use Dotclear\Helper\File\Path;
-use Dotclear\Module\Plugin\Public\ModulesPlugin;
-use Dotclear\Module\Theme\Public\ModulesTheme;
+use Dotclear\Modules\Modules;
 use Dotclear\Process\Public\Template\Template;
 use Dotclear\Process\Public\Context\Context;
 use Exception;
@@ -43,14 +42,14 @@ class Prepend extends Core
     private $template;
 
     /**
-     * @var null|ModulesPlugin $plugins
-     *                         ModulesPlugin instance
+     * @var null|Modules $plugins
+     *                   Plugin Modules instance
      */
     private $plugins;
 
     /**
-     * @var null|ModulesTheme $themes
-     *                        ModulesTheme instance
+     * @var null|Modules $themes
+     *                   Theme Modules instance
      */
     private $themes;
 
@@ -95,12 +94,12 @@ class Prepend extends Core
     /**
      * Get plugins instance.
      *
-     * @return null|ModulesPlugin Plugins instance
+     * @return Modules Plugins Modules instance
      */
-    public function plugins(): ?ModulesPlugin
+    public function plugins(): Modules
     {
-        if (!($this->plugins instanceof ModulesPlugin) && !empty($this->config()->get('plugin_dirs'))) {
-            $this->plugins = new ModulesPlugin($this->lang);
+        if (!($this->plugins instanceof Modules)) {
+            $this->plugins = new Modules(lang: $this->lang);
         }
 
         return $this->plugins;
@@ -109,12 +108,12 @@ class Prepend extends Core
     /**
      * Get themes instance.
      *
-     * @return null|ModulesTheme Themes instance
+     * @return Modules Themes Modules instance
      */
-    public function themes(): ?ModulesTheme
+    public function themes(): Modules
     {
-        if (!($this->themes instanceof ModulesTheme)) {
-            $this->themes = new ModulesTheme();
+        if (!($this->themes instanceof Modules)) {
+            $this->themes = new Modules(type: 'Theme');
         }
 
         return $this->themes;
@@ -189,13 +188,13 @@ class Prepend extends Core
 
         // If theme has parent load their locales
         if (1 < count($path)) {
-            $this->themes->loadModuleL10N(array_key_last($path), $this->lang, 'main');
-            $this->themes->loadModuleL10N(array_key_last($path), $this->lang, 'public');
+            $this->themes->loadModuleL10N(array_key_last($path), (string) $this->lang, 'main');
+            $this->themes->loadModuleL10N(array_key_last($path), (string) $this->lang, 'public');
         }
 
         // Themes locales
-        $this->themes->loadModuleL10N(array_key_first($path), $this->lang, 'main');
-        $this->themes->loadModuleL10N(array_key_first($path), $this->lang, 'public');
+        $this->themes->loadModuleL10N(array_key_first($path), (string) $this->lang, 'main');
+        $this->themes->loadModuleL10N(array_key_first($path), (string) $this->lang, 'public');
 
         // --BEHAVIOR-- publicPrepend
         $this->behavior()->call('publicPrepend');

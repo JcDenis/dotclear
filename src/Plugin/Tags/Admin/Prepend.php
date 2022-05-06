@@ -11,8 +11,7 @@ namespace Dotclear\Plugin\Tags\Admin;
 
 // Dotclear\Plugin\Tags\Admin\Prepend
 use Dotclear\App;
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependAdmin;
+use Dotclear\Modules\ModulePrepend;
 use Dotclear\Plugin\Tags\Common\TagsCore;
 use Dotclear\Plugin\Tags\Common\TagsUrl;
 use Dotclear\Plugin\Tags\Common\TagsXmlrpc;
@@ -23,10 +22,8 @@ use Dotclear\Plugin\Tags\Common\TagsWidgets;
  *
  * @ingroup  Plugin Tags
  */
-class Prepend extends AbstractPrepend
+class Prepend extends ModulePrepend
 {
-    use TraitPrependAdmin;
-
     public function loadModule(): void
     {
         // Menu and favs

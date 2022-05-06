@@ -10,18 +10,15 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\UserPref\Admin;
 
 // Dotclear\Plugin\UserPref\Admin\Prepend
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependAdmin;
+use Dotclear\Modules\ModulePrepend;
 
 /**
  * Admin prepend for plugin UserPref.
  *
  * @ingroup  Plugin UserPref
  */
-class Prepend extends AbstractPrepend
+class Prepend extends ModulePrepend
 {
-    use TraitPrependAdmin;
-
     public function loadModule(): void
     {
         $this->addStandardMenu('System');

@@ -10,8 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\FairTrackbacks\Public;
 
 // Dotclear\Plugin\FairTrackbacks\Public\Prepend
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependPublic;
+use Dotclear\Modules\ModulePrepend;
 use Dotclear\Plugin\FairTrackbacks\Common\FilterFairtrackbacks;
 
 /**
@@ -19,10 +18,8 @@ use Dotclear\Plugin\FairTrackbacks\Common\FilterFairtrackbacks;
  *
  * @ingroup  Plugin FairTrackbacks
  */
-class Prepend extends AbstractPrepend
+class Prepend extends ModulePrepend
 {
-    use TraitPrependPublic;
-
     public function loadModule(): void
     {
         FilterFairtrackbacks::initFairTrackbacks();

@@ -10,18 +10,15 @@ declare(strict_types=1);
 namespace Dotclear\Theme\Ductile\Public;
 
 // Dotclear\Theme\Ductile\Public\Prepend
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependPublic;
+use Dotclear\Modules\ModulePrepend;
 
 /**
  * Public prepend for theme Ductile.
  *
  * @ingroup  Theme Ductile
  */
-class Prepend extends AbstractPrepend
+class Prepend extends ModulePrepend
 {
-    use TraitPrependPublic;
-
     public function loadModule(): void
     {
         if (!$this->isTheme()) {

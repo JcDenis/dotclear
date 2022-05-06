@@ -7,9 +7,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Module\Plugin\Admin;
+namespace Dotclear\Modules\Plugin;
 
-// Dotclear\Module\Plugin\Admin\HandlerPlugin
+// Dotclear\Modules\Plugin\PluginHandler
 use Dotclear\App;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -21,35 +21,45 @@ use Exception;
  *
  * @ingroup  Module Admin Plugin
  */
-class HandlerPlugin extends AbstractPage
+class PluginHandler extends AbstractPage
 {
     /**
-     * @var array<string,array> $modules_install
-     *                          Freashly installed modules
+     * @var PluginList $m_list
+     *                 Modules list manager
      */
-    private $modules_install = [];
+    private $m_list;
 
     /**
-     * @var bool $from_configuration
+     * @var array<string,array> $m_installed
+     *                          Freashly installed modules
+     */
+    private $m_installed = [];
+
+    /**
+     * @var bool $m_from_configuration
      *           Use a configuration method
      */
-    private $from_configuration = false;
+    private $m_from_configuration = false;
 
+    // AbstractPage method
     protected function getPermissions(): string|null|false
     {
         // Super admin
         return null;
     }
 
+    // AbstractPage method
     protected function getPagePrepend(): ?bool
     {
-        if (App::core()->plugins()?->disableModulesDependencies(App::core()->adminurl()->get('admin.plugin'))) {
+        $this->m_list = new PluginList(App::core()->plugins());
+
+        if ($this->m_list->modules()->disableDependencies(App::core()->adminurl()->get('admin.plugin'))) {
             exit;
         }
 
         // Module configuration
-        if (App::core()->plugins()?->loadModuleConfiguration()) {
-            App::core()->plugins()->parseModuleConfiguration();
+        if ($this->m_list->loadModuleConfiguration()) {
+            $this->m_list->parseModuleConfiguration();
 
             // Page setup
             $this->setPageTitle(__('Plugins management'));
@@ -62,25 +72,25 @@ class HandlerPlugin extends AbstractPage
             }
             $this->setPageBreadcrumb([
                 Html::escapeHTML(App::core()->blog()->name)                           => '',
-                __('Plugins management')                                              => App::core()->plugins()->getURL('', false),
+                __('Plugins management')                                              => $this->m_list->getURL('', false),
                 '<span class="page-title">' . __('Plugin configuration') . '</span>'  => '',
             ]);
 
             // Stop reading code here
-            $this->from_configuration = true;
+            $this->m_from_configuration = true;
 
         // Modules list
         } else {
-            // -- Execute actions --
+            // Execute actions
             try {
-                App::core()->plugins()->doActions();
+                $this->m_list->doActions();
             } catch (Exception $e) {
                 App::core()->error()->add($e->getMessage());
             }
 
-            // -- Plugin install --
+            // Plugin install
             if (!App::core()->error()->flag()) {
-                $this->modules_install = App::core()->plugins()->installModules();
+                $this->m_installed = $this->m_list->modules()->installModules();
             }
 
             // Page setup
@@ -104,45 +114,44 @@ class HandlerPlugin extends AbstractPage
         return true;
     }
 
+    // AbstractPage method
     protected function getPageContent(): void
     {
         // -- Plugins install messages --
-        if (!empty($this->modules_install['success'])) {
+        if (!empty($this->m_installed['success'])) {
             echo '<div class="static-msg">' . __('Following plugins have been installed:') . '<ul>';
 
-            foreach ($this->modules_install['success'] as $k => $v) {
-                $info = implode(' - ', App::core()->plugins()->getSettingsUrls($k, true));
+            foreach ($this->m_installed['success'] as $k => $v) {
+                $info = implode(' - ', $this->m_list->getSettingsUrls($k, true));
                 echo '<li>' . $k . ('' !== $info ? ' → ' . $info : '') . '</li>';
             }
 
             echo '</ul></div>';
         }
-        if (!empty($this->modules_install['failure'])) {
+        if (!empty($this->m_installed['failure'])) {
             echo '<div class="error">' . __('Following plugins have not been installed:') . '<ul>';
 
-            foreach ($this->modules_install['failure'] as $k => $v) {
+            foreach ($this->m_installed['failure'] as $k => $v) {
                 echo '<li>' . $k . ' (' . $v . ')</li>';
             }
 
             echo '</ul></div>';
         }
 
-        if ($this->from_configuration) {
-            echo App::core()->plugins()->displayModuleConfiguration();
+        if ($this->m_from_configuration) {
+            echo $this->m_list->displayModuleConfiguration();
 
             return;
         }
 
         // -- Display modules lists --
         if (App::core()->user()->isSuperAdmin()) {
-            if (!App::core()->error()->flag()) {
-                if (!empty($_GET['nocache'])) {
-                    App::core()->notice()->success(__('Manual checking of plugins update done successfully.'));
-                }
+            if (!App::core()->error()->flag() && !empty($_GET['nocache'])) {
+                App::core()->notice()->success(__('Manual checking of plugins update done successfully.'));
             }
 
             // Updated modules from repo
-            $modules = App::core()->plugins()->store->get(true);
+            $modules = $this->m_list->store()->get(true);
             if (!empty($modules)) {
                 echo '<div class="multi-part" id="update" title="' . Html::escapeHTML(__('Update plugins')) . '">' .
                 '<h3>' . Html::escapeHTML(__('Update plugins')) . '</h3>' .
@@ -151,7 +160,7 @@ class HandlerPlugin extends AbstractPage
                     count($modules)
                 ) . '</p>';
 
-                App::core()->plugins()
+                $this->m_list
                     ->setList('plugin-update')
                     ->setTab('update')
                     ->setData($modules)
@@ -169,7 +178,7 @@ class HandlerPlugin extends AbstractPage
 
                     '</div>';
             } else {
-                echo '<form action="' . App::core()->plugins()->getURL('', false) . '" method="get">' .
+                echo '<form action="' . $this->m_list->getURL('', false) . '" method="get">' .
                 '<p><input type="hidden" name="nocache" value="1" />' .
                 '<input type="submit" value="' . __('Force checking update of plugins') . '" /></p>' .
                 Form::hidden(['handler'], App::core()->adminurl()->called()) .
@@ -180,12 +189,12 @@ class HandlerPlugin extends AbstractPage
         echo '<div class="multi-part" id="plugins" title="' . __('Installed plugins') . '">';
 
         // Activated modules
-        $modules = App::core()->plugins()->getModules();
+        $modules = $this->m_list->modules()->getModules();
         if (!empty($modules)) {
             echo '<h3>' . (App::core()->user()->isSuperAdmin() ? __('Activated plugins') : __('Installed plugins')) . '</h3>' .
             '<p class="more-info">' . __('You can configure and manage installed plugins from this list.') . '</p>';
 
-            App::core()->plugins()
+            $this->m_list
                 ->setList('plugin-activate')
                 ->setTab('plugins')
                 ->setData($modules)
@@ -198,12 +207,12 @@ class HandlerPlugin extends AbstractPage
 
         // Deactivated modules
         if (App::core()->user()->isSuperAdmin()) {
-            $modules = App::core()->plugins()->getDisabledModules();
+            $modules = $this->m_list->modules()->getDisabledModules();
             if (!empty($modules)) {
                 echo '<h3>' . __('Deactivated plugins') . '</h3>' .
                 '<p class="more-info">' . __('Deactivated plugins are installed but not usable. You can activate them from here.') . '</p>';
 
-                App::core()->plugins()
+                $this->m_list
                     ->setList('plugin-deactivate')
                     ->setTab('plugins')
                     ->setData($modules)
@@ -217,16 +226,16 @@ class HandlerPlugin extends AbstractPage
 
         echo '</div>';
 
-        if (App::core()->user()->isSuperAdmin() && App::core()->plugins()->isWritablePath()) {
+        if (App::core()->user()->isSuperAdmin() && $this->m_list->isWritablePath()) {
             // New modules from repo
-            $search  = App::core()->plugins()->getSearch();
-            $modules = $search ? App::core()->plugins()->store->search($search) : App::core()->plugins()->store->get();
+            $search  = $this->m_list->getSearch();
+            $modules = $search ? $this->m_list->store()->search($search) : $this->m_list->store()->get();
 
             if (!empty($search) || !empty($modules)) {
                 echo '<div class="multi-part" id="new" title="' . __('Add plugins') . '">' .
                 '<h3>' . __('Add plugins from repository') . '</h3>';
 
-                App::core()->plugins()
+                $this->m_list
                     ->setList('plugin-new')
                     ->setTab('new')
                     ->setData($modules)
@@ -253,7 +262,7 @@ class HandlerPlugin extends AbstractPage
             '<h3>' . __('Add plugins from a package') . '</h3>' .
             '<p class="more-info">' . __('You can install plugins by uploading or downloading zip files.') . '</p>';
 
-            App::core()->plugins()->displayManualForm();
+            $this->m_list->displayManualForm();
 
             echo '</div>';
         }
@@ -262,7 +271,7 @@ class HandlerPlugin extends AbstractPage
         App::core()->behavior()->call('pluginsToolsTabs');
 
         // -- Notice for super admin --
-        if (App::core()->user()->isSuperAdmin() && !App::core()->plugins()->isWritablePath()) {
+        if (App::core()->user()->isSuperAdmin() && !$this->m_list->isWritablePath()) {
             echo '<p class="warning">' . __('Some functions are disabled, please give write access to your plugins directory to enable them.') . '</p>';
         }
     }

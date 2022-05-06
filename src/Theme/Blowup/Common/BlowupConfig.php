@@ -14,7 +14,7 @@ use ArrayObject;
 use Dotclear\App;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\File\Files;
-use Dotclear\Module\Theme\Admin\ConfigTheme;
+use Dotclear\Modules\ModuleHelper;
 
 /**
  * Helper for default theme (Blowup) config.
@@ -73,7 +73,7 @@ class BlowupConfig
 
     public function __construct()
     {
-        $this->utils = new ConfigTheme();
+        $this->utils = new ModuleHelper();
     }
 
     public function fontsList()

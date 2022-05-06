@@ -10,18 +10,15 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Breadcrumb\Public;
 
 // Dotclear\Plugin\Breadcrumb\Public\Prepend
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependPublic;
+use Dotclear\Modules\ModulePrepend;
 
 /**
  * Public prepend for plugin Breacrumb.
  *
  * @ingroup  Plugin Breadcrumb
  */
-class Prepend extends AbstractPrepend
+class Prepend extends ModulePrepend
 {
-    use TraitPrependPublic;
-
     public function loadModule(): void
     {
         new BreadcrumbTemplate();

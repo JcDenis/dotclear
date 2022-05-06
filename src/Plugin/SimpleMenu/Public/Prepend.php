@@ -10,8 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\SimpleMenu\Public;
 
 // Dotclear\Plugin\SimpleMenu\Public\Prepend
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependPublic;
+use Dotclear\Modules\ModulePrepend;
 use Dotclear\Plugin\SimpleMenu\Common\SimpleMenuWidgets;
 
 /**
@@ -19,10 +18,8 @@ use Dotclear\Plugin\SimpleMenu\Common\SimpleMenuWidgets;
  *
  * @ingroup  Plugin SimpleMenu
  */
-class Prepend extends AbstractPrepend
+class Prepend extends ModulePrepend
 {
-    use TraitPrependPublic;
-
     public function loadModule(): void
     {
         // Widgets

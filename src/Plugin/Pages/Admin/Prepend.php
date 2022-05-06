@@ -12,8 +12,7 @@ namespace Dotclear\Plugin\Pages\Admin;
 // Dotclear\Plugin\Pages\Admin\Prepend
 use ArrayObject;
 use Dotclear\App;
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependAdmin;
+use Dotclear\Modules\ModulePrepend;
 use Dotclear\Plugin\Pages\Common\PagesUrl;
 use Dotclear\Plugin\Pages\Common\PagesWidgets;
 use Dotclear\Process\Admin\Favorite\Favorite;
@@ -23,10 +22,8 @@ use Dotclear\Process\Admin\Favorite\Favorite;
  *
  * @ingroup  Plugin Pages
  */
-class Prepend extends AbstractPrepend
+class Prepend extends ModulePrepend
 {
-    use TraitPrependAdmin;
-
     public function loadModule(): void
     {
         // Add pages permissions

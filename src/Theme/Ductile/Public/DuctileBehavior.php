@@ -12,7 +12,7 @@ namespace Dotclear\Theme\Ductile\Public;
 // Dotclear\Theme\Ductile\Public\DuctileBehavior
 use ArrayObject;
 use Dotclear\App;
-use Dotclear\Module\Theme\Admin\ConfigTheme;
+use Dotclear\Modules\ModuleHelper;
 
 /**
  * Public behaviors for theme Ductile.
@@ -47,7 +47,7 @@ class DuctileBehavior
 
     public function __construct()
     {
-        $this->config = new ConfigTheme();
+        $this->config = new ModuleHelper();
 
         App::core()->behavior()->add('publicHeadContent', [$this, 'behaviorPublicHeadContent']);
         App::core()->behavior()->add('publicInsideFooter', [$this, 'behaviorPublicInsideFooter']);

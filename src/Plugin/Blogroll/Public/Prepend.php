@@ -10,8 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Blogroll\Public;
 
 // Dotclear\Plugin\Blogroll\Public\Prepend
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependPublic;
+use Dotclear\Modules\ModulePrepend;
 use Dotclear\Plugin\Blogroll\Common\BlogrollUrl;
 use Dotclear\Plugin\Blogroll\Common\BlogrollWidgets;
 
@@ -20,10 +19,8 @@ use Dotclear\Plugin\Blogroll\Common\BlogrollWidgets;
  *
  * @ingroup  Plugin Blogroll
  */
-class Prepend extends AbstractPrepend
+class Prepend extends ModulePrepend
 {
-    use TraitPrependPublic;
-
     public function loadModule(): void
     {
         new BlogrollWidgets();

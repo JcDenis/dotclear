@@ -18,7 +18,7 @@ use Dotclear\Helper\Html\Validator;
 use Dotclear\Helper\Html\XmlTag;
 use Dotclear\Helper\Network\Feed\Reader;
 use Dotclear\Helper\Text;
-use Dotclear\Module\Store\Repository\Repository;
+use Dotclear\Modules\Repository\Repository;
 
 /**
  * Common admin REST methods.

@@ -7,14 +7,14 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Module\Store\Repository;
+namespace Dotclear\Modules\Repository;
 
-// Dotclear\Module\Store\Repository\Repository
+// Dotclear\Modules\Repository\Repository
 use Dotclear\App;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\Network\NetHttp\NetHttp;
-use Dotclear\Module\AbstractModules;
-use Dotclear\Module\ModuleDefine;
+use Dotclear\Modules\Modules;
+use Dotclear\Modules\ModuleDefine;
 use Exception;
 
 /**
@@ -51,11 +51,11 @@ class Repository
     /**
      * Constructor.
      *
-     * @param AbstractModules $modules Modules instance
-     * @param string          $xml_url XML feed URL
-     * @param bool            $force   Force query repository
+     * @param Modules $modules Modules instance
+     * @param string  $xml_url XML feed URL
+     * @param bool    $force   Force query repository
      */
-    public function __construct(public AbstractModules $modules, protected string $xml_url, bool $force = false)
+    public function __construct(public Modules $modules, protected string $xml_url, bool $force = false)
     {
         $this->user_agent = sprintf('Dotclear/%s)', App::core()->config()->get('core_version'));
 
@@ -94,10 +94,12 @@ class Repository
 
         $updates = [];
         foreach ($this->modules->getModules() as $id => $module) {
-            // non privileged user has no info //! todo: check new perms
-            if (!is_array($module)) {
-                // continue;
-            }
+            /*
+                        // non privileged user has no info //! todo: check new perms
+                        if (!is_array($module)) {
+                            // continue;
+                        }
+            */
             // main repository
             if (isset($raw_datas[$id])) {
                 if ($this->compare($raw_datas[$id]['version'], $module->version(), '>')) {
@@ -122,12 +124,12 @@ class Repository
             }
 
             if (!empty($updates[$id])) {
-                $updates[$id]['type']            = $this->modules->getModulesType();
+                $updates[$id]['type']            = $this->modules->getType();
                 $updates[$id]['root']            = $module->root();
                 $updates[$id]['root_writable']   = $module->writable();
                 $updates[$id]['current_version'] = $module->version();
 
-                $updates[$id] = new ModuleDefine($this->modules->getModulesType(), $id, []);
+                $updates[$id] = new ModuleDefine($this->modules->getType(), $id, []);
 
                 if (!empty($updates[$id]->error()->flag())) {
                     unset($updates[$id]);
@@ -137,8 +139,8 @@ class Repository
 
         // Convert new modules from array to Define object
         foreach ($raw_datas as $id => $properties) {
-            $properties['type'] = $this->modules->getModulesType();
-            $raw_datas[$id]     = new ModuleDefine($this->modules->getModulesType(), $id, $properties);
+            $properties['type'] = $this->modules->getType();
+            $raw_datas[$id]     = new ModuleDefine($this->modules->getType(), $id, $properties);
 
             if (!empty($raw_datas[$id]->error()->flag())) {
                 unset($raw_datas[$id]);
@@ -285,7 +287,7 @@ class Repository
      */
     public function install(string $path): int
     {
-        return $this->modules->installPackage($path, $this->modules);
+        return $this->modules->installPackage($path);
     }
 
     /**

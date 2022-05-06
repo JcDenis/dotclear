@@ -12,8 +12,7 @@ namespace Dotclear\Plugin\Antispam\Admin;
 // Dotclear\Plugin\Antispam\Admin\Prepend
 use Dotclear\App;
 use Dotclear\Database\Structure;
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependAdmin;
+use Dotclear\Modules\ModulePrepend;
 use Dotclear\Plugin\Antispam\Common\Antispam;
 use Dotclear\Plugin\Antispam\Common\AntispamUrl;
 use Dotclear\Plugin\Antispam\Common\Filter\FilterWords;
@@ -23,10 +22,8 @@ use Dotclear\Plugin\Antispam\Common\Filter\FilterWords;
  *
  * @ingroup  Plugin Antispam
  */
-class Prepend extends AbstractPrepend
+class Prepend extends ModulePrepend
 {
-    use TraitPrependAdmin;
-
     public function loadModule(): void
     {
         if (!defined('DC_ANTISPAM_CONF_SUPER')) {

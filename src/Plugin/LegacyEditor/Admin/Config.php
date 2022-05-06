@@ -12,14 +12,14 @@ namespace Dotclear\Plugin\LegacyEditor\Admin;
 // Dotclear\Plugin\LegacyEditor\Admin\Config
 use Dotclear\App;
 use Dotclear\Helper\Html\Form;
-use Dotclear\Module\AbstractConfig;
+use Dotclear\Modules\ModuleConfig;
 
 /**
  * Admin config page for plugin LegacyEditor.
  *
  * @ingroup  Plugin LegacyEditor
  */
-class Config extends AbstractConfig
+class Config extends ModuleConfig
 {
     public function setConfiguration($post): void
     {

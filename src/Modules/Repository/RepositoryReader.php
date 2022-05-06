@@ -7,9 +7,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Module\Store\Repository;
+namespace Dotclear\Modules\Repository;
 
-// Dotclear\Module\Store\Repository\RepositoryReader
+// Dotclear\Modules\Repository\RepositoryReader
 use Dotclear\App;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Network\NetHttp\NetHttp;

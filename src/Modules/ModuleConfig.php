@@ -7,9 +7,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Module;
+namespace Dotclear\Modules;
 
-// Dotclear\Module\AbstractConfig
+// Dotclear\Modules\ModuleConfig
 use Dotclear\Helper\Network\Http;
 
 /**
@@ -20,7 +20,7 @@ use Dotclear\Helper\Network\Http;
  *
  * @ingroup  Module Admin
  */
-abstract class AbstractConfig
+abstract class ModuleConfig
 {
     /**
      * Constructor.
@@ -42,14 +42,14 @@ abstract class AbstractConfig
     /**
      * Get module configuration permissions.
      *
-     * Returns null for super admin,
-     * or comma separated list of permissions.
+     * Returns comma separated list of permissions
+     * or empty string for super admin
      *
-     * @return null|string The permissions to configure module
+     * @return string The permissions to configure module
      */
-    public function getPermissions(): ?string
+    public function getPermissions(): string
     {
-        return null;
+        return '';
     }
 
     /**

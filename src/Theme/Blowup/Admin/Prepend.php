@@ -11,19 +11,16 @@ namespace Dotclear\Theme\Blowup\Admin;
 
 // Dotclear\Theme\Blowup\Admin\Prepend
 use Dotclear\App;
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependAdmin;
-use Dotclear\Module\ModuleDefine;
+use Dotclear\Modules\ModuleDefine;
+use Dotclear\Modules\ModulePrepend;
 
 /**
  * Admin prepend for theme Blowup.
  *
  * @ingroup  Theme Blowup
  */
-class Prepend extends AbstractPrepend
+class Prepend extends ModulePrepend
 {
-    use TraitPrependAdmin;
-
     public function loadModule(): void
     {
         App::core()->behavior()->add('adminCurrentThemeDetails', function (ModuleDefine $module): string {

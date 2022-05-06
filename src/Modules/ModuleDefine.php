@@ -7,9 +7,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Module;
+namespace Dotclear\Modules;
 
-// Dotclear\Module\ModuleDefine
+// Dotclear\Modules\ModuleDefine
 use Dotclear\Helper\Configuration;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
@@ -43,6 +43,8 @@ class ModuleDefine extends Configuration
      */
     private $dep_missing = [];
 
+    // / @name Configuration methods
+    // @{
     /**
      * Constructor.
      *
@@ -154,7 +156,10 @@ class ModuleDefine extends Configuration
         }
         $this->set('tags', $r);
     }
+    // @}
 
+    // / @name Definitions methods
+    // @{
     /**
      * Get module properties.
      *
@@ -531,6 +536,7 @@ class ModuleDefine extends Configuration
     {
         return $this->get('score');
     }
+    // @}
 
     /**
      * Default module configuration.

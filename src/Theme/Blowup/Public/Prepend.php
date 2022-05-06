@@ -6,8 +6,7 @@ namespace Dotclear\Theme\Blowup\Public;
 
 // Dotclear\Theme\Blowup\Public\Prepend
 use Dotclear\App;
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependPublic;
+use Dotclear\Modules\ModulePrepend;
 use Dotclear\Theme\Blowup\Common\BlowupConfig;
 
 /**
@@ -15,10 +14,8 @@ use Dotclear\Theme\Blowup\Common\BlowupConfig;
  *
  * @ingroup  Theme Blowup
  */
-class Prepend extends AbstractPrepend
+class Prepend extends ModulePrepend
 {
-    use TraitPrependPublic;
-
     public function loadModule(): void
     {
         if (!$this->isTheme()) {

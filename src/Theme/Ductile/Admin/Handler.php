@@ -15,7 +15,7 @@ use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
-use Dotclear\Module\Theme\Admin\ConfigTheme;
+use Dotclear\Modules\ModuleHelper;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
 
@@ -108,7 +108,7 @@ class Handler extends AbstractPage
     {
         // Little trick to get real module id (in case of cloned theme)
         $this->Ductile_id     = basename(Path::implode(__DIR__, '..'));
-        $this->Ductile_config = new ConfigTheme();
+        $this->Ductile_config = new ModuleHelper();
 
         $this->Ductile_list_types = [
             __('Title') => 'title',

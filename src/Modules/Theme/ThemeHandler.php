@@ -7,9 +7,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Module\Theme\Admin;
+namespace Dotclear\Modules\Theme;
 
-// Dotclear\Module\Theme\Admin\HandlerTheme
+// Dotclear\Modules\Theme\ThemeHandler
 use Dotclear\App;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -21,34 +21,44 @@ use Exception;
  *
  * @ingroup  Module Admin Theme
  */
-class HandlerTheme extends AbstractPage
+class ThemeHandler extends AbstractPage
 {
     /**
-     * @var array<string,array> $modules_install
-     *                          Freashly installed modules
+     * @var ThemeList $m_list
+     *                Modules list manager
      */
-    private $modules_install = [];
+    private $m_list;
 
     /**
-     * @var bool $from_configuration
+     * @var array<string,array> $m_installed
+     *                          Freashly installed modules
+     */
+    private $m_installed = [];
+
+    /**
+     * @var bool $m_from_configuration
      *           Use a configuration method
      */
-    private $from_configuration = false;
+    private $m_from_configuration = false;
 
+    // AbstractPage method
     protected function getPermissions(): string|null|false
     {
         return 'admin';
     }
 
+    // AbstractPage method
     protected function getPagePrepend(): ?bool
     {
-        if (App::core()->themes()?->disableModulesDependencies(App::core()->adminurl()->get('admin.theme'))) {
+        $this->m_list = new ThemeList(App::core()->themes());
+
+        if ($this->m_list->modules()->disableDependencies(App::core()->adminurl()->get('admin.theme'))) {
             exit;
         }
 
         // Module configuration
-        if (App::core()->themes()?->loadModuleConfiguration()) {
-            App::core()->themes()->parseModuleConfiguration();
+        if ($this->m_list->loadModuleConfiguration()) {
+            $this->m_list->parseModuleConfiguration();
 
             // Page setup
             $this->setPageTitle(__('Blog appearance'));
@@ -61,25 +71,25 @@ class HandlerTheme extends AbstractPage
             }
             $this->setPageBreadcrumb([
                 Html::escapeHTML(App::core()->blog()->name)                          => '',
-                __('Blog appearance')                                                => App::core()->themes()->getURL('', false),
+                __('Blog appearance')                                                => $this->m_list->getURL('', false),
                 '<span class="page-title">' . __('Theme configuration') . '</span>'  => '',
             ]);
 
             // Stop reading code here
-            $this->from_configuration = true;
+            $this->m_from_configuration = true;
 
         // Modules list
         } else {
             // -- Execute actions --
             try {
-                App::core()->themes()->doActions();
+                $this->m_list->doActions();
             } catch (Exception $e) {
                 App::core()->error()->add($e->getMessage());
             }
 
             // -- Plugin install --
             if (!App::core()->error()->flag()) {
-                $this->modules_install = App::core()->themes()->installModules();
+                $this->m_installed = $this->m_list->modules()->installModules();
             }
 
             // Page setup
@@ -103,31 +113,32 @@ class HandlerTheme extends AbstractPage
         return true;
     }
 
+    // AbstractPage method
     protected function getPageContent(): void
     {
         // -- Modules install messages --
-        if (!empty($this->modules_install['success'])) {
+        if (!empty($this->m_installed['success'])) {
             echo '<div class="static-msg">' . __('Following themes have been installed:') . '<ul>';
 
-            foreach ($this->modules_install['success'] as $k => $v) {
-                $info = implode(' - ', App::core()->themes()->getSettingsUrls($k, true));
+            foreach ($this->m_installed['success'] as $k => $v) {
+                $info = implode(' - ', $this->m_list->getSettingsUrls($k, true));
                 echo '<li>' . $k . ('' !== $info ? ' → ' . $info : '') . '</li>';
             }
 
             echo '</ul></div>';
         }
-        if (!empty($this->modules_install['failure'])) {
+        if (!empty($this->m_installed['failure'])) {
             echo '<div class="error">' . __('Following themes have not been installed:') . '<ul>';
 
-            foreach ($this->modules_install['failure'] as $k => $v) {
+            foreach ($this->m_installed['failure'] as $k => $v) {
                 echo '<li>' . $k . ' (' . $v . ')</li>';
             }
 
             echo '</ul></div>';
         }
 
-        if ($this->from_configuration) {
-            echo App::core()->themes()->displayModuleConfiguration();
+        if ($this->m_from_configuration) {
+            echo $this->m_list->displayModuleConfiguration();
 
             return;
         }
@@ -141,7 +152,7 @@ class HandlerTheme extends AbstractPage
             }
 
             // Updated modules from repo
-            $modules = App::core()->themes()->store->get(true);
+            $modules = $this->m_list->store()->get(true);
             if (!empty($modules)) {
                 echo '<div class="multi-part" id="update" title="' . Html::escapeHTML(__('Update themes')) . '">' .
                 '<h3>' . Html::escapeHTML(__('Update themes')) . '</h3>' .
@@ -150,7 +161,7 @@ class HandlerTheme extends AbstractPage
                     count($modules)
                 ) . '</p>';
 
-                App::core()->themes()
+                $this->m_list
                     ->setList('theme-update')
                     ->setTab('update')
                     ->setData($modules)
@@ -168,7 +179,7 @@ class HandlerTheme extends AbstractPage
 
                     '</div>';
             } else {
-                echo '<form action="' . App::core()->themes()->getURL('', false) . '" method="get">' .
+                echo '<form action="' . $this->m_list->getURL('', false) . '" method="get">' .
                 '<p><input type="hidden" name="nocache" value="1" />' .
                 '<input type="submit" value="' . __('Force checking update of themes') . '" /></p>' .
                 Form::hidden(['handler'], App::core()->adminurl()->called()) .
@@ -177,13 +188,13 @@ class HandlerTheme extends AbstractPage
         }
 
         // Activated modules
-        $modules = App::core()->themes()->getModules();
+        $modules = $this->m_list->modules()->getModules();
         if (!empty($modules)) {
             echo '<div class="multi-part" id="themes" title="' . __('Installed themes') . '">' .
             '<h3>' . __('Installed themes') . '</h3>' .
             '<p class="more-info">' . __('You can configure and manage installed themes from this list.') . '</p>';
 
-            App::core()->themes()
+            $this->m_list
                 ->setList('theme-activate')
                 ->setTab('themes')
                 ->setData($modules)
@@ -198,13 +209,13 @@ class HandlerTheme extends AbstractPage
 
         // Deactivated modules
         if (App::core()->user()->isSuperAdmin()) {
-            $modules = App::core()->themes()->getDisabledModules();
+            $modules = $this->m_list->modules()->getDisabledModules();
             if (!empty($modules)) {
                 echo '<div class="multi-part" id="deactivate" title="' . __('Deactivated themes') . '">' .
                 '<h3>' . __('Deactivated themes') . '</h3>' .
                 '<p class="more-info">' . __('Deactivated themes are installed but not usable. You can activate them from here.') . '</p>';
 
-                App::core()->themes()
+                $this->m_list
                     ->setList('theme-deactivate')
                     ->setTab('themes')
                     ->setData($modules)
@@ -218,16 +229,16 @@ class HandlerTheme extends AbstractPage
             }
         }
 
-        if (App::core()->user()->isSuperAdmin() && App::core()->themes()->isWritablePath()) {
+        if (App::core()->user()->isSuperAdmin() && $this->m_list->isWritablePath()) {
             // New modules from repo
-            $search  = App::core()->themes()->getSearch();
-            $modules = $search ? App::core()->themes()->store->search($search) : App::core()->themes()->store->get();
+            $search  = $this->m_list->getSearch();
+            $modules = $search ? $this->m_list->store()->search($search) : $this->m_list->store()->get();
 
             if (!empty($search) || !empty($modules)) {
                 echo '<div class="multi-part" id="new" title="' . __('Add themes') . '">' .
                 '<h3>' . __('Add themes from repository') . '</h3>';
 
-                App::core()->themes()
+                $this->m_list
                     ->setList('theme-new')
                     ->setTab('new')
                     ->setData($modules)
@@ -254,7 +265,7 @@ class HandlerTheme extends AbstractPage
             '<h3>' . __('Add themes from a package') . '</h3>' .
             '<p class="more-info">' . __('You can install themes by uploading or downloading zip files.') . '</p>';
 
-            App::core()->themes()->displayManualForm();
+            $this->m_list->displayManualForm();
 
             echo '</div>';
         }
@@ -263,7 +274,7 @@ class HandlerTheme extends AbstractPage
         App::core()->behavior()->call('themesToolsTabs');
 
         // -- Notice for super admin --
-        if (App::core()->user()->isSuperAdmin() && !App::core()->themes()->isWritablePath()) {
+        if (App::core()->user()->isSuperAdmin() && !$this->m_list->isWritablePath()) {
             echo '<p class="warning">' . __('Some functions are disabled, please give write access to your themes directory to enable them.') . '</p>';
         }
     }

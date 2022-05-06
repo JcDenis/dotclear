@@ -12,8 +12,7 @@ namespace Dotclear\Plugin\Pages\Public;
 // Dotclear\Plugin\Pages\Public\Prepend
 use ArrayObject;
 use Dotclear\App;
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependPublic;
+use Dotclear\Modules\ModulePrepend;
 use Dotclear\Plugin\Pages\Common\PagesUrl;
 use Dotclear\Plugin\Pages\Common\PagesWidgets;
 
@@ -22,10 +21,8 @@ use Dotclear\Plugin\Pages\Common\PagesWidgets;
  *
  * @ingroup  Plugin Pages
  */
-class Prepend extends AbstractPrepend
+class Prepend extends ModulePrepend
 {
-    use TraitPrependPublic;
-
     public function loadModule(): void
     {
         // Localized string we find in template

@@ -13,8 +13,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Pings\Public;
 
 // Dotclear\Plugin\Pings\Public\Prepend
-use Dotclear\Module\AbstractPrepend;
-use Dotclear\Module\TraitPrependPublic;
+use Dotclear\Modules\ModulePrepend;
 use Dotclear\Plugin\Pings\Common\PingsCore;
 
 /**
@@ -22,10 +21,8 @@ use Dotclear\Plugin\Pings\Common\PingsCore;
  *
  * @ingroup  Plugin Pings
  */
-class Prepend extends AbstractPrepend
+class Prepend extends ModulePrepend
 {
-    use TraitPrependPublic;
-
     public function loadModule(): void
     {
         new PingsCore();

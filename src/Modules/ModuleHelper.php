@@ -7,9 +7,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Module\Theme\Admin;
+namespace Dotclear\Modules;
 
-// Dotclear\Module\Theme\Admin\ConfigTheme
+// Dotclear\Modules\ModuleHelper
 use Dotclear\App;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\File\Path;
@@ -26,7 +26,7 @@ use ArrayObject;
  *
  * @ingroup  Module Theme
  */
-class ConfigTheme
+class ModuleHelper
 {
     /**
      * Compute contrast ratio between two colors.

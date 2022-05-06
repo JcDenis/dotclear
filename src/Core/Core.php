@@ -1067,6 +1067,7 @@ class Core
             'store_allow_repo'      => [null, true],
             'store_update_noauto'   => [null, false],
             'template_default'      => [null, 'mustek'],
+            'theme_default'         => [null, 'Berlin'],
             'theme_dirs'            => [null, [Path::implodeRoot('Theme')]],
             'theme_official'        => [false, ['Berlin', 'BlueSilence', 'Blowup', 'CustomCSS', 'Ductile']],
             'theme_update_url'      => [null, 'https://update.dotaddict.org/dc2/themes.xml'],
