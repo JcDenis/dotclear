@@ -595,11 +595,11 @@ class Modules
      *
      * @param string $id The module identifier
      *
-     * @return null|object The module definition
+     * @return ModuleDefine The module definition
      */
-    public function getModule(string $id): ?object
+    public function getModule(string $id): ModuleDefine
     {
-        return $this->modules_enabled[$id] ?? null;
+        return $this->modules_enabled[$id] ?? $this->getEmptyModule();
     }
 
     /**
@@ -612,6 +612,23 @@ class Modules
     public function hasModule(string $id): bool
     {
         return isset($this->modules_enabled[$id]);
+    }
+
+    /**
+     * Create an empty module.
+     * 
+     * Use '' != module->root() to check if it is a real Module.
+     * 
+     * @return ModuleDefine The module definition instance
+     */
+    public function getEmptyModule(): ModuleDefine
+    {
+        return new moduleDefine($this->getType(), 'Unknow', [
+            'id'      => 'Unknow',
+            'name'    => __('Unknown module'),
+            'author'  => 'unknow',
+            'version' => '1.0'
+        ]);
     }
 
     /**
@@ -731,8 +748,8 @@ class Modules
                 $tmp        = array_keys($new_modules);
                 $id         = $tmp[0];
                 $cur_module = $this->getModule($id);
-                if (!empty($cur_module)
-                    && (!App::core()->production() || App::core()->version()->compare($new_modules[$id]['version'], $cur_module['version'], '>', true))
+                if ('' != $cur_module->root()
+                    && (!App::core()->production() || App::core()->version()->compare($new_modules[$id]->version(), $cur_module->version(), '>', true))
                 ) {
                     // Delete old module
                     if (!Files::deltree($destination)) {
@@ -948,28 +965,28 @@ class Modules
      *
      * Return an array of theme and parent theme paths
      *
-     * @param null|string $suffix Optionnal sub folder
+     * @param string $suffix Optionnal sub folder
      *
      * @return array List of theme path
      */
-    public function getThemePath(?string $suffix = null): array
+    public function getThemePath(string $suffix = ''): array
     {
-        $suffix = $suffix ? '/' . $suffix : '';
+        $suffix = empty($suffix) ? '' : '/' . $suffix;
         $path   = [];
 
         if (null !== App::core()->blog()) {
             $theme = $this->getModule((string) App::core()->blog()->settings()->get('system')->get('theme'));
-            if (!$theme) {
+            if (!$theme->root()) {
                 $theme = $this->getModule(App::core()->config()->get('theme_default'));
             }
-            if (!$theme) {
+            if (!$theme->root()) {
                 return [];
             }
             $path[$theme->id()] = $theme->root() . $suffix;
 
             if ($theme->parent()) {
                 $parent = $this->getModule((string) $theme->parent());
-                if ($parent) {
+                if ('' != $parent->root()) {
                     $theme = $this->getModule(App::core()->config()->get('theme_default'));
                 }
                 $path[$parent->id()] = $parent->root() . $suffix;

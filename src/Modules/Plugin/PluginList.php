@@ -1328,12 +1328,13 @@ class PluginList
         }
 
         // Check module and get its definition
-        $module = $this->modules()->getModule($id);
-        if (!$module) {
+        if (!$this->modules()->hasModule($id)) {
             App::core()->error()->add(__('Unknown module ID'));
 
             return false;
         }
+
+        $module = $this->modules()->getModule($id);
 
         // Check config
         $class = 'Dotclear\\' . $module->type() . '\\' . $module->id() . '\\' . App::core()->processed() . '\\Config';

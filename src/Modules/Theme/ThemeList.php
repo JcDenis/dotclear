@@ -372,8 +372,7 @@ class ThemeList extends PluginList
                 App::core()->blog()->settings()->get('system')->put('theme', $id);
                 App::core()->blog()->triggerBlog();
 
-                $module = $this->modules()->getModule($id);
-                App::core()->notice()->addSuccessNotice(sprintf(__('Theme %s has been successfully selected.'), Html::escapeHTML($module->name())));
+                App::core()->notice()->addSuccessNotice(sprintf(__('Theme %s has been successfully selected.'), Html::escapeHTML($this->modules()->getModule($id)->name())));
                 Http::redirect($this->getURL() . '#themes');
             }
         } else {
@@ -654,10 +653,11 @@ class ThemeList extends PluginList
             throw new ModuleException(__('Themes folder unreadable'));
         }
 
-        $module = $this->modules()->getModule($id);
-        if (!$module) {
+        if (!$this->modules()->hasModule($id)) {
             throw new ModuleException('Theme is unknown');
         }
+
+        $module  = $this->modules()->getModule($id);
         $counter = 0;
         $new_id  = sprintf('%sClone', $module->id());
         $new_dir = sprintf('%sClone', $root . $module->id());

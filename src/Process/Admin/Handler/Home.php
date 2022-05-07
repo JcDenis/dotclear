@@ -210,8 +210,8 @@ class Home extends AbstractPage
 
         // Non production mode alert
         if (App::core()->user()->isSuperAdmin() && !App::core()->production()) {
-            echo '<p class="static-msg">'. 
-            __('You are in non production environment. If your blogs plateform is public you should set production directive to true in your dotclear config file.') . 
+            echo '<p class="static-msg">' .
+            __('You are in non production environment. If your blogs plateform is public you should set production directive to true in your dotclear config file.') .
             '</p>';
         }
 
