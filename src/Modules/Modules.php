@@ -616,18 +616,18 @@ class Modules
 
     /**
      * Create an empty module.
-     * 
+     *
      * Use '' != module->root() to check if it is a real Module.
-     * 
+     *
      * @return ModuleDefine The module definition instance
      */
     public function getEmptyModule(): ModuleDefine
     {
-        return new moduleDefine($this->getType(), 'Unknow', [
+        return new ModuleDefine($this->getType(), 'Unknow', [
             'id'      => 'Unknow',
             'name'    => __('Unknown module'),
             'author'  => 'unknow',
-            'version' => '1.0'
+            'version' => '1.0',
         ]);
     }
 
