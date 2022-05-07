@@ -103,7 +103,9 @@ class Repository
             // main repository
             if (isset($raw_datas[$id])) {
                 if ($this->compare($raw_datas[$id]['version'], $module->version(), '>')) {
-                    $updates[$id] = $raw_datas[$id];
+                    $updates[$id]                    = $raw_datas[$id];
+                    $updates[$id]['current_version'] = $module->version();
+                    $updates[$id]['repository']      = '';
                 }
                 unset($raw_datas[$id]);
             }
@@ -114,8 +116,9 @@ class Repository
                         $dcs_raw_datas = $dcs_parser->getModules();
                         if (isset($dcs_raw_datas[$id]) && $this->compare($dcs_raw_datas[$id]['version'], $module->version(), '>')) {
                             if (!isset($updates[$id]) || $this->compare($dcs_raw_datas[$id]['version'], $raw_datas[$id]['version']['version'], '>')) {
-                                $dcs_raw_datas[$id]['repository'] = true;
-                                $updates[$id]                     = $dcs_raw_datas[$id];
+                                $updates[$id]                    = $dcs_raw_datas[$id];
+                                $updates[$id]['current_version'] = $module->version();
+                                $updates[$id]['repository']      = $module->repository();
                             }
                         }
                     }
@@ -127,9 +130,8 @@ class Repository
                 $updates[$id]['type']            = $this->modules->getType();
                 $updates[$id]['root']            = $module->root();
                 $updates[$id]['root_writable']   = $module->writable();
-                $updates[$id]['current_version'] = $module->version();
 
-                $updates[$id] = new ModuleDefine($this->modules->getType(), $id, []);
+                $updates[$id] = new ModuleDefine($this->modules->getType(), $id, $updates[$id]);
 
                 if (!empty($updates[$id]->error()->flag())) {
                     unset($updates[$id]);
@@ -259,6 +261,7 @@ class Repository
         if (!preg_match('%^http[s]?:\/\/%', $url)) {
             $url = 'http://' . $url;
         }
+        $path = '';
         // Download package
         if ($client = NetHttp::initClient($url, $path)) {
             try {
