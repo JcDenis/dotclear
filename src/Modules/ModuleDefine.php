@@ -576,7 +576,6 @@ class ModuleDefine extends Configuration
             'tags'              => [null, []],
             'score'             => [null, 0],
             'file'              => [null, ''],
-            'dc_min'            => [null, ''],
         ];
     }
 }

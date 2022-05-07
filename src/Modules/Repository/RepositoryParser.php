@@ -90,11 +90,11 @@ class RepositoryParser
             $item['description'] = (string) $i->desc;
 
             // DA specific markers
-            $item['dc_min']     = (string) $i->children(self::$bloc)->dcmin;
-            $item['details']    = (string) $i->children(self::$bloc)->details;
-            $item['section']    = (string) $i->children(self::$bloc)->section;
-            $item['support']    = (string) $i->children(self::$bloc)->support;
-            $item['screenshot'] = (string) $i->children(self::$bloc)->sshot;
+            $item['requires']['core'] = (string) $i->children(self::$bloc)->dcmin;
+            $item['details']          = (string) $i->children(self::$bloc)->details;
+            $item['section']          = (string) $i->children(self::$bloc)->section;
+            $item['support']          = (string) $i->children(self::$bloc)->support;
+            $item['screenshot']       = (string) $i->children(self::$bloc)->sshot;
 
             $tags = [];
             foreach ($i->children(self::$bloc)->tags as $t) {
@@ -104,8 +104,8 @@ class RepositoryParser
 
             // First filter right now. If level is DEVELOPMENT, all modules are parse
             if (!App::core()->production()
-                || App::core()->version()->compare(App::core()->config()->get('core_version'), $item['dc_min'], '>=', false)
-                && App::core()->version()->compare(App::core()->config()->get('core_version_break'), $item['dc_min'], '<=', false)
+                || App::core()->version()->compare(App::core()->config()->get('core_version'), $item['requires']['core'], '>=', false)
+                && App::core()->version()->compare(App::core()->config()->get('core_version_break'), $item['requires']['core'], '<=', false)
             ) {
                 $this->items[$item['id']] = $item;
             }
