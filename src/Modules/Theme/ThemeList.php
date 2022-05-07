@@ -616,7 +616,7 @@ class ThemeList extends PluginList
                 } else {
                     $url  = urldecode($_POST['pkg_url']);
                     $dest = $this->getPath() . '/' . basename($url);
-                    $this->store->download($url, $dest);
+                    $this->modules()->store()->download($url, $dest);
                 }
 
                 // --BEHAVIOR-- themeBeforeAdd
