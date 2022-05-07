@@ -56,7 +56,7 @@ class Formater
         $editors = [];
 
         foreach (array_keys($this->formaters) as $editor) {
-            if (null !== ($module = App::core()->plugins()?->getModule($editor))) {
+            if (null !== ($module = App::core()->plugins()->getModule($editor))) {
                 $editors[$editor] = $module->name();
             }
         }

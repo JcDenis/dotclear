@@ -1088,7 +1088,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
 
     private function checkPagesPermission()
     {
-        if (!App::core()->plugins()?->hasModule('Pages')) {
+        if (!App::core()->plugins()->hasModule('Pages')) {
             throw new CoreException('Pages management is not available on this blog.');
         }
 

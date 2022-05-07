@@ -223,9 +223,9 @@ class Prepend extends Core
     /**
      * Get iconsets instance.
      *
-     * @return null|Modules Iconsets instance
+     * @return Modules Iconsets instance
      */
-    public function iconsets(): ?Modules
+    public function iconsets(): Modules
     {
         if (!($this->iconsets instanceof Modules) && !empty($this->config()->get('iconset_dirs'))) {
             $this->iconsets = new Modules(
@@ -242,9 +242,9 @@ class Prepend extends Core
     /**
      * Get plguins instance.
      *
-     * @return null|Modules Plugins instance
+     * @return Modules Plugins instance
      */
-    public function plugins(): ?Modules
+    public function plugins(): Modules
     {
         if (!($this->plugins instanceof Modules)) {
             $this->plugins = new Modules(admin: true, lang: $this->lang);
@@ -257,9 +257,9 @@ class Prepend extends Core
     /**
      * Get themes instance.
      *
-     * @return null|Modules Themes instance
+     * @return Modules Themes instance
      */
-    public function themes(): ?Modules
+    public function themes(): Modules
     {
         if (!($this->themes instanceof Modules)) {
             $this->themes = new Modules(

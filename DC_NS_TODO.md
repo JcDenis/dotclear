@@ -19,6 +19,7 @@
 - [ ] use sql statement everywhere it is possible
 - [ ] update build-tools and makefile
 - [ ] complete module clone (.po, .js)
+- [ ] reduce number of possible methods returned types
 
 ### Idea
 
