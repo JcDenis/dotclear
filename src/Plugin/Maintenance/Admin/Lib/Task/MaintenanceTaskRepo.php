@@ -11,8 +11,8 @@ namespace Dotclear\Plugin\Maintenance\Admin\Lib\Task;
 
 // Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskRepo
 use Dotclear\App;
-use DOtclear\Helper\File\Files;
-use DOtclear\Helper\File\Path;
+use Dotclear\Helper\File\Files;
+use Dotclear\Helper\File\Path;
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
 /**
