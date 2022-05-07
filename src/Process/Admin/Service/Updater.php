@@ -71,9 +71,9 @@ class Updater
      * @param string $version Current version to compare
      * @param bool   $nocache Force checking
      *
-     * @return mixed Latest version if available
+     * @return false|string Latest version if available
      */
-    public function check($version, $nocache = false)
+    public function check(string $version, bool $nocache = false): string|false
     {
         $this->getVersionInfo($nocache);
         $v = $this->getVersion();
@@ -84,7 +84,7 @@ class Updater
         return false;
     }
 
-    public function getVersionInfo($nocache = false)
+    public function getVersionInfo(bool $nocache = false): void
     {
         // Check cached file
         if (is_readable($this->cache_file) && filemtime($this->cache_file) > strtotime($this->cache_ttl) && !$nocache) {
@@ -154,52 +154,50 @@ class Updater
         file_put_contents($this->cache_file, serialize($this->version_info));
     }
 
-    public function getVersion()
+    public function getVersion(): string
     {
         return $this->version_info['version'];
     }
 
-    public function getFileURL()
+    public function getFileURL(): string
     {
         return $this->version_info['href'];
     }
 
-    public function getInfoURL()
+    public function getInfoURL(): string
     {
         return $this->version_info['info'];
     }
 
-    public function getChecksum()
+    public function getChecksum(): string
     {
         return $this->version_info['checksum'];
     }
 
-    public function getPHPVersion()
+    public function getPHPVersion(): string
     {
         return $this->version_info['php'];
     }
 
-    public function getNotify()
+    public function getNotify(): bool
     {
         return $this->version_info['notify'];
     }
 
-    public function getForcedFiles()
+    public function getForcedFiles(): array
     {
         return $this->forced_files;
     }
 
-    public function setForcedFiles(...$args)
+    public function setForcedFiles(...$args): void
     {
         $this->forced_files = $args;
     }
 
     /**
      * Sets notification flag.
-     *
-     * @param mixed $n
      */
-    public function setNotify($n)
+    public function setNotify(mixed $n): void
     {
         if (!is_writable($this->cache_file)) {
             return;
@@ -209,7 +207,7 @@ class Updater
         file_put_contents($this->cache_file, serialize($this->version_info));
     }
 
-    public function checkIntegrity($digests_file, $root)
+    public function checkIntegrity(string $digests_file, string $root): bool
     {
         if (!$digests_file) {
             throw new AdminException(__('Digests file not found.'));
@@ -227,11 +225,11 @@ class Updater
     }
 
     /**
-     * Downloads new version to destination $dest.
+     * Downloads new version.
      *
-     * @param mixed $dest
+     * @param string $dest The destination path
      */
-    public function download($dest)
+    public function download(string $dest): void
     {
         $url = $this->getFileURL();
 
@@ -284,10 +282,8 @@ class Updater
 
     /**
      * Checks if archive was successfully downloaded.
-     *
-     * @param mixed $zip
      */
-    public function checkDownload($zip)
+    public function checkDownload(string $zip): bool
     {
         $cs = $this->getChecksum();
 
@@ -296,14 +292,8 @@ class Updater
 
     /**
      * Backups changed files before an update.
-     *
-     * @param mixed $zip_file
-     * @param mixed $zip_digests
-     * @param mixed $root
-     * @param mixed $root_digests
-     * @param mixed $dest
      */
-    public function backup($zip_file, $zip_digests, $root, $root_digests, $dest)
+    public function backup(string $zip_file, string $zip_digests, string $root, string $root_digests, string $dest): bool
     {
         if (!is_readable($zip_file)) {
             throw new AdminException(__('Archive not found.'));
@@ -379,14 +369,8 @@ class Updater
 
     /**
      * Upgrade process.
-     *
-     * @param mixed $zip_file
-     * @param mixed $zip_digests
-     * @param mixed $zip_root
-     * @param mixed $root
-     * @param mixed $root_digests
      */
-    public function performUpgrade($zip_file, $zip_digests, $zip_root, $root, $root_digests)
+    public function performUpgrade(string $zip_file, string $zip_digests, string $zip_root, string $root, string $root_digests): void
     {
         if (!is_readable($zip_file)) {
             throw new AdminException(__('Archive not found.'));
@@ -459,7 +443,7 @@ class Updater
         @unlink($zip_file);
     }
 
-    protected function getNewFiles($cur_digests, $new_digests)
+    protected function getNewFiles(array $cur_digests, array $new_digests): array
     {
         $cur_md5 = $cur_path = $cur_digests;
         $new_md5 = $new_path = $new_digests;
@@ -475,7 +459,7 @@ class Updater
         return array_values(array_diff_key($new, $cur));
     }
 
-    protected function readVersion($str)
+    protected function readVersion(string $str): void
     {
         try {
             $xml = new SimpleXMLElement($str, LIBXML_NOERROR);
@@ -494,7 +478,7 @@ class Updater
         }
     }
 
-    protected function md5sum($root, $digests_file)
+    protected function md5sum(string $root, string $digests_file): array
     {
         if (!is_readable($digests_file)) {
             throw new AdminException(__('Unable to read digests file.'));
@@ -536,7 +520,7 @@ class Updater
         $v = 1 == $n ? md5($m[2] . $m[1]) : substr($m[2], 2);
     }
 
-    protected function md5_check($filename, $md5)
+    protected function md5_check(string $filename, string $md5): bool
     {
         if (md5_file($filename) == $md5) {
             return true;

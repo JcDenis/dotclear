@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Service;
 
 // Dotclear\Process\Admin\Service\RestMethods
+use ArrayObject;
 use Dotclear\App;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Dt;

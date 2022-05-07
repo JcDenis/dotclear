@@ -19,7 +19,6 @@ use Dotclear\Exception\AdminException;
 use Dotclear\Modules\ModuleConfig;
 use Dotclear\Modules\ModuleDefine;
 use Dotclear\Modules\Modules;
-use Dotclear\Modules\Repository\Repository;
 use Exception;
 
 /**
