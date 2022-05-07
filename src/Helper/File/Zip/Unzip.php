@@ -85,7 +85,7 @@ class Unzip
         }
     }
 
-    public function unzip(string $file_name, string|false $target = false): string|false
+    public function unzip(string $file_name, string|false $target = false): string|bool
     {
         if (empty($this->compressed_list)) {
             $this->getList($file_name);
@@ -255,7 +255,7 @@ class Unzip
         }
     }
 
-    protected function uncompress(string $content, int $mode, int $size, string|false $target = false): string|false
+    protected function uncompress(string $content, int $mode, int $size, string|false $target = false): string|bool
     {
         switch ($mode) {
             case 0:
