@@ -233,23 +233,16 @@ class RestMethods
         }
 
         if ('themes' == $post['store']) {
-            $mod = App::core()->themes();
-            $url = App::core()->blog()->settings()->get('system')->get('store_theme_url');
+            $upd = App::core()->themes()->store()->get(true);
         } elseif ('plugins' == $post['store']) {
-            $mod = App::core()->plugins();
-            $url = App::core()->blog()->settings()->get('system')->get('store_plugin_url');
+            $upd = App::core()->plugins()->store()->get(true);
         } else {
-            // --BEHAVIOR-- restCheckStoreUpdate, string, AbstractModules, string
-            App::core()->behavior()->call('restCheckStoreUpdate', $post['store'], $mod, $url);
+            $upd = new ArrayObject();
 
-            // @phpstan-ignore-next-line (Failed to see $mod != null and $url != '')
-            if (empty($mod) || empty($url)) {
-                throw new AdminException('Unknown store type');
-            }
+            // --BEHAVIOR-- restCheckStoreUpdate, string, ArrayObject
+            App::core()->behavior()->call('restCheckStoreUpdate', $post['store'], $upd);
         }
 
-        $repo = new Repository($mod, $url);
-        $upd  = $repo->get(true);
         if (!empty($upd)) {
             $ret = sprintf(__('An update is available', '%s updates are available.', count($upd)), count($upd));
             $rsp->insertAttr('check', true);

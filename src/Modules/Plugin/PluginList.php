@@ -132,12 +132,6 @@ class PluginList
     protected $config_content = '';
 
     /**
-     * @var Repository $store
-     *                 Store instance
-     */
-    public $store;
-
-    /**
      * @var bool $store_cache
      *           Use store result in cache
      */
@@ -152,7 +146,6 @@ class PluginList
         $this->setPath();
         $this->setURL($this->modules()->getModulesURL());
         $this->setIndex(__('other'));
-        $this->store = new Repository($this->modules(), $this->getStoreURL(), !$this->useStoreCache());
     }
 
     /**
@@ -191,36 +184,6 @@ class PluginList
         }
 
         return $final;
-    }
-
-    /**
-     * Get Store.
-     *
-     * @return Repository The store instance
-     */
-    public function store(): Repository
-    {
-        return $this->store;
-    }
-
-    /**
-     * Get manager store url.
-     *
-     * @return string The store URL
-     */
-    public function getStoreURL(): string
-    {
-        return (string) App::core()->blog()->settings()->get('system')->get('store_' . $this->modules()->getType(true) . '_url');
-    }
-
-    /**
-     * Check if manager store use cache.
-     *
-     * @return bool True to use cache
-     */
-    public function useStoreCache(): bool
-    {
-        return empty($_GET['nocache']);
     }
 
     // / @name Modules list methods
@@ -1096,7 +1059,7 @@ class PluginList
                 $modules = array_keys($_POST['install']);
             }
 
-            $list = $this->store()->get();
+            $list = $this->modules()->store()->get();
 
             if (empty($list)) {
                 throw new AdminException(__('No such plugin.'));
@@ -1113,7 +1076,7 @@ class PluginList
                 // --BEHAVIOR-- moduleBeforeAdd
                 App::core()->behavior()->call('pluginBeforeAdd', $module);
 
-                $this->store()->process($module->file(), $dest);
+                $this->modules()->store()->process($module->file(), $dest);
 
                 // --BEHAVIOR-- moduleAfterAdd
                 App::core()->behavior()->call('pluginAfterAdd', $module);
@@ -1209,7 +1172,7 @@ class PluginList
                 $modules = array_keys($_POST['update']);
             }
 
-            $list = $this->store()->get(true);
+            $list = $this->modules()->store()->get(true);
             if (empty($list)) {
                 throw new AdminException(__('No such plugin.'));
             }
@@ -1232,7 +1195,7 @@ class PluginList
                 // --BEHAVIOR-- moduleBeforeUpdate
                 App::core()->behavior()->call('pluginBeforeUpdate', $module);
 
-                $this->store()->process($module->file(), $dest);
+                $this->modules()->store()->process($module->file(), $dest);
 
                 // --BEHAVIOR-- moduleAfterUpdate
                 App::core()->behavior()->call('pluginAfterUpdate', $module);
@@ -1265,13 +1228,13 @@ class PluginList
             } else {
                 $url  = urldecode($_POST['pkg_url']);
                 $dest = $this->getPath() . '/' . basename($url);
-                $this->store()->download($url, $dest);
+                $this->modules()->store()->download($url, $dest);
             }
 
             // --BEHAVIOR-- moduleBeforeAdd
             App::core()->behavior()->call('pluginBeforeAdd', null);
 
-            $ret_code = $this->store()->install($dest);
+            $ret_code = $this->modules()->store()->install($dest);
 
             // --BEHAVIOR-- moduleAfterAdd
             App::core()->behavior()->call('pluginAfterAdd', null);

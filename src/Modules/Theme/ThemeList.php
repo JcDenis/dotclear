@@ -533,7 +533,7 @@ class ThemeList extends PluginList
                     $modules = array_keys($_POST['install']);
                 }
 
-                $list = $this->store()->get();
+                $list = $this->modules()->store()->get();
 
                 if (empty($list)) {
                     throw new ModuleException(__('No such theme.'));
@@ -550,7 +550,7 @@ class ThemeList extends PluginList
                     // --BEHAVIOR-- themeBeforeAdd
                     App::core()->behavior()->call('themeBeforeAdd', $module);
 
-                    $this->store()->process($module->file(), $dest);
+                    $this->modules()->store()->process($module->file(), $dest);
 
                     // --BEHAVIOR-- themeAfterAdd
                     App::core()->behavior()->call('themeAfterAdd', $module);
@@ -567,7 +567,7 @@ class ThemeList extends PluginList
                     $modules = array_keys($_POST['update']);
                 }
 
-                $list = $this->store()->get(true);
+                $list = $this->modules()->store()->get(true);
                 if (empty($list)) {
                     throw new ModuleException(__('No such theme.'));
                 }
@@ -583,7 +583,7 @@ class ThemeList extends PluginList
                     // --BEHAVIOR-- themeBeforeUpdate
                     App::core()->behavior()->call('themeBeforeUpdate', $module);
 
-                    $this->store()->process($module->file(), $dest);
+                    $this->modules()->store()->process($module->file(), $dest);
 
                     // --BEHAVIOR-- themeAfterUpdate
                     App::core()->behavior()->call('themeAfterUpdate', $module);
@@ -622,7 +622,7 @@ class ThemeList extends PluginList
                 // --BEHAVIOR-- themeBeforeAdd
                 App::core()->behavior()->call('themeBeforeAdd', null);
 
-                $ret_code = $this->store()->install($dest);
+                $ret_code = $this->modules()->store()->install($dest);
 
                 // --BEHAVIOR-- themeAfterAdd
                 App::core()->behavior()->call('themeAfterAdd', null);

@@ -18,6 +18,7 @@ use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Zip\Unzip;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\Network\Http;
+use Dotclear\Modules\Repository\Repository;
 use Exception;
 
 /**
@@ -79,6 +80,12 @@ class Modules
     private $to_disable = [];
 
     /**
+     * @var Repository $store
+     *                 Store instance
+     */
+    private $store;
+
+    /**
      * Constructor.
      *
      * @param string $type    The modules type (Plugin, Theme, ...)
@@ -107,6 +114,19 @@ class Modules
         }
     }
 
+    /**
+     * Get Store instance.
+     *
+     * @return Repository The store instance
+     */
+    public function store(): Repository
+    {
+        if (!($this->store instanceof Repository)) {
+            $this->store = new Repository($this, (string) App::core()->blog()?->settings()->get('system')->get('store_' . $this->getType(true) . '_url'), !empty($_GET['nocache']));
+        }
+
+        return $this->store;
+    }
 
     // / @name modules Admin process methods
     // @{

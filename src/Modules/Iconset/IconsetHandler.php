@@ -128,7 +128,7 @@ class IconsetHandler extends AbstractPage
             }
 
             // Updated modules from repo
-            $modules = $this->m_list->store()->get(true);
+            $modules = $this->m_list->modules()->store()->get(true);
             if (!empty($modules)) {
                 echo '<div class="multi-part" id="update" title="' . Html::escapeHTML(__('Update modules')) . '">' .
                 '<h3>' . Html::escapeHTML(__('Update modules')) . '</h3>' .
@@ -208,7 +208,7 @@ class IconsetHandler extends AbstractPage
         if (App::core()->user()->isSuperAdmin() && $this->m_list->isWritablePath()) {
             // New modules from repo
             $search  = $this->m_list->getSearch();
-            $modules = $search ? $this->m_list->store()->search($search) : $this->m_list->store()->get();
+            $modules = $search ? $this->m_list->modules()->store()->search($search) : $this->m_list->modules()->store()->get();
 
             if (!empty($search) || !empty($modules)) {
                 echo '<div class="multi-part" id="new" title="' . __('Add modules') . '">' .
