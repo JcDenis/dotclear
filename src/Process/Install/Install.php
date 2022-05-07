@@ -20,11 +20,14 @@ use Dotclear\Database\Structure;
 use Dotclear\Exception\InstallException;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\Text;
+use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Process\Distrib\Distrib;
+use Error;
+use Exception;
 
 /**
  * Install methods.
@@ -281,6 +284,16 @@ class Install
                 // Add default favorites
                 $init_favs = ['posts', 'new_post', 'newpage', 'comments', 'categories', 'media', 'blog_theme', 'widgets', 'simpleMenu', 'prefs', 'help'];
                 App::core()->favorite()->setFavoriteIDs($init_favs, true);
+
+                // Check existence of default blog public directory (only on new install)
+                try {
+                    $public_path = Path::implodeBase('public');
+                    if (!is_dir($public_path)) {
+                        // Try to create it
+                        Files::makeDir($public_path);
+                    }
+                } catch (Exception|Error) {
+                }
 
                 $step = 1;
             } catch (\Exception $e) {
