@@ -208,6 +208,13 @@ class Home extends AbstractPage
                 '</p>';
         }
 
+        // Non production mode alert
+        if (App::core()->user()->isSuperAdmin() && !App::core()->production()) {
+            echo '<p class="static-msg">'. 
+            __('You are in non production environment. If your blogs plateform is public you should set production directive to true in your dotclear config file.') . 
+            '</p>';
+        }
+
         $err = [];
 
         // Check cache directory
