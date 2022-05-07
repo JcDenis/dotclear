@@ -42,9 +42,9 @@ class Version
      *
      * @param string $module The module
      *
-     * @return null|string The version
+     * @return string The version
      */
-    public function get(string $module = 'core'): ?string
+    public function get(string $module = 'core'): string
     {
         // Fetch versions if needed
         if (!is_array($this->stack)) {
@@ -59,7 +59,7 @@ class Version
             }
         }
 
-        return isset($this->stack[$module]) ? (string) $this->stack[$module] : null;
+        return isset($this->stack[$module]) ? (string) $this->stack[$module] : '';
     }
 
     /**
@@ -106,6 +106,18 @@ class Version
         if (is_array($this->stack)) {
             unset($this->stack[$module]);
         }
+    }
+
+    /**
+     * Check if a module has a version registered.
+     *
+     * @param string $module The module
+     *
+     * @return bool True if it exists and not empty
+     */
+    public function exists(string $module): bool
+    {
+        return '' != $this->get($module);
     }
 
     /**

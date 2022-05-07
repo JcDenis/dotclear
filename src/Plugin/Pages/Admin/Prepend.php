@@ -103,7 +103,7 @@ class Prepend extends ModulePrepend
 
     public function installModule(): ?bool
     {
-        if (null != App::core()->version()->get('pages')) {
+        if (App::core()->version()->exists('pages')) {
             return null;
         }
 

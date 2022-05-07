@@ -69,7 +69,7 @@ class Prepend extends ModulePrepend
         $changes = $si->synchronize($s);
 
         // Creating default wordslist
-        if (null === App::core()->version()->get('Antispam')) {
+        if (!App::core()->version()->exists('Antispam')) {
             $_o = new FilterWords();
             $_o->defaultWordsList();
             unset($_o);

@@ -24,13 +24,11 @@ class Upgrade
 {
     public function doUpgrade(): int|false
     {
-        $version = App::core()->version()->get('core');
-
-        if (null === $version) {
+        if (!App::core()->version()->exists('core')) {
             return false;
         }
 
-        if (version_compare($version, App::core()->config()->get('core_version'), '<') == 1 || str_contains(App::core()->config()->get('core_version'), 'dev')) {
+        if (version_compare(App::core()->version()->get('core'), App::core()->config()->get('core_version'), '<') == 1 || str_contains(App::core()->config()->get('core_version'), 'dev')) {
             try {
                 if (App::core()->con()->driver() == 'sqlite') {
                     return false; // Need to find a way to upgrade sqlite database
@@ -45,7 +43,7 @@ class Upgrade
 
                 /* Some other upgrades
                 ------------------------------------ */
-                $cleanup_sessions = $this->growUp($version);
+                $cleanup_sessions = $this->growUp(App::core()->version()->get('core'));
 
                 // Drop content from session table if changes or if needed
                 if (0 != $changes || $cleanup_sessions) {
@@ -70,9 +68,9 @@ class Upgrade
         return false;
     }
 
-    public function growUp(?string $version): bool
+    public function growUp(string $version): bool
     {
-        if (null === $version) {
+        if (empty($version)) {
             return false;
         }
 
