@@ -168,9 +168,9 @@ class RestMethods
         ) {
             $updater      = new Updater(App::core()->config()->get('core_update_url'), 'dotclear', App::core()->config()->get('core_update_channel'), App::core()->config()->get('cache_dir') . '/versions');
             $new_v        = $updater->check(App::core()->config()->get('core_version'));
-            $version_info = $new_v ? $updater->getInfoURL() : '';
+            $version_info = empty($new_v) ? '' : $updater->getInfoURL();
 
-            if ($updater->getNotify() && $new_v) {
+            if ($updater->getNotify() && !empty($new_v)) {
                 // Check PHP version required
                 if (version_compare(phpversion(), $updater->getPHPVersion()) >= 0) {
                     $ret = '<div class="dc-update" id="ajax-update"><h3>' . sprintf(__('Dotclear %s is available!'), $new_v) . '</h3> ' .

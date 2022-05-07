@@ -22,16 +22,16 @@ use Exception;
  */
 class Upgrade
 {
-    public function doUpgrade(): int|false
+    public function doUpgrade(): int
     {
         if (!App::core()->version()->exists('core')) {
-            return false;
+            return -1;
         }
 
-        if (version_compare(App::core()->version()->get('core'), App::core()->config()->get('core_version'), '<') == 1 || str_contains(App::core()->config()->get('core_version'), 'dev')) {
+        if (version_compare(App::core()->version()->get('core'), App::core()->config()->get('core_version'), '<') == 1 || !App::core()->production()) {
             try {
                 if (App::core()->con()->driver() == 'sqlite') {
-                    return false; // Need to find a way to upgrade sqlite database
+                    return -1; // Need to find a way to upgrade sqlite database
                 }
 
                 // Database upgrade
@@ -65,7 +65,7 @@ class Upgrade
         }
 
         // No upgrade?
-        return false;
+        return -1;
     }
 
     public function growUp(string $version): bool

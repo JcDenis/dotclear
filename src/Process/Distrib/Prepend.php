@@ -58,7 +58,7 @@ class Prepend extends Core
             throw $e;
         }
         $this->con()->commit();
-        echo 'Upgrade process successfully completed (' . $changes . "). \n";
+        echo -1 == $changes ? 'Nothing to upgrade' : 'Upgrade process successfully completed (' . $changes . "). \n";
 
         exit(0);
     }

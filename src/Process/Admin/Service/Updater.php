@@ -71,17 +71,14 @@ class Updater
      * @param string $version Current version to compare
      * @param bool   $nocache Force checking
      *
-     * @return false|string Latest version if available
+     * @return string Latest version if available
      */
-    public function check(string $version, bool $nocache = false): string|false
+    public function check(string $version, bool $nocache = false): string
     {
         $this->getVersionInfo($nocache);
         $v = $this->getVersion();
-        if ($v && version_compare($version, $v, '<')) {
-            return $v;
-        }
 
-        return false;
+        return ($v && version_compare($version, $v, '<')) ? $v : '';
     }
 
     public function getVersionInfo(bool $nocache = false): void

@@ -164,7 +164,7 @@ class Auth extends AbstractPage
         }
         if (empty($get) && empty($_POST)) {
             try {
-                if (($changes = false !== (new Upgrade())->doUpgrade())) {
+                if (($changes = (-1 !== (new Upgrade())->doUpgrade()))) {
                     $this->auth_success = __('Dotclear has been upgraded.') . '<!-- ' . $changes . ' -->';
                 }
             } catch (\Exception $e) {

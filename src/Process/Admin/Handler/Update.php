@@ -66,7 +66,7 @@ class Update extends AbstractPage
 
         $this->upd_updater     = new Updater(App::core()->config()->get('core_update_url'), 'dotclear', App::core()->config()->get('core_update_channel'), App::core()->config()->get('cache_dir') . '/versions');
         $this->upd_new_version = $this->upd_updater->check(App::core()->config()->get('core_version'), !empty($_GET['nocache']));
-        $zip_file              = $this->upd_new_version ? App::core()->config()->get('backup_dir') . '/' . basename($this->upd_updater->getFileURL()) : '';
+        $zip_file              = empty($this->upd_new_version) ? '' : App::core()->config()->get('backup_dir') . '/' . basename($this->upd_updater->getFileURL());
 
         // Hide "update me" message
         if (!empty($_GET['hide_msg'])) {
@@ -124,7 +124,7 @@ class Update extends AbstractPage
         }
 
         // Upgrade process
-        if ($this->upd_new_version && $this->upd_step) {
+        if (!empty($this->upd_new_version) && $this->upd_step) {
             try {
                 $this->upd_updater->setForcedFiles(App::core()->config()->get('digests_dir'));
 
