@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Filter;
 
 // Dotclear\Process\Admin\Filter\Filter
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 use Dotclear\Helper\Html\Form;
@@ -52,61 +51,49 @@ class Filter extends Filters
     }
 
     /**
-     * Get user defined filter options (sortby, order, nb).
-     *
-     * @param string $option The option
-     *
-     * @return array|ArrayObject|int|string User option
-     */
-    public function userOptions(?string $option = null): int|string|array|ArrayObject
-    {
-        return App::core()->listoption()->getUserFilters($this->type, $option);
-    }
-
-    /**
      * Parse _GET user pref options (sortby, order, nb).
      */
     protected function parseOptions(): void
     {
-        $options = App::core()->listoption()->getUserFilters($this->type);
+        $options = App::core()->listoption()->getUserFiltersType($this->type);
         if (!empty($options)) {
             $this->has_user_pref = true;
         }
 
         if (!empty($options[1])) {
-            $this->filters['sortby'] = DefaultFilter::init('sortby', $this->userOptions('sortby'))
+            $this->filters['sortby'] = DefaultFilter::init('sortby', App::core()->listoption()->getUserFiltersSortby($this->type))
                 ->options($options[1])
             ;
 
             if (!empty($_GET['sortby'])
                 && in_array($_GET['sortby'], $options[1], true)
-                && $this->userOptions('sortby') != $_GET['sortby']
+                && App::core()->listoption()->getUserFiltersSortby($this->type) != $_GET['sortby']
             ) {
                 $this->show(true);
                 $this->filters['sortby']->value($_GET['sortby']);
             }
         }
         if (!empty($options[3])) {
-            $this->filters['order'] = DefaultFilter::init('order', $this->userOptions('order'))
+            $this->filters['order'] = DefaultFilter::init('order', App::core()->listoption()->getUserFiltersOrder($this->type))
                 ->options(App::core()->combo()->getOrderCombo())
             ;
 
             if (!empty($_GET['order'])
                 && in_array($_GET['order'], App::core()->combo()->getOrderCombo(), true)
-                && $this->userOptions('order') != $_GET['order']
+                && App::core()->listoption()->getUserFiltersOrder($this->type) != $_GET['order']
             ) {
                 $this->show(true);
                 $this->filters['order']->value($_GET['order']);
             }
         }
         if (!empty($options[4])) {
-            $this->filters['nb'] = DefaultFilter::init('nb', $this->userOptions('nb'))
+            $this->filters['nb'] = DefaultFilter::init('nb', App::core()->listoption()->getUserFiltersNb($this->type))
                 ->title($options[4][0])
             ;
 
             if (!empty($_GET['nb'])
                 && (int) $_GET['nb'] > 0
-                && (int) $_GET['nb'] != (int) $this->userOptions('nb')
+                && (int) $_GET['nb'] != App::core()->listoption()->getUserFiltersNb($this->type)
             ) {
                 $this->show(true);
                 $this->filters['nb']->value((int) $_GET['nb']);

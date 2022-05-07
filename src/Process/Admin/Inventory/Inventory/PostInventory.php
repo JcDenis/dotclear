@@ -103,8 +103,7 @@ class PostInventory extends Inventory
             $cols = new ArrayObject($cols);
             App::core()->behavior()->call('adminPostListHeader', $this->rs, $cols);
 
-            // Cope with optional columns
-            $this->userColumns('posts', $cols);
+            $cols = App::core()->listoption()->getUserColumns('posts', $cols);
 
             $html_block .= '<tr>' . implode(iterator_to_array($cols)) . '</tr>%s</table>%s</div>';
             if ($enclose_block) {
@@ -234,8 +233,7 @@ class PostInventory extends Inventory
         $cols = new ArrayObject($cols);
         App::core()->behavior()->call('adminPostListValue', $this->rs, $cols);
 
-        // Cope with optional columns
-        $this->userColumns('posts', $cols);
+        $cols = App::core()->listoption()->getUserColumns('posts', $cols);
 
         $res .= implode(iterator_to_array($cols));
         $res .= '</tr>';

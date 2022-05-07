@@ -51,8 +51,7 @@ class PostMiniInventory extends Inventory
             $cols = new ArrayObject($cols);
             App::core()->behavior()->call('adminPostMiniListHeader', $this->rs, $cols);
 
-            // Cope with optional columns
-            $this->userColumns('posts', $cols);
+            $cols = App::core()->listoption()->getUserColumns('posts', $cols);
 
             $html_block .= '<tr>' . implode(iterator_to_array($cols)) . '</tr>%s</table></div>';
             if ($enclose_block) {
@@ -141,8 +140,7 @@ class PostMiniInventory extends Inventory
         $cols = new ArrayObject($cols);
         App::core()->behavior()->call('adminPostMiniListValue', $this->rs, $cols);
 
-        // Cope with optional columns
-        $this->userColumns('posts', $cols);
+        $cols = App::core()->listoption()->getUserColumns('posts', $cols);
 
         $res .= implode(iterator_to_array($cols));
         $res .= '</tr>';

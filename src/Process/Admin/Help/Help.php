@@ -46,7 +46,7 @@ class Help
      * @var bool $flag
      *           Admin context flag
      */
-    private $flag;
+    private $flag = true;
 
     /**
      * Add/get news bloc.
@@ -54,9 +54,9 @@ class Help
      * @param string $value   The value
      * @param bool   $replace Replace existing bloc
      *
-     * @return null|string The new bloc
+     * @return string The new bloc
      */
-    public function news(string $value = null, bool $replace = false): ?string
+    public function news(string $value = null, bool $replace = false): string
     {
         if ($replace || empty($this->news)) {
             $this->news = $value;
@@ -96,9 +96,9 @@ class Help
      * @param string $value   The value
      * @param bool   $replace Replace existing bloc
      *
-     * @return null|string The context bloc
+     * @return string The context bloc
      */
-    public function context(string $key, string $value = null, bool $replace = false): ?string
+    public function context(string $key, string $value = null, bool $replace = false): string
     {
         if ($replace || !array_key_exists($key, $this->context)) {
             $this->context[$key] = $value;
@@ -112,9 +112,9 @@ class Help
      *
      * @param bool $flag The flag
      *
-     * @return null|bool The flag
+     * @return bool The flag
      */
-    public function flag(bool $flag = null): ?bool
+    public function flag(bool $flag = null): bool
     {
         if (null !== $flag) {
             $this->flag = $flag;

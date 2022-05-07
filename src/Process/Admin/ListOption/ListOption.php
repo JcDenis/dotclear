@@ -50,12 +50,12 @@ class ListOption
     /**
      * Get users columns preferences.
      *
-     * @param string            $type    The columns type
-     * @param array|ArrayObject $columns The columns list
+     * @param string      $type    The columns type
+     * @param ArrayObject $columns The columns list
      *
-     * @return array|ArrayObject The user columns
+     * @return ArrayObject The user columns
      */
-    public function getUserColumns(string $type = null, array|ArrayObject $columns = null): array|ArrayObject
+    public function getUserColumns(string $type = null, ArrayObject $columns = null): ArrayObject
     {
         // Get default colums (admin lists)
         $cols = $this->getDefaultColumns();
@@ -84,7 +84,7 @@ class ListOption
             return $columns;
         }
         if (null !== $type) {
-            return $cols[$type] ?? [];
+            return new ArrayObject($cols[$type] ?? []);
         }
 
         return $cols;
@@ -153,14 +153,11 @@ class ListOption
     }
 
     /**
-     * Get sorts filters users preference for a given type.
+     * Get sorts filters users preference.
      *
-     * @param null|string $type   The filter list type
-     * @param null|string $option The filter list option
-     *
-     * @return null|array|ArrayObject|int|string Filters or typed filter or field value(s)
+     * @return ArrayObject The filters
      */
-    public function getUserFilters(?string $type = null, ?string $option = null): int|string|array|ArrayObject|null
+    public function getUserFilters(): ArrayObject
     {
         if (null === $this->sorts) {
             $sorts = $this->getDefaultFilters();
@@ -189,24 +186,62 @@ class ListOption
             $this->sorts = $sorts;
         }
 
-        if (null === $type) {
-            return $this->sorts;
-        }
-        if (isset($this->sorts[$type])) {
-            if (null === $option) {
-                return $this->sorts[$type];
-            }
-            if ('sortby' == $option && null !== $this->sorts[$type][2]) {
-                return $this->sorts[$type][2];
-            }
-            if ('order' == $option && null !== $this->sorts[$type][3]) {
-                return $this->sorts[$type][3];
-            }
-            if ('nb' == $option && is_array($this->sorts[$type][4])) {
-                return abs((int) $this->sorts[$type][4][1]);
-            }
-        }
+        return $this->sorts;
+    }
 
-        return null;
+    /**
+     * Get sorts filters users preference for a given type.
+     *
+     * @param string $type The filter list type
+     *
+     * @return array<string,mixed> The typed filter
+     */
+    public function getUserFiltersType(string $type): array
+    {
+        $this->getUserFilters();
+
+        return $this->sorts[$type] ?? [];
+    }
+
+    /**
+     * Get sortby sorts filters users preference for a given type.
+     *
+     * @param string $type The filter list type
+     *
+     * @return string The typed filter sortby value
+     */
+    public function getUserFiltersSortby(string $type): string
+    {
+        $this->getUserFilters();
+
+        return isset($this->sorts[$type]) && null !== $this->sorts[$type][2] ? $this->sorts[$type][2] : '';
+    }
+
+    /**
+     * Get order sorts filters users preference for a given type.
+     *
+     * @param string $type The filter list type
+     *
+     * @return string The typed filter order value
+     */
+    public function getUserFiltersOrder(string $type): string
+    {
+        $this->getUserFilters();
+
+        return isset($this->sorts[$type]) && null !== $this->sorts[$type][3] ? $this->sorts[$type][3] : '';
+    }
+
+    /**
+     * Get nb sorts filters users preference for a given type.
+     *
+     * @param string $type The filter list type
+     *
+     * @return int The typed filter nb value
+     */
+    public function getUserFiltersNb(string $type): int
+    {
+        $this->getUserFilters();
+
+        return isset($this->sorts[$type]) && is_array($this->sorts[$type][4]) ? abs((int) $this->sorts[$type][4][1]) : 0;
     }
 }

@@ -44,7 +44,7 @@ class Handler extends AbstractPage
         ];
 
         $this->p_page = !empty($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
-        $this->p_nbbp = App::core()->listoption()->getUserFilters('pages', 'nb');
+        $this->p_nbbp = App::core()->listoption()->getUserFiltersNb('pages');
 
         if (!empty($_GET['nb']) && 0 < (int) $_GET['nb']) {
             $this->p_nbbp = (int) $_GET['nb'];

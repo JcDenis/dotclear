@@ -63,7 +63,7 @@ class Search extends AbstractPage
         }
 
         $page = !empty($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
-        $nb   = App::core()->listoption()->getUserFilters('search', 'nb');
+        $nb   = App::core()->listoption()->getUserFiltersNb('search');
         if (!empty($_GET['nb']) && (int) $_GET['nb'] > 0) {
             $nb = (int) $_GET['nb'];
         }
