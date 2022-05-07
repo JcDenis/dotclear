@@ -97,7 +97,7 @@ class IconsetHandler extends AbstractPage
             echo '<div class="static-msg">' . __('Following modules have been installed:') . '<ul>';
 
             foreach ($this->m_installed['success'] as $k => $v) {
-                $info = implode(' - ', $this->m_list->getSettingsUrls($k, true));
+                $info = implode(' - ', $this->m_list->modules()->getSettingsUrls($k, true));
                 echo '<li>' . $k . ('' !== $info ? ' → ' . $info : '') . '</li>';
             }
 

@@ -78,8 +78,6 @@ class Modules
      */
     private $to_disable = [];
 
-    // / @name modules loading methods
-    // @{
     /**
      * Constructor.
      *
@@ -109,6 +107,9 @@ class Modules
         }
     }
 
+
+    // / @name modules Admin process methods
+    // @{
     /**
      * Register modules manager on admin url,menu,favs.
      *
@@ -145,6 +146,131 @@ class Modules
         ]);
     }
 
+    /**
+     * Get manager Page URL.
+     *
+     * @param array<string,int|string> $param Additionnal URL params
+     *
+     * @return string The manager admin page URL
+     */
+    public function getModulesURL(array $param = []): string
+    {
+        return App::core()->processed('Admin') ? App::core()->adminurl()->get('admin.' . $this->getType(true), $param) : '';
+    }
+
+    /**
+     * Get a module Page URL.
+     *
+     * @param string                   $id    The module id
+     * @param array<string,int|string> $param Additionnal URL params
+     *
+     * @return string The module admin page URL
+     */
+    public function getModuleURL(string $id, array $param = []): string
+    {
+        return App::core()->processed('Admin') && $this->hasModule($id) ? App::core()->adminurl()->get('admin.' . $this->getType(true) . '.' . $id, $param) : '';
+    }
+
+    /**
+     * Get settings URLs if any.
+     *
+     * @param string $id    Module ID
+     * @param bool   $check Check permission
+     * @param bool   $self  Include self URL
+     *
+     * @return array Array of settings URLs
+     */
+    public function getSettingsUrls(string $id, bool $check = false, bool $self = true): array
+    {
+        // Check if module exists
+        if (!App::core()->processed('Admin') || !$this->hasModule($id)) {
+            return [];
+        }
+
+        $module = $this->getModule($id);
+
+        // Reset
+        $st     = [];
+        $config = is_subclass_of(
+            'Dotclear\\' . $module->type() . '\\' . $id . '\\Admin\\Config',
+            'Dotclear\\Modules\\ModuleConfig'
+        );
+        $index = is_subclass_of(
+            'Dotclear\\' . $module->type() . '\\' . $id . '\\Admin\\Handler',
+            'Dotclear\\Process\\Admin\\Page\\AbstractPage'
+        );
+
+        $settings = $module->settings();
+        if ($self && isset($settings['self']) && empty($settings['self'])) {
+            $self = false;
+        }
+        if ($config || $index || !empty($settings)) {
+            if ($config && (!$check || App::core()->user()->isSuperAdmin() || App::core()->user()->check($module->permissions(), App::core()->blog()->id))) {
+                $params = ['module' => $id, 'conf' => '1'];
+                if (!$module->standaloneConfig() && !$self) {
+                    $params['redir'] = $this->getModuleURL($id);
+                }
+                $st['config'] = '<a class="module-config" href="' .
+                $this->getModulesURL($params) .
+                '">' . __('Configuration') . '</a>';
+            }
+
+            foreach ($settings as $sk => $sv) {
+                switch ($sk) {
+                    case 'blog':
+                        if (!$check || App::core()->user()->isSuperAdmin() || App::core()->user()->check('admin', App::core()->blog()->id)) {
+                            $st['blog'] = '<a class="module-config" href="' .
+                            App::core()->adminurl()->get('admin.blog.pref') . $sv .
+                            '">' . __('Settings (in blog parameters)') . '</a>';
+                        }
+
+                        break;
+
+                    case 'pref':
+                        if (!$check || App::core()->user()->isSuperAdmin() || App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)) {
+                            $st['pref'] = '<a class="module-config" href="' .
+                            App::core()->adminurl()->get('admin.user.pref') . $sv .
+                            '">' . __('Settings (in user preferences)') . '</a>';
+                        }
+
+                        break;
+
+                    case 'self':
+                        if ($self) {
+                            if (!$check || App::core()->user()->isSuperAdmin() || App::core()->user()->check($module->permissions(), App::core()->blog()->id)) {
+                                $st['self'] = '<a class="module-config" href="' .
+                                $this->getModuleURL($id) . $sv .
+                                '">' . __('Settings') . '</a>';
+                            }
+                            // No need to use default module handler
+                            $index = false;
+                        }
+
+                        break;
+
+                    case 'other':
+                        if (!$check || App::core()->user()->isSuperAdmin() || App::core()->user()->check($module->permissions(), App::core()->blog()->id)) {
+                            $st['other'] = '<a class="module-config" href="' .
+                            $sv .
+                            '">' . __('Settings') . '</a>';
+                        }
+
+                        break;
+                }
+            }
+            if ($index && $self && (!$check || App::core()->user()->isSuperAdmin() || App::core()->user()->check($module->permissions(), App::core()->blog()->id))) {
+                $st['index'] = '<a class="module-config" href="' .
+                $this->getModuleURL($id) .
+                '">' . __('Dedicated page') . '</a>';
+            }
+        }
+
+        return $st;
+    }
+    // @}
+
+    // / @name modules loading methods
+    // @{
     /**
      * Load modules.
      */

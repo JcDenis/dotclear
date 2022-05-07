@@ -183,9 +183,9 @@ class ThemeList extends PluginList
                 if ($config) {
                     $params = ['module' => $id, 'conf' => '1'];
                     if (!$module->standaloneConfig()) {
-                        $params['redir'] = $this->getModuleURL($id);
+                        $params['redir'] = $this->modules()->getModuleURL($id);
                     }
-                    $line .= '<p><a href="' . $this->getModulesURL($params) . '" class="button submit">' . __('Configure theme') . '</a></p>';
+                    $line .= '<p><a href="' . $this->modules()->getModulesURL($params) . '" class="button submit">' . __('Configure theme') . '</a></p>';
                 }
 
                 // --BEHAVIOR-- adminCurrentThemeDetails
