@@ -677,21 +677,6 @@ class Modules
     {
         $zip = new Unzip($zip_file);
         $zip->getList(false, '#(^|/)(__MACOSX|\.svn|\.hg.*|\.git.*|\.DS_Store|\.directory|Thumbs\.db)(/|$)#');
-
-        $zip_root_dir = $zip->getRootDir();
-        $define       = '';
-        if (false != $zip_root_dir) {
-            $target      = dirname($zip_file);
-            $destination = $target . '/' . $zip_root_dir;
-            $define      = $zip_root_dir . '/module.conf.php';
-            $has_define  = $zip->hasFile($define);
-        } else {
-            $target      = dirname($zip_file) . '/' . preg_replace('/\.([^.]+)$/', '', basename($zip_file));
-            $destination = $target;
-            $define      = 'module.conf.php';
-            $has_define  = $zip->hasFile($define);
-        }
-
         if ($zip->isEmpty()) {
             $zip->close();
             unlink($zip_file);
@@ -699,7 +684,20 @@ class Modules
             throw new ModuleException(__('Empty module zip file.'));
         }
 
-        if (!$has_define) {
+        $zip_root_dir = $zip->getRootDir();
+        if (false != $zip_root_dir) {
+            $target      = dirname($zip_file);
+            $destination = $target . '/' . $zip_root_dir;
+            $conf_path   = $zip_root_dir . '/module.conf.php';
+            $has_conf    = $zip->hasFile($conf_path);
+        } else {
+            $target      = dirname($zip_file) . '/' . preg_replace('/\.([^.]+)$/', '', basename($zip_file));
+            $destination = $target;
+            $conf_path   = 'module.conf.php';
+            $has_conf    = $zip->hasFile($conf_path);
+        }
+
+        if (!$has_conf) {
             $zip->close();
             unlink($zip_file);
 
@@ -712,16 +710,18 @@ class Modules
             try {
                 Files::makeDir($destination, true);
 
-                $sandbox = clone $this;
-                $zip->unzip($define, $target . '/module.conf.php');
+                $zip->unzip($conf_path, $target . '/module.conf.php');
 
-                $sandbox->resetModulesList();
-                $sandbox->loadDefine($target, basename($destination));
+                try {
+                    $define = new ModuleDefine($this->getType(), basename($destination), $target);
+                } catch (Exception) {
+                    $define = false;
+                }
+
                 unlink($target . '/module.conf.php');
 
-                $new_errors = $sandbox->error()->dump();
-                if (!empty($new_errors)) {
-                    $new_errors = implode(" \n", $new_errors);
+                if (!$define || true === $define->error()->flag()) {
+                    $new_errors = $define ? implode(" \n", $define->error()->dump()) : __('Unable to read new module.conf.php file');
 
                     throw new ModuleException($new_errors);
                 }
@@ -736,20 +736,20 @@ class Modules
             }
         } else {
             // Test for update
-            $sandbox = clone $this;
-            $zip->unzip($define, $target . '/module.conf.php');
+            $zip->unzip($conf_path, $target . '/module.conf.php');
 
-            $sandbox->resetModulesList();
-            $sandbox->loadDefine($target, basename($destination));
+            try {
+                $define = new ModuleDefine($this->getType(), basename($destination), $target);
+            } catch (Exception) {
+                $define = false;
+            }
+
             unlink($target . '/module.conf.php');
-            $new_modules = $sandbox->getModules();
 
-            if (!empty($new_modules)) {
-                $tmp        = array_keys($new_modules);
-                $id         = $tmp[0];
-                $cur_module = $this->getModule($id);
+            if ($define && false === $define->error()->flag()) {
+                $cur_module = $this->getModule($define->id());
                 if ('' != $cur_module->root()
-                    && (!App::core()->production() || App::core()->version()->compare($new_modules[$id]->version(), $cur_module->version(), '>', true))
+                    && (!App::core()->production() || App::core()->version()->compare($define->version(), $cur_module->version(), '>', true))
                 ) {
                     // Delete old module
                     if (!Files::deltree($destination)) {
@@ -766,7 +766,7 @@ class Modules
                 $zip->close();
                 unlink($zip_file);
 
-                throw new ModuleException(sprintf(__('Unable to read new Define.php file')));
+                throw new ModuleException(__('Unable to read new module.conf.php file'));
             }
         }
         $zip->unzipAll($target);

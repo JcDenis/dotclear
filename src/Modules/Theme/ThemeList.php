@@ -577,7 +577,14 @@ class ThemeList extends PluginList
                         continue;
                     }
 
-                    $dest = $module->root() . '/../' . basename($module->file());
+                    if (App::core()->config()->get('module_allow_multi')) {
+                        $dest = $this->getPath() . '/' . basename($module->file());
+                        if ($module->root() != $dest) {
+                            @file_put_contents($module->root() . '/_disabled', '');
+                        }
+                    } else {
+                        $dest = $module->root() . '/../' . basename($module->file());
+                    }
 
                     // --BEHAVIOR-- themeBeforeUpdate
                     App::core()->behavior()->call('themeBeforeUpdate', $module);

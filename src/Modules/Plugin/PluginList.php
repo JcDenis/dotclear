@@ -1183,12 +1183,12 @@ class PluginList
                 }
 
                 if (App::core()->config()->get('module_allow_multi')) {
-                    $dest = $module->root() . '/../' . basename($module->file());
-                } else {
                     $dest = $this->getPath() . '/' . basename($module->file());
                     if ($module->root() != $dest) {
                         @file_put_contents($module->root() . '/_disabled', '');
                     }
+                } else {
+                    $dest = $module->root() . '/../' . basename($module->file());
                 }
 
                 // --BEHAVIOR-- moduleBeforeUpdate
