@@ -84,20 +84,20 @@ class Prepend extends Core
     private $resource;
 
     /**
-     * @var null|Modules $plugins
-     *                   Plugin Modules instance
+     * @var Modules $plugins
+     *              Plugin Modules instance
      */
     private $plugins;
 
     /**
-     * @var null|Modules $iconsets
-     *                   Iconset Modules instance
+     * @var Modules $iconsets
+     *              Iconset Modules instance
      */
     private $iconsets;
 
     /**
-     * @var null|Modules $themes
-     *                   Theme Modules instance
+     * @var Modules $themes
+     *              Theme Modules instance
      */
     private $themes;
 
@@ -240,7 +240,7 @@ class Prepend extends Core
      */
     public function iconsets(): Modules
     {
-        if (!($this->iconsets instanceof Modules) && !empty($this->config()->get('iconset_dirs'))) {
+        if (!($this->iconsets instanceof Modules)) {
             $this->iconsets = new Modules(
                 type: 'Iconset',
                 lang: $this->lang,
@@ -430,8 +430,11 @@ class Prepend extends Core
             $this->favorite()->setup();
 
             // Stop if no themes found
-            if (!$this->themes) {
+            if (!$this->themes()->getPaths()) {
                 $this->throwException(__('There seems to be no valid Theme directory set in configuration file.'), '', 611);
+            }
+            if (!$this->themes()->hasModules()) {
+                $this->throwException(__('There seems to be no valid Theme in your themes directories.'), '', 611);
             }
 
             // Add default top menus

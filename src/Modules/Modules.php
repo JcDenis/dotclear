@@ -139,7 +139,10 @@ class Modules
      */
     protected function register(bool $admin): void
     {
-        if (!$admin && !App::core()->user()->isSuperAdmin() || !App::core()->user()->check('admin', App::core()->blog()->id)) {
+        if (!$admin && !App::core()->user()->isSuperAdmin()
+            || !App::core()->user()->check('admin', App::core()->blog()->id)
+            || !$this->getPaths()
+        ) {
             return;
         }
 
@@ -588,6 +591,18 @@ class Modules
     public function getModules(): array
     {
         return $this->modules_enabled;
+    }
+
+    /**
+     * Check if there are loaded modules.
+     * 
+     * @param bool $enabled Chek only enabled modules
+     * 
+     * @return bool True if there are loaded modules
+     */
+    public function hasModules(bool $enabled = true): bool
+    {
+        return $enabled ? !empty($this->modules_enabled) : !empty($this->modules_enabled) && !empty($this->modules_disabled);
     }
 
     /**

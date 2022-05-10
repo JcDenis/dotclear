@@ -43,14 +43,14 @@ class Prepend extends Core
     private $template;
 
     /**
-     * @var null|Modules $plugins
-     *                   Plugin Modules instance
+     * @var Modules $plugins
+     *              Plugin Modules instance
      */
     private $plugins;
 
     /**
-     * @var null|Modules $themes
-     *                   Theme Modules instance
+     * @var Modules $themes
+     *              Theme Modules instance
      */
     private $themes;
 
@@ -190,7 +190,7 @@ class Prepend extends Core
         }
 
         // Load current theme definition
-        $path = $this->themes->getThemePath('templates/tpl');
+        $path = $this->themes()->getThemePath('templates/tpl');
 
         // If theme doesn't exist, stop everything
         if (!count($path)) {
@@ -201,19 +201,19 @@ class Prepend extends Core
 
         // If theme has parent load their locales
         if (1 < count($path)) {
-            $this->themes->loadModuleL10N(array_key_last($path), (string) $this->lang, 'main');
-            $this->themes->loadModuleL10N(array_key_last($path), (string) $this->lang, 'public');
+            $this->themes()->loadModuleL10N(array_key_last($path), (string) $this->lang, 'main');
+            $this->themes()->loadModuleL10N(array_key_last($path), (string) $this->lang, 'public');
         }
 
         // Themes locales
-        $this->themes->loadModuleL10N(array_key_first($path), (string) $this->lang, 'main');
-        $this->themes->loadModuleL10N(array_key_first($path), (string) $this->lang, 'public');
+        $this->themes()->loadModuleL10N(array_key_first($path), (string) $this->lang, 'main');
+        $this->themes()->loadModuleL10N(array_key_first($path), (string) $this->lang, 'public');
 
         // --BEHAVIOR-- publicPrepend
         $this->behavior()->call('publicPrepend');
 
         // Check templateset and add all path to tpl
-        $tplset = $this->themes->getModule(array_key_last($path))->templateset();
+        $tplset = $this->themes()->getModule(array_key_last($path))->templateset();
         if (!empty($tplset)) {
             $tplset_dir = Path::implodeRoot('Process', 'Public', 'templates', $tplset);
             if (is_dir($tplset_dir)) {

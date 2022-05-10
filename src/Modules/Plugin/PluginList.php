@@ -226,7 +226,7 @@ class PluginList
         unset($paths);
 
         $this->path = $path;
-        if (is_dir($path) && is_writeable($path)) {
+        if ($path && is_dir($path) && is_writeable($path)) {
             $this->path_writable = true;
             $this->path_pattern  = preg_quote($path, '!');
         }
