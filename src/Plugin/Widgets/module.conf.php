@@ -12,14 +12,14 @@ if (!class_exists('Dotclear\App')) {
 }
 
 return [
-    'name'       => _('Widgets'),
-    'description'=> __('Widgets for your blog sidebars'),
-    'version'    => '3.6-dev',
-    'author'     => 'Olivier Meunier and Dotclear Team',
-    'type'       => 'Plugin',
-    'permissions'=> 'admin',
-    'priority'   => 1000000000,
-    'requires'   => [
+    'name'        => __('Widgets'),
+    'description' => __('Widgets for your blog sidebars'),
+    'version'     => '3.6-dev',
+    'author'      => 'Olivier Meunier and Dotclear Team',
+    'type'        => 'Plugin',
+    'permissions' => 'admin',
+    'priority'    => 1000000000,
+    'requires'    => [
         'core' => '3.0-dev',
     ],
 ];
