@@ -100,11 +100,11 @@ class Help
      */
     public function context(string $key, string $value = null, bool $replace = false): string
     {
-        if ($replace || !array_key_exists($key, $this->context)) {
+        if (!empty($value) && ($replace || !array_key_exists($key, $this->context))) {
             $this->context[$key] = $value;
         }
 
-        return $this->context[$key];
+        return $this->context[$key] ?? '';
     }
 
     /**
