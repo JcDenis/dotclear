@@ -25,7 +25,7 @@ use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Zip\Unzip;
 use Dotclear\Helper\Html\XmlTag;
-use Dotclear\Helper\Dt;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\Text;
 use SimpleXMLElement;
 use Exception;
@@ -290,8 +290,8 @@ class Media extends Manager
             $f->media_meta  = $meta instanceof SimpleXMLElement ? $meta : simplexml_load_string('<meta></meta>');
             $f->media_user  = $rs->f('user_id');
             $f->media_priv  = (bool) $rs->f('media_private');
-            $f->media_dt    = (int) strtotime($rs->f('media_dt'));
-            $f->media_dtstr = Dt::str('%Y-%m-%d %H:%M', $f->media_dt);
+            $f->media_dt    = Clock::ts(date: $rs->f('media_dt'));
+            $f->media_dtstr = Clock::str(format: '%Y-%m-%d %H:%M', date: $f->media_dt, to: App::core()->timezone());
 
             $f->media_image = false;
 
@@ -888,11 +888,11 @@ class Media extends Manager
                 $cur->setField('media_path', (string) $this->path);
                 $cur->setField('media_file', (string) $media_file);
                 $cur->setField('media_dir', (string) dirname($media_file));
-                $cur->setField('media_creadt', date('Y-m-d H:i:s'));
-                $cur->setField('media_upddt', date('Y-m-d H:i:s'));
+                $cur->setField('media_creadt', Clock::database());
+                $cur->setField('media_upddt', Clock::database());
                 $cur->setField('media_title', !$title ? (string) $name : (string) $title);
                 $cur->setField('media_private', (int) (bool) $private);
-                $cur->setField('media_dt', (string) ($dt ? $dt : @strftime('%Y-%m-%d %H:%M:%S', filemtime($file))));
+                $cur->setField('media_dt', ($dt ? $dt : Clock::str(format: '%Y-%m-%d %H:%M:%S', date: filemtime($file))));
 
                 try {
                     $cur->insert();
@@ -910,7 +910,7 @@ class Media extends Manager
         } else {
             $media_id = $rs->fInt('media_id');
 
-            $cur->setField('media_upddt', date('Y-m-d H:i:s'));
+            $cur->setField('media_upddt', Clock::database());
 
             $sql = new UpdateStatement(__METHOD__);
             $sql->where('media_id = ' . $media_id);
@@ -975,7 +975,7 @@ class Media extends Manager
 
         $cur->setField('media_title', (string) $newFile->media_title);
         $cur->setField('media_dt', (string) $newFile->media_dtstr);
-        $cur->setField('media_upddt', date('Y-m-d H:i:s'));
+        $cur->setField('media_upddt', Clock::database());
         $cur->setField('media_private', (int) $newFile->media_priv);
 
         if ($newFile->media_meta instanceof SimpleXMLElement) {
@@ -1348,11 +1348,9 @@ class Media extends Manager
         }
 
         if ($meta['DateTimeOriginal'] && '' === $cur->getField('media_dt')) {
-            // We set picture time to user timezone
-            $media_ts = strtotime($meta['DateTimeOriginal']);
-            if (false !== $media_ts) {
-                $o = Dt::getTimeOffset(App::core()->user()->getInfo('user_tz'), $media_ts);
-                $c->setField('media_dt', Dt::str('%Y-%m-%d %H:%M:%S', $media_ts + $o));
+            $media_ts = Clock::ts(date: $meta['DateTimeOriginal']);
+            if ($media_ts) {
+                $c->setField('media_dt', Clock::database(date: $media_ts));
             }
         }
 

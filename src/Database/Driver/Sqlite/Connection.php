@@ -14,6 +14,7 @@ use Dotclear\Database\AbstractConnection;
 use Dotclear\Database\Record;
 use Dotclear\Database\StaticRecord;
 use Dotclear\Exception\DatabaseException;
+use Dotclear\Helper\Clock;
 use PDOStatement;
 use PDO;
 use Collator;
@@ -315,6 +316,6 @@ class Connection extends AbstractConnection
     // Internal SQLite function that adds NOW() SQL function.
     public function now(): string
     {
-        return date('Y-m-d H:i:s');
+        return Clock::database();
     }
 }

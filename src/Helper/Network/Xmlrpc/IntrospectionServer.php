@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Helper\Network\Xmlrpc;
 
 // Dotclear\Helper\Network\Xmlrpc\IntrospectionServer
+use Dotclear\Helper\Clock;
 
 /**
  * XML-RPC Introspection Server.
@@ -254,7 +255,7 @@ class IntrospectionServer extends Server
                     break;
 
                 case 'dateTime.iso8601':
-                    $return[] = new Date(time());
+                    $return[] = new Date(Clock::ts());
 
                     break;
 

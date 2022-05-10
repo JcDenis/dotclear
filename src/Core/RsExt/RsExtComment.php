@@ -12,8 +12,8 @@ namespace Dotclear\Core\RsExt;
 // Dotclear\Core\RsExt\RsExtComment
 use Dotclear\App;
 use Dotclear\Core\User\Preference\Preference;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Helper\Dt;
 
 /**
  * Comments record helpers.
@@ -37,15 +37,17 @@ class RsExtComment extends RsExtend
      *
      * @return string the date
      */
-    public function getDate(string $format, string $type = ''): string
+    public function getDate(string $format = '', string $type = ''): string
     {
-        if (!$format) {
+        if (empty($format)) {
             $format = App::core()->blog()->settings()->get('system')->get('date_format');
         }
 
-        return 'upddt' == $type ?
-            Dt::dt2str($format, $this->rs->f('comment_upddt'), $this->rs->f('comment_tz')) :
-            Dt::dt2str($format, $this->rs->f('comment_dt'));
+        return Clock::str(
+            format: $format,
+            date: ('upddt' == $type ? $this->rs->f('comment_upddt') : $this->rs->f('comment_dt')),
+            to: App::core()->timezone()
+        );
     }
 
     /**
@@ -59,13 +61,15 @@ class RsExtComment extends RsExtend
      */
     public function getTime(string $format, string $type = ''): string
     {
-        if (!$format) {
+        if (empty($format)) {
             $format = App::core()->blog()->settings()->get('system')->get('time_format');
         }
 
-        return 'upddt' == $type ?
-            Dt::dt2str($format, $this->rs->f('comment_updt'), $this->rs->f('comment_tz')) :
-            Dt::dt2str($format, $this->rs->f('comment_dt'));
+        return Clock::str(
+            format: $format,
+            date: ('upddt' == $type ? $this->rs->f('comment_updt') : $this->rs->f('comment_dt')),
+            to: App::core()->timezone()
+        );
     }
 
     /**
@@ -77,9 +81,10 @@ class RsExtComment extends RsExtend
      */
     public function getTS(string $type = ''): int
     {
-        return 'upddt' == $type ?
-            (int) strtotime($this->rs->f('comment_upddt')) :
-            (int) strtotime($this->rs->f('comment_dt'));
+        return Clock::ts(
+            date: ('upddt' == $type ? $this->rs->f('comment_upddt') : $this->rs->f('comment_dt')),
+            to: App::core()->timezone()
+        );
     }
 
     /**
@@ -91,9 +96,11 @@ class RsExtComment extends RsExtend
      */
     public function getISO8601Date(string $type = ''): string
     {
-        return 'upddt' == $type ?
-            Dt::iso8601($this->getTS($type) + Dt::getTimeOffset($this->rs->f('comment_tz')), $this->rs->f('comment_tz')) :
-            Dt::iso8601($this->getTS(), $this->rs->f('comment_tz'));
+        return Clock::iso8601(
+            date: $this->getTS('upddt' == $type ? $type : ''),
+            from: App::core()->timezone(),
+            to: App::core()->timezone()
+        );
     }
 
     /**
@@ -105,9 +112,11 @@ class RsExtComment extends RsExtend
      */
     public function getRFC822Date(string $type = ''): string
     {
-        return 'upddt' == $type ?
-            Dt::rfc822($this->getTS($type) + Dt::getTimeOffset($this->rs->f('comment_tz')), $this->rs->f('comment_tz')) :
-            Dt::rfc822($this->getTS(), $this->rs->f('comment_tz'));
+        return Clock::rfc822(
+            date: $this->getTS('upddt' == $type ? $type : ''),
+            from: App::core()->timezone(),
+            to: App::core()->timezone()
+        );
     }
 
     /**

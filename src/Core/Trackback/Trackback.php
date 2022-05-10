@@ -16,6 +16,7 @@ use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\InsertStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Exception\CoreException;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Network\Xmlrpc\Client as XmlrpcClient;
@@ -182,7 +183,7 @@ class Trackback
             ->line([[
                 $post_id,
                 $sql->quote($url),
-                $sql->quote(date('Y-m-d H:i:s')),
+                $sql->quote(Clock::database()),
             ]])
             ->insert()
         ;

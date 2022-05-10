@@ -12,6 +12,7 @@ namespace Dotclear\Process\Admin\Service;
 // Dotclear\Process\Admin\Service\Updater
 use Dotclear\App;
 use Dotclear\Exception\AdminException;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Zip\Unzip;
 use Dotclear\Helper\File\Zip\Zip;
@@ -84,7 +85,7 @@ class Updater
     public function getVersionInfo(bool $nocache = false): void
     {
         // Check cached file
-        if (is_readable($this->cache_file) && filemtime($this->cache_file) > strtotime($this->cache_ttl) && !$nocache) {
+        if (is_readable($this->cache_file) && filemtime($this->cache_file) > Clock::ts(date: $this->cache_ttl) && !$nocache) {
             $c = @file_get_contents($this->cache_file);
             $c = @unserialize($c);
             if (is_array($c)) {

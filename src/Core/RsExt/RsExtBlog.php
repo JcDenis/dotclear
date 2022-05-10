@@ -11,7 +11,7 @@ namespace Dotclear\Core\RsExt;
 
 // Dotclear\Core\RsExt\RsExtBlog
 use Dotclear\App;
-use Dotclear\Helper\Dt;
+use Dotclear\Helper\Clock;
 
 /**
  * Blogs record helpers.
@@ -27,7 +27,10 @@ class RsExtBlog extends RsExtend
      */
     public function getTS(): int
     {
-        return (int) strtotime($this->rs->f('blog_upddt'));
+        return Clock::ts(
+            date: $this->rs->f('blog_upddt'),
+            to: App::core()->timezone()
+        );
     }
 
     /**
@@ -39,7 +42,11 @@ class RsExtBlog extends RsExtend
      */
     public function getISO8601Date(string $tz = ''): string
     {
-        return Dt::iso8601($this->getTS(), $tz ?: App::core()->blog()->settings()->get('system')->get('blog_timezone'));
+        return Clock::iso8601(
+            date: $this->getTS(),
+            from: App::core()->timezone(),
+            to: ($tz ?: App::core()->timezone())
+        );
     }
 
     /**
@@ -51,7 +58,11 @@ class RsExtBlog extends RsExtend
      */
     public function getRFC822Date(string $tz = ''): string
     {
-        return Dt::rfc822($this->getTS(), $tz ?: App::core()->blog()->settings()->get('system')->get('blog_timezone'));
+        return Clock::rfc822(
+            date: $this->getTS(),
+            from: App::core()->timezone(),
+            to: ($tz ?: App::core()->timezone())
+        );
     }
 
     /**
@@ -64,7 +75,11 @@ class RsExtBlog extends RsExtend
      */
     public function getDate(string $format = ''): string
     {
-        return Dt::dt2str($format ?: App::core()->blog()->settings()->get('system')->get('date_format'), $this->rs->f('blog_upddt'));
+        return Clock::str(
+            format: ($format ?: App::core()->blog()->settings()->get('system')->get('date_format')),
+            date: $this->rs->f('blog_upddt'),
+            to: App::core()->timezone()
+        );
     }
 
     /**
@@ -77,6 +92,10 @@ class RsExtBlog extends RsExtend
      */
     public function getTime(string $format): string
     {
-        return Dt::dt2str($format ?: App::core()->blog()->settings()->get('system')->get('time_format'), $this->rs->f('blog_upddt'));
+        return Clock::str(
+            format: ($format ?: App::core()->blog()->settings()->get('system')->get('time_format')),
+            date: $this->rs->f('blog_upddt'),
+            to: App::core()->timezone()
+        );
     }
 }

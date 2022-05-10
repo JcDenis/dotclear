@@ -12,7 +12,7 @@ namespace Dotclear\Process\Admin\Inventory\Inventory;
 // Dotclear\Process\Admin\Inventory\Inventory\BlogInventory
 use ArrayObject;
 use Dotclear\App;
-use Dotclear\Helper\Dt;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Inventory\Inventory;
@@ -136,7 +136,7 @@ class BlogInventory extends Inventory
             App::core()->blogs()->countBlogPosts($this->rs->f('blog_id')) .
             '</td>',
             'upddt' => '<td class="nowrap count">' .
-            Dt::str(__('%Y-%m-%d %H:%M'), strtotime($this->rs->f('blog_upddt')) + Dt::getTimeOffset(App::core()->user()->getInfo('user_tz'))) .
+            Clock::str(format: __('%Y-%m-%d %H:%M'), date: $this->rs->f('blog_upddt'), to: App::core()->timezone()) .
             '</td>',
             'status' => '<td class="nowrap status txt-center">' .
             sprintf(

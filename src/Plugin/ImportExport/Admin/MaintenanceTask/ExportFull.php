@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\ImportExport\Admin\MaintenanceTask;
 
 // Dotclear\Plugin\ImportExport\Admin\MaintenanceTask\ExportFull
 use Dotclear\App;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
@@ -75,7 +76,7 @@ class ExportFull extends MaintenanceTask
 
         return
             '<p><label for="file_name">' . __('File name:') . '</label>' .
-            Form::field('file_name', 50, 255, date('Y-m-d-H-i-') . $this->export_name) .
+            Form::field('file_name', 50, 255, Clock::format(format: 'Y-m-d-H-i-') . $this->export_name) .
             '</p>' .
             '<p><label for="file_zip" class="classic">' .
             Form::checkbox('file_zip', 1) . ' ' .

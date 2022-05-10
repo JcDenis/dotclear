@@ -20,7 +20,7 @@ use Dotclear\Database\Statement\JoinStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Exception\CoreException;
-use Dotclear\Helper\Dt;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Text;
 use Exception;
@@ -89,7 +89,6 @@ class Comments
             $sql->columns([
                 'C.comment_id',
                 'comment_dt',
-                'comment_tz',
                 'comment_upddt',
                 'comment_author',
                 'comment_email',
@@ -285,11 +284,8 @@ class Comments
             ;
 
             $cur->setField('comment_id', $id + 1);
-            $cur->setField('comment_upddt', date('Y-m-d H:i:s'));
-
-            $offset = Dt::getTimeOffset(App::core()->blog()->settings()->get('system')->get('blog_timezone'));
-            $cur->setField('comment_dt', date('Y-m-d H:i:s', time() + $offset));
-            $cur->setField('comment_tz', App::core()->blog()->settings()->get('system')->get('blog_timezone'));
+            $cur->setField('comment_upddt', Clock::database());
+            $cur->setField('comment_dt', Clock::database());
 
             $this->getCommentCursor($cur);
 
@@ -352,7 +348,7 @@ class Comments
 
         $this->getCommentCursor($cur);
 
-        $cur->setField('comment_upddt', date('Y-m-d H:i:s'));
+        $cur->setField('comment_upddt', Clock::database());
 
         if (!App::core()->user()->check('publish,contentadmin', App::core()->blog()->id)) {
             $cur->unsetField('comment_status');

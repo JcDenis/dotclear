@@ -12,7 +12,7 @@ namespace Dotclear\Process\Admin\Inventory\Inventory;
 // Dotclear\Process\Admin\Inventory\Inventory\PostMiniInventory
 use ArrayObject;
 use Dotclear\App;
-use Dotclear\Helper\Dt;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Process\Admin\Page\Pager;
@@ -132,7 +132,7 @@ class PostMiniInventory extends Inventory
             App::core()->posttype()->getPostAdminURL($this->rs->f('post_type'), $this->rs->f('post_id')) . '" ' .
             'title="' . Html::escapeHTML($this->rs->call('getURL')) . '">' .
             Html::escapeHTML(trim(Html::clean($this->rs->f('post_title')))) . '</a></td>',
-            'date'   => '<td class="nowrap count">' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $this->rs->f('post_dt')) . '</td>',
+            'date'   => '<td class="nowrap count">' . Clock::str(format: __('%Y-%m-%d %H:%M'), date: $this->rs->f('post_dt'), to: App::core()->timezone()) . '</td>',
             'author' => '<td class="nowrap">' . Html::escapeHTML($this->rs->f('user_id')) . '</td>',
             'status' => '<td class="nowrap status">' . $img_status . ' ' . $selected . ' ' . $protected . ' ' . $attach . '</td>',
         ];

@@ -12,7 +12,7 @@ namespace Dotclear\Plugin\Breadcrumb\Public;
 // Dotclear\Plugin\Breadcrumb\Public\BreadcrumbTemplate
 use ArrayObject;
 use Dotclear\App;
-use Dotclear\Helper\Dt;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\L10n;
 
 /**
@@ -147,7 +147,7 @@ class BreadcrumbTemplate
                 } else {
                     // Month archive
                     $ret .= $separator . '<a href="' . App::core()->blog()->getURLFor('archive') . '">' . __('Archives') . '</a>';
-                    $ret .= $separator . dt::dt2str('%B %Y', App::core()->context()->get('archives')->f('dt'));
+                    $ret .= $separator . Clock::str(format: '%B %Y', date: App::core()->context()->get('archives')->f('dt'), to: App::core()->blog()->settings()->get('system')->get('blog_timezone'));
                 }
 
                 break;

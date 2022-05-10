@@ -12,8 +12,7 @@ namespace Dotclear\Plugin\Pages\Admin;
 // Dotclear\Plugin\Pages\Admin\HandlerEdit
 use ArrayObject;
 use Dotclear\App;
-use Dotclear\Exception\AdminException;
-use Dotclear\Helper\Dt;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
@@ -82,8 +81,6 @@ class HandlerEdit extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        Dt::setTZ(App::core()->user()->getInfo('user_tz'));
-
         $page_title    = __('New post');
         $next_headlink = $prev_headlink = '';
 
@@ -117,7 +114,7 @@ class HandlerEdit extends AbstractPage
                 $this->can_view_page = false;
             } else {
                 $this->post_id            = $this->post->fInt('post_id');
-                $this->post_dt            = date('Y-m-d H:i', strtotime($this->post->f('post_dt')));
+                $this->post_dt            = $this->post->f('post_dt');
                 $this->post_format        = $this->post->f('post_format');
                 $this->post_password      = $this->post->f('post_password');
                 $this->post_url           = $this->post->f('post_url');
@@ -194,15 +191,12 @@ class HandlerEdit extends AbstractPage
                 $this->post_dt = '';
             } else {
                 try {
-                    $this->post_dt = strtotime($_POST['post_dt']);
-                    if (false == $this->post_dt || -1 == $this->post_dt) {
-                        $this->bad_dt = true;
-
-                        throw new AdminException(__('Invalid publication date'));
-                    }
-                    $this->post_dt = date('Y-m-d H:i', $this->post_dt);
+                    $this->post_dt = Clock::ts(date: $_POST['post_dt'], from: App::core()->timezone());
                 } catch (Exception $e) {
-                    App::core()->error()->add($e->getMessage());
+                    $this->bad_dt  = true;
+                    $this->post_dt = Clock::format('Y-m-d H:i');
+
+                    App::core()->error()->add(__('Invalid publication date'));
                 }
             }
 
@@ -249,7 +243,7 @@ class HandlerEdit extends AbstractPage
             App::core()->blog()->settings()->get('system')->set('post_url_format', '{t}');
 
             $cur->setField('post_type', 'page');
-            $cur->setField('post_dt', $this->post_dt ? date('Y-m-d H:i:00', strtotime($this->post_dt)) : '');
+            $cur->setField('post_dt', $this->post_dt ? Clock::database($this->post_dt) : '');
             $cur->setField('post_format', $this->post_format);
             $cur->setField('post_password', $this->post_password);
             $cur->setField('post_lang', $this->post_lang);
@@ -268,9 +262,6 @@ class HandlerEdit extends AbstractPage
             if (isset($_POST['post_url'])) {
                 $cur->setField('post_url', $this->post_url);
             }
-
-            // Back to UTC in order to keep UTC datetime for creadt/upddt
-            Dt::setTZ('UTC');
 
             // Update post
             if ($this->post_id) {
@@ -470,7 +461,7 @@ class HandlerEdit extends AbstractPage
                         '</p>',
                         'post_dt' => '<p><label for="post_dt">' . __('Publication date and hour') . '</label>' .
                         Form::datetime('post_dt', [
-                            'default' => Html::escapeHTML(Dt::str('%Y-%m-%dT%H:%M', strtotime($this->post_dt))),
+                            'default' => Clock::formfield(date: $this->post_dt, to: App::core()->timezone()),
                             'class'   => ($this->bad_dt ? 'invalid' : ''),
                         ]) .
                         '</p>',
@@ -501,7 +492,7 @@ class HandlerEdit extends AbstractPage
                         Form::checkbox('post_open_comment', 1, $this->post_open_comment) . ' ' .
                         __('Accept comments') . '</label></p>' .
                         (App::core()->blog()->settings()->get('system')->get('allow_comments') ?
-                            ($this->isContributionAllowed($this->post_id, strtotime($this->post_dt), true) ?
+                            ($this->isContributionAllowed($this->post_id, Clock::ts(date: $this->post_dt), true) ?
                                 '' :
                                 '<p class="form-note warn">' .
                                 __('Warning: Comments are not more accepted for this entry.') . '</p>') :
@@ -511,7 +502,7 @@ class HandlerEdit extends AbstractPage
                         Form::checkbox('post_open_tb', 1, $this->post_open_tb) . ' ' .
                         __('Accept trackbacks') . '</label></p>' .
                         (App::core()->blog()->settings()->get('system')->get('allow_trackbacks') ?
-                            ($this->isContributionAllowed($this->post_id, strtotime($this->post_dt), false) ?
+                            ($this->isContributionAllowed($this->post_id, Clock::ts(date: $this->post_dt), false) ?
                                 '' :
                                 '<p class="form-note warn">' .
                                 __('Warning: Trackbacks are not more accepted for this entry.') . '</p>') :
@@ -782,11 +773,11 @@ class HandlerEdit extends AbstractPage
             return true;
         }
         if ($com) {
-            if (0 == App::core()->blog()->settings()->get('system')->get('comments_ttl') || $dt > (time() - App::core()->blog()->settings()->get('system')->get('comments_ttl') * 86400)) {
+            if (0 == App::core()->blog()->settings()->get('system')->get('comments_ttl') || $dt > (Clock::ts() - App::core()->blog()->settings()->get('system')->get('comments_ttl') * 86400)) {
                 return true;
             }
         } else {
-            if (0 == App::core()->blog()->settings()->get('system')->get('trackbacks_ttl') || $dt > (time() - App::core()->blog()->settings()->get('system')->get('trackbacks_ttl') * 86400)) {
+            if (0 == App::core()->blog()->settings()->get('system')->get('trackbacks_ttl') || $dt > (Clock::ts() - App::core()->blog()->settings()->get('system')->get('trackbacks_ttl') * 86400)) {
                 return true;
             }
         }
@@ -858,7 +849,7 @@ class HandlerEdit extends AbstractPage
                 ]
             ) : '') . '</td>' .
             '<td class="maximal">' . Html::escapeHTML($rs->f('comment_author')) . '</td>' .
-            '<td class="nowrap">' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $rs->f('comment_dt')) . '</td>' .
+            '<td class="nowrap">' . Clock::str(format: __('%Y-%m-%d %H:%M'), date: $rs->f('comment_dt'), to: App::core()->timezone()) . '</td>' .
             ($this->can_view_ip ?
                 '<td class="nowrap"><a href="' . App::core()->adminurl()->get('admin.comments', ['ip' => $rs->f('comment_ip')]) . '">' . $rs->f('comment_ip') . '</a></td>' : '') .
             '<td class="nowrap status">' . $this->img_status . '</td>' .

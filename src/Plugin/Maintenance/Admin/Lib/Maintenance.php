@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\Maintenance\Admin\Lib;
 
 // Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance
 use Dotclear\App;
+use Dotclear\Helper\Clock;
 
 /**
  * Main class to call everything related to maintenance.
@@ -302,7 +303,7 @@ class Maintenance
             $this->logs = [];
             while ($rs->fetch()) {
                 $this->logs[$rs->f('log_msg')] = [
-                    'ts'   => strtotime($rs->f('log_dt')),
+                    'ts'   => Clock::ts(date: $rs->f('log_dt')),
                     'blog' => $rs->f('blog_id') == App::core()->blog()->id,
                 ];
             }

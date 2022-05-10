@@ -16,7 +16,7 @@ use Dotclear\Core\User\UserContainer;
 use Dotclear\Database\Record;
 use Dotclear\Helper\Html\FormSelectOption;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Helper\Dt;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\L10n;
 
 /**
@@ -112,7 +112,12 @@ class Combo
     {
         $dt_m_combo = [];
         while ($dates->fetch()) {
-            $dt_m_combo[Dt::str('%B %Y', $dates->call('ts'))] = $dates->call('year') . $dates->call('month');
+            $dt_m_combo[Clock::str(
+                format: '%B %Y',
+                date: $dates->call('ts'),
+                from: App::core()->timezone(),
+                to: App::core()->timezone()
+            )] = $dates->call('year') . $dates->call('month');
         }
 
         return $dt_m_combo;

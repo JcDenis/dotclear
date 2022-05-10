@@ -16,6 +16,7 @@ use Dotclear\Core\RsExt\RsExtBlog;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
 use Dotclear\Exception\CoreException;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Html;
 
 /**
@@ -226,8 +227,8 @@ class Blogs
 
         $this->getBlogCursor($cur);
 
-        $cur->setField('blog_creadt', date('Y-m-d H:i:s'));
-        $cur->setField('blog_upddt', date('Y-m-d H:i:s'));
+        $cur->setField('blog_creadt', Clock::database());
+        $cur->setField('blog_upddt', Clock::database());
         $cur->setField('blog_uid', md5(uniqid()));
 
         $cur->insert();
@@ -243,7 +244,7 @@ class Blogs
     {
         $this->getBlogCursor($cur);
 
-        $cur->setField('blog_upddt', date('Y-m-d H:i:s'));
+        $cur->setField('blog_upddt', Clock::database());
 
         $cur->update("WHERE blog_id = '" . App::core()->con()->escape($blog_id) . "'");
     }

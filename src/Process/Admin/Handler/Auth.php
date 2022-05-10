@@ -12,6 +12,7 @@ namespace Dotclear\Process\Admin\Handler;
 // Dotclear\Process\Admin\Handler\Auth
 use Dotclear\App;
 use Dotclear\Exception\AdminException;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\Mail;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -271,7 +272,7 @@ class Auth extends AbstractPage
             $_SESSION['sess_browser_uid'] = Http::browserUID(App::core()->config()->get('master_key'));
 
             if ($data['user_remember']) {
-                setcookie('dc_admin', $data['cookie_admin'], strtotime('+15 days'), '', '', App::core()->config()->get('admin_ssl'));
+                setcookie('dc_admin', $data['cookie_admin'], Clock::ts(date: '+15 days'), '', '', App::core()->config()->get('admin_ssl'));
             }
 
             App::core()->adminurl()->redirect('admin.home');
@@ -322,7 +323,7 @@ class Auth extends AbstractPage
             }
 
             if (!empty($_POST['user_remember'])) {
-                setcookie('dc_admin', $cookie_admin, strtotime('+15 days'), '', '', App::core()->config()->get('admin_ssl'));
+                setcookie('dc_admin', $cookie_admin, Clock::ts(date: '+15 days'), '', '', App::core()->config()->get('admin_ssl'));
             }
 
             App::core()->adminurl()->redirect('admin.home');

@@ -11,19 +11,19 @@ namespace Dotclear\Process\Install;
 
 // Dotclear\Process\Install\Install
 use ArrayObject;
-use DateTimeZone;
 use Dotclear\App;
 use Dotclear\Core\User\UserContainer;
 use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Database\AbstractSchema;
 use Dotclear\Database\Structure;
 use Dotclear\Exception\InstallException;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\L10n;
-use Dotclear\Helper\Text;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Text;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Process\Distrib\Distrib;
 use Error;
@@ -114,18 +114,10 @@ class Install
 
                 // Try to guess timezone
                 $default_tz = 'Europe/London';
-                if (!empty($_POST['u_date']) && function_exists('timezone_open')) {
+                if (!empty($_POST['u_date'])) {
                     if (preg_match('/\((.+)\)$/', $_POST['u_date'], $_tz)) {
-                        $_tz = $_tz[1];
-                        $_tz = @timezone_open($_tz);
-                        if ($_tz instanceof DateTimeZone) {
-                            $_tz = @timezone_name_get($_tz);
-
-                            // check if timezone is valid
-                            // date_default_timezone_set throw E_NOTICE and/or E_WARNING if timezone is not valid and return false
-                            if (false !== @date_default_timezone_set($_tz) && $_tz) {
-                                $default_tz = $_tz;
-                            }
+                        if (Clock::zoneExists($_tz[1])) {
+                            $default_tz = $_tz[1];
                         }
                         unset($_tz);
                     }
@@ -148,8 +140,8 @@ class Install
                 $cur->setField('user_email', (string) $u_email);
                 $cur->setField('user_lang', $dlang);
                 $cur->setField('user_tz', $default_tz);
-                $cur->setField('user_creadt', date('Y-m-d H:i:s'));
-                $cur->setField('user_upddt', date('Y-m-d H:i:s'));
+                $cur->setField('user_creadt', Clock::database());
+                $cur->setField('user_upddt', Clock::database());
                 $cur->setField('user_options', serialize(UserContainer::defaultOptions()));
                 $cur->insert();
 
@@ -176,7 +168,7 @@ class Install
                     '%A, %B %e, %Y', '%A, %e %B, %Y', '%A, %Y, %B %e', '%A, %Y, %B %e', '%A, %e. %B %Y', ];
                 $time_formats = ['%H:%M', '%I:%M', '%l:%M', '%Hh%M', '%Ih%M', '%lh%M'];
                 if (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN') {
-                    $formatDate   = preg_replace('#(?<!%)((?:%%)*)%e#', '\1%#d', $formatDate);
+                    $formatDate   = preg_replace('#(?<!%)((?:%%)*)%e#', '\1%#d', $formatDate); // ! not working
                     $date_formats = array_map(
                         fn ($f) => str_replace('%e', '%#d', $f),
                         $date_formats
@@ -262,7 +254,6 @@ class Install
                 // Add a comment to it
                 $cur = App::core()->con()->openCursor(App::core()->prefix . 'comment');
                 $cur->setField('post_id', $post_id);
-                $cur->setField('comment_tz', $default_tz);
                 $cur->setField('comment_author', __('Dotclear Team'));
                 $cur->setField('comment_email', 'contact@dotclear.net');
                 $cur->setField('comment_site', 'https://dotclear.org/');

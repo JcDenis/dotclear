@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Helper\Network\Feed;
 
 // Dotclear\Helper\Network\Feed\Reader
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Network\NetHttp\NetHttp;
 
@@ -202,7 +203,7 @@ class Reader extends NetHttp
         if (@file_exists($cached_file)) {
             $may_use_cached = true;
             $ts             = @filemtime($cached_file);
-            if (strtotime($this->cache_ttl) < $ts) {
+            if (Clock::ts(date: $this->cache_ttl) < $ts) {
                 // Direct cache
                 return unserialize(file_get_contents($cached_file));
             }
@@ -273,7 +274,7 @@ class Reader extends NetHttp
     private function setValidator(string $key, int $value): void
     {
         if ('IfModifiedSince' == $key) {
-            $value = gmdate('D, d M Y H:i:s', $value) . ' GMT';
+            $value = Clock::format(format: 'D, d M Y H:i:s', date: $value) . ' GMT';
         }
 
         $this->validators[$key] = $value;

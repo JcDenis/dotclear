@@ -12,6 +12,7 @@ namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 // Dotclear\Plugin\ImportExport\Admin\Lib\Module\ExportFlat
 use Dotclear\App;
 use Dotclear\Exception\ModuleException;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\File\Zip\Zip;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -208,7 +209,7 @@ class ExportFlat extends Module
         '<p>' . sprintf(__('This will create an export of your current blog: %s'), '<strong>' . Html::escapeHTML(App::core()->blog()->name)) . '</strong>.</p>' .
 
         '<p><label for="file_name">' . __('File name:') . '</label>' .
-        Form::field('file_name', 50, 255, date('Y-m-d-H-i-') . Html::escapeHTML(App::core()->blog()->id . '-backup.txt')) .
+        Form::field('file_name', 50, 255, Clock::format(format: 'Y-m-d-H-i-') . Html::escapeHTML(App::core()->blog()->id . '-backup.txt')) .
         '</p>' .
 
         '<p><label for="file_zip" class="classic">' .
@@ -232,7 +233,7 @@ class ExportFlat extends Module
             '<p>' . __('This will create an export of all the content of your database.') . '</p>' .
 
             '<p><label for="file_name2">' . __('File name:') . '</label>' .
-            Form::field(['file_name', 'file_name2'], 50, 255, date('Y-m-d-H-i-') . 'dotclear-backup.txt') .
+            Form::field(['file_name', 'file_name2'], 50, 255, Clock::format(format: 'Y-m-d-H-i-') . 'dotclear-backup.txt') .
             '</p>' .
 
             '<p><label for="file_zip2" class="classic">' .

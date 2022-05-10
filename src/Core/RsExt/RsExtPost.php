@@ -13,7 +13,7 @@ namespace Dotclear\Core\RsExt;
 use Dotclear\App;
 use Dotclear\Core\User\UserContainer;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Helper\Dt;
+use Dotclear\Helper\Clock;
 
 /**
  * Posts record helpers.
@@ -89,9 +89,9 @@ class RsExtPost extends RsExtend
             return true;
         }
 
-        $cdate = date('Ymd', strtotime($this->rs->f('post_dt')));
+        $cdate = Clock::format(format: 'Ymd', date: $this->rs->f('post_dt'), to: App::core()->timezone());
         $this->rs->movePrev();
-        $ndate = date('Ymd', strtotime($this->rs->f('post_dt')));
+        $ndate = Clock::format(format: 'Ymd', date: $this->rs->f('post_dt'), to: App::core()->timezone());
         $this->rs->moveNext();
 
         return $ndate != $cdate;
@@ -106,9 +106,9 @@ class RsExtPost extends RsExtend
             return true;
         }
 
-        $cdate = date('Ymd', strtotime($this->rs->f('post_dt')));
+        $cdate = Clock::format(format: 'Ymd', date: $this->rs->f('post_dt'), to: App::core()->timezone());
         $this->rs->moveNext();
-        $ndate = date('Ymd', strtotime($this->rs->f('post_dt')));
+        $ndate = Clock::format(format: 'Ymd', date: $this->rs->f('post_dt'), to: App::core()->timezone());
         $this->rs->movePrev();
 
         return $ndate != $cdate;
@@ -124,7 +124,7 @@ class RsExtPost extends RsExtend
             && $this->rs->f('post_open_comment')
             && (
                 0 == App::core()->blog()->settings()->get('system')->get('comments_ttl')
-                || time() - (App::core()->blog()->settings()->get('system')->get('comments_ttl') * 86400) < $this->getTS()
+                || Clock::ts(to: App::core()->timezone()) - (App::core()->blog()->settings()->get('system')->get('comments_ttl') * 86400) < $this->getTS()
             );
     }
 
@@ -138,7 +138,7 @@ class RsExtPost extends RsExtend
             && $this->rs->f('post_open_tb')
             && (
                 0 == App::core()->blog()->settings()->get('system')->get('trackbacks_ttl')
-                || time() - (App::core()->blog()->settings()->get('system')->get('trackbacks_ttl') * 86400) < $this->getTS()
+                || Clock::ts(to: App::core()->timezone()) - (App::core()->blog()->settings()->get('system')->get('trackbacks_ttl') * 86400) < $this->getTS()
             );
     }
 
@@ -164,7 +164,7 @@ class RsExtPost extends RsExtend
     public function isRepublished(): bool
     {
         // Take care of post_dt does not store seconds
-        return ($this->getTS('upddt') + Dt::getTimeOffset($this->rs->f('post_tz'), $this->getTS('upddt'))) > ($this->getTS() + 60);
+        return $this->getTS('upddt') > ($this->getTS() + 60);
     }
 
     /**
@@ -207,11 +207,16 @@ class RsExtPost extends RsExtend
      */
     public function getTS(string $type = ''): int
     {
-        return match ($type) {
-            'upddt'  => strtotime($this->rs->f('post_upddt')),
-            'creadt' => strtotime($this->rs->f('post_creadt')),
-            default  => strtotime($this->rs->f('post_dt')),
+        $date = match ($type) {
+            'upddt'  => $this->rs->f('post_upddt'),
+            'creadt' => $this->rs->f('post_creadt'),
+            default  => $this->rs->f('post_dt'),
         };
+
+        return CLock::ts(
+            date: $date,
+            to: App::core()->timezone()
+        );
     }
 
     /**
@@ -223,10 +228,11 @@ class RsExtPost extends RsExtend
      */
     public function getISO8601Date(string $type = ''): string
     {
-        return match ($type) {
-            'upddt', 'creadt' => Dt::iso8601($this->getTS($type) + Dt::getTimeOffset($this->rs->f('post_tz')), $this->rs->f('post_tz')),
-            default => Dt::iso8601($this->getTS(), $this->rs->f('post_tz')),
-        };
+        return Clock::iso8601(
+            date: $this->getTS($type),
+            from: App::core()->timezone(),
+            to: App::core()->timezone()
+        );
     }
 
     /**
@@ -238,10 +244,11 @@ class RsExtPost extends RsExtend
      */
     public function getRFC822Date(string $type = ''): string
     {
-        return match ($type) {
-            'upddt', 'creadt' => Dt::rfc822($this->getTS($type) + Dt::getTimeOffset($this->rs->f('post_tz')), $this->rs->f('post_tz')),
-            default => Dt::rfc822($this->getTS($type), $this->rs->f('post_tz')),
-        };
+        return Clock::rfc822(
+            date: $this->getTS($type),
+            from: App::core()->timezone(),
+            to: App::core()->timezone()
+        );
     }
 
     /**
@@ -255,15 +262,12 @@ class RsExtPost extends RsExtend
      */
     public function getDate(string $format, string $type = ''): string
     {
-        if (!$format) {
-            $format = App::core()->blog()->settings()->get('system')->get('date_format');
-        }
-
-        return match ($type) {
-            'upddt'  => Dt::dt2str($format, $this->rs->f('post_upddt'), $this->rs->f('post_tz')),
-            'creadt' => Dt::dt2str($format, $this->rs->f('post_creadt'), $this->rs->f('post_tz')),
-            default  => Dt::dt2str($format, $this->rs->f('post_dt')),
-        };
+        return Clock::str(
+            format: ($format ?: App::core()->blog()->settings()->get('system')->get('date_format')),
+            date: $this->getTS($type),
+            from: App::core()->timezone(),
+            to: App::core()->timezone()
+        );
     }
 
     /**
@@ -277,15 +281,12 @@ class RsExtPost extends RsExtend
      */
     public function getTime(string $format, string $type = ''): string
     {
-        if (!$format) {
-            $format = App::core()->blog()->settings()->get('system')->get('time_format');
-        }
-
-        return match ($type) {
-            'upddt'  => Dt::dt2str($format, $this->rs->f('post_upddt'), $this->rs->f('post_tz')),
-            'creadt' => Dt::dt2str($format, $this->rs->f('post_creadt'), $this->rs->f('post_tz')),
-            default  => Dt::dt2str($format, $this->rs->f('post_dt')),
-        };
+        return Clock::str(
+            format: ($format ?: App::core()->blog()->settings()->get('system')->get('time_format')),
+            date: $this->getTS($type),
+            from: App::core()->timezone(),
+            to: App::core()->timezone()
+        );
     }
 
     /**

@@ -12,7 +12,7 @@ namespace Dotclear\Plugin\Maintenance\Admin;
 // Dotclear\Plugin\Maintenance\Admin\MaintenanceBehavior
 use ArrayObject;
 use Dotclear\App;
-use Dotclear\Helper\Dt;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance;
 use Dotclear\Process\Admin\Favorite\Favorite;
@@ -147,8 +147,11 @@ class MaintenanceBehavior
                 :
                 sprintf(
                     __('Last execution of this task was on %s.'),
-                    Dt::dt2str(App::core()->blog()->settings()->get('system')->get('date_format'), (string) $ts) . ' ' .
-                    Dt::dt2str(App::core()->blog()->settings()->get('system')->get('time_format'), (string) $ts)
+                    Clock::str(
+                        format: App::core()->blog()->settings()->get('system')->get('date_format') . ' ' . App::core()->blog()->settings()->get('system')->get('time_format'),
+                        date: $ts,
+                        to: App::core()->timezone()
+                    )
                 )
             ) . '">' . $t->task() . '</li>';
         }

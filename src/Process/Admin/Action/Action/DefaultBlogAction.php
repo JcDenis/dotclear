@@ -66,7 +66,7 @@ abstract class DefaultBlogAction extends Action
         $sql
             ->from(App::core()->prefix . 'blog')
             ->set('blog_status = ' . $sql->quote($status))
-            // ->set('blog_upddt = ' . $sql->quote(date('Y-m-d H:i:s')))
+            // ->set('blog_upddt = ' . $sql->quote(Clock::database()))
             ->where('blog_id' . $sql->in($ids))
             ->update()
         ;

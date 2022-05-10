@@ -18,6 +18,7 @@ use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\JoinStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Exception\ModuleException;
+use Dotclear\Helper\Clock;
 use Dotclear\Plugin\Antispam\Common\Filter\FilterIp;
 use Dotclear\Plugin\Antispam\Common\Filter\FilterIpv6;
 use Dotclear\Process\Admin\Action\Action;
@@ -226,7 +227,7 @@ class Antispam
 
     public function purgeOldSpam(): void
     {
-        $defaultDateLastPurge = time();
+        $defaultDateLastPurge = Clock::ts();
         $defaultModerationTTL = '7';
         $init                 = false;
 
@@ -248,12 +249,12 @@ class Antispam
         }
 
         // we call the purge every day
-        if (86400 < (time() - $dateLastPurge)) {
+        if (86400 < ($defaultDateLastPurge - $dateLastPurge)) {
             // update dateLastPurge
             if (!$init) {
-                App::core()->blog()->settings()->get('antispam')->put('antispam_date_last_purge', time(), null, null, true, false);
+                App::core()->blog()->settings()->get('antispam')->put('antispam_date_last_purge', $defaultDateLastPurge, null, null, true, false);
             }
-            $date = date('Y-m-d H:i:s', time() - $moderationTTL * 86400);
+            $date = Clock::database(date: ($defaultDateLastPurge - $moderationTTL * 86400));
             self::delAllSpam($date);
         }
     }

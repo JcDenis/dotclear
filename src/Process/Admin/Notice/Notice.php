@@ -16,7 +16,7 @@ use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Exception\AdminException;
-use Dotclear\Helper\Dt;
+use Dotclear\Helper\Clock;
 use Exception;
 
 /**
@@ -236,7 +236,7 @@ class Notice
         }
 
         if ('' === $cur->getField('notice_ts') || null === $cur->getField('notice_ts')) {
-            $cur->setField('notice_ts', date('Y-m-d H:i:s'));
+            $cur->setField('notice_ts', Clock::database());
         }
 
         if ('' === $cur->getField('notice_format') || null === $cur->getField('notice_format')) {
@@ -331,18 +331,10 @@ class Notice
      */
     public function addNotice(string $type, string $message, array $options = []): void
     {
-        $now = function () {
-            Dt::setTZ(App::core()->user()->getInfo('user_tz')); // Set user TZ
-            $dt = date('Y-m-d H:i:s');
-            Dt::setTZ('UTC');                           // Back to default TZ
-
-            return $dt;
-        };
-
         $cur = App::core()->con()->openCursor($this->table());
 
         $cur->setField('notice_type', $type);
-        $cur->setField('notice_ts', isset($options['ts']) && $options['ts'] ? $options['ts'] : $now());
+        $cur->setField('notice_ts', isset($options['ts']) && $options['ts'] ? $options['ts'] : Clock::database());
         $cur->setField('notice_msg', $message);
         $cur->setField('notice_options', json_encode($options));
 
@@ -403,8 +395,8 @@ class Notice
         if (!isset($notification['with_ts']) || (true == $notification['with_ts'])) {
             $ts = sprintf(
                 '<span class="notice-ts"><time datetime="%s">%s</time></span>',
-                Dt::iso8601(strtotime($notification['ts']), App::core()->user()->getInfo('user_tz')),
-                Dt::dt2str(__('%H:%M:%S'), $notification['ts'], App::core()->user()->getInfo('user_tz')),
+                Clock::iso8601(date: $notification['ts'], to: App::core()->timezone()),
+                Clock::str(format: __('%H:%M:%S'), date: $notification['ts'], to: App::core()->timezone()),
             );
         }
 
@@ -428,8 +420,8 @@ class Notice
             if ($timestamp) {
                 $ts = sprintf(
                     '<span class="notice-ts"><time datetime="%s">%s</time></span>',
-                    Dt::iso8601(time(), App::core()->user()->getInfo('user_tz')),
-                    Dt::str(__('%H:%M:%S'), null, App::core()->user()->getInfo('user_tz')),
+                    Clock::iso8601(to: App::core()->timezone()),
+                    Clock::str(format: __('%H:%M:%S'), to: App::core()->timezone()),
                 );
             }
             $res = ($div ? '<div class="' . $class . '">' : '') . '<p' . ($div ? '' : ' class="' . $class . '"') . '>' .

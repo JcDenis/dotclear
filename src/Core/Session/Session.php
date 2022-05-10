@@ -15,6 +15,7 @@ use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\InsertStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
+use Dotclear\Helper\Clock;
 
 /**
  * Session handling methods.
@@ -234,7 +235,7 @@ class Session
             $sql
                 ->from($this->table)
                 ->where('ses_id = ' . $sql->quote($ses_id))
-                ->set('ses_time = ' . time())
+                ->set('ses_time = ' . Clock::ts())
                 ->set('ses_value = ' . $sql->quote($data))
                 ->update()
             ;
@@ -250,8 +251,8 @@ class Session
                 ])
                 ->line([[
                     $sql->quote($ses_id),
-                    time(),
-                    time(),
+                    CLock::ts(),
+                    Clock::ts(),
                     $sql->quote($data),
                 ]])
                 ->insert()
@@ -280,7 +281,7 @@ class Session
     {
         DeleteStatement::init(__METHOD__)
             ->from($this->table)
-            ->where('ses_time < ' . strtotime($this->ttl))
+            ->where('ses_time < ' . Clock::ts($this->ttl))
             ->delete()
         ;
 

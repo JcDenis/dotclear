@@ -13,7 +13,7 @@ namespace Dotclear\Process\Admin\Service;
 use ArrayObject;
 use Dotclear\App;
 use Dotclear\Exception\AdminException;
-use Dotclear\Helper\Dt;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\Validator;
 use Dotclear\Helper\Html\XmlTag;
@@ -128,7 +128,7 @@ class RestMethods
                         $item->title . ' <img src="?df=images/outgoing-link.svg" alt="" /></a>' : $item->title;
 
                         $ret .= '<dt>' . $dt . '</dt>' .
-                        '<dd><p><strong>' . Dt::dt2str(__('%d %B %Y:'), $item->pubdate, 'Europe/Paris') . '</strong> ' .
+                        '<dd><p><strong>' . Clock::str(format: __('%d %B %Y:'), date: $item->pubdate, to: 'Europe/Paris') . '</strong> ' .
                         '<em>' . Text::cutString(Html::clean($item->content), 120) . '...</em></p></dd>';
                         ++$i;
                         if (2 < $i) {

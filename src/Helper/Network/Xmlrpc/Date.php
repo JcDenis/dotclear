@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Helper\Network\Xmlrpc;
 
 // Dotclear\Helper\Network\Xmlrpc\Date
+use Dotclear\Helper\Clock;
 
 /**
  * XML-RPC Date object.
@@ -42,7 +43,7 @@ class Date
         if (is_numeric($time)) {
             $this->parseTimestamp($time);
         } else {
-            $this->parseTimestamp(strtotime($time));
+            $this->parseTimestamp(Clock::ts(date: $time));
         }
     }
 
@@ -53,12 +54,12 @@ class Date
      */
     protected function parseTimestamp(int $timestamp): void
     {
-        $this->year   = date('Y', $timestamp);
-        $this->month  = date('m', $timestamp);
-        $this->day    = date('d', $timestamp);
-        $this->hour   = date('H', $timestamp);
-        $this->minute = date('i', $timestamp);
-        $this->second = date('s', $timestamp);
+        $this->year   = Clock::format(format: 'Y', date: $timestamp);
+        $this->month  = Clock::format(format: 'm', date: $timestamp);
+        $this->day    = Clock::format(format: 'd', date: $timestamp);
+        $this->hour   = Clock::format(format: 'H', date: $timestamp);
+        $this->minute = Clock::format(format: 'i', date: $timestamp);
+        $this->second = Clock::format(format: 's', date: $timestamp);
         $this->ts     = $timestamp;
     }
 

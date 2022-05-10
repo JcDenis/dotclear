@@ -11,7 +11,7 @@ namespace Dotclear\Core\RsExt;
 
 // Dotclear\Core\RsExt\RsExtDate
 use Dotclear\App;
-use Dotclear\Helper\Dt;
+use Dotclear\Helper\Clock;
 
 /**
  * Record dates helpers.
@@ -28,7 +28,10 @@ class RsExtDate extends RsExtend
      */
     public function ts(): int
     {
-        return (int) strtotime($this->rs->f('dt'));
+        return Clock::ts(
+            date: $this->rs->f('dt'),
+            to: App::core()->timezone()
+        );
     }
 
     /**
@@ -36,7 +39,12 @@ class RsExtDate extends RsExtend
      */
     public function year(): string
     {
-        return date('Y', $this->ts());
+        return Clock::format(
+            format: 'Y',
+            date: $this->ts(),
+            from: App::core()->timezone(),
+            to: App::core()->timezone()
+        );
     }
 
     /**
@@ -44,7 +52,12 @@ class RsExtDate extends RsExtend
      */
     public function month(): string
     {
-        return date('m', $this->ts());
+        return Clock::format(
+            format: 'm',
+            date: $this->ts(),
+            from: App::core()->timezone(),
+            to: App::core()->timezone()
+        );
     }
 
     /**
@@ -52,7 +65,12 @@ class RsExtDate extends RsExtend
      */
     public function day(): string
     {
-        return date('d', $this->ts());
+        return Clock::format(
+            format: 'd',
+            date: $this->ts(),
+            from: App::core()->timezone(),
+            to: App::core()->timezone()
+        );
     }
 
     /**
@@ -60,7 +78,12 @@ class RsExtDate extends RsExtend
      */
     public function url(): string
     {
-        return App::core()->blog()->getURLFor('archive', date('Y/m', $this->ts()));
+        return App::core()->blog()->getURLFor('archive', Clock::format(
+            format: 'Y/m',
+            date: $this->ts(),
+            from: App::core()->timezone(),
+            to: App::core()->timezone()
+        ));
     }
 
     /**
@@ -110,6 +133,10 @@ class RsExtDate extends RsExtend
      */
     public function getDate(string $format = ''): string
     {
-        return Dt::dt2str($format ?: App::core()->blog()->settings()->get('system')->get('date_format'), $this->rs->f('dt'));
+        return Clock::str(
+            format: $format ?: App::core()->blog()->settings()->get('system')->get('date_format'),
+            date: $this->rs->f('dt'),
+            to: App::core()->timezone()
+        );
     }
 }

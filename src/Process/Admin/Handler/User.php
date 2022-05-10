@@ -18,7 +18,7 @@ use Dotclear\Core\User\Preference\Preference;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Helper\Dt;
+use Dotclear\Helper\Clock;
 use Exception;
 
 /**
@@ -357,7 +357,7 @@ class User extends AbstractPage
         '</p>' .
 
         '<p><label for="user_tz">' . __('Timezone:') . '</label> ' .
-        Form::combo('user_tz', Dt::getZones(true, true), $this->user->getProperty('user_tz')) .
+        Form::combo('user_tz', Clock::getZones(true, true), $this->user->getProperty('user_tz')) .
         '</p>' .
 
         '<h4>' . __('Edition') . '</h4>' .

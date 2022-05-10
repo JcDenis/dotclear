@@ -15,13 +15,13 @@ use Dotclear\App;
 use Dotclear\Core\User\UserContainer;
 use Dotclear\Core\Trackback\Trackback;
 use Dotclear\Exception\CoreException;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Helper\Text;
-use Dotclear\Helper\Dt;
 use Dotclear\Helper\Network\Xmlrpc\IntrospectionServer as XmlrpcIntrospectionServer;
 use Dotclear\Helper\Network\Xmlrpc\Date as XmlrpcDate;
+use Dotclear\Helper\Text;
 use Exception;
 
 /**
@@ -402,7 +402,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         }
 
         if (false !== ($fp = @fopen($this->debug_file, 'a'))) {
-            fwrite($fp, '[' . date('r') . ']' . ' ' . $methodname);
+            fwrite($fp, '[' . Clock::format(format: 'r') . ']' . ' ' . $methodname);
 
             if ($this->trace_args) {
                 fwrite($fp, "\n- args ---\n" . var_export($args, true));
@@ -529,9 +529,9 @@ class Xmlrpc extends XmlrpcIntrospectionServer
 
         if ($dateCreated) {
             if ($dateCreated instanceof xmlrpcDate) {
-                $cur->setField('post_dt', date('Y-m-d H:i:00', $dateCreated->getTimestamp()));
-            } elseif (is_string($dateCreated) && @strtotime($dateCreated)) {
-                $cur->setField('post_dt', date('Y-m-d H:i:00', strtotime($dateCreated)));
+                $cur->setField('post_dt', Clock::format(format: 'Y-m-d H:i:00', date: $dateCreated->getTimestamp()));
+            } elseif (is_string($dateCreated) && Clock::ts(date: $dateCreated)) {
+                $cur->setField('post_dt', Clock::format(format: 'Y-m-d H:i:00', date: $dateCreated));
             }
         }
 
@@ -628,9 +628,9 @@ class Xmlrpc extends XmlrpcIntrospectionServer
 
         if ($dateCreated) {
             if ($dateCreated instanceof xmlrpcDate) {
-                $cur->setField('post_dt', date('Y-m-d H:i:00', $dateCreated->getTimestamp()));
-            } elseif (is_string($dateCreated) && @strtotime($dateCreated)) {
-                $cur->setField('post_dt', date('Y-m-d H:i:00', strtotime($dateCreated)));
+                $cur->setField('post_dt', Clock::format(format: 'Y-m-d H:i:00', date: $dateCreated->getTimestamp()));
+            } elseif (is_string($dateCreated) && Clock::ts($dateCreated)) {
+                $cur->setField('post_dt', Clock::format(format: 'Y-m-d H:i:00', date: $dateCreated));
             }
         } else {
             $cur->setField('post_dt', $post->post_dt);
@@ -998,7 +998,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
     {
         $timezone = 0;
         if (App::core()->blog()->settings()->get('system')->get('blog_timezone')) {
-            $timezone = Dt::getTimeOffset(App::core()->blog()->settings()->get('system')->get('blog_timezone')) / 3600;
+            $timezone = Clock::getTimeOffset(to: App::core()->timezone()) / 3600;
         }
 
         $res = [
@@ -1141,7 +1141,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
                 'wp_page_order'          => $posts->f('post_position'),
                 'wp_author_id'           => $posts->f('user_id'),
                 'wp_author_display_name' => $posts->getAuthorCN(),
-                'date_created_gmt'       => new xmlrpcDate(Dt::iso8601($posts->getTS(), $posts->f('post_tz'))),
+                'date_created_gmt'       => new xmlrpcDate(Clock::iso8601(date: $posts->getTS(), from: App::core()->timezone(), to: 'UTC')),
                 'custom_fields'          => [],
                 'wp_page_template'       => 'default',
             ];
@@ -1422,9 +1422,9 @@ class Xmlrpc extends XmlrpcIntrospectionServer
 
         if (isset($struct['date_created_gmt'])) {
             if ($struct['date_created_gmt'] instanceof xmlrpcDate) {
-                $cur->setField('comment_dt', date('Y-m-d H:i:00', $struct['date_created_gmt']->getTimestamp()));
-            } elseif (is_string($struct['date_created_gmt']) && @strtotime($struct['date_created_gmt'])) {
-                $cur->setField('comment_dt', date('Y-m-d H:i:00', strtotime($struct['date_created_gmt'])));
+                $cur->setField('comment_dt', Clock::format(format: 'Y-m-d H:i:00', date: $struct['date_created_gmt']->getTimestamp()));
+            } elseif (is_string($struct['date_created_gmt']) && Clock::ts($struct['date_created_gmt'])) {
+                $cur->setField('comment_dt', Clock::format(format: 'Y-m-d H:i:00', date: $struct['date_created_gmt']));
             }
             $cur->setField('comment_dt', $struct['date_created_gmt']);
         }

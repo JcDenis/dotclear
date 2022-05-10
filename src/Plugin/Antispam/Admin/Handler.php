@@ -11,7 +11,7 @@ namespace Dotclear\Plugin\Antispam\Admin;
 
 // Dotclear\Plugin\Antispam\Admin\Handler
 use Dotclear\App;
-use Dotclear\Helper\Dt;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Plugin\Antispam\Common\Antispam;
@@ -61,9 +61,7 @@ class Handler extends AbstractPage
 
             // Remove all spam
             if (!empty($_POST['delete_all'])) {
-                $ts = Dt::str('%Y-%m-%d %H:%M:%S', $_POST['ts'], App::core()->blog()->settings()->get('system')->get('blog_timezone'));
-
-                $this->a_antispam->delAllSpam($ts);
+                $this->a_antispam->delAllSpam(Clock::database(date: (int) $_POST['ts']));
 
                 App::core()->notice()->addSuccessNotice(__('Spam comments have been successfully deleted.'));
                 App::core()->adminurl()->redirect('admin.plugin.Antispam');
@@ -181,7 +179,7 @@ class Handler extends AbstractPage
 
         if (0 < $spam_count) {
             echo '<p>' .
-            Form::hidden('ts', time()) .
+            Form::hidden('ts', Clock::ts()) .
             '<input name="delete_all" class="delete" type="submit" value="' . __('Delete all spams') . '" /></p>';
         }
         if (null != $moderationTTL && 0 <= $moderationTTL) {

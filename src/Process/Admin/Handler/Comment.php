@@ -16,7 +16,7 @@ use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
-use Dotclear\Helper\Dt;
+use Dotclear\Helper\Clock;
 use Exception;
 
 /**
@@ -231,7 +231,7 @@ class Comment extends AbstractPage
         }
 
         echo '<p>' . __('Date:') . ' ' .
-        Dt::dt2str(__('%Y-%m-%d %H:%M'), $this->comment_dt) . '</p>' .
+        Clock::str(format: __('%Y-%m-%d %H:%M'), date: $this->comment_dt, to: App::core()->timezone()) . '</p>' .
         '</div>' .
 
         '<h3>' . __('Comment submitted') . '</h3>' .

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Helper\Network\Feed;
 
 // Dotclear\Helper\Network\Feed\Parser
+use Dotclear\Helper\Clock;
 use stdClass;
 use SimpleXMLElement;
 
@@ -135,7 +136,7 @@ class Parser
             $item->content     = (string) $i->children('http://purl.org/rss/1.0/modules/content/')->encoded;
             $item->subject     = $this->nodes2array($i->children('http://purl.org/dc/elements/1.1/')->subject);
             $item->pubdate     = (string) $i->children('http://purl.org/dc/elements/1.1/')->date;
-            $item->TS          = strtotime($item->pubdate);
+            $item->TS          = Clock::ts(date: $item->pubdate);
 
             $item->guid = (string) $item->link;
             if (!empty($i->attributes('http://www.w3.org/1999/02/22-rdf-syntax-ns#')->about)) {
@@ -182,7 +183,7 @@ class Parser
                 $item->pubdate = (string) $i->children('http://purl.org/dc/elements/1.1/')->date;
             }
 
-            $item->TS = strtotime($item->pubdate);
+            $item->TS = Clock::ts(date: $item->pubdate);
 
             $item->guid = (string) $item->link;
             if (!empty($i->guid)) {
@@ -237,7 +238,7 @@ class Parser
             $item->content     = (string) $i->content;
             $item->subject     = $this->nodes2array($i->children('http://purl.org/dc/elements/1.1/')->subject);
             $item->pubdate     = (string) $i->modified;
-            $item->TS          = strtotime($item->pubdate);
+            $item->TS          = Clock::ts(date: $item->pubdate);
 
             $this->items[] = $item;
         }
@@ -287,7 +288,7 @@ class Parser
             $item->content     = (string) $i->content;
             $item->subject     = $this->nodes2array($i->children('http://purl.org/dc/elements/1.1/')->subject);
             $item->pubdate     = !empty($i->published) ? (string) $i->published : (string) $i->updated;
-            $item->TS          = strtotime($item->pubdate);
+            $item->TS          = Clock::ts(date: $item->pubdate);
 
             $this->items[] = $item;
         }

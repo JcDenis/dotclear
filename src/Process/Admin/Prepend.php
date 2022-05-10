@@ -11,6 +11,7 @@ namespace Dotclear\Process\Admin;
 
 // Dotclear\Process\Admin\Prepend
 use Dotclear\Core\Core;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\Lexical;
 use Dotclear\Helper\File\Files;
@@ -218,6 +219,18 @@ class Prepend extends Core
         }
 
         return $this->listoption;
+    }
+
+    /**
+     * Get admin default datetime display timezone.
+     *
+     * This is the user timezone.
+     *
+     * @return string The user timezone
+     */
+    public function timezone(): string
+    {
+        return $this->user()->getInfo('user_tz') ?? Clock::getTZ();
     }
 
     /**

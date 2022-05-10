@@ -19,8 +19,8 @@ use Dotclear\Database\Cursor;
 use Dotclear\Database\Statement\JoinStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Exception\CoreException;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Helper\Dt;
 use Dotclear\Helper\Text;
 use Exception;
 
@@ -105,7 +105,6 @@ class Posts
                 'P.user_id',
                 'P.cat_id',
                 'post_dt',
-                'post_tz',
                 'post_creadt',
                 'post_upddt',
                 'post_format',
@@ -550,7 +549,7 @@ class Posts
                 $dt              = $params['previous'];
             }
 
-            $dt = date('YmdHis', strtotime($dt));
+            $dt = Clock::format(format: 'YmdHis', date: $dt);
 
             $strReq .= 'AND ' . App::core()->con()->dateFormat('post_dt', $dt_fc) . $pdir . "'" . $dt . "' ";
             $limit = App::core()->con()->limit(1);
@@ -598,9 +597,8 @@ class Posts
 
             $cur->setField('post_id', $rs->fInt() + 1);
             $cur->setField('blog_id', (string) App::core()->blog()->id);
-            $cur->setField('post_creadt', date('Y-m-d H:i:s'));
-            $cur->setField('post_upddt', date('Y-m-d H:i:s'));
-            $cur->setField('post_tz', App::core()->user()->getInfo('user_tz'));
+            $cur->setField('post_creadt', Clock::database());
+            $cur->setField('post_upddt', Clock::database());
 
             // Post excerpt and content
             $this->getPostContent($cur, $cur->getField('post_id'));
@@ -663,7 +661,7 @@ class Posts
             $cur->unsetField('post_status');
         }
 
-        $cur->setField('post_upddt', date('Y-m-d H:i:s'));
+        $cur->setField('post_upddt', Clock::database());
 
         // If user is only "usage", we need to check the post's owner
         if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
@@ -730,7 +728,7 @@ class Posts
         $cur = App::core()->con()->openCursor(App::core()->prefix . 'post');
 
         $cur->setField('post_status', $status);
-        $cur->setField('post_upddt', date('Y-m-d H:i:s'));
+        $cur->setField('post_upddt', Clock::database());
 
         $cur->update($strReq);
         App::core()->blog()->triggerBlog();
@@ -776,7 +774,7 @@ class Posts
         $cur = App::core()->con()->openCursor(App::core()->prefix . 'post');
 
         $cur->setField('post_selected', (int) $selected);
-        $cur->setField('post_upddt', date('Y-m-d H:i:s'));
+        $cur->setField('post_upddt', Clock::database());
 
         $cur->update($strReq);
         App::core()->blog()->triggerBlog();
@@ -824,7 +822,7 @@ class Posts
         $cur = App::core()->con()->openCursor(App::core()->prefix . 'post');
 
         $cur->setField('cat_id', $cat_id ?: null);
-        $cur->setField('post_upddt', date('Y-m-d H:i:s'));
+        $cur->setField('post_upddt', Clock::database());
 
         $cur->update($strReq);
         App::core()->blog()->triggerBlog();
@@ -849,7 +847,7 @@ class Posts
         $cur = App::core()->con()->openCursor(App::core()->prefix . 'post');
 
         $cur->setField('cat_id', $new_cat_id ?: null);
-        $cur->setField('post_upddt', date('Y-m-d H:i:s'));
+        $cur->setField('post_upddt', Clock::database());
 
         $cur->update(
             'WHERE cat_id = ' . $old_cat_id . ' ' .
@@ -905,29 +903,19 @@ class Posts
      */
     public function publishScheduledEntries(): void
     {
-        $strReq = 'SELECT post_id, post_dt, post_tz ' .
+        $strReq = 'SELECT post_id, post_dt ' .
         'FROM ' . App::core()->prefix . 'post ' .
         'WHERE post_status = -1 ' .
         "AND blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' ";
 
         $rs = App::core()->con()->select($strReq);
-
-        $now       = Dt::toUTC(time());
-        $to_change = new ArrayObject();
-
         if ($rs->isEmpty()) {
             return;
         }
 
+        $to_change = new ArrayObject();
         while ($rs->fetch()) {
-            // Now timestamp with post timezone
-            $now_tz = $now + Dt::getTimeOffset($rs->f('post_tz'), $now);
-
-            // Post timestamp
-            $post_ts = strtotime($rs->f('post_dt'));
-
-            // If now_tz >= post_ts, we publish the entry
-            if ($now_tz >= $post_ts) {
+            if (Clock::ts() >= Clock::ts(date: $rs->f('post_dt'))) {
                 $to_change[] = $rs->fInt('post_id');
             }
         }
@@ -1100,9 +1088,7 @@ class Posts
         }
 
         if ('' == $cur->getField('post_dt')) {
-            $offset = Dt::getTimeOffset(App::core()->user()->getInfo('user_tz'));
-            $now    = time() + $offset;
-            $cur->setField('post_dt', date('Y-m-d H:i:00', $now));
+            $cur->setField('post_dt', Clock::database());
         }
 
         $post_id = is_int($post_id) ? $post_id : $cur->getField('post_id');
@@ -1226,10 +1212,11 @@ class Posts
     {
         $url = trim((string) $url);
 
+        // Date on post URLs always use core timezone (should not changed if blog timezone changed)
         $url_patterns = [
-            '{y}'  => date('Y', strtotime((string) $post_dt)),
-            '{m}'  => date('m', strtotime((string) $post_dt)),
-            '{d}'  => date('d', strtotime((string) $post_dt)),
+            '{y}'  => Clock::format(format: 'Y', date: $post_dt),
+            '{m}'  => Clock::format(format: 'm', date: $post_dt),
+            '{d}'  => Clock::format(format: 'd', date: $post_dt),
             '{t}'  => Text::tidyURL((string) $post_title),
             '{id}' => (int) $post_id,
         ];

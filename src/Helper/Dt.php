@@ -19,6 +19,8 @@ use DateTimeZone;
  *
  * Source clearbricks https://git.dotclear.org/dev/clearbricks
  *
+ * @note This class wil be removed. Use Clock instead.
+ *
  * @ingroup  Helper Date
  */
 class Dt

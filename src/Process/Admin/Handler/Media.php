@@ -17,6 +17,7 @@ use Dotclear\Process\Admin\Filter\Filter\MediaFilter;
 use Dotclear\Process\Admin\Inventory\Inventory\MediaInventory;
 use Dotclear\Database\StaticRecord;
 use Dotclear\Exception\AdminException;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Zip\Zip;
@@ -151,7 +152,7 @@ class Media extends AbstractPage
                     $zip->addExclusion('#(^|/).(.*?)_(m|s|sq|t).jpg$#');
                     $zip->addDirectory(App::core()->media()->root . '/' . $this->filter->get('d'), '', true);
 
-                    header('Content-Disposition: attachment;filename=' . date('Y-m-d') . '-' . App::core()->blog()->id . '-' . ($this->filter->get('d') ?: 'media') . '.zip');
+                    header('Content-Disposition: attachment;filename=' . Clock::format(format: 'Y-m-d') . '-' . App::core()->blog()->id . '-' . ($this->filter->get('d') ?: 'media') . '.zip');
                     header('Content-Type: application/x-zip');
                     $zip->write();
                     unset($zip);

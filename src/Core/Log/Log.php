@@ -19,6 +19,7 @@ use Dotclear\Database\Statement\TruncateStatement;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
 use Dotclear\Exception\CoreException;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\Network\Http;
 use Exception;
 
@@ -152,7 +153,7 @@ class Log
 
             $cur->setField('log_id', $id + 1);
             $cur->setField('blog_id', (string) App::core()->blog()->id);
-            $cur->setField('log_dt', date('Y-m-d H:i:s'));
+            $cur->setField('log_dt', Clock::database());
 
             $this->cursor($cur, $cur->getField('log_id'));
 
@@ -217,7 +218,7 @@ class Log
         }
 
         if ('' === $cur->getField('log_dt') || null === $cur->getField('log_dt')) {
-            $cur->setField('log_dt', date('Y-m-d H:i:s'));
+            $cur->setField('log_dt', Clock::database());
         }
 
         if (null === $cur->getField('log_ip')) {

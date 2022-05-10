@@ -12,15 +12,14 @@ namespace Dotclear\Process\Admin\Handler;
 // Dotclear\Process\Admin\Handler\Pos
 use ArrayObject;
 use Dotclear\App;
-use Dotclear\Process\Admin\Page\AbstractPage;
-use Dotclear\Process\Admin\Action\Action\CommentAction;
 use Dotclear\Core\Trackback\Trackback;
-use Dotclear\Exception\AdminException;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
-use Dotclear\Helper\Dt;
 use Dotclear\Helper\Text;
+use Dotclear\Process\Admin\Page\AbstractPage;
+use Dotclear\Process\Admin\Action\Action\CommentAction;
 use Exception;
 
 /**
@@ -74,8 +73,6 @@ class Post extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        Dt::setTZ(App::core()->user()->getInfo('user_tz'));
-
         $page_title = __('New post');
 
         $this->trackback = new Trackback();
@@ -113,7 +110,7 @@ class Post extends AbstractPage
             } else {
                 $this->post_id            = $rs->fInt('post_id');
                 $this->cat_id             = $rs->fInt('cat_id');
-                $this->post_dt            = date('Y-m-d H:i', strtotime($rs->f('post_dt')));
+                $this->post_dt            = $rs->f('post_dt');
                 $this->post_format        = $rs->f('post_format');
                 $this->post_password      = $rs->f('post_password');
                 $this->post_url           = $rs->f('post_url');
@@ -232,15 +229,12 @@ class Post extends AbstractPage
                 $this->post_dt = '';
             } else {
                 try {
-                    $this->post_dt = strtotime($_POST['post_dt']);
-                    if (false == $this->post_dt || -1 == $this->post_dt) {
-                        $this->bad_dt = true;
-
-                        throw new AdminException(__('Invalid publication date'));
-                    }
-                    $this->post_dt = date('Y-m-d H:i', $this->post_dt);
+                    $this->post_dt = Clock::ts(date: $_POST['post_dt'], from: App::core()->timezone());
                 } catch (Exception $e) {
-                    App::core()->error()->add($e->getMessage());
+                    $this->bad_dt  = true;
+                    $this->post_dt = Clock::format(format: 'Y-m-d H:i');
+
+                    App::core()->error()->add(__('Invalid publication date'));
                 }
             }
 
@@ -300,7 +294,7 @@ class Post extends AbstractPage
             $cur = App::core()->con()->openCursor(App::core()->prefix . 'post');
 
             $cur->setField('cat_id', $this->cat_id ?: null);
-            $cur->setField('post_dt', $this->post_dt ? date('Y-m-d H:i:00', strtotime($this->post_dt)) : '');
+            $cur->setField('post_dt', $this->post_dt ? Clock::database($this->post_dt) : '');
             $cur->setField('post_format', $this->post_format);
             $cur->setField('post_password', $this->post_password);
             $cur->setField('post_lang', $this->post_lang);
@@ -318,9 +312,6 @@ class Post extends AbstractPage
             if (isset($_POST['post_url'])) {
                 $cur->setField('post_url', $this->post_url);
             }
-
-            // Back to UTC in order to keep UTC datetime for creadt/upddt
-            dt::setTZ('UTC');
 
             // Update post
             if ($this->post_id) {
@@ -546,7 +537,7 @@ class Post extends AbstractPage
                         '</p>',
                         'post_dt' => '<p><label for="post_dt">' . __('Publication date and hour') . '</label>' .
                         Form::datetime('post_dt', [
-                            'default' => Html::escapeHTML(Dt::str('%Y-%m-%dT%H:%M', strtotime($this->post_dt), App::core()->user()->getInfo('user_tz'))),
+                            'default' => Clock::formfield(date: $this->post_dt, to: App::core()->timezone()),
                             'class'   => ($this->bad_dt ? 'invalid' : ''),
                         ]) .
                         '</p>',
@@ -592,7 +583,7 @@ class Post extends AbstractPage
                         Form::checkbox('post_open_comment', 1, $this->post_open_comment) . ' ' .
                         __('Accept comments') . '</label></p>' .
                         (App::core()->blog()->settings()->get('system')->get('allow_comments') ?
-                            ($this->isContributionAllowed($this->post_id, strtotime($this->post_dt), true) ?
+                            ($this->isContributionAllowed($this->post_id, Clock::ts(date: $this->post_dt), true) ?
                                 '' :
                                 '<p class="form-note warn">' .
                                 __('Warning: Comments are not more accepted for this entry.') . '</p>') :
@@ -602,7 +593,7 @@ class Post extends AbstractPage
                         Form::checkbox('post_open_tb', 1, $this->post_open_tb) . ' ' .
                         __('Accept trackbacks') . '</label></p>' .
                         (App::core()->blog()->settings()->get('system')->get('allow_trackbacks') ?
-                            ($this->isContributionAllowed($this->post_id, strtotime($this->post_dt), false) ?
+                            ($this->isContributionAllowed($this->post_id, Clock::ts(date: $this->post_dt), false) ?
                                 '' :
                                 '<p class="form-note warn">' .
                                 __('Warning: Trackbacks are not more accepted for this entry.') . '</p>') :
@@ -902,7 +893,7 @@ class Post extends AbstractPage
 
                     echo '<ul class="nice">';
                     while ($pings->fetch()) {
-                        echo '<li>' . Dt::dt2str(__('%Y-%m-%d %H:%M'), (string) $pings->ping_dt) . ' - ' .
+                        echo '<li>' . Clock::str(format: __('%Y-%m-%d %H:%M'), date: $pings->ping_dt, to: App::core()->timezone()) . ' - ' .
                         $pings->ping_url . '</li>';
                     }
                     echo '</ul>';
@@ -922,11 +913,11 @@ class Post extends AbstractPage
             return true;
         }
         if ($com) {
-            if (0 == App::core()->blog()->settings()->get('system')->get('comments_ttl') || $dt > (time() - App::core()->blog()->settings()->get('system')->get('comments_ttl') * 86400)) {
+            if (0 == App::core()->blog()->settings()->get('system')->get('comments_ttl') || $dt > (Clock::ts() - App::core()->blog()->settings()->get('system')->get('comments_ttl') * 86400)) {
                 return true;
             }
         } else {
-            if (0 == App::core()->blog()->settings()->get('system')->get('trackbacks_ttl') || $dt > (time() - App::core()->blog()->settings()->get('system')->get('trackbacks_ttl') * 86400)) {
+            if (0 == App::core()->blog()->settings()->get('system')->get('trackbacks_ttl') || $dt > (Clock::ts() - App::core()->blog()->settings()->get('system')->get('trackbacks_ttl') * 86400)) {
                 return true;
             }
         }
@@ -998,7 +989,7 @@ class Post extends AbstractPage
                 ]
             ) : '') . '</td>' .
             '<td class="maximal">' . Html::escapeHTML($rs->f('comment_author')) . '</td>' .
-            '<td class="nowrap">' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $rs->f('comment_dt')) . '</td>' .
+            '<td class="nowrap">' . clock::str(__('%Y-%m-%d %H:%M'), $rs->f('comment_dt'), to: App::core()->user()->getInfo('user_tz')) . '</td>' .
             ($this->can_view_ip ?
                 '<td class="nowrap"><a href="' . App::core()->adminurl()->get('admin.comments', ['ip' => $rs->f('comment_ip')]) . '">' . $rs->f('comment_ip') . '</a></td>' : '') .
             '<td class="nowrap status">' . $this->img_status . '</td>' .

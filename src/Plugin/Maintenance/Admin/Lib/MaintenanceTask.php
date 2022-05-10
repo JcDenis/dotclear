@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\Maintenance\Admin\Lib;
 
 // Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask
 use Dotclear\App;
+use Dotclear\Helper\Clock;
 
 /**
  * Maintenance plugin task class.
@@ -235,7 +236,7 @@ class MaintenanceTask
                         continue;
                     }
 
-                    $this->expired = $log['ts'] + $this->ts() < time() ? $log['ts'] : false;
+                    $this->expired = $log['ts'] + $this->ts() < Clock::ts() ? $log['ts'] : false;
                 }
             }
         }

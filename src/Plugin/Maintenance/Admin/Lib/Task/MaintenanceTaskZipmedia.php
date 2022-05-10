@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\Maintenance\Admin\Lib\Task;
 
 // Dotclear\Plugin\Maintenance\Admin\Lib\Task\MaintenanceTaskZipmedia
 use Dotclear\App;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\File\Zip\Zip;
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
 
@@ -54,7 +55,7 @@ class MaintenanceTaskZipmedia extends MaintenanceTask
         $this->log();
 
         // Send zip
-        header('Content-Disposition: attachment;filename=' . date('Y-m-d') . '-' . App::core()->blog()->id . '-' . 'media.zip');
+        header('Content-Disposition: attachment;filename=' . Clock::format(format: 'Y-m-d') . '-' . App::core()->blog()->id . '-' . 'media.zip');
         header('Content-Type: application/x-zip');
         $zip->write();
         unset($zip);

@@ -14,6 +14,7 @@ use Dotclear\App;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
 use Dotclear\Exception\ModuleException;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Html;
 use Exception;
 
@@ -572,8 +573,6 @@ class FlatImport extends FlatBackup
         $this->cur_post->setField('post_position', (int) $post->f('post_position'));
         $this->cur_post->setField('post_firstpub', (int) $post->f('post_firstpub'));
 
-        $this->cur_post->setField('post_tz', ($post->exists('post_tz') ? (string) $post->f('post_tz') : 'UTC'));
-
         $this->cur_post->insert();
     }
 
@@ -663,7 +662,6 @@ class FlatImport extends FlatBackup
         $this->cur_comment->setField('comment_spam_status', (string) $comment->f('comment_spam_status'));
         $this->cur_comment->setField('comment_trackback', (int) $comment->f('comment_trackback'));
 
-        $this->cur_comment->setField('comment_tz', ($comment->exists('comment_tz') ? (string) $comment->f('comment_tz') : 'UTC'));
         $this->cur_comment->setField('comment_spam_filter', ($comment->exists('comment_spam_filter') ? (string) $comment->f('comment_spam_filter') : null));
 
         $this->cur_comment->insert();
@@ -925,7 +923,7 @@ class FlatImport extends FlatBackup
             case 'post':
                 $line->substitute('post_titre', 'post_title');
                 $line->set('post_title', html::decodeEntities($line->f('post_title')));
-                $line->set('post_url', date('Y/m/d/', strtotime($line->f('post_dt'))) . $line->f('post_id') . '-' . $line->f('post_titre_url'));
+                $line->set('post_url', Clock::format(format: 'Y/m/d/', date: $line->f('post_dt')) . $line->f('post_id') . '-' . $line->f('post_titre_url'));
                 $line->set('post_url', substr($line->f('post_url'), 0, 255));
                 $line->set('post_format', ('' == $line->f('post_content_wiki') ? 'xhtml' : 'wiki'));
                 $line->set('post_content_xhtml', $line->f('post_content'));

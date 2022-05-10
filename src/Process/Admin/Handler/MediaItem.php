@@ -14,11 +14,11 @@ use Dotclear\App;
 use Dotclear\Core\Media\Media;
 use Dotclear\Core\Media\Manager\Item;
 use Dotclear\Exception\AdminException;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Helper\Dt;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use SimpleXMLElement;
 use Exception;
@@ -145,7 +145,7 @@ class MediaItem extends AbstractPage
                 $newFile->relname = $newFile->basename;
             }
             $newFile->media_title = Html::escapeHTML($_POST['media_title']);
-            $newFile->media_dt    = (int) strtotime($_POST['media_dt']);
+            $newFile->media_dt    = Clock::ts(date: $_POST['media_dt']);
             $newFile->media_dtstr = $_POST['media_dt'];
             $newFile->media_priv  = !empty($_POST['media_private']);
 
@@ -605,7 +605,7 @@ class MediaItem extends AbstractPage
         } else {
             echo '<h3 class="out-of-screen-if-js">' . __('Media details') . '</h3>';
         }
-        echo '<p id="media-icon"><img class="media-icon-square" src="' . $this->item_file->media_icon . '&' . time() * rand() . '" alt="" /></p>';
+        echo '<p id="media-icon"><img class="media-icon-square" src="' . $this->item_file->media_icon . '&' . Clock::rand() . '" alt="" /></p>';
 
         echo '<div id="media-details">' .
             '<div class="near-icon">';
@@ -619,14 +619,14 @@ class MediaItem extends AbstractPage
 
             if (isset($this->item_file->media_thumb[$thumb_size])) {
                 echo '<p><a class="modal-image" href="' . $this->item_file->file_url . '">' .
-                '<img src="' . $this->item_file->media_thumb[$thumb_size] . '&' . time() * rand() . '" alt="" />' .
+                '<img src="' . $this->item_file->media_thumb[$thumb_size] . '&' . Clock::rand() . '" alt="" />' .
                     '</a></p>';
             } elseif ('o' == $thumb_size) {
                 $S     = getimagesize($this->item_file->file);
                 $class = !$S || (500 < $S[1]) ? ' class="overheight"' : '';
                 unset($S);
                 echo '<p id="media-original-image"' . $class . '><a class="modal-image" href="' . $this->item_file->file_url . '">' .
-                '<img src="' . $this->item_file->file_url . '&' . time() * rand() . '" alt="" />' .
+                '<img src="' . $this->item_file->file_url . '&' . Clock::rand() . '" alt="" />' .
                     '</a></p>';
             }
 
@@ -733,7 +733,7 @@ class MediaItem extends AbstractPage
                     echo '<li>' . $img_status . ' ' . '<a href="' . App::core()->posttype()->getPostAdminURL($rs->f('post_type'), $rs->f('post_id')) . '">' .
                     $rs->f('post_title') . '</a>' .
                     ('post' != $rs->f('post_type') ? ' (' . Html::escapeHTML($rs->f('post_type')) . ')' : '') .
-                    ' - ' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $rs->f('post_dt')) . '</li>';
+                    ' - ' . Clock::str(format: __('%Y-%m-%d %H:%M'), date: $rs->f('post_dt'), to: App::core()->timezone()) . '</li>';
                 }
                 echo '</ul>';
             }
@@ -821,7 +821,7 @@ class MediaItem extends AbstractPage
                 ) . '</p>' .
                 '<p><label for="media_dt">' . __('File date:') . '</label>';
             }
-            echo Form::datetime('media_dt', ['default' => Html::escapeHTML(Dt::str('%Y-%m-%d\T%H:%M', $this->item_file->media_dt))]) .
+            echo Form::datetime('media_dt', ['default' => Clock::formfield(date: $this->item_file->media_dt, to: App::core()->timezone())]) .
             '</p>' .
             '<p><label for="media_private" class="classic">' . Form::checkbox('media_private', 1, $this->item_file->media_priv) . ' ' .
             __('Private') . '</label></p>' .
@@ -888,14 +888,14 @@ class MediaItem extends AbstractPage
                 ++$items;
             } elseif (preg_match('/^Date\((.+?)\)$/u', $v, $m)) {
                 if ($dto_first && (0 != $file->media_meta->DateTimeOriginal)) {
-                    $res[] = Dt::dt2str($m[1], (string) $file->media_meta->DateTimeOriginal);
+                    $res[] = Clock::str(format: $m[1], date: (string) $file->media_meta->DateTimeOriginal, to: App::core()->timezone());
                 } else {
-                    $res[] = Dt::str($m[1], $file->media_dt);
+                    $res[] = Clock::str(format: $m[1], date: $file->media_dt, to: App::core()->timezone());
                 }
                 ++$items;
                 ++$dates;
             } elseif (preg_match('/^DateTimeOriginal\((.+?)\)$/u', $v, $m) && $file->media_meta->DateTimeOriginal) {
-                $res[] = Dt::dt2str($m[1], (string) $file->media_meta->DateTimeOriginal);
+                $res[] = Clock::str(format: $m[1], date: (string) $file->media_meta->DateTimeOriginal, to: App::core()->timezone());
                 ++$items;
                 ++$dates;
             } elseif (preg_match('/^separator\((.*?)\)$/u', $v, $m)) {

@@ -11,6 +11,7 @@ namespace Dotclear\Helper\Network\Xmlrpc;
 
 // Dotclear\Helper\Network\Xmlrpc\Server
 use Dotclear\Exception\NetworkException;
+use Dotclear\Helper\Clock;
 use Exception;
 
 /**
@@ -267,7 +268,7 @@ class Server
         header('Connection: close');
         header('Content-Length: ' . $length);
         header('Content-Type: text/xml');
-        header('Date: ' . date('r'));
+        header('Date: ' . Clock::format(format: 'r', to: 'UTC'));
         echo $xml;
 
         exit;

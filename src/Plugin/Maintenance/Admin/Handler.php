@@ -11,7 +11,7 @@ namespace Dotclear\Plugin\Maintenance\Admin;
 
 // Dotclear\Plugin\Maintenance\Admin\Handler
 use Dotclear\App;
-use Dotclear\Helper\Dt;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance;
@@ -238,8 +238,11 @@ class Handler extends AbstractPage
                             } else {
                                 $res_task .= '<br /> <span class="warn">' . sprintf(
                                     __('Last execution of this task was on %s.'),
-                                    Dt::str(App::core()->blog()->settings()->get('system')->get('date_format'), $ts) . ' ' .
-                                    Dt::str(App::core()->blog()->settings()->get('system')->get('time_format'), $ts)
+                                    Clock::str(
+                                        format: App::core()->blog()->settings()->get('system')->get('date_format') . ' ' . App::core()->blog()->settings()->get('system')->get('time_format'),
+                                        date: $ts,
+                                        to: App::core()->timezone()
+                                    )
                                 ) . ' ' .
                                 __('You should execute it now.') . '</span>';
                             }

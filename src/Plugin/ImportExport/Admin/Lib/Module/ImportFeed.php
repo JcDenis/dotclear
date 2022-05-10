@@ -12,11 +12,12 @@ namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 // Dotclear\Plugin\ImportExport\Admin\Lib\Module\ImportFeed
 use Dotclear\App;
 use Dotclear\Exception\ModuleException;
-use Dotclear\Helper\Text;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Network\Feed\Reader;
+use Dotclear\Helper\Text;
 use Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 use Exception;
 
@@ -159,7 +160,7 @@ class ImportFeed extends Module
             $cur->setField('post_title', $item->title ?: Text::cutString(Html::clean($cur->getField('post_content')), 60));
             $cur->setField('post_format', 'xhtml');
             $cur->setField('post_status', -2);
-            $cur->setField('post_dt', @strftime('%Y-%m-%d %H:%M:%S', $item->TS));
+            $cur->setField('post_dt', Clock::str(format: '%Y-%m-%d %H:%M:%S', date: $item->TS));
 
             try {
                 $post_id = App::core()->blog()->addPost($cur);

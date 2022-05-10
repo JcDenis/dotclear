@@ -17,7 +17,7 @@ use Dotclear\Core\User\UserContainer;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Helper\Dt;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\Lexical;
 use Exception;
 
@@ -574,7 +574,7 @@ class UserPref extends AbstractPage
         Form::combo('user_lang', App::core()->combo()->getAdminLangsCombo(), $this->user->getProperty('user_lang'), 'l10n') . '</p>' .
 
         '<p><label for="user_tz">' . __('My timezone:') . '</label>' .
-        Form::combo('user_tz', Dt::getZones(true, true), $this->user->getProperty('user_tz')) . '</p>';
+        Form::combo('user_tz', Clock::getZones(true, true), $this->user->getProperty('user_tz')) . '</p>';
 
         if (App::core()->user()->allowPassChange()) {
             echo '<h4 class="vertical-separator pretty-title">' . __('Change my password') . '</h4>' .

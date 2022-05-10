@@ -11,6 +11,7 @@ namespace Dotclear\Helper\Network;
 
 // Dotclear\Helper\Network\Http
 use Dotclear\Exception\HelperException;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\Crypt;
 
 /**
@@ -288,19 +289,19 @@ class Http
         $array_ts = array_merge($mod_ts, $files);
 
         rsort($array_ts);
-        $now = time();
+        $now = Clock::ts();
         $ts  = min($array_ts[0], $now);
 
         $since = null;
         if (!empty($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
             $since = $_SERVER['HTTP_IF_MODIFIED_SINCE'];
             $since = preg_replace('/^(.*)(Mon|Tue|Wed|Thu|Fri|Sat|Sun)(.*)(GMT)(.*)/', '$2$3 GMT', $since);
-            $since = strtotime($since);
+            $since = Clock::ts(date: $since, from: 'UTC');
             $since = ($since <= $now) ? $since : null;
         }
 
         // Common headers list
-        $headers[] = 'Last-Modified: ' . gmdate('D, d M Y H:i:s', $ts) . ' GMT';
+        $headers[] = 'Last-Modified: ' . Clock::format(format: 'D, d M Y H:i:s', date: $ts, to: 'UTC') . ' GMT';
         $headers[] = 'Cache-Control: must-revalidate, max-age=' . abs((int) self::$cache_max_age);
         $headers[] = 'Pragma:';
 
@@ -312,7 +313,7 @@ class Http
 
             exit;
         }
-        header('Date: ' . gmdate('D, d M Y H:i:s', $now) . ' GMT');
+        header('Date: ' . Clock::format(format: 'D, d M Y H:i:s', date: $now, to: 'UTC') . ' GMT');
         foreach ($headers as $v) {
             header($v);
         }

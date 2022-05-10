@@ -12,7 +12,7 @@ namespace Dotclear\Process\Admin\Inventory\Inventory;
 // Dotclear\Process\Admin\Inventory\Inventory\PostInventory
 use ArrayObject;
 use Dotclear\App;
-use Dotclear\Helper\Dt;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Inventory\Inventory;
@@ -223,7 +223,7 @@ class PostInventory extends Inventory
             'title' => '<td class="maximal" scope="row"><a href="' .
             App::core()->posttype()->getPostAdminURL($this->rs->f('post_type'), $this->rs->f('post_id')) . '">' .
             Html::escapeHTML(trim(Html::clean($this->rs->f('post_title')))) . '</a></td>',
-            'date'       => '<td class="nowrap count">' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $this->rs->f('post_dt')) . '</td>',
+            'date'       => '<td class="nowrap count">' . Clock::str(format: __('%Y-%m-%d %H:%M'), date: $this->rs->f('post_dt'), to: App::core()->timezone()) . '</td>',
             'category'   => '<td class="nowrap">' . $cat_title . '</td>',
             'author'     => '<td class="nowrap">' . Html::escapeHTML($this->rs->f('user_id')) . '</td>',
             'comments'   => '<td class="nowrap count">' . $this->rs->f('nb_comment') . '</td>',

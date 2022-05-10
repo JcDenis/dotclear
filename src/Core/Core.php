@@ -34,9 +34,9 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Autoload;
 use Dotclear\Helper\Behavior;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\Configuration;
 use Dotclear\Helper\Crypt;
-use Dotclear\Helper\Dt;
 use Dotclear\Helper\ErrorTrait;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\RestServer;
@@ -216,14 +216,14 @@ class Core
      */
     final protected function __construct()
     {
-        // Statistic (dev)
+        // Start time and memory statistics (dev)
         Statistic::start();
 
-        // Encoding
+        // Set default encoding to UTF-8
         mb_internal_encoding('UTF-8');
 
-        // Timezone
-        Dt::setTZ('UTC');
+        // Set default timezone to UTC
+        Clock::setTZ('UTC');
 
         // Disallow every special wrapper
         Http::unregisterWrapper();
@@ -898,6 +898,20 @@ class Core
         } catch (Exception|Error) {
         }
     }
+
+    /**
+     * Return default datetime display timezone.
+     *
+     * Child Process should implement this method
+     * according to its specific default datetime display timezone/
+     *
+     * @return string The default datetime display timezone
+     */
+    public function timezone(): string
+    {
+        return Clock::getTZ();
+    }
+    // @}
 
     // / @name Core top behaviors methods
     // @{

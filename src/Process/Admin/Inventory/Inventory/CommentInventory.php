@@ -12,7 +12,7 @@ namespace Dotclear\Process\Admin\Inventory\Inventory;
 // Dotclear\Process\Admin\Inventory\Inventory\CommentInventory
 use ArrayObject;
 use Dotclear\App;
-use Dotclear\Helper\Dt;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Inventory\Inventory;
@@ -152,14 +152,9 @@ class CommentInventory extends Inventory
         $author_url  = App::core()->adminurl()->get('admin.comments', ['author' => $this->rs->f('comment_author')]);
         $post_url    = App::core()->posttype()->getPostAdminURL($this->rs->f('post_type'), $this->rs->f('post_id'));
         $comment_url = App::core()->adminurl()->get('admin.comment', ['id' => $this->rs->f('comment_id')]);
-        $comment_dt  = Dt::dt2str(
-            App::core()->blog()->settings()->get('system')->get('date_format') . ' - ' .
-            App::core()->blog()->settings()->get('system')->get('time_format'),
-            $this->rs->f('comment_dt')
-        );
-        $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
-        $img_status = '';
-        $sts_class  = '';
+        $img         = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
+        $img_status  = '';
+        $sts_class   = '';
 
         switch ($this->rs->fInt('comment_status')) {
             case 1:
@@ -210,7 +205,7 @@ class CommentInventory extends Inventory
             ($this->rs->fInt('comment_trackback') ? __('trackback') : __('comment')) . ' ' . '</a></td>',
             'author' => '<td class="nowrap maximal"><a href="' . $author_url . '">' .
             Html::escapeHTML($this->rs->f('comment_author')) . '</a></td>',
-            'date'   => '<td class="nowrap count">' . Dt::dt2str(__('%Y-%m-%d %H:%M'), $this->rs->f('comment_dt')) . '</td>',
+            'date'   => '<td class="nowrap count">' . Clock::str(format: __('%Y-%m-%d %H:%M'), date: $this->rs->f('comment_dt'), to: App::core()->timezone()) . '</td>',
             'status' => '<td class="nowrap status txt-center">' . $img_status . '</td>',
         ];
 

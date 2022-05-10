@@ -22,6 +22,7 @@ use Dotclear\Database\Statement\JoinStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Exception\CoreException;
+use Dotclear\Helper\Clock;
 
 /**
  * Users handling methods.
@@ -195,7 +196,7 @@ class Users
         $this->getUserCursor($cur);
 
         if (null === $cur->getField('user_creadt')) {
-            $cur->setField('user_creadt', date('Y-m-d H:i:s'));
+            $cur->setField('user_creadt', Clock::database());
         }
 
         $cur->insert();
@@ -480,7 +481,7 @@ class Users
         }
 
         if (null === $cur->getField('user_upddt')) {
-            $cur->setField('user_upddt', date('Y-m-d H:i:s'));
+            $cur->setField('user_upddt', Clock::database());
         }
 
         if (null !== $cur->getField('user_options')) {

@@ -14,7 +14,7 @@ use Dotclear\App;
 use Dotclear\Core\User\UserContainer;
 use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Exception\AdminException;
-use Dotclear\Helper\Dt;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\Lexical;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Form;
@@ -96,7 +96,7 @@ class BlogPref extends AbstractPage
             ];
 
             // Status combo
-            $status_combo = App::core()->combo()->getBlogStatusescombo();
+            $status_combo = App::core()->combo()->getBlogStatusesCombo();
 
             $cur = App::core()->con()->openCursor(App::core()->prefix . 'blog');
             $cur->setField('blog_id', $_POST['blog_id']);
@@ -298,16 +298,15 @@ class BlogPref extends AbstractPage
         $status_combo = App::core()->combo()->getBlogStatusescombo();
 
         // Date format combo
-        $now                = time();
         $date_formats       = $this->blog_settings->get('system')->get('date_formats');
         $time_formats       = $this->blog_settings->get('system')->get('time_formats');
         $date_formats_combo = ['' => ''];
         foreach ($date_formats as $format) {
-            $date_formats_combo[Dt::str($format, $now)] = $format;
+            $date_formats_combo[Clock::str($format)] = $format;
         }
         $time_formats_combo = ['' => ''];
         foreach ($time_formats as $format) {
-            $time_formats_combo[Dt::str($format, $now)] = $format;
+            $time_formats_combo[Clock::str($format)] = $format;
         }
 
         // URL scan modes
@@ -463,7 +462,7 @@ class BlogPref extends AbstractPage
         '</p>' .
 
         '<p><label for="blog_timezone">' . __('Blog timezone:') . '</label>' .
-        Form::combo('blog_timezone', Dt::getZones(true, true), Html::escapeHTML($this->blog_settings->get('system')->get('blog_timezone'))) .
+        Form::combo('blog_timezone', Clock::getZones(true, true), Html::escapeHTML($this->blog_settings->get('system')->get('blog_timezone'))) .
         '</p>' .
 
         '<p><label for="copyright_notice">' . __('Copyright notice:') . '</label>' .
@@ -549,13 +548,13 @@ class BlogPref extends AbstractPage
         Form::field('date_format', 30, 255, Html::escapeHTML($this->blog_settings->get('system')->get('date_format')), '', '', false, 'aria-describedby="date_format_help"') .
         Form::combo('date_format_select', $date_formats_combo, ['extra_html' => 'title="' . __('Pattern of date') . '"']) .
         '</p>' .
-        '<p class="chosen form-note" id="date_format_help">' . __('Sample:') . ' ' . Dt::str(Html::escapeHTML($this->blog_settings->get('system')->get('date_format'))) . '</p>' .
+        '<p class="chosen form-note" id="date_format_help">' . __('Sample:') . ' ' . Clock::str(format: Html::escapeHTML($this->blog_settings->get('system')->get('date_format'))) . '</p>' .
 
         '<p><label for="time_format">' . __('Time format:') . '</label>' .
         Form::field('time_format', 30, 255, Html::escapeHTML($this->blog_settings->get('system')->get('time_format')), '', '', false, 'aria-describedby="time_format_help"') .
         Form::combo('time_format_select', $time_formats_combo, ['extra_html' => 'title="' . __('Pattern of time') . '"']) .
         '</p>' .
-        '<p class="chosen form-note" id="time_format_help">' . __('Sample:') . ' ' . Dt::str(Html::escapeHTML($this->blog_settings->get('system')->get('time_format'))) . '</p>' .
+        '<p class="chosen form-note" id="time_format_help">' . __('Sample:') . ' ' . Clock::str(format: Html::escapeHTML($this->blog_settings->get('system')->get('time_format'))) . '</p>' .
 
         '<p><label for="use_smilies" class="classic">' .
         Form::checkbox('use_smilies', '1', $this->blog_settings->get('system')->get('use_smilies')) .
@@ -795,7 +794,7 @@ class BlogPref extends AbstractPage
         '<p><label for="post_url_format">' . __('New post URL format:') . '</label>' .
         Form::combo('post_url_format', $post_url_combo, Html::escapeHTML($this->blog_settings->get('system')->get('post_url_format')), '', '', false, 'aria-describedby="post_url_format_help"') .
         '</p>' .
-        '<p class="chosen form-note" id="post_url_format_help">' . __('Sample:') . ' ' . App::core()->blog()->posts()->getPostURL('', date('Y-m-d H:i:00', $now), __('Dotclear'), 42) . '</p>' .
+        '<p class="chosen form-note" id="post_url_format_help">' . __('Sample:') . ' ' . App::core()->blog()->posts()->getPostURL('', Clock::format(format: 'Y-m-d H:i:00'), __('Dotclear'), 42) . '</p>' .
         '</p>' .
 
         '<p><label for="note_title_tag">' . __('HTML tag for the title of the notes on the blog:') . '</label>' .

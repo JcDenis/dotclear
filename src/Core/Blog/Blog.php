@@ -18,7 +18,7 @@ use Dotclear\Core\Blog\Posts\Posts;
 use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
-use Dotclear\Helper\Dt;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Network\Http;
 
@@ -156,8 +156,8 @@ class Blog
             $this->desc   = $rs->f('blog_desc');
             $this->url    = $rs->f('blog_url');
             $this->host   = Http::getHostFromURL($this->url);
-            $this->creadt = (int) strtotime($rs->f('blog_creadt'));
-            $this->upddt  = (int) strtotime($rs->f('blog_upddt'));
+            $this->creadt = Clock::ts(date: $rs->f('blog_creadt'));
+            $this->upddt  = Clock::ts(date: $rs->f('blog_upddt'));
             $this->status = (int) $rs->f('blog_status');
 
             $this->public_path = Path::real(Path::fullFromRoot($this->settings()->get('system')->get('public_path'), App::core()->config()->get('base_dir')));
@@ -358,10 +358,10 @@ class Blog
     public function getUpdateDate(string $format = ''): int|string
     {
         return match ($format) {
-            'rfc822'  => Dt::rfc822($this->upddt, $this->settings()->get('system')->get('blog_timezone')),
-            'iso8601' => Dt::iso8601($this->upddt, $this->settings()->get('system')->get('blog_timezone')),
-            ''        => Dt::str($format, $this->upddt),
-            default   => $this->upddt,
+            'rfc822'  => Clock::rfc822(date: $this->upddt, to: App::core()->timezone()),
+            'iso8601' => Clock::iso8601(date: $this->upddt, to: App::core()->timezone()),
+            ''        => Clock::str(format: $format, date: $this->upddt, to: App::core()->timezone()),
+            default   => Clock::database(date: $this->upddt, to: App::core()->timezone()),
         };
     }
     // @}
@@ -377,7 +377,7 @@ class Blog
     public function triggerBlog(): void
     {
         $cur = App::core()->con()->openCursor(App::core()->prefix . 'blog')
-            ->setField('blog_upddt', date('Y-m-d H:i:s'))
+            ->setField('blog_upddt', Clock::database())
         ;
 
         $sql = new UpdateStatement(__METHOD__);

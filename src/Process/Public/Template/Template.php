@@ -12,9 +12,9 @@ namespace Dotclear\Process\Public\Template;
 // Dotclear\Process\Public\Template\Template
 use ArrayObject;
 use Dotclear\App;
-use Dotclear\Process\Public\Template\Engine\Template as BaseTemplate;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Helper\Dt;
+use Dotclear\Process\Public\Template\Engine\Template as BaseTemplate;
 
 /**
  * Public template methods.
@@ -408,8 +408,8 @@ class Template extends BaseTemplate
     public function getAge(ArrayObject $attr): string
     {
         if (isset($attr['age']) && preg_match('/^(\-[0-9]+|last).*$/i', $attr['age'])) {
-            if (false !== ($ts = strtotime($attr['age']))) {
-                return dt::str('%Y-%m-%d %H:%m:%S', $ts);
+            if ('' != ($ts = Clock::ts(date: $attr['age']))) {
+                return Clock::str(format: '%Y-%m-%d %H:%m:%S', date: $ts);
             }
         }
 

@@ -15,12 +15,13 @@ use Dotclear\App;
 use Dotclear\Database\AbstractConnection;
 use Dotclear\Database\Record;
 use Dotclear\Exception\ModuleException;
+use Dotclear\Helper\Clock;
+use Dotclear\Helper\Crypt;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
-use Dotclear\Plugin\ImportExport\Admin\Lib\Module;
-use Dotclear\Helper\Crypt;
 use Dotclear\Helper\Text;
+use Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 use Exception;
 
 /**
@@ -520,7 +521,7 @@ class ImportDc1 extends Module
         $cur->setField('post_upddt', $rs->f('post_upddt'));
         $cur->setField('post_title', Html::decodeEntities($this->cleanStr($rs->f('post_titre'))));
 
-        $cur->setField('post_url', date('Y/m/d/', strtotime($cur->getField('post_dt'))) . $rs->f('post_id') . '-' . $rs->f('post_titre_url'));
+        $cur->setField('post_url', Clock::format(format: 'Y/m/d/', date: $rs->f('post_dt')) . $rs->f('post_id') . '-' . $rs->f('post_titre_url'));
         $cur->setField('post_url', substr($cur->getField('post_url'), 0, 255));
 
         $cur->setField('post_format', '' == $rs->f('post_content_wiki') ? 'xhtml' : 'wiki');

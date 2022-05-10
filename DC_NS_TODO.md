@@ -14,7 +14,7 @@
 - [ ] check extends class vs public method, ex: dotclear()->url->getPageNumber()
 - [ ] use class for html form elements and static method for simple cases
 - [ ] remove maximum php magic methods and/or add equivalent methods
-- [ ] rework Dt class to use php DateTime class
+- [ ] fix date on media_dt 
 - [ ] fix public context and template
 - [ ] use sql statement everywhere it is possible
 - [ ] update build-tools and makefile
@@ -43,8 +43,8 @@
 - Convert plugins and themes into modules (also store and iconset)
 - Allow multiple path for themes (as for plugins)
 - Allow per blog path for plugins and themes
-- Use XML file for modules definition
 - Use virtual URLs for all resources
+- Use unique class for all datetime handling
 - Remove GLOBALS (no more global $core nor $core passed as argument)
 - Use singleton dotclear() instance accessible from every where
 - Use doxygen for code documentation (not complete)

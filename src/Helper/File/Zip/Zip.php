@@ -11,6 +11,7 @@ namespace Dotclear\Helper\File\Zip;
 
 // Dotclear\Helper\File\Zip\Zip
 use Dotclear\Exception\FileException;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\File\Files;
 
 /**
@@ -120,7 +121,7 @@ class Zip
                 $this->entries[$name] = [
                     'file'   => null,
                     'is_dir' => true,
-                    'mtime'  => time(),
+                    'mtime'  => Clock::ts(),
                     'size'   => 0,
                 ];
             }
@@ -179,8 +180,8 @@ class Zip
             return;
         }
 
-        $mdate = $this->makeDate(time());
-        $mtime = $this->makeTime(time());
+        $mdate = $this->makeDate(Clock::ts());
+        $mtime = $this->makeTime(Clock::ts());
 
         // Data descriptor
         $data_desc = "\x50\x4b\x03\x04" .
@@ -316,23 +317,23 @@ class Zip
 
     protected function makeDate(int $ts): int
     {
-        $year = date('Y', $ts) - 1980;
+        $year = ((int) Clock::format(format: 'Y', date: $ts)) - 1980;
         if (0 > $year) {
             $year = 0;
         }
 
         $year  = sprintf('%07b', $year);
-        $month = sprintf('%04b', date('n', $ts));
-        $day   = sprintf('%05b', date('j', $ts));
+        $month = sprintf('%04b', Clock::format(format: 'n', date: $ts));
+        $day   = sprintf('%05b', Clock::format(format: 'j', date: $ts));
 
         return (int) bindec($year . $month . $day);
     }
 
     protected function makeTime(int $ts): int
     {
-        $hour   = sprintf('%05b', date('G', $ts));
-        $minute = sprintf('%06b', date('i', $ts));
-        $second = sprintf('%05b', ceil(date('s', $ts) / 2));
+        $hour   = sprintf('%05b', Clock::format(format: 'G', date: $ts));
+        $minute = sprintf('%06b', Clock::format(format: 'i', date: $ts));
+        $second = sprintf('%05b', ceil(((int) Clock::format(format: 's', date: $ts)) / 2));
 
         return (int) bindec($hour . $minute . $second);
     }

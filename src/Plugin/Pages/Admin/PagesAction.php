@@ -14,6 +14,7 @@ use ArrayObject;
 use Dotclear\App;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Exception\AdminException;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Action\Action\PostAction;
@@ -112,7 +113,7 @@ class PagesAction extends PostAction
             $sql
                 ->sets([
                     'post_position = ' . ((int) $value - 1),
-                    'post_upddt = ' . $sql->quote(date('Y-m-d H:i:s')),
+                    'post_upddt = ' . $sql->quote(Clock::database()),
                 ])
                 ->where('blog_id = ' . $sql->quote(App::core()->blog()->id))
                 ->and('post_id' . $sql->in($post_id))

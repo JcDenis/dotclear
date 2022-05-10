@@ -14,6 +14,7 @@ use Dotclear\Core\Core;
 use Dotclear\Core\RsExt\RsExtPostPublic;
 use Dotclear\Core\RsExt\RsExtCommentPublic;
 use Dotclear\Database\Record;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\Lexical;
 use Dotclear\Helper\File\Path;
@@ -58,6 +59,18 @@ class Prepend extends Core
      *             Current Process
      */
     protected $process = 'Public';
+
+    /**
+     * Get admin default datetime display timezone.
+     *
+     * This is the user timezone.
+     *
+     * @return string The user timezone
+     */
+    public function timezone(): string
+    {
+        return $this->blog() ? $this->blog()->settings()->get('system')->get('blog_timezone') : Clock::getTZ();
+    }
 
     /**
      * Get context instance.
