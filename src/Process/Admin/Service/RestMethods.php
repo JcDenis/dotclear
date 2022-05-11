@@ -233,18 +233,12 @@ class RestMethods
             throw new AdminException('No store type');
         }
 
-        if ('themes' == $post['store']) {
-            $upd = App::core()->themes()->store()->get(true);
-        } elseif ('plugins' == $post['store']) {
-            $upd = App::core()->plugins()->store()->get(true);
-        } else {
-            $upd = new ArrayObject();
+        $upd = new ArrayObject([]);
 
-            // --BEHAVIOR-- restCheckStoreUpdate, string, ArrayObject
-            App::core()->behavior()->call('restCheckStoreUpdate', $post['store'], $upd);
-        }
+        // --BEHAVIOR-- restCheckStoreUpdate, string, ArrayObject
+        App::core()->behavior()->call('restCheckStoreUpdate', $post['store'], $upd);
 
-        if (!empty($upd)) {
+        if (count($upd)) {
             $ret = sprintf(__('An update is available', '%s updates are available.', count($upd)), count($upd));
             $rsp->insertAttr('check', true);
             $rsp->insertAttr('nb', count($upd));

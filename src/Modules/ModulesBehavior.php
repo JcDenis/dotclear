@@ -1,0 +1,106 @@
+<?php
+/**
+ * @package Dotclear
+ *
+ * @copyright Olivier Meunier & Association Dotclear
+ * @copyright GPL-2.0-only
+ */
+declare(strict_types=1);
+
+namespace Dotclear\Modules;
+
+// Dotclear\Modules\ModulesBehavior
+use ArrayObject;
+use Dotclear\App;
+
+/**
+ * Admin behaviors for modules manager.
+ *
+ * @ingroup  Modules Behavior
+ */
+class ModulesBehavior
+{
+    /**
+     * @var array<string,array> $install
+     *                          List of newly installed modules messages
+     */
+    private $install = [];
+
+    /**
+     * Constructor.
+     *
+     * This method register current Modules manager Admin Behaviors.
+     *
+     * @param Modules $modules The modules manager
+     */
+    public function __construct(private Modules $modules)
+    {
+        if ($this->modules->hasModules()) {
+            App::core()->behavior()->add('adminHomePagePrepend', [$this, 'adminHomePagePrepend']);
+            App::core()->behavior()->add('adminHomePageContent', [$this, 'adminHomePageContent']);
+        }
+
+        App::core()->behavior()->add('restCheckStoreUpdate', [$this, 'restCheckStoreUpdate']);
+    }
+
+    /**
+     * Do admin home page modules check.
+     *
+     * Check modules depedencies and try to install new modules
+     */
+    public function adminHomePagePrepend(): void
+    {
+        if ($this->modules->disableDependencies(App::core()->adminurl()->get('admin.home'))) {
+            exit;
+        }
+
+        $this->install = $this->modules->installModules();
+    }
+
+    /**
+     * Display admin home page modules check results.
+     */
+    public function adminHomePageContent(): void
+    {
+        $type = '<strong>' . $this->modules->getName() . ':</strong> ';
+
+        if (!empty($this->install['success'])) {
+            echo '<div class="success">' . $type . __('Following modules have been installed:') . '<ul>';
+            foreach ($this->install['success'] as $k => $v) {
+                $info = implode(' - ', $this->modules->getSettingsUrls($k, true));
+                echo '<li>' . $k . ('' !== $info ? ' → ' . $info : '') . '</li>';
+            }
+            echo '</ul></div>';
+        }
+        if (!empty($this->install['failure'])) {
+            echo '<div class="error">' . $type . __('Following plugins have not been installed:') . '<ul>';
+            foreach ($this->install['failure'] as $k => $v) {
+                echo '<li>' . $k . ' (' . $v . ')</li>';
+            }
+            echo '</ul></div>';
+        }
+
+        // Errors modules notifications
+        if (App::core()->user()->isSuperAdmin()) {
+            if ($this->modules->error()->flag()) {
+                echo '<div class="error" id="module-errors" class="error"><p>' . $type . __('Errors have occured with following modules:') . '</p> ' .
+                '<ul><li>' . implode("</li>\n<li>", $this->modules->error()->dump()) . '</li></ul></div>';
+            }
+        }
+    }
+
+    /**
+     * Check modules manager repository update.
+     *
+     * @param string      $type The modules type
+     * @param ArrayObject $upd  The list of updates
+     */
+    public function restCheckStoreUpdate(string $type, ArrayObject $upd): void
+    {
+        if ($this->modules->getType() == $type) {
+            foreach ($this->modules->store()->get(true) as $id => $module) {
+                $upd[$id] = $module->name();
+            }
+        }
+    }
+}

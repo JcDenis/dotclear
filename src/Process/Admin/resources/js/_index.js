@@ -197,13 +197,13 @@ $(() => {
   });
 
   // check if store update available, if db has icon
-  if ($('#dashboard-main #icons #db-icon-plugins').length) {
-    const plugins_db_icon = $('#dashboard-main #icons #db-icon-plugins');
-    dotclear.dbStoreUpdate('plugins', plugins_db_icon);
+  if ($('#dashboard-main #icons #db-icon-Plugin').length) {
+    const plugins_db_icon = $('#dashboard-main #icons #db-icon-Plugin');
+    dotclear.dbStoreUpdate('Plugin', plugins_db_icon);
   }
-  if ($('#dashboard-main #icons #db-icon-themes').length) {
-    const themes_db_icon = $('#dashboard-main #icons #db-icon-themes');
-    dotclear.dbStoreUpdate('themes', themes_db_icon);
+  if ($('#dashboard-main #icons #db-icon-Theme').length) {
+    const themes_db_icon = $('#dashboard-main #icons #db-icon-Theme');
+    dotclear.dbStoreUpdate('Theme', themes_db_icon);
   }
 
   // check if some news are available

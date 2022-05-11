@@ -61,14 +61,7 @@ class Home extends AbstractPage
             'dragndrop_on'  => __("Dashboard area's drag and drop is enabled"),
         ];
 
-        // Module Plugin //! move this to Modules Plugin
-        if (App::core()->plugins()) {
-            if (App::core()->plugins()->disableDependencies(App::core()->adminurl()->get('admin.home'))) {
-                exit;
-            }
-
-            $this->home_plugins_install = App::core()->plugins()->installModules();
-        }
+        App::core()->behavior()->call('adminHomePagePrepend');
 
         // Check dashboard module prefs
         if (!App::core()->user()->preference()->get('dashboard')->prefExists('doclinks')) {
@@ -245,33 +238,7 @@ class Home extends AbstractPage
             '<ul><li>' . implode('</li><li>', $err) . '</li></ul></div>';
         }
 
-        // Module Plugin
-        if (App::core()->plugins()) {
-            // Plugins install messages
-            if (!empty($this->home_plugins_install['success'])) {
-                echo '<div class="success">' . __('Following plugins have been installed:') . '<ul>';
-                foreach ($this->home_plugins_install['success'] as $k => $v) {
-                    $info = implode(' - ', App::core()->plugins()->getSettingsUrls($k, true));
-                    echo '<li>' . $k . ('' !== $info ? ' → ' . $info : '') . '</li>';
-                }
-                echo '</ul></div>';
-            }
-            if (!empty($this->home_plugins_install['failure'])) {
-                echo '<div class="error">' . __('Following plugins have not been installed:') . '<ul>';
-                foreach ($this->home_plugins_install['failure'] as $k => $v) {
-                    echo '<li>' . $k . ' (' . $v . ')</li>';
-                }
-                echo '</ul></div>';
-            }
-
-            // Errors modules notifications
-            if (App::core()->user()->isSuperAdmin()) {
-                if (App::core()->plugins()->error()->flag()) {
-                    echo '<div class="error" id="module-errors" class="error"><p>' . __('Errors have occured with following plugins:') . '</p> ' .
-                    '<ul><li>' . implode("</li>\n<li>", App::core()->plugins()->error()->dump()) . '</li></ul></div>';
-                }
-            }
-        }
+        App::core()->behavior()->call('adminHomePageContent');
 
         // Get current main orders
         $main_order = App::core()->user()->preference()->get('dashboard')->get('main_order');

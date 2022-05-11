@@ -128,6 +128,16 @@ class Modules
         return $this->store;
     }
 
+    /**
+     * Get modules manager name.
+     *
+     * @return string The modules manager name
+     */
+    public function getName()
+    {
+        return empty($this->name) ? __('Plugins management') : $this->name;
+    }
+
     // / @name modules Admin process methods
     // @{
     /**
@@ -146,7 +156,6 @@ class Modules
             return;
         }
 
-        $name    = empty($this->name) ? __('Plugins management') : $this->name;
         $icons   = ['images/menu/' . $this->getType(true) . 's.svg', 'images/menu/' . $this->getType(true) . 's-dark.svg'];
         $handler = 'admin.' . $this->getType(true);
 
@@ -156,17 +165,19 @@ class Modules
         );
         App::core()->summary()->register(
             empty($this->group) ? 'System' : $this->group,
-            $name,
+            $this->getName(),
             $handler,
             $icons,
             true
         );
         App::core()->favorite()->register($this->getType(), [
-            'title'      => $name,
+            'title'      => $this->getName(),
             'url'        => App::core()->adminurl()->get($handler),
             'small-icon' => $icons,
             'large-icon' => $icons,
         ]);
+
+        new ModulesBehavior($this);
     }
 
     /**
@@ -595,9 +606,9 @@ class Modules
 
     /**
      * Check if there are loaded modules.
-     * 
+     *
      * @param bool $enabled Chek only enabled modules
-     * 
+     *
      * @return bool True if there are loaded modules
      */
     public function hasModules(bool $enabled = true): bool
