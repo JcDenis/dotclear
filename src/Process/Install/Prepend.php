@@ -69,7 +69,7 @@ class Prepend extends Core
     {
         // Serve a file (css, png, ...)
         if (!empty($_GET['df'])) {
-            Files::serveFile($_GET['df'], [Path::implodeRoot('Process', 'Admin', 'resources')]);
+            Files::serveFile($_GET['df'], [Path::implodeSrc('Process', 'Admin', 'resources')]);
 
             exit;
         }

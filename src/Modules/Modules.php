@@ -396,7 +396,7 @@ class Modules
 
         if (App::core()->blog()) {
             $path = trim((string) App::core()->blog()->settings()->get('system')->get('module_' . $this->getType(true) . '_dir'));
-            if (!empty($path) && false !== ($dir = Path::real(str_starts_with('\\', $path) ? $path : Path::implodeRoot($path), true))) {
+            if (!empty($path) && false !== ($dir = Path::real(str_starts_with('\\', $path) ? $path : Path::implodeSrc($path), true))) {
                 $paths[] = $dir;
             }
         }

@@ -169,7 +169,7 @@ class Path
      */
     public static function implodeBase(string ...$args): string
     {
-        $base  = (self::inComposer() ? self::implodeRoot('..', '..', '..', '..') : self::ImplodeRoot('..'));
+        $base  = (self::inComposer() ? self::implodeSrc('..', '..', '..', '..') : self::ImplodeRoot('..'));
 
         array_unshift($args, $base);
 
@@ -177,15 +177,15 @@ class Path
     }
 
     /**
-     * Implode path chunks from Dotclear root directory.
+     * Implode path chunks from Dotclear source directory.
      *
-     * Dotclear root directory path is the "src" directory path.
+     * Dotclear source directory path is the "src" directory path.
      *
      * @param string ...$args The path chunks
      *
      * @return string The cleaned joined path
      */
-    public static function implodeRoot(string ...$args): string
+    public static function implodeSrc(string ...$args): string
     {
         array_unshift($args, __DIR__, '..', '..');
 
@@ -207,10 +207,10 @@ class Path
     /**
      * Check if dotclear core run under composer or standalone.
      *
-     * @return bool True if it runs under composer package
+     * @return bool True if it runs as composer package
      */
     public static function inComposer(): bool
     {
-        return str_ends_with(self::implodeRoot('..', '..', '..'), 'vendor');
+        return str_ends_with(self::implodeSrc('..', '..', '..'), 'vendor');
     }
 }

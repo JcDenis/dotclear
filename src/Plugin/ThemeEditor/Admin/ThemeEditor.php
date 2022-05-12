@@ -43,7 +43,7 @@ class ThemeEditor
     public function __construct()
     {
         // Default template set
-        $this->tplset_theme = Path::implodeRoot('Process', 'Public', 'templates', App::core()->config()->get('template_default'));
+        $this->tplset_theme = Path::implodeSrc('Process', 'Public', 'templates', App::core()->config()->get('template_default'));
         $this->tplset_name  = App::core()->config()->get('template_default');
 
         // Current theme
@@ -55,7 +55,7 @@ class ThemeEditor
 
         // Current theme template set
         if ($module->templateset()) {
-            $this->tplset_theme = Path::implodeRoot('Process', 'Public', 'templates', $module->templateset());
+            $this->tplset_theme = Path::implodeSrc('Process', 'Public', 'templates', $module->templateset());
             $this->tplset_name  = $module->templateset();
         }
 

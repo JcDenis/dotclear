@@ -1147,9 +1147,9 @@ class Url
         }
 
         // List other available file paths
-        $dirs[] = Path::implodeRoot('Process', 'Public', 'resources');
-        $dirs[] = Path::implodeRoot('Core', 'resources', 'css');
-        $dirs[] = Path::implodeRoot('Core', 'resources', 'js');
+        $dirs[] = Path::implodeSrc('Process', 'Public', 'resources');
+        $dirs[] = Path::implodeSrc('Core', 'resources', 'css');
+        $dirs[] = Path::implodeSrc('Core', 'resources', 'js');
 
         // Search file
         if (!($file = Files::serveFile($args, $dirs, App::core()->config()->get('file_sever_type'), false, true))) {

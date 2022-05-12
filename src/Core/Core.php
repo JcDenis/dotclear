@@ -903,7 +903,7 @@ class Core
      * Return default datetime display timezone.
      *
      * Child Process should implement this method
-     * according to its specific default datetime display timezone/
+     * according to its specific default datetime display timezone.
      *
      * @return string The default datetime display timezone
      */
@@ -1056,7 +1056,7 @@ class Core
             'core_update_channel'   => [null, 'stable'],
             'core_update_noauto'    => [null, false],
             'core_update_url'       => [null, 'https://download.dotclear.org/versions.xml'],
-            'core_version'          => [false, trim(file_get_contents(Path::implodeRoot('version')))],
+            'core_version'          => [false, trim(file_get_contents(Path::implodeSrc('version')))],
             'core_version_break'    => [false, '3.0'],
             'crypt_algo'            => [null, 'sha1'],
             'database_driver'       => [true, ''],
@@ -1069,18 +1069,18 @@ class Core
             'digests_dir'           => [null, Path::implodeBase('digests')],
             'file_serve_type'       => [null, ['ico', 'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'css', 'js', 'swf', 'svg', 'woff', 'woff2', 'ttf', 'otf', 'eot', 'html', 'xml', 'json', 'txt', 'zip']],
             'force_scheme_443'      => [null, true],
-            'iconset_dirs'          => [null, []], // [null, [Path::implodeRoot('Iconset')],
+            'iconset_dirs'          => [null, []], // [null, [Path::implodeSrc('Iconset')],
             'iconset_official'      => [false, ['Legacy', 'ThomasDaveluy']],
             'iconset_update_url'    => [null, ''],
             'jquery_default'        => [null, '3.6.0'],
-            'l10n_dir'              => [null, Path::implodeRoot('locales')],
+            'l10n_dir'              => [null, Path::implodeSrc('locales')],
             'l10n_update_url'       => [null, 'https://services.dotclear.net/dc2.l10n/?version=%s'],
             'media_dir_showhidden'  => [null, false],
             'media_upload_maxsize'  => [false, Files::getMaxUploadFilesize()],
             'master_key'            => [true, ''],
             'module_allow_multi'    => [null, false],
             'php_next_required'     => [false, '8.1'],
-            'plugin_dirs'           => [null, [Path::implodeRoot('Plugin')]],
+            'plugin_dirs'           => [null, [Path::implodeSrc('Plugin')]],
             'plugin_official'       => [false, ['AboutConfig', 'Akismet', 'Antispam', 'Attachments', 'Blogroll', 'Dclegacy', 'FairTrackbacks', 'ImportExport', 'Maintenance', 'Pages', 'Pings', 'SimpleMenu', 'Tags', 'ThemeEditor', 'UserPref', 'Widgets', 'LegacyEditor', 'CKEditor', 'Breadcrumb']],
             'plugin_update_url'     => [null,  'https://update.dotaddict.org/dc2/plugins.xml'],
             'production'            => [null, true],
@@ -1093,7 +1093,7 @@ class Core
             'store_update_noauto'   => [null, false],
             'template_default'      => [null, 'mustek'],
             'theme_default'         => [null, 'Berlin'],
-            'theme_dirs'            => [null, [Path::implodeRoot('Theme')]],
+            'theme_dirs'            => [null, [Path::implodeSrc('Theme')]],
             'theme_official'        => [false, ['Berlin', 'BlueSilence', 'Blowup', 'CustomCSS', 'Ductile']],
             'theme_update_url'      => [null, 'https://update.dotaddict.org/dc2/themes.xml'],
             'var_dir'               => [null, Path::implodeBase('var')],

@@ -130,7 +130,7 @@ class Update extends AbstractPage
 
                 switch ($this->upd_step) {
                     case 'check':
-                        $this->upd_updater->checkIntegrity(App::core()->config()->get('digests_dir'), Path::implodeRoot());
+                        $this->upd_updater->checkIntegrity(App::core()->config()->get('digests_dir'), Path::implodeSrc());
                         App::core()->adminurl()->redirect('admin.update', ['step' => 'download']);
 
                         break;
@@ -154,7 +154,7 @@ class Update extends AbstractPage
                         $this->upd_updater->backup(
                             $zip_file,
                             'dotclear/digests',
-                            Path::implodeRoot(),
+                            Path::implodeSrc(),
                             App::core()->config()->get('digests_dir'),
                             App::core()->config()->get('backup_dir') . '/backup-' . App::core()->config()->get('core_version') . '.zip'
                         );
@@ -167,7 +167,7 @@ class Update extends AbstractPage
                             $zip_file,
                             'dotclear/digests',
                             'dotclear',
-                            Path::implodeRoot(),
+                            Path::implodeSrc(),
                             App::core()->config()->get('digests_dir')
                         );
 

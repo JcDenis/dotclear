@@ -20,6 +20,8 @@
 - [ ] update build-tools and makefile
 - [ ] complete module clone (.po, .js)
 - [ ] reduce number of possible methods returned types
+- [ ] replace all ArrayObject by a custom Stack class (and avoid ArrayObject magic methods)
+- [ ] check and use behavior on (de)activate modules (some modules should erase cache etc...)
 
 ### Idea
 

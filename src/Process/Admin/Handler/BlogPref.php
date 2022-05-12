@@ -384,7 +384,7 @@ class BlogPref extends AbstractPage
         ];
 
         // jQuery available versions
-        $jquery_root           = Path::implodeRoot('Core', 'resources', 'js', 'jquery');
+        $jquery_root           = Path::implodeSrc('Core', 'resources', 'js', 'jquery');
         $jquery_versions_combo = [__('Default') . ' (' . App::core()->config()->get('jquery_default') . ')' => ''];
         if (is_dir($jquery_root) && is_readable($jquery_root)) {
             if (false !== ($d = @dir($jquery_root))) {

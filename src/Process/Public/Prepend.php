@@ -215,7 +215,7 @@ class Prepend extends Core
         // Check templateset and add all path to tpl
         $tplset = $this->themes()->getModule(array_key_last($path))->templateset();
         if (!empty($tplset)) {
-            $tplset_dir = Path::implodeRoot('Process', 'Public', 'templates', $tplset);
+            $tplset_dir = Path::implodeSrc('Process', 'Public', 'templates', $tplset);
             if (is_dir($tplset_dir)) {
                 $this->template()->setPath($path, $tplset_dir, $this->template()->getPath());
             } else {

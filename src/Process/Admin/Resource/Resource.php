@@ -227,9 +227,9 @@ class Resource
         }
 
         // List other available file paths
-        $dirs[] = Path::implodeRoot('Process', 'Admin', 'resources');
-        $dirs[] = Path::implodeRoot('Core', 'resources', 'css');
-        $dirs[] = Path::implodeRoot('Core', 'resources', 'js');
+        $dirs[] = Path::implodeSrc('Process', 'Admin', 'resources');
+        $dirs[] = Path::implodeSrc('Core', 'resources', 'css');
+        $dirs[] = Path::implodeSrc('Core', 'resources', 'js');
 
         // Search dirs
         Files::serveFile($src, $dirs, App::core()->config()->get('file_sever_type'));
@@ -552,7 +552,7 @@ class Resource
     public function getCodeMirrorThemes(): array
     {
         $themes      = [];
-        $themes_root = Path::implodeRoot('Process', 'Admin', 'resources', 'js', 'codemirror', 'theme');
+        $themes_root = Path::implodeSrc('Process', 'Admin', 'resources', 'js', 'codemirror', 'theme');
         if (is_dir($themes_root) && is_readable($themes_root)) {
             if (false !== ($d = @dir($themes_root))) {
                 while (false !== ($entry = $d->read())) {

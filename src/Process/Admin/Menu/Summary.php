@@ -164,7 +164,7 @@ class Summary extends ArrayObject
                     }
 
                     // Not in iconset nor in Dotclear
-                    // $icon = Path::implodeRoot('Process', 'Admin', 'resources', $img);
+                    // $icon = Path::implodeSrc('Process', 'Admin', 'resources', $img);
                     // if (false === $icon || !is_file($icon) || !is_readable($icon)) {
                     //    $img = 'images/menu/no-icon.svg';
                     // }
