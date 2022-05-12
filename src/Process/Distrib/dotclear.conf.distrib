@@ -75,15 +75,15 @@ return [
 
     // Themes root
     // Multiple directories can be set
-    //'theme_dirs' => [Path::implodeRoot('Theme')],
+    //'theme_dirs' => [Path::implodeSrc('Theme')],
 
     // Plugins root
     // Multiple directories can be set
-    //'plugin_dirs' => [Path::implodeRoot('Plugin')],
+    //'plugin_dirs' => [Path::implodeSrc('Plugin')],
 
     // Iconsets root
     // Multiple directories can be set
-    //'iconset_dirs' => [Path::implodeRoot('Iconset')],
+    //'iconset_dirs' => [Path::implodeSrc('Iconset')],
 
     // Template cache directory
     //'cache_dir' => Path::implodeBase('cache'),

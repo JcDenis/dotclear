@@ -169,7 +169,7 @@ class Path
      */
     public static function implodeBase(string ...$args): string
     {
-        $base  = (self::inComposer() ? self::implodeSrc('..', '..', '..', '..') : self::ImplodeRoot('..'));
+        $base  = (self::inComposer() ? self::implodeSrc('..', '..', '..', '..') : self::implodeSrc('..'));
 
         array_unshift($args, $base);
 
