@@ -113,7 +113,7 @@ class Prepend extends ModulePrepend
         ) {
             App::core()->blog()->settings()->get('pages')->put('firstpage', true, 'boolean');
 
-            $cur = App::core()->con()->openCursor(App::core()->prefix . 'post');
+            $cur = App::core()->con()->openCursor(App::core()->prefix() . 'post');
             $cur->setField('user_id', App::core()->user()->userID());
             $cur->setField('post_type', 'page');
             $cur->setField('post_format', 'xhtml');

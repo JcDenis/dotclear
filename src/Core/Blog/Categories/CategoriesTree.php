@@ -46,7 +46,7 @@ class CategoriesTree extends NestedTree
     {
         parent::__construct(App::core()->con());
 
-        $this->table         = App::core()->prefix . 'category';
+        $this->table         = App::core()->prefix() . 'category';
         $this->add_condition = ['blog_id' => "'" . App::core()->con()->escape(App::core()->blog()->id) . "'"];
     }
 

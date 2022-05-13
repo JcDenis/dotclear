@@ -117,7 +117,7 @@ class PagesAction extends PostAction
                 ])
                 ->where('blog_id = ' . $sql->quote(App::core()->blog()->id))
                 ->and('post_id' . $sql->in($post_id))
-                ->from(App::core()->prefix . 'post')
+                ->from(App::core()->prefix() . 'post')
                 ->update()
             ;
 

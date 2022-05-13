@@ -35,10 +35,10 @@ class Upgrade
                 }
 
                 // Database upgrade
-                $_s = new Structure(App::core()->con(), App::core()->prefix);
+                $_s = new Structure(App::core()->con(), App::core()->prefix());
                 Distrib::getDatabaseStructure($_s);
 
-                $si      = new Structure(App::core()->con(), App::core()->prefix);
+                $si      = new Structure(App::core()->con(), App::core()->prefix());
                 $changes = $si->synchronize($_s);
 
                 /* Some other upgrades
@@ -47,7 +47,7 @@ class Upgrade
 
                 // Drop content from session table if changes or if needed
                 if (0 != $changes || $cleanup_sessions) {
-                    App::core()->con()->execute('DELETE FROM ' . App::core()->prefix . 'session ');
+                    App::core()->con()->execute('DELETE FROM ' . App::core()->prefix() . 'session ');
                 }
 
                 // Empty templates cache directory

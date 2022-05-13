@@ -112,7 +112,7 @@ class Prepend extends Core
     public function plugins(): Modules
     {
         if (!($this->plugins instanceof Modules)) {
-            $this->plugins = new Modules(lang: $this->lang);
+            $this->plugins = new Modules(lang: $this->lang());
         }
 
         return $this->plugins;
@@ -171,15 +171,15 @@ class Prepend extends Core
         // Load locales
         $this->lang($this->blog()->settings()->get('system')->get('lang'));
 
-        if (false === L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang, 'date')) && 'en' != $this->lang) {
+        if (false === L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang(), 'date')) && 'en' != $this->lang()) {
             L10n::set(Path::implode($this->config()->get('l10n_dir'), 'en', 'date'));
         }
-        L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang, 'main'));
-        L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang, 'public'));
-        L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang, 'plugins'));
+        L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang(), 'main'));
+        L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang(), 'public'));
+        L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang(), 'plugins'));
 
         // Set lexical lang
-        Lexical::setLexicalLang('public', $this->lang);
+        Lexical::setLexicalLang('public', $this->lang());
 
         // Load modules
         try {
@@ -201,13 +201,13 @@ class Prepend extends Core
 
         // If theme has parent load their locales
         if (1 < count($path)) {
-            $this->themes()->loadModuleL10N(array_key_last($path), (string) $this->lang, 'main');
-            $this->themes()->loadModuleL10N(array_key_last($path), (string) $this->lang, 'public');
+            $this->themes()->loadModuleL10N(array_key_last($path), $this->lang(), 'main');
+            $this->themes()->loadModuleL10N(array_key_last($path), $this->lang(), 'public');
         }
 
         // Themes locales
-        $this->themes()->loadModuleL10N(array_key_first($path), (string) $this->lang, 'main');
-        $this->themes()->loadModuleL10N(array_key_first($path), (string) $this->lang, 'public');
+        $this->themes()->loadModuleL10N(array_key_first($path), $this->lang(), 'main');
+        $this->themes()->loadModuleL10N(array_key_first($path), $this->lang(), 'public');
 
         // --BEHAVIOR-- publicPrepend
         $this->behavior()->call('publicPrepend');

@@ -79,15 +79,15 @@ class Blogs
     {
         $strReq = 'SELECT U.user_id AS user_id, user_super, user_name, user_firstname, ' .
         'user_displayname, user_email, permissions ' .
-        'FROM ' . App::core()->prefix . 'user U ' .
-        'JOIN ' . App::core()->prefix . 'permissions P ON U.user_id = P.user_id ' .
+        'FROM ' . App::core()->prefix() . 'user U ' .
+        'JOIN ' . App::core()->prefix() . 'permissions P ON U.user_id = P.user_id ' .
         "WHERE blog_id = '" . App::core()->con()->escape($blog_id) . "' ";
 
         if ($with_super) {
             $strReq .= 'UNION ' .
             'SELECT U.user_id AS user_id, user_super, user_name, user_firstname, ' .
             'user_displayname, user_email, NULL AS permissions ' .
-            'FROM ' . App::core()->prefix . 'user U ' .
+            'FROM ' . App::core()->prefix() . 'user U ' .
                 'WHERE user_super = 1 ';
         }
 
@@ -143,7 +143,7 @@ class Blogs
 
         if ($count_only) {
             $strReq = 'SELECT count(B.blog_id) ' .
-            'FROM ' . App::core()->prefix . 'blog B ' .
+            'FROM ' . App::core()->prefix() . 'blog B ' .
                 '%1$s ' .
                 'WHERE NULL IS NULL ' .
                 '%2$s ';
@@ -159,7 +159,7 @@ class Blogs
                 }
                 $strReq .= ' ';
             }
-            $strReq .= 'FROM ' . App::core()->prefix . 'blog B ' .
+            $strReq .= 'FROM ' . App::core()->prefix() . 'blog B ' .
                 '%1$s ' .
                 'WHERE NULL IS NULL ' .
                 '%2$s ';
@@ -176,7 +176,7 @@ class Blogs
         }
 
         if (App::core()->user()->userID() && !App::core()->user()->isSuperAdmin()) {
-            $join  = 'INNER JOIN ' . App::core()->prefix . 'permissions PE ON B.blog_id = PE.blog_id ';
+            $join  = 'INNER JOIN ' . App::core()->prefix() . 'permissions PE ON B.blog_id = PE.blog_id ';
             $where = "AND PE.user_id = '" . App::core()->con()->escape(App::core()->user()->userID()) . "' " .
                 "AND (permissions LIKE '%|usage|%' OR permissions LIKE '%|admin|%' OR permissions LIKE '%|contentadmin|%') " .
                 'AND blog_status IN (1,0) ';
@@ -291,7 +291,7 @@ class Blogs
             throw new CoreException(__('You are not an administrator'));
         }
 
-        $strReq = 'DELETE FROM ' . App::core()->prefix . 'blog ' .
+        $strReq = 'DELETE FROM ' . App::core()->prefix() . 'blog ' .
         "WHERE blog_id = '" . App::core()->con()->escape($blog_id) . "' ";
 
         App::core()->con()->execute($strReq);
@@ -307,7 +307,7 @@ class Blogs
     public function blogExists(string $blog_id): bool
     {
         $strReq = 'SELECT blog_id ' .
-        'FROM ' . App::core()->prefix . 'blog ' .
+        'FROM ' . App::core()->prefix() . 'blog ' .
         "WHERE blog_id = '" . App::core()->con()->escape($blog_id) . "' ";
 
         $rs = App::core()->con()->select($strReq);
@@ -326,7 +326,7 @@ class Blogs
     public function countBlogPosts(string $blog_id, ?string $post_type = null): int
     {
         $strReq = 'SELECT COUNT(post_id) ' .
-        'FROM ' . App::core()->prefix . 'post ' .
+        'FROM ' . App::core()->prefix() . 'post ' .
         "WHERE blog_id = '" . App::core()->con()->escape($blog_id) . "' ";
 
         if ($post_type) {

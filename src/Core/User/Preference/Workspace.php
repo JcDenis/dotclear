@@ -79,7 +79,7 @@ class Workspace
             throw new CoreException(sprintf(__('Invalid dcWorkspace: %s'), $name));
         }
 
-        $this->table = App::core()->prefix . 'pref';
+        $this->table = App::core()->prefix() . 'pref';
 
         try {
             $this->getPrefs($rs);

@@ -513,7 +513,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             throw new CoreException('Cannot create an empty entry');
         }
 
-        $cur = App::core()->con()->openCursor(App::core()->prefix . 'post');
+        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'post');
 
         $cur->setField('user_id', App::core()->user()->userID());
         $cur->setField('post_lang', App::core()->user()->getInfo('user_lang'));
@@ -612,7 +612,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             throw new CoreException('Cannot create an empty entry');
         }
 
-        $cur = App::core()->con()->openCursor(App::core()->prefix . 'post');
+        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'post');
 
         $cur->setField('post_type', $post_type);
         $cur->setField('post_title', trim($title));
@@ -1243,7 +1243,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             throw new CoreException('You mus give a category name.');
         }
 
-        $cur = App::core()->con()->openCursor(App::core()->prefix . 'category');
+        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'category');
         $cur->setField('cat_title', $struct['name']);
 
         if (!empty($struct['slug'])) {
@@ -1287,7 +1287,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $this->setBlog();
 
         $strReq = 'SELECT cat_id, cat_title, cat_url ' .
-        'FROM ' . App::core()->prefix . 'category ' .
+        'FROM ' . App::core()->prefix() . 'category ' .
         "WHERE blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .
         "AND LOWER(cat_title) LIKE LOWER('%" . App::core()->con()->escape($category) . "%') " .
             (0 < $limit ? App::core()->con()->limit($limit) : '');
@@ -1397,7 +1397,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             throw new CoreException('Sorry, no such post.', 404);
         }
 
-        $cur = App::core()->con()->openCursor(App::core()->prefix . 'comment');
+        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'comment');
 
         $cur->setField('comment_author', App::core()->user()->userCN());
         $cur->setField('comment_email', App::core()->user()->getInfo('user_email'));
@@ -1414,7 +1414,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $this->setUser($user, $pwd);
         $this->setBlog();
 
-        $cur = App::core()->con()->openCursor(App::core()->prefix . 'comment');
+        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'comment');
 
         if (isset($struct['status'])) {
             $cur->setField('comment_status', $this->translateWpCommentstatus($struct['status']));
@@ -1687,7 +1687,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
 
         $done         = [];
         $blog_changes = false;
-        $cur          = App::core()->con()->openCursor(App::core()->prefix . 'blog');
+        $cur          = App::core()->con()->openCursor(App::core()->prefix() . 'blog');
 
         foreach ($options as $name => $value) {
             if (!isset($opt[$name]) || $opt[$name]['readonly']) {

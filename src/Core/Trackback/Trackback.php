@@ -57,7 +57,7 @@ class Trackback
                 'ping_url',
                 'ping_dt',
             ])
-            ->from(App::core()->prefix . $this->table)
+            ->from(App::core()->prefix() . $this->table)
             ->where('post_id = ' . $post_id)
             ->select()
         ;
@@ -88,7 +88,7 @@ class Trackback
                 'post_id',
                 'ping_url',
             ])
-            ->from(App::core()->prefix . $this->table)
+            ->from(App::core()->prefix() . $this->table)
             ->where('post_id = ' . $post_id)
             ->and('ping_url = ' . $sql->quote($url))
             ->select()
@@ -495,7 +495,7 @@ class Trackback
             '<p><strong>' . ($title ?: $blog_name) . "</strong></p>\n" .
             '<p>' . $excerpt . '</p>';
 
-        $cur = App::core()->con()->openCursor(App::core()->prefix . 'comment');
+        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'comment');
         $cur->setField('comment_author', $blog_name);
         $cur->setField('comment_site', $url);
         $cur->setField('comment_content', $comment);
@@ -523,7 +523,7 @@ class Trackback
     private function delBacklink(int $post_id, string $url): void
     {
         $sql = new DeleteStatement(__METHOD__);
-        $sql->from(App::core()->prefix . $this->table)
+        $sql->from(App::core()->prefix() . $this->table)
             ->where('post_id = ' . $post_id)
             ->and('comment_site = ' . $sql->quote($url))
             ->and('comment_trackback = 1')

@@ -39,7 +39,7 @@ class FilterIpv6 extends Spamfilter
     public function __construct()
     {
         parent::__construct();
-        $this->table = App::core()->prefix . 'spamrule';
+        $this->table = App::core()->prefix() . 'spamrule';
     }
 
     protected function setInfo(): void

@@ -111,18 +111,18 @@ class Comments
         }
 
         $sql
-            ->from(App::core()->prefix . 'comment C')
+            ->from(App::core()->prefix() . 'comment C')
             ->join(
                 JoinStatement::init(__METHOD__)
                     ->type('INNER')
-                    ->from(App::core()->prefix . 'post P')
+                    ->from(App::core()->prefix() . 'post P')
                     ->on('C.post_id = P.post_id')
                     ->statement()
             )
             ->join(
                 JoinStatement::init(__METHOD__)
                     ->type('INNER')
-                    ->from(App::core()->prefix . 'user U')
+                    ->from(App::core()->prefix() . 'user U')
                     ->on('P.user_id = U.user_id')
                     ->statement()
             )
@@ -271,14 +271,14 @@ class Comments
      */
     public function addComment(Cursor $cur): int
     {
-        App::core()->con()->writeLock(App::core()->prefix . 'comment');
+        App::core()->con()->writeLock(App::core()->prefix() . 'comment');
 
         try {
             // Get ID
             $sql = new SelectStatement(__METHOD__);
             $id  = $sql
                 ->column($sql->max('comment_id'))
-                ->from(App::core()->prefix . 'comment')
+                ->from(App::core()->prefix() . 'comment')
                 ->select()
                 ->fInt()
             ;
@@ -398,7 +398,7 @@ class Comments
             ->set('comment_status = ' . $status)
             ->where('comment_id' . $sql->in($co_ids))
             ->and('post_id IN (' . $this->getPostOwnerStatement() . ')')
-            ->from(App::core()->prefix . 'comment')
+            ->from(App::core()->prefix() . 'comment')
             ->update()
         ;
 
@@ -442,7 +442,7 @@ class Comments
             ->column('post_id')
             ->where('comment_id' . $sql->in($co_ids))
             ->group('post_id')
-            ->from(App::core()->prefix . 'comment')
+            ->from(App::core()->prefix() . 'comment')
             ->select()
         ;
 
@@ -454,7 +454,7 @@ class Comments
         $sql
             ->where('comment_id' . $sql->in($co_ids))
             ->and('post_id ' . $this->getPostOwnerStatement())
-            ->from(App::core()->prefix . 'comment')
+            ->from(App::core()->prefix() . 'comment')
             ->delete()
         ;
 
@@ -477,7 +477,7 @@ class Comments
         $sql
             ->where('comment_status = -2')
             ->and('post_id ' . $this->getPostOwnerStatement())
-            ->from(App::core()->prefix . 'comment')
+            ->from(App::core()->prefix() . 'comment')
             ->delete()
         ;
 
@@ -495,7 +495,7 @@ class Comments
         $sql
             ->column('tp.post_id')
             ->where('tp.blog_id = ' . $sql->quote(App::core()->blog()->id))
-            ->from(App::core()->prefix . 'post tp')
+            ->from(App::core()->prefix() . 'post tp')
         ;
 
         // If user can only delete, we need to check the post's owner

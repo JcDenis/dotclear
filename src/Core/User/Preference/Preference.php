@@ -55,7 +55,7 @@ class Preference
      */
     public function __construct(protected string $user_id, $workspace = null)
     {
-        $this->table = App::core()->prefix . 'pref';
+        $this->table = App::core()->prefix() . 'pref';
 
         try {
             $this->loadPrefs($workspace);

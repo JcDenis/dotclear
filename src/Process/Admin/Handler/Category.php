@@ -121,7 +121,7 @@ class Category extends AbstractPage
 
         // Create or update a category
         if (isset($_POST['cat_title'])) {
-            $cur = App::core()->con()->openCursor(App::core()->prefix . 'category');
+            $cur = App::core()->con()->openCursor(App::core()->prefix() . 'category');
 
             $cur->setField('cat_title', $this->cat_title = $_POST['cat_title']);
 

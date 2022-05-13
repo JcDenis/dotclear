@@ -145,10 +145,10 @@ class Antispam
         $sql = new SelectStatement(__METHOD__);
         $sql
             ->column('comment_id')
-            ->from(App::core()->prefix . 'comment C')
+            ->from(App::core()->prefix() . 'comment C')
             ->join(
                 JoinStatement::init(__METHOD__)
-                    ->from(App::core()->prefix . 'post P')
+                    ->from(App::core()->prefix() . 'post P')
                     ->on('P.post_id = C.post_id')
                     ->statement()
             )
@@ -172,7 +172,7 @@ class Antispam
 
         $sql = new DeleteStatement(__METHOD__);
         $sql
-            ->from(App::core()->prefix . 'comment')
+            ->from(App::core()->prefix() . 'comment')
             ->where('comment_id' . $sql->in($r))
             ->delete()
         ;
@@ -204,7 +204,7 @@ class Antispam
                 'user_pwd',
             ])
             ->where('user_id = ' . $sql->quote($user_id))
-            ->from(App::core()->prefix . 'user')
+            ->from(App::core()->prefix() . 'user')
             ->select()
         ;
 

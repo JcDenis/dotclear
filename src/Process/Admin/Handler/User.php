@@ -117,7 +117,7 @@ class User extends AbstractPage
                     $this->user->setOption('edit_size', 10);
                 }
 
-                $cur = $this->user->parseToCursor(App::core()->con()->openCursor(App::core()->prefix . 'user'));
+                $cur = $this->user->parseToCursor(App::core()->con()->openCursor(App::core()->prefix() . 'user'));
                 $cur->setField('user_options', new ArrayObject($this->user->getOptions()));
 
                 // Udate user

@@ -806,7 +806,7 @@ class Url
                         $cp['preview'] = true;
                     } else {
                         // Post the comment
-                        $cur = App::core()->con()->openCursor(App::core()->prefix . 'comment');
+                        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'comment');
                         $cur->setField('comment_author', $name);
                         $cur->setField('comment_site', Html::clean($site));
                         $cur->setField('comment_email', Html::clean($mail));

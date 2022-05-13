@@ -331,7 +331,7 @@ class ImportDc1 extends Module
 
             while ($rs->fetch()) {
                 if (!App::core()->users()->userExists($rs->f('user_id'))) {
-                    $cur = App::core()->con()->openCursor(App::core()->prefix . 'user');
+                    $cur = App::core()->con()->openCursor(App::core()->prefix() . 'user');
                     $cur->setField('user_id', $rs->f('user_id'));
                     $cur->setField('user_name', $rs->f('user_nom'));
                     $cur->setField('user_firstname', $rs->f('user_prenom'));
@@ -400,13 +400,13 @@ class ImportDc1 extends Module
 
         try {
             App::core()->con()->execute(
-                'DELETE FROM ' . App::core()->prefix . 'category ' .
+                'DELETE FROM ' . App::core()->prefix() . 'category ' .
                 "WHERE blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' "
             );
 
             $ord = 2;
             while ($rs->fetch()) {
-                $cur = App::core()->con()->openCursor(App::core()->prefix . 'category');
+                $cur = App::core()->con()->openCursor(App::core()->prefix() . 'category');
                 $cur->setField('blog_id', App::core()->blog()->id);
                 $cur->setField('cat_title', $this->cleanStr(htmlspecialchars_decode($rs->f('cat_libelle'))));
                 $cur->setField('cat_desc', $this->cleanStr($rs->f('cat_desc')));
@@ -414,7 +414,7 @@ class ImportDc1 extends Module
                 $cur->setField('cat_lft', $ord++);
                 $cur->setField('cat_rgt', $ord++);
                 $cur->setField('cat_id', App::core()->con()->select(
-                    'SELECT MAX(cat_id) FROM ' . App::core()->prefix . 'category'
+                    'SELECT MAX(cat_id) FROM ' . App::core()->prefix() . 'category'
                 )->fInt() + 1);
                 $this->vars['cat_ids'][$rs->fInt('cat_id')] = $cur->getField('cat_id');
                 $cur->insert();
@@ -437,12 +437,12 @@ class ImportDc1 extends Module
 
         try {
             App::core()->con()->execute(
-                'DELETE FROM ' . App::core()->prefix . 'link ' .
+                'DELETE FROM ' . App::core()->prefix() . 'link ' .
                 "WHERE blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' "
             );
 
             while ($rs->fetch()) {
-                $cur = App::core()->con()->openCursor(App::core()->prefix . 'link');
+                $cur = App::core()->con()->openCursor(App::core()->prefix() . 'link');
                 $cur->setField('blog_id', App::core()->blog()->id);
                 $cur->setField('link_href', $this->cleanStr($rs->f('href')));
                 $cur->setField('link_title', $this->cleanStr($rs->f('label')));
@@ -451,7 +451,7 @@ class ImportDc1 extends Module
                 $cur->setField('link_xfn', $this->cleanStr($rs->f('rel')));
                 $cur->setField('link_position', $rs->fInt('position'));
                 $cur->setField('link_id', App::core()->con()->select(
-                    'SELECT MAX(link_id) FROM ' . App::core()->prefix . 'link'
+                    'SELECT MAX(link_id) FROM ' . App::core()->prefix() . 'link'
                 )->fInt() + 1);
                 $cur->insert();
             }
@@ -480,7 +480,7 @@ class ImportDc1 extends Module
         try {
             if (0 == $this->post_offset) {
                 App::core()->con()->execute(
-                    'DELETE FROM ' . App::core()->prefix . 'post ' .
+                    'DELETE FROM ' . App::core()->prefix() . 'post ' .
                     "WHERE blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' "
                 );
             }
@@ -512,7 +512,7 @@ class ImportDc1 extends Module
 
     protected function importPost(Record $rs, AbstractConnection $db): void
     {
-        $cur = App::core()->con()->openCursor(App::core()->prefix . 'post');
+        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'post');
         $cur->setField('blog_id', App::core()->blog()->id);
         $cur->setField('user_id', $rs->f('user_id'));
         $cur->setField('cat_id', (int) $this->vars['cat_ids'][$rs->fInt('cat_id')]);
@@ -550,7 +550,7 @@ class ImportDc1 extends Module
         )));
 
         $cur->setField('post_id', App::core()->con()->select(
-            'SELECT MAX(post_id) FROM ' . App::core()->prefix . 'post'
+            'SELECT MAX(post_id) FROM ' . App::core()->prefix() . 'post'
         )->fInt() + 1);
 
         $cur->insert();
@@ -574,7 +574,7 @@ class ImportDc1 extends Module
         );
 
         while ($rs->fetch()) {
-            $cur = App::core()->con()->openCursor(App::core()->prefix . 'comment');
+            $cur = App::core()->con()->openCursor(App::core()->prefix() . 'comment');
             $cur->setField('post_id', (int) $new_post_id);
             $cur->setField('comment_author', $this->cleanStr($rs->f('comment_auteur')));
             $cur->setField('comment_status', $rs->fInt('comment_pub'));
@@ -596,7 +596,7 @@ class ImportDc1 extends Module
             $cur->setField('comment_words', implode(' ', Text::splitWords($cur->f('comment_content'))));
 
             $cur->setField('comment_id', App::core()->con()->select(
-                'SELECT MAX(comment_id) FROM ' . App::core()->prefix . 'comment'
+                'SELECT MAX(comment_id) FROM ' . App::core()->prefix() . 'comment'
             )->fInt() + 1);
 
             $cur->insert();
@@ -610,7 +610,7 @@ class ImportDc1 extends Module
 
         if (0 < $count_t || 0 < $count_c) {
             App::core()->con()->execute(
-                'UPDATE ' . App::core()->prefix . 'post SET ' .
+                'UPDATE ' . App::core()->prefix() . 'post SET ' .
                 'nb_comment = ' . $count_c . ', ' .
                 'nb_trackback = ' . $count_t . ' ' .
                 'WHERE post_id = ' . (int) $new_post_id . ' '
@@ -634,7 +634,7 @@ class ImportDc1 extends Module
                 continue;
             }
 
-            $cur = App::core()->con()->openCursor(App::core()->prefix . 'ping');
+            $cur = App::core()->con()->openCursor(App::core()->prefix() . 'ping');
             $cur->setField('post_id', (int) $new_post_id);
             $cur->setField('ping_url', $url);
             $cur->setField('ping_dt', $rs->f('ping_dt'));

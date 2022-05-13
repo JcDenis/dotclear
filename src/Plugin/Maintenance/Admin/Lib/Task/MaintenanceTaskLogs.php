@@ -38,7 +38,7 @@ class MaintenanceTaskLogs extends MaintenanceTask
     {
         if (static::$keep_maintenance_logs) {
             DeleteStatement::init(__METHOD__)
-                ->from(App::core()->prefix . 'log')
+                ->from(App::core()->prefix() . 'log')
                 ->where("log_table <> 'maintenance'")
                 ->delete()
             ;

@@ -25,7 +25,6 @@ use Exception;
 class Home extends AbstractPage
 {
     private $home_dragndrop_msg   = ['dashboard', 'toggles', 'accessibility'];
-    private $home_plugins_install = [];
 
     protected function getPermissions(): string|bool
     {

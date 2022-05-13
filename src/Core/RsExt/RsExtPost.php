@@ -418,7 +418,7 @@ class RsExtPost extends RsExtend
             return $this->_nb_media[$this->rs->index()];
         }
         $strReq = 'SELECT count(media_id) ' .
-            'FROM ' . App::core()->prefix . 'post_media ' .
+            'FROM ' . App::core()->prefix() . 'post_media ' .
             'WHERE post_id = ' . (int) $this->rs->f('post_id') . ' ';
         if (null != $link_type) {
             $strReq .= "AND link_type = '" . App::core()->con()->escape($link_type) . "'";

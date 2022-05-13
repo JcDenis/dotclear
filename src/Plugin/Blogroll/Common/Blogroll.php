@@ -43,7 +43,7 @@ class Blogroll
                 'link_position',
             ])
             ->where('blog_id = ' . $sql->quote(App::core()->blog()->id))
-            ->from(App::core()->prefix . $this->table)
+            ->from(App::core()->prefix() . $this->table)
             ->order('link_position')
         ;
 
@@ -68,7 +68,7 @@ class Blogroll
                 $sql->count('link_id', 'nb_link'),
                 'link_lang as post_lang',
             ])
-            ->from(App::core()->prefix . $this->table)
+            ->from(App::core()->prefix() . $this->table)
             ->where('blog_id = ' . $sql->quote(App::core()->blog()->id))
             ->and("link_id <> ''")
             ->and('link_id IS NOT NULL')
@@ -116,12 +116,12 @@ class Blogroll
                 $sql->quote($lang),
                 $sql->quote($xfn),
                 SelectStatement::init(__METHOD__)
-                    ->from(App::core()->prefix . $this->table)
+                    ->from(App::core()->prefix() . $this->table)
                     ->column($sql->max('link_id'))
                     ->select()
                     ->fInt() + 1,
             ]])
-            ->from(App::core()->prefix . $this->table)
+            ->from(App::core()->prefix() . $this->table)
             ->insert()
         ;
 
@@ -149,7 +149,7 @@ class Blogroll
             ])
             ->where('link_id = ' . $id)
             ->and('blog_id = ' . $sql->quote(App::core()->blog()->id))
-            ->from(App::core()->prefix . $this->table)
+            ->from(App::core()->prefix() . $this->table)
             ->update()
         ;
 
@@ -167,7 +167,7 @@ class Blogroll
             ->set('link_desc = ' . $sql->quote($desc))
             ->where('link_id = ' . $id)
             ->and('blog_id = ' . $sql->quote(App::core()->blog()->id))
-            ->from(App::core()->prefix . $this->table)
+            ->from(App::core()->prefix() . $this->table)
             ->update()
         ;
 
@@ -183,7 +183,7 @@ class Blogroll
         $sql = new InsertStatement(__METHOD__);
 
         $id = SelectStatement::init(__METHOD__)
-            ->from(App::core()->prefix . $this->table)
+            ->from(App::core()->prefix() . $this->table)
             ->column($sql->max('link_id'))
             ->select()
             ->fInt() + 1;
@@ -203,7 +203,7 @@ class Blogroll
                 $sql->quote($title),
                 $id,
             ]])
-            ->from(App::core()->prefix . $this->table)
+            ->from(App::core()->prefix() . $this->table)
             ->insert()
         ;
 
@@ -218,7 +218,7 @@ class Blogroll
         $sql
             ->where('link_id = ' . $id)
             ->and('blog_id = ' . $sql->quote(App::core()->blog()->id))
-            ->from(App::core()->prefix . $this->table)
+            ->from(App::core()->prefix() . $this->table)
             ->delete()
         ;
 
@@ -232,7 +232,7 @@ class Blogroll
             ->set('link_position = ' . $position)
             ->where('link_id = ' . $id)
             ->and('blog_id = ' . $sql->quote(App::core()->blog()->id))
-            ->from(App::core()->prefix . $this->table)
+            ->from(App::core()->prefix() . $this->table)
             ->update()
         ;
 

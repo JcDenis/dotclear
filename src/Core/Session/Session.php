@@ -73,7 +73,7 @@ class Session
      */
     public function __construct()
     {
-        $this->table         = App::core()->prefix . 'session';
+        $this->table         = App::core()->prefix() . 'session';
         $this->cookie_name   = App::core()->config()->get('session_name');
         $this->cookie_path   = '/';
         $this->cookie_domain = '';

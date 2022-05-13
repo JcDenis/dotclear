@@ -376,7 +376,7 @@ class Blog
      */
     public function triggerBlog(): void
     {
-        $cur = App::core()->con()->openCursor(App::core()->prefix . 'blog')
+        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'blog')
             ->setField('blog_upddt', Clock::database())
         ;
 
@@ -421,7 +421,7 @@ class Blog
         if (empty($affected_posts)) {
             $sql = new SelectStatement(__METHOD__ . 'Id');
             $rs  = $sql
-                ->from(App::core()->prefix . 'comment ')
+                ->from(App::core()->prefix() . 'comment ')
                 ->where('comment_id' . $sql->in($comments_ids))
                 ->group('post_id')
                 ->select()
@@ -445,7 +445,7 @@ class Blog
                 $sql->count('post_id', 'nb_comment'),
                 'comment_trackback',
             ])
-            ->from(App::core()->prefix . 'comment ')
+            ->from(App::core()->prefix() . 'comment ')
             ->where('comment_status = 1')
             ->and('post_id' . $sql->in($affected_posts))
             ->group(['post_id', 'comment_trackback'])
@@ -464,7 +464,7 @@ class Blog
         // Update number of comments on affected posts
         foreach ($affected_posts as $post_id) {
             $sql = UpdateStatement::init(__METHOD__ . $post_id)
-                ->from(App::core()->prefix . 'post')
+                ->from(App::core()->prefix() . 'post')
                 ->where('post_id = ' . $post_id)
             ;
 

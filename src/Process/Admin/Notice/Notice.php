@@ -69,7 +69,7 @@ class Notice
      */
     public function __construct()
     {
-        $this->table = App::core()->prefix . $this->table_name;
+        $this->table = App::core()->prefix() . $this->table_name;
     }
 
     /**

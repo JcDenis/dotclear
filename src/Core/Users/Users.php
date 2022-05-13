@@ -90,14 +90,14 @@ class Users
                 ->join(
                     JoinStatement::init(__METHOD__)
                         ->type('LEFT')
-                        ->from(App::core()->prefix . 'post P')
+                        ->from(App::core()->prefix() . 'post P')
                         ->on('U.user_id = P.user_id')
                         ->statement()
                 )
             ;
         }
 
-        $sql->from(App::core()->prefix . 'user U', false, true);
+        $sql->from(App::core()->prefix() . 'user U', false, true);
 
         if (!empty($params['join'])) {
             $sql->join($params['join']);
@@ -239,7 +239,7 @@ class Users
         $rs  = $sql
             ->distinct()
             ->where('user_id = ' . $sql->quote($user_id))
-            ->from(App::core()->prefix . 'post')
+            ->from(App::core()->prefix() . 'post')
             ->select()
         ;
 
@@ -278,7 +278,7 @@ class Users
         $sql = new DeleteStatement(__METHOD__);
         $sql
             ->where('user_id = ' . $sql->quote($user_id))
-            ->from(App::core()->prefix . 'user')
+            ->from(App::core()->prefix() . 'user')
             ->delete()
         ;
 
@@ -298,7 +298,7 @@ class Users
         $rs  = $sql
             ->column('user_id')
             ->where('user_id = ' . $sql->quote($user_id))
-            ->from(App::core()->prefix . 'user')
+            ->from(App::core()->prefix() . 'user')
             ->select()
         ;
 
@@ -329,11 +329,11 @@ class Users
                 'blog_url',
                 'permissions',
             ])
-            ->from(App::core()->prefix . 'permissions P')
+            ->from(App::core()->prefix() . 'permissions P')
             ->join(
                 JoinStatement::init(__METHOD__)
                     ->type('INNER')
-                    ->from(App::core()->prefix . 'blog B')
+                    ->from(App::core()->prefix() . 'blog B')
                     ->on('P.blog_id = B.blog_id')
                     ->statement()
             )
@@ -375,7 +375,7 @@ class Users
         $sql = new DeleteStatement(__METHOD__);
         $sql
             ->where('user_id = ' . $sql->quote($user_id))
-            ->from(App::core()->prefix . 'permissions')
+            ->from(App::core()->prefix() . 'permissions')
             ->delete()
         ;
 
@@ -407,7 +407,7 @@ class Users
             $sql
                 ->where('blog_id = ' . $sql->quote($blog_id))
                 ->and('user_id = ' . $sql->quote($user_id))
-                ->from(App::core()->prefix . 'permissions')
+                ->from(App::core()->prefix() . 'permissions')
                 ->delete()
             ;
         }
@@ -425,7 +425,7 @@ class Users
                     $sql->quote($blog_id),
                     $sql->quote('|' . implode('|', array_keys($perms)) . '|'),
                 ]])
-                ->from(App::core()->prefix . 'permissions')
+                ->from(App::core()->prefix() . 'permissions')
                 ->insert()
             ;
         }
@@ -444,7 +444,7 @@ class Users
         $sql = new UpdateStatement(__METHOD__);
         $sql
             ->set('user_default_blog = ' . $sql->quote($blog_id))
-            ->from(App::core()->prefix . 'user')
+            ->from(App::core()->prefix() . 'user')
             ->update()
         ;
     }

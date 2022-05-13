@@ -695,7 +695,7 @@ class MediaItem extends AbstractPage
             echo '<h3>' . __('Entries containing this media') . '</h3>';
             $params = [
                 'post_type' => '',
-                'join'      => 'LEFT OUTER JOIN ' . App::core()->prefix . 'post_media PM ON P.post_id = PM.post_id ',
+                'join'      => 'LEFT OUTER JOIN ' . App::core()->prefix() . 'post_media PM ON P.post_id = PM.post_id ',
                 'sql'       => 'AND (' .
                 'PM.media_id = ' . (int) $this->item_id . ' ' .
                 "OR post_content_xhtml LIKE '%" . App::core()->con()->escape($this->item_file->relname) . "%' " .

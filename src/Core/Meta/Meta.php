@@ -156,7 +156,7 @@ class Meta
         if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
             $sql = new SelectStatement(__METHOD__);
             $rs  = $sql
-                ->from(App::core()->prefix . 'post')
+                ->from(App::core()->prefix() . 'post')
                 ->column('post_id')
                 ->where('post_id = ' . $post_id)
                 ->and('user_id = ' . $sql->quote(App::core()->user()->userID()))
@@ -177,7 +177,7 @@ class Meta
     private function updatePostMeta(int $post_id): void
     {
         $rs = SelectStatement::init(__METHOD__)
-            ->from(App::core()->prefix . $this->table)
+            ->from(App::core()->prefix() . $this->table)
             ->columns([
                 'meta_id',
                 'meta_type',
@@ -193,7 +193,7 @@ class Meta
 
         $sql = new UpdateStatement(__METHOD__);
         $sql->set('post_meta = ' . $sql->quote(serialize($meta)))
-            ->from(App::core()->prefix . 'post')
+            ->from(App::core()->prefix() . 'post')
             ->where('post_id = ' . $post_id)
             ->update()
         ;
@@ -225,7 +225,7 @@ class Meta
         }
 
         $sql
-            ->from(App::core()->prefix . $this->table . ' META')
+            ->from(App::core()->prefix() . $this->table . ' META')
             ->and('META.post_id = P.post_id')
             ->and('META.meta_id = ' . $sql->quote($params['meta_id']))
         ;
@@ -265,7 +265,7 @@ class Meta
         }
 
         $sql
-            ->from(App::core()->prefix . $this->table . ' META')
+            ->from(App::core()->prefix() . $this->table . ' META')
             ->and('META.post_id = P.post_id')
             ->and('META.meta_id = ' . $sql->quote($params['meta_id']))
         ;
@@ -316,11 +316,11 @@ class Meta
         }
 
         $sql
-            ->from(App::core()->prefix . $this->table . ' M')
+            ->from(App::core()->prefix() . $this->table . ' M')
             ->join(
                 JoinStatement::init(__METHOD__)
                     ->type('LEFT')
-                    ->from(App::core()->prefix . 'post P')
+                    ->from(App::core()->prefix() . 'post P')
                     ->on('M.post_id = P.post_id')
                     ->statement()
             )
@@ -435,7 +435,7 @@ class Meta
 
         $sql = new InsertStatement(__METHOD__);
         $sql
-            ->from(App::core()->prefix . $this->table)
+            ->from(App::core()->prefix() . $this->table)
             ->columns([
                 'post_id',
                 'meta_id',
@@ -464,7 +464,7 @@ class Meta
         $this->checkPermissionsOnPost($post_id);
 
         $sql = DeleteStatement::init(__METHOD__)
-            ->from(App::core()->prefix . $this->table)
+            ->from(App::core()->prefix() . $this->table)
             ->where('post_id = ' . $post_id)
         ;
 
@@ -502,8 +502,8 @@ class Meta
         $sql = new SelectStatement(__METHOD__);
         $sql
             ->from([
-                App::core()->prefix . $this->table . ' M',
-                App::core()->prefix . 'post P',
+                App::core()->prefix() . $this->table . ' M',
+                App::core()->prefix() . 'post P',
             ])
             ->column('M.post_id')
             ->where('P.post_id = M.post_id')
@@ -553,7 +553,7 @@ class Meta
         if (!empty($to_remove)) {
             $sqlDel = new DeleteStatement(__METHOD__);
             $sqlDel
-                ->from(App::core()->prefix . $this->table)
+                ->from(App::core()->prefix() . $this->table)
                 ->where('post_id' . $sqlDel->in($to_remove, 'int'))      // Note: will cast all values to integer
                 ->and('meta_id = ' . $sqlDel->quote($meta_id))
             ;
@@ -573,7 +573,7 @@ class Meta
         if (!empty($to_update)) {
             $sqlUpd = new UpdateStatement(__METHOD__);
             $sqlUpd
-                ->from(App::core()->prefix . $this->table)
+                ->from(App::core()->prefix() . $this->table)
                 ->set('meta_id = ' . $sqlUpd->quote($new_meta_id))
                 ->where('post_id' . $sqlUpd->in($to_update, 'int'))
                 ->and('meta_id = ' . $sqlUpd->quote($meta_id))
@@ -608,8 +608,8 @@ class Meta
         $sql
             ->column('M.post_id')
             ->from([
-                App::core()->prefix . $this->table . ' M',
-                App::core()->prefix . 'post P',
+                App::core()->prefix() . $this->table . ' M',
+                App::core()->prefix() . 'post P',
             ])
             ->where('P.post_id = M.post_id')
             ->and('P.blog_id = ' . $sql->quote(App::core()->blog()->id))
@@ -637,7 +637,7 @@ class Meta
 
         $sql = new DeleteStatement(__METHOD__);
         $sql
-            ->from(App::core()->prefix . $this->table)
+            ->from(App::core()->prefix() . $this->table)
             ->where('post_id' . $sql->in($ids, 'int'))
             ->and('meta_id = ' . $sql->quote($meta_id))
         ;

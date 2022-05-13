@@ -237,7 +237,7 @@ class HandlerEdit extends AbstractPage
 
         // Create or update page
         if (!empty($_POST) && !empty($_POST['save']) && $this->can_edit_page && !$this->bad_dt) {
-            $cur = App::core()->con()->openCursor(App::core()->prefix . 'post');
+            $cur = App::core()->con()->openCursor(App::core()->prefix() . 'post');
 
             // Magic tweak :)
             App::core()->blog()->settings()->get('system')->set('post_url_format', '{t}');

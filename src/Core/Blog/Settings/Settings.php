@@ -52,7 +52,7 @@ class Settings
      */
     public function __construct(protected string|null $blog_id)
     {
-        $this->table = App::core()->prefix . 'setting';
+        $this->table = App::core()->prefix() . 'setting';
         $this->loadSettings();
     }
 

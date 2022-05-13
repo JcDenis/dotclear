@@ -2669,7 +2669,7 @@ class Template extends BaseTemplate
     public function IfCommentPreviewOptional(ArrayObject $attr, string $content): string
     {
         return
-            self::$ton . 'if (App::core()->blog()->settings()->get("system")->get("comment_preview_optional") || (App::core()->context()->get("comment_preview") !== null && App::core()->context()->get("comment_preview")["preview"])) :' . self::$toff .
+            self::$ton . 'if (App::core()->blog()->settings()->get("system")->get("comment_preview_optional") || !App::core()->context()->get("comment_preview")->count() && App::core()->context()->get("comment_preview")->get("preview")) :' . self::$toff .
             $content .
             self::$ton . 'endif;' . self::$toff;
     }
@@ -2680,7 +2680,7 @@ class Template extends BaseTemplate
     public function IfCommentPreview(ArrayObject $attr, string $content): string
     {
         return
-            self::$ton . 'if (App::core()->context()->get("comment_preview") !== null && App::core()->context()->get("comment_preview")["preview"]) :' . self::$toff .
+            self::$ton . 'if (!App::core()->context()->get("comment_preview")->count() && App::core()->context()->get("comment_preview")->get("preview")) :' . self::$toff .
             $content .
             self::$ton . 'endif;' . self::$toff;
     }
@@ -2690,7 +2690,7 @@ class Template extends BaseTemplate
      */
     public function CommentPreviewName(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("comment_preview")["name"]') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("comment_preview")->get("name")') . ';' . self::$toff;
     }
 
     /*dtd
@@ -2698,7 +2698,7 @@ class Template extends BaseTemplate
      */
     public function CommentPreviewEmail(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("comment_preview")["mail"]') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("comment_preview")->get("mail")') . ';' . self::$toff;
     }
 
     /*dtd
@@ -2706,7 +2706,7 @@ class Template extends BaseTemplate
      */
     public function CommentPreviewSite(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("comment_preview")["site"]') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("comment_preview")->get("site")') . ';' . self::$toff;
     }
 
     /*dtd
@@ -2718,9 +2718,9 @@ class Template extends BaseTemplate
     public function CommentPreviewContent(ArrayObject $attr): string
     {
         if (!empty($attr['raw'])) {
-            $co = 'App::core()->context()->get("comment_preview")["rawcontent"]';
+            $co = 'App::core()->context()->get("comment_preview")->get("rawcontent")';
         } else {
-            $co = 'App::core()->context()->get("comment_preview")["content"]';
+            $co = 'App::core()->context()->get("comment_preview")->get("content")';
         }
 
         return self::$ton . 'echo ' . sprintf($this->getFilters($attr), $co) . ';' . self::$toff;
@@ -2731,7 +2731,7 @@ class Template extends BaseTemplate
      */
     public function CommentPreviewCheckRemember(ArrayObject $attr): string
     {
-        return self::$ton . "if (App::core()->context()->get('comment_preview')['remember']) { echo ' checked=\"checked\"'; }" . self::$toff;
+        return self::$ton . "if (App::core()->context()->get('comment_preview')->get('remember')) { echo ' checked=\"checked\"'; }" . self::$toff;
     }
 
     // Trackbacks -------------------------------------

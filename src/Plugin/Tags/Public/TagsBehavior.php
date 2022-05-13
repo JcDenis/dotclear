@@ -33,7 +33,7 @@ class TagsBehavior
             "if (!isset(\$params)) { \$params = []; }\n" .
             "if (!isset(\$params['from'])) { \$params['from'] = ''; }\n" .
             "if (!isset(\$params['sql'])) { \$params['sql'] = ''; }\n" .
-            "\$params['from'] .= ', '.App::core()->prefix.'meta META ';\n" .
+            "\$params['from'] .= ', '.App::core()->prefix().'meta META ';\n" .
             "\$params['sql'] .= 'AND META.post_id = P.post_id ';\n" .
             "\$params['sql'] .= \"AND META.meta_type = 'tag' \";\n" .
             "\$params['sql'] .= \"AND META.meta_id = '" . App::core()->con()->escape($attr['tag']) . "' \";\n" .
@@ -45,7 +45,7 @@ class TagsBehavior
                 "if (!isset(\$params)) { \$params = []; }\n" .
                 "if (!isset(\$params['from'])) { \$params['from'] = ''; }\n" .
                 "if (!isset(\$params['sql'])) { \$params['sql'] = ''; }\n" .
-                "\$params['from'] .= ', '.App::core()->prefix.'meta META ';\n" .
+                "\$params['from'] .= ', '.App::core()->prefix().'meta META ';\n" .
                 "\$params['sql'] .= 'AND META.post_id = P.post_id ';\n" .
                 "\$params['sql'] .= \"AND META.meta_type = 'tag' \";\n" .
                 "\$params['sql'] .= \"AND META.meta_id = '\".App::core()->con()->escape(App::core()->context()->get('meta')->f('meta_id')).\"' \";\n" .

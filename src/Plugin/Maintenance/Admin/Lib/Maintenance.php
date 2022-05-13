@@ -250,7 +250,7 @@ class Maintenance
         }
 
         // Add new log
-        $cur = App::core()->con()->openCursor(App::core()->prefix . 'log');
+        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'log');
         $cur->setField('log_msg', $id);
         $cur->setField('log_table', 'maintenance');
         $cur->setField('user_id', App::core()->user()->userID());

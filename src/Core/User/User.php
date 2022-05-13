@@ -121,7 +121,7 @@ class User
         $sql = new SelectStatement(__METHOD__);
         $sql
             ->columns(array_keys($this->user->getCurrentProperties()))
-            ->from(App::core()->prefix . $this->user_table)
+            ->from(App::core()->prefix() . $this->user_table)
             ->where('user_id = ' . $sql->quote($user_id))
         ;
 
@@ -177,7 +177,7 @@ class User
                 $sql = new UpdateStatement(__METHOD__);
                 $sql
                     ->set('user_pwd = ' . $sql->quote($user_pwd))
-                    ->from(App::core()->prefix . $this->user_table)
+                    ->from(App::core()->prefix() . $this->user_table)
                     ->where('user_id = ' . $sql->quote($rs->f('user_id')))
                     ->update()
                 ;
@@ -398,7 +398,7 @@ class User
             $sql = new SelectStatement(__METHOD__);
             $rs  = $sql
                 ->column('blog_id')
-                ->from(App::core()->prefix . $this->blog_table)
+                ->from(App::core()->prefix() . $this->blog_table)
                 ->where('blog_id = ' . $sql->quote($blog_id))
                 ->select()
             ;
@@ -411,7 +411,7 @@ class User
         $sql = new SelectStatement(__METHOD__);
         $rs  = $sql
             ->column('permissions')
-            ->from(App::core()->prefix . $this->perm_table)
+            ->from(App::core()->prefix() . $this->perm_table)
             ->where('user_id = ' . $sql->quote($this->user->getProperty('user_id')))
             ->and('blog_id = ' . $sql->quote($blog_id))
             ->and($sql->orGroup([
@@ -457,7 +457,7 @@ class User
         if ($this->user->getProperty('user_super')) {
             $sql
                 ->column('blog_id')
-                ->from(App::core()->prefix . $this->blog_table)
+                ->from(App::core()->prefix() . $this->blog_table)
                 ->order('blog_id ASC')
                 ->limit(1)
             ;
@@ -465,8 +465,8 @@ class User
             $sql
                 ->column('P.blog_id')
                 ->from([
-                    App::core()->prefix . $this->perm_table . ' P',
-                    App::core()->prefix . $this->blog_table . ' B',
+                    App::core()->prefix() . $this->perm_table . ' P',
+                    App::core()->prefix() . $this->blog_table . ' B',
                 ])
                 ->where('user_id = ' . $sql->quote($this->user->getProperty('user_id')))
                 ->and('P.blog_id = B.blog_id')
@@ -592,7 +592,7 @@ class User
         $sql = new SelectStatement(__METHOD__);
         $rs  = $sql
             ->column('user_id')
-            ->from(App::core()->prefix . $this->user_table)
+            ->from(App::core()->prefix() . $this->user_table)
             ->where('user_id = ' . $sql->quote($user_id))
             ->and('user_email = ' . $sql->quote($user_email))
             ->select()
@@ -607,7 +607,7 @@ class User
         $sql = new UpdateStatement(__METHOD__);
         $sql
             ->set('user_recover_key = ' . $sql->quote($key))
-            ->from(App::core()->prefix . $this->user_table)
+            ->from(App::core()->prefix() . $this->user_table)
             ->where('user_id = ' . $sql->quote($user_id))
             ->update()
         ;
@@ -630,7 +630,7 @@ class User
         $sql = new SelectStatement(__METHOD__);
         $rs  = $sql
             ->columns(['user_id', 'user_email'])
-            ->from(App::core()->prefix . $this->user_table)
+            ->from(App::core()->prefix() . $this->user_table)
             ->where('user_recover_key = ' . $sql->quote($recover_key))
             ->select()
         ;
@@ -646,7 +646,7 @@ class User
             ->set('user_pwd = ' . $sql->quote($this->crypt($new_pass)))
             ->set('user_recover_key = NULL')
             ->set('user_change_pwd = 1') // User will have to change this temporary password at next login
-            ->from(App::core()->prefix . $this->user_table)
+            ->from(App::core()->prefix() . $this->user_table)
             ->where('user_recover_key = ' . $sql->quote($recover_key))
             ->update()
         ;

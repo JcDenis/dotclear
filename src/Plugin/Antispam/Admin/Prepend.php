@@ -41,7 +41,7 @@ class Prepend extends ModulePrepend
 
     public function installModule(): ?bool
     {
-        $s = new Structure(App::core()->con(), App::core()->prefix);
+        $s = new Structure(App::core()->con(), App::core()->prefix());
 
         $s->table('comment')
             ->field('comment_spam_status', 'varchar', 128, true, 0)
@@ -65,7 +65,7 @@ class Prepend extends ModulePrepend
         }
 
         // Schema installation
-        $si      = new Structure(App::core()->con(), App::core()->prefix);
+        $si      = new Structure(App::core()->con(), App::core()->prefix());
         $changes = $si->synchronize($s);
 
         // Creating default wordslist

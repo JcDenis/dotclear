@@ -65,7 +65,7 @@ class Install
 
         // Check if dotclear is already installed
         $schema = AbstractSchema::init(App::core()->con());
-        if (in_array(App::core()->prefix . 'post', $schema->getTables())) {
+        if (in_array(App::core()->prefix() . 'post', $schema->getTables())) {
             $can_install = false;
             $err         = '<p>' . __('Dotclear is already installed.') . '</p>';
         }
@@ -124,14 +124,14 @@ class Install
                 }
 
                 // Create schema
-                $_s = new Structure(App::core()->con(), App::core()->prefix);
+                $_s = new Structure(App::core()->con(), App::core()->prefix());
                 Distrib::getDatabaseStructure($_s);
 
-                $si      = new Structure(App::core()->con(), App::core()->prefix);
+                $si      = new Structure(App::core()->con(), App::core()->prefix());
                 $changes = $si->synchronize($_s);
 
                 // Create user
-                $cur = App::core()->con()->openCursor(App::core()->prefix . 'user');
+                $cur = App::core()->con()->openCursor(App::core()->prefix() . 'user');
                 $cur->setField('user_id', $u_login);
                 $cur->setField('user_super', 1);
                 $cur->setField('user_pwd', App::core()->user()->crypt($u_pwd));
@@ -148,7 +148,7 @@ class Install
                 App::core()->user()->checkUser($u_login);
 
                 // Create blog
-                $cur = App::core()->con()->openCursor(App::core()->prefix . 'blog');
+                $cur = App::core()->con()->openCursor(App::core()->prefix() . 'blog');
                 $cur->setField('blog_id', 'default');
                 $cur->setField('blog_url', Http::getHost() . $root_url . '/index.php?');
                 $cur->setField('blog_name', __('My first blog'));
@@ -231,7 +231,7 @@ class Install
                 $blog_settings->get('system')->put('jquery_allow_old_version', false, 'boolean', 'Allow older version of jQuery', false, true);
 
                 // Add Dotclear version
-                $cur = App::core()->con()->openCursor(App::core()->prefix . 'version');
+                $cur = App::core()->con()->openCursor(App::core()->prefix() . 'version');
                 $cur->setField('module', 'core');
                 $cur->setField('version', (string) App::core()->config()->get('core_version'));
                 $cur->insert();
@@ -239,7 +239,7 @@ class Install
                 // Create first post
                 App::core()->setBlog('default');
 
-                $cur = App::core()->con()->openCursor(App::core()->prefix . 'post');
+                $cur = App::core()->con()->openCursor(App::core()->prefix() . 'post');
                 $cur->setField('user_id', $u_login);
                 $cur->setField('post_format', 'xhtml');
                 $cur->setField('post_lang', $dlang);
@@ -252,7 +252,7 @@ class Install
                 $post_id = App::core()->blog()->posts()->addPost($cur);
 
                 // Add a comment to it
-                $cur = App::core()->con()->openCursor(App::core()->prefix . 'comment');
+                $cur = App::core()->con()->openCursor(App::core()->prefix() . 'comment');
                 $cur->setField('post_id', $post_id);
                 $cur->setField('comment_author', __('Dotclear Team'));
                 $cur->setField('comment_email', 'contact@dotclear.net');

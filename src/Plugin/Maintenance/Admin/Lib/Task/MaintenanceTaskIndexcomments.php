@@ -75,7 +75,7 @@ class MaintenanceTaskIndexcomments extends MaintenanceTask
         $sql   = new SelectStatement(__METHOD__);
         $count = $sql
             ->column($sql->count('comment_id'))
-            ->from(App::core()->prefix . 'comment')
+            ->from(App::core()->prefix() . 'comment')
             ->select()
             ->fInt()
         ;
@@ -93,7 +93,7 @@ class MaintenanceTaskIndexcomments extends MaintenanceTask
         ;
 
         $sql = UpdateStatement::init(__METHOD__)
-            ->from(App::core()->prefix . 'comment')
+            ->from(App::core()->prefix() . 'comment')
         ;
 
         while ($rs->fetch()) {

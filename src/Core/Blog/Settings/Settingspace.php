@@ -79,7 +79,7 @@ class Settingspace
             throw new CoreException(sprintf(__('Invalid setting Namespace: %s'), $name));
         }
 
-        $this->table = App::core()->prefix . 'setting';
+        $this->table = App::core()->prefix() . 'setting';
 
         $this->getSettings($rs);
     }

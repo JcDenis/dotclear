@@ -39,6 +39,7 @@ use Dotclear\Helper\Configuration;
 use Dotclear\Helper\Crypt;
 use Dotclear\Helper\ErrorTrait;
 use Dotclear\Helper\L10n;
+use Dotclear\Helper\MagicTrait;
 use Dotclear\Helper\RestServer;
 use Dotclear\Helper\Statistic;
 use Dotclear\Helper\File\Path;
@@ -52,7 +53,8 @@ use Exception;
  */
 class Core
 {
-    use Errortrait;
+    use ErrorTrait;
+    use MagicTrait;
 
     /**
      * @var Autoload $autoload
@@ -97,6 +99,12 @@ class Core
     private $formater;
 
     /**
+     * @var string $lang
+     *             Current lang
+     */
+    private $lang = 'en';
+
+    /**
      * @var Log $log
      *          Log instance
      */
@@ -125,6 +133,12 @@ class Core
      *               PostType instance
      */
     private $posttype;
+
+    /**
+     * @var string $prefix
+     *             Database table prefix
+     */
+    private $prefix = '';
 
     /**
      * @var RestServer $rest
@@ -175,34 +189,22 @@ class Core
     private static $instance;
 
     /**
+     * @var array<int,array> $top_behaviors
+     *                       top behaviors
+     */
+    private static $top_behaviors = [];
+
+    /**
      * @var null|string $config_path
      *                  Configuration file path
      */
     protected $config_path;
 
     /**
-     * @var string $lang
-     *             Current lang
-     */
-    protected $lang                 = 'en';
-
-    /**
      * @var string $process
      *             Current Process
      */
     protected $process;
-
-    /**
-     * @var array<int,array> $top_behaviors
-     *                       top behaviors
-     */
-    protected static $top_behaviors = [];
-
-    /**
-     * @var string $prefix
-     *             Database table prefix
-     */
-    public $prefix                  = '';
 
     // / @name Core instance methods and magic
     // @{
@@ -231,39 +233,6 @@ class Core
         // Add custom regs
         Html::$absolute_regs[] = '/(<param\s+name="movie"\s+value=")(.*?)(")/msu';
         Html::$absolute_regs[] = '/(<param\s+name="FlashVars"\s+value=".*?(?:mp3|flv)=)(.*?)(&|")/msu';
-    }
-
-    /**
-     * Disable magic clone method.
-     *
-     * This method is mark as <b>final</b>
-     * to cope with singleton instance.
-     */
-    final public function __clone()
-    {
-        trigger_error('Core instance can not be cloned.', E_USER_ERROR);
-    }
-
-    /**
-     * Disable magic sleep method.
-     *
-     * This method is mark as <b>final</b>
-     * to cope with singleton instance.
-     */
-    final public function __sleep(): array
-    {
-        trigger_error('Core instance can not be serialized.', E_USER_ERROR);
-    }
-
-    /**
-     * Disable magic wakeup method.
-     *
-     * This method is mark as <b>final</b>
-     * to cope with singleton instance.
-     */
-    final public function __wakeup(): void
-    {
-        trigger_error('Core instance can not be deserialized.', E_USER_ERROR);
     }
 
     /**
@@ -303,7 +272,7 @@ class Core
      *
      * @return Autoload The autoload instance
      */
-    public function autoload(): Autoload
+    final public function autoload(): Autoload
     {
         if (!($this->autoload instanceof Autoload)) {
             $this->autoload = new Autoload(prepend: true);
@@ -319,7 +288,7 @@ class Core
      *
      * @return Behavior The behaviors instance
      */
-    public function behavior(): Behavior
+    final public function behavior(): Behavior
     {
         if (!($this->behavior instanceof Behavior)) {
             $this->behavior = new Behavior();
@@ -335,7 +304,7 @@ class Core
      *
      * @return null|Blog The blog instance
      */
-    public function blog(): ?Blog
+    final public function blog(): ?Blog
     {
         return $this->blog;
     }
@@ -347,7 +316,7 @@ class Core
      *
      * @return Blogs The blogs instance
      */
-    public function blogs(): Blogs
+    final public function blogs(): Blogs
     {
         if (!($this->blogs instanceof Blogs)) {
             $this->blogs = new Blogs();
@@ -363,7 +332,7 @@ class Core
      *
      * @return AbstractConnection The connection instance
      */
-    public function con(): AbstractConnection
+    final public function con(): AbstractConnection
     {
         if (!($this->con instanceof AbstractConnection)) {
             try {
@@ -432,7 +401,7 @@ class Core
      *
      * @return Configuration The configuration instance
      */
-    public function config(): Configuration
+    final public function config(): Configuration
     {
         if (!($this->config instanceof Configuration)) {
             $config_file  = (null !== $this->config_path && is_file($this->config_path) ? $this->config_path : []);
@@ -452,7 +421,7 @@ class Core
      *
      * @return Formater The formater instance
      */
-    public function formater(): Formater
+    final public function formater(): Formater
     {
         if (!($this->formater instanceof Formater)) {
             $this->formater = new Formater();
@@ -468,7 +437,7 @@ class Core
      *
      * @return Log The log instance
      */
-    public function log(): Log
+    final public function log(): Log
     {
         if (!($this->log instanceof Log)) {
             $this->log = new Log();
@@ -489,7 +458,7 @@ class Core
      *
      * @return Media The media instance
      */
-    public function media(bool $reload = false, bool $throw = false): ?Media
+    final public function media(bool $reload = false, bool $throw = false): ?Media
     {
         if ($reload || !($this->media instanceof Media)) {
             try {
@@ -512,7 +481,7 @@ class Core
      *
      * @return Meta The meta instance
      */
-    public function meta(): Meta
+    final public function meta(): Meta
     {
         if (!($this->meta instanceof Meta)) {
             $this->meta = new Meta();
@@ -528,7 +497,7 @@ class Core
      *
      * @return Nonce The nonce instance
      */
-    public function nonce(): Nonce
+    final public function nonce(): Nonce
     {
         if (!($this->nonce instanceof Nonce)) {
             $this->nonce = new Nonce();
@@ -544,7 +513,7 @@ class Core
      *
      * @return PostType The post type instance
      */
-    public function posttype(): PostType
+    final public function posttype(): PostType
     {
         if (!($this->posttype instanceof PostType)) {
             $this->posttype = new PostType();
@@ -560,7 +529,7 @@ class Core
      *
      * @return RestServer The REST server instance
      */
-    public function rest(): RestServer
+    final public function rest(): RestServer
     {
         if (!($this->rest instanceof RestServer)) {
             $this->rest = new RestServer();
@@ -576,7 +545,7 @@ class Core
      *
      * @return Session The session instance
      */
-    public function session(): Session
+    final public function session(): Session
     {
         if (!($this->session instanceof Session)) {
             $this->session = new Session();
@@ -592,7 +561,7 @@ class Core
      *
      * @return Url The public URL instance
      */
-    public function url(): Url
+    final public function url(): Url
     {
         if (!($this->url instanceof Url)) {
             $this->url = new Url();
@@ -612,7 +581,7 @@ class Core
      *
      * @return User The user instance
      */
-    public function user(): User
+    final public function user(): User
     {
         if (!($this->user instanceof User)) {
             try {
@@ -649,7 +618,7 @@ class Core
      *
      * @return Users The users instance
      */
-    public function users(): Users
+    final public function users(): Users
     {
         if (!($this->users instanceof Users)) {
             $this->users = new Users();
@@ -665,7 +634,7 @@ class Core
      *
      * @return Version The version instance
      */
-    public function version(): Version
+    final public function version(): Version
     {
         if (!($this->version instanceof Version)) {
             $this->version = new Version();
@@ -681,7 +650,7 @@ class Core
      *
      * @return Wiki The wiki synthax instance
      */
-    public function wiki(): Wiki
+    final public function wiki(): Wiki
     {
         if (!($this->wiki instanceof Wiki)) {
             $this->wiki = new Wiki();
@@ -831,25 +800,35 @@ class Core
      *
      * @return bool|string True this is the process, or the process name
      */
-    public function processed(?string $process = null): string|bool
+    final public function processed(?string $process = null): string|bool
     {
         return null === $process ? $this->process : strtolower($this->process) == strtolower($process);
     }
 
     /**
-     * Get current lang.
+     * Get or set current lang.
      *
      * @param string $lang Lang to switch on
      *
      * @return string The lang
      */
-    public function lang(string $lang = null): string
+    final public function lang(string $lang = null): string
     {
         if (null !== $lang) {
             $this->lang = L10n::lang($lang);
         }
 
         return $this->lang;
+    }
+
+    /**
+     * Get database table prefix.
+     * 
+     * @return string The database table prefix
+     */
+    final public function prefix(): string
+    {
+        return $this->prefix;
     }
 
     /**
@@ -863,7 +842,7 @@ class Core
      *
      * @return bool True for production env
      */
-    public function production(): bool
+    final public function production(): bool
     {
         return false !== $this->config()->get('production');
     }
@@ -877,7 +856,7 @@ class Core
      *
      * @return bool True for rescue mode
      */
-    public function rescue()
+    final public function rescue()
     {
         return isset($_SESSION['sess_safe_mode']) && $_SESSION['sess_safe_mode'];
     }
@@ -887,7 +866,7 @@ class Core
      *
      * Close properly session and connection.
      */
-    public function shutdown(): void
+    final public function shutdown(): void
     {
         if (session_id()) {
             session_write_close();
@@ -924,7 +903,7 @@ class Core
      * @param string               $behavior The behavior
      * @param array|Closure|string $callback The function
      */
-    public static function addTopBehavior(string $behavior, string|array|Closure $callback): void
+    final public static function addTopBehavior(string $behavior, string|array|Closure $callback): void
     {
         array_push(self::$top_behaviors, [$behavior, $callback]);
     }
@@ -932,7 +911,7 @@ class Core
     /**
      * Register Top Behaviors into class instance behaviors.
      */
-    protected function registerTopBehaviors(): void
+    final protected function registerTopBehaviors(): void
     {
         foreach (self::$top_behaviors as $behavior) {
             $this->behavior()->add($behavior[0], $behavior[1]);
@@ -947,7 +926,7 @@ class Core
      *
      * @param string $blog_id The blog ID
      */
-    public function setBlog(string $blog_id): void
+    final public function setBlog(string $blog_id): void
     {
         try {
             $this->blog = new Blog($blog_id);
@@ -963,7 +942,7 @@ class Core
     /**
      * Unsets blog property.
      */
-    public function unsetBlog(): void
+    final public function unsetBlog(): void
     {
         $this->blog = null;
     }
@@ -981,7 +960,7 @@ class Core
      *
      * @throws PrependException
      */
-    protected function throwException(string $message, string $detail, int $code, Throwable $previous = null): void
+    final protected function throwException(string $message, string $detail, int $code, Throwable $previous = null): void
     {
         $title = $this->getExceptionTitle($code);
 
@@ -1005,7 +984,7 @@ class Core
      *
      * @return string The title
      */
-    protected function getExceptionTitle(int $code): string
+    final protected function getExceptionTitle(int $code): string
     {
         $errors = [
             605 => __('no process found'),
@@ -1028,7 +1007,7 @@ class Core
     /**
      * Empty templates cache directory.
      */
-    public function emptyTemplatesCache(): void // ! move this
+    final public function emptyTemplatesCache(): void // ! move this
     {
         if (is_dir(Path::implode(App::core()->config()->get('cache_dir'), 'cbtpl'))) {
             Files::deltree(Path::implode(App::core()->config()->get('cache_dir'), 'cbtpl'));

@@ -195,7 +195,7 @@ abstract class DefaultPostAction extends Action
             $new_cat_id = (int) $post['new_cat_id'];
             if (!empty($post['new_cat_title']) && App::core()->user()->check('categories', App::core()->blog()->id)) {
                 // to do: check for duplicate category and throw clean Exception
-                $cur_cat            = App::core()->con()->openCursor(App::core()->prefix . 'category');
+                $cur_cat            = App::core()->con()->openCursor(App::core()->prefix() . 'category');
                 $cur_cat->cat_title = $post['new_cat_title'];
                 $cur_cat->cat_url   = '';
                 $title              = $cur_cat->cat_title;
@@ -282,7 +282,7 @@ abstract class DefaultPostAction extends Action
             $sql
                 ->set('user_id = ' . $sql->quote($new_user_id))
                 ->where('post_id' . $sql->in($posts_ids))
-                ->from(App::core()->prefix . 'post')
+                ->from(App::core()->prefix() . 'post')
                 ->update()
             ;
 
@@ -350,7 +350,7 @@ abstract class DefaultPostAction extends Action
             $sql
                 ->set('post_lang = ' . $sql->quote($post['new_lang']))
                 ->where('post_id' . $sql->in($posts_ids))
-                ->from(App::core()->prefix . 'post')
+                ->from(App::core()->prefix() . 'post')
                 ->update()
             ;
 

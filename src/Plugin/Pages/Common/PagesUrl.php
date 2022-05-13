@@ -133,21 +133,22 @@ class PagesUrl extends Url
                         $content = new HtmlFilter($content);
                     }
 
-                    $cp               = App::core()->context()->get('comment_preview');
-                    $cp['content']    = $content;
-                    $cp['rawcontent'] = $_POST['c_content'];
-                    $cp['name']       = $name;
-                    $cp['mail']       = $mail;
-                    $cp['site']       = $site;
+                    $cp = App::core()->context()->get('comment_preview')
+                        ->set('content', $content)
+                        ->set('rawcontent', $_POST['c_content'])
+                        ->set('name', $name)
+                        ->set('mail', $mail)
+                        ->set('site', $site)
+                    ;
 
                     if ($preview) {
                         // --BEHAVIOR-- publicBeforeCommentPreview
                         App::core()->behavior()->call('publicBeforeCommentPreview', $cp);
 
-                        $cp['preview'] = true;
+                        $cp->set('preview', true);
                     } else {
                         // Post the comment
-                        $cur = App::core()->con()->openCursor(App::core()->prefix . 'comment');
+                        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'comment');
                         $cur->setField('comment_author', $name);
                         $cur->setField('comment_site', Html::clean($site));
                         $cur->setField('comment_email', Html::clean($mail));

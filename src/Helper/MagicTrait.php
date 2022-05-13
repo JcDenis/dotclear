@@ -10,59 +10,166 @@ declare(strict_types=1);
 namespace Dotclear\Helper;
 
 // Dotclear\Helper\MagicTrait
+use Dotclear\Exception\InvalidMethodException;
 
 /**
  * Simple no magic trait.
  *
- * This mainly used for code cleaning.
+ * Explicit code is better !
+ *
+ * Only __construct, __destruct
  */
 trait MagicTrait
 {
     /**
-     * Disable magic get method.
-     */
-    final public function __get(string $_): mixed
-    {
-        trigger_error('Call to magic __get method: ' . $_, E_USER_ERROR);
-    }
-
-    /**
-     * Disable magic set method.
-     */
-    final public function __set(string $_, mixed $__): void
-    {
-        trigger_error('Call to magic __set method: ' . $_, E_USER_ERROR);
-    }
-
-    /**
-     * Disable magic isset method.
-     */
-    final public function __isset(string $_): bool
-    {
-        trigger_error('Call to magic __isset method: ' . $_, E_USER_ERROR);
-    }
-
-    /**
-     * Disable magic unset method.
-     */
-    final public function __unset(string $_): void
-    {
-        trigger_error('Call to magic __unset method: ' . $_, E_USER_ERROR);
-    }
-
-    /**
-     * Disable magic call method.
+     * Disabled method.
+     *
+     * @throws InvalidMethodException
      */
     final public function __call(string $_, array $__): mixed
     {
-        trigger_error('Call to magic __call method: ' . $_, E_USER_ERROR);
+        throw new InvalidMethodException();
     }
 
     /**
-     * Disable magic static call method.
+     * Disabled method.
+     *
+     * @throws InvalidMethodException
      */
     final public static function __callStatic(string $_, array $__): mixed
     {
-        trigger_error('Call to magic static __call method: ' . $_, E_USER_ERROR);
+        throw new InvalidMethodException();
+    }
+
+    /**
+     * Disabled method.
+     *
+     * @throws InvalidMethodException
+     */
+    final public function __get(string $_): mixed
+    {
+        throw new InvalidMethodException();
+    }
+
+    /**
+     * Disabled method.
+     *
+     * @throws InvalidMethodException
+     */
+    final public function __set(string $_, mixed $__): void
+    {
+        throw new InvalidMethodException();
+    }
+
+    /**
+     * Disabled method.
+     *
+     * @throws InvalidMethodException
+     */
+    final public function __isset(string $_): bool
+    {
+        throw new InvalidMethodException();
+    }
+
+    /**
+     * Disabled method.
+     *
+     * @throws InvalidMethodException
+     */
+    final public function __unset(string $_): void
+    {
+        throw new InvalidMethodException();
+    }
+
+    /**
+     * Disabled method.
+     *
+     * @throws InvalidMethodException
+     */
+    final public function __sleep(): array
+    {
+        throw new InvalidMethodException();
+    }
+
+    /**
+     * Disabled method.
+     *
+     * @throws InvalidMethodException
+     */
+    final public function __wakeup(): void
+    {
+        throw new InvalidMethodException();
+    }
+
+    /**
+     * Disabled method.
+     *
+     * @throws InvalidMethodException
+     */
+    final public function __serialize(): array
+    {
+        throw new InvalidMethodException();
+    }
+
+    /**
+     * Disabled method.
+     *
+     * @throws InvalidMethodException
+     */
+    final public function __unserialize(array $_): void
+    {
+        throw new InvalidMethodException();
+    }
+
+    /**
+     * Disabled method.
+     *
+     * @throws InvalidMethodException
+     */
+    final public function __toString(): string
+    {
+        throw new InvalidMethodException();
+    }
+
+    /**
+     * Disabled method.
+     *
+     * @param array $_
+     *
+     * @throws InvalidMethodException
+     */
+    final public function __invoke(...$_): mixed
+    {
+        throw new InvalidMethodException();
+    }
+
+    /**
+     * Disabled method.
+     *
+     * @throws InvalidMethodException
+     */
+    final public static function __set_state(array $_): object
+    {
+        throw new InvalidMethodException();
+    }
+
+    /**
+     * Disabled method.
+     *
+     * @throws InvalidMethodException
+     */
+    final public function __clone()
+    {
+        throw new InvalidMethodException();
+    }
+
+    /**
+     * Disabled method.
+     *
+     * @throws InvalidMethodException
+     */
+    final public function __debugInfo(): array
+    {
+        throw new InvalidMethodException();
     }
 }

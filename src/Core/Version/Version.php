@@ -50,7 +50,7 @@ class Version
         if (!is_array($this->stack)) {
             $rs = SelectStatement::init(__METHOD__)
                 ->columns(['module', 'version'])
-                ->from(App::core()->prefix . $this->table)
+                ->from(App::core()->prefix() . $this->table)
                 ->select()
             ;
 
@@ -75,7 +75,7 @@ class Version
         }
 
         $sql = new InsertStatement(__METHOD__);
-        $sql->from(App::core()->prefix . $this->table)
+        $sql->from(App::core()->prefix() . $this->table)
             ->columns([
                 'module',
                 'version',
@@ -98,7 +98,7 @@ class Version
     public function delete(string $module): void
     {
         $sql = new DeleteStatement(__METHOD__);
-        $sql->from(App::core()->prefix . $this->table)
+        $sql->from(App::core()->prefix() . $this->table)
             ->where('module = ' . $sql->quote($module))
             ->delete()
         ;

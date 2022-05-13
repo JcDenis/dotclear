@@ -55,7 +55,7 @@ class Comment extends AbstractPage
                     throw new AdminException(__('Entry does not exist.'));
                 }
 
-                $cur = App::core()->con()->openCursor(App::core()->prefix . 'comment');
+                $cur = App::core()->con()->openCursor(App::core()->prefix() . 'comment');
 
                 $cur->setField('comment_author', $_POST['comment_author']);
                 $cur->setField('comment_email', Html::clean($_POST['comment_email']));
@@ -124,7 +124,7 @@ class Comment extends AbstractPage
 
             // update comment
             if (!empty($_POST['update']) && $this->commnet_can_edit) {
-                $cur = App::core()->con()->openCursor(App::core()->prefix . 'comment');
+                $cur = App::core()->con()->openCursor(App::core()->prefix() . 'comment');
 
                 $cur->setField('comment_author', $_POST['comment_author']);
                 $cur->setField('comment_email', Html::clean($_POST['comment_email']));

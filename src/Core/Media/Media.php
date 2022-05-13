@@ -112,7 +112,7 @@ class Media extends Manager
             throw new CoreException(__('No blog defined.'));
         }
 
-        $this->table = App::core()->prefix . 'media';
+        $this->table = App::core()->prefix() . 'media';
         $root        = App::core()->blog()->public_path;
 
         if (!$root || !is_dir($root)) {

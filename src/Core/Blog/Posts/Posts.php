@@ -134,18 +134,18 @@ class Posts
         }
 
         $sql
-            ->from(App::core()->prefix . 'post P', false, true)
+            ->from(App::core()->prefix() . 'post P', false, true)
             ->join(
                 JoinStatement::init(__METHOD__)
                     ->type('INNER')
-                    ->from(App::core()->prefix . 'user U')
+                    ->from(App::core()->prefix() . 'user U')
                     ->on('U.user_id = P.user_id')
                     ->statement()
             )
             ->join(
                 JoinStatement::init(__METHOD__)
                     ->type('LEFT OUTER')
-                    ->from(App::core()->prefix . 'category C')
+                    ->from(App::core()->prefix() . 'category C')
                     ->on('P.cat_id = C.cat_id')
                     ->statement()
             )
@@ -294,7 +294,7 @@ class Posts
 
         if (isset($params['media'])) {
             $sqlExists = SelectStatement::init(__METHOD__)
-                ->from(App::core()->prefix . 'post_media M')
+                ->from(App::core()->prefix() . 'post_media M')
                 ->column('M.post_id')
                 ->where('M.post_id = P.post_id')
             ;
@@ -404,7 +404,7 @@ class Posts
     public function getLangs(array|ArrayObject $params = []): Record
     {
         $strReq = 'SELECT COUNT(post_id) as nb_post, post_lang ' .
-        'FROM ' . App::core()->prefix . 'post ' .
+        'FROM ' . App::core()->prefix() . 'post ' .
         "WHERE blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .
             "AND post_lang <> '' " .
             'AND post_lang IS NOT NULL ';
@@ -499,7 +499,7 @@ class Posts
         $strReq = 'SELECT DISTINCT(' . App::core()->con()->dateFormat('post_dt', $dt_f) . ') AS dt ' .
         $cat_field .
         ',COUNT(P.post_id) AS nb_post ' .
-        'FROM ' . App::core()->prefix . 'post P LEFT JOIN ' . App::core()->prefix . 'category C ' .
+        'FROM ' . App::core()->prefix() . 'post P LEFT JOIN ' . App::core()->prefix() . 'category C ' .
         'ON P.cat_id = C.cat_id ' .
         "WHERE P.blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .
             $catReq;
@@ -586,13 +586,13 @@ class Posts
             throw new CoreException(__('You are not allowed to create an entry'));
         }
 
-        App::core()->con()->writeLock(App::core()->prefix . 'post');
+        App::core()->con()->writeLock(App::core()->prefix() . 'post');
 
         try {
             // Get ID
             $rs = App::core()->con()->select(
                 'SELECT MAX(post_id) ' .
-                'FROM ' . App::core()->prefix . 'post '
+                'FROM ' . App::core()->prefix() . 'post '
             );
 
             $cur->setField('post_id', $rs->fInt() + 1);
@@ -666,7 +666,7 @@ class Posts
         // If user is only "usage", we need to check the post's owner
         if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
             $strReq = 'SELECT post_id ' .
-            'FROM ' . App::core()->prefix . 'post ' .
+            'FROM ' . App::core()->prefix() . 'post ' .
             'WHERE post_id = ' . $id . ' ' .
             "AND user_id = '" . App::core()->con()->escape(App::core()->user()->userID()) . "' ";
 
@@ -725,7 +725,7 @@ class Posts
             $strReq .= "AND user_id = '" . App::core()->con()->escape(App::core()->user()->userID()) . "' ";
         }
 
-        $cur = App::core()->con()->openCursor(App::core()->prefix . 'post');
+        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'post');
 
         $cur->setField('post_status', $status);
         $cur->setField('post_upddt', Clock::database());
@@ -771,7 +771,7 @@ class Posts
             $strReq .= "AND user_id = '" . App::core()->con()->escape(App::core()->user()->userID()) . "' ";
         }
 
-        $cur = App::core()->con()->openCursor(App::core()->prefix . 'post');
+        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'post');
 
         $cur->setField('post_selected', (int) $selected);
         $cur->setField('post_upddt', Clock::database());
@@ -819,7 +819,7 @@ class Posts
             $strReq .= "AND user_id = '" . App::core()->con()->escape(App::core()->user()->userID()) . "' ";
         }
 
-        $cur = App::core()->con()->openCursor(App::core()->prefix . 'post');
+        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'post');
 
         $cur->setField('cat_id', $cat_id ?: null);
         $cur->setField('post_upddt', Clock::database());
@@ -844,7 +844,7 @@ class Posts
             throw new CoreException(__('You are not allowed to change entries category'));
         }
 
-        $cur = App::core()->con()->openCursor(App::core()->prefix . 'post');
+        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'post');
 
         $cur->setField('cat_id', $new_cat_id ?: null);
         $cur->setField('post_upddt', Clock::database());
@@ -885,7 +885,7 @@ class Posts
             throw new CoreException(__('No such entry ID'));
         }
 
-        $strReq = 'DELETE FROM ' . App::core()->prefix . 'post ' .
+        $strReq = 'DELETE FROM ' . App::core()->prefix() . 'post ' .
         "WHERE blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .
         'AND post_id' . App::core()->con()->in($posts_ids);
 
@@ -904,7 +904,7 @@ class Posts
     public function publishScheduledEntries(): void
     {
         $strReq = 'SELECT post_id, post_dt ' .
-        'FROM ' . App::core()->prefix . 'post ' .
+        'FROM ' . App::core()->prefix() . 'post ' .
         'WHERE post_status = -1 ' .
         "AND blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' ";
 
@@ -923,7 +923,7 @@ class Posts
             // --BEHAVIOR-- coreBeforeScheduledEntriesPublish, Dotclear\Core\Blog, array
             App::core()->behavior()->call('coreBeforeScheduledEntriesPublish', $this, $to_change);
 
-            $strReq = 'UPDATE ' . App::core()->prefix . 'post SET ' .
+            $strReq = 'UPDATE ' . App::core()->prefix() . 'post SET ' .
             'post_status = 1 ' .
             "WHERE blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .
             'AND post_id' . App::core()->con()->in((array) $to_change) . ' ';
@@ -956,7 +956,7 @@ class Posts
         }
 
         if (count($to_change)) {
-            $strReq = 'UPDATE ' . App::core()->prefix . 'post ' .
+            $strReq = 'UPDATE ' . App::core()->prefix() . 'post ' .
             'SET post_firstpub = 1 ' .
             "WHERE blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .
             'AND post_id' . App::core()->con()->in((array) $to_change) . ' ';
@@ -976,7 +976,7 @@ class Posts
     {
         $strReq = 'SELECT P.user_id, user_name, user_firstname, ' .
         'user_displayname, user_email ' .
-        'FROM ' . App::core()->prefix . 'post P, ' . App::core()->prefix . 'user U ' .
+        'FROM ' . App::core()->prefix() . 'post P, ' . App::core()->prefix() . 'user U ' .
         'WHERE P.user_id = U.user_id ' .
         "AND blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' ";
 
@@ -1027,7 +1027,7 @@ class Posts
 
         if (!empty($sub)) {
             $rs = App::core()->con()->select(
-                'SELECT cat_id, cat_url, cat_lft, cat_rgt FROM ' . App::core()->prefix . 'category ' .
+                'SELECT cat_id, cat_url, cat_lft, cat_rgt FROM ' . App::core()->prefix() . 'category ' .
                 "WHERE blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .
                 'AND ' . $field . ' ' . App::core()->con()->in(array_keys($sub))
             );
@@ -1234,7 +1234,7 @@ class Posts
         }
 
         // Let's check if URL is taken...
-        $strReq = 'SELECT post_url FROM ' . App::core()->prefix . 'post ' .
+        $strReq = 'SELECT post_url FROM ' . App::core()->prefix() . 'post ' .
         "WHERE post_url = '" . App::core()->con()->escape($url) . "' " .
         'AND post_id <> ' . (int) $post_id . ' ' .
         "AND blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .
@@ -1251,7 +1251,7 @@ class Posts
                 $clause = "LIKE '" .
                 App::core()->con()->escape(preg_replace(['/%/', '/_/', '/!/'], ['!%', '!_', '!!'], $url)) . "%' ESCAPE '!'";
             }
-            $strReq = 'SELECT post_url FROM ' . App::core()->prefix . 'post ' .
+            $strReq = 'SELECT post_url FROM ' . App::core()->prefix() . 'post ' .
             'WHERE post_url ' . $clause . ' ' .
             'AND post_id <> ' . (int) $post_id . ' ' .
             "AND blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .

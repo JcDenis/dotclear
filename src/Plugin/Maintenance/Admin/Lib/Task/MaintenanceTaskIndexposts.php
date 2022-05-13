@@ -75,7 +75,7 @@ class MaintenanceTaskIndexposts extends MaintenanceTask
         $sql   = new SelectStatement(__METHOD__);
         $count = $sql
             ->column($sql->count('post_id'))
-            ->from(App::core()->prefix . 'post')
+            ->from(App::core()->prefix() . 'post')
             ->select()
             ->fInt()
         ;
@@ -95,7 +95,7 @@ class MaintenanceTaskIndexposts extends MaintenanceTask
         ;
 
         $sql = UpdateStatement::init(__METHOD__)
-            ->from(App::core()->prefix . 'post')
+            ->from(App::core()->prefix() . 'post')
         ;
 
         while ($rs->fetch()) {

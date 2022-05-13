@@ -243,7 +243,7 @@ class Prepend extends Core
         if (!($this->iconsets instanceof Modules)) {
             $this->iconsets = new Modules(
                 type: 'Iconset',
-                lang: $this->lang,
+                lang: $this->lang(),
                 name: __('Iconsets management')
             );
             $this->adminLoadModulesResources($this->iconsets);
@@ -260,7 +260,7 @@ class Prepend extends Core
     public function plugins(): Modules
     {
         if (!($this->plugins instanceof Modules)) {
-            $this->plugins = new Modules(admin: true, lang: $this->lang);
+            $this->plugins = new Modules(admin: true, lang: $this->lang());
             $this->adminLoadModulesResources($this->plugins);
         }
 
@@ -278,7 +278,7 @@ class Prepend extends Core
             $this->themes = new Modules(
                 admin: true,
                 type: 'Theme',
-                lang: $this->lang,
+                lang: $this->lang(),
                 name: __('Blog appearance'),
                 group: 'Blog'
             );
@@ -460,15 +460,15 @@ class Prepend extends Core
     {
         $this->lang($this->user()->getInfo('user_lang'));
 
-        if (L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang, 'date')) === false && 'en' != $this->lang) {
+        if (L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang(), 'date')) === false && 'en' != $this->lang()) {
             L10n::set(Path::implode($this->config()->get('l10n_dir'), 'en', 'date'));
         }
-        L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang, 'main'));
-        L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang, 'public'));
-        L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang, 'plugins'));
+        L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang(), 'main'));
+        L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang(), 'public'));
+        L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang(), 'plugins'));
 
         // Set lexical lang
-        Lexical::setLexicalLang('admin', $this->lang);
+        Lexical::setLexicalLang('admin', $this->lang());
     }
 
     /**
@@ -484,15 +484,15 @@ class Prepend extends Core
         if ($load_default) {
             $this->help()->file(Path::implode($dir, 'en', 'resources.php'));
         }
-        if (($f = L10n::getFilePath($dir, 'resources.php', $this->lang))) {
+        if (($f = L10n::getFilePath($dir, 'resources.php', $this->lang()))) {
             $this->help()->file($f);
         }
         unset($f);
 
-        $hfiles = Files::scandir(Path::implode($dir, $this->lang, 'help'), true, false);
+        $hfiles = Files::scandir(Path::implode($dir, $this->lang(), 'help'), true, false);
         foreach ($hfiles as $hfile) {
             if (preg_match('/^(.*)\.html$/', $hfile, $m)) {
-                $this->help()->context($m[1], Path::implode($dir, $this->lang, 'help', $hfile));
+                $this->help()->context($m[1], Path::implode($dir, $this->lang(), 'help', $hfile));
             }
         }
         unset($hfiles);

@@ -247,10 +247,10 @@ class Categories
                 'C.cat_id',
                 $sql->count('P.post_id', 'nb_post'),
             ])
-            ->from(App::core()->prefix . 'category AS C')
+            ->from(App::core()->prefix() . 'category AS C')
             ->join(
                 JoinStatement::init(__METHOD__)
-                    ->from(App::core()->prefix . 'post P')
+                    ->from(App::core()->prefix() . 'post P')
                     ->on('C.cat_id = P.cat_id')
                     ->and('P.blog_id = ' . $sql->quote(App::core()->blog()->id))
                     ->statement()
@@ -431,7 +431,7 @@ class Categories
         $sql = new SelectStatement(__METHOD__);
         $rs  = $sql
             ->column($sql->count('post_id', 'nb_post'))
-            ->from(App::core()->prefix . 'post')
+            ->from(App::core()->prefix() . 'post')
             ->where('cat_id = ' . $id)
             ->and('blog_id = ' . $sql->quote(App::core()->blog()->id))
             ->select()
@@ -472,7 +472,7 @@ class Categories
         $sql = new SelectStatement(__METHOD__);
         $sql
             ->column('cat_url')
-            ->from(App::core()->prefix . 'category')
+            ->from(App::core()->prefix() . 'category')
             ->where('cat_url = ' . $sql->quote($url))
             ->and('blog_id = ' . $sql->quote(App::core()->blog()->id))
             ->order('cat_url DESC')
@@ -488,7 +488,7 @@ class Categories
             $sql = new SelectStatement(__METHOD__);
             $sql
                 ->column('cat_url')
-                ->from(App::core()->prefix . 'category')
+                ->from(App::core()->prefix() . 'category')
                 ->where('cat_url' . $sql->regexp($url))
                 ->and('blog_id = ' . $sql->quote(App::core()->blog()->id))
                 ->order('cat_url DESC')

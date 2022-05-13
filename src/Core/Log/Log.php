@@ -64,7 +64,7 @@ class Log
     public function get(array $params = [], bool $count_only = false): Record
     {
         $sql = SelectStatement::init(__METHOD__)
-            ->from(App::core()->prefix . $this->log_table . ' L')
+            ->from(App::core()->prefix() . $this->log_table . ' L')
         ;
 
         if ($count_only) {
@@ -86,7 +86,7 @@ class Log
             $sql->join(
                 JoinStatement::init(__METHOD__)
                     ->type('LEFT')
-                    ->from(App::core()->prefix . $this->user_table . ' U')
+                    ->from(App::core()->prefix() . $this->user_table . ' U')
                     ->on('U.user_id = L.user_id')
                     ->statement()
             );
@@ -142,13 +142,13 @@ class Log
      */
     public function add(Cursor $cur): int
     {
-        App::core()->con()->writeLock(App::core()->prefix . $this->log_table);
+        App::core()->con()->writeLock(App::core()->prefix() . $this->log_table);
 
         try {
             // Get ID
             $id = SelectStatement::init(__METHOD__)
                 ->column('MAX(log_id)')
-                ->from(App::core()->prefix . $this->log_table)
+                ->from(App::core()->prefix() . $this->log_table)
                 ->select()->fInt();
 
             $cur->setField('log_id', $id + 1);
@@ -190,7 +190,7 @@ class Log
         }
 
         $sql
-            ->from(App::core()->prefix . $this->log_table)
+            ->from(App::core()->prefix() . $this->log_table)
             ->run()
         ;
     }

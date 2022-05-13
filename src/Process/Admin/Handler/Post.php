@@ -276,7 +276,7 @@ class Post extends AbstractPage
         if (!empty($_POST) && !empty($_POST['save']) && $this->can_edit_post && !$this->bad_dt) {
             // Create category
             if (!empty($_POST['new_cat_title']) && App::core()->user()->check('categories', App::core()->blog()->id)) {
-                $cur_cat = App::core()->con()->openCursor(App::core()->prefix . 'category');
+                $cur_cat = App::core()->con()->openCursor(App::core()->prefix() . 'category');
                 $cur_cat->setField('cat_title', $_POST['new_cat_title']);
                 $cur_cat->setField('cat_url', '');
 
@@ -291,7 +291,7 @@ class Post extends AbstractPage
                 App::core()->behavior()->call('adminAfterCategoryCreate', $cur_cat, $this->cat_id);
             }
 
-            $cur = App::core()->con()->openCursor(App::core()->prefix . 'post');
+            $cur = App::core()->con()->openCursor(App::core()->prefix() . 'post');
 
             $cur->setField('cat_id', $this->cat_id ?: null);
             $cur->setField('post_dt', $this->post_dt ? Clock::database($this->post_dt) : '');

@@ -60,7 +60,7 @@ class Blog extends AbstractPage
 
         // Create a blog
         if (!isset($_POST['id']) && isset($_POST['create'])) {
-            $cur                                         = App::core()->con()->openCursor(App::core()->prefix . 'blog');
+            $cur                                         = App::core()->con()->openCursor(App::core()->prefix() . 'blog');
             $cur->setField('blog_id', $this->blog_id     = $_POST['blog_id']);
             $cur->setField('blog_url', $this->blog_url   = $_POST['blog_url']);
             $cur->setField('blog_name', $this->blog_name = $_POST['blog_name']);
