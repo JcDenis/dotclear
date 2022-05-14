@@ -33,12 +33,12 @@ class App
         $file = implode(DIRECTORY_SEPARATOR, [__DIR__, '..', 'vendor', 'autoload.php']);
         if (file_exists($file)) {
             require_once $file;
-        // Dotclear autoload
-        } else {
-            require_once implode(DIRECTORY_SEPARATOR, [__DIR__, 'Helper', 'Autoload.php']);
-            $autoload = new \Dotclear\Helper\Autoload();
-            $autoload->addNamespace('Dotclear', __DIR__);
         }
+
+        // Dotclear autoload (used first)
+        require_once implode(DIRECTORY_SEPARATOR, [__DIR__, 'Helper', 'Autoload.php']);
+        $autoload = new \Dotclear\Helper\Autoload(prepend: true);
+        $autoload->addNamespace('Dotclear', __DIR__);
 
         // Find process (Admin|Public|Install|...)
         $class = 'Dotclear\\Process\\' . ucfirst(strtolower($process)) . '\\Prepend';
@@ -196,7 +196,7 @@ class App
                 '</li>';
         }
 
-        return sprintf("<h2>Traces</h3><ul>%s</ul>", $traces);
+        return sprintf('<h2>Traces</h3><ul>%s</ul>', $traces);
     }
 
     /**
