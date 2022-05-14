@@ -233,6 +233,7 @@ abstract class AbstractPage
         }
 
         // Display
+        /** @var ArrayObject<string, string> */
         $headers = new ArrayObject();
 
         // Content-Type
@@ -251,6 +252,7 @@ abstract class AbstractPage
         // Content-Security-Policy (only if safe mode if not active, it may help)
         if (!App::core()->rescue() && App::core()->blog()->settings()->get('system')->get('csp_admin_on')) {
             // Get directives from settings if exist, else set defaults
+            /** @var ArrayObject<string, string> */
             $csp = new ArrayObject();
 
             // SQlite Clearbricks driver does not allow using single quote at beginning or end of a field value
@@ -663,11 +665,8 @@ abstract class AbstractPage
              */
         }
         $res .= '<p>Core elapsed time: ' . Statistic::time() . ' | Core consumed memory: ' . Statistic::memory() . '</p>';
-
-        $loaded_files = App::core()->autoload()->getLoadedFiles();
-        $res .= '<p>Dotclear autoloader provided files : ' . count($loaded_files) . ' (' . App::core()->autoload()->getRequestsCount() . ' requests)</p>';
-        // $res .= '<ul><li>' . implode('</li><li>', $loaded_files) . '</li></lu>';
-
+        $res .= '<p>Dotclear autoloader provided files : ' . App::core()->autoload()->getLoadsCount() . ' (' . App::core()->autoload()->getRequestsCount() . ' requests)</p>';
+ 
         $res .= '<p>Global vars: ' . $global_vars . '</p>' .
             '</div></div>';
 

@@ -25,34 +25,34 @@ namespace Dotclear\Helper;
 class Autoload
 {
     /** Directory separator */
-    public const DIR_SEP = DIRECTORY_SEPARATOR;
+    private const DIR_SEP = DIRECTORY_SEPARATOR;
 
     /** Namespace separator */
-    public const NS_SEP = '\\';
+    private const NS_SEP = '\\';
 
     /**
      * @var string $root_prefix
      *             Root namespace prepend to added ns
      */
-    protected $root_prefix = '';
+    private $root_prefix = '';
 
     /**
      * @var string $root_base_dir
      *             Root directory prepend to added ns
      */
-    protected $root_base_dir = '';
+    private $root_base_dir = '';
 
     /**
      * @var array<string,array> $prefixes
      *                          Array of registered namespace [prefix=[base dir]]
      */
-    protected $prefixes = [];
+    private $prefixes = [];
 
     /**
-     * @var array<string,int> $loaded_files
-     *                        Keep track of loaded files
+     * @var int $loads_count
+     *          Keep track of loads count
      */
-    private static $loaded_files  = [];
+    private static $loads_count = 0;
 
     /**
      * @var int $request_count
@@ -219,7 +219,7 @@ class Autoload
      * @return null|string null if no mapped file can be loaded, or the
      *                     name of the mapped file that was loaded
      */
-    protected function loadMappedFile(string $prefix, string $relative_class): ?string
+    private function loadMappedFile(string $prefix, string $relative_class): ?string
     {
         if (false === isset($this->prefixes[$prefix])) {
             return null;
@@ -245,10 +245,10 @@ class Autoload
      *
      * @return bool true if the file exists, false if not
      */
-    protected function requireFile(string $file): bool
+    private function requireFile(string $file): bool
     {
-        if (file_exists($file)) {
-            self::$loaded_files[$file] = 1;
+        if (is_file($file)) {
+            ++self::$loads_count;
 
             require $file;
 
@@ -259,13 +259,13 @@ class Autoload
     }
 
     /**
-     * Get list of all loaded files from this autoloader.
+     * Get number of loads on this autoloader.
      *
-     * @return array Loaded files list
+     * @return int Number of loads
      */
-    public function getLoadedFiles(): array
+    public function getLoadsCount(): int
     {
-        return empty(self::$loaded_files) ? [] : array_keys(self::$loaded_files);
+        return self::$loads_count;
     }
 
     /**
