@@ -157,7 +157,7 @@ class App
 <body>
 <div id="content">
 <h1>Dotclear</h1>
-<h2><?php echo $title; ?></h2>
+<h2><?php echo __($title); ?></h2>
 <?php echo $message; ?></div>
 </body>
 </html>
@@ -209,18 +209,18 @@ class App
     private static function code(int $code): string
     {
         return match ($code) {
-            605     => __('No process found'),
-            610     => __('No config file'),
-            611     => __('Bad configuration'),
-            620     => __('Database issue'),
-            625     => __('User permission issue'),
-            628     => __('File handler not found'),
-            630     => __('Blog is not defined'),
-            640     => __('Template files creation'),
-            650     => __('No default theme'),
-            660     => __('Template processing error'),
-            670     => __('Blog is offline'),
-            default => __('Site temporarily unavailable'),
+            605     => 'No process found',
+            610     => 'No config file',
+            611     => 'Bad configuration',
+            620     => 'Database issue',
+            625     => 'User permission issue',
+            628     => 'File handler not found',
+            630     => 'Blog is not defined',
+            640     => 'Template files creation',
+            650     => 'No default theme',
+            660     => 'Template processing error',
+            670     => 'Blog is offline',
+            default => 'Site temporarily unavailable',
         };
     }
 }
