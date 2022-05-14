@@ -52,13 +52,12 @@ class Help
      * Add/get news bloc.
      *
      * @param string $value   The value
-     * @param bool   $replace Replace existing bloc
      *
      * @return string The new bloc
      */
-    public function news(string $value = null, bool $replace = false): string
+    public function news(string $value = null): string
     {
-        if ($replace || empty($this->news)) {
+        if (!empty($value)) {
             $this->news = $value;
         }
 
