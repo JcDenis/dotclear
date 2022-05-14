@@ -43,7 +43,7 @@ class App
         // Find process (Admin|Public|Install|...)
         $class = 'Dotclear\\Process\\' . ucfirst(strtolower($process)) . '\\Prepend';
         if (!is_subclass_of($class, 'Dotclear\\Core\\Core')) {
-            self::stop('No process found', 'Something went wrong while trying to start process.');
+            self::stop(new Exception('Something went wrong while trying to start process.', 605));
         }
 
         // Execute Process
@@ -51,24 +51,15 @@ class App
             ob_start();
             $class::singleton($blog_id);
             ob_end_flush();
-
-            // Try to display unexpected Exceptions as much cleaned as we can
         } catch (Exception|Error $e) {
             ob_end_clean();
 
-            try {
-                $traces = null;
-                if (false === self::core()?->production()) {
-                    $traces = $e->getTrace();
-                    array_unshift($traces, ['file' => $e->getFile(), 'line' => $e->getLine()]);
-                    if (null != ($previous = $e->getPrevious())) {
-                        array_unshift($traces, ['file' => $previous->getFile(), 'line' => $previous->getLine()]);
-                    }
-                }
-                self::stop(get_class($e), $e->getMessage(), $e->getCode(), $traces);
-            } catch (Exception|Error) {
+            // Try to display unexpected Exceptions as much cleaned as we can
+            if (false === self::core()?->production()) {
+                self::stop(new Exception($e->getMessage(), $e->getCode(), $e));
+            } else {
+                self::stop(new Exception(__('<p>We apologize for this temporary unavailability.<br />Thank you for your understanding.</p>'), 503, $e));
             }
-            self::stop('Unexpected error', 'Sorry, execution of the script is halted.', $e->getCode());
         }
     }
 
@@ -85,26 +76,21 @@ class App
             return \Dotclear\Core\Core::singleton();
         }
 
-        self::stop('Runtime error', 'Core instance can not be called directly.', 601);
-
         return null;
     }
 
     /**
      * Stop process and display errors.
      *
-     * @param string                $message The message
-     * @param string                $detail  The detail
-     * @param int                   $code    The code
-     * @param null|array<int,array> $traces  The traces
+     * @param Error|Exception $e The Exception
      */
-    final public static function stop(string $message, string $detail = '', int $code = 0, ?array $traces = null): void
+    final public static function stop(Exception|Error $e): void
     {
         @ob_clean();
 
         // Display message only in CLI mode
         if (PHP_SAPI == 'cli') {
-            trigger_error($message, E_USER_ERROR);
+            trigger_error($e->getMessage(), E_USER_ERROR);
 
         // Display error through a plateform custom error page
         } elseif (defined('DOTCLEAR_ERROR_FILE') && is_file(\DOTCLEAR_ERROR_FILE)) {
@@ -112,24 +98,12 @@ class App
 
         // Display error through an internal error page
         } else {
-            if (!empty($traces)) {
-                $res = '';
-                foreach ($traces as $i => $line) {
-                    $res .=
-                        '#' . $i . ' ' .
-                        (!empty($line['class']) ? $line['class'] . '::' : '') .
-                        (!empty($line['function']) ? $line['function'] . ' -- ' : '') .
-                        (!empty($line['file']) ? $line['file'] . ':' : '') .
-                        (!empty($line['line']) ? $line['line'] : '') .
-                        "\n";
-                }
-                $detail .= sprintf("\n<pre>Traces : \n%s</pre>", $res);
-            }
-
-            $detail = str_replace("\n", '<br />', $detail);
+            $title   = self::code($e->getCode());
+            $trace   = false === self::core()?->production() ? self::trace($e) : '';
+            $message = str_replace("\n", '<br />', $e->getMessage() . $trace);
 
             header('Content-Type: text/html; charset=utf-8');
-            header('HTTP/1.0 ' . $code . ' ' . $message); ?>
+            header('HTTP/1.0 ' . $e->getCode() . ' ' . $title); ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -147,12 +121,12 @@ class App
     padding : 0;
   }
   #content {
-      margin: 1em 5%;
-      padding: 1px 1em 2em;
-      background: #272b30;
-      font-size: 1.3em;
-      border: 1px solid #DADBDE;
-      border-radius: 0.75em;
+    margin: 1em 5%;
+    padding: 1px 1em 2em;
+    background: #272b30;
+    font-size: 1.3em;
+    border: 1px solid #DADBDE;
+    border-radius: 0.75em;
   }
   a, a:link, a:visited {
     color : #76C2F1;
@@ -169,6 +143,13 @@ class App
     color: #FF6E3A;
     font-size: 1.4em;
   }
+
+  .tf, .tl {
+    color: #FF6E3A;
+  }
+  .tc {
+    color: #82878F;
+  }
   -->
 </style>
 </head>
@@ -176,12 +157,70 @@ class App
 <body>
 <div id="content">
 <h1>Dotclear</h1>
-<h2><?php echo $message; ?></h2>
-<?php echo $detail; ?></div>
+<h2><?php echo $title; ?></h2>
+<?php echo $message; ?></div>
 </body>
 </html>
 <?php
             exit(0);
         }
+    }
+
+    /**
+     * Get trace of Exception.
+     *
+     * This include current exception in trace
+     * and arrange them in a nice display.
+     *
+     * @param Error|Exception $e The exception
+     *
+     * @return string The trace
+     */
+    private static function trace(Exception|Error $e): string
+    {
+        $lines = $e->getTrace();
+        if (null != ($previous = $e->getPrevious())) {
+            array_unshift($lines, ['function' => 'Thrown in', 'file' => $previous->getFile(), 'line' => $previous->getLine()]);
+        }
+        array_unshift($lines, ['function' => 'Caught in', 'file' => $e->getFile(), 'line' => $e->getLine()]);
+
+        $traces = '';
+        $span   = '<span class="%s">%s</span>';
+        foreach ($lines as $i => $line) {
+            $traces .=
+                '<li>' .
+                (!empty($line['class']) ? sprintf($span, 'tc', $line['class']) . '::' : '') .
+                (!empty($line['function']) ? sprintf($span, 'tf', $line['function']) . ' ' : '') .
+                (!empty($line['file']) ? sprintf($span, 'tp', $line['file']) . ':' : '') .
+                (!empty($line['line']) ? sprintf($span, 'tl', $line['line']) : '') .
+                '</li>';
+        }
+
+        return sprintf("<h2>Traces</h3><ul>%s</ul>", $traces);
+    }
+
+    /**
+     * Get Exception title according to code.
+     *
+     * @param int $code The code
+     *
+     * @return string The title
+     */
+    private static function code(int $code): string
+    {
+        return match ($code) {
+            605     => __('No process found'),
+            610     => __('No config file'),
+            611     => __('Bad configuration'),
+            620     => __('Database issue'),
+            625     => __('User permission issue'),
+            628     => __('File handler not found'),
+            630     => __('Blog is not defined'),
+            640     => __('Template files creation'),
+            650     => __('No default theme'),
+            660     => __('Template processing error'),
+            670     => __('Blog is offline'),
+            default => __('Site temporarily unavailable'),
+        };
     }
 }

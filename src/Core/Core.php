@@ -11,7 +11,6 @@ namespace Dotclear\Core;
 
 // Dotclear\Core\Core
 use Closure;
-use Throwable;
 use Dotclear\App;
 use Dotclear\Core\Blog\Blog;
 use Dotclear\Core\Blogs\Blogs;
@@ -28,7 +27,6 @@ use Dotclear\Core\Users\Users;
 use Dotclear\Core\Version\Version;
 use Dotclear\Core\Wiki\Wiki;
 use Dotclear\Database\AbstractConnection;
-use Dotclear\Exception\PrependException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
@@ -382,12 +380,14 @@ class Core
                     '<a href="https://forum.dotclear.net/">Dotclear Support Forums</a>.</p>'),
                     ('' != $this->config()->get('database_host') ? $this->config()->get('database_host') : 'localhost')
                 );
-                $this->throwException(
-                    $msg,
-                    $msg . '<p>' . __('The following error was encountered while trying to read the database:') . '</p><ul><li>' . $e->getMessage() . '</li></ul>',
+
+                App::stop(new Exception(
+                    false === $this->production() ?
+                        $msg . '<p>' . __('The following error was encountered while trying to read the database:') . '</p><ul><li>' . $e->getMessage() . '</li></ul>' :
+                        $msg,
                     620,
                     $e
-                );
+                ));
             }
         }
 
@@ -600,11 +600,12 @@ class Core
 
                 $this->user = new $class();
             } catch (Exception $e) {
-                $this->throwException(
-                    __('Unable to do authentication'),
-                    sprintf(__('Something went wrong while trying to load authentication class: %s'), $e->getMessage()),
+                App::stop(new Exception(
+                    false === $this->production() ?
+                        sprintf(__('Something went wrong while trying to load authentication class: %s'), $e->getMessage()) :
+                        __('Unable to do authentication'),
                     611
-                );
+                ));
             }
         }
 
@@ -723,22 +724,24 @@ class Core
 
         // Check master key
         if (32 > strlen($this->config()->get('master_key'))) {
-            $this->throwException(
-                __('Unsufficient master key'),
-                __('Master key is not strong enough, please change it.'),
+            App::stop(new Exception(
+                false === $this->production() ?
+                    __('Master key is not strong enough, please change it.') :
+                    __('Unsufficient master key'),
                 611
-            );
+            ));
         }
 
         // Check cryptography algorithm
         if ('sha1' == $this->config()->get('crypt_algo')) {
             // Check length of cryptographic algorithm result and exit if less than 40 characters long
             if (40 > strlen(Crypt::hmac($this->config()->get('master_key'), $this->config()->get('vendor_name'), $this->config()->get('crypt_algo')))) {
-                $this->throwException(
-                    __('Cryptographic error'),
-                    sprintf(__('%s cryptographic algorithm configured is not strong enough, please change it.'), $this->config()->get('crypt_algo')),
+                App::stop(new Exception(
+                    false === $this->production() ?
+                        sprintf(__('%s cryptographic algorithm configured is not strong enough, please change it.'), $this->config()->get('crypt_algo')) :
+                        __('Cryptographic error'),
                     611
-                );
+                ));
             }
         }
 
@@ -753,11 +756,12 @@ class Core
             // Try to create it
             @Files::makeDir($this->config()->get('cache_dir'));
             if (!is_dir($this->config()->get('cache_dir'))) {
-                $this->throwException(
-                    __('Unable to find cache directory'),
-                    sprintf(__('%s directory does not exist. Please create it.'), $this->config()->get('cache_dir')),
+                App::stop(new Exception(
+                    false === $this->production() ?
+                        sprintf(__('%s directory does not exist. Please create it.'), $this->config()->get('cache_dir')) :
+                        __('Unable to find cache directory'),
                     611
-                );
+                ));
             }
         }
 
@@ -766,21 +770,23 @@ class Core
             // Try to create it
             @Files::makeDir($this->config()->get('var_dir'));
             if (!is_dir($this->config()->get('var_dir'))) {
-                $this->throwException(
+                App::stop(new Exception(
+                    false === $this->production() ?
+                    sprintf('%s directory does not exist. Please create it.', $this->config()->get('var_dir')) :
                     __('Unable to find var directory'),
-                    sprintf('%s directory does not exist. Please create it.', $this->config()->get('var_dir')),
                     611
-                );
+                ));
             }
         }
 
         // Check configuration required values
         if ($this->config()->error()->flag()) {
-            $this->throwException(
-                __('Configuration file is not complete.'),
-                implode("\n", $this->config()->error()->dump()),
+            App::stop(new Exception(
+                false === $this->production() ?
+                    implode("\n", $this->config()->error()->dump()) :
+                    __('Configuration file is not complete.'),
                 611
-            );
+            ));
         }
 
         // Add top behaviors
@@ -823,7 +829,7 @@ class Core
 
     /**
      * Get database table prefix.
-     * 
+     *
      * @return string The database table prefix
      */
     final public function prefix(): string
@@ -931,11 +937,12 @@ class Core
         try {
             $this->blog = new Blog($blog_id);
         } catch (Exception $e) {
-            $this->throwException(
-                __('Unable to load blog'),
-                sprintf(__('Something went wrong while trying to load blog: %s'), $e->getMessage()),
+            App::stop(new Exception(
+                false === $this->production() ?
+                    sprintf(__('Something went wrong while trying to load blog: %s'), $e->getMessage()) :
+                    __('Unable to load blog'),
                 620
-            );
+            ));
         }
     }
 
@@ -945,62 +952,6 @@ class Core
     final public function unsetBlog(): void
     {
         $this->blog = null;
-    }
-    // @}
-
-    // / @name Core exception methods
-    // @{
-    /**
-     * Display default error message.
-     *
-     * @param string    $message  The short message
-     * @param string    $detail   The detailed message
-     * @param int       $code     The code
-     * @param Throwable $previous The preious Exception
-     *
-     * @throws PrependException
-     */
-    final protected function throwException(string $message, string $detail, int $code, Throwable $previous = null): void
-    {
-        $title = $this->getExceptionTitle($code);
-
-        // If in non production env and there are some details
-        if (!$this->production() && !empty($detail)) {
-            $message = $detail;
-        // If in production env, set a standard message
-        } elseif ($this->production()) {
-            $title   = __('Site temporarily unavailable');
-            $message = __('<p>We apologize for this temporary unavailability.<br />Thank you for your understanding.</p>');
-        }
-
-        // Use an Exception handler to get trace for non production env
-        throw new PrependException($title, $message, $code, !$this->production(), $previous);
-    }
-
-    /**
-     * Get Exception title according to code.
-     *
-     * @param int $code The code
-     *
-     * @return string The title
-     */
-    final protected function getExceptionTitle(int $code): string
-    {
-        $errors = [
-            605 => __('no process found'),
-            610 => __('no config file'),
-            611 => __('bad configuration'),
-            620 => __('database issue'),
-            625 => __('user permission issue'),
-            628 => __('file handler not found'),
-            630 => __('blog is not defined'),
-            640 => __('template files creation'),
-            650 => __('no default theme'),
-            660 => __('template processing error'),
-            670 => __('blog is offline'),
-        ];
-
-        return $errors[$code] ?? __('Dotclear error');
     }
     // @}
 

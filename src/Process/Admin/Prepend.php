@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin;
 
 // Dotclear\Process\Admin\Prepend
+use Dotclear\App;
 use Dotclear\Core\Core;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\L10n;
@@ -314,18 +315,18 @@ class Prepend extends Core
             $_COOKIE[$this->config()->get('session_name')] = \DOTCLEAR_AUTH_SESS_ID;
 
             if (!$this->user()->checkSession(\DOTCLEAR_AUTH_SESS_UID)) {
-                $this->throwException(__('Invalid session data.'), '', 625);
+                App::stop(new Exception(__('Invalid session data.'), 625));
             }
 
             // Check nonce from POST requests
             if (!empty($_POST)) {
                 if (empty($_POST['xd_check']) || !$this->nonce()->check($_POST['xd_check'])) {
-                    $this->throwException(__('Precondition Failed.'), '', 625);
+                    App::stop(new Exception(__('Precondition Failed.'), 625));
                 }
             }
 
             if (empty($_SESSION['sess_blog_id'])) {
-                $this->throwException(__('Permission denied.'), '', 625);
+                App::stop(new Exception(__('Permission denied.'), 625));
             }
 
             // Loading locales
@@ -333,7 +334,7 @@ class Prepend extends Core
 
             $this->setBlog($_SESSION['sess_blog_id']);
             if (!$this->blog()->id) {
-                $this->throwException(__('Permission denied.'), '', 625);
+                App::stop(new Exception(__('Permission denied.'), 625));
             }
         } elseif ($this->user()->sessionExists()) {
             // If we have a session we launch it now
@@ -349,13 +350,13 @@ class Prepend extends Core
                     exit;
                 }
             } catch (Exception $e) {
-                $this->throwException(__('There seems to be no Session table in your database. Is Dotclear completly installed?'), '', 620, $e);
+                App::stop(new Exception(__('There seems to be no Session table in your database. Is Dotclear completly installed?'), 620, $e));
             }
 
             // Check nonce from POST requests
             if (!empty($_POST)) {
                 if (empty($_POST['xd_check']) || !$this->nonce()->check($_POST['xd_check'])) {
-                    $this->throwException(__('Precondition Failed.'), '', 412);
+                    App::stop(new Exception(__('Precondition Failed.'), 412));
                 }
             }
 
@@ -422,7 +423,7 @@ class Prepend extends Core
                 $this->plugins();
                 $this->themes();
             } catch (Exception $e) {
-                // $this->throwException(__('Unable to load modules.'), $e->getMessage(), 640, $e);
+                // App::stop(new Exception(!$this->production() ? __('Unable to load modules.') : $e->getMessage(), 640, $e));
             }
 
             // Finalize menu and favorites
@@ -431,10 +432,10 @@ class Prepend extends Core
 
             // Stop if no themes found
             if (!$this->themes()->getPaths()) {
-                $this->throwException(__('There seems to be no valid Theme directory set in configuration file.'), '', 611);
+                App::stop(new Exception(__('There seems to be no valid Theme directory set in configuration file.'), 611));
             }
             if (!$this->themes()->hasModules()) {
-                $this->throwException(__('There seems to be no valid Theme in your themes directories.'), '', 611);
+                App::stop(new Exception(__('There seems to be no valid Theme in your themes directories.'), 611));
             }
 
             // Add default top menus
@@ -545,20 +546,18 @@ class Prepend extends Core
             } catch (Exception $e) {
                 ob_end_clean();
 
-                $this->throwException(
-                    __('Failed to load page'),
-                    sprintf(__('Failed to load page for handler %s: '), $e->getMessage()),
+                App::stop(new Exception(
+                    !$this->production() ? __('Failed to load page') : sprintf(__('Failed to load page for handler %s: '), $e->getMessage()),
                     601,
                     $e
-                );
+                ));
             }
         } catch (Exception $e) {
-            $this->throwException(
-                $e->getMessage(),
-                '',
+            App::stop(new Exception(
+                !$this->production() ? $e->getMessage() : '',
                 628,
                 $e
-            );
+            ));
         }
     }
 }

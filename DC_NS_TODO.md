@@ -7,7 +7,6 @@
 - [ ] check plural from class name, except double class (Blog|Blogs)
 - [ ] convert amdin page action into Action
 - [ ] remove or include to core a maximum of clearbricks class/methods
-- [ ] change signature of Combos behaviors (to ArrayObject)
 - [ ] update all scss files
 - [ ] rework process (avoid abstract extends abstract extends abstract...)
 - [ ] rework Modules with less files
@@ -21,12 +20,14 @@
 - [ ] complete module clone (.po, .js)
 - [ ] reduce number of possible methods returned types
 - [ ] replace all ArrayObject by a custom Stack class (and avoid ArrayObject magic methods)
+- [ ] change signature of Combos behaviors (to Stack)
+- [ ] use Stack instead of array and ArrayObject (ie for getBLogs())
 - [ ] check and use behavior on (de)activate modules (some modules should erase cache etc...)
+- [ ] rework Exceptions by type of exception, not by class hierarchy
 
 ### Idea
 
 - Merge Distrib into Install
-- Use container instead of array and ArrayObject (ie for getBLogs())
 - Move build-tools features into Plugin BuildTools
 - Use array for permissions
 
