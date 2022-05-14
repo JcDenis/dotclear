@@ -242,7 +242,7 @@ class Prepend extends Core
         }
 
         // Prepare the HTTP cache thing
-        $this->url()->mod_files = $this->autoload()->getLoadedFiles();
+        $this->url()->mod_files = get_included_files();
         $this->url()->mod_ts    = [Clock::ts(date: $this->blog()->upddt, from: $this->timezone(), to: 'UTC')];
         $this->url()->mode      = (string) $this->blog()->settings()->get('system')->get('url_scan');
 
