@@ -790,7 +790,9 @@ class Core
         }
 
         // Add top behaviors
-        $this->registerTopBehaviors();
+        foreach (self::$top_behaviors as $behavior) {
+            $this->behavior()->add($behavior[0], $behavior[1]);
+        }
 
         // Register Core post types
         $this->posttype()->setPostType('post', '?handler=admin.post&id=%d', $this->url()->getURLFor('post', '%s'), __('Posts'));
@@ -896,10 +898,7 @@ class Core
     {
         return Clock::getTZ();
     }
-    // @}
 
-    // / @name Core top behaviors methods
-    // @{
     /**
      * Add Top Behavior statically before class instanciate.
      *
@@ -914,19 +913,6 @@ class Core
         array_push(self::$top_behaviors, [$behavior, $callback]);
     }
 
-    /**
-     * Register Top Behaviors into class instance behaviors.
-     */
-    final protected function registerTopBehaviors(): void
-    {
-        foreach (self::$top_behaviors as $behavior) {
-            $this->behavior()->add($behavior[0], $behavior[1]);
-        }
-    }
-    // @}
-
-    // / @name Core blog methods
-    // @{
     /**
      * Sets the blog to use.
      *
@@ -953,7 +939,6 @@ class Core
     {
         $this->blog = null;
     }
-    // @}
 
     /**
      * Empty templates cache directory.
@@ -964,6 +949,7 @@ class Core
             Files::deltree(Path::implode(App::core()->config()->get('cache_dir'), 'cbtpl'));
         }
     }
+    // @}
 
     /**
      * Default Dotclear configuration.
