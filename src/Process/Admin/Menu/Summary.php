@@ -10,24 +10,30 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Menu;
 
 // Dotclear\Process\Admin\Menu\Summary
-use ArrayObject;
 use Dotclear\App;
-use Dotclear\Helper\File\Files;
-use Dotclear\Helper\File\Path;
 
 /**
  * Admin menu handling facilities.
  *
- * Accessible from App::core()->summary()->
+ * Accessible from App::core()->summary()
  *
  * @ingroup  Admin
  */
-class Summary extends ArrayObject
+class Summary
 {
+    /**
+     * @var array<string,Menu> $stack
+     *                         The menu list
+     */
+    private $stack = [];
+
+    /**
+     * Constructor.
+     *
+     * Set up sections.
+     */
     public function __construct()
     {
-        parent::__construct();
-
         $this->add('Dashboard', 'dashboard-menu', '');
         if (!App::core()->user()->preference()->get('interface')->get('nofavmenu')) {
             App::core()->favorite()->appendMenuTitle($this);
@@ -42,14 +48,14 @@ class Summary extends ArrayObject
      *
      * This create a Menu instance
      *
-     * @param string $name      The menu name
+     * @param string $section   The menu name
      * @param string $id        The menu id
      * @param string $title     The menu title
      * @param string $itemSpace The item space
      */
-    public function add(string $name, string $id, string $title, string $itemSpace = ''): void
+    public function add(string $section, string $id, string $title, string $itemSpace = ''): void
     {
-        $this->offsetSet($name, new Menu($id, $title, $itemSpace));
+        $this->stack[$section] = new Menu($id, $title, $itemSpace);
     }
 
     /**
@@ -70,7 +76,11 @@ class Summary extends ArrayObject
             $match = 1 == count($_GET);
         }
 
-        $this->offsetGet($section)->prependItem(
+        if (!isset($this->stack[$section])) {
+            return;
+        }
+
+        $this->stack[$section]->prependItem(
             $desc,
             App::core()->adminurl()->get($adminurl),
             $icon,
@@ -83,10 +93,32 @@ class Summary extends ArrayObject
     }
 
     /**
+     * Get a menu instance.
+     *
+     * @param string $section The menu name
+     *
+     * @return null|Menu The menu instance or null if not exists
+     */
+    public function menu(string $section): ?Menu
+    {
+        return $this->stack[$section] ?? null;
+    }
+
+    /**
+     * Get all menu in an array.
+     *
+     * @return array<string,Menu> The menu list
+     */
+    public function dump(): array
+    {
+        return $this->stack;
+    }
+
+    /**
      * Compose HTML icon markup for favorites, menu.
-     * 
+     *
      * Icon changes according to theme light or dark).
-     * Icon must be accessible from Amdin URL handler, 
+     * Icon must be accessible from Amdin URL handler,
      * but $img must not contain "?df=".
      *
      * @param mixed  $img      string (default) or array (0 : light, 1 : dark)
@@ -95,7 +127,7 @@ class Summary extends ArrayObject
      * @param string $title    title attribute
      * @param mixed  $class
      *
-     * @return string
+     * @return string The icon HTML markup
      */
     public function getIconTheme($img, $fallback = true, $alt = '', $title = '', $class = '')
     {
@@ -113,7 +145,7 @@ class Summary extends ArrayObject
         $title = '' !== $title ? ' title="' . $title . '"' : '';
         if ('' !== $light_img && '' !== $dark_img) {
             $icon = '<img src="?df=' . $light_img . '" class="light-only' . ('' !== $class ? ' ' . $class : '') . '" alt="' . $alt . '"' . $title . ' />' .
-                '<img src="?df=' . $dark_img . '" class="dark-only' . ('' !== $class ? ' ' . $class : '') . '" alt="' . $alt . '"' . $title . ' />';
+                '<img src="?df=' . $dark_img . '" class="dark-only' . (''       !== $class ? ' ' . $class : '') . '" alt="' . $alt . '"' . $title . ' />';
         } elseif ('' !== $light_img) {
             $icon = '<img src="?df=' . $light_img . '" class="' . ('' !== $class ? $class : '') . '" alt="' . $alt . '"' . $title . ' />';
         } else {
@@ -123,15 +155,22 @@ class Summary extends ArrayObject
         return $icon;
     }
 
-    public function setup()
+    /**
+     * Populate menus.
+     *
+     * This method should be called only from Admin Prepend.
+     */
+    public function setup(): void
     {
         $this->initDefaultMenus();
         App::core()->behavior()->call('adminMenus', $this);
     }
 
-    protected function initDefaultMenus()
+    /**
+     * Set default menus items.
+     */
+    protected function initDefaultMenus(): void
     {
-        // add fefault items to menu
         $this->register(
             'Blog',
             __('Blog settings'),

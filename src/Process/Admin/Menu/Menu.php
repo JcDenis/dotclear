@@ -16,13 +16,22 @@ use Dotclear\Helper\Lexical;
 /**
  * Admin menu item helper.
  *
- * Accessible from App::core()->summary()['a_menu_id']
+ * Accessible from App::core()->summary()->menu('a_menu_id')
  *
  * @ingroup  Admin
  */
 class Menu
 {
+    /**
+     * @var array<int,string> $pinned
+     *                        The pinned menu items
+     */
     protected $pinned = [];
+
+    /**
+     * @var array<string,string> $items
+     *                           The items list
+     */
     protected $items  = [];
 
     /**

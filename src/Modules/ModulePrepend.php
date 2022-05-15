@@ -128,14 +128,14 @@ class ModulePrepend
             return;
         }
 
-        if (!$menu || !isset(App::core()->summary()[$menu])) {
+        if (!$menu || null === App::core()->summary()->menu($menu)) {
             $menu = 'Plugins';
         }
         if ('' === $permissions) {
             $permissions = $this->define()->permissions();
         }
 
-        App::core()->summary()[$menu]->addItem(
+        App::core()->summary()->menu($menu)->addItem(
             $this->define()->name(),
             App::core()->adminurl()->get('admin.' . $this->define()->type(true) . '.' . $this->define()->id()),
             [

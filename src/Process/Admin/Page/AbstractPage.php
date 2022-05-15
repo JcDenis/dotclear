@@ -589,8 +589,8 @@ abstract class AbstractPage
         '<input type="submit" value="' . __('OK') . '" /></p>' .
             '</form>';
 
-        foreach (App::core()->summary() as $k => $v) {
-            echo App::core()->summary()[$k]->draw();
+        foreach (App::core()->summary()->dump() as $k => $v) {
+            echo $v->draw();
         }
 
         $text = sprintf(__('Thank you for using %s.'), 'Dotclear ' . App::core()->config()->get('core_version'));

@@ -267,11 +267,11 @@ class Favorite
      * Adds favorites section title to sidebar menu
      * shall not be called outside Admin Prepend.
      *
-     * @param Summary $menu Summary instance
+     * @param Summary $summary Summary instance
      */
-    public function appendMenuTitle(Summary $menu): void
+    public function appendMenuTitle(Summary $summary): void
     {
-        $menu->add('Favorites', 'favorites-menu', __('My favorites'));
+        $summary->add('Favorites', 'favorites-menu', __('My favorites'));
     }
 
     /**
@@ -280,12 +280,12 @@ class Favorite
      * Adds favorites items title to sidebar menu
      * shall not be called outside Admin Prepend.
      *
-     * @param Summary $menu Summary instance
+     * @param Summary $summary Summary instance
      */
-    public function appendMenu(Summary $menu): void
+    public function appendMenu(Summary $summary): void
     {
         foreach ($this->user_prefs as $k => $v) {
-            $menu['Favorites']->addItem(
+            $summary->menu('Favorites')->addItem(
                 $v['title'],
                 $v['url'],
                 $v['small-icon'],
