@@ -28,37 +28,37 @@ class Favorite
      * @var ArrayObject $fav_defs
      *                  list of favorite definitions
      */
-    protected $fav_defs;
+    private $fav_defs;
 
     /**
      * @var Workspace $ws
      *                current favorite landing workspace
      */
-    protected $ws;
+    private $ws;
 
     /**
      * @var array<string,mixed> $local_prefs
      *                          list of user-defined favorite ids
      */
-    protected $local_prefs = [];
+    private $local_prefs = [];
 
     /**
      *  @var array<string,mixed> $global_prefs
      * list of globally-defined favorite ids
      */
-    protected $global_prefs = [];
+    private $global_prefs = [];
 
     /**
      * @var array<string,mixed> $user_prefs
      *                          list of user preferences (either one of the 2 above, or not!)
      */
-    protected $user_prefs = [];
+    private $user_prefs = [];
 
     /**
      * @var array<string,string> $default_favorites
      *                           Default favorites values
      */
-    protected $default_favorites = [
+    private $default_favorites = [
         // favorite title (localized)
         'title' => '',
         // favorite URL
@@ -372,7 +372,7 @@ class Favorite
     /**
      * Initializes the default favorites.
      */
-    protected function initDefaultFavorites(): void
+    private function initDefaultFavorites(): void
     {
         $this->registerMultiple([
             'prefs' => [
@@ -461,7 +461,7 @@ class Favorite
      *
      * @param ArrayObject $v Favicon object
      */
-    public function cbPostsDashboard(ArrayObject $v): void
+    private function cbPostsDashboard(ArrayObject $v): void
     {
         $post_count  = App::core()->blog()->posts()->getPosts([], true)->fInt();
         $str_entries = __('%d post', '%d posts', $post_count);
@@ -475,7 +475,7 @@ class Favorite
      *
      * @return bool Active
      */
-    public function cbNewpostActive(): bool
+    private function cbNewpostActive(): bool
     {
         return App::core()->adminurl()->is('admin.post') && !isset($_REQUEST['id']);
     }
@@ -485,7 +485,7 @@ class Favorite
      *
      * @param ArrayObject $v Favicon object
      */
-    public function cbCommentsDashboard(ArrayObject $v): void
+    private function cbCommentsDashboard(ArrayObject $v): void
     {
         $comment_count = App::core()->blog()->comments()->getComments([], true)->fInt();
         $str_comments  = __('%d comment', '%d comments', $comment_count);

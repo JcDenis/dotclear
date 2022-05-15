@@ -34,7 +34,7 @@ class Resource
      *
      * @param string $query The query parameter name
      */
-    public function __construct(protected string $query = 'df')
+    public function __construct(private string $query = 'df')
     {
     }
 

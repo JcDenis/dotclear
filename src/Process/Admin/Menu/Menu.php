@@ -26,13 +26,13 @@ class Menu
      * @var array<int,string> $pinned
      *                        The pinned menu items
      */
-    protected $pinned = [];
+    private $pinned = [];
 
     /**
      * @var array<string,string> $items
      *                           The items list
      */
-    protected $items  = [];
+    private $items  = [];
 
     /**
      * Constructor.
@@ -41,7 +41,7 @@ class Menu
      * @param string $title     The title
      * @param string $itemSpace The item space
      */
-    public function __construct(private string $id, protected string $title, protected string $itemSpace = '')
+    public function __construct(private string $id, private string $title, private string $itemSpace = '')
     {
     }
 

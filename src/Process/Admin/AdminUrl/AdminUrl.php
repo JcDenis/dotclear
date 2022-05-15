@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\AdminUrl;
 
 // Dotclear\Process\Admin\AdminUrl\AdminUrl
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Html\Form;
@@ -26,18 +25,10 @@ use Dotclear\Helper\Network\Http;
 class AdminUrl
 {
     /**
-     * @var ArrayObject $urls
-     *                  List of registered URLs
+     * @var array<string,array> $urls
+     *                          List of registered URLs
      */
-    protected $urls;
-
-    /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-        $this->urls = new ArrayObject();
-    }
+    private $urls = [];
 
     /**
      * Admin URL alias.
@@ -56,7 +47,7 @@ class AdminUrl
      */
     public function called(): string
     {
-        return $_REQUEST['handler'] ?? ($this->urls->count() ? key($this->urls->getArrayCopy()) : '');
+        return $_REQUEST['handler'] ?? (empty($this->urls) ? '' : key($this->urls));
     }
 
     /**
@@ -89,13 +80,7 @@ class AdminUrl
     public function registerMultiple(array ...$args): void
     {
         foreach ($args as $arg) {
-            $name   = isset($arg[0]) && is_string($arg[0]) ? $arg[0] : null;
-            $class  = isset($arg[1]) && is_string($arg[1]) ? $arg[1] : null;
-            $params = isset($arg[2]) && is_array($arg[2]) ? $arg[2] : [];
-
-            if ($name && $class) {
-                $this->urls[$name] = ['class' => $class, 'qs' => $params];
-            }
+            call_user_func_array([$this, 'register'], $arg);
         }
     }
 
@@ -105,7 +90,7 @@ class AdminUrl
      * @param string $name     The URL handler name
      * @param string $orig     The class to copy information from
      * @param array  $params   The extra parameters to add
-     * @param string $newclass THe new class if different from the original
+     * @param string $newclass The new class if different from the original
      *
      * @throws AdminException On unknow URL handler
      */
@@ -178,7 +163,7 @@ class AdminUrl
      */
     public function exists(string $name): bool
     {
-        return $this->urls->count() && isset($this->urls[$name]);
+        return isset($this->urls[$name]);
     }
 
     /**
@@ -232,7 +217,7 @@ class AdminUrl
     /**
      * Return registered URLs properties.
      *
-     * @return ArrayObject The registred URLs
+     * @return array<string,array> The registred URLs
      */
     public function dump()
     {
@@ -251,7 +236,7 @@ class AdminUrl
     /**
      * Register default Dotclear admin URLs.
      */
-    protected function initDefaultURLs()
+    private function initDefaultURLs()
     {
         $d = 'Dotclear\\Process\\Admin\\Handler\\';
 

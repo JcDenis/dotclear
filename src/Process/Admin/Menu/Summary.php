@@ -169,7 +169,7 @@ class Summary
     /**
      * Set default menus items.
      */
-    protected function initDefaultMenus(): void
+    private function initDefaultMenus(): void
     {
         $this->register(
             'Blog',
