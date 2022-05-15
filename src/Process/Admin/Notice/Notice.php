@@ -47,6 +47,26 @@ class Notice
     private $error_displayed = false;
 
     /**
+     * Retrieve notices count.
+     *
+     * @see self::get() whitout parameter order.
+     *
+     * @param array $params The parameters
+     *
+     * @return int The notices count
+     */
+    public function count(array $params = []): int
+    {
+        $sql = new SelectStatement(__METHOD__);
+        $sql
+            ->from(App::core()->prefix() . 'notice')
+            ->column($sql->count('notice_id'))
+        ;
+
+        return $this->query($params, $sql)->fInt(0);
+    }
+
+    /**
      * Get notices.
      *
      * Parameters can be :
@@ -57,23 +77,16 @@ class Notice
      * - limit
      * - sql
      *
-     * @param array $params     The params
-     * @param bool  $count_only Count only
+     * @param array $params The params
      *
      * @return Record Notices record
      */
-    public function get(array $params = [], bool $count_only = false): Record
+    public function get(array $params = []): Record
     {
         $sql = new SelectStatement(__METHOD__);
         $sql
             ->from(App::core()->prefix() . 'notice')
-        ;
-
-        // Return a recordset of notices
-        if ($count_only) {
-            $sql->column($sql->count('notice_id'));
-        } else {
-            $sql->columns([
+            ->columns([
                 'notice_id',
                 'ses_id',
                 'notice_type',
@@ -81,9 +94,27 @@ class Notice
                 'notice_msg',
                 'notice_format',
                 'notice_options',
-            ]);
-        }
+            ])
+            ->order(
+                empty($params['order']) ?
+                'notice_ts DESC' :
+                $sql->escape($params['order'])
+            )
+        ;
 
+        return $this->query($params, $sql);
+    }
+
+    /**
+     * Query notice table.
+     *
+     * @param array           $params The params
+     * @param SelectStatement $sql    The partial sql statement
+     *
+     * @return Record The result
+     */
+    private function query(array $params, SelectStatement $sql): Record
+    {
         $session_id = isset($params['ses_id']) && '' !== $params['ses_id'] ? (string) $params['ses_id'] : (string) session_id();
         $sql->where('ses_id = ' . $sql->quote($session_id));
 
@@ -110,14 +141,6 @@ class Notice
 
         if (!empty($params['sql'])) {
             $sql->sql($params['sql']);
-        }
-
-        if (!$count_only) {
-            if (!empty($params['order'])) {
-                $sql->order($sql->escape($params['order']));
-            } else {
-                $sql->order('notice_ts DESC');
-            }
         }
 
         if (!empty($params['limit'])) {
@@ -170,19 +193,27 @@ class Notice
     /**
      * Delete a notice.
      *
-     * @param null|int $notice_id  The notice id
-     * @param bool     $delete_all Delete all notices
+     * @param array|int $notice_id The notice id
      */
-    public function del(?int $notice_id, bool $delete_all = false): void
+    public function del(int|array $notice_id): void
     {
         $sql = new DeleteStatement(__METHOD__);
         $sql
             ->from(App::core()->prefix() . 'notice')
-            ->where(
-                $delete_all ?
-                'ses_id = ' . $sql->quote((string) session_id()) :
-                'notice_id' . $sql->in($notice_id)
-            )
+            ->where('notice_id' . $sql->in($notice_id))
+            ->delete()
+        ;
+    }
+
+    /**
+     * Delete all session notices.
+     */
+    public function delSession(): void
+    {
+        $sql = new DeleteStatement(__METHOD__);
+        $sql
+            ->from(App::core()->prefix() . 'notice')
+            ->where('ses_id = ' . $sql->quote((string) session_id()))
             ->delete()
         ;
     }
@@ -253,7 +284,7 @@ class Notice
                     'sql' => "AND notice_type != 'static'",
                 ];
             }
-            $counter = $this->get($params, true)->fInt();
+            $counter = $this->count($params);
             if (0 < $counter) {
                 $lines = $this->get($params);
                 while ($lines->fetch()) {
@@ -281,7 +312,7 @@ class Notice
         } while (--$step);
 
         // Delete returned notices
-        $this->del(null, true);
+        $this->delSession();
 
         return $res;
     }
