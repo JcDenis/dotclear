@@ -124,13 +124,13 @@ class TagsBehavior
     {
         $ap->addAction(
             [__('Tags') => [__('Add tags') => 'tags']],
-            [__CLASS__, 'adminAddTags']
+            [$this, 'adminAddTags']
         );
 
         if (App::core()->user()->check('delete,contentadmin', App::core()->blog()->id)) {
             $ap->addAction(
                 [__('Tags') => [__('Remove tags') => 'tags_remove']],
-                [__CLASS__, 'adminRemoveTags']
+                [$this, 'adminRemoveTags']
             );
         }
     }
