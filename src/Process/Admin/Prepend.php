@@ -58,7 +58,7 @@ class Prepend extends Core
      * @var Help $help
      *           Help instance
      */
-    public $help;
+    private $help;
 
     /**
      * @var ListOption $listoption
@@ -414,7 +414,11 @@ class Prepend extends Core
 
         // User session exists
         if (!empty($this->user()->userID()) && $this->blog() !== null) {
+            // Set user lang
+            $this->lang($this->user()->getInfo('user_lang'));
+
             // Load resources
+            $this->help()->file(Path::implode($this->config()->get('l10n_dir'), 'en', 'resources.php'));
             $this->adminLoadResources($this->config()->get('l10n_dir'));
 
             // Load modules (by calling them a first time)
@@ -476,15 +480,9 @@ class Prepend extends Core
      * Load core locales resources.
      *
      * @param string $dir          Locales directory path
-     * @param bool   $load_default Load default lang reousources
      */
-    private function adminLoadResources(string $dir, bool $load_default = true): void
+    private function adminLoadResources(string $dir): void
     {
-        $this->lang($this->user()->getInfo('user_lang'));
-
-        if ($load_default) {
-            $this->help()->file(Path::implode($dir, 'en', 'resources.php'));
-        }
         if (($f = L10n::getFilePath($dir, 'resources.php', $this->lang()))) {
             $this->help()->file($f);
         }
@@ -511,7 +509,7 @@ class Prepend extends Core
     {
         // Load lang resources for each module
         foreach ($modules->getModules() as $module) {
-            $this->adminLoadResources($module->root() . '/locales', false);
+            $this->adminLoadResources($module->root() . '/locales');
         }
     }
 
