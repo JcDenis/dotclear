@@ -30,18 +30,6 @@ use Exception;
 class Log
 {
     /**
-     * @var string $log_table
-     *             Log table name
-     */
-    protected $log_table = 'log';
-
-    /**
-     * @var string $user_table
-     *             User table name
-     */
-    protected $user_table = 'user';
-
-    /**
      * Retrieve logs count.
      *
      * @see self::get() whitout paramaeter order.
@@ -50,11 +38,11 @@ class Log
      *
      * @return int The logs count
      */
-    public function count(array $params =[]): int
+    public function count(array $params = []): int
     {
         $sql = new SelectStatement(__METHOD__);
         $sql
-            ->from(App::core()->prefix() . $this->log_table . ' L')
+            ->from(App::core()->prefix() . 'log L')
             ->column($sql->count('log_id'))
         ;
 
@@ -83,7 +71,7 @@ class Log
     {
         $sql = new SelectStatement(__METHOD__);
         $sql
-            ->from(App::core()->prefix() . $this->log_table . ' L')
+            ->from(App::core()->prefix() . 'log L')
             ->order(
                 empty($params['order']) ?
                 'log_dt DESC' :
@@ -146,13 +134,13 @@ class Log
      */
     public function add(Cursor $cur): int
     {
-        App::core()->con()->writeLock(App::core()->prefix() . $this->log_table);
+        App::core()->con()->writeLock(App::core()->prefix() . 'log');
 
         try {
             // Get ID
             $id = SelectStatement::init(__METHOD__)
                 ->column('MAX(log_id)')
-                ->from(App::core()->prefix() . $this->log_table)
+                ->from(App::core()->prefix() . 'log')
                 ->select()->fInt();
 
             $cur->setField('log_id', $id + 1);
@@ -188,7 +176,7 @@ class Log
         $sql = new DeleteStatement(__METHOD__);
         $sql
             ->where('log_id' . $sql->in($id))
-            ->from(App::core()->prefix() . $this->log_table)
+            ->from(App::core()->prefix() . 'log')
             ->run()
         ;
     }
@@ -199,7 +187,7 @@ class Log
     public function truncate(): void
     {
         TruncateStatement::init(__METHOD__)
-            ->from(App::core()->prefix() . $this->log_table)
+            ->from(App::core()->prefix() . 'log')
             ->run()
         ;
     }
