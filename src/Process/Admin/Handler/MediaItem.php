@@ -51,14 +51,6 @@ class MediaItem extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        try {
-            App::core()->media(true, true);
-        } catch (Exception $e) {
-            App::core()->error()->add($e->getMessage());
-
-            return true;
-        }
-
         $tab = empty($_REQUEST['tab']) ? '' : $_REQUEST['tab'];
 
         $post_id = !empty($_REQUEST['post_id']) ? (int) $_REQUEST['post_id'] : null;
@@ -313,10 +305,6 @@ class MediaItem extends AbstractPage
 
     protected function getPageContent(): void
     {
-        if (!App::core()->media()) {
-            return;
-        }
-
         if (!empty($_GET['fupd']) || !empty($_GET['fupl'])) {
             App::core()->notice()->success(__('File has been successfully updated.'));
         }
@@ -325,6 +313,10 @@ class MediaItem extends AbstractPage
         }
         if (!empty($_GET['blogprefupd'])) {
             App::core()->notice()->success(__('Default media insertion settings have been successfully updated.'));
+        }
+        if (!$this->item_file) {
+
+            return;
         }
 
         // Get major file type (first part of mime type)

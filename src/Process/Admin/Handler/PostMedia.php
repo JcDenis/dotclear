@@ -33,14 +33,6 @@ class PostMedia extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        try {
-            App::core()->media(true, true);
-        } catch (Exception $e) {
-            App::core()->error()->add($e->getMessage());
-
-            return false;
-        }
-
         $post_id   = !empty($_REQUEST['post_id']) ? (int) $_REQUEST['post_id'] : null;
         $media_id  = !empty($_REQUEST['media_id']) ? (int) $_REQUEST['media_id'] : null;
         $link_type = !empty($_REQUEST['link_type']) ? $_REQUEST['link_type'] : null;

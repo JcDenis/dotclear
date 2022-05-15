@@ -453,21 +453,15 @@ class Core
      *
      * Media methods are accesible from App::core()->media()
      *
-     * @param bool $reload Force reload of Media instance
-     * @param bool $throw  Throw Exception on instance failure
-     *
      * @return Media The media instance
      */
-    final public function media(bool $reload = false, bool $throw = false): ?Media
+    final public function media(): ?Media
     {
-        if ($reload || !($this->media instanceof Media)) {
+        if (!($this->media instanceof Media)) {
             try {
                 $this->media = new Media();
             } catch (Exception $e) {
                 $this->media = null;
-                if ($throw) {
-                    throw $e;
-                }
             }
         }
 

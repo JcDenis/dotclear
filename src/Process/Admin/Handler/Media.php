@@ -126,15 +126,8 @@ class Media extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        try {
-            if ($this->filter->get('popup')) {
-                $this->setPageType('popup');
-            }
-            App::core()->media(true, true);
-        } catch (Exception $e) {
-            App::core()->error()->add($e->getMessage());
-
-            return true;
+        if ($this->filter->get('popup')) {
+            $this->setPageType('popup');
         }
 
         $this->filter->add('handler', 'admin.media');
@@ -340,10 +333,6 @@ class Media extends AbstractPage
 
     protected function getPageContent(): void
     {
-        if (!App::core()->media()) {
-            return;
-        }
-
         if ($this->getDirs() && !empty($_GET['remove']) && empty($_GET['noconfirm'])) {
             echo '<form action="' . App::core()->adminurl()->root() . '" method="post">' .
             '<p>' . sprintf(
