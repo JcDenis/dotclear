@@ -207,9 +207,7 @@ class Media extends Manager
      */
     public function addFileHandler(string $type, string $event, callable $function): void
     {
-        if (is_callable($function)) {
-            $this->file_handler[$type][$event][] = $function;
-        }
+        $this->file_handler[$type][$event][] = $function;
     }
 
     /**

@@ -11,7 +11,6 @@ namespace Dotclear\Core\Url;
 
 // Dotclear\Core\Url\Url
 use ArrayObject;
-use Closure;
 use Dotclear\App;
 use Dotclear\Core\Trackback\Trackback;
 use Dotclear\Core\Xmlrpc\Xmlrpc;
@@ -162,12 +161,12 @@ class Url
     /**
      * Register a URL.
      *
-     * @param string               $type           The type
-     * @param string               $url            The URL
-     * @param string               $representation The representation
-     * @param array|Closure|string $handler        The URL handler callback
+     * @param string   $type           The type
+     * @param string   $url            The URL
+     * @param string   $representation The representation
+     * @param callable $handler        The URL handler callback
      */
-    public function register(string $type, string $url, string $representation, string|array|Closure $handler): void
+    public function register(string $type, string $url, string $representation, callable $handler): void
     {
         /** @var ArrayObject<int, mixed> */
         $args = new ArrayObject(func_get_args());
@@ -414,9 +413,6 @@ class Url
         }
 
         $handler = $this->types[$type]['handler'];
-        if (!is_callable($handler)) {
-            throw new CoreException('Unable to call function');
-        }
 
         try {
             call_user_func($handler, $args);
@@ -438,10 +434,6 @@ class Url
      */
     public function callDefaultHandler(?string $args): void
     {
-        if (!is_callable($this->default_handler)) {
-            throw new CoreException('Unable to call function');
-        }
-
         try {
             call_user_func($this->default_handler, $args);
         } catch (CoreException $e) {

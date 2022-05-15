@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Core;
 
 // Dotclear\Core\Core
-use Closure;
 use Dotclear\App;
 use Dotclear\Core\Blog\Blog;
 use Dotclear\Core\Blogs\Blogs;
@@ -899,10 +898,10 @@ class Core
      * Core::addTopBehavior('MyBehavior', 'MyFunction');
      * also work from other child class.
      *
-     * @param string               $behavior The behavior
-     * @param array|Closure|string $callback The function
+     * @param string   $behavior The behavior
+     * @param callable $callback The function
      */
-    final public static function addTopBehavior(string $behavior, string|array|Closure $callback): void
+    final public static function addTopBehavior(string $behavior, callable $callback): void
     {
         array_push(self::$top_behaviors, [$behavior, $callback]);
     }

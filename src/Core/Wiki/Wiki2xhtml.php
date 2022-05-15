@@ -275,11 +275,9 @@ class Wiki2xhtml
         return (!empty($this->opt[$option])) ? $this->opt[$option] : false;
     }
 
-    public function registerFunction(string $type, $name)
+    public function registerFunction(string $type, callable $name): void
     {
-        if (is_callable($name)) {
-            $this->functions[$type] = $name;
-        }
+        $this->functions[$type] = $name;
     }
 
     public function transform(string $in): string

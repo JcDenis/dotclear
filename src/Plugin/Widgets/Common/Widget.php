@@ -65,9 +65,11 @@ class Widget
     /**
      * Constructor.
      *
+     * (note: Can not use callable type hint for $callback)
+     *
      * @param string $id       Widget id
      * @param string $name     Widget name
-     * @param mixed  $callback Callbackk function
+     * @param mixed  $callback Callback function
      * @param string $desc     Widget description
      */
     public function __construct(private string $id, private string $name, private mixed $callback, private string $desc = '')

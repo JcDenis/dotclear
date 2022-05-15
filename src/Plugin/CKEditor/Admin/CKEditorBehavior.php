@@ -27,7 +27,7 @@ class CKEditorBehavior
         App::core()->behavior()->add('adminPopupMedia', [$this, 'adminPopupMedia']);
         App::core()->behavior()->add('adminPopupLink', [$this, 'adminPopupLink']);
         App::core()->behavior()->add('adminPopupPosts', [$this, 'adminPopupPosts']);
-        App::core()->behavior()->add('adminMediaURL', [$this, 'adminMediaURL']);
+        App::core()->behavior()->add('adminMediaURLParams', [$this, 'adminMediaURLParams']);
         App::core()->behavior()->add('adminPageHTTPHeaderCSP', [$this, 'adminPageHTTPHeaderCSP']);
     }
 

@@ -11,7 +11,6 @@ namespace Dotclear\Process\Admin\Action;
 
 // Dotclear\Process\Admin\Action\Action
 use ArrayObject;
-use Closure;
 use Dotclear\App;
 use Dotclear\Database\Record;
 use Dotclear\Helper\Html\Form;
@@ -151,20 +150,15 @@ abstract class Action extends AbstractPage
     /**
      * Zdds an action.
      *
-     * @param array                $actions  the actions names as if it was a standalone combo array.
-     *                                       It will be merged with other actions.
-     *                                       Can be bound to multiple values, if the same callback is to be called
-     * @param array|Closure|string $callback the callback for the action
+     * @param array    $actions  the actions names as if it was a standalone combo array.
+     *                           It will be merged with other actions.
+     *                           Can be bound to multiple values, if the same callback is to be called
+     * @param callable $callback the callback for the action
      *
      * @return Action the actions page itself, enabling to chain addAction()
      */
-    public function addAction(array $actions, string|array|Closure $callback): Action
+    public function addAction(array $actions, callable $callback): Action
     {
-        // Silently failed non callable function
-        if (!is_callable($callback)) {
-            return $this;
-        }
-
         foreach ($actions as $k => $a) {
             // Check each case of combo definition
             // Store form values in $values

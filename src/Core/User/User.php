@@ -352,12 +352,8 @@ class User
      *
      * @return mixed
      */
-    public function sudo($f, ...$args)
+    public function sudo(callable $f, ...$args)
     {
-        if (!is_callable($f)) {
-            throw new CoreException($f . ' function does not exist');
-        }
-
         if ($this->user->getProperty('user_super')) {
             $res = call_user_func_array($f, $args);
         } else {

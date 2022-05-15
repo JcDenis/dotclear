@@ -123,21 +123,13 @@ class Template
         $this->cache_dir = $dir . '/';
     }
 
-    public function addBlock(string $name, $callback)
+    public function addBlock(string $name, callable $callback): void
     {
-        if (!is_callable($callback)) {
-            throw new TemplateException('No valid callback for ' . $name);
-        }
-
         $this->blocks[$name] = $callback;
     }
 
-    public function addValue(string $name, $callback)
+    public function addValue(string $name, callable $callback): void
     {
-        if (!is_callable($callback)) {
-            throw new TemplateException('No valid callback for ' . $name);
-        }
-
         $this->values[$name] = $callback;
     }
 
@@ -464,18 +456,14 @@ class Template
         return call_user_func($this->values[$v], $attr, ltrim((string) $str_attr));
     }
 
-    public function setUnknownValueHandler($callback)
+    public function setUnknownValueHandler(callable $callback): void
     {
-        if (is_callable($callback)) {
-            $this->unknown_value_handler = $callback;
-        }
+        $this->unknown_value_handler = $callback;
     }
 
-    public function setUnknownBlockHandler($callback)
+    public function setUnknownBlockHandler(callable $callback): void
     {
-        if (is_callable($callback)) {
-            $this->unknown_block_handler = $callback;
-        }
+        $this->unknown_block_handler = $callback;
     }
 
     protected function getAttrs(string $str): array

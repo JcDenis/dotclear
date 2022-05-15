@@ -109,7 +109,7 @@ class IntrospectionServer extends Server
      * @param array    $args     Array of arguments type. The first is the returned one.
      * @param string   $help     Method help string
      */
-    protected function addCallback(string $method, $callback, array $args, string $help): void
+    protected function addCallback(string $method, callable $callback, array $args, string $help): void
     {
         $this->callbacks[$method]  = $callback;
         $this->signatures[$method] = $args;

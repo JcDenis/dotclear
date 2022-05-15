@@ -52,9 +52,7 @@ class RestServer
      */
     public function addFunction(string $name, callable $callback): void
     {
-        if (is_callable($callback)) {
-            $this->functions[$name] = $callback;
-        }
+        $this->functions[$name] = $callback;
     }
 
     /**

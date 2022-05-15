@@ -7,11 +7,9 @@
  */
 declare(strict_types=1);
 
-// Dotclear\Core\Formater\Formater
-
 namespace Dotclear\Core\Formater;
 
-use Closure;
+// Dotclear\Core\Formater\Formater
 use Dotclear\App;
 
 /**
@@ -34,16 +32,13 @@ class Formater
      * transform text. The function must be a valid callback and takes one
      * argument: the string to transform. It returns the transformed string.
      *
-     * @param string               $editor   The editor identifier (LegacyEditor, CKEditor, ...)
-     * @param string               $formater The formater name
-     * @param array|Closure|string $callback The function to use, must be a valid and callable callback
+     * @param string   $editor   The editor identifier (LegacyEditor, CKEditor, ...)
+     * @param string   $formater The formater name
+     * @param callable $callback The function to use, must be a valid and callable callback
      */
-    public function addEditorFormater(string $editor, string $formater, string|array|Closure $callback): void
+    public function addEditorFormater(string $editor, string $formater, callable $callback): void
     {
-        // Silently failed non callable function
-        if (is_callable($callback)) {
-            $this->formaters[$editor][$formater] = $callback;
-        }
+        $this->formaters[$editor][$formater] = $callback;
     }
 
     /**

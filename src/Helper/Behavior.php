@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Helper;
 
 // Dotclear\Helper\Behavior
-use Closure;
 
 /**
  * Stack by group of callable functions.
@@ -30,15 +29,12 @@ class Behavior
      *
      * $callback must be a valid and callable callback.
      *
-     * @param string       $group    The group name
-     * @param array|string $callback The callback function
+     * @param string   $group    The group name
+     * @param callable $callback The callback function
      */
-    public function add(string $group, string|array|Closure $callback): void
+    public function add(string $group, callable $callback): void
     {
-        // Silently failed non callable function
-        if (is_callable($callback)) {
-            $this->stack[$group][] = $callback;
-        }
+        $this->stack[$group][] = $callback;
     }
 
     /**
