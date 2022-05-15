@@ -681,6 +681,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
 
         $post = $this->getPostRS($post_id, $user, $pwd);
 
+        /** @var ArrayObject<string, mixed> */
         $res = new ArrayObject();
 
         $res['dateCreated'] = new xmlrpcDate($post->getTS());

@@ -439,7 +439,7 @@ class Workspace
         }
 
         $sql
-            ->from($App::core()->prefix() . 'pref')
+            ->from(App::core()->prefix() . 'pref')
             ->delete()
         ;
     }

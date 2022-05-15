@@ -950,6 +950,7 @@ class Posts
             'post_firstpub' => 0,
         ]);
 
+        /** @var ArrayObject<int, int> */
         $to_change = new ArrayObject();
         while ($posts->fetch()) {
             $to_change[] = $posts->fInt('post_id');

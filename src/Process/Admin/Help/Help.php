@@ -51,7 +51,7 @@ class Help
     /**
      * Add/get news bloc.
      *
-     * @param string $value   The value
+     * @param string $value The value
      *
      * @return string The new bloc
      */

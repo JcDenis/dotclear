@@ -479,7 +479,7 @@ class Prepend extends Core
     /**
      * Load core locales resources.
      *
-     * @param string $dir          Locales directory path
+     * @param string $dir Locales directory path
      */
     private function adminLoadResources(string $dir): void
     {

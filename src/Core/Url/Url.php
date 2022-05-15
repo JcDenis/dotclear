@@ -169,6 +169,7 @@ class Url
      */
     public function register(string $type, string $url, string $representation, string|array|Closure $handler): void
     {
+        /** @var ArrayObject<int, mixed> */
         $args = new ArrayObject(func_get_args());
 
         App::core()->behavior()->call('publicRegisterURL', $args);
@@ -293,6 +294,7 @@ class Url
 
         $this->additionalHeaders();
 
+        /** @var ArrayObject<string, mixed> */
         $result                 = new ArrayObject();
         $result['content']      = App::core()->template()->getData(App::core()->context()->get('current_tpl'));
         $result['content_type'] = App::core()->context()->get('content_type');
@@ -709,6 +711,7 @@ class Url
 
             App::core()->context()->set('posts', App::core()->blog()->posts()->getPosts($params));
 
+            /** @var ArrayObject<int, mixed> */
             $cp               = new ArrayObject();
             $cp['content']    = '';
             $cp['rawcontent'] = '';

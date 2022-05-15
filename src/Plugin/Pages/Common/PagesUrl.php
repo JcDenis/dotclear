@@ -51,6 +51,7 @@ class PagesUrl extends Url
 
             App::core()->context()->set('posts', App::core()->blog()->posts()->getPosts($params));
 
+            /** @var ArrayObject<string, mixed> */
             $cp               = new ArrayObject();
             $cp['content']    = '';
             $cp['rawcontent'] = '';

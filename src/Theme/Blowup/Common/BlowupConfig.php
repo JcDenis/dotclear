@@ -161,6 +161,7 @@ class BlowupConfig
             return;
         }
 
+        /** @var ArrayObject<string, array> */
         $css = new ArrayObject();
 
         /* Sidebar position

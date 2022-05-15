@@ -139,6 +139,7 @@ class Home extends AbstractPage
         App::core()->favorite()->appendDashboardIcons($__dashboard_icons);
 
         // Latest news for dashboard
+        /** @var ArrayObject<int, ArrayObject> */
         $__dashboard_items = new ArrayObject([new ArrayObject(), new ArrayObject()]);
 
         $dashboardItem = 0;
