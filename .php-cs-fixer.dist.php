@@ -10,7 +10,7 @@ $finder = PhpCsFixer\Finder::create()
     // for now don't look at build tools
     ->exclude('build-tools')
     // php-cs-fixer always corrupts this file, so ignore it
-    ->notName('NestedTree.php');
+    ->notName('CategoriesTree.php');
 
 $config = new PhpCsFixer\Config();
 
