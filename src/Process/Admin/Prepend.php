@@ -91,12 +91,6 @@ class Prepend extends Core
     private $plugins;
 
     /**
-     * @var Modules $iconsets
-     *              Iconset Modules instance
-     */
-    private $iconsets;
-
-    /**
      * @var Modules $themes
      *              Theme Modules instance
      */
@@ -232,25 +226,6 @@ class Prepend extends Core
     public function timezone(): string
     {
         return $this->user()->getInfo('user_tz') ?? Clock::getTZ();
-    }
-
-    /**
-     * Get iconsets instance.
-     *
-     * @return Modules Iconsets instance
-     */
-    public function iconsets(): Modules
-    {
-        if (!($this->iconsets instanceof Modules)) {
-            $this->iconsets = new Modules(
-                type: 'Iconset',
-                lang: $this->lang(),
-                name: __('Iconsets management')
-            );
-            $this->adminLoadModulesResources($this->iconsets);
-        }
-
-        return $this->iconsets;
     }
 
     /**
@@ -423,7 +398,6 @@ class Prepend extends Core
 
             // Load modules (by calling them a first time)
             try {
-                // $this->iconsets();
                 $this->plugins();
                 $this->themes();
             } catch (Exception $e) {

@@ -24,15 +24,8 @@ use Dotclear\Helper\File\Path;
  */
 class Summary extends ArrayObject
 {
-    protected $core;
-    public static $iconset;
-
     public function __construct()
     {
-        if (!self::$iconset) {
-            self::$iconset = (string) App::core()->user()->preference()->get('interface')->get('iconset');
-        }
-
         parent::__construct();
 
         $this->add('Dashboard', 'dashboard-menu', '');
@@ -90,7 +83,11 @@ class Summary extends ArrayObject
     }
 
     /**
-     * Compose HTML icon markup for favorites, menu, … depending on theme (light, dark).
+     * Compose HTML icon markup for favorites, menu.
+     * 
+     * Icon changes according to theme light or dark).
+     * Icon must be accessible from Amdin URL handler, 
+     * but $img must not contain "?df=".
      *
      * @param mixed  $img      string (default) or array (0 : light, 1 : dark)
      * @param bool   $fallback use fallback image if none given
@@ -115,69 +112,15 @@ class Summary extends ArrayObject
 
         $title = '' !== $title ? ' title="' . $title . '"' : '';
         if ('' !== $light_img && '' !== $dark_img) {
-            $icon = '<img src="' . $this->getIconURL($light_img) .
-            '" class="light-only' . ('' !== $class ? ' ' . $class : '') . '" alt="' . $alt . '"' . $title . ' />' .
-                '<img src="' . $this->getIconURL($dark_img) .
-            '" class="dark-only' . ('' !== $class ? ' ' . $class : '') . '" alt="' . $alt . '"' . $title . ' />';
+            $icon = '<img src="?df=' . $light_img . '" class="light-only' . ('' !== $class ? ' ' . $class : '') . '" alt="' . $alt . '"' . $title . ' />' .
+                '<img src="?df=' . $dark_img . '" class="dark-only' . ('' !== $class ? ' ' . $class : '') . '" alt="' . $alt . '"' . $title . ' />';
         } elseif ('' !== $light_img) {
-            $icon = '<img src="' . $this->getIconURL($light_img) .
-            '" class="' . ('' !== $class ? $class : '') . '" alt="' . $alt . '"' . $title . ' />';
+            $icon = '<img src="?df=' . $light_img . '" class="' . ('' !== $class ? $class : '') . '" alt="' . $alt . '"' . $title . ' />';
         } else {
             $icon = '';
         }
 
         return $icon;
-    }
-
-    /**
-     * Parse icon path and url from Iconset.
-     *
-     * This can't call "Iconset" nor behaviors as modules are not loaded yet.
-     * This use self::$iconset that content full path to iconset icons.
-     *
-     * @param string $img Image path
-     *
-     * @return string New image path
-     */
-    public function getIconURL(string|array $img): string
-    {
-        $allow_types = ['svg', 'png', 'webp', 'jpg', 'jpeg', 'gif'];
-        if (!empty(self::$iconset) && !empty($img)) {
-            // Extract module name from path
-            $split  = explode('/', self::$iconset);
-            $module = array_pop($split);
-            if ((preg_match('/^images\/menu\/(.+)(\..*)$/', $img, $m)) || (preg_match('/\?df=(.+)(\..*)$/', $img, $m))) {
-                $name = $m[1] ?? '';
-                $ext  = $m[2] ?? '';
-                if ('' !== $name && '' !== $ext) {
-                    $icon = Path::real(self::$iconset . '/resources/' . $name . $ext);
-                    // Find same (name and extension)
-                    if (false !== $icon && is_file($icon) && is_readable($icon) && in_array(Files::getExtension($icon), $allow_types)) {
-                        return '?df=Iconset/' . $module . '/resources/' . $name . $ext;
-                    }
-                    // Look for other extensions
-                    foreach ($allow_types as $ext) {
-                        $icon = Path::real(self::$iconset . '/resources/' . $name . '.' . $ext);
-                        if (false !== $icon && is_file($icon) && is_readable($icon)) {
-                            return '?df=Iconset/' . $module . '/resources/' . $name . '.' . $ext;
-                        }
-                    }
-
-                    // Not in iconset nor in Dotclear
-                    // $icon = Path::implodeSrc('Process', 'Admin', 'resources', $img);
-                    // if (false === $icon || !is_file($icon) || !is_readable($icon)) {
-                    //    $img = 'images/menu/no-icon.svg';
-                    // }
-                }
-            }
-        }
-
-        // By default use Dotclear Admin files
-        if (!str_contains($img, '?')) {
-            $img = '?df=' . $img;
-        }
-
-        return $img;
     }
 
     public function setup()

@@ -81,10 +81,6 @@ return [
     // Multiple directories can be set
     //'plugin_dirs' => [Path::implodeSrc('Plugin')],
 
-    // Iconsets root
-    // Multiple directories can be set
-    //'iconset_dirs' => [Path::implodeSrc('Iconset')],
-
     // Template cache directory
     //'cache_dir' => Path::implodeBase('cache'),
 

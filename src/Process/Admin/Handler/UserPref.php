@@ -68,7 +68,6 @@ class UserPref extends AbstractPage
     private $user_ui_showajaxloader     = '';
     private $user_ui_htmlfontsize       = '';
     private $user_ui_hide_std_favicon   = false;
-    private $user_ui_iconset            = '';
     private $user_ui_nofavmenu          = '';
     private $user_ui_media_nb_last_dirs = '';
     private $user_ui_nocheckadblocker   = '';
@@ -113,7 +112,6 @@ class UserPref extends AbstractPage
         if (App::core()->user()->isSuperAdmin()) {
             $this->user_ui_hide_std_favicon = App::core()->user()->preference()->get('interface')->get('hide_std_favicon');
         }
-        $this->user_ui_iconset            = App::core()->user()->preference()->get('interface')->get('iconset');
         $this->user_ui_nofavmenu          = App::core()->user()->preference()->get('interface')->get('nofavmenu');
         $this->user_ui_media_nb_last_dirs = App::core()->user()->preference()->get('interface')->get('media_nb_last_dirs');
         $this->user_ui_nocheckadblocker   = App::core()->user()->preference()->get('interface')->get('nocheckadblocker');
@@ -348,7 +346,6 @@ class UserPref extends AbstractPage
                 if (App::core()->user()->isSuperAdmin()) {
                     App::core()->user()->preference()->get('dashboard')->put('nodcupdate', !empty($_POST['user_dm_nodcupdate']), 'boolean');
                 }
-                App::core()->user()->preference()->get('interface')->put('iconset', (!empty($_POST['user_ui_iconset']) ? $_POST['user_ui_iconset'] : ''));
                 App::core()->user()->preference()->get('interface')->put('nofavmenu', empty($_POST['user_ui_nofavmenu']), 'boolean');
 
                 // --BEHAVIOR-- adminAfterUserOptionsUpdate
@@ -493,8 +490,6 @@ class UserPref extends AbstractPage
     {
         $editors_combo = App::core()->combo()->getEditorsCombo();
         $editors       = array_keys($editors_combo);
-
-        $iconsets_combo = App::core()->combo()->getIconsetCombo();
 
         // Themes
         $theme_combo = [
@@ -915,13 +910,6 @@ class UserPref extends AbstractPage
         '<p><label for="user_dm_nofavicons" class="classic">' .
         Form::checkbox('user_dm_nofavicons', 1, !$this->user_dm_nofavicons) . ' ' .
         __('Display dashboard icons') . '</label></p>';
-
-        if (count($iconsets_combo) > 1) {
-            echo '<p><label for="user_ui_iconset" class="classic">' . __('Iconset:') . '</label> ' .
-            Form::combo('user_ui_iconset', $iconsets_combo, $this->user_ui_iconset) . '</p>';
-        } else {
-            echo '<p class="hidden">' . Form::hidden('user_ui_iconset', '') . '</p>';
-        }
         echo '</div>';
 
         echo '<div class="fieldset">' .

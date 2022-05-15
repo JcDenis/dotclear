@@ -215,21 +215,6 @@ class Combo
     }
 
     /**
-     * Return a combo containing all available iconset in admin.
-     *
-     * @return array The iconset combo
-     */
-    public function getIconsetCombo(): array
-    {
-        $iconsets_combo = new ArrayObject([__('Default') => '']);
-
-        // --BEHAVIOR-- adminPostsSortbyCombo , ArrayObject
-        App::core()->behavior()->call('adminIconsetCombo', $iconsets_combo);
-
-        return $iconsets_combo->getArrayCopy();
-    }
-
-    /**
      * Get the blog statuses combo.
      *
      * @return array The blog statuses combo

@@ -139,8 +139,8 @@ class ModulePrepend
             $this->define()->name(),
             App::core()->adminurl()->get('admin.' . $this->define()->type(true) . '.' . $this->define()->id()),
             [
-                '?df=' . $this->define()->type() . '/' . $this->define()->id() . '/icon.svg',
-                '?df=' . $this->define()->type() . '/' . $this->define()->id() . '/icon-dark.svg',
+                $this->define()->type() . '/' . $this->define()->id() . '/icon.svg',
+                $this->define()->type() . '/' . $this->define()->id() . '/icon-dark.svg',
             ],
             App::core()->adminurl()->is('admin.' . $this->define()->type(true) . '.' . $this->define()->id()),
             null === $permissions ? App::core()->user()->isSuperAdmin() : App::core()->user()->check($permissions, App::core()->blog()->id)
@@ -164,7 +164,7 @@ class ModulePrepend
             $favs->register($this->define()->id(), $this->favorites);
         });
 
-        $url = '?df=' . $this->define()->type() . '/' . $this->define()->id() . '/icon%s.svg';
+        $url = $this->define()->type() . '/' . $this->define()->id() . '/icon%s.svg';
 
         $this->favorites = [
             'title'       => $this->define()->name(),

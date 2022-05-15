@@ -181,7 +181,6 @@ class Install
                 // Add repository URL for themes and plugins
                 $blog_settings->get('system')->put('store_plugin_url', App::core()->config()->get('plugin_update_url'), 'string', 'Plugins XML feed location', true, true);
                 $blog_settings->get('system')->put('store_theme_url', App::core()->config()->get('theme_update_url'), 'string', 'Themes XML feed location', true, true);
-                $blog_settings->get('system')->put('store_iconset_url', App::core()->config()->get('iconset_update_url'), 'string', 'Iconsets XML feed location', true, true);
 
                 // CSP directive (admin part)
 

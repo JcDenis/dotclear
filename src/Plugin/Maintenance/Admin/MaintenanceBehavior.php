@@ -81,8 +81,8 @@ class MaintenanceBehavior
         $favs->register('maintenance', [
             'title'        => __('Maintenance'),
             'url'          => App::core()->adminurl()->get('admin.plugin.Maintenance'),
-            'small-icon'   => ['?df=Plugin/Maintenance/icon.svg', '?df=Plugin/Maintenance/icon-dark.svg'],
-            'large-icon'   => ['?df=Plugin/Maintenance/icon.svg', '?df=Plugin/Maintenance/icon-dark.svg'],
+            'small-icon'   => ['Plugin/Maintenance/icon.svg', 'Plugin/Maintenance/icon-dark.svg'],
+            'large-icon'   => ['Plugin/Maintenance/icon.svg', 'Plugin/Maintenance/icon-dark.svg'],
             'permissions'  => 'admin',
             'active_cb'    => App::core()->adminurl()->is('admin.plugin.Maintenance'),
             'dashboard_cb' => [$this, 'behaviorAdminDashboardFavoritesCallback'],
@@ -118,7 +118,7 @@ class MaintenanceBehavior
         }
 
         $fav['title'] .= '<br />' . sprintf(__('One task to execute', '%s tasks to execute', $count), $count);
-        $fav['large-icon'] = ['?df=Plugin/Maintenance/icon-update.svg', '?df=Plugin/Maintenance/icon-dark-update.svg'];
+        $fav['large-icon'] = ['Plugin/Maintenance/icon-update.svg', 'Plugin/Maintenance/icon-dark-update.svg'];
     }
 
     /**
@@ -162,7 +162,7 @@ class MaintenanceBehavior
 
         $items[] = new ArrayObject([
             '<div id="maintenance-expired" class="box small">' .
-            '<h3>' . App::core()->summary()->getIconTheme(['?df=Plugin/Maintenance/icon.svg', '?df=Plugin/Maintenance/icon-dark.svg'], true, '', '', 'icon-small') . __('Maintenance') . '</h3>' .
+            '<h3>' . App::core()->summary()->getIconTheme(['Plugin/Maintenance/icon.svg', 'Plugin/Maintenance/icon-dark.svg'], true, '', '', 'icon-small') . __('Maintenance') . '</h3>' .
             '<p class="warning no-margin">' . sprintf(__('There is a task to execute.', 'There are %s tasks to execute.', count($lines)), count($lines)) . '</p>' .
             '<ul>' . implode('', $lines) . '</ul>' .
             '<p><a href="' . App::core()->adminurl()->get('admin.plugin.Maintenance') . '">' . __('Manage tasks') . '</a></p>' .
