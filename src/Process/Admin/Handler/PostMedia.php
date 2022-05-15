@@ -52,11 +52,11 @@ class PostMedia extends AbstractPage
                 $postmedia->addPostMedia($post_id, $media_id, $link_type);
                 if (!empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
                     header('Content-type: application/json');
-                    echo json_encode(['url' => App::core()->posttype()->getPostAdminURL($rs->f('post_type'), $post_id, false)]);
+                    echo json_encode(['url' => App::core()->posttype()->getPostAdminURL($rs->f('post_type'), $post_id)]);
 
                     exit();
                 }
-                Http::redirect(App::core()->posttype()->getPostAdminURL($rs->f('post_type'), $post_id, false));
+                Http::redirect(App::core()->posttype()->getPostAdminURL($rs->f('post_type'), $post_id));
             }
 
             $f = App::core()->media()->getPostMedia($post_id, $media_id, $link_type);
@@ -76,9 +76,9 @@ class PostMedia extends AbstractPage
                 $postmedia->removePostMedia($post_id, $media_id, $link_type);
 
                 App::core()->notice()->addSuccessNotice(__('Attachment has been successfully removed.'));
-                Http::redirect(App::core()->posttype()->getPostAdminURL($rs->f('post_type'), $post_id, false));
+                Http::redirect(App::core()->posttype()->getPostAdminURL($rs->f('post_type'), $post_id));
             } elseif (isset($_POST['post_id'])) {
-                Http::redirect(App::core()->posttype()->getPostAdminURL($rs->f('post_type'), $post_id, false));
+                Http::redirect(App::core()->posttype()->getPostAdminURL($rs->f('post_type'), $post_id));
             }
 
             if (!empty($_GET['remove'])) {

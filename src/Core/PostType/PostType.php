@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Core\PostType;
 
 // Dotclear\Core\PostType\PostType
-use Dotclear\Helper\Html\Html;
 
 /**
  * Post type handling.
@@ -30,19 +29,16 @@ class PostType
      *
      * @param string     $type    The type
      * @param int|string $post_id The post identifier
-     * @param bool       $escaped Escape the URL
      *
      * @return string The post admin url
      */
-    public function getPostAdminURL(string $type, string|int $post_id, bool $escaped = true): string
+    public function getPostAdminURL(string $type, string|int $post_id): string
     {
         if (!isset($this->post_types[$type])) {
             $type = 'post';
         }
 
-        $url = sprintf($this->post_types[$type]['admin_url'], $post_id);
-
-        return $escaped ? Html::escapeURL($url) : $url;
+        return sprintf($this->post_types[$type]['admin_url'], $post_id);
     }
 
     /**
@@ -50,19 +46,16 @@ class PostType
      *
      * @param string $type     The type
      * @param string $post_url The post url
-     * @param bool   $escaped  Escape the URL
      *
      * @return string The post public url
      */
-    public function getPostPublicURL(string $type, string $post_url, bool $escaped = true): string
+    public function getPostPublicURL(string $type, string $post_url): string
     {
         if (!isset($this->post_types[$type])) {
             $type = 'post';
         }
 
-        $url = sprintf($this->post_types[$type]['public_url'], $post_url);
-
-        return $escaped ? Html::escapeURL($url) : $url;
+        return sprintf($this->post_types[$type]['public_url'], $post_url);
     }
 
     /**

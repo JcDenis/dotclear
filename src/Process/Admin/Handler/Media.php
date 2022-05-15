@@ -433,7 +433,9 @@ class Media extends AbstractPage
             if ($this->filter->get('post_id')) {
                 echo '<div class="form-note info"><p>' . sprintf(
                     __('Choose a file to attach to entry %s by clicking on %s'),
-                    '<a href="' . App::core()->posttype()->getPostAdminURL($this->filter->getPostType(), $this->filter->get('post_id')) . '">' . Html::escapeHTML($this->filter->getPostTitle()) . '</a>',
+                    '<a href="' .
+                    Html::escapeHTML(App::core()->posttype()->getPostAdminURL($this->filter->getPostType(), $this->filter->get('post_id'))) . '">' .
+                    Html::escapeHTML($this->filter->getPostTitle()) . '</a>',
                     '<img src="?df=images/plus.png" alt="' . __('Attach this file to entry') . '" />'
                 );
                 if ($this->mediaWritable()) {

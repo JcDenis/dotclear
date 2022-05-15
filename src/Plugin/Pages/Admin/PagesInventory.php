@@ -162,7 +162,7 @@ class PagesInventory extends Inventory
                 ]
             ) . '</td>',
             'title' => '<td class="maximal" scope="row"><a href="' .
-            App::core()->posttype()->getPostAdminURL($this->rs->f('post_type'), $this->rs->f('post_id')) . '">' .
+            Html::escapeHTML(App::core()->posttype()->getPostAdminURL($this->rs->f('post_type'), $this->rs->f('post_id'))) . '">' .
             Html::escapeHTML($this->rs->f('post_title')) . '</a></td>',
             'date'       => '<td class="nowrap">' . Clock::str(format: __('%Y-%m-%d %H:%M'), date: $this->rs->f('post_dt'), to: App::core()->timezone()) . '</td>',
             'author'     => '<td class="nowrap">' . $this->rs->f('user_id') . '</td>',

@@ -315,7 +315,6 @@ class MediaItem extends AbstractPage
             App::core()->notice()->success(__('Default media insertion settings have been successfully updated.'));
         }
         if (!$this->item_file) {
-
             return;
         }
 
@@ -722,8 +721,9 @@ class MediaItem extends AbstractPage
                         -2      => sprintf($img, __('pending'), 'check-wrn.png'),
                         default => '',
                     };
-                    echo '<li>' . $img_status . ' ' . '<a href="' . App::core()->posttype()->getPostAdminURL($rs->f('post_type'), $rs->f('post_id')) . '">' .
-                    $rs->f('post_title') . '</a>' .
+                    echo '<li>' . $img_status . ' ' . '<a href="' .
+                    Html::escapeHTML(App::core()->posttype()->getPostAdminURL($rs->f('post_type'), $rs->f('post_id'))) . '">' .
+                    Html::escapeHTML($rs->f('post_title')) . '</a>' .
                     ('post' != $rs->f('post_type') ? ' (' . Html::escapeHTML($rs->f('post_type')) . ')' : '') .
                     ' - ' . Clock::str(format: __('%Y-%m-%d %H:%M'), date: $rs->f('post_dt'), to: App::core()->timezone()) . '</li>';
                 }

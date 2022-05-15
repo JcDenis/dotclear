@@ -214,7 +214,7 @@ class CommentInventory extends Inventory
             App::core()->adminurl()->get('admin.comments', ['ip' => $this->rs->f('comment_ip')]) . '">' .
             $this->rs->f('comment_ip') . '</a></td>';
         }
-        $cols['entry'] = '<td class="nowrap discrete"><a href="' . $post_url . '">' . $post_title . '</a>' .
+        $cols['entry'] = '<td class="nowrap discrete"><a href="' . Html::escapeHTML($post_url) . '">' . $post_title . '</a>' .
             ('post' != $this->rs->f('post_type') ? ' (' . Html::escapeHTML($this->rs->f('post_type')) . ')' : '') . '</td>';
 
         $cols = new ArrayObject($cols);
