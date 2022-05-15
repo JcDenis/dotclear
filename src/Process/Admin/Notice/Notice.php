@@ -29,24 +29,6 @@ use Exception;
 class Notice
 {
     /**
-     * @var string $prefix
-     *             notices table prefix
-     */
-    protected $prefix;
-
-    /**
-     * @var string $table_name
-     *             notices table
-     */
-    protected $table_name = 'notice';
-
-    /**
-     * @var string $table
-     *             notices table prefixed
-     */
-    protected $table;
-
-    /**
      * @var array<string,string> $N_TYPES
      *                           notices types
      */
@@ -63,24 +45,6 @@ class Notice
      *           is displayed error
      */
     private $error_displayed = false;
-
-    /**
-     * Class constructor.
-     */
-    public function __construct()
-    {
-        $this->table = App::core()->prefix() . $this->table_name;
-    }
-
-    /**
-     * Get notice table name.
-     *
-     * @return string The table name
-     */
-    public function table(): string
-    {
-        return $this->table;
-    }
 
     /**
      * Get notices.
@@ -102,7 +66,7 @@ class Notice
     {
         $sql = new SelectStatement(__METHOD__);
         $sql
-            ->from($this->table)
+            ->from(App::core()->prefix() . 'notice')
         ;
 
         // Return a recordset of notices
@@ -170,14 +134,14 @@ class Notice
      */
     public function add(Cursor $cur): int
     {
-        App::core()->con()->writeLock($this->table);
+        App::core()->con()->writeLock(App::core()->prefix() . 'notice');
 
         try {
             // Get ID
             $sql = new SelectStatement(__METHOD__);
             $rs  = $sql
                 ->column($sql->max('notice_id'))
-                ->from($this->table)
+                ->from(App::core()->prefix() . 'notice')
                 ->select()
             ;
 
@@ -213,7 +177,7 @@ class Notice
     {
         $sql = new DeleteStatement(__METHOD__);
         $sql
-            ->from($this->table)
+            ->from(App::core()->prefix() . 'notice')
             ->where(
                 $delete_all ?
                 'ses_id = ' . $sql->quote((string) session_id()) :
@@ -331,7 +295,7 @@ class Notice
      */
     public function addNotice(string $type, string $message, array $options = []): void
     {
-        $cur = App::core()->con()->openCursor($this->table());
+        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'notice');
 
         $cur->setField('notice_type', $type);
         $cur->setField('notice_ts', isset($options['ts']) && $options['ts'] ? $options['ts'] : Clock::database());

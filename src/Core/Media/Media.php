@@ -46,12 +46,6 @@ class Media extends Manager
     private $thumbsize;
 
     /**
-     * @var string $table
-     *             Media table name
-     */
-    protected $table = 'media';
-
-    /**
      * @var string $file_sort
      *             Sort field
      */
@@ -112,7 +106,6 @@ class Media extends Manager
             throw new CoreException(__('No blog defined.'));
         }
 
-        $this->table = App::core()->prefix() . 'media';
         $root        = App::core()->blog()->public_path;
 
         if (!$root || !is_dir($root)) {
@@ -474,7 +467,7 @@ class Media extends Manager
                 'media_private',
                 'user_id',
             ])
-            ->from($this->table)
+            ->from(App::core()->prefix() . 'media')
             ->where('media_path = ' . $sql->quote($this->path))
             ->and('media_dir = ' . $sql->quote($media_dir, true))
         ;
@@ -504,7 +497,7 @@ class Media extends Manager
                 'media_private',
                 'user_id',
             ])
-            ->from($this->table)
+            ->from(App::core()->prefix() . 'media')
             ->where('media_path = ' . $sql->quote($this->path))
             ->and('media_dir = ' . $sql->quote($media_dir, true))
             ->and('media_private = 1')
@@ -552,7 +545,7 @@ class Media extends Manager
                         // time to do a bit of house cleaning.
                         $sql = new DeleteStatement(__METHOD__);
                         $sql
-                            ->from($this->table)
+                            ->from(App::core()->prefix() . 'media')
                             ->where('media_id = ' . $this->fileRecord($rs)->media_id)
                         ;
 
@@ -569,7 +562,7 @@ class Media extends Manager
                 // in directory and directory is root
                 $sql = new DeleteStatement(__METHOD__);
                 $sql
-                    ->from($this->table)
+                    ->from(App::core()->prefix() . 'media')
                     ->where('media_path = ' . $sql->quote($this->path, true))
                     ->and('media_file = ' . $sql->quote($rs->f('media_file'), true))
                 ;
@@ -613,7 +606,7 @@ class Media extends Manager
     {
         $sql = new SelectStatement(__METHOD__);
         $sql
-            ->from($this->table)
+            ->from(App::core()->prefix() . 'media')
             ->columns([
                 'media_id',
                 'media_path',
@@ -658,7 +651,7 @@ class Media extends Manager
 
         $sql = new SelectStatement(__METHOD__);
         $sql
-            ->from($this->table)
+            ->from(App::core()->prefix() . 'media')
             ->columns([
                 'media_file',
                 'media_id',
@@ -791,7 +784,7 @@ class Media extends Manager
 
         $sql = new SelectStatement(__METHOD__);
         $sql
-            ->from($this->table)
+            ->from(App::core()->prefix() . 'media')
             ->columns([
                 'media_file',
                 'media_id',
@@ -859,11 +852,11 @@ class Media extends Manager
         $media_file = $this->relpwd ? Path::clean($this->relpwd . '/' . $name) : Path::clean($name);
         $media_type = Files::getMimeType($name);
 
-        $cur = App::core()->con()->openCursor($this->table);
+        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'media');
 
         $sql = new SelectStatement(__METHOD__);
         $sql
-            ->from($this->table)
+            ->from(App::core()->prefix() . 'media')
             ->column('media_id')
             ->where('media_path = ' . $sql->quote($this->path, true))
             ->and('media_file = ' . $sql->quote($media_file, true))
@@ -872,12 +865,12 @@ class Media extends Manager
         $rs = $sql->select();
 
         if ($rs->isEmpty()) {
-            App::core()->con()->writeLock($this->table);
+            App::core()->con()->writeLock(App::core()->prefix() . 'media');
 
             try {
                 $sql = new SelectStatement(__METHOD__);
                 $sql
-                    ->from($this->table)
+                    ->from(App::core()->prefix() . 'media')
                     ->column($sql->max('media_id'))
                 ;
 
@@ -948,7 +941,7 @@ class Media extends Manager
             throw new CoreException(__('You are not the file owner.'));
         }
 
-        $cur = App::core()->con()->openCursor($this->table);
+        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'media');
 
         // We need to tidy newFile basename. If dir isn't empty, concat to basename
         $newFile->relname = Files::tidyFileName($newFile->basename);
@@ -1056,7 +1049,7 @@ class Media extends Manager
 
         $sql = new DeleteStatement(__METHOD__);
         $sql
-            ->from($this->table)
+            ->from(App::core()->prefix() . 'media')
             ->where('media_path = ' . $sql->quote($this->path, true))
             ->and('media_file = ' . $sql->quote($media_file))
         ;
@@ -1090,7 +1083,7 @@ class Media extends Manager
 
         $sql = new SelectStatement(__METHOD__);
         $sql
-            ->from($this->table)
+            ->from(App::core()->prefix() . 'media')
             ->column('distinct media_dir')
             ->where('media_path = ' . $sql->quote($this->path))
         ;
@@ -1338,7 +1331,7 @@ class Media extends Manager
         $meta = ImageMeta::readMeta($file);
         $xml->insertNode($meta);
 
-        $c = App::core()->con()->openCursor($this->table);
+        $c = App::core()->con()->openCursor(App::core()->prefix() . 'media');
         $c->setField('media_meta', $xml->toXML());
 
         if (null !== $cur->getField('media_title') && basename($cur->getField('media_file')) == $cur->getField('media_title')) {

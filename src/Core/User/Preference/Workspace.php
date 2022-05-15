@@ -27,12 +27,6 @@ use Exception;
 class Workspace
 {
     /**
-     * @var string $table
-     *             Preferences table name
-     * */
-    protected $table;
-
-    /**
      * @var array<string,array> $global_prefs
      *                          Global prefs array
      */
@@ -79,8 +73,6 @@ class Workspace
             throw new CoreException(sprintf(__('Invalid dcWorkspace: %s'), $name));
         }
 
-        $this->table = App::core()->prefix() . 'pref';
-
         try {
             $this->getPrefs($rs);
         } catch (\Exception) {
@@ -107,7 +99,7 @@ class Workspace
                         'pref_label',
                         'pref_ws',
                     ])
-                    ->from($this->table)
+                    ->from(App::core()->prefix() . 'pref')
                     ->where($sql->orGroup([
                         'user_id = ' . $sql->quote($this->user_id),
                         'user_id IS NULL',
@@ -314,7 +306,7 @@ class Workspace
                 )
                 ->and('pref_id = ' . $sql->quote($id))
                 ->and('pref_ws = ' . $sql->quote($this->ws))
-                ->from($this->table)
+                ->from(App::core()->prefix() . 'pref')
                 ->update()
             ;
         // Insert
@@ -337,7 +329,7 @@ class Workspace
                     $global ? 'NULL' : $sql->quote($this->user_id),
                     $sql->quote($this->ws),
                 ]])
-                ->from($this->table)
+                ->from(App::core()->prefix() . 'pref')
                 ->insert()
             ;
         }
@@ -377,7 +369,7 @@ class Workspace
             ->set('pref_id = ' . $sql->quote($newId))
             ->where('pref_ws = ' . $sql->quote($this->ws))
             ->and('pref_id = ' . $sql->quote($oldId))
-            ->from($this->table)
+            ->from(App::core()->prefix() . 'pref')
             ->update()
         ;
 
@@ -409,7 +401,7 @@ class Workspace
             )
             ->and('pref_id = ' . $sql->quote($id))
             ->and('pref_ws = ' . $sql->quote($this->ws))
-            ->from($this->table)
+            ->from(App::core()->prefix() . 'pref')
             ->delete()
         ;
 
@@ -447,7 +439,7 @@ class Workspace
         }
 
         $sql
-            ->from($this->table)
+            ->from($App::core()->prefix() . 'pref')
             ->delete()
         ;
     }
@@ -475,7 +467,7 @@ class Workspace
                 'user_id = ' . $sql->quote($this->user_id)
             )
             ->and('pref_ws = ' . $sql->quote($this->ws))
-            ->from($this->table)
+            ->from(App::core()->prefix() . 'pref')
             ->delete()
         ;
 

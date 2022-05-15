@@ -25,12 +25,6 @@ use Dotclear\Helper\Clock;
 class Session
 {
     /**
-     * @var string $table
-     *             Session table name
-     */
-    private $table;
-
-    /**
      * @var string $cookie_name
      *             Session cookie name
      */
@@ -73,7 +67,6 @@ class Session
      */
     public function __construct()
     {
-        $this->table         = App::core()->prefix() . 'session';
         $this->cookie_name   = App::core()->config()->get('session_name');
         $this->cookie_path   = '/';
         $this->cookie_domain = '';
@@ -211,7 +204,7 @@ class Session
     {
         $rs = SelectStatement::init(__METHOD__)
             ->columns(['ses_value'])
-            ->from($this->table)
+            ->from(App::core()->prefix() . 'session')
             ->where("ses_id = '" . $this->checkID($ses_id) . "'")
             ->select()
         ;
@@ -225,7 +218,7 @@ class Session
 
         $rs = SelectStatement::init(__METHOD__)
             ->columns(['ses_id'])
-            ->from($this->table)
+            ->from(App::core()->prefix() . 'session')
             ->where("ses_id = '" . $ses_id . "'")
             ->select()
         ;
@@ -233,7 +226,7 @@ class Session
         if (!$rs->isEmpty()) {
             $sql = new UpdateStatement(__METHOD__);
             $sql
-                ->from($this->table)
+                ->from(App::core()->prefix() . 'session')
                 ->where('ses_id = ' . $sql->quote($ses_id))
                 ->set('ses_time = ' . Clock::ts())
                 ->set('ses_value = ' . $sql->quote($data))
@@ -242,7 +235,7 @@ class Session
         } else {
             $sql = new InsertStatement(__METHOD__);
             $sql
-                ->from($this->table)
+                ->from(App::core()->prefix() . 'session')
                 ->columns([
                     'ses_id',
                     'ses_start',
@@ -265,7 +258,7 @@ class Session
     public function _destroy(string $ses_id): bool
     {
         DeleteStatement::init(__METHOD__)
-            ->from($this->table)
+            ->from(App::core()->prefix() . 'session')
             ->where("ses_id = '" . $this->checkID($ses_id) . "'")
             ->delete()
         ;
@@ -280,7 +273,7 @@ class Session
     public function _gc(): bool
     {
         DeleteStatement::init(__METHOD__)
-            ->from($this->table)
+            ->from(App::core()->prefix() . 'session')
             ->where('ses_time < ' . Clock::ts($this->ttl))
             ->delete()
         ;
@@ -294,7 +287,7 @@ class Session
 
     private function _optimize(): void
     {
-        App::core()->con()->vacuum($this->table);
+        App::core()->con()->vacuum(App::core()->prefix() . 'session');
     }
 
     private function checkID(string $id): ?string

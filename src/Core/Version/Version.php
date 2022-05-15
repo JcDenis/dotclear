@@ -26,12 +26,6 @@ use Dotclear\Database\Statement\DeleteStatement;
 class Version
 {
     /**
-     * @var string $table
-     *             The version table name
-     */
-    protected $table = 'version';
-
-    /**
      * @var array<string,string> $stack
      *                           The versions stack
      */
@@ -50,7 +44,7 @@ class Version
         if (!is_array($this->stack)) {
             $rs = SelectStatement::init(__METHOD__)
                 ->columns(['module', 'version'])
-                ->from(App::core()->prefix() . $this->table)
+                ->from(App::core()->prefix() . 'version')
                 ->select()
             ;
 
@@ -75,7 +69,7 @@ class Version
         }
 
         $sql = new InsertStatement(__METHOD__);
-        $sql->from(App::core()->prefix() . $this->table)
+        $sql->from(App::core()->prefix() . 'version')
             ->columns([
                 'module',
                 'version',
@@ -98,7 +92,7 @@ class Version
     public function delete(string $module): void
     {
         $sql = new DeleteStatement(__METHOD__);
-        $sql->from(App::core()->prefix() . $this->table)
+        $sql->from(App::core()->prefix() . 'version')
             ->where('module = ' . $sql->quote($module))
             ->delete()
         ;

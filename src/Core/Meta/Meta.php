@@ -31,12 +31,6 @@ use Dotclear\Helper\Text;
 class Meta
 {
     /**
-     * @var string $table
-     *             Meta table name
-     * */
-    private $table = 'meta';
-
-    /**
      * Split meta values.
      *
      * Split up comma-separated values into an array of
@@ -177,7 +171,7 @@ class Meta
     private function updatePostMeta(int $post_id): void
     {
         $rs = SelectStatement::init(__METHOD__)
-            ->from(App::core()->prefix() . $this->table)
+            ->from(App::core()->prefix() . 'meta')
             ->columns([
                 'meta_id',
                 'meta_type',
@@ -225,7 +219,7 @@ class Meta
         }
 
         $sql
-            ->from(App::core()->prefix() . $this->table . ' META')
+            ->from(App::core()->prefix() . 'meta META')
             ->and('META.post_id = P.post_id')
             ->and('META.meta_id = ' . $sql->quote($params['meta_id']))
         ;
@@ -265,7 +259,7 @@ class Meta
         }
 
         $sql
-            ->from(App::core()->prefix() . $this->table . ' META')
+            ->from(App::core()->prefix() . 'meta META')
             ->and('META.post_id = P.post_id')
             ->and('META.meta_id = ' . $sql->quote($params['meta_id']))
         ;
@@ -316,7 +310,7 @@ class Meta
         }
 
         $sql
-            ->from(App::core()->prefix() . $this->table . ' M')
+            ->from(App::core()->prefix() . 'meta M')
             ->join(
                 JoinStatement::init(__METHOD__)
                     ->type('LEFT')
@@ -435,7 +429,7 @@ class Meta
 
         $sql = new InsertStatement(__METHOD__);
         $sql
-            ->from(App::core()->prefix() . $this->table)
+            ->from(App::core()->prefix() . 'meta')
             ->columns([
                 'post_id',
                 'meta_id',
@@ -464,7 +458,7 @@ class Meta
         $this->checkPermissionsOnPost($post_id);
 
         $sql = DeleteStatement::init(__METHOD__)
-            ->from(App::core()->prefix() . $this->table)
+            ->from(App::core()->prefix() . 'meta')
             ->where('post_id = ' . $post_id)
         ;
 
@@ -502,7 +496,7 @@ class Meta
         $sql = new SelectStatement(__METHOD__);
         $sql
             ->from([
-                App::core()->prefix() . $this->table . ' M',
+                App::core()->prefix() . 'meta M',
                 App::core()->prefix() . 'post P',
             ])
             ->column('M.post_id')
@@ -553,7 +547,7 @@ class Meta
         if (!empty($to_remove)) {
             $sqlDel = new DeleteStatement(__METHOD__);
             $sqlDel
-                ->from(App::core()->prefix() . $this->table)
+                ->from(App::core()->prefix() . 'meta')
                 ->where('post_id' . $sqlDel->in($to_remove, 'int'))      // Note: will cast all values to integer
                 ->and('meta_id = ' . $sqlDel->quote($meta_id))
             ;
@@ -573,7 +567,7 @@ class Meta
         if (!empty($to_update)) {
             $sqlUpd = new UpdateStatement(__METHOD__);
             $sqlUpd
-                ->from(App::core()->prefix() . $this->table)
+                ->from(App::core()->prefix() . 'meta')
                 ->set('meta_id = ' . $sqlUpd->quote($new_meta_id))
                 ->where('post_id' . $sqlUpd->in($to_update, 'int'))
                 ->and('meta_id = ' . $sqlUpd->quote($meta_id))
@@ -608,7 +602,7 @@ class Meta
         $sql
             ->column('M.post_id')
             ->from([
-                App::core()->prefix() . $this->table . ' M',
+                App::core()->prefix() . 'meta M',
                 App::core()->prefix() . 'post P',
             ])
             ->where('P.post_id = M.post_id')
@@ -637,7 +631,7 @@ class Meta
 
         $sql = new DeleteStatement(__METHOD__);
         $sql
-            ->from(App::core()->prefix() . $this->table)
+            ->from(App::core()->prefix() . 'meta')
             ->where('post_id' . $sql->in($ids, 'int'))
             ->and('meta_id = ' . $sql->quote($meta_id))
         ;

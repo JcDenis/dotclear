@@ -25,6 +25,7 @@
 - [ ] check and use behavior on (de)activate modules (some modules should erase cache etc...)
 - [ ] rework Exceptions by type of exception, not by class hierarchy
 - [ ] avoid logic switch parameters
+- [ ] merge NestedTree into CategoriesTree
 
 ### Idea
 

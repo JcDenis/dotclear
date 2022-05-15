@@ -22,30 +22,15 @@ use Dotclear\Database\Record;
 class CategoriesTree extends NestedTree
 {
     /**
-     * @var string $f_left
-     *             The left category field name
-     */
-    protected $f_left  = 'cat_lft';
-
-    /**
-     * @var string $f_right
-     *             The right category field name
-     */
-    protected $f_right = 'cat_rgt';
-
-    /**
-     * @var string $f_id
-     *             The category id field name
-     */
-    protected $f_id = 'cat_id';
-
-    /**
      * Constructs a new instance.
      */
     public function __construct()
     {
         parent::__construct(App::core()->con());
 
+        $this->f_left        = 'cat_lft';
+        $this->f_right       = 'cat_rgt';
+        $this->f_id          = 'cat_id';
         $this->table         = App::core()->prefix() . 'category';
         $this->add_condition = ['blog_id' => "'" . App::core()->con()->escape(App::core()->blog()->id) . "'"];
     }

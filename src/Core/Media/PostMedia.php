@@ -27,12 +27,6 @@ use Dotclear\Database\Statement\SelectStatement;
 class PostMedia
 {
     /**
-     * @var string $table
-     *             Post media table name
-     */
-    protected $table = 'post_media';
-
-    /**
      * Get media items attached to a blog post.
      *
      * @param array $params The parameters
@@ -59,7 +53,7 @@ class PostMedia
             ->join(
                 JoinStatement::init(__METHOD__)
                     ->type('INNER')
-                    ->from(App::core()->prefix() . $this->table . ' PM')
+                    ->from(App::core()->prefix() . 'post_media PM')
                     ->on('M.media_id = PM.media_id')
                     ->statement()
             )
@@ -112,7 +106,7 @@ class PostMedia
         }
 
         $sql = new InsertStatement(__METHOD__);
-        $sql->from(App::core()->prefix() . $this->table)
+        $sql->from(App::core()->prefix() . 'post_media')
             ->columns([
                 'post_id',
                 'media_id',
@@ -139,7 +133,7 @@ class PostMedia
     public function removePostMedia(int $post_id, int $media_id, ?string $link_type = null): void
     {
         $sql = DeleteStatement::init(__METHOD__)
-            ->from(App::core()->prefix() . $this->table)
+            ->from(App::core()->prefix() . 'post_media')
             ->where('post_id = ' . $post_id)
             ->and('media_id = ' . $media_id)
         ;

@@ -35,12 +35,6 @@ use Exception;
  */
 class Trackback
 {
-    /**
-     * @var string $table
-     *             Trackback table name
-     */
-    public $table = 'ping';
-
     // / @name Send
     // @{
     /**
@@ -57,7 +51,7 @@ class Trackback
                 'ping_url',
                 'ping_dt',
             ])
-            ->from(App::core()->prefix() . $this->table)
+            ->from(App::core()->prefix() . 'ping')
             ->where('post_id = ' . $post_id)
             ->select()
         ;
@@ -88,7 +82,7 @@ class Trackback
                 'post_id',
                 'ping_url',
             ])
-            ->from(App::core()->prefix() . $this->table)
+            ->from(App::core()->prefix() . 'ping')
             ->where('post_id = ' . $post_id)
             ->and('ping_url = ' . $sql->quote($url))
             ->select()
@@ -523,7 +517,7 @@ class Trackback
     private function delBacklink(int $post_id, string $url): void
     {
         $sql = new DeleteStatement(__METHOD__);
-        $sql->from(App::core()->prefix() . $this->table)
+        $sql->from(App::core()->prefix() . 'ping')
             ->where('post_id = ' . $post_id)
             ->and('comment_site = ' . $sql->quote($url))
             ->and('comment_trackback = 1')

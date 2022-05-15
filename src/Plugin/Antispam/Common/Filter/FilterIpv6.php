@@ -33,14 +33,7 @@ class FilterIpv6 extends Spamfilter
     public $has_gui = true;
     public $help    = 'ip-filter-v6';
 
-    private $table;
     private $tab;
-
-    public function __construct()
-    {
-        parent::__construct();
-        $this->table = App::core()->prefix() . 'spamrule';
-    }
 
     protected function setInfo(): void
     {
@@ -203,7 +196,7 @@ class FilterIpv6 extends Spamfilter
         $pattern = $this->compact($pattern);
 
         $old = $this->getRuleCIDR($type, $global, $pattern);
-        $cur = App::core()->con()->openCursor($this->table);
+        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'spamrule');
 
         if ($old->isEmpty()) {
             $sql = new InsertStatement(__METHOD__);
@@ -217,14 +210,14 @@ class FilterIpv6 extends Spamfilter
                 ->line([[
                     SelectStatement::init(__METHOD__)
                         ->columns($sql->max('rule_id'))
-                        ->from($this->table)
+                        ->from(App::core()->prefix() . 'spamrule')
                         ->select()
                         ->fInt() + 1,
                     $sql->quote($type),
                     $sql->quote($pattern),
                     $global && App::core()->user()->isSuperAdmin() ? 'NULL' : $sql->quote(App::core()->blog()->id),
                 ]])
-                ->from($this->table)
+                ->from(App::core()->prefix() . 'spamrule')
                 ->insert()
             ;
         } else {
@@ -233,7 +226,7 @@ class FilterIpv6 extends Spamfilter
                 ->set('rule_type = ' . $sql->quote($type))
                 ->set('rule_content = ' . $sql->quote($pattern))
                 ->where('rule_id = ' . $old->fInt('rule_id'))
-                ->from($this->table)
+                ->from(App::core()->prefix() . 'spamrule')
                 ->update()
             ;
         }
@@ -259,7 +252,7 @@ class FilterIpv6 extends Spamfilter
                 'blog_id ASC',
                 'rule_content ASC',
             ])
-            ->from($this->table)
+            ->from(App::core()->prefix() . 'spamrule')
             ->select()
         ;
     }
@@ -281,7 +274,7 @@ class FilterIpv6 extends Spamfilter
                 'blog_id IS NULL' :
                 'blog_id = ' . $sql->quote(App::core()->blog()->id)
             )
-            ->from($this->table)
+            ->from(App::core()->prefix() . 'spamrule')
             ->select()
         ;
     }
@@ -298,7 +291,7 @@ class FilterIpv6 extends Spamfilter
                 'blog_id IS NULL',
             ]))
             ->order('rule_content ASC')
-            ->from($this->table)
+            ->from(App::core()->prefix() . 'spamrule')
             ->select()
         ;
 
@@ -330,7 +323,7 @@ class FilterIpv6 extends Spamfilter
         }
 
         $sql
-            ->from($this->table)
+            ->from(App::core()->prefix() . 'spamrule')
             ->delete()
         ;
     }

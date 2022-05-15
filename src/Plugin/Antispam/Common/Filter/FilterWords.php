@@ -33,14 +33,6 @@ class FilterWords extends Spamfilter
     public $name    = 'Bad Words';
     public $help    = 'words-filter';
 
-    private $table;
-
-    public function __construct()
-    {
-        parent::__construct();
-        $this->table = App::core()->prefix() . 'spamrule';
-    }
-
     protected function setInfo(): void
     {
         $this->description = __('Words Blocklist');
@@ -215,7 +207,7 @@ class FilterWords extends Spamfilter
                 'blog_id ASC',
                 'rule_content ASC',
             ])
-            ->from($this->table)
+            ->from(App::core()->prefix() . 'spamrule')
             ->select()
         ;
     }
@@ -224,7 +216,7 @@ class FilterWords extends Spamfilter
     {
         $sql = new SelectStatement(__METHOD__);
         $sql
-            ->from($this->table)
+            ->from(App::core()->prefix() . 'spamrule')
             ->where('rule_type = ' . $sql->quote('word'))
             ->and('rule_content = ' . $sql->quote($content))
         ;
@@ -250,7 +242,7 @@ class FilterWords extends Spamfilter
                     'blog_id = ' . $sql->quote(App::core()->blog()->id)
                 )
                 ->where('rule_id = ' . $rs->fInt('rule_id'))
-                ->from($this->table)
+                ->from(App::core()->prefix() . 'spamrule')
                 ->update()
             ;
         } else {
@@ -268,11 +260,11 @@ class FilterWords extends Spamfilter
                     $general && App::core()->user()->isSuperAdmin() ? 'NULL' : $sql->quote(App::core()->blog()->id),
                     SelectStatement::init(__METHOD__)
                         ->column($sql->max('rule_id'))
-                        ->from($this->table)
+                        ->from(App::core()->prefix() . 'spamrule')
                         ->select()
                         ->fInt() + 1,
                 ]])
-                ->from($this->table)
+                ->from(App::core()->prefix() . 'spamrule')
                 ->insert()
             ;
         }
@@ -296,7 +288,7 @@ class FilterWords extends Spamfilter
         }
 
         $sql
-            ->from($this->table)
+            ->from(App::core()->prefix() . 'spamrule')
             ->delete()
         ;
     }

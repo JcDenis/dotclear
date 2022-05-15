@@ -24,12 +24,6 @@ use Dotclear\Exception\CoreException;
  */
 class Settings
 {
-    /**
-     * @var string $table
-     *             Setting table name
-     */
-    protected $table;
-
     /** @var array<string,Settingspace> $namespaces
      *             Associative namespaces array
      */
@@ -52,7 +46,6 @@ class Settings
      */
     public function __construct(protected string|null $blog_id)
     {
-        $this->table = App::core()->prefix() . 'setting';
         $this->loadSettings();
     }
 
@@ -74,7 +67,7 @@ class Settings
                     'setting_label',
                     'setting_ns',
                 ])
-                ->from($this->table)
+                ->from(App::core()->prefix() . 'setting')
                 ->where('blog_id = ' . $sql->quote($this->blog_id))
                 ->or('blog_id IS NULL')
                 ->order(['setting_ns ASC', 'setting_id DESC'])
@@ -142,7 +135,7 @@ class Settings
 
         // Rename the namespace in the database
         $sql = new UpdateStatement(__METHOD__);
-        $sql->from($this->table)
+        $sql->from(App::core()->prefix() . 'setting')
             ->set('setting_ns = ' . $sql->quote($newNs))
             ->where('setting_ns = ' . $sql->quote($oldNs))
             ->update()
@@ -167,7 +160,7 @@ class Settings
 
         // Delete all settings from the namespace in the database
         $sql = new DeleteStatement(__METHOD__);
-        $sql->from($this->table)
+        $sql->from(App::core()->prefix() . 'setting')
             ->where('setting_ns = ' . $sql->quote($ns))
             ->delete()
         ;
@@ -218,7 +211,7 @@ class Settings
     public function getGlobalSettings(array $params = []): Record
     {
         $sql = SelectStatement::init(__METHOD__)
-            ->from($this->table)
+            ->from(App::core()->prefix() . 'setting')
             ->column('*')
             ->where('1 = 1')
             ->order('blog_id')
@@ -248,7 +241,7 @@ class Settings
      */
     public function updateSetting(Record $rs): void
     {
-        $cur = App::core()->con()->openCursor($this->table)
+        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'setting')
             ->setField('setting_id', $rs->f('setting_id'))
             ->setField('setting_value', $rs->f('setting_value'))
             ->setField('setting_type', $rs->f('setting_type'))
@@ -279,7 +272,7 @@ class Settings
     public function dropSetting(Record $rs): int
     {
         $sql = new DeleteStatement(__METHOD__);
-        $sql->from($this->table)
+        $sql->from(App::core()->prefix() . 'setting')
             ->where(
                 null == $rs->f('blog_id') ?
                 'blog_id IS NULL' :

@@ -25,12 +25,6 @@ use Exception;
 class Preference
 {
     /**
-     * @var string $table
-     *             Prefs table name
-     */
-    protected $table;
-
-    /**
      * @var array<string,Workspace> $workspaces
      *                              Associative workspaces array
      */
@@ -55,8 +49,6 @@ class Preference
      */
     public function __construct(protected string $user_id, $workspace = null)
     {
-        $this->table = App::core()->prefix() . 'pref';
-
         try {
             $this->loadPrefs($workspace);
         } catch (\Exception) {
@@ -81,7 +73,7 @@ class Preference
                 'pref_label',
                 'pref_ws',
             ])
-            ->from($this->table)
+            ->from(App::core()->prefix() . 'pref')
             ->where($sql->orGroup([
                 'user_id = ' . $sql->quote($this->user_id),
                 'user_id IS NULL',
@@ -158,7 +150,7 @@ class Preference
         $sql = new UpdateStatement(__METHOD__);
         $sql
             ->set('pref_ws = ' . $sql->quote($newWs))
-            ->from($this->table)
+            ->from(App::core()->prefix() . 'pref')
             ->where('pref_ws = ' . $sql->quote($oldWs))
             ->update()
         ;
@@ -183,7 +175,7 @@ class Preference
         // Delete all preferences from the workspace in the database
         $sql = new DeleteStatement(__METHOD__);
         $sql
-            ->from($this->table)
+            ->from(App::core()->prefix() . 'pref')
             ->where('pref_ws = ' . $sql->quote($ws))
             ->delete()
         ;

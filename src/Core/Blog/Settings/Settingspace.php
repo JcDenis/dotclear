@@ -26,12 +26,6 @@ use Dotclear\Exception\CoreException;
 class Settingspace
 {
     /**
-     * @var string $table
-     *             Settings table name
-     */
-    protected $table;
-
-    /**
      * @var array<string,array> $global_settings
      *                          Global settings array
      */
@@ -79,8 +73,6 @@ class Settingspace
             throw new CoreException(sprintf(__('Invalid setting Namespace: %s'), $name));
         }
 
-        $this->table = App::core()->prefix() . 'setting';
-
         $this->getSettings($rs);
     }
 
@@ -103,7 +95,7 @@ class Settingspace
                         'setting_label',
                         'setting_ns',
                     ])
-                    ->from($this->table)
+                    ->from(App::core()->prefix() . 'setting')
                     ->where($sql->orGroup([
                         'blog_id = ' . $sql->quote($this->blog_id),
                         'blog_id IS NULL',
@@ -323,7 +315,7 @@ class Settingspace
                 )
                 ->and('setting_id = ' . $sql->quote($id))
                 ->and('setting_ns = ' . $sql->quote($this->ns))
-                ->from($this->table)
+                ->from(App::core()->prefix() . 'setting')
                 ->update()
             ;
         // Insert
@@ -346,7 +338,7 @@ class Settingspace
                     $global ? 'NULL' : $sql->quote($this->blog_id),
                     $sql->quote($this->ns),
                 ]])
-                ->from($this->table)
+                ->from(App::core()->prefix() . 'setting')
                 ->insert()
             ;
         }
@@ -380,7 +372,7 @@ class Settingspace
 
         // Rename the setting in the database
         $sql = new UpdateStatement(__METHOD__);
-        $sql->from($this->table)
+        $sql->from(App::core()->prefix() . 'setting')
             ->set('setting_id = ' . $sql->quote($newId))
             ->where('setting_ns = ' . $sql->quote($this->ns))
             ->and('setting_id = ' . $sql->quote($oldId))
@@ -404,7 +396,7 @@ class Settingspace
         }
 
         $sql = new DeleteStatement(__METHOD__);
-        $sql->from($this->table)
+        $sql->from(App::core()->prefix() . 'setting')
             ->where(
                 null === $this->blog_id ?
                 'blog_id IS NULL' :
@@ -431,7 +423,7 @@ class Settingspace
         }
 
         $sql = new DeleteStatement(__METHOD__);
-        $sql->from($this->table)
+        $sql->from(App::core()->prefix() . 'setting')
             ->where('setting_id = ' . $sql->quote($id))
             ->and('setting_ns = ' . $sql->quote($this->ns))
         ;
@@ -459,7 +451,7 @@ class Settingspace
         $global = $force_global || null === $this->blog_id;
 
         $sql = new DeleteStatement(__METHOD__);
-        $sql->from($this->table)
+        $sql->from(App::core()->prefix() . 'setting')
             ->where(
                 $global ?
                 'blog_id IS NULL' :
