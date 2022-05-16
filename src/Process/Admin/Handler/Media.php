@@ -130,7 +130,7 @@ class Media extends AbstractPage
             $this->setPageType('popup');
         }
 
-        $this->filter->add('handler', 'admin.media');
+        $this->filter->add(new DefaultFilter('handler', 'admin.media'));
 
         $this->media_uploader = (bool) App::core()->user()->preference()->get('interface')->get('enhanceduploader');
 

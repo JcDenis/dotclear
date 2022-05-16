@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Inventory\Inventory;
 
 // Dotclear\Process\Admin\Inventory\Inventory\MediaInventory
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Core\Media\Media;
 use Dotclear\Core\Media\Manager\Item;
@@ -127,9 +126,9 @@ class MediaInventory extends Inventory
             }
         } else {
             // Item
-            $params = new ArrayObject(array_merge($filters->values(), ['id' => $f->media_id]));
+            $params = array_merge($filters->values(), ['id' => $f->media_id]);
 
-            App::core()->behavior()->call('adminMediaURLParams', $params);
+            // !App::core()->behavior()->call('adminMediaURLParams', $params);
 
             $link = App::core()->adminurl()->get('admin.media.item', (array) $params);
             if ($f->media_priv) {

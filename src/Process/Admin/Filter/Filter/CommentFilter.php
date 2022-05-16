@@ -10,9 +10,9 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Filter\Filter;
 
 // Dotclear\Process\Admin\Filter\Filter\CommentFilter
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Process\Admin\Filter\Filter;
+use Dotclear\Process\Admin\Filter\FiltersStack;
 
 /**
  * Admin comments list filters form.
@@ -25,22 +25,20 @@ class CommentFilter extends Filter
     {
         parent::__construct('comments');
 
-        $filters = new ArrayObject([
+        $fs = new FiltersStack(
             $this->getPageFilter(),
             $this->getCommentAuthorFilter(),
             $this->getCommentTypeFilter(),
             $this->getCommentStatusFilter(),
             $this->getCommentIpFilter(),
             $this->getInputFilter('email', __('Email:'), 'comment_email'),
-            $this->getInputFilter('site', __('Web site:'), 'comment_site'),
-        ]);
+            $this->getInputFilter('site', __('Web site:'), 'comment_site')
+        );
 
-        // --BEHAVIOR-- adminCommentFilter
-        App::core()->behavior()->call('adminCommentFilter', $filters);
+        // --BEHAVIOR-- adminCommentFilter, FiltersStack
+        App::core()->behavior()->call('adminCommentFilter', $fs);
 
-        $filters = $filters->getArrayCopy();
-
-        $this->add($filters);
+        $this->addStack($fs);
     }
 
     /**

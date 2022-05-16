@@ -10,9 +10,9 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Filter\Filter;
 
 // Dotclear\Process\Admin\Filter\Filter\BlogFilter
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Process\Admin\Filter\Filter;
+use Dotclear\Process\Admin\Filter\FiltersStack;
 
 /**
  * Admin blogs list filters form.
@@ -25,18 +25,16 @@ class BlogFilter extends Filter
     {
         parent::__construct('blogs');
 
-        $filters = new ArrayObject([
+        $fs = new FiltersStack(
             $this->getPageFilter(),
             $this->getSearchFilter(),
-            $this->getBlogStatusFilter(),
-        ]);
+            $this->getBlogStatusFilter()
+        );
 
-        // --BEHAVIOR-- adminBlogFilter
-        App::core()->behavior()->call('adminBlogFilter', $filters);
+        // --BEHAVIOR-- adminBlogFilter, FiltersStack
+        App::core()->behavior()->call('adminBlogFilter', $fs);
 
-        $filters = $filters->getArrayCopy();
-
-        $this->add($filters);
+        $this->addStack($fs);
     }
 
     /**

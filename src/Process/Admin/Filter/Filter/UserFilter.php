@@ -10,9 +10,9 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Filter\Filter;
 
 // Dotclear\Process\Admin\Filter\Filter\UserFilter
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Process\Admin\Filter\Filter;
+use Dotclear\Process\Admin\Filter\FiltersStack;
 
 /**
  * Admin users list filters form.
@@ -27,16 +27,14 @@ class UserFilter extends Filter
     {
         parent::__construct('users');
 
-        $filters = new arrayObject([
+        $fs = new FiltersStack(
             $this->getPageFilter(),
-            $this->getSearchFilter(),
-        ]);
+            $this->getSearchFilter()
+        );
 
         // --BEHAVIOR-- adminUserFilter
-        App::core()->behavior()->call('adminUserFilter', $filters);
+        App::core()->behavior()->call('adminUserFilter', $fs);
 
-        $filters = $filters->getArrayCopy();
-
-        $this->add($filters);
+        $this->addStack($fs);
     }
 }

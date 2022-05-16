@@ -13,6 +13,8 @@ namespace Dotclear\Plugin\CKEditor\Admin;
 use ArrayObject;
 use Dotclear\App;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
+use Dotclear\Process\Admin\Filter\FiltersStack;
 
 /**
  * Admin behaviors for plugin CKEditor.
@@ -27,7 +29,7 @@ class CKEditorBehavior
         App::core()->behavior()->add('adminPopupMedia', [$this, 'adminPopupMedia']);
         App::core()->behavior()->add('adminPopupLink', [$this, 'adminPopupLink']);
         App::core()->behavior()->add('adminPopupPosts', [$this, 'adminPopupPosts']);
-        App::core()->behavior()->add('adminMediaURLParams', [$this, 'adminMediaURLParams']);
+        App::core()->behavior()->add('adminMediaFilter', [$this, 'adminMediaFilter']);
         App::core()->behavior()->add('adminPageHTTPHeaderCSP', [$this, 'adminPageHTTPHeaderCSP']);
     }
 
@@ -91,10 +93,10 @@ class CKEditorBehavior
         return 'CKEditor' != $editor ? '' : App::core()->resource()->load('popup_posts.js', 'Plugin', 'CKEditor');
     }
 
-    public function adminMediaURLParams(ArrayObject $p): void
+    public function adminMediaFilter(FiltersStack $fs): void
     {
         if (!empty($_GET['editor'])) {
-            $p['editor'] = Html::sanitizeURL($_GET['editor']);
+            $fs->add(new DefaultFilter('editor', Html::sanitizeURL($_GET['editor'])));
         }
     }
 

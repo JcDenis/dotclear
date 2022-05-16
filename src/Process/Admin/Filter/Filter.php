@@ -155,36 +155,28 @@ class Filter extends Filters
     }
 
     /**
-     * Add filter(s).
+     * Add filters.
      *
-     * @param null|array|DefaultFilter|string $filter The filter(s) array or id or object
-     * @param mixed                           $value  The filter value if $filter is id
+     * @param FiltersStack $filters The stack of filters
+     */
+    public function addStack(FiltersStack $filters): void
+    {
+        foreach ($filters->dump() as $filter) {
+            $this->add($filter);
+        }
+    }
+
+    /**
+     * Add a filter.
+     *
+     * @param null|DefaultFilter $filter The filter
      *
      * @return mixed The filter value
      */
-    public function add(array|string|DefaultFilter|null $filter = null, mixed $value = null): mixed
+    public function add(?DefaultFilter $filter): mixed
     {
         // empty filter (ex: do not show form if there are no categories on a blog)
         if (null === $filter) {
-            return null;
-        }
-
-        // multiple filters
-        if (is_array($filter)) {
-            foreach ($filter as $f) {
-                $this->add($f);
-            }
-
-            return null;
-        }
-
-        // simple filter
-        if (is_string($filter)) {
-            $filter = new DefaultFilter($filter, $value);
-        }
-
-        // not well formed filter or reserved id
-        if (!($filter instanceof DefaultFilter) || '' == $filter->get('id')) {
             return null;
         }
 

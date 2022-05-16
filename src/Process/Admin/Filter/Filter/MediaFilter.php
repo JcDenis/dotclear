@@ -10,9 +10,9 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Filter\Filter;
 
 // Dotclear\Process\Admin\Filter\Filter\MediaFilter
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Process\Admin\Filter\Filter;
+use Dotclear\Process\Admin\Filter\FiltersStack;
 use Dotclear\Helper\Html\Html;
 
 /**
@@ -31,45 +31,22 @@ class MediaFilter extends Filter
     {
         parent::__construct($type);
 
-        $filters = new ArrayObject([
+        $fs = new FiltersStack(
             $this->getPageFilter(),
             $this->getSearchFilter(),
-
             $this->getPostIdFilter(),
             $this->getDirFilter(),
             $this->getFileModeFilter(),
             $this->getPluginIdFilter(),
             $this->getLinkTypeFilter(),
             $this->getPopupFilter(),
-            $this->getMediaSelectFilter(),
-        ]);
+            $this->getMediaSelectFilter()
+        );
 
-        // --BEHAVIOR-- adminBlogFilter
-        App::core()->behavior()->call('adminMediaFilter', $filters);
+        // --BEHAVIOR-- adminMediaFilter, FiltersStack
+        App::core()->behavior()->call('adminMediaFilter', $fs);
 
-        $filters = $filters->getArrayCopy();
-
-        $this->add($filters);
-
-        $this->legacyBehavior();
-    }
-
-    /**
-     * Cope with old behavior.
-     */
-    protected function legacyBehavior(): void
-    {
-        $values = new ArrayObject($this->values());
-
-        App::core()->behavior()->call('adminMediaURLParams', $values);
-
-        foreach ($values->getArrayCopy() as $filter => $new_value) {
-            if (isset($this->filters[$filter])) {
-                $this->filters[$filter]->value($new_value);
-            } else {
-                $this->add($filter, $new_value);
-            }
-        }
+        $this->addStack($fs);
     }
 
     protected function getPostIdFilter(): DefaultFilter

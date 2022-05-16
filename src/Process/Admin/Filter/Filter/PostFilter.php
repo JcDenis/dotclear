@@ -10,9 +10,9 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Filter\Filter;
 
 // Dotclear\Process\Admin\Filter\Filter\PostFilter
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Process\Admin\Filter\Filter;
+use Dotclear\Process\Admin\Filter\FiltersStack;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Lexical;
 use Exception;
@@ -30,34 +30,32 @@ class PostFilter extends Filter
     {
         parent::__construct($type);
 
+        $fs = new FiltersStack();
+
         if (!App::core()->posttype()->exists($this->post_type)) {
             $this->post_type = 'post';
         }
         if ('post' != $this->post_type) {
-            $this->add((new DefaultFilter('post_type', $this->post_type))->param('post_type'));
+            $fs->add((new DefaultFilter('post_type', $this->post_type))->param('post_type'));
         }
 
-        $filters = new ArrayObject([
-            $this->getPageFilter(),
-            $this->getPostUserFilter(),
-            $this->getPostCategoriesFilter(),
-            $this->getPostStatusFilter(),
-            $this->getPostFormatFilter(),
-            $this->getPostPasswordFilter(),
-            $this->getPostSelectedFilter(),
-            $this->getPostAttachmentFilter(),
-            $this->getPostMonthFilter(),
-            $this->getPostLangFilter(),
-            $this->getPostCommentFilter(),
-            $this->getPostTrackbackFilter(),
-        ]);
+        $fs->add($this->getPageFilter());
+        $fs->add($this->getPostUserFilter());
+        $fs->add($this->getPostCategoriesFilter());
+        $fs->add($this->getPostStatusFilter());
+        $fs->add($this->getPostFormatFilter());
+        $fs->add($this->getPostPasswordFilter());
+        $fs->add($this->getPostSelectedFilter());
+        $fs->add($this->getPostAttachmentFilter());
+        $fs->add($this->getPostMonthFilter());
+        $fs->add($this->getPostLangFilter());
+        $fs->add($this->getPostCommentFilter());
+        $fs->add($this->getPostTrackbackFilter());
 
-        // --BEHAVIOR-- adminPostFilter
-        App::core()->behavior()->call('adminPostFilter', $filters);
+        // --BEHAVIOR-- adminPostFilter, FiltersStack
+        App::core()->behavior()->call('adminPostFilter', $fs);
 
-        $filters = $filters->getArrayCopy();
-
-        $this->add($filters);
+        $this->addStack($fs);
     }
 
     /**
