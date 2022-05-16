@@ -81,8 +81,7 @@ class MaintenanceBehavior
         $favs->register('maintenance', [
             'title'        => __('Maintenance'),
             'url'          => App::core()->adminurl()->get('admin.plugin.Maintenance'),
-            'small-icon'   => ['Plugin/Maintenance/icon.svg', 'Plugin/Maintenance/icon-dark.svg'],
-            'large-icon'   => ['Plugin/Maintenance/icon.svg', 'Plugin/Maintenance/icon-dark.svg'],
+            'icons'   => ['Plugin/Maintenance/icon.svg', 'Plugin/Maintenance/icon-dark.svg'],
             'permissions'  => 'admin',
             'active_cb'    => App::core()->adminurl()->is('admin.plugin.Maintenance'),
             'dashboard_cb' => [$this, 'behaviorAdminDashboardFavoritesCallback'],
@@ -118,7 +117,7 @@ class MaintenanceBehavior
         }
 
         $fav['title'] .= '<br />' . sprintf(__('One task to execute', '%s tasks to execute', $count), $count);
-        $fav['large-icon'] = ['Plugin/Maintenance/icon-update.svg', 'Plugin/Maintenance/icon-dark-update.svg'];
+        $fav['icons'] = ['Plugin/Maintenance/icon-update.svg', 'Plugin/Maintenance/icon-dark-update.svg'];
     }
 
     /**

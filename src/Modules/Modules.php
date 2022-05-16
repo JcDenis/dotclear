@@ -173,8 +173,7 @@ class Modules
         App::core()->favorite()->register($this->getType(), [
             'title'      => $this->getName(),
             'url'        => App::core()->adminurl()->get($handler),
-            'small-icon' => $icons,
-            'large-icon' => $icons,
+            'icons' => $icons,
         ]);
 
         new ModulesBehavior($this);

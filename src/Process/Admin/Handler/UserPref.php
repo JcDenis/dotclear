@@ -799,8 +799,8 @@ class UserPref extends AbstractPage
                 }
 
                 ++$count;
-                $icon = App::core()->summary()->getIconTheme($fav['small-icon']);
-                $zoom = App::core()->summary()->getIconTheme($fav['large-icon'], false);
+                $icon = App::core()->summary()->getIconTheme($fav['icons']);
+                $zoom = App::core()->summary()->getIconTheme($fav['icons'], false);
                 if ('' !== $zoom) {
                     $icon .= ' <span class="zoom">' . $zoom . '</span>';
                 }
@@ -874,8 +874,8 @@ class UserPref extends AbstractPage
             }
 
             ++$count;
-            $icon = App::core()->summary()->getIconTheme($fav['small-icon']);
-            $zoom = App::core()->summary()->getIconTheme($fav['large-icon'], false);
+            $icon = App::core()->summary()->getIconTheme($fav['icons']);
+            $zoom = App::core()->summary()->getIconTheme($fav['icons'], false);
             if ('' !== $zoom) {
                 $icon .= ' <span class="zoom">' . $zoom . '</span>';
             }

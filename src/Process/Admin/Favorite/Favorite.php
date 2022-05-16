@@ -64,9 +64,7 @@ class Favorite
         // favorite URL
         'url' => '',
         // favorite small icon (for menu)
-        'small-icon' => 'images/menu/no-icon.svg',
-        // favorite large icon (for dashboard)
-        'large-icon' => 'images/menu/no-icon.svg',
+        'icons' => 'images/menu/no-icon.svg',
         // (optional) comma-separated list of permissions for thie fav, if not set : no restriction
         'permissions' => '',
         // (optional) callback to modify title if dynamic, if not set : title is taken as is
@@ -288,7 +286,7 @@ class Favorite
             $summary->menu('Favorites')->addItem(
                 $v['title'],
                 $v['url'],
-                $v['small-icon'],
+                $v['icons'],
                 $v['active'],
                 true,
                 $v['id'],
@@ -313,7 +311,7 @@ class Favorite
                 $v = new ArrayObject($v);
                 call_user_func($v['dashboard_cb'], $v);
             }
-            $icons[$k] = new ArrayObject([$v['title'], $v['url'], $v['large-icon']]);
+            $icons[$k] = new ArrayObject([$v['title'], $v['url'], $v['icons']]);
             App::core()->behavior()->call('adminDashboardFavsIcon', $k, $icons[$k]);
         }
     }
@@ -378,68 +376,57 @@ class Favorite
             'prefs' => [
                 'title'      => __('My preferences'),
                 'url'        => App::core()->adminurl()->get('admin.user.pref'),
-                'small-icon' => 'images/menu/user-pref.svg',
-                'large-icon' => 'images/menu/user-pref.svg', ],
+                'icons' => 'images/menu/user-pref.svg', ],
             'new_post' => [
                 'title'       => __('New post'),
                 'url'         => App::core()->adminurl()->get('admin.post'),
-                'small-icon'  => ['images/menu/edit.svg', 'images/menu/edit-dark.svg'],
-                'large-icon'  => ['images/menu/edit.svg', 'images/menu/edit-dark.svg'],
+                'icons'  => ['images/menu/edit.svg', 'images/menu/edit-dark.svg'],
                 'permissions' => 'usage,contentadmin',
                 'active_cb'   => [$this, 'cbNewpostActive'], ],
             'posts' => [
                 'title'        => __('Posts'),
                 'url'          => App::core()->adminurl()->get('admin.posts'),
-                'small-icon'   => ['images/menu/entries.svg', 'images/menu/entries-dark.svg'],
-                'large-icon'   => ['images/menu/entries.svg', 'images/menu/entries-dark.svg'],
+                'icons'   => ['images/menu/entries.svg', 'images/menu/entries-dark.svg'],
                 'permissions'  => 'usage,contentadmin',
                 'dashboard_cb' => [$this, 'cbPostsDashboard'], ],
             'comments' => [
                 'title'        => __('Comments'),
                 'url'          => App::core()->adminurl()->get('admin.comments'),
-                'small-icon'   => ['images/menu/comments.svg', 'images/menu/comments-dark.svg'],
-                'large-icon'   => ['images/menu/comments.svg', 'images/menu/comments-dark.svg'],
+                'icons'   => ['images/menu/comments.svg', 'images/menu/comments-dark.svg'],
                 'permissions'  => 'usage,contentadmin',
                 'dashboard_cb' => [$this, 'cbCommentsDashboard'], ],
             'search' => [
                 'title'       => __('Search'),
                 'url'         => App::core()->adminurl()->get('admin.search'),
-                'small-icon'  => ['images/menu/search.svg', 'images/menu/search-dark.svg'],
-                'large-icon'  => ['images/menu/search.svg', 'images/menu/search-dark.svg'],
+                'icons'  => ['images/menu/search.svg', 'images/menu/search-dark.svg'],
                 'permissions' => 'usage,contentadmin', ],
             'categories' => [
                 'title'       => __('Categories'),
                 'url'         => App::core()->adminurl()->get('admin.categories'),
-                'small-icon'  => ['images/menu/categories.svg', 'images/menu/categories-dark.svg'],
-                'large-icon'  => ['images/menu/categories.svg', 'images/menu/categories-dark.svg'],
+                'icons'  => ['images/menu/categories.svg', 'images/menu/categories-dark.svg'],
                 'permissions' => 'categories', ],
             'blog_pref' => [
                 'title'       => __('Blog settings'),
                 'url'         => App::core()->adminurl()->get('admin.blog.pref'),
-                'small-icon'  => ['images/menu/blog-pref.svg', 'images/menu/blog-pref-dark.svg'],
-                'large-icon'  => ['images/menu/blog-pref.svg', 'images/menu/blog-pref-dark.svg'],
+                'icons'  => ['images/menu/blog-pref.svg', 'images/menu/blog-pref-dark.svg'],
                 'permissions' => 'admin', ],
             'blogs' => [
                 'title'       => __('Blogs'),
                 'url'         => App::core()->adminurl()->get('admin.blogs'),
-                'small-icon'  => ['images/menu/blogs.svg', 'images/menu/blogs-dark.svg'],
-                'large-icon'  => ['images/menu/blogs.svg', 'images/menu/blogs-dark.svg'],
+                'icons'  => ['images/menu/blogs.svg', 'images/menu/blogs-dark.svg'],
                 'permissions' => 'usage,contentadmin', ],
             'users' => [
                 'title'      => __('Users'),
                 'url'        => App::core()->adminurl()->get('admin.users'),
-                'small-icon' => 'images/menu/users.svg',
-                'large-icon' => 'images/menu/users.svg', ],
+                'icons' => 'images/menu/users.svg', ],
             'langs' => [
                 'title'      => __('Languages'),
                 'url'        => App::core()->adminurl()->get('admin.langs'),
-                'small-icon' => ['images/menu/langs.svg', 'images/menu/langs-dark.svg'],
-                'large-icon' => ['images/menu/langs.svg', 'images/menu/langs-dark.svg'], ],
+                'icons' => ['images/menu/langs.svg', 'images/menu/langs-dark.svg'], ],
             'help' => [
                 'title'      => __('Global help'),
                 'url'        => App::core()->adminurl()->get('admin.help'),
-                'small-icon' => 'images/menu/help.svg',
-                'large-icon' => 'images/menu/help.svg', ],
+                'icons' => 'images/menu/help.svg', ],
         ]);
 
         if (App::core()->blog()->public_path) {
@@ -448,8 +435,7 @@ class Favorite
                 [
                     'title'       => __('Media manager'),
                     'url'         => App::core()->adminurl()->get('admin.media'),
-                    'small-icon'  => ['images/menu/media.svg', 'images/menu/media-dark.svg'],
-                    'large-icon'  => ['images/menu/media.svg', 'images/menu/media-dark.svg'],
+                    'icons'  => ['images/menu/media.svg', 'images/menu/media-dark.svg'],
                     'permissions' => 'media,media_admin',
                 ]
             );

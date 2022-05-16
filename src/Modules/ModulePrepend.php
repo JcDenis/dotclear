@@ -169,8 +169,7 @@ class ModulePrepend
         $this->favorites = [
             'title'       => $this->define()->name(),
             'url'         => App::core()->adminurl()->get('admin.' . $this->define()->type(true) . '.' . $this->define()->id()),
-            'small-icon'  => [sprintf($url, ''), sprintf($url, '-dark')],
-            'large-icon'  => [sprintf($url, ''), sprintf($url, '-dark')],
+            'icons'  => [sprintf($url, ''), sprintf($url, '-dark')],
             'permissions' => $permissions ?: $this->define()->permissions(),
         ];
     }

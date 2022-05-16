@@ -43,8 +43,7 @@ class Prepend extends ModulePrepend
             $favs->register('pages', [
                 'title'        => __('Pages'),
                 'url'          => App::core()->adminurl()->get('admin.plugin.Pages'),
-                'small-icon'   => ['Plugin/Pages/icon.svg', 'Plugin/Pages/icon-dark.svg'],
-                'large-icon'   => ['Plugin/Pages/icon.svg', 'Plugin/Pages/icon-dark.svg'],
+                'icons'   => ['Plugin/Pages/icon.svg', 'Plugin/Pages/icon-dark.svg'],
                 'permissions'  => 'contentadmin,pages',
                 'dashboard_cb' => function (ArrayObject $v): void {
                     $page_count = App::core()->blog()->posts()->getPosts(['post_type' => 'page'], true)->fInt();
@@ -57,8 +56,7 @@ class Prepend extends ModulePrepend
             $favs->register('newpage', [
                 'title'       => __('New page'),
                 'url'         => App::core()->adminurl()->get('admin.plugin.Page'),
-                'small-icon'  => ['Plugin/Pages/icon-np.svg', 'Plugin/Pages/icon-np-dark.svg'],
-                'large-icon'  => ['Plugin/Pages/icon-np.svg', 'Plugin/Pages/icon-np-dark.svg'],
+                'icons'  => ['Plugin/Pages/icon-np.svg', 'Plugin/Pages/icon-np-dark.svg'],
                 'permissions' => 'contentadmin,pages',
                 'active_cb'   => fn () => App::core()->adminurl()->is('admin.plugin.Page') && empty($_REQUEST['id']),
             ]);
