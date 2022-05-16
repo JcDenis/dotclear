@@ -24,6 +24,8 @@ use Exception;
  */
 class Home extends AbstractPage
 {
+    private $home_dragndrop_msg = [];
+
     protected function getPermissions(): string|bool
     {
         // Set default blog
