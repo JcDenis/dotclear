@@ -29,7 +29,7 @@ class ListOption
      * @var ArrayObject $sorts
      *                  Sorts filters preferences
      */
-    protected $sorts;
+    private $sorts;
 
     /**
      * Get default columns.

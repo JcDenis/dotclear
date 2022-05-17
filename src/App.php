@@ -160,7 +160,7 @@ class App
 <body>
 <div id="content">
 <h1>Dotclear</h1>
-<h2><?php echo $trans ?></h2>
+<h2><?php echo $trans; ?></h2>
 <?php echo $message; ?></div>
 </body>
 </html>

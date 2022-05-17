@@ -81,7 +81,7 @@ class MaintenanceBehavior
         $favs->register('maintenance', [
             'title'        => __('Maintenance'),
             'url'          => App::core()->adminurl()->get('admin.plugin.Maintenance'),
-            'icons'   => ['Plugin/Maintenance/icon.svg', 'Plugin/Maintenance/icon-dark.svg'],
+            'icons'        => ['Plugin/Maintenance/icon.svg', 'Plugin/Maintenance/icon-dark.svg'],
             'permissions'  => 'admin',
             'active_cb'    => App::core()->adminurl()->is('admin.plugin.Maintenance'),
             'dashboard_cb' => [$this, 'behaviorAdminDashboardFavoritesCallback'],

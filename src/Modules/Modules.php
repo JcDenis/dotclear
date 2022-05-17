@@ -173,7 +173,7 @@ class Modules
         App::core()->favorite()->register($this->getType(), [
             'title'      => $this->getName(),
             'url'        => App::core()->adminurl()->get($handler),
-            'icons' => $icons,
+            'icons'      => $icons,
         ]);
 
         new ModulesBehavior($this);
