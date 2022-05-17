@@ -22,8 +22,8 @@ use Dotclear\App;
 class Summary
 {
     /**
-     * @var array<string,Menu> $stack
-     *                         The menu list
+     * @var array<string,MenuGroup> $stack
+     *                              The menu list
      */
     private $stack = [];
 
@@ -107,7 +107,7 @@ class Summary
     /**
      * Get all menu in an array.
      *
-     * @return array<string,Menu> The menu list
+     * @return array<string,MenuGroup> The menu list
      */
     public function dump(): array
     {

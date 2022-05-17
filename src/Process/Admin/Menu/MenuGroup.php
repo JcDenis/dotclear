@@ -64,14 +64,7 @@ class MenuGroup
     /**
      * Prepends an item.
      *
-     * @param string       $title  The title
-     * @param array|string $url    The url
-     * @param array|string $img    The image
-     * @param bool         $active The active flag
-     * @param bool         $show   The show flag
-     * @param null|string  $id     The identifier
-     * @param null|string  $class  The class
-     * @param bool         $pinned The pinned flag
+     * @param MenuItem $item The menu item
      */
     public function prependItem(MenuItem $item): void
     {

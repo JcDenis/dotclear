@@ -45,24 +45,55 @@ class MenuItem
         if (empty($this->title)) {
             throw new AdminException(__('Menu item has no title'));
         }
-
     }
 
+    /**
+     * Get menu item id.
+     *
+     * not really used...
+     *
+     * @return null|string The menu item id
+     */
+    public function id(): ?string
+    {
+        return $this->id;
+    }
+
+    /**
+     * Get menu item title.
+     *
+     * @return string The menu item id
+     */
     public function title(): string
     {
         return $this->title;
     }
 
+    /**
+     * Check if menu item should be displayed.
+     *
+     * @return bool True if the menu item should be displayed
+     */
     public function show(): bool
     {
         return $this->show;
     }
 
+    /**
+     * Check if menu item is pinned.
+     *
+     * @return bool True if the men uitem is pinned
+     */
     public function pinned(): bool
     {
         return $this->pinned;
     }
 
+    /**
+     * Get the HTML repesentation of the menu item.
+     *
+     * @return string The HTML code of the menu item
+     */
     public function html(): string
     {
         if (is_array($this->url)) {
