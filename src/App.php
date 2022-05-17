@@ -58,7 +58,9 @@ class App
             if (false === self::core()?->production()) {
                 self::stop(new Exception($e->getMessage(), $e->getCode(), $e));
             } else {
-                self::stop(new Exception(__('<p>We apologize for this temporary unavailability.<br />Thank you for your understanding.</p>'), 503, $e));
+                $msg = '<p>We apologize for this temporary unavailability.<br />Thank you for your understanding.</p>';
+                // If we crash before L10n loaded, there's a big issue and reason must be displayed.
+                self::stop(new Exception(function_exists('__') ? __($msg) : $msg . "\n" . $e->getMessage(), 503, $e));
             }
         }
     }
@@ -99,6 +101,7 @@ class App
         // Display error through an internal error page
         } else {
             $title   = self::code($e->getCode());
+            $trans   = function_exists('__') ? __($title) : $title;
             $trace   = false === self::core()?->production() ? self::trace($e) : '';
             $message = str_replace("\n", '<br />', $e->getMessage() . $trace);
 
@@ -157,7 +160,7 @@ class App
 <body>
 <div id="content">
 <h1>Dotclear</h1>
-<h2><?php echo __($title); ?></h2>
+<h2><?php echo $trans ?></h2>
 <?php echo $message; ?></div>
 </body>
 </html>
