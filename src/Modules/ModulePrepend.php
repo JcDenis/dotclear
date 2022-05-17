@@ -12,6 +12,7 @@ namespace Dotclear\Modules;
 // Dotclear\Modules\ModulePrepend
 use Dotclear\App;
 use Dotclear\Process\Admin\Favorite\Favorite;
+use Dotclear\Process\Admin\Menu\MenuItem;
 
 /**
  * Module Prepend.
@@ -135,7 +136,7 @@ class ModulePrepend
             $permissions = $this->define()->permissions();
         }
 
-        App::core()->summary()->menu($menu)->addItem(
+        App::core()->summary()->menu($menu)->addItem(new MenuItem(
             $this->define()->name(),
             App::core()->adminurl()->get('admin.' . $this->define()->type(true) . '.' . $this->define()->id()),
             [
@@ -144,7 +145,7 @@ class ModulePrepend
             ],
             App::core()->adminurl()->is('admin.' . $this->define()->type(true) . '.' . $this->define()->id()),
             null === $permissions ? App::core()->user()->isSuperAdmin() : App::core()->user()->check($permissions, App::core()->blog()->id)
-        );
+        ));
     }
 
     /**
@@ -169,7 +170,7 @@ class ModulePrepend
         $this->favorites = [
             'title'       => $this->define()->name(),
             'url'         => App::core()->adminurl()->get('admin.' . $this->define()->type(true) . '.' . $this->define()->id()),
-            'icons'  => [sprintf($url, ''), sprintf($url, '-dark')],
+            'icons'       => [sprintf($url, ''), sprintf($url, '-dark')],
             'permissions' => $permissions ?: $this->define()->permissions(),
         ];
     }

@@ -55,7 +55,7 @@ class Summary
      */
     public function add(string $section, string $id, string $title, string $itemSpace = ''): void
     {
-        $this->stack[$section] = new Menu($id, $title, $itemSpace);
+        $this->stack[$section] = new MenuGroup($id, $title, $itemSpace);
     }
 
     /**
@@ -80,7 +80,7 @@ class Summary
             return;
         }
 
-        $this->stack[$section]->prependItem(
+        $this->stack[$section]->prependItem(new MenuItem(
             $desc,
             App::core()->adminurl()->get($adminurl),
             $icon,
@@ -89,7 +89,7 @@ class Summary
             null,
             null,
             $pinned
-        );
+        ));
     }
 
     /**
@@ -97,9 +97,9 @@ class Summary
      *
      * @param string $section The menu name
      *
-     * @return null|Menu The menu instance or null if not exists
+     * @return null|MenuGroup The menu instance or null if not exists
      */
-    public function menu(string $section): ?Menu
+    public function menu(string $section): ?MenuGroup
     {
         return $this->stack[$section] ?? null;
     }

@@ -9,18 +9,18 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Menu;
 
-// Dotclear\Process\Admin\Menu\Menu
+// Dotclear\Process\Admin\Menu\MenuGroup
 use Dotclear\App;
 use Dotclear\Helper\Lexical;
 
 /**
- * Admin menu item helper.
+ * Admin menu items helper.
  *
  * Accessible from App::core()->summary()->menu('a_menu_id')
  *
  * @ingroup  Admin
  */
-class Menu
+class MenuGroup
 {
     /**
      * @var array<int,string> $pinned
@@ -48,23 +48,15 @@ class Menu
     /**
      * Adds an item.
      *
-     * @param string       $title  The title
-     * @param array|string $url    The url
-     * @param array|string $img    The image
-     * @param bool         $active The active flag
-     * @param bool         $show   The show flag
-     * @param null|string  $id     The identifier
-     * @param null|string  $class  The class
-     * @param bool         $pinned The pinned flag
+     * @param MenuItem $item The menu item
      */
-    public function addItem(string $title, string|array $url, string|array $img, bool $active = false, bool $show = true, ?string $id = null, ?string $class = null, bool $pinned = false): void
+    public function addItem(MenuItem $item): void
     {
-        if ($show) {
-            $item = $this->itemDef($title, $url, $img, $active, $id, $class);
-            if ($pinned) {
-                $this->pinned[] = $item;
+        if ($item->show()) {
+            if ($item->pinned()) {
+                $this->pinned[] = $item->html();
             } else {
-                $this->items[$title] = $item;
+                $this->items[$item->title()] = $item->html();
             }
         }
     }
@@ -81,14 +73,13 @@ class Menu
      * @param null|string  $class  The class
      * @param bool         $pinned The pinned flag
      */
-    public function prependItem(string $title, string|array $url, string|array $img, bool $active = false, bool $show = true, ?string $id = null, ?string $class = null, bool $pinned = false): void
+    public function prependItem(MenuItem $item): void
     {
-        if ($show) {
-            $item = $this->itemDef($title, $url, $img, $active, $id, $class);
-            if ($pinned) {
-                array_unshift($this->pinned, $item);
+        if ($item->show()) {
+            if ($item->pinned()) {
+                array_unshift($this->pinned, $item->title());
             } else {
-                $this->items[$title] = $item;
+                $this->items[$item->title()] = $item->html();
             }
         }
     }
@@ -134,33 +125,5 @@ class Menu
         $res .= '</ul></div>' . "\n";
 
         return $res;
-    }
-
-    /**
-     * Get a menu item HTML code.
-     *
-     * @param string       $title  The title
-     * @param array|string $url    The url
-     * @param array|string $img    The image
-     * @param bool         $active The active flag
-     * @param null|string  $id     The identifier
-     * @param null|string  $class  The class
-     *
-     * @return string The forged menu item
-     */
-    protected function itemDef(string $title, string|array $url, string|array $img, bool $active = false, ?string $id = null, ?string $class = null): string
-    {
-        if (is_array($url)) {
-            $link  = $url[0];
-            $ahtml = (!empty($url[1])) ? ' ' . $url[1] : '';
-        } else {
-            $link  = $url;
-            $ahtml = '';
-        }
-
-        return
-            '<li' . (($active || $class) ? ' class="' . (($active) ? 'active ' : '') . (($class) ? $class : '') . '"' : '') . '>' .
-            '<a href="' . $link . '"' . $ahtml . '>' . App::core()->summary()->getIconTheme($img) . $title . '</a>' .
-            '</li>' . "\n";
     }
 }
