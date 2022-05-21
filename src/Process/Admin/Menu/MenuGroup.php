@@ -70,7 +70,7 @@ class MenuGroup
     {
         if ($item->show()) {
             if ($item->pinned()) {
-                array_unshift($this->pinned, $item->title());
+                array_unshift($this->pinned, $item->html());
             } else {
                 $this->items[$item->title()] = $item->html();
             }

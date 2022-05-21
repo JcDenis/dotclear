@@ -34,7 +34,7 @@ use Exception;
  *
  * @ingroup  Admin
  */
-class Prepend extends Core
+final class Prepend extends Core
 {
     /**
      * @var AdminUrl $adminurl
@@ -401,19 +401,16 @@ class Prepend extends Core
                 $this->plugins();
                 $this->themes();
             } catch (Exception $e) {
-                // App::stop(new Exception(!$this->production() ? __('Unable to load modules.') : $e->getMessage(), 640, $e));
+                // App::stop(new Exception($this->production() ? __('Unable to load modules.') : $e->getMessage(), 640, $e));
             }
 
             // Finalize menu and favorites
             $this->summary()->setup();
             $this->favorite()->setup();
 
-            // Stop if no themes found
+            // Stop if no themes path found
             if (!$this->themes()->getPaths()) {
                 App::stop(new Exception(__('There seems to be no valid Theme directory set in configuration file.'), 611));
-            }
-            if (!$this->themes()->hasModules()) {
-                App::stop(new Exception(__('There seems to be no valid Theme in your themes directories.'), 611));
             }
 
             // Add default top menus
@@ -519,7 +516,7 @@ class Prepend extends Core
                 ob_end_clean();
 
                 App::stop(new Exception(
-                    !$this->production() ? __('Failed to load page') : sprintf(__('Failed to load page for handler %s: '), $e->getMessage()),
+                    $this->production() ? __('Failed to load page') : sprintf(__('Failed to load page: %s '), $e->getMessage()),
                     601,
                     $e
                 ));

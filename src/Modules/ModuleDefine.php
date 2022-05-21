@@ -300,7 +300,7 @@ class ModuleDefine extends Configuration
     {
         // This forced permissions on Theme
         if ('Theme' == $this->get('type')) {
-            return 'Admin';
+            return 'usage,contentadmin';
         }
 
         return $this->nullString('permissions');

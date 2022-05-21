@@ -118,7 +118,7 @@ class Summary
      * Compose HTML icon markup for favorites, menu.
      *
      * Icon changes according to theme light or dark).
-     * Icon must be accessible from Amdin URL handler,
+     * Icon must be accessible from Amdin resources handler,
      * but $img must not contain "?df=".
      *
      * @param mixed  $img      string (default) or array (0 : light, 1 : dark)
