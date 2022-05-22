@@ -251,7 +251,7 @@ final class Meta
      */
     private function queryPostsByMeta(MetaParam $param, SelectStatement $sql): bool
     {
-        if (null != $param->meta_id()) {
+        if (null === $param->meta_id()) {
             return false;
         }
 
