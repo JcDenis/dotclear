@@ -10,9 +10,8 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Pages\Public;
 
 // Dotclear\Plugin\Pages\Public\Prepend
-use ArrayObject;
 use Dotclear\App;
-use Dotclear\database\Param;
+use Dotclear\Database\Param;
 use Dotclear\Modules\ModulePrepend;
 use Dotclear\Plugin\Pages\Common\PagesUrl;
 use Dotclear\Plugin\Pages\Common\PagesWidgets;
@@ -56,6 +55,6 @@ class Prepend extends ModulePrepend
                 // Dont miss default post type (aka post)
                 $param->set('post_type', ['post', 'page']);
             }
-        } 
+        }
     }
 }
