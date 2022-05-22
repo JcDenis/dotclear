@@ -603,12 +603,14 @@ class Url
      */
     public function lang(string $args): void
     {
-        $n      = $this->getPageNumber($args);
-        $params = new ArrayObject(['lang' => $args]);
+        $n     = $this->getPageNumber($args);
+        $param = new Param();
+        $param->set('post_lang', $args);
 
-        App::core()->behavior()->call('publicLangBeforeGetLangs', $params, $args);
+        // --BEHAVIOR-- publicLangBeforeGetLangs, Param, string
+        App::core()->behavior()->call('publicLangBeforeGetLangs', $param, $args);
 
-        App::core()->context()->set('langs', App::core()->blog()->posts()->getLangs($params));
+        App::core()->context()->set('langs', App::core()->blog()->posts()->getLangs(param: $param));
 
         if (App::core()->context()->get('langs')->isEmpty()) {
             // The specified language does not exist.
@@ -667,14 +669,15 @@ class Url
         if ('' == $args) {
             $this->serveDocument('archive.html');
         } elseif (preg_match('|^/([0-9]{4})/([0-9]{2})$|', $args, $m)) {
-            $params = new ArrayObject([
-                'year'  => $m[1],
-                'month' => $m[2],
-                'type'  => 'month', ]);
+            $param = new Param();
+            $param->set('year', $m[1]);
+            $param->set('month', $m[2]);
+            $param->set('type', 'month');
 
-            App::core()->behavior()->call('publicArchiveBeforeGetDates', $params, $args);
+            // --BEHAVIOR-- publicArchiveBeforeGetDates, Param, string
+            App::core()->behavior()->call('publicArchiveBeforeGetDates', $param, $args);
 
-            App::core()->context()->set('archives', App::core()->blog()->posts()->getDates($params->getArrayCopy()));
+            App::core()->context()->set('archives', App::core()->blog()->posts()->getDates(param: $param));
 
             if (App::core()->context()->get('archives')->isEmpty()) {
                 // There is no entries for the specified period.

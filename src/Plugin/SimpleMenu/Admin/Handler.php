@@ -60,12 +60,18 @@ class Handler extends AbstractPage
         }
 
         // Liste des langues utilisées
+        $param = new Param();
+        $param->set('order', 'asc');
+
         $this->sm_langs_combo = App::core()->combo()->getLangscombo(
-            App::core()->blog()->posts()->getLangs(['order' => 'asc'])
+            App::core()->blog()->posts()->getLangs(param: $param)
         );
 
         // Liste des mois d'archive
-        $rs                    = App::core()->blog()->posts()->getDates(['type' => 'month']);
+        $param = new Param();
+        $param->set('type', 'month');
+
+        $rs                    = App::core()->blog()->posts()->getDates(param: $param);
         $this->sm_months_combo = array_merge(
             [__('All months') => '-'],
             App::core()->combo()->getDatesCombo($rs)
@@ -87,6 +93,7 @@ class Handler extends AbstractPage
         try {
             $param = new Param();
             $param->set('post_type', 'page');
+
             $rs = App::core()->blog()->posts()->getPosts(param: $param);
             while ($rs->fetch()) {
                 $this->sm_pages_combo[$rs->f('post_title')] = $rs->getURL();
@@ -99,6 +106,7 @@ class Handler extends AbstractPage
         try {
             $param = new Param();
             $param->set('meta_type', 'tag');
+
             $rs                                  = App::core()->meta()->getMetadata(param: $param);
             $this->sm_tags_combo[__('All tags')] = '-';
             while ($rs->fetch()) {

@@ -497,33 +497,33 @@ class Template extends BaseTemplate
      */
     public function Archives(ArrayObject $attr, string $content): string
     {
-        $p = "if (!isset(\$params)) \$params = [];\n";
-        $p .= "\$params['type'] = 'month';\n";
+        $p = "\$param = new Param();\n";
+        $p .= "\$param->set('type', 'month');\n";
         if (isset($attr['type'])) {
-            $p .= "\$params['type'] = '" . addslashes($attr['type']) . "';\n";
+            $p .= "\$param->set('type', '" . addslashes($attr['type']) . "');\n";
         }
 
         if (isset($attr['category'])) {
-            $p .= "\$params['cat_url'] = '" . addslashes($attr['category']) . "';\n";
+            $p .= "\$param->set('cat_url', '" . addslashes($attr['category']) . "');\n";
         }
 
         if (isset($attr['post_type'])) {
-            $p .= "\$params['post_type'] = '" . addslashes($attr['post_type']) . "';\n";
+            $p .= "\$param->set('post_type', '" . addslashes($attr['post_type']) . "');\n";
         }
 
         if (isset($attr['post_lang'])) {
-            $p .= "\$params['post_lang'] = '" . addslashes($attr['post_lang']) . "';\n";
+            $p .= "\$param->set('post_lang', '" . addslashes($attr['post_lang']) . "');\n";
         }
 
         if (empty($attr['no_context']) && !isset($attr['category'])) {
             $p .= 'if (App::core()->context()->exists("categories")) { ' .
-                "\$params['cat_id'] = App::core()->context()->get('categories')->fInt('cat_id'); " .
+                "\$param->set('cat_id', App::core()->context()->get('categories')->fInt('cat_id')); " .
                 "}\n";
         }
 
         $order = 'desc';
         if (isset($attr['order']) && preg_match('/^(desc|asc)$/i', $attr['order'])) {
-            $p .= "\$params['order'] = '" . $attr['order'] . "';\n ";
+            $p .= "\$param->set('order', '" . $attr['order'] . "');\n ";
         }
 
         $res = self::$ton . "\n";
@@ -534,7 +534,7 @@ class Template extends BaseTemplate
             $attr,
             $content
         );
-        $res .= 'App::core()->context()->set("archives", App::core()->blog()->posts()->getDates($params)); unset($params);' . "\n";
+        $res .= 'App::core()->context()->set("archives", App::core()->blog()->posts()->getDates(param: $param)); unset($param);' . "\n";
         $res .= "?>\n";
 
         $res .= self::$ton . 'while (App::core()->context()->get("archives")->fetch()) :' . self::$toff . $content . self::$ton . 'endwhile; App::core()->context()->set("archives", null);' . self::$toff;
@@ -633,21 +633,21 @@ class Template extends BaseTemplate
      */
     public function ArchiveNext(ArrayObject $attr, string $content): string
     {
-        $p = "if (!isset(\$params)) \$params = [];\n";
-        $p .= "\$params['type'] = 'month';\n";
+        $p = "\$param = new Param();\n";
+        $p .= "\$param->set('type', 'month');\n";
         if (isset($attr['type'])) {
-            $p .= "\$params['type'] = '" . addslashes($attr['type']) . "';\n";
+            $p .= "\$param->set('type', '" . addslashes($attr['type']) . "');\n";
         }
 
         if (isset($attr['post_type'])) {
-            $p .= "\$params['post_type'] = '" . addslashes($attr['post_type']) . "';\n";
+            $p .= "\$param->set('post_type', '" . addslashes($attr['post_type']) . "');\n";
         }
 
         if (isset($attr['post_lang'])) {
-            $p .= "\$params['post_lang'] = '" . addslashes($attr['post_lang']) . "';\n";
+            $p .= "\$param->set('post_lang', '" . addslashes($attr['post_lang']) . "');\n";
         }
 
-        $p .= "\$params['next'] = App::core()->context()->get('archives')->f('dt');";
+        $p .= "\$param->set('next', App::core()->context()->get('archives')->f('dt'));";
 
         $res = self::$ton . "\n";
         $res .= $p;
@@ -657,7 +657,7 @@ class Template extends BaseTemplate
             $attr,
             $content
         );
-        $res .= 'App::core()->context()->set("archives", App::core()->blog()->posts()->getDates($params)); unset($params);' . "\n";
+        $res .= 'App::core()->context()->set("archives", App::core()->blog()->posts()->getDates(param: $param)); unset($param);' . "\n";
         $res .= "?>\n";
 
         $res .= self::$ton . 'while (App::core()->context()->get("archives")->fetch()) :' . self::$toff . $content . self::$ton . 'endwhile; App::core()->context()->set("archives", null);' . self::$toff;
@@ -675,21 +675,21 @@ class Template extends BaseTemplate
      */
     public function ArchivePrevious(ArrayObject $attr, string $content): string
     {
-        $p = 'if (!isset($params)) $params = [];';
-        $p .= "\$params['type'] = 'month';\n";
+        $p = '$param = new Param();';
+        $p .= "\$param->set('type', 'month');\n";
         if (isset($attr['type'])) {
-            $p .= "\$params['type'] = '" . addslashes($attr['type']) . "';\n";
+            $p .= "\$param->set('type', '" . addslashes($attr['type']) . "');\n";
         }
 
         if (isset($attr['post_type'])) {
-            $p .= "\$params['post_type'] = '" . addslashes($attr['post_type']) . "';\n";
+            $p .= "\$param->set('post_type', '" . addslashes($attr['post_type']) . "');\n";
         }
 
         if (isset($attr['post_lang'])) {
-            $p .= "\$params['post_lang'] = '" . addslashes($attr['post_lang']) . "';\n";
+            $p .= "\$param->set('post_lang', '" . addslashes($attr['post_lang']) . "');\n";
         }
 
-        $p .= "\$params['previous'] = App::core()->context()->get('archives')->f('dt');";
+        $p .= "\$param->set('previous', App::core()->context()->get('archives')->f('dt'));";
 
         $res = self::$ton . "\n";
         $res .= App::core()->behavior()->call(
@@ -699,7 +699,7 @@ class Template extends BaseTemplate
             $content
         );
         $res .= $p;
-        $res .= 'App::core()->context()->set("archives", App::core()->blog()->posts()->getDates($params)); unset($params);' . "\n";
+        $res .= 'App::core()->context()->set("archives", App::core()->blog()->posts()->getDates(param: $param)); unset($param);' . "\n";
         $res .= "?>\n";
 
         $res .= self::$ton . 'while (App::core()->context()->get("archives")->fetch()) :' . self::$toff . $content . self::$ton . 'endwhile; App::core()->context()->set("archives", null);' . self::$toff;
@@ -2103,15 +2103,15 @@ class Template extends BaseTemplate
      */
     public function Languages(ArrayObject $attr, string $content): string
     {
-        $p = "if (!isset(\$params)) \$params = [];\n";
+        $p = "\$param = new Param();\n";
 
         if (isset($attr['lang'])) {
-            $p = "\$params['lang'] = '" . addslashes($attr['lang']) . "';\n";
+            $p = "\$param->set('post_lang', '" . addslashes($attr['lang']) . "');\n";
         }
 
         $order = 'desc';
         if (isset($attr['order']) && preg_match('/^(desc|asc)$/i', $attr['order'])) {
-            $p .= "\$params['order'] = '" . $attr['order'] . "';\n ";
+            $p .= "\$param->set('order', '" . $attr['order'] . "');\n ";
         }
 
         $res = self::$ton . "\n";
@@ -2122,7 +2122,7 @@ class Template extends BaseTemplate
             $attr,
             $content
         );
-        $res .= 'App::core()->context()->set("langs", App::core()->blog()->posts()->getLangs($params)); unset($params);' . "\n";
+        $res .= 'App::core()->context()->set("langs", App::core()->blog()->posts()->getLangs(param: $param)); unset($param);' . "\n";
         $res .= "?>\n";
 
         $res .= self::$ton . 'if (App::core()->context()->get("langs")->count() > 1) : ' .
@@ -2179,7 +2179,7 @@ class Template extends BaseTemplate
     public function LanguageURL(ArrayObject $attr): string
     {
         return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->blog()->getURLFor("lang",' .
-            'App::core()->context()->get("angs")->f("post_lang"))') . ';' . self::$toff;
+            'App::core()->context()->get("langs")->f("post_lang"))') . ';' . self::$toff;
     }
 
     /*dtd
@@ -2337,7 +2337,7 @@ class Template extends BaseTemplate
                 "}\n";
 
             $p .= 'if (App::core()->context()->exists("langs")) { ' .
-                "\$param->push('sql', \"AND P.post_lang = '\".App::core()->con()->escape(App::core()->context()->get('langs')->f('post_lang')).\"' \"); " .
+                "\$param->push('sql', \"AND post_lang = '\".App::core()->con()->escape(App::core()->context()->get('langs')->f('post_lang')).\"' \"); " .
                 "}\n";
         }
 
@@ -2942,7 +2942,7 @@ class Template extends BaseTemplate
                 "}\n";
 
             $p .= 'if (App::core()->context()->exists("langs")) { ' .
-                "\$param->push('sql', \"AND P.post_lang = '\".App::core()->con()->escape(App::core()->context()->get('langs')->f('post_lang')).\"' \"); " .
+                "\$param->push('sql', \"AND post_lang = '\".App::core()->con()->escape(App::core()->context()->get('langs')->f('post_lang')).\"' \"); " .
                 "}\n";
         }
 

@@ -368,7 +368,9 @@ abstract class DefaultPostAction extends Action
             );
             $ap->redirect(true);
         } else {
-            $rs         = App::core()->blog()->posts()->getLangs(['order' => 'asc']);
+            $param = new Param();
+            $param->set('order', 'asc');
+            $rs         = App::core()->blog()->posts()->getLangs(param: $param);
             $all_langs  = L10n::getISOcodes(false, true);
             $lang_combo = ['' => '', __('Most used') => [], __('Available') => L10n::getISOcodes(true, true)];
             while ($rs->fetch()) {

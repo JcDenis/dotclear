@@ -460,8 +460,10 @@ class Post extends AbstractPage
 
         $status_combo = App::core()->combo()->getPostStatusesCombo();
 
+        $param = new Param();
+        $param->set('order', 'asc');
         $lang_combo = App::core()->combo()->getLangsCombo(
-            App::core()->blog()->posts()->getLangs(['order' => 'asc']),
+            App::core()->blog()->posts()->getLangs(param: $param),
             true
         );
 

@@ -11,10 +11,11 @@ namespace Dotclear\Process\Admin\Filter\Filter;
 
 // Dotclear\Process\Admin\Filter\Filter\PostFilter
 use Dotclear\App;
-use Dotclear\Process\Admin\Filter\Filter;
-use Dotclear\Process\Admin\Filter\FiltersStack;
+use Dotclear\Database\Param;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Lexical;
+use Dotclear\Process\Admin\Filter\Filter;
+use Dotclear\Process\Admin\Filter\FiltersStack;
 use Exception;
 
 /**
@@ -225,10 +226,11 @@ class PostFilter extends Filter
         $dates = null;
 
         try {
-            $dates = App::core()->blog()->posts()->getDates([
-                'type'      => 'month',
-                'post_type' => $this->post_type,
-            ]);
+            $param = new Param();
+            $param->set('type', 'month');
+            $param->set('post_type', $this->post_type);
+
+            $dates = App::core()->blog()->posts()->getDates(param: $param);
             if ($dates->isEmpty()) {
                 return null;
             }
@@ -257,7 +259,10 @@ class PostFilter extends Filter
         $langs = null;
 
         try {
-            $langs = App::core()->blog()->posts()->getLangs(['post_type' => $this->post_type]);
+            $param = new Param();
+            $param->set('post_type', $this->post_type);
+
+            $langs = App::core()->blog()->posts()->getLangs(param: $param);
             if ($langs->isEmpty()) {
                 return null;
             }

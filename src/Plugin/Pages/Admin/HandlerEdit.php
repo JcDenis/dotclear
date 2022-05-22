@@ -391,7 +391,9 @@ class HandlerEdit extends AbstractPage
     {
         $status_combo = App::core()->combo()->getPostStatusesCombo();
 
-        $rs         = App::core()->blog()->posts()->getLangs(['order' => 'asc']);
+        $param = new Param();
+        $param->set('order', 'asc');
+        $rs         = App::core()->blog()->posts()->getLangs(param: $param);
         $lang_combo = App::core()->combo()->getLangsCombo($rs, true);
 
         $core_formaters    = App::core()->formater()->getFormaters();

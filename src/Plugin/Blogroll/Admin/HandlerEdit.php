@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\Blogroll\Admin;
 
 // Dotclear\Plugin\Blogroll\Admin\HandlerEdit
 use Dotclear\App;
+use Dotclear\Database\Param;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Plugin\Blogroll\Common\Blogroll;
@@ -138,7 +139,9 @@ class HandlerEdit extends AbstractPage
     protected function getPageContent(): void
     {
         // Languages combo
-        $links      = $this->br_blogroll->getLangs(['order' => 'asc']);
+        $param = new Param();
+        $param->set('order', 'asc');
+        $links      = $this->br_blogroll->getLangs(param: $param);
         $lang_combo = App::core()->combo()->getLangsCombo($links, true);
 
         echo '<p><a class="back" href="' . App::core()->adminurl()->get('admin.plugin.Blogroll') . '">' . __('Return to blogroll') . '</a></p>';

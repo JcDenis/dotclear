@@ -17,8 +17,10 @@ use Dotclear\Core\RsExt\RsExtPost;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Param;
 use Dotclear\Database\Record;
+use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\JoinStatement;
 use Dotclear\Database\Statement\SelectStatement;
+use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Exception\CoreException;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Html;
@@ -177,22 +179,10 @@ final class Posts
             // Cope with legacy code
             $sql->where($param->where());
         } else {
-            $sql->where('P.blog_id = ' . $sql->quote(App::core()->blog()->id, true));
+            $sql->where('P.blog_id = ' . $sql->quote(App::core()->blog()->id));
         }
 
-        if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
-            $user_id = App::core()->user()->userID();
-
-            $and = ['post_status = 1'];
-            if (App::core()->blog()->withoutPassword()) {
-                $and[] = 'post_password IS NULL';
-            }
-            $or = [$sql->andGroup($and)];
-            if ($user_id) {
-                $or[] = 'P.user_id = ' . $sql->quote($user_id, true);
-            }
-            $sql->and($sql->orGroup($or));
-        }
+        $this->setUserPermissionStatement($sql);
 
         // Adding parameters
         if (!empty($param->post_type())) {
@@ -208,11 +198,11 @@ final class Posts
         }
 
         if (null !== $param->post_url()) {
-            $sql->and('post_url = ' . $sql->quote($param->post_url(), true));
+            $sql->and('post_url = ' . $sql->quote($param->post_url()));
         }
 
         if (null !== $param->user_id()) {
-            $sql->and('U.user_id = ' . $sql->quote($param->user_id(), true));
+            $sql->and('U.user_id = ' . $sql->quote($param->user_id()));
         }
 
         if (!empty($param->cat_id())) {
@@ -247,7 +237,7 @@ final class Posts
         }
 
         if (null !== $param->post_lang()) {
-            $sql->and('P.post_lang = ' . $sql->quote($param->post_lang(), true));
+            $sql->and('post_lang = ' . $sql->quote($param->post_lang()));
         }
 
         if (null !== $param->search()) {
@@ -255,8 +245,8 @@ final class Posts
 
             if (!empty($words)) {
                 $param->set('words', $words);
-                // --BEHAVIOR corePostSearch, Param, SelectStatement
                 if (App::core()->behavior()->has('corePostSearch')) {
+                    // --BEHAVIOR corePostSearch, Param, SelectStatement
                     App::core()->behavior()->call('corePostSearch', $param, $sql);
                 }
 
@@ -335,7 +325,7 @@ final class Posts
         }
 
         if ($restrict_to_lang) {
-            $param->push('sql', $post->f('post_lang') ? 'AND P.post_lang = \'' . App::core()->con()->escape($post->f('post_lang')) . '\' ' : 'AND P.post_lang IS NULL ');
+            $param->push('sql', $post->f('post_lang') ? 'AND post_lang = \'' . App::core()->con()->escape($post->f('post_lang')) . '\' ' : 'AND post_lang IS NULL ');
         }
 
         $rs = $this->getPosts(param: $param);
@@ -352,178 +342,158 @@ final class Posts
      * - lang: retrieve post count for selected lang
      * - order: order statement (default post_lang DESC)
      *
-     * @param array|ArrayObject $params The parameters
+     * @param Param $param The parameters
      *
      * @return Record The langs
      */
-    public function getLangs(array|ArrayObject $params = []): Record
+    public function getLangs(Param $param = null): Record
     {
-        $strReq = 'SELECT COUNT(post_id) as nb_post, post_lang ' .
-        'FROM ' . App::core()->prefix() . 'post ' .
-        "WHERE blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .
-            "AND post_lang <> '' " .
-            'AND post_lang IS NOT NULL ';
+        $param = new LangsParam($param);
 
-        if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
-            $strReq .= 'AND ((post_status = 1 ';
+        $sql = new SelectStatement(__METHOD__);
+        $sql->columns([
+            $sql->count('post_id', 'nb_post'),
+            'post_lang',
+        ]);
+        $sql->from(App::core()->prefix() . 'post');
+        $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
+        $sql->and("post_lang <> ''");
+        $sql->and('post_lang IS NOT NULL');
+        $sql->group('post_lang');
+        $sql->order('post_lang ' . $param->order('desc'));
 
-            if (App::core()->blog()->withoutPassword()) {
-                $strReq .= 'AND post_password IS NULL ';
-            }
-            $strReq .= ') ';
+        $this->setUserPermissionStatement($sql);
 
-            if (App::core()->user()->userID()) {
-                $strReq .= "OR user_id = '" . App::core()->con()->escape(App::core()->user()->userID()) . "')";
-            } else {
-                $strReq .= ') ';
-            }
+        if (!empty($param->post_type())) {
+            $sql->and('post_type' . $sql->in($param->post_type()));
         }
 
-        if (isset($params['post_type'])) {
-            if ('' != $params['post_type']) {
-                $strReq .= "AND post_type = '" . App::core()->con()->escape($params['post_type']) . "' ";
-            }
-        } else {
-            $strReq .= "AND post_type = 'post' ";
+        if (null !== $param->post_lang()) {
+            $sql->and('post_lang = ' . $sql->quote($param->post_lang()));
         }
 
-        if (isset($params['lang'])) {
-            $strReq .= "AND post_lang = '" . App::core()->con()->escape($params['lang']) . "' ";
-        }
-
-        $strReq .= 'GROUP BY post_lang ';
-
-        $order = 'desc';
-        if (!empty($params['order']) && preg_match('/^(desc|asc)$/i', $params['order'])) {
-            $order = $params['order'];
-        }
-        $strReq .= 'ORDER BY post_lang ' . $order . ' ';
-
-        return App::core()->con()->select($strReq);
+        return $sql->select();
     }
 
     /**
      * Return a record with all distinct blog dates and post count.
      *
-     * <b>$params</b> is an array taking the following optionnal parameters:.
+     * @see DatesParam for optionnal parameters
      *
-     * - type: (day|month|year) Get days, months or years
-     * - year: (int) Get dates for given year
-     * - month: (int) Get dates for given month
-     * - day: (int) Get dates for given day
-     * - cat_id: (int) Category ID filter
-     * - cat_url: Category URL filter
-     * - post_lang: lang of the posts
-     * - next: Get date following match
-     * - previous: Get date before match
-     * - order: Sort by date "ASC" or "DESC"
-     *
-     * @param array $params The parameters
+     * @param Param $param The parameters
      *
      * @return Record The dates
      */
-    public function getDates(array $params = []): Record
+    public function getDates(Param $param = null): Record
     {
+        $param = new DatesParam($param);
+
+        $sql = new SelectStatement(__METHOD__);
+
         $dt_f  = '%Y-%m-%d';
         $dt_fc = '%Y%m%d';
-        if (isset($params['type'])) {
-            if ('year' == $params['type']) {
-                $dt_f  = '%Y-01-01';
-                $dt_fc = '%Y0101';
-            } elseif ('month' == $params['type']) {
-                $dt_f  = '%Y-%m-01';
-                $dt_fc = '%Y%m01';
-            }
+
+        if ('year' == $param->type()) {
+            $dt_f  = '%Y-01-01';
+            $dt_fc = '%Y0101';
+        } elseif ('month' == $param->type()) {
+            $dt_f  = '%Y-%m-01';
+            $dt_fc = '%Y%m01';
         }
+
         $dt_f  .= ' 00:00:00';
         $dt_fc .= '000000';
 
-        $cat_field = $catReq = $limit = '';
+        $join = new JoinStatement(__METHOD__);
+        $join->type('LEFT');
+        $join->from(App::core()->prefix() . 'category C');
+        $join->on('P.cat_id = C.cat_id');
 
-        if (isset($params['cat_id']) && '' !== $params['cat_id']) {
-            $catReq    = 'AND P.cat_id = ' . (int) $params['cat_id'] . ' ';
-            $cat_field = ', C.cat_url ';
-        } elseif (isset($params['cat_url']) && '' !== $params['cat_url']) {
-            $catReq    = "AND C.cat_url = '" . App::core()->con()->escape($params['cat_url']) . "' ";
-            $cat_field = ', C.cat_url ';
-        }
-        if (!empty($params['post_lang'])) {
-            $catReq = 'AND P.post_lang = \'' . $params['post_lang'] . '\' ';
-        }
+        $sql->column('DISTINCT(' . App::core()->con()->dateFormat('post_dt', $dt_f) . ') AS dt');
+        $sql->column($sql->count('P.post_id', 'nb_post'));
+        $sql->from(App::core()->prefix() . 'post P');
+        $sql->join($join->statement());
+        $sql->where('P.blog_id = ' . $sql->quote(App::core()->blog()->id));
 
-        $strReq = 'SELECT DISTINCT(' . App::core()->con()->dateFormat('post_dt', $dt_f) . ') AS dt ' .
-        $cat_field .
-        ',COUNT(P.post_id) AS nb_post ' .
-        'FROM ' . App::core()->prefix() . 'post P LEFT JOIN ' . App::core()->prefix() . 'category C ' .
-        'ON P.cat_id = C.cat_id ' .
-        "WHERE P.blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .
-            $catReq;
-
-        if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
-            $strReq .= 'AND ((post_status = 1 ';
-
-            if (App::core()->blog()->withoutPassword()) {
-                $strReq .= 'AND post_password IS NULL ';
-            }
-            $strReq .= ') ';
-
-            if (App::core()->user()->userID()) {
-                $strReq .= "OR P.user_id = '" . App::core()->con()->escape(App::core()->user()->userID()) . "')";
-            } else {
-                $strReq .= ') ';
-            }
+        if (null !== $param->cat_id()) {
+            $sql->and('P.cat_id = ' . $param->cat_id());
+            $sql->column('C.cat_url');
+            $sql->group('C.cat_url');
+        } elseif (null !== $param->cat_url()) {
+            $sql->and('C.cat_url = ' . $sql->quote($param->cat_url()));
+            $sql->column('C.cat_url');
+            $sql->group('C.cat_url');
         }
 
-        if (!empty($params['post_type'])) {
-            $strReq .= 'AND post_type' . App::core()->con()->in($params['post_type']) . ' ';
-        } else {
-            $strReq .= "AND post_type = 'post' ";
+        $this->setUserPermissionStatement($sql);
+
+        if (!empty($param->post_type())) {
+            $sql->and('post_type' . $sql->in($param->post_type()));
         }
 
-        if (!empty($params['year'])) {
-            $strReq .= 'AND ' . App::core()->con()->dateFormat('post_dt', '%Y') . " = '" . sprintf('%04d', $params['year']) . "' ";
+        if (null !== $param->post_lang()) {
+            $sql->and('post_lang = ' . $sql->quote($param->post_lang()));
         }
 
-        if (!empty($params['month'])) {
-            $strReq .= 'AND ' . App::core()->con()->dateFormat('post_dt', '%m') . " = '" . sprintf('%02d', $params['month']) . "' ";
+        if (null !== $param->year()) {
+            $sql->and(App::core()->con()->dateFormat('post_dt', '%Y') . ' = ' . $sql->quote(sprintf('%04d', $param->year())));
         }
 
-        if (!empty($params['day'])) {
-            $strReq .= 'AND ' . App::core()->con()->dateFormat('post_dt', '%d') . " = '" . sprintf('%02d', $params['day']) . "' ";
+        if (null !== $param->month()) {
+            $sql->and(App::core()->con()->dateFormat('post_dt', '%m') . ' = ' . $sql->quote(sprintf('%02d', $param->month())));
+        }
+
+        if (null !== $param->day()) {
+            $sql->and(App::core()->con()->dateFormat('post_dt', '%d') . ' = ' . $sql->quote(sprintf('%02d', $param->day())));
         }
 
         // Get next or previous date
-        if (!empty($params['next']) || !empty($params['previous'])) {
-            if (!empty($params['next'])) {
-                $pdir            = ' > ';
-                $params['order'] = 'asc';
-                $dt              = $params['next'];
+        if (null !== $param->next() || null !== $param->previous()) {
+            if (null !== $param->next()) {
+                $pdir = ' > ';
+                $dt   = $param->next();
+                $param->set('order', 'asc');
             } else {
-                $pdir            = ' < ';
-                $params['order'] = 'desc';
-                $dt              = $params['previous'];
+                $pdir = ' < ';
+                $dt   = $param->previous();
+                $param->set('order', 'desc');
             }
 
             $dt = Clock::format(format: 'YmdHis', date: $dt);
 
-            $strReq .= 'AND ' . App::core()->con()->dateFormat('post_dt', $dt_fc) . $pdir . "'" . $dt . "' ";
-            $limit = App::core()->con()->limit(1);
+            $sql->and(App::core()->con()->dateFormat('post_dt', $dt_fc) . $pdir . "'" . $dt . "' ");
+            $sql->limit(1);
         }
 
-        $strReq .= 'GROUP BY dt ' . $cat_field;
+        $sql->group('dt');
+        $sql->order('dt ' . $param->order('desc'));
 
-        $order = 'desc';
-        if (!empty($params['order']) && preg_match('/^(desc|asc)$/i', $params['order'])) {
-            $order = $params['order'];
-        }
-
-        $strReq .= 'ORDER BY dt ' . $order . ' ' .
-            $limit;
-
-        $rs = App::core()->con()->select($strReq);
+        $rs = $sql->select();
         $rs->extend(new RsExtDate());
 
         return $rs;
+    }
+
+    /**
+     * Set user permissions SQL statement.
+     *
+     * @param SelectStatement $sql The SQL statement
+     */
+    private function setUserPermissionStatement(SelectStatement $sql): void
+    {
+        if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
+            $user_id = App::core()->user()->userID();
+
+            $and = ['post_status = 1'];
+            if (App::core()->blog()->withoutPassword()) {
+                $and[] = 'post_password IS NULL';
+            }
+            $or = [$sql->andGroup($and)];
+            if ($user_id) {
+                $or[] = 'P.user_id = ' . $sql->quote($user_id);
+            }
+            $sql->and($sql->orGroup($or));
+        }
     }
 
     /**
@@ -545,10 +515,10 @@ final class Posts
 
         try {
             // Get ID
-            $rs = App::core()->con()->select(
-                'SELECT MAX(post_id) ' .
-                'FROM ' . App::core()->prefix() . 'post '
-            );
+            $sql = new SelectStatement(__METHOD__);
+            $sql->column($sql->max('post_id'));
+            $sql->from(App::core()->prefix() . 'post');
+            $rs = $sql->select();
 
             $cur->setField('post_id', $rs->fInt() + 1);
             $cur->setField('blog_id', (string) App::core()->blog()->id);
@@ -565,8 +535,8 @@ final class Posts
                 $cur->setField('post_status', -2);
             }
 
-            // --BEHAVIOR-- coreBeforePostCreate, Dotclear\Core\Blog, Dotclear\Database\Cursor
-            App::core()->behavior()->call('coreBeforePostCreate', $this, $cur);
+            // --BEHAVIOR-- coreBeforePostCreate, Cursor
+            App::core()->behavior()->call('coreBeforePostCreate', $cur);
 
             $cur->insert();
             App::core()->con()->unlock();
@@ -576,12 +546,12 @@ final class Posts
             throw $e;
         }
 
-        // --BEHAVIOR-- coreAfterPostCreate, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        App::core()->behavior()->call('coreAfterPostCreate', $this, $cur);
+        // --BEHAVIOR-- coreAfterPostCreate, Cursor
+        App::core()->behavior()->call('coreAfterPostCreate', $cur);
 
         App::core()->blog()->triggerBlog();
 
-        $this->firstPublicationEntries($cur->getField('post_id'));
+        $this->firstPublicationEntries([$cur->getField('post_id')]);
 
         return $cur->getField('post_id');
     }
@@ -620,29 +590,28 @@ final class Posts
 
         // If user is only "usage", we need to check the post's owner
         if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
-            $strReq = 'SELECT post_id ' .
-            'FROM ' . App::core()->prefix() . 'post ' .
-            'WHERE post_id = ' . $id . ' ' .
-            "AND user_id = '" . App::core()->con()->escape(App::core()->user()->userID()) . "' ";
+            $sql = new SelectStatement(__METHOD__);
+            $sql->from(App::core()->prefix() . 'post');
+            $sql->where('post_id = ' . $id);
+            $sql->and('user_id = ' . $sql->quote(App::core()->user()->userID()));
 
-            $rs = App::core()->con()->select($strReq);
-
+            $rs = $sql->select();
             if ($rs->isEmpty()) {
                 throw new CoreException(__('You are not allowed to edit this entry'));
             }
         }
 
-        // --BEHAVIOR-- coreBeforePostUpdate, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        App::core()->behavior()->call('coreBeforePostUpdate', $this, $cur);
+        // --BEHAVIOR-- coreBeforePostUpdate, Cursor
+        App::core()->behavior()->call('coreBeforePostUpdate', $cur);
 
         $cur->update('WHERE post_id = ' . $id . ' ');
 
-        // --BEHAVIOR-- coreBeforePostUpdate, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        App::core()->behavior()->call('coreBeforePostUpdate', $this, $cur);
+        // --BEHAVIOR-- coreAfterPostUpdate, Cursor
+        App::core()->behavior()->call('coreAfterPostUpdate', $cur);
 
         App::core()->blog()->triggerBlog();
 
-        $this->firstPublicationEntries($id);
+        $this->firstPublicationEntries([$id]);
     }
 
     /**
@@ -840,16 +809,18 @@ final class Posts
             throw new CoreException(__('No such entry ID'));
         }
 
-        $strReq = 'DELETE FROM ' . App::core()->prefix() . 'post ' .
-        "WHERE blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .
-        'AND post_id' . App::core()->con()->in($posts_ids);
+        $sql = new DeleteStatement(__METHOD__);
+        $sql->from(App::core()->prefix() . 'post');
+        $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
+        $sql->and('post_id' . $sql->in($posts_ids));
 
         // If user can only delete, we need to check the post's owner
         if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
-            $strReq .= "AND user_id = '" . App::core()->con()->escape(App::core()->user()->userID()) . "' ";
+            $sql->and('user_id = ' . $sql->quote(App::core()->user()->userID()));
         }
 
-        App::core()->con()->execute($strReq);
+        $sql->delete();
+
         App::core()->blog()->triggerBlog();
     }
 
@@ -858,35 +829,39 @@ final class Posts
      */
     public function publishScheduledEntries(): void
     {
-        $strReq = 'SELECT post_id, post_dt ' .
-        'FROM ' . App::core()->prefix() . 'post ' .
-        'WHERE post_status = -1 ' .
-        "AND blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' ";
+        $sql = new SelectStatement(__METHOD__);
+        $sql->columns(['post_id', 'post_dt']);
+        $sql->from(App::core()->prefix() . 'post');
+        $sql->where('post_status = -1');
+        $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
 
-        $rs = App::core()->con()->select($strReq);
+        $rs = $sql->select();
         if ($rs->isEmpty()) {
             return;
         }
 
-        $to_change = new ArrayObject();
+        /** @var array<int, int> */
+        $to_change = [];
         while ($rs->fetch()) {
             if (Clock::ts() >= Clock::ts(date: $rs->f('post_dt'))) {
                 $to_change[] = $rs->fInt('post_id');
             }
         }
         if (count($to_change)) {
-            // --BEHAVIOR-- coreBeforeScheduledEntriesPublish, Dotclear\Core\Blog, array
-            App::core()->behavior()->call('coreBeforeScheduledEntriesPublish', $this, $to_change);
+            // --BEHAVIOR-- coreBeforeScheduledEntriesPublish, array
+            App::core()->behavior()->call('coreBeforeScheduledEntriesPublish', $to_change);
 
-            $strReq = 'UPDATE ' . App::core()->prefix() . 'post SET ' .
-            'post_status = 1 ' .
-            "WHERE blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .
-            'AND post_id' . App::core()->con()->in((array) $to_change) . ' ';
-            App::core()->con()->execute($strReq);
+            $sql = new UpdateStatement(__METHOD__);
+            $sql->from(App::core()->prefix() . 'post');
+            $sql->set('post_status = 1');
+            $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
+            $sql->and('post_id' . $sql->in($to_change));
+            $sql->update();
+
             App::core()->blog()->triggerBlog();
 
-            // --BEHAVIOR-- coreAfterScheduledEntriesPublish, Dotclear\Core\Blog, array
-            App::core()->behavior()->call('coreAfterScheduledEntriesPublish', $this, $to_change);
+            // --BEHAVIOR-- coreAfterScheduledEntriesPublish, array
+            App::core()->behavior()->call('coreAfterScheduledEntriesPublish', $to_change);
 
             $this->firstPublicationEntries($to_change);
         }
@@ -895,9 +870,9 @@ final class Posts
     /**
      * First publication mecanism (on post create, update, publish, status).
      *
-     * @param array|ArrayObject|int $ids The posts identifiers
+     * @param array<int,int> $ids The posts identifiers
      */
-    public function firstPublicationEntries(int|array|ArrayObject $ids): void
+    public function firstPublicationEntries(array $ids): void
     {
         $param = new Param();
         $param->set('post_id', App::core()->blog()->cleanIds($ids));
@@ -906,21 +881,22 @@ final class Posts
 
         $posts = $this->getPosts(param: $param);
 
-        /** @var ArrayObject<int, int> */
-        $to_change = new ArrayObject();
+        /** @var array<int, int> */
+        $to_change = [];
         while ($posts->fetch()) {
             $to_change[] = $posts->fInt('post_id');
         }
 
         if (count($to_change)) {
-            $strReq = 'UPDATE ' . App::core()->prefix() . 'post ' .
-            'SET post_firstpub = 1 ' .
-            "WHERE blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .
-            'AND post_id' . App::core()->con()->in((array) $to_change) . ' ';
-            App::core()->con()->execute($strReq);
+            $sql = new UpdateStatement(__METHOD__);
+            $sql->from(App::core()->prefix() . 'post');
+            $sql->set('post_firstpub = 1');
+            $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
+            $sql->and('post_id' . $sql->in($to_change));
+            $sql->update();
 
-            // --BEHAVIOR-- coreFirstPublicationEntries, Dotclear\Core\Blog\Posts\Posts, array
-            App::core()->behavior()->call('coreFirstPublicationEntries', $this, $to_change);
+            // --BEHAVIOR-- coreFirstPublicationEntries, array
+            App::core()->behavior()->call('coreFirstPublicationEntries', $to_change);
         }
     }
 
@@ -931,19 +907,33 @@ final class Posts
      */
     public function getPostsUsers(string $post_type = 'post'): Record
     {
-        $strReq = 'SELECT P.user_id, user_name, user_firstname, ' .
-        'user_displayname, user_email ' .
-        'FROM ' . App::core()->prefix() . 'post P, ' . App::core()->prefix() . 'user U ' .
-        'WHERE P.user_id = U.user_id ' .
-        "AND blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' ";
+        $sql = new SelectStatement(__METHOD__);
+        $sql->columns([
+            'P.user_id',
+            'user_name',
+            'user_firstname',
+            'user_displayname',
+            'user_email',
+        ]);
+        $sql->from([
+            App::core()->prefix() . 'post P',
+            App::core()->prefix() . 'user U',
+        ]);
+        $sql->where('P.user_id = U.user_id');
+        $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
+        $sql->group([
+            'P.user_id',
+            'user_name',
+            'user_firstname',
+            'user_displayname',
+            'user_email',
+        ]);
 
         if ($post_type) {
-            $strReq .= "AND post_type = '" . App::core()->con()->escape($post_type) . "' ";
+            $sql->and('post_type = ' . $sql->quote($post_type));
         }
 
-        $strReq .= 'GROUP BY P.user_id, user_name, user_firstname, user_displayname, user_email ';
-
-        return App::core()->con()->select($strReq);
+        return $sql->select();
     }
 
     /**
@@ -983,12 +973,18 @@ final class Posts
         }
 
         if (!empty($sub)) {
-            $rs = App::core()->con()->select(
-                'SELECT cat_id, cat_url, cat_lft, cat_rgt FROM ' . App::core()->prefix() . 'category ' .
-                "WHERE blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .
-                'AND ' . $field . ' ' . App::core()->con()->in(array_keys($sub))
-            );
+            $sql = new SelectStatement(__METHOD__);
+            $sql->columns([
+                'cat_id',
+                'cat_url',
+                'cat_lft',
+                'cat_rgt',
+            ]);
+            $sql->from(App::core()->prefix() . 'category');
+            $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
+            $sql->and($field . $sql->in(array_keys($sub)));
 
+            $rs = $sql->select();
             while ($rs->fetch()) {
                 $queries[$rs->f($field)] = '(C.cat_lft BETWEEN ' . $rs->fInt('cat_lft') . ' AND ' . $rs->fInt('cat_rgt') . ')';
             }
@@ -1191,15 +1187,18 @@ final class Posts
         }
 
         // Let's check if URL is taken...
-        $strReq = 'SELECT post_url FROM ' . App::core()->prefix() . 'post ' .
-        "WHERE post_url = '" . App::core()->con()->escape($url) . "' " .
-        'AND post_id <> ' . (int) $post_id . ' ' .
-        "AND blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .
-            'ORDER BY post_url DESC';
+        $sql = new SelectStatement(__METHOD__);
+        $sql->column('post_url');
+        $sql->from(App::core()->prefix() . 'post');
+        $sql->where('post_url = ' . $sql->quote($url));
+        $sql->and('post_id <> ' . (int) $post_id);
+        $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
+        $sql->order('post_url DESC');
 
-        $rs = App::core()->con()->select($strReq);
-
+        $rs = $sql->select();
         if (!$rs->isEmpty()) {
+            $sql = new SelectStatement(__METHOD__);
+
             if (App::core()->con()->syntax() == 'mysql') {
                 $clause = "REGEXP '^" . App::core()->con()->escape(preg_quote($url)) . "[0-9]+$'";
             } elseif (App::core()->con()->driver() == 'pgsql') {
@@ -1208,13 +1207,15 @@ final class Posts
                 $clause = "LIKE '" .
                 App::core()->con()->escape(preg_replace(['/%/', '/_/', '/!/'], ['!%', '!_', '!!'], $url)) . "%' ESCAPE '!'";
             }
-            $strReq = 'SELECT post_url FROM ' . App::core()->prefix() . 'post ' .
-            'WHERE post_url ' . $clause . ' ' .
-            'AND post_id <> ' . (int) $post_id . ' ' .
-            "AND blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .
-                'ORDER BY post_url DESC ';
 
-            $rs = App::core()->con()->select($strReq);
+            $sql->column('post_url');
+            $sql->from(App::core()->prefix() . 'post');
+            $sql->where('post_url ' . $clause);
+            $sql->and('post_id <> ' . (int) $post_id);
+            $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
+            $sql->order('post_url DESC');
+
+            $rs = $sql->select();
             $a  = [];
             while ($rs->fetch()) {
                 $a[] = $rs->f('post_url');

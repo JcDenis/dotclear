@@ -12,6 +12,8 @@ namespace Dotclear\Plugin\Blogroll\Common;
 // Dotclear\Plugin\Blogroll\Common\Blogroll
 use ArrayObject;
 use Dotclear\App;
+use Dotclear\Core\Blog\Posts\LangsParam;
+use Dotclear\Database\Param;
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\InsertStatement;
@@ -57,9 +59,11 @@ class Blogroll
         return $rs;
     }
 
-    public function getLangs(array|ArrayObject $params = []): Record
+    public function getLangs(Param $param = null): Record
     {
         // Use post_lang as an alias of link_lang to be able to use the dcAdminCombos::getLangsCombo() function
+        $param = new LangsParam($param);
+
         $sql = new SelectStatement(__METHOD__);
         $sql
             ->columns([
@@ -70,11 +74,11 @@ class Blogroll
             ->where('blog_id = ' . $sql->quote(App::core()->blog()->id))
             ->and("link_id <> ''")
             ->and('link_id IS NOT NULL')
-            ->order('link_lang ' . (!empty($params['order']) && preg_match('/^(desc|asc)$/i', $params['order']) ? $params['order'] : 'desc'))
+            ->order('link_lang ' . (!empty($param->order()) && preg_match('/^(desc|asc)$/i', $param->order()) ? $param->order() : 'desc'))
         ;
 
-        if (isset($params['lang'])) {
-            $sql->and('link_lang = ' . $sql->quote($params['lang']));
+        if (null !== $param->post_lang()) {
+            $sql->and('link_lang = ' . $sql->quote($param->post_lang()));
         }
 
         return $sql->select();

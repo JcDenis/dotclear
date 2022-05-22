@@ -11,9 +11,10 @@ namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\LinkPopup
 use Dotclear\App;
-use Dotclear\Process\Admin\Page\AbstractPage;
-use Dotclear\Helper\Html\Html;
+use Dotclear\Database\Param;
 use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Process\Admin\Page\AbstractPage;
 
 /**
  * Admin generic link popup page.
@@ -50,7 +51,9 @@ class LinkPopup extends AbstractPage
         $title    = !empty($_GET['title']) ? $_GET['title'] : '';
 
         // Languages combo
-        $rs         = App::core()->blog()->posts()->getLangs(['order' => 'asc']);
+        $param = new Param();
+        $param->set('order', 'asc');
+        $rs         = App::core()->blog()->posts()->getLangs(param: $param);
         $lang_combo = App::core()->combo()->getLangsCombo($rs, true);
 
         echo '<h2 class="page-title">' . __('Add a link') . '</h2>' .
