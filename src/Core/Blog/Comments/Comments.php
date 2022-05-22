@@ -136,23 +136,19 @@ final class Comments
      */
     public function queryCommentsTable(CommentsParam $param, SelectStatement $sql): Record
     {
-        $sql
-            ->from(App::core()->prefix() . 'comment C')
-            ->join(
-                JoinStatement::init(__METHOD__)
-                    ->type('INNER')
-                    ->from(App::core()->prefix() . 'post P')
-                    ->on('C.post_id = P.post_id')
-                    ->statement()
-            )
-            ->join(
-                JoinStatement::init(__METHOD__)
-                    ->type('INNER')
-                    ->from(App::core()->prefix() . 'user U')
-                    ->on('P.user_id = U.user_id')
-                    ->statement()
-            )
-        ;
+        $post_join = new JoinStatement(__METHOD__);
+        $post_join->type('INNER');
+        $post_join->from(App::core()->prefix() . 'post P');
+        $post_join->on('C.post_id = P.post_id');
+
+        $user_join = new JoinStatement(__METHOD__);
+        $user_join->type('INNER');
+        $user_join->from(App::core()->prefix() . 'user U');
+        $user_join->on('P.user_id = U.user_id');
+
+        $sql->from(App::core()->prefix() . 'comment C');
+        $sql->join($post_join->statement());
+        $sql->join($user_join->statement());
 
         if (!empty($param->from())) {
             $sql->from($param->from());
@@ -237,8 +233,8 @@ final class Comments
 
             if (!empty($words)) {
                 $param->set('words', $words);
-                // --BEHAVIOR coreCommentSearch
                 if (App::core()->behavior()->has('coreCommentSearch')) {
+                    // --BEHAVIOR coreCommentSearch, Param, SelectStatement
                     App::core()->behavior()->call('coreCommentSearch', $param, $sql);
                 }
 
@@ -279,12 +275,9 @@ final class Comments
         try {
             // Get ID
             $sql = new SelectStatement(__METHOD__);
-            $id  = $sql
-                ->column($sql->max('comment_id'))
-                ->from(App::core()->prefix() . 'comment')
-                ->select()
-                ->fInt()
-            ;
+            $sql->column($sql->max('comment_id'));
+            $sql->from(App::core()->prefix() . 'comment');
+            $id = $sql->select()->fInt();
 
             $cur->setField('comment_id', $id + 1);
             $cur->setField('comment_upddt', Clock::database());
@@ -296,7 +289,7 @@ final class Comments
                 $cur->setField('comment_ip', Http::realIP());
             }
 
-            // --BEHAVIOR-- coreBeforeCommentCreate, Dotclear\Core\Blog, Dotclear\Database\Record
+            // --BEHAVIOR-- coreBeforeCommentCreate, Comments, Cursor
             App::core()->behavior()->call('coreBeforeCommentCreate', $this, $cur);
 
             $cur->insert();
@@ -307,7 +300,7 @@ final class Comments
             throw $e;
         }
 
-        // --BEHAVIOR-- coreAfterCommentCreate, Dotclear\Core\Blog, Dotclear\Database\Record
+        // --BEHAVIOR-- coreAfterCommentCreate, Comments, Cursor
         App::core()->behavior()->call('coreAfterCommentCreate', $this, $cur);
 
         App::core()->blog()->triggerComment($cur->getField('comment_id'));
@@ -359,12 +352,12 @@ final class Comments
             $cur->unsetField('comment_status');
         }
 
-        // --BEHAVIOR-- coreBeforeCommentUpdate, Dotclear\Database\Cursor, Dotclear\Database\Record
+        // --BEHAVIOR-- coreBeforeCommentUpdate, Cursor, Record
         App::core()->behavior()->call('coreBeforeCommentUpdate', $cur, $rs);
 
         $cur->update('WHERE comment_id = ' . $id . ' ');
 
-        // --BEHAVIOR-- coreAfterCommentUpdate, Dotclear\Database\Cursor, Dotclear\Database\Record
+        // --BEHAVIOR-- coreAfterCommentUpdate, Cursor, Record
         App::core()->behavior()->call('coreAfterCommentUpdate', $cur, $rs);
 
         App::core()->blog()->triggerComment($id);
@@ -399,13 +392,11 @@ final class Comments
         $co_ids = App::core()->blog()->cleanIds($ids);
 
         $sql = new UpdateStatement(__METHOD__);
-        $sql
-            ->set('comment_status = ' . $status)
-            ->where('comment_id' . $sql->in($co_ids))
-            ->and('post_id IN (' . $this->getPostOwnerStatement() . ')')
-            ->from(App::core()->prefix() . 'comment')
-            ->update()
-        ;
+        $sql->set('comment_status = ' . $status);
+        $sql->where('comment_id' . $sql->in($co_ids));
+        $sql->and('post_id IN (' . $this->getPostOwnerStatement() . ')');
+        $sql->from(App::core()->prefix() . 'comment');
+        $sql->update();
 
         App::core()->blog()->triggerComments($co_ids);
         App::core()->blog()->triggerBlog();
@@ -441,27 +432,23 @@ final class Comments
         }
 
         // Retrieve posts affected by comments edition
-        $affected_posts = [];
-        $sql            = new SelectStatement(__METHOD__);
-        $rs             = $sql
-            ->column('post_id')
-            ->where('comment_id' . $sql->in($co_ids))
-            ->group('post_id')
-            ->from(App::core()->prefix() . 'comment')
-            ->select()
-        ;
+        $sql = new SelectStatement(__METHOD__);
+        $sql->column('post_id');
+        $sql->where('comment_id' . $sql->in($co_ids));
+        $sql->group('post_id');
+        $sql->from(App::core()->prefix() . 'comment');
+        $rs = $sql->select();
 
+        $affected_posts = [];
         while ($rs->fetch()) {
             $affected_posts[] = $rs->fInt('post_id');
         }
 
         $sql = new DeleteStatement(__METHOD__);
-        $sql
-            ->where('comment_id' . $sql->in($co_ids))
-            ->and('post_id ' . $this->getPostOwnerStatement())
-            ->from(App::core()->prefix() . 'comment')
-            ->delete()
-        ;
+        $sql->where('comment_id' . $sql->in($co_ids));
+        $sql->and('post_id ' . $this->getPostOwnerStatement());
+        $sql->from(App::core()->prefix() . 'comment');
+        $sql->delete();
 
         App::core()->blog()->triggerComments($co_ids, true, $affected_posts);
         App::core()->blog()->triggerBlog();
@@ -479,12 +466,10 @@ final class Comments
         }
 
         $sql = new DeleteStatement(__METHOD__);
-        $sql
-            ->where('comment_status = -2')
-            ->and('post_id ' . $this->getPostOwnerStatement())
-            ->from(App::core()->prefix() . 'comment')
-            ->delete()
-        ;
+        $sql->where('comment_status = -2');
+        $sql->and('post_id ' . $this->getPostOwnerStatement());
+        $sql->from(App::core()->prefix() . 'comment');
+        $sql->delete();
 
         App::core()->blog()->triggerBlog();
     }
@@ -497,11 +482,9 @@ final class Comments
     private function getPostOwnerStatement(): string
     {
         $sql = new SelectStatement(__METHOD__);
-        $sql
-            ->column('tp.post_id')
-            ->where('tp.blog_id = ' . $sql->quote(App::core()->blog()->id))
-            ->from(App::core()->prefix() . 'post tp')
-        ;
+        $sql->column('tp.post_id');
+        $sql->where('tp.blog_id = ' . $sql->quote(App::core()->blog()->id));
+        $sql->from(App::core()->prefix() . 'post tp');
 
         // If user can only delete, we need to check the post's owner
         if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
