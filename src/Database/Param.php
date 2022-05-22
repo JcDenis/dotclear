@@ -94,18 +94,18 @@ class Param
 
     /**
      * Push additionnal value to a paramater.
-     * 
+     *
      * If parameter does not exist, it will be created.
      * This works only for parameter that contains
      * string value or array of string values.
-     * 
+     *
      * @param string $key   The parameter key
      * @param string $value The parameter additional value
      */
     public function push(string $key, string $value): void
     {
         if (is_array($this->get($key))) {
-            $values = $this->getCleanedValues($key, 'string');
+            $values   = $this->getCleanedValues($key, 'string');
             $values[] = $value;
         } else {
             $values = $this->getCleanedValue($key, 'string') . $value;

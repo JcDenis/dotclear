@@ -20,7 +20,7 @@ use Exception;
  *
  * @ingroup  Distrib
  */
-class Prepend extends Core
+final class Prepend extends Core
 {
     protected $process = 'Distrib';
 

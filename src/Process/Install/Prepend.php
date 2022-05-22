@@ -21,7 +21,7 @@ use Dotclear\Process\Admin\Favorite\Favorite;
  *
  * @ingroup  Install
  */
-class Prepend extends Core
+final class Prepend extends Core
 {
     /**
      * @var Favorite $favorite

@@ -157,8 +157,7 @@ class Record implements Iterator, Countable
      * Extend record.
      *
      * Extends this instance capabilities by adding all public static methods of
-     * <var>$class</var> to current instance. Class methods should take at least
-     * this record as first parameter.
+     * <var>$class</var> to current instance.
      *
      * @see     self::__call()
      *

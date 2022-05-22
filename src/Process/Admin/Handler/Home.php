@@ -211,7 +211,7 @@ class Home extends AbstractPage
         $err = [];
 
         if (App::core()->user()->isSuperAdmin() && !App::core()->themes()->hasModules()) {
-            $err[] = '<p>' .__('There seems to be no valid Theme in your themes directories.') . '</p>';
+            $err[] = '<p>' . __('There seems to be no valid Theme in your themes directories.') . '</p>';
         }
 
         // Check cache directory

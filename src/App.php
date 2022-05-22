@@ -182,10 +182,10 @@ class App
     private static function trace(Exception|Error $e): string
     {
         $lines = $e->getTrace();
+        array_unshift($lines, ['function' => 'Caught in', 'file' => $e->getFile(), 'line' => $e->getLine()]);
         if (null != ($previous = $e->getPrevious())) {
             array_unshift($lines, ['function' => 'Thrown in', 'file' => $previous->getFile(), 'line' => $previous->getLine()]);
         }
-        array_unshift($lines, ['function' => 'Caught in', 'file' => $e->getFile(), 'line' => $e->getLine()]);
 
         $traces = '';
         $span   = '<span class="%s">%s</span>';

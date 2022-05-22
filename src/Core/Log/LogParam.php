@@ -71,6 +71,6 @@ final class LogParam extends Param
      */
     public function log_msg(): array
     {
-        return $this->getCleanedValue('log_msg', 'string');
+        return $this->getCleanedValues('log_msg', 'string');
     }
 }

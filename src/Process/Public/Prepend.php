@@ -29,7 +29,7 @@ use Exception;
  *
  * @ingroup  Public
  */
-class Prepend extends Core
+final class Prepend extends Core
 {
     /**
      * @var Context $context
