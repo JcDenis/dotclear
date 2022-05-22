@@ -11,10 +11,10 @@ namespace Dotclear\Core\Users;
 
 // Dotclear\Core\Users\Users
 use Dotclear\App;
-use ArrayObject;
 use Dotclear\Core\RsExt\RsExtUser;
 use Dotclear\Core\Blog\Blog;
 use Dotclear\Database\Cursor;
+use Dotclear\Database\Param;
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\InsertStatement;
@@ -29,7 +29,7 @@ use Dotclear\Helper\Clock;
  *
  * @ingroup  Core User
  */
-class Users
+final class Users
 {
     /**
      * Gets the user by its ID.
@@ -40,82 +40,147 @@ class Users
      */
     public function getUser(string $user_id): Record
     {
-        return $this->getUsers(['user_id' => $user_id]);
+        $param = new Param();
+        $param->set('user_id', $user_id);
+
+        return $this->getUsers(param: $param);
     }
 
     /**
-     * Get users.
+     * Retrieve Users count.
      *
-     * Returns a users list. <b>$params</b> is an array with the following
-     * optionnal parameters:
+     * @see UsersParam for optionnal paramaters
      *
-     * - <var>q</var>: search string (on user_id, user_name, user_firstname)
-     * - <var>user_id</var>: user ID
-     * - <var>order</var>: ORDER BY clause (default: user_id ASC)
-     * - <var>limit</var>: LIMIT clause (should be an array ![limit,offset])
+     * @param null|Param           $param The parameters
+     * @param null|SelectStatement $sql   The SQL statement
      *
-     * @param array|ArrayObject $params     The parameters
-     * @param bool              $count_only Count only results
+     * @return int The users count
+     */
+    public function countUsers(?Param $param = null, ?SelectStatement $sql = null): int
+    {
+        $param = new UsersParam($param);
+        $param->unset('order');
+        $param->unset('limit');
+
+        $query = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $query->column($query->count('U.user_id'));
+
+        return $this->queryUsersTable(param: $param, sql: $query)->fInt();
+    }
+
+    /**
+     * Retrieve users.
+     *
+     * @see UsersParam for optionnal paramaters
+     *
+     * @param null|Param           $param The parameters
+     * @param null|SelectStatement $sql   The SQL statement
      *
      * @return Record The users
      */
-    public function getUsers(array|ArrayObject $params = [], bool $count_only = false): Record
+    public function getUsers(?Param $param = null, ?SelectStatement $sql = null): Record
     {
-        $sql = new SelectStatement(__METHOD__);
+        $param = new UsersParam($param);
 
-        if ($count_only) {
-            $sql->column($sql->count('U.user_id'));
-        } else {
-            if (!empty($params['columns']) && is_array($params['columns'])) {
-                $sql->columns($params['columns']);
-            }
-            $sql->columns([
-                'U.user_id',
-                'user_super',
-                'user_status',
-                'user_pwd',
-                'user_change_pwd',
-                'user_name',
-                'user_firstname',
-                'user_displayname',
-                'user_email',
-                'user_url',
-                'user_desc',
-                'user_lang',
-                'user_tz',
-                'user_post_status',
-                'user_options',
-                $sql->count('P.post_id', 'nb_post'),
-            ])
-                ->join(
-                    JoinStatement::init(__METHOD__)
-                        ->type('LEFT')
-                        ->from(App::core()->prefix() . 'post P')
-                        ->on('U.user_id = P.user_id')
-                        ->statement()
-                )
-            ;
+        $query = $sql ? clone $sql : new SelectStatement(__METHOD__);
+
+        if (!empty($param->columns())) {
+            $query->columns($param->columns());
         }
 
+        $join = new JoinStatement(__METHOD__);
+        $join->type('LEFT');
+        $join->from(App::core()->prefix() . 'post P');
+        $join->on('U.user_id = P.user_id');
+        $query->join($join->statement());
+
+        $query->columns([
+            'U.user_id',
+            'user_super',
+            'user_status',
+            'user_pwd',
+            'user_change_pwd',
+            'user_name',
+            'user_firstname',
+            'user_displayname',
+            'user_email',
+            'user_url',
+            'user_desc',
+            'user_lang',
+            'user_tz',
+            'user_post_status',
+            'user_options',
+            $query->count('P.post_id', 'nb_post'),
+        ]);
+        $query->group([
+            'U.user_id',
+            'user_super',
+            'user_status',
+            'user_pwd',
+            'user_change_pwd',
+            'user_name',
+            'user_firstname',
+            'user_displayname',
+            'user_email',
+            'user_url',
+            'user_desc',
+            'user_lang',
+            'user_tz',
+            'user_post_status',
+            'user_options',
+        ]);
+
+        if (!empty($param->order())) {
+            if (preg_match('`^([^. ]+) (?:asc|desc)`i', $param->order(), $matches)) {
+                if (in_array($matches[1], ['user_id', 'user_name', 'user_firstname', 'user_displayname'])) {
+                    $table_prefix = 'U.';
+                } else {
+                    $table_prefix = ''; // order = nb_post (asc|desc)
+                }
+                $query->order($table_prefix . $query->escape($param->order()));
+            } else {
+                $query->order($query->escape($param->order()));
+            }
+        } else {
+            $query->order('U.user_id ASC');
+        }
+
+        if (!empty($param->limit())) {
+            $query->limit($param->limit());
+        }
+
+        return $this->queryUsersTable(param: $param, sql: $query);
+    }
+
+    /**
+     * Query user table.
+     *
+     * @param UsersParam      $param The log parameters
+     * @param SelectStatement $sql   The SQL statement
+     *
+     * @return Record The result
+     */
+    private function queryUsersTable(UsersParam $param, SelectStatement $sql): Record
+    {
         $sql->from(App::core()->prefix() . 'user U', false, true);
 
-        if (!empty($params['join'])) {
-            $sql->join($params['join']);
+        if (!empty($param->join())) {
+            $sql->join($param->join());
         }
 
-        if (!empty($params['from'])) {
-            $sql->from($params['from']);
+        if (!empty($param->from())) {
+            $sql->from($param->from());
         }
 
-        if (!empty($params['where'])) {
+        if (!empty($param->where())) {
             // Cope with legacy code
-            $sql->where($params['where']);
+            $sql->where($param->where());
         } else {
             $sql->where('NULL IS NULL');
         }
 
-        if (!empty($params['q'])) {
-            $q = str_replace('*', '%', strtolower($params['q']));
+        if (!empty($param->q())) {
+            $q = str_replace('*', '%', strtolower($param->q()));
             $sql->and($sql->orGroup([
                 $sql->like('LOWER(U.user_id)', $q),
                 $sql->like('LOWER(user_name)', $q),
@@ -123,47 +188,8 @@ class Users
             ]));
         }
 
-        if (!empty($params['user_id'])) {
-            $sql->and('U.user_id = ' . $sql->quote($params['user_id']));
-        }
-
-        if (!$count_only) {
-            $sql->group([
-                'U.user_id',
-                'user_super',
-                'user_status',
-                'user_pwd',
-                'user_change_pwd',
-                'user_name',
-                'user_firstname',
-                'user_displayname',
-                'user_email',
-                'user_url',
-                'user_desc',
-                'user_lang',
-                'user_tz',
-                'user_post_status',
-                'user_options',
-            ]);
-
-            if (!empty($params['order'])) {
-                if (preg_match('`^([^. ]+) (?:asc|desc)`i', $params['order'], $matches)) {
-                    if (in_array($matches[1], ['user_id', 'user_name', 'user_firstname', 'user_displayname'])) {
-                        $table_prefix = 'U.';
-                    } else {
-                        $table_prefix = ''; // order = nb_post (asc|desc)
-                    }
-                    $sql->order($table_prefix . $sql->escape($params['order']));
-                } else {
-                    $sql->order($sql->escape($params['order']));
-                }
-            } else {
-                $sql->order('U.user_id ASC');
-            }
-        }
-
-        if (!$count_only && !empty($params['limit'])) {
-            $sql->limit($params['limit']);
+        if (!empty($param->user_id())) {
+            $sql->and('U.user_id = ' . $sql->quote($param->user_id()));
         }
 
         $rs = $sql->select();
@@ -223,10 +249,8 @@ class Users
         }
 
         $sql = new UpdateStatement(__METHOD__);
-        $sql
-            ->where('user_id = ' . $sql->quote($user_id))
-            ->update($cur)
-        ;
+        $sql->where('user_id = ' . $sql->quote($user_id));
+        $sql->update($cur);
 
         App::core()->user()->afterUpdUser($user_id, $cur);
 
@@ -236,12 +260,10 @@ class Users
 
         // Updating all user's blogs
         $sql = new SelectStatement(__METHOD__);
-        $rs  = $sql
-            ->distinct()
-            ->where('user_id = ' . $sql->quote($user_id))
-            ->from(App::core()->prefix() . 'post')
-            ->select()
-        ;
+        $sql->distinct();
+        $sql->where('user_id = ' . $sql->quote($user_id));
+        $sql->from(App::core()->prefix() . 'post');
+        $rs = $sql->select();
 
         while ($rs->fetch()) {
             $b = new Blog($rs->f('blog_id'));
@@ -276,11 +298,9 @@ class Users
         }
 
         $sql = new DeleteStatement(__METHOD__);
-        $sql
-            ->where('user_id = ' . $sql->quote($user_id))
-            ->from(App::core()->prefix() . 'user')
-            ->delete()
-        ;
+        $sql->where('user_id = ' . $sql->quote($user_id));
+        $sql->from(App::core()->prefix() . 'user');
+        $sql->delete();
 
         App::core()->user()->afterDelUser($user_id);
     }
@@ -295,12 +315,10 @@ class Users
     public function userExists(string $user_id): bool
     {
         $sql = new SelectStatement(__METHOD__);
-        $rs  = $sql
-            ->column('user_id')
-            ->where('user_id = ' . $sql->quote($user_id))
-            ->from(App::core()->prefix() . 'user')
-            ->select()
-        ;
+        $sql->column('user_id');
+        $sql->where('user_id = ' . $sql->quote($user_id));
+        $sql->from(App::core()->prefix() . 'user');
+        $rs = $sql->select();
 
         return !$rs->isEmpty();
     }
@@ -321,25 +339,22 @@ class Users
      */
     public function getUserPermissions(string $user_id): array
     {
+        $join = new JoinStatement(__METHOD__);
+        $join->type('INNER');
+        $join->from(App::core()->prefix() . 'blog B');
+        $join->on('P.blog_id = B.blog_id');
+
         $sql = new SelectStatement(__METHOD__);
-        $rs  = $sql
-            ->columns([
-                'B.blog_id',
-                'blog_name',
-                'blog_url',
-                'permissions',
-            ])
-            ->from(App::core()->prefix() . 'permissions P')
-            ->join(
-                JoinStatement::init(__METHOD__)
-                    ->type('INNER')
-                    ->from(App::core()->prefix() . 'blog B')
-                    ->on('P.blog_id = B.blog_id')
-                    ->statement()
-            )
-            ->where('user_id = ' . $sql->quote($user_id))
-            ->select()
-        ;
+        $sql->columns([
+            'B.blog_id',
+            'blog_name',
+            'blog_url',
+            'permissions',
+        ]);
+        $sql->from(App::core()->prefix() . 'permissions P');
+        $sql->join($join->statement());
+        $sql->where('user_id = ' . $sql->quote($user_id));
+        $rs = $sql->select();
 
         $res = [];
 
@@ -373,11 +388,9 @@ class Users
         }
 
         $sql = new DeleteStatement(__METHOD__);
-        $sql
-            ->where('user_id = ' . $sql->quote($user_id))
-            ->from(App::core()->prefix() . 'permissions')
-            ->delete()
-        ;
+        $sql->where('user_id = ' . $sql->quote($user_id));
+        $sql->from(App::core()->prefix() . 'permissions');
+        $sql->delete();
 
         foreach ($perms as $blog_id => $p) {
             $this->setUserBlogPermissions($user_id, $blog_id, $p, false);
@@ -404,30 +417,26 @@ class Users
 
         if ($delete_first || $no_perm) {
             $sql = new DeleteStatement(__METHOD__);
-            $sql
-                ->where('blog_id = ' . $sql->quote($blog_id))
-                ->and('user_id = ' . $sql->quote($user_id))
-                ->from(App::core()->prefix() . 'permissions')
-                ->delete()
-            ;
+            $sql->where('blog_id = ' . $sql->quote($blog_id));
+            $sql->and('user_id = ' . $sql->quote($user_id));
+            $sql->from(App::core()->prefix() . 'permissions');
+            $sql->delete();
         }
 
         if (!$no_perm) {
             $sql = new InsertStatement(__METHOD__);
-            $sql
-                ->columns([
-                    'user_id',
-                    'blog_id',
-                    'permissions',
-                ])
-                ->line([[
-                    $sql->quote($user_id),
-                    $sql->quote($blog_id),
-                    $sql->quote('|' . implode('|', array_keys($perms)) . '|'),
-                ]])
-                ->from(App::core()->prefix() . 'permissions')
-                ->insert()
-            ;
+            $sql->columns([
+                'user_id',
+                'blog_id',
+                'permissions',
+            ]);
+            $sql->line([[
+                $sql->quote($user_id),
+                $sql->quote($blog_id),
+                $sql->quote('|' . implode('|', array_keys($perms)) . '|'),
+            ]]);
+            $sql->from(App::core()->prefix() . 'permissions');
+            $sql->insert();
         }
     }
 
@@ -442,11 +451,9 @@ class Users
     public function setUserDefaultBlog(string $user_id, string $blog_id): void
     {
         $sql = new UpdateStatement(__METHOD__);
-        $sql
-            ->set('user_default_blog = ' . $sql->quote($blog_id))
-            ->from(App::core()->prefix() . 'user')
-            ->update()
-        ;
+        $sql->set('user_default_blog = ' . $sql->quote($blog_id));
+        $sql->from(App::core()->prefix() . 'user');
+        $sql->update();
     }
 
     /**

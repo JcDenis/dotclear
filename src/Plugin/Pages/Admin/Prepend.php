@@ -12,6 +12,7 @@ namespace Dotclear\Plugin\Pages\Admin;
 // Dotclear\Plugin\Pages\Admin\Prepend
 use ArrayObject;
 use Dotclear\App;
+use Dotclear\Database\Param;
 use Dotclear\Modules\ModulePrepend;
 use Dotclear\Plugin\Pages\Common\PagesUrl;
 use Dotclear\Plugin\Pages\Common\PagesWidgets;
@@ -46,7 +47,9 @@ class Prepend extends ModulePrepend
                 'icons'        => ['Plugin/Pages/icon.svg', 'Plugin/Pages/icon-dark.svg'],
                 'permissions'  => 'contentadmin,pages',
                 'dashboard_cb' => function (ArrayObject $v): void {
-                    $page_count = App::core()->blog()->posts()->getPosts(['post_type' => 'page'], true)->fInt();
+                    $param = new Param();
+                    $param->set('post_type', 'page');
+                    $page_count = App::core()->blog()->posts()->countPosts(param: $param);
                     if (0 < $page_count) {
                         $str_pages = (1 < $page_count) ? __('%d pages') : __('%d page');
                         $v['title'] = sprintf($str_pages, $page_count);
@@ -106,7 +109,11 @@ class Prepend extends ModulePrepend
         }
 
         // Create a first pending page, only on a new installation of this plugin
-        if (0 == App::core()->blog()->posts()->getPosts(['post_type' => 'page', 'no_content' => true], true)->fInt()
+        $param = new Param();
+        $param->set('post_type', 'page');
+        $param->set('no_content', true);
+
+        if (0 == App::core()->blog()->posts()->countPosts(param: $param)
             && null == App::core()->blog()->settings()->get('pages')->get('firstpage')
         ) {
             App::core()->blog()->settings()->get('pages')->put('firstpage', true, 'boolean');

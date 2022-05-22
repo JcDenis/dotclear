@@ -450,7 +450,7 @@ class Favorite
      */
     private function cbPostsDashboard(ArrayObject $v): void
     {
-        $post_count  = App::core()->blog()->posts()->getPosts([], true)->fInt();
+        $post_count  = App::core()->blog()->posts()->countPosts();
         $str_entries = __('%d post', '%d posts', $post_count);
         $v['title']  = sprintf($str_entries, $post_count);
     }
@@ -474,7 +474,7 @@ class Favorite
      */
     private function cbCommentsDashboard(ArrayObject $v): void
     {
-        $comment_count = App::core()->blog()->comments()->getComments([], true)->fInt();
+        $comment_count = App::core()->blog()->comments()->countComments();
         $str_comments  = __('%d comment', '%d comments', $comment_count);
         $v['title']    = sprintf($str_comments, $comment_count);
     }

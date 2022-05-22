@@ -43,7 +43,7 @@ class MaintenanceTaskLogs extends MaintenanceTask
                 ->delete()
             ;
         } else {
-            App::core()->log()->truncate();
+            App::core()->log()->emptyLogTable();
         }
 
         return true;

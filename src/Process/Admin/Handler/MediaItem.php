@@ -13,6 +13,7 @@ namespace Dotclear\Process\Admin\Handler;
 use Dotclear\App;
 use Dotclear\Core\Media\Media;
 use Dotclear\Core\Media\Manager\Item;
+use Dotclear\Database\Param;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\File\Files;
@@ -55,7 +56,9 @@ class MediaItem extends AbstractPage
 
         $post_id = !empty($_REQUEST['post_id']) ? (int) $_REQUEST['post_id'] : null;
         if ($post_id) {
-            $post = App::core()->blog()->posts()->getPosts(['post_id' => $post_id]);
+            $param = new Param();
+            $param->set('post_id', $post_id);
+            $post = App::core()->blog()->posts()->getPosts(param: $param);
             if ($post->isEmpty()) {
                 $post_id = null;
             }
@@ -684,29 +687,32 @@ class MediaItem extends AbstractPage
             __('Show entries containing this media') . '</a></p>';
         } else {
             echo '<h3>' . __('Entries containing this media') . '</h3>';
-            $params = [
-                'post_type' => '',
-                'join'      => 'LEFT OUTER JOIN ' . App::core()->prefix() . 'post_media PM ON P.post_id = PM.post_id ',
-                'sql'       => 'AND (' .
-                'PM.media_id = ' . (int) $this->item_id . ' ' .
-                "OR post_content_xhtml LIKE '%" . App::core()->con()->escape($this->item_file->relname) . "%' " .
-                "OR post_excerpt_xhtml LIKE '%" . App::core()->con()->escape($this->item_file->relname) . "%' ",
-            ];
 
+            $sql = '';
             if ($this->item_file->media_image) {
                 // We look for thumbnails too
                 $media_root = App::core()->blog()->public_url . '/';
 
                 foreach ($this->item_file->media_thumb as $v) {
                     $v = preg_replace('/^' . preg_quote($media_root, '/') . '/', '', $v);
-                    $params['sql'] .= "OR post_content_xhtml LIKE '%" . App::core()->con()->escape($v) . "%' ";
-                    $params['sql'] .= "OR post_excerpt_xhtml LIKE '%" . App::core()->con()->escape($v) . "%' ";
+                    $sql .= "OR post_content_xhtml LIKE '%" . App::core()->con()->escape($v) . "%' ";
+                    $sql .= "OR post_excerpt_xhtml LIKE '%" . App::core()->con()->escape($v) . "%' ";
                 }
             }
 
-            $params['sql'] .= ') ';
+            $param = new Param();
+            $param->set('post_type', '');
+            $param->set('join', 'LEFT OUTER JOIN ' . App::core()->prefix() . 'post_media PM ON P.post_id = PM.post_id ');
+            $param->set(
+                'sql',
+                'AND (' .
+                'PM.media_id = ' . (int) $this->item_id . ' ' .
+                "OR post_content_xhtml LIKE '%" . App::core()->con()->escape($this->item_file->relname) . "%' " .
+                "OR post_excerpt_xhtml LIKE '%" . App::core()->con()->escape($this->item_file->relname) . "%' " .
+                $sql . ') '
+            );
 
-            $rs = App::core()->blog()->posts()->getPosts($params);
+            $rs = App::core()->blog()->posts()->getPosts(param: $param);
 
             if ($rs->isEmpty()) {
                 echo '<p>' . __('No entry seems contain this media.') . '</p>';

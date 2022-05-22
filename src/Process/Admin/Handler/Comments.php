@@ -11,6 +11,7 @@ namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\Comments
 use Dotclear\App;
+use Dotclear\Database\Param;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Action\Action\CommentAction;
 use Dotclear\Process\Admin\Inventory\Inventory\CommentInventory;
@@ -43,7 +44,7 @@ class Comments extends AbstractPage
 
     protected function getInventoryInstance(): ?CommentInventory
     {
-        $params = $this->filter->params();
+        $param = $this->filter->params();
 
         // lexical sort
         $sortby_lex = [
@@ -55,19 +56,21 @@ class Comments extends AbstractPage
         // --BEHAVIOR-- adminCommentsSortbyLexCombo
         App::core()->behavior()->call('adminCommentsSortbyLexCombo', [&$sortby_lex]);
 
-        $params['order'] = (array_key_exists($this->filter->get('sortby'), $sortby_lex) ?
-            App::core()->con()->lexFields($sortby_lex[$this->filter->get('sortby')]) :
-            $this->filter->get('sortby')) . ' ' . $this->filter->get('order');
+        $param->set('order', (
+            array_key_exists($this->filter->get('sortby'), $sortby_lex) ?
+                App::core()->con()->lexFields($sortby_lex[$this->filter->get('sortby')]) :
+                $this->filter->get('sortby')
+        ) . ' ' . $this->filter->get('order'));
 
         // default filter ? do not display spam
         if (!$this->filter->show() && '' == $this->filter->get('status')) {
-            $params['comment_status_not'] = -2;
+            $param->set('comment_status_not', -2);
         }
-        $params['no_content'] = true;
+        $param->set('no_content', true);
 
         return new CommentInventory(
-            App::core()->blog()->comments()->getComments($params),
-            App::core()->blog()->comments()->getComments($params, true)->fInt()
+            App::core()->blog()->comments()->getComments(param: $param),
+            App::core()->blog()->comments()->countComments(param: $param)
         );
     }
 
@@ -120,7 +123,9 @@ class Comments extends AbstractPage
             unset($_SESSION['comments_del_spam']);
         }
 
-        $spam_count = App::core()->blog()->comments()->getComments(['comment_status' => -2], true)->fInt();
+        $param = new Param();
+        $param->set('comment_status', -2);
+        $spam_count = App::core()->blog()->comments()->countComments(param: $param);
         if (0 < $spam_count) {
             echo '<form action="' . App::core()->adminurl()->root() . '" method="post" class="fieldset">';
 

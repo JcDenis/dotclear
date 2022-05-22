@@ -431,7 +431,7 @@ class User
     public function getBlogCount(): int
     {
         if (null === $this->blog_count) {
-            $this->blog_count = App::core()->blogs()->getBlogs([], true)->fInt();
+            $this->blog_count = App::core()->blogs()->countBlogs();
         }
 
         return $this->blog_count;

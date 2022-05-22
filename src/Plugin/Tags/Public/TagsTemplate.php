@@ -72,10 +72,11 @@ class TagsTemplate
         }
 
         $res = self::$ton . "\n" .
-            "App::core()->context()->set('meta', App::core()->meta()->computeMetaStats(App::core()->meta()->getMetadata(['meta_type'=>'"
-            . $type . "','limit'=>" . $limit .
-            ('meta_id_lower' != $sortby ? ",'order'=>'" . $sortby . ' ' . ('asc' == $order ? 'ASC' : 'DESC') . "'" : '') .
-            ']))); ' .
+            '$param = new Param();' .
+            '$param->set("meta_type", "' . $type . '");' .
+            '$param->set("limit", ' . $limit . ');' .
+            ('meta_id_lower' != $sortby ? '$param->set("order", "' . $sortby . ' ' . ('asc' == $order ? 'ASC' : 'DESC') . '"' : '') .
+            'App::core()->context()->set("meta", App::core()->meta()->computeMetaStats(App::core()->meta()->getMetadata(param: $param))); ' .
             "App::core()->context()->get('meta')->sort('" . $sortby . "','" . $order . "'); " .
             self::$toff;
 

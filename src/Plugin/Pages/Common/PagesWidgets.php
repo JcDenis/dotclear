@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\Pages\Common;
 
 // Dotclear\Plugin\Pages\Common\PagesWidgets
 use Dotclear\App;
+use Dotclear\Database\Param;
 use Dotclear\Database\Record;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Plugin\Widgets\Common\Widget;
@@ -74,9 +75,10 @@ class PagesWidgets
             return '';
         }
 
-        $params['post_type']     = 'page';
-        $params['no_content']    = true;
-        $params['post_selected'] = false;
+        $param = new Param();
+        $param->set('post_type', 'page');
+        $param->set('no_content', true);
+        $param->set('post_selected', false);
 
         $sort = $widget->get('sortby');
         if (!in_array($sort, ['post_title', 'post_position', 'post_dt'])) {
@@ -87,13 +89,13 @@ class PagesWidgets
         if ('asc' != $order) {
             $order = 'desc';
         }
-        $params['order'] = $sort . ' ' . $order;
+        $param->set('order', $sort . ' ' . $order);
 
         if (abs((int) $widget->get('limit'))) {
-            $params['limit'] = abs((int) $widget->get('limit'));
+            $param->set('limit', abs((int) $widget->get('limit')));
         }
 
-        $rs = App::core()->blog()->posts()->getPosts($params);
+        $rs = App::core()->blog()->posts()->getPosts(param: $param);
 
         if ($rs->isEmpty()) {
             return '';

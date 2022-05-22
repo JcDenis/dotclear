@@ -13,6 +13,7 @@ namespace Dotclear\Process\Admin\Handler;
 use ArrayObject;
 use Dotclear\App;
 use Dotclear\Core\Trackback\Trackback;
+use Dotclear\Database\Param;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -102,7 +103,10 @@ class Post extends AbstractPage
         if (!empty($_REQUEST['id'])) {
             $page_title = __('Edit post');
 
-            $this->post = $rs = App::core()->blog()->posts()->getPosts(['post_id' => (int) $_REQUEST['id']]);
+            $param = new Param();
+            $param->set('post_id', (int) $_REQUEST['id']);
+
+            $this->post = $rs = App::core()->blog()->posts()->getPosts(param: $param);
 
             if ($rs->isEmpty()) {
                 App::core()->error()->add(__('This entry does not exist.'));
@@ -736,9 +740,12 @@ class Post extends AbstractPage
             /* Comments
             -------------------------------------------------------- */
 
-            $params = ['post_id' => $this->post_id, 'order' => 'comment_dt ASC'];
+            $param = new Param();
+            $param->set('post_id', $this->post_id);
+            $param->set('order', 'comment_dt ASC');
+            $param->set('comment_trackback', 0);
 
-            $comments = App::core()->blog()->comments()->getComments(array_merge($params, ['comment_trackback' => 0]));
+            $comments = App::core()->blog()->comments()->getComments(param: $param);
 
             echo '<div id="comments" class="clear multi-part" title="' . __('Comments') . '">';
             $combo_action = $this->comments_actions->getCombo();
@@ -821,8 +828,12 @@ class Post extends AbstractPage
             /* Trackbacks
             -------------------------------------------------------- */
 
-            $params     = ['post_id' => $this->post_id, 'order' => 'comment_dt ASC'];
-            $trackbacks = App::core()->blog()->comments()->getComments(array_merge($params, ['comment_trackback' => 1]));
+            $param = new Param();
+            $param->set('post_id', $this->post_id);
+            $param->set('order', 'comment_dt ASC');
+            $param->set('comment_trackback', 1);
+
+            $trackbacks = App::core()->blog()->comments()->getComments(param: $param);
 
             // Actions combo box
             $combo_action = $this->comments_actions->getCombo();

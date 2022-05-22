@@ -12,6 +12,7 @@ namespace Dotclear\Process\Admin\Service;
 // Dotclear\Process\Admin\Service\RestMethods
 use ArrayObject;
 use Dotclear\App;
+use Dotclear\Database\Param;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Html;
@@ -68,7 +69,7 @@ class RestMethods
      */
     public function getPostsCount(array $get): XmlTag
     {
-        $count = App::core()->blog()->posts()->getPosts([], true)->fInt();
+        $count = App::core()->blog()->posts()->countPosts();
         $str   = sprintf(__('%d post', '%d posts', $count), $count);
 
         $rsp = new XmlTag('count');
@@ -86,7 +87,7 @@ class RestMethods
      */
     public function getCommentsCount(array $get): XmlTag
     {
-        $count = App::core()->blog()->comments()->getComments([], true)->fInt();
+        $count = App::core()->blog()->comments()->countComments();
         $str   = sprintf(__('%d comment', '%d comments', $count), $count);
 
         $rsp = new XmlTag('count');
@@ -262,13 +263,14 @@ class RestMethods
             throw new AdminException('No post ID');
         }
 
-        $params = ['post_id' => (int) $get['id']];
+        $param = new Param();
+        $param->set('post_id', (int) $get['id']);
 
         if (isset($get['post_type'])) {
-            $params['post_type'] = $get['post_type'];
+            $param->set('post_type', $get['post_type']);
         }
 
-        $rs = App::core()->blog()->posts()->getPosts($params);
+        $rs = App::core()->blog()->posts()->getPosts(param: $param);
 
         if ($rs->isEmpty()) {
             throw new AdminException('No post for this ID');
@@ -337,7 +339,9 @@ class RestMethods
             throw new AdminException('No comment ID');
         }
 
-        $rs = App::core()->blog()->comments()->getComments(['comment_id' => (int) $get['id']]);
+        $param = new Param();
+        $param->set('comment_id', (int) $get['id']);
+        $rs = App::core()->blog()->comments()->getComments(parm: $param);
 
         if ($rs->isEmpty()) {
             throw new AdminException('No comment for this ID');
@@ -424,7 +428,9 @@ class RestMethods
         $rsp = new XmlTag('post');
         $rsp->insertAttr('id', $return_id);
 
-        $post = App::core()->blog()->posts()->getPosts(['post_id' => $return_id]);
+        $param = new Param();
+        $param->set('post_id', $return_id);
+        $post = App::core()->blog()->posts()->getPosts(param: $param);
 
         $rsp->insertAttr('post_status', $post->f('post_status'));
         $rsp->insertAttr('post_url', $post->getURL());
@@ -533,18 +539,20 @@ class RestMethods
      */
     public function getMeta(array $get): XmlTag
     {
-        $postid   = !empty($get['postId']) ? (int) $get['postId'] : null;
+        $postId   = !empty($get['postId']) ? (int) $get['postId'] : null;
         $limit    = !empty($get['limit']) ? $get['limit'] : null;
         $metaId   = !empty($get['metaId']) ? $get['metaId'] : null;
         $metaType = !empty($get['metaType']) ? $get['metaType'] : null;
 
         $sortby = !empty($get['sortby']) ? $get['sortby'] : 'meta_type,asc';
 
-        $rs = App::core()->meta()->getMetadata([
-            'meta_type' => $metaType,
-            'limit'     => $limit,
-            'meta_id'   => $metaId,
-            'post_id'   => $postid, ]);
+        $param = new Param();
+        $param->set('meta_type', $metaType);
+        $param->set('limit', $limit);
+        $param->set('meta_id', $metaId);
+        $param->set('post_id', $postId);
+
+        $rs = App::core()->meta()->getMetadata(param: $param);
         $rs = App::core()->meta()->computeMetaStats($rs);
 
         $sortby = explode(',', $sortby);
@@ -613,10 +621,12 @@ class RestMethods
         }
 
         // Get previous meta for post
-        $post_meta = App::core()->meta()->getMetadata([
-            'meta_type' => $post['metaType'],
-            'post_id'   => (int) $post['postId'], ]);
-        $pm = [];
+        $param = new Param();
+        $param->set('meta_type', $post['metaType']);
+        $param->set('post_id', (int) $post['postId']);
+
+        $post_meta = App::core()->meta()->getMetadata(param: $param);
+        $pm        = [];
         while ($post_meta->fetch()) {
             $pm[] = $post_meta->f('meta_id');
         }
@@ -671,7 +681,10 @@ class RestMethods
 
         $sortby = !empty($get['sortby']) ? $get['sortby'] : 'meta_type,asc';
 
-        $rs = App::core()->meta()->getMetadata(['meta_type' => $metaType]);
+        $param = new Param();
+        $param->set('meta_type', $metaType);
+
+        $rs = App::core()->meta()->getMetadata(param: $param);
         $rs = App::core()->meta()->computeMetaStats($rs);
 
         $sortby = explode(',', $sortby);

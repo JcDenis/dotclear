@@ -12,6 +12,7 @@ namespace Dotclear\Process\Admin\Inventory\Inventory;
 // Dotclear\Process\Admin\Inventory\Inventory\CommentInventory
 use ArrayObject;
 use Dotclear\App;
+use Dotclear\Database\Param;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -64,10 +65,19 @@ class CommentInventory extends Inventory
                 ), $this->rs_count) .
                     '</caption>';
             } else {
-                $nb_published   = App::core()->blog()->comments()->getComments(['comment_status' => 1], true)->fInt();
-                $nb_spam        = App::core()->blog()->comments()->getComments(['comment_status' => -2], true)->fInt();
-                $nb_pending     = App::core()->blog()->comments()->getComments(['comment_status' => -1], true)->fInt();
-                $nb_unpublished = App::core()->blog()->comments()->getComments(['comment_status' => 0], true)->fInt();
+                $param = new Param();
+
+                $param->set('comment_status', 1);
+                $nb_published   = App::core()->blog()->comments()->countComments(param: $param);
+
+                $param->set('comment_status', -2);
+                $nb_spam        = App::core()->blog()->comments()->countComments(param: $param);
+
+                $param->set('comment_status', -1);
+                $nb_pending     = App::core()->blog()->comments()->countComments(param: $param);
+
+                $param->set('comment_status', 0);
+                $nb_unpublished = App::core()->blog()->comments()->countComments(param: $param);
 
                 $html_block .= '<caption>' .
                 sprintf(__('List of comments and trackbacks (%s)'), $this->rs_count) .

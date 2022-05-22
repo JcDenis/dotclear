@@ -11,12 +11,13 @@ namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\PostMedia
 use Dotclear\App;
-use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Core\Media\PostMedia as CoreMedia;
+use Dotclear\Database\Param;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
 
 /**
@@ -40,7 +41,11 @@ class PostMedia extends AbstractPage
         if (!$post_id) {
             exit;
         }
-        $rs = App::core()->blog()->posts()->getPosts(['post_id' => $post_id, 'post_type' => '']);
+        $param = new Param();
+        $param->set('post_id', $post_id);
+        $param->set('post_type', '');
+
+        $rs = App::core()->blog()->posts()->getPosts(param: $param);
         if ($rs->isEmpty()) {
             exit;
         }

@@ -12,6 +12,7 @@ namespace Dotclear\Process\Admin\Notice;
 // Dotclear\Process\Admin\Notice\Notice
 use Dotclear\App;
 use Dotclear\Database\Cursor;
+use Dotclear\Database\Param;
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\SelectStatement;
@@ -26,7 +27,7 @@ use Exception;
  *
  * @ingroup  Admin
  */
-class Notice
+final class Notice
 {
     /**
      * @var array<string,string> $N_TYPES
@@ -49,102 +50,85 @@ class Notice
     /**
      * Retrieve notices count.
      *
-     * @see self::get() whitout parameter order.
+     * @see NoticeParam for optionnal paramaters
      *
-     * @param array $params The parameters
+     * @param null|Param           $param The parameters
+     * @param null|SelectStatement $sql   The SQL statement
      *
      * @return int The notices count
      */
-    public function count(array $params = []): int
+    public function countNotices(?Param $param = null, ?SelectStatement $sql = null): int
     {
-        $sql = new SelectStatement(__METHOD__);
-        $sql
-            ->from(App::core()->prefix() . 'notice')
-            ->column($sql->count('notice_id'))
-        ;
+        $param = new NoticeParam($param);
+        $param->unset('order');
+        $param->unset('limit');
 
-        return $this->query($params, $sql)->fInt(0);
+        $query = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $query->column($query->count('notice_id'));
+
+        return $this->queryNoticeTable(param: $param, sql: $query)->fInt(0);
     }
 
     /**
      * Get notices.
      *
-     * Parameters can be :
-     * - ses_id => (string) session id
-     * - notice_id => one or more notice id
-     * - notice_type => one or more notice type (alias notice_format)
-     * - order
-     * - limit
-     * - sql
+     * @see NoticeParam for optionnal paramaters
      *
-     * @param array $params The params
+     * @param null|Param           $param The parameters
+     * @param null|SelectStatement $sql   The SQL statement
      *
      * @return Record Notices record
      */
-    public function get(array $params = []): Record
+    public function getNotices(?Param $param = null, ?SelectStatement $sql = null): Record
     {
-        $sql = new SelectStatement(__METHOD__);
-        $sql
-            ->from(App::core()->prefix() . 'notice')
-            ->columns([
-                'notice_id',
-                'ses_id',
-                'notice_type',
-                'notice_ts',
-                'notice_msg',
-                'notice_format',
-                'notice_options',
-            ])
-            ->order(
-                empty($params['order']) ?
-                'notice_ts DESC' :
-                $sql->escape($params['order'])
-            )
-        ;
+        $param = new NoticeParam($param);
 
-        return $this->query($params, $sql);
+        $query = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $query->columns([
+            'notice_id',
+            'ses_id',
+            'notice_type',
+            'notice_ts',
+            'notice_msg',
+            'notice_format',
+            'notice_options',
+        ]);
+        $query->order($query->escape($param->order('notice_ts DESC')));
+
+        if (!empty($param->limit())) {
+            $query->limit($param->limit());
+        }
+
+        return $this->queryNoticeTable(param: $param, sql: $query);
     }
 
     /**
      * Query notice table.
      *
-     * @param array           $params The params
-     * @param SelectStatement $sql    The partial sql statement
+     * @param NoticeParam     $param The log parameters
+     * @param SelectStatement $sql   The SQL statement
      *
      * @return Record The result
      */
-    private function query(array $params, SelectStatement $sql): Record
+    private function queryNoticeTable(NoticeParam $param, SelectStatement $sql): Record
     {
-        $session_id = isset($params['ses_id']) && '' !== $params['ses_id'] ? (string) $params['ses_id'] : (string) session_id();
-        $sql->where('ses_id = ' . $sql->quote($session_id));
+        $sql->from(App::core()->prefix() . 'notice', false, true);
+        $sql->where('ses_id = ' . $sql->quote($param->ses_id((string) session_id())));
 
-        if (isset($params['notice_id']) && '' !== $params['notice_id']) {
-            if (is_array($params['notice_id'])) {
-                array_walk($params['notice_id'], function (&$v, $k) {
-                    if (null !== $v) {
-                        $v = (int) $v;
-                    }
-                });
-            } else {
-                $params['notice_id'] = [(int) $params['notice_id']];
-            }
-            $sql->and('notice_id' . $sql->in($params['notice_id']));
+        if (!empty($param->notice_id())) {
+            $sql->and('notice_id' . $sql->in($param->notice_id()));
         }
 
-        if (!empty($params['notice_type'])) {
-            $sql->and('notice_type' . $sql->in($params['notice_type']));
+        if (!empty($param->notice_type())) {
+            $sql->and('notice_type' . $sql->in($param->notice_type()));
         }
 
-        if (!empty($params['notice_format'])) {
-            $sql->and('notice_format' . $sql->in($params['notice_format']));
+        if (!empty($param->notice_format())) {
+            $sql->and('notice_format' . $sql->in($param->notice_format()));
         }
 
-        if (!empty($params['sql'])) {
-            $sql->sql($params['sql']);
-        }
-
-        if (!empty($params['limit'])) {
-            $sql->limit($params['limit']);
+        if (null !== $param->sql()) {
+            $sql->sql($param->sql());
         }
 
         return $sql->select();
@@ -155,23 +139,21 @@ class Notice
      *
      * @param Cursor $cur The cursor
      */
-    public function add(Cursor $cur): int
+    public function addNotice(Cursor $cur): int
     {
         App::core()->con()->writeLock(App::core()->prefix() . 'notice');
 
         try {
             // Get ID
             $sql = new SelectStatement(__METHOD__);
-            $rs  = $sql
-                ->column($sql->max('notice_id'))
-                ->from(App::core()->prefix() . 'notice')
-                ->select()
-            ;
+            $sql->column($sql->max('notice_id'));
+            $sql->from(App::core()->prefix() . 'notice');
+            $rs = $sql->select();
 
             $cur->setField('notice_id', $rs->fInt() + 1);
             $cur->setField('ses_id', (string) session_id());
 
-            $this->cursor($cur, $cur->getField('notice_id'));
+            $this->cleanNoticeCursor($cur, $cur->getField('notice_id'));
 
             // --BEHAVIOR-- coreBeforeNoticeCreate
             App::core()->behavior()->call('adminBeforeNoticeCreate', $this, $cur);
@@ -193,29 +175,35 @@ class Notice
     /**
      * Delete a notice.
      *
-     * @param array|int $notice_id The notice id
+     * @param int $id The notice id
      */
-    public function del(int|array $notice_id): void
+    public function deleteNotice(int $id): void
+    {
+        $this->deleteNotices([$id]);
+    }
+
+    /**
+     * Delete given notices.
+     *
+     * @param array<int,int> $id The notices ids
+     */
+    public function deleteNotices(array $id): void
     {
         $sql = new DeleteStatement(__METHOD__);
-        $sql
-            ->from(App::core()->prefix() . 'notice')
-            ->where('notice_id' . $sql->in($notice_id))
-            ->delete()
-        ;
+        $sql->from(App::core()->prefix() . 'notice');
+        $sql->where('notice_id' . $sql->in($id));
+        $sql->delete();
     }
 
     /**
      * Delete all session notices.
      */
-    public function delSession(): void
+    public function deleteSessionNotice(): void
     {
         $sql = new DeleteStatement(__METHOD__);
-        $sql
-            ->from(App::core()->prefix() . 'notice')
-            ->where('ses_id = ' . $sql->quote((string) session_id()))
-            ->delete()
-        ;
+        $sql->from(App::core()->prefix() . 'notice');
+        $sql->where('ses_id = ' . $sql->quote((string) session_id()));
+        $sql->delete();
     }
 
     /**
@@ -224,7 +212,7 @@ class Notice
      * @param Cursor   $cur       The cursor
      * @param null|int $notice_id The notice id
      */
-    private function cursor(Cursor $cur, int $notice_id = null): void
+    private function cleanNoticeCursor(Cursor $cur, int $notice_id = null): void
     {
         if ('' === $cur->getField('notice_msg')) {
             throw new AdminException(__('No notice message'));
@@ -246,7 +234,7 @@ class Notice
      *
      * @return string the notices
      */
-    public function getNotices(): string
+    public function getHtmlNotices(): string
     {
         $res = '';
 
@@ -273,20 +261,17 @@ class Notice
         // Should retrieve static notices first, then others
         $step = 2;
         do {
+            $param = new Param();
             if (2 == $step) {
                 // Static notifications
-                $params = [
-                    'notice_type' => 'static',
-                ];
+                $param->set('notice_type', 'static');
             } else {
                 // Normal notifications
-                $params = [
-                    'sql' => "AND notice_type != 'static'",
-                ];
+                $param->push('sql', "AND notice_type != 'static'");
             }
-            $counter = $this->count($params);
+            $counter = $this->countNotices(param: $param);
             if (0 < $counter) {
-                $lines = $this->get($params);
+                $lines = $this->getNotices(param: $param);
                 while ($lines->fetch()) {
                     if (isset($this->N_TYPES[$lines->f('notice_type')])) {
                         $class = $this->N_TYPES[$lines->f('notice_type')];
@@ -312,19 +297,52 @@ class Notice
         } while (--$step);
 
         // Delete returned notices
-        $this->delSession();
+        $this->deleteSessionNotice();
 
         return $res;
     }
 
     /**
-     * Adds a notice.
+     * Add a success notice.
+     *
+     * @param string $message The message
+     * @param array  $options The options
+     */
+    public function addSuccessNotice(string $message, array $options = []): void
+    {
+        $this->addTypedNotice('success', $message, $options);
+    }
+
+    /**
+     * Add a warning notice.
+     *
+     * @param string $message The message
+     * @param array  $options The options
+     */
+    public function addWarningNotice(string $message, array $options = []): void
+    {
+        $this->addTypedNotice('warning', $message, $options);
+    }
+
+    /**
+     * Add an error notice.
+     *
+     * @param string $message The message
+     * @param array  $options The options
+     */
+    public function addErrorNotice(string $message, array $options = []): void
+    {
+        $this->addTypedNotice('error', $message, $options);
+    }
+
+    /**
+     * Add a notice.
      *
      * @param string $type    The type
      * @param string $message The message
      * @param array  $options The options
      */
-    public function addNotice(string $type, string $message, array $options = []): void
+    private function addTypedNotice(string $type, string $message, array $options = []): void
     {
         $cur = App::core()->con()->openCursor(App::core()->prefix() . 'notice');
 
@@ -340,44 +358,11 @@ class Notice
             $cur->setField('notice_format', $options['format']);
         }
 
-        $this->add($cur);
+        $this->addNotice($cur);
     }
 
     /**
-     * Adds a success notice.
-     *
-     * @param string $message The message
-     * @param array  $options The options
-     */
-    public function addSuccessNotice(string $message, array $options = []): void
-    {
-        $this->addNotice('success', $message, $options);
-    }
-
-    /**
-     * Adds a warning notice.
-     *
-     * @param string $message The message
-     * @param array  $options The options
-     */
-    public function addWarningNotice(string $message, array $options = []): void
-    {
-        $this->addNotice('warning', $message, $options);
-    }
-
-    /**
-     * Adds an error notice.
-     *
-     * @param string $message The message
-     * @param array  $options The options
-     */
-    public function addErrorNotice(string $message, array $options = []): void
-    {
-        $this->addNotice('error', $message, $options);
-    }
-
-    /**
-     * Gets the notification.
+     * Get the notification.
      *
      * @param array $notification The notification
      *

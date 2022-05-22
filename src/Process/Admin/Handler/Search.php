@@ -12,6 +12,7 @@ namespace Dotclear\Process\Admin\Handler;
 // Dotclear\Process\Admin\Handler\Search
 use ArrayObject;
 use Dotclear\App;
+use Dotclear\Database\Param;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Action\Action\PostAction;
 use Dotclear\Process\Admin\Action\Action\CommentAction;
@@ -141,16 +142,15 @@ class Search extends AbstractPage
             return null;
         }
 
-        $params = [
-            'search'     => $args['q'],
-            'limit'      => [(($args['page'] - 1) * $args['nb']), $args['nb']],
-            'no_content' => true,
-            'order'      => 'post_dt DESC',
-        ];
+        $param = new Param();
+        $param->set('search', $args['q']);
+        $param->set('limit', [(($args['page'] - 1) * $args['nb']), $args['nb']]);
+        $param->set('no_content', true);
+        $param->set('order', 'post_dt DESC');
 
         try {
-            $this->s_count   = App::core()->blog()->posts()->getPosts($params, true)->fInt();
-            $this->s_list    = new PostInventory(App::core()->blog()->posts()->getPosts($params), $this->s_count);
+            $this->s_count   = App::core()->blog()->posts()->countPosts(param: $param);
+            $this->s_list    = new PostInventory(App::core()->blog()->posts()->getPosts(param: $param), $this->s_count);
             $this->s_actions = new PostAction(App::core()->adminurl()->get('admin.search'), $args);
             if ($this->s_actions->getPagePrepend()) {
                 return;
@@ -196,16 +196,15 @@ class Search extends AbstractPage
             return null;
         }
 
-        $params = [
-            'search'     => $args['q'],
-            'limit'      => [(($args['page'] - 1) * $args['nb']), $args['nb']],
-            'no_content' => true,
-            'order'      => 'comment_dt DESC',
-        ];
+        $param = new Param();
+        $param->set('search', $args['q']);
+        $param->set('limit', [(($args['page'] - 1) * $args['nb']), $args['nb']]);
+        $param->set('no_content', true);
+        $param->set('order', 'comment_dt DESC');
 
         try {
-            $this->s_count   = App::core()->blog()->comments()->getComments($params, true)->fInt();
-            $this->s_list    = new CommentInventory(App::core()->blog()->comments()->getComments($params), $this->s_count);
+            $this->s_count   = App::core()->blog()->comments()->countComments(param: $param);
+            $this->s_list    = new CommentInventory(App::core()->blog()->comments()->getComments(param: $param), $this->s_count);
             $this->s_actions = new CommentAction(App::core()->adminurl()->get('admin.search'), $args);
             if ($this->s_actions->getPagePrepend()) {
                 return;

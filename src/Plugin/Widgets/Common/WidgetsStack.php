@@ -12,6 +12,7 @@ namespace Dotclear\Plugin\Widgets\Common;
 // Dotclear\Plugin\Widgets\Common\WidgetsStack
 use ArrayObject;
 use Dotclear\App;
+use Dotclear\Database\Param;
 use Dotclear\Database\Record;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\Html\Html;
@@ -192,13 +193,12 @@ class WidgetsStack
             return '';
         }
 
-        $params = [
-            'post_selected' => true,
-            'no_content'    => true,
-            'order'         => 'post_dt ' . strtoupper($widget->get('orderby')),
-        ];
+        $param = new Param();
+        $param->set('post_selected', true);
+        $param->set('no_content', true);
+        $param->set('order', 'post_dt ' . strtoupper($widget->get('orderby')));
 
-        $rs = App::core()->blog()->posts()->getPosts($params);
+        $rs = App::core()->blog()->posts()->getPosts(param: $param);
 
         if ($rs->isEmpty()) {
             return '';
@@ -382,25 +382,26 @@ class WidgetsStack
             return '';
         }
 
-        $params['limit']      = abs((int) $widget->get('limit'));
-        $params['order']      = 'post_dt desc';
-        $params['no_content'] = true;
+        $param = new Param();
+        $param->set('limit', abs((int) $widget->get('limit')));
+        $param->set('order', 'post_dt DESC');
+        $param->set('no_content', true);
 
         if ($widget->get('category')) {
             if ('null' == $widget->get('category')) {
-                $params['sql'] = ' AND P.cat_id IS NULL ';
+                $param->push('sql', ' AND P.cat_id IS NULL ');
             } elseif (is_numeric($widget->get('category'))) {
-                $params['cat_id'] = (int) $widget->get('category');
+                $param->set('cat_id', (int) $widget->get('category'));
             } else {
-                $params['cat_url'] = $widget->get('category');
+                $param->set('cat_url', $widget->get('category'));
             }
         }
 
         if ($widget->get('tag')) {
-            $params['meta_id'] = $widget->get('tag');
-            $rs                = App::core()->meta()->getPostsByMeta($params);
+            $param->set('meta_id', $widget->get('tag'));
+            $rs = App::core()->meta()->getPostsByMeta(param: $param);
         } else {
-            $rs = App::core()->blog()->posts()->getPosts($params);
+            $rs = App::core()->blog()->posts()->getPosts(param: $param);
         }
 
         if ($rs->isEmpty()) {
@@ -435,9 +436,10 @@ class WidgetsStack
             return '';
         }
 
-        $params['limit'] = abs((int) $widget->get('limit'));
-        $params['order'] = 'comment_dt desc';
-        $rs              = App::core()->blog()->comments()->getComments($params);
+        $param = new Param();
+        $param->set('limit', abs((int) $widget->get('limit')));
+        $param->set('order', 'comment_dt desc');
+        $rs = App::core()->blog()->comments()->getComments(param: $param);
 
         if ($rs->isEmpty()) {
             return '';

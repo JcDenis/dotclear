@@ -12,6 +12,7 @@ namespace Dotclear\Plugin\FairTrackbacks\Common;
 // Dotclear\Plugin\FairTrackbacks\Common\FilterFairtrackbacks
 use ArrayObject;
 use Dotclear\App;
+use Dotclear\Database\Param;
 use Dotclear\Helper\Network\NetHttp\NetHttp;
 use Dotclear\Plugin\Antispam\Common\Spamfilter;
 use Exception;
@@ -59,7 +60,9 @@ class FilterFairtrackbacks extends Spamfilter
             }
 
             // Check incomink link page
-            $post     = App::core()->blog()->posts()->getPosts(['post_id' => $post_id]);
+            $param = new Param();
+            $param->set('post_id', $post_id);
+            $post     = App::core()->blog()->posts()->getPosts(param: $param);
             $post_url = $post->getURL();
             $P        = array_merge($default_parse, parse_url($post_url));
 

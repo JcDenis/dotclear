@@ -11,12 +11,13 @@ namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\Comment
 use Dotclear\App;
-use Dotclear\Process\Admin\Page\AbstractPage;
+use Dotclear\Database\Param;
 use Dotclear\Exception\AdminException;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
-use Dotclear\Helper\Clock;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
 
 /**
@@ -49,8 +50,11 @@ class Comment extends AbstractPage
         // Adding comment (comming from post form, comments tab)
         if (!empty($_POST['add']) && !empty($_POST['post_id'])) {
             try {
-                $rs = App::core()->blog()->posts()->getPosts(['post_id' => $_POST['post_id'], 'post_type' => '']);
+                $param = new Param();
+                $param->set('post_id', $_POST['post_id']);
+                $param->set('post_type', '');
 
+                $rs = App::core()->blog()->posts()->getPosts(param: $param);
                 if ($rs->isEmpty()) {
                     throw new AdminException(__('Entry does not exist.'));
                 }
@@ -85,7 +89,9 @@ class Comment extends AbstractPage
 
         if (!empty($_REQUEST['id'])) {
             try {
-                $rs = App::core()->blog()->comments()->getComments(['comment_id' => $_REQUEST['id']]);
+                $param = new Param();
+                $param->set('comment_id', $_REQUEST['id']);
+                $rs = App::core()->blog()->comments()->getComments(param: $param);
                 if (!$rs->isEmpty()) {
                     $this->comment_id      = $rs->fInt('comment_id');
                     $post_id               = $rs->fInt('post_id');

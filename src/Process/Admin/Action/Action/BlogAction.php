@@ -12,6 +12,7 @@ namespace Dotclear\Process\Admin\Action\Action;
 // Dotclear\Process\Admin\Action\Action\BlogAction
 use ArrayObject;
 use Dotclear\App;
+use Dotclear\Database\Param;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\Form;
 use Exception;
@@ -84,12 +85,12 @@ class BlogAction extends DefaultBlogAction
 
     protected function fetchEntries(ArrayObject $from): void
     {
-        $params = [];
+        $param = new Param();
         if (!empty($from['blogs'])) {
-            $params['blog_id'] = $from['blogs'];
+            $param->set('blog_id', $from['blogs']);
         }
 
-        $rs = App::core()->blogs()->getBlogs($params);
+        $rs = App::core()->blogs()->getBlogs(param: $param);
         while ($rs->fetch()) {
             $this->entries[$rs->f('blog_id')] = [
                 'blog' => $rs->f('blog_id'),

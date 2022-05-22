@@ -10,9 +10,9 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\Users
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Core\RsExt\RsExtUser;
+use Dotclear\Database\Param;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Inventory\Inventory\UserInventory;
 use Dotclear\Process\Admin\Filter\Filter\UserFilter;
@@ -37,7 +37,7 @@ class Users extends AbstractPage
 
     protected function getInventoryInstance(): ?UserInventory
     {
-        $params = $this->filter->params();
+        $param = $this->filter->params();
 
         // lexical sort
         $sortby_lex = [
@@ -50,17 +50,17 @@ class Users extends AbstractPage
         // --BEHAVIOR-- adminUsersSortbyLexCombo
         App::core()->behavior()->call('adminUsersSortbyLexCombo', [&$sortby_lex]);
 
-        $params['order'] = (array_key_exists($this->filter->get('sortby'), $sortby_lex) ?
+        $param->set('order', (
+            array_key_exists($this->filter->get('sortby'), $sortby_lex) ?
             App::core()->con()->lexFields($sortby_lex[$this->filter->get('sortby')]) :
-            $this->filter->get('sortby')) . ' ' . $this->filter->get('order');
+            $this->filter->get('sortby')
+        ) . ' ' . $this->filter->get('order'));
 
-        $params = new ArrayObject($params);
+        // --BEHAVIOR-- adminGetUsers, Param
+        App::core()->behavior()->call('adminGetUsers', $param);
 
-        // --BEHAVIOR-- adminGetUsers
-        App::core()->behavior()->call('adminGetUsers', $params);
-
-        $rs       = App::core()->users()->getUsers($params);
-        $count    = App::core()->users()->getUsers($params, true)->fInt();
+        $rs       = App::core()->users()->getUsers(param: $param);
+        $count    = App::core()->users()->countUsers(param: $param);
         $rsStatic = $rs->toStatic();
         if ('nb_post' != $this->filter->get('sortby')) {
             // Sort user list using lexical order if necessary

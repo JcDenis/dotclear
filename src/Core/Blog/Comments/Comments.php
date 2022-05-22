@@ -13,8 +13,9 @@ namespace Dotclear\Core\Blog\Comments;
 use ArrayObject;
 use Dotclear\App;
 use Dotclear\Core\RsExt\RsExtComment;
-use Dotclear\Database\Record;
 use Dotclear\Database\Cursor;
+use Dotclear\Database\Param;
+use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\JoinStatement;
 use Dotclear\Database\Statement\SelectStatement;
@@ -30,86 +31,111 @@ use Exception;
  *
  * @ingroup  Core Comment
  */
-class Comments
+final class Comments
 {
+    /**
+     * Retrieve logs count.
+     *
+     * @see CommentsParam for optionnal paramaters
+     *
+     * @param null|Param           $param The parameters
+     * @param null|SelectStatement $sql   The SQL statement
+     *
+     * @return int The comments count
+     */
+    public function countComments(?Param $param = null, ?SelectStatement $sql = null): int
+    {
+        $param = new CommentsParam($param);
+        $param->unset('order');
+        $param->unset('limit');
+
+        $query = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $query->column($query->count('comment_id'));
+
+        $rs = $this->queryCommentsTable(param: $param, sql: $query);
+
+        // --BEHAVIOR-- coreBlogCountComments, Record
+        App::core()->behavior()->call('coreBlogCountComments', $rs);
+
+        return $rs->fInt();
+    }
+
     /**
      * Retrieve comments.
      *
-     * <b>$params</b> is an array taking the following optionnal parameters:
+     * @see CommentsParam for optionnal paramaters
      *
-     * - no_content: Don't retrieve comment content
-     * - post_type: Get only entries with given type (default no type, array for many types)
-     * - post_id: (int) Get comments belonging to given post_id
-     * - cat_id: (integer or array) Get comments belonging to entries of given category ID
-     * - comment_id: (integer or array) Get comment with given ID (or IDs)
-     * - comment_site: (string) Get comments with given comment_site
-     * - comment_status: (int) Get comments with given comment_status
-     * - comment_trackback: (int) Get only comments (0) or trackbacks (1)
-     * - comment_ip: (string) Get comments with given IP address
-     * - post_url: Get entry with given post_url field
-     * - user_id: (int) Get entries belonging to given user ID
-     * - q_author: Search comments by author
-     * - sql: Append SQL string at the end of the query
-     * - from: Append SQL string after "FROM" statement in query
-     * - order: Order of results (default "ORDER BY comment_dt DES")
-     * - limit: Limit parameter
-     * - sql_only : return the sql request instead of results. Only ids are selected
+     * @param null|Param           $param The parameters
+     * @param null|SelectStatement $sql   The SQL statement
      *
-     * @param array                $params     Parameters
-     * @param bool                 $count_only Only counts results
-     * @param null|SelectStatement $sql        previous sql statement
-     *
-     * @return Record|string A record with some more capabilities (or sql statement)
+     * @return Record The comments
      */
-    public function getComments(array $params = [], bool $count_only = false, ?SelectStatement $sql = null): string|Record
+    public function getComments(?Param $param = null, ?SelectStatement $sql = null): Record
     {
-        if (!$sql) {
-            $sql = new SelectStatement(__METHOD__);
-        }
+        $param = new CommentsParam($param);
 
-        if ($count_only) {
-            $sql->column($sql->count('comment_id'));
-        } elseif (!empty($params['sql_only'])) {
-            $sql->column('P.post_id');
+        $query = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $query->order($query->escape($param->order('comment_dt DESC')));
+
+        if (true == $param->no_content()) {
+            $content_req = '';
         } else {
-            if (!empty($params['no_content'])) {
-                $content_req = '';
-            } else {
-                $sql->column('comment_content');
+            $query->column('comment_content');
 
-                $content_req = 'comment_content, ';
-            }
-
-            if (!empty($params['columns']) && is_array($params['columns'])) {
-                $sql->columns($params['columns']);
-
-                $content_req .= implode(', ', $params['columns']) . ', ';
-            }
-
-            $sql->columns([
-                'C.comment_id',
-                'comment_dt',
-                'comment_upddt',
-                'comment_author',
-                'comment_email',
-                'comment_site',
-                'comment_trackback',
-                'comment_status',
-                'comment_spam_status',
-                'comment_spam_filter',
-                'comment_ip',
-                'P.post_title',
-                'P.post_url',
-                'P.post_id',
-                'P.post_password',
-                'P.post_type',
-                'P.post_dt',
-                'P.user_id',
-                'U.user_email',
-                'U.user_url',
-            ]);
+            $content_req = 'comment_content, ';
         }
 
+        if (!empty($param->columns())) {
+            $query->columns($param->columns());
+
+            $content_req .= implode(', ', $param->columns()) . ', ';
+        }
+
+        $query->columns([
+            'C.comment_id',
+            'comment_dt',
+            'comment_upddt',
+            'comment_author',
+            'comment_email',
+            'comment_site',
+            'comment_trackback',
+            'comment_status',
+            'comment_spam_status',
+            'comment_spam_filter',
+            'comment_ip',
+            'P.post_title',
+            'P.post_url',
+            'P.post_id',
+            'P.post_password',
+            'P.post_type',
+            'P.post_dt',
+            'P.user_id',
+            'U.user_email',
+            'U.user_url',
+        ]);
+
+        if (!empty($param->limit())) {
+            $query->limit($param->limit());
+        }
+
+        $rs = $this->queryCommentsTable(param: $param, sql: $query);
+
+        // --BEHAVIOR-- coreBlogGetComments, Record
+        App::core()->behavior()->call('coreBlogGetComments', $rs);
+
+        return $rs;
+    }
+
+    /**
+     * Retrieve comments.
+     *
+     * @param CommentsParam   $param The log parameters
+     * @param SelectStatement $sql   The SQL statement
+     *
+     * @return Record The result
+     */
+    public function queryCommentsTable(CommentsParam $param, SelectStatement $sql): Record
+    {
         $sql
             ->from(App::core()->prefix() . 'comment C')
             ->join(
@@ -128,13 +154,13 @@ class Comments
             )
         ;
 
-        if (!empty($params['from'])) {
-            $sql->from($params['from']);
+        if (!empty($param->from())) {
+            $sql->from($param->from());
         }
 
-        if (!empty($params['where'])) {
+        if (!empty($param->where())) {
             // Cope with legacy code
-            $sql->where($params['where']);
+            $sql->where($param->where());
         } else {
             $sql->where('P.blog_id = ' . $sql->quote(App::core()->blog()->id, true));
         }
@@ -158,104 +184,81 @@ class Comments
             $sql->and($sql->orGroup($or));
         }
 
-        if (!empty($params['post_type'])) {
-            $sql->and('post_type' . $sql->in($params['post_type']));
+        if (!empty($param->post_type())) {
+            $sql->and('post_type' . $sql->in($param->post_type()));
         }
 
-        if (isset($params['post_id']) && '' !== $params['post_id']) {
-            $sql->and('P.post_id = ' . (int) $params['post_id']);
+        if (null !== $param->post_id()) {
+            $sql->and('P.post_id = ' . $param->post_id());
         }
 
-        if (isset($params['cat_id']) && '' !== $params['cat_id']) {
-            $sql->and('P.cat_id = ' . (int) $params['cat_id']);
+        if (null !== $param->cat_id()) {
+            $sql->and('P.cat_id = ' . $param->cat_id());
         }
 
-        if (isset($params['comment_id']) && '' !== $params['comment_id']) {
-            if (is_array($params['comment_id'])) {
-                array_walk($params['comment_id'], function (&$v, $k) {
-                    if (null !== $v) {
-                        $v = (int) $v;
-                    }
-                });
-            } else {
-                $params['comment_id'] = [(int) $params['comment_id']];
-            }
-            $sql->and('comment_id' . $sql->in($params['comment_id']));
+        if (!empty($param->comment_id())) {
+            $sql->and('comment_id' . $sql->in($param->comment_id()));
         }
 
-        if (isset($params['comment_email'])) {
-            $comment_email = $sql->escape(str_replace('*', '%', $params['comment_email']));
+        if (null !== $param->comment_email()) {
+            $comment_email = $sql->escape(str_replace('*', '%', $param->comment_email()));
             $sql->and($sql->like('comment_email', $comment_email));
         }
 
-        if (isset($params['comment_site'])) {
-            $comment_site = $sql->escape(str_replace('*', '%', $params['comment_site']));
+        if (null !== $param->comment_site()) {
+            $comment_site = $sql->escape(str_replace('*', '%', $param->comment_site()));
             $sql->and($sql->like('comment_site', $comment_site));
         }
 
-        if (isset($params['comment_status'])) {
-            $sql->and('comment_status = ' . (int) $params['comment_status']);
+        if (null !== $param->comment_status()) {
+            $sql->and('comment_status = ' . $param->comment_status());
         }
 
-        if (!empty($params['comment_status_not'])) {
-            $sql->and('comment_status <> ' . (int) $params['comment_status_not']);
+        if (null !== $param->comment_status_not()) {
+            $sql->and('comment_status <> ' . $param->comment_status_not());
         }
 
-        if (isset($params['comment_trackback'])) {
-            $sql->and('comment_trackback = ' . (int) (bool) $params['comment_trackback']);
+        if (null !== $param->comment_trackback()) {
+            $sql->and('comment_trackback = ' . $param->comment_trackback());
         }
 
-        if (isset($params['comment_ip'])) {
-            $comment_ip = $sql->escape(str_replace('*', '%', $params['comment_ip']));
+        if (null !== $param->comment_ip()) {
+            $comment_ip = $sql->escape(str_replace('*', '%', $param->comment_ip()));
             $sql->and($sql->like('comment_ip', $comment_ip));
         }
 
-        if (isset($params['q_author'])) {
-            $q_author = $sql->escape(str_replace('*', '%', strtolower($params['q_author'])));
+        if (null !== $param->q_author()) {
+            $q_author = $sql->escape(str_replace('*', '%', strtolower($param->q_author())));
             $sql->and($sql->like('LOWER(comment_author)', $q_author));
         }
 
-        if (!empty($params['search'])) {
-            $words = text::splitWords($params['search']);
+        if (null !== $param->search()) {
+            $words = text::splitWords($param->search());
 
             if (!empty($words)) {
+                $param->set('words', $words);
                 // --BEHAVIOR coreCommentSearch
                 if (App::core()->behavior()->has('coreCommentSearch')) {
-                    App::core()->behavior()->call('coreCommentSearch', [&$words, &$sql, &$params]);
+                    App::core()->behavior()->call('coreCommentSearch', $param, $sql);
                 }
 
-                foreach ($words as $i => $w) {
-                    $words[$i] = "comment_words LIKE '%" . $sql->escape($w) . "%'";
+                $w = [];
+                foreach ($param->get('words') as $word) {
+                    $w[] = $sql->like('comment_words', '%' . $sql->escape($word) . '%');
                 }
-                $sql->and($words);
+                if (!empty($w)) {
+                    $sql->and($w);
+                }
+                $param->unset('words');
             }
         }
 
-        if (!empty($params['sql'])) {
-            $sql->sql($params['sql']);
-        }
-
-        if (!$count_only) {
-            if (!empty($params['order'])) {
-                $sql->order($sql->escape($params['order']));
-            } else {
-                $sql->order('comment_dt DESC');
-            }
-        }
-
-        if (!$count_only && !empty($params['limit'])) {
-            $sql->limit($params['limit']);
-        }
-
-        if (!empty($params['sql_only'])) {
-            return $sql->statement();
+        if (null !== $param->sql()) {
+            $sql->sql($param->sql());
         }
 
         $rs = $sql->select();
         $rs->extend(new RsExtComment());
-
-        // --BEHAVIOR-- coreBlogGetComments, Dotclear\Database\Record
-        App::core()->behavior()->call('coreBlogGetComments', $rs);
 
         return $rs;
     }
@@ -333,7 +336,9 @@ class Comments
             throw new CoreException(__('No such comment ID'));
         }
 
-        $rs = $this->getComments(['comment_id' => $id]);
+        $param = new Param();
+        $param->set('comment_id', $id);
+        $rs = $this->getComments(param: $param);
 
         if ($rs->isEmpty()) {
             throw new CoreException(__('No such comment ID'));

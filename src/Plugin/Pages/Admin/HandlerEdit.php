@@ -12,6 +12,7 @@ namespace Dotclear\Plugin\Pages\Admin;
 // Dotclear\Plugin\Pages\Admin\HandlerEdit
 use ArrayObject;
 use Dotclear\App;
+use Dotclear\Database\Param;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -104,10 +105,11 @@ class HandlerEdit extends AbstractPage
         if (!empty($_REQUEST['id'])) {
             $page_title = __('Edit page');
 
-            $params['post_type'] = 'page';
-            $params['post_id']   = $_REQUEST['id'];
+            $param = new Param();
+            $param->set('post_type', 'page');
+            $param->set('post_id', $_REQUEST['id']);
 
-            $this->post = App::core()->blog()->posts()->getPosts($params);
+            $this->post = App::core()->blog()->posts()->getPosts(param: $param);
 
             if ($this->post->isEmpty()) {
                 App::core()->error()->add(__('This page does not exist.'));
@@ -664,10 +666,15 @@ class HandlerEdit extends AbstractPage
         /* Comments and trackbacks
         -------------------------------------------------------- */
         if ($this->post_id) {
-            $params = ['post_id' => $this->post_id, 'order' => 'comment_dt ASC'];
+            $param = new Param();
+            $param->set('post_id', $this->post_id);
+            $param->set('order', 'comment_dt ASC');
 
-            $comments   = App::core()->blog()->comments()->getComments(array_merge($params, ['comment_trackback' => 0]));
-            $trackbacks = App::core()->blog()->comments()->getComments(array_merge($params, ['comment_trackback' => 1]));
+            $param->set('comment_trackback', 0);
+            $comments   = App::core()->blog()->comments()->getComments(param: $param);
+
+            $param->set('comment_trackback', 1);
+            $trackbacks = App::core()->blog()->comments()->getComments(param: $param);
 
             // Actions combo box
             $combo_action = [];

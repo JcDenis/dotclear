@@ -13,6 +13,7 @@ namespace Dotclear\Process\Admin\Handler;
 use Dotclear\App;
 use Dotclear\Core\User\UserContainer;
 use Dotclear\Core\Blog\Settings\Settings;
+use Dotclear\Database\Param;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\Lexical;
@@ -932,12 +933,12 @@ class BlogPref extends AbstractPage
 
                     echo '<h5>' . __('Publications on this blog:') . '</h5>' .
                         '<ul>';
+                    $param = new Param();
                     foreach ($post_type as $type => $pt_info) {
-                        $params = [
-                            'post_type' => $type,
-                            'user_id'   => $k,
-                        ];
-                        echo '<li>' . sprintf(__('%1$s: %2$s'), $pt_info['label'], App::core()->blog()->posts()->getPosts($params, true)->fInt()) . '</li>';
+                        $param->set('post_type', $type);
+                        $param->set('user_id', $k);
+
+                        echo '<li>' . sprintf(__('%1$s: %2$s'), $pt_info['label'], App::core()->blog()->posts()->countPosts(param: $param)) . '</li>';
                     }
                     echo '</ul>';
 

@@ -12,6 +12,7 @@ namespace Dotclear\Plugin\Tags\Common;
 // Dotclear\Plugin\Tags\Common\TagsUrl
 use Dotclear\App;
 use Dotclear\Core\Url\Url;
+use Dotclear\Database\Param;
 
 /**
  * URL methods of plugin Tags.
@@ -38,10 +39,12 @@ class TagsUrl extends Url
             $mime     = 'application/xml';
             $comments = !empty($m[3]);
 
+            $param = new Param();
+            $param->set('meta_type', 'tag');
+            $param->set('meta_id', $m[1]);
+
             App::core()->context()->set('meta', App::core()->meta()->computeMetaStats(
-                App::core()->meta()->getMetadata([
-                    'meta_type' => 'tag',
-                    'meta_id'   => $m[1], ])
+                App::core()->meta()->getMetadata(param: $param)
             ));
 
             if (App::core()->context()->get('meta')->isEmpty()) {
@@ -60,10 +63,12 @@ class TagsUrl extends Url
                 App::core()->context()->page_number($n);
             }
 
+            $param = new Param();
+            $param->set('meta_type', 'tag');
+            $param->set('meta_id', $args);
+
             App::core()->context()->set('meta', App::core()->meta()->computeMetaStats(
-                App::core()->meta()->getMetadata([
-                    'meta_type' => 'tag',
-                    'meta_id'   => $args, ])
+                App::core()->meta()->getMetadata(param: $param)
             ));
 
             if (App::core()->context()->get('meta')->isEmpty()) {
@@ -88,10 +93,12 @@ class TagsUrl extends Url
             $type     = $m[2];
             $comments = !empty($m[3]);
 
+            $param = new Param();
+            $param->set('meta_type', 'tag');
+            $param->set('meta_id', $tag);
+
             App::core()->context()->set('meta', App::core()->meta()->computeMetaStats(
-                App::core()->meta()->getMetadata([
-                    'meta_type' => 'tag',
-                    'meta_id'   => $tag, ])
+                App::core()->meta()->getMetadata(param: $param)
             ));
 
             if (App::core()->context()->get('meta')->isEmpty()) {

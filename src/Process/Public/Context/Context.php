@@ -11,6 +11,7 @@ namespace Dotclear\Process\Public\Context;
 
 // Dotclear\Process\Public\Context\Context
 use Dotclear\App;
+use Dotclear\Database\Param;
 use Dotclear\Database\Record;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Html;
@@ -342,18 +343,19 @@ class Context
     /**
      * Build category post param.
      *
-     * @param array $p The param
+     * @param Param $param The param
      */
-    public function categoryPostParam(array &$p): void
+    public function categoryPostParam(Param $param): void
     {
-        $not = substr($p['cat_url'], 0, 1) == '!';
+        $url = $param->get('cat_url');
+        $not = substr($url, 0, 1) == '!';
         if ($not) {
-            $p['cat_url'] = substr($p['cat_url'], 1);
+            $url = substr($url, 1);
         }
 
-        $p['cat_url'] = preg_split('/\s*,\s*/', $p['cat_url'], -1, PREG_SPLIT_NO_EMPTY);
+        $url = preg_split('/\s*,\s*/', $url, -1, PREG_SPLIT_NO_EMPTY);
 
-        foreach ($p['cat_url'] as &$v) {
+        foreach ($url as &$v) {
             if ($not) {
                 $v .= ' ?not';
             }
@@ -363,6 +365,7 @@ class Context
                 $v = preg_replace('/#self/', $this->get('posts')->f('cat_url'), $v);
             }
         }
+        $param->set('cat_url', $url);
     }
 
     /**

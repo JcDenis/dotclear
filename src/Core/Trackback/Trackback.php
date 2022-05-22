@@ -11,6 +11,7 @@ namespace Dotclear\Core\Trackback;
 
 // Dotclear\Core\Trackback\Trackback
 use Dotclear\App;
+use Dotclear\Database\Param;
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\InsertStatement;
@@ -229,7 +230,11 @@ class Trackback
         }
 
         if (!$err) {
-            $rs = App::core()->blog()->posts()->getPosts(['post_id' => $post_id, 'post_type' => '']);
+            $param = new Param();
+            $param->set('post_id', $post_id);
+            $param->set('post_type', '');
+
+            $rs = App::core()->blog()->posts()->getPosts(param: $param);
 
             if ($rs->isEmpty()) {
                 $err = true;
@@ -457,15 +462,14 @@ class Trackback
      */
     private function pingAlreadyDone(int $post_id, string $from_url): bool
     {
-        $params = [
-            'post_id'           => $post_id,
-            'comment_site'      => $from_url,
-            'comment_trackback' => 1,
-        ];
+        $param = new Param();
+        $param->set('post_id', $post_id);
+        $param->set('comment_site', $from_url);
+        $param->set('comment_trackback', 1);
 
-        $rs = App::core()->blog()->comments()->getComments($params, true);
+        $count = App::core()->blog()->comments()->countComments(param: $param);
 
-        return $rs && !$rs->isEmpty() ? (bool) $rs->fInt() : false;
+        return (bool) $count;
     }
 
     /**
@@ -601,11 +605,11 @@ class Trackback
         }
 
         // Time to see if we've got a winner...
-        $params = [
-            'post_type' => $p_type,
-            'post_url'  => $post_url,
-        ];
-        $posts = App::core()->blog()->posts()->getPosts($params);
+        $param = new Param();
+        $param->set('post_type', $p_type);
+        $param->set('post_url', $post_url);
+
+        $posts = App::core()->blog()->posts()->getPosts(param: $param);
 
         // Missed!
         if ($posts->isEmpty()) {

@@ -13,6 +13,7 @@ namespace Dotclear\Plugin\Pages\Common;
 use ArrayObject;
 use Dotclear\App;
 use Dotclear\Core\Url\Url;
+use Dotclear\Database\Param;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\HtmlFilter;
@@ -43,13 +44,14 @@ class PagesUrl extends Url
         } else {
             App::core()->blog()->withoutPassword(false);
 
-            $params = new ArrayObject([
-                'post_type' => 'page',
-                'post_url'  => $args, ]);
+            $param = new Param();
+            $param->set('post_type', 'page');
+            $param->set('post_url', $args);
 
-            App::core()->behavior()->call('publicPagesBeforeGetPosts', $params, $args);
+            // --BEHAVIOR-- publicPagesBeforeGetPosts, Param, string
+            App::core()->behavior()->call('publicPagesBeforeGetPosts', $param, $args);
 
-            App::core()->context()->set('posts', App::core()->blog()->posts()->getPosts($params));
+            App::core()->context()->set('posts', App::core()->blog()->posts()->getPosts(param: $param));
 
             /** @var ArrayObject<string, mixed> */
             $cp               = new ArrayObject();

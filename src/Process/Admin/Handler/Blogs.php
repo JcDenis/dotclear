@@ -10,9 +10,9 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\Blog
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Core\RsExt\RsExtUser;
+use Dotclear\Database\Param;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Action\Action\BlogAction;
 use Dotclear\Process\Admin\Inventory\Inventory\BlogInventory;
@@ -43,15 +43,14 @@ class Blogs extends AbstractPage
 
     protected function getInventoryInstance(): ?BlogInventory
     {
-        $params = $this->filter->params();
-        $params = new ArrayObject($params);
+        $param = $this->filter->params();
 
-        // --BEHAVIOR-- adminGetBlogs, ArrayObject
-        App::core()->behavior()->call('adminGetBlogs', $params);
+        // --BEHAVIOR-- adminGetBlogs, Param
+        App::core()->behavior()->call('adminGetBlogs', $param);
 
-        $counter  = App::core()->blogs()->getBlogs($params, true);
-        $rs       = App::core()->blogs()->getBlogs($params);
-        $nb_blog  = $counter->fInt();
+        $count = App::core()->blogs()->countBlogs(param: $param);
+        $rs    = App::core()->blogs()->getBlogs(param: $param);
+
         $rsStatic = $rs->toStatic();
         if (($this->filter->get('sortby') != 'blog_upddt') && ($this->filter->get('sortby') != 'blog_status')) {
             // Sort blog list using lexical order if necessary
@@ -60,7 +59,7 @@ class Blogs extends AbstractPage
             $rsStatic->lexicalSort(($this->filter->get('sortby') == 'UPPER(blog_name)' ? 'blog_name' : 'blog_id'), $this->filter->get('order'));
         }
 
-        return new BlogInventory($rs, $counter->fInt());
+        return new BlogInventory($rs, $count);
     }
 
     protected function getPagePrepend(): ?bool

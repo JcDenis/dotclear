@@ -12,6 +12,7 @@ namespace Dotclear\Process\Admin\Page;
 // Dotclear\Process\Admin\Page\AbstractPage
 use ArrayObject;
 use Dotclear\App;
+use Dotclear\Database\Param;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Html\Form;
@@ -181,7 +182,7 @@ abstract class AbstractPage
         $this->pageBreadcrumb();
 
         // Get notices
-        echo App::core()->notice()->getNotices();
+        echo App::core()->notice()->getHtmlNotices();
 
         // Get page content
         $this->getPageContent();
@@ -221,7 +222,11 @@ abstract class AbstractPage
             }
             $blog_box .= '</p>';
         } else {
-            $rs_blogs = App::core()->blogs()->getBlogs(['order' => 'LOWER(blog_name)', 'limit' => 20]);
+            $param = new Param();
+            $param->set('order', 'LOWER(blog_name)');
+            $param->set('limit', 20);
+
+            $rs_blogs = App::core()->blogs()->getBlogs(param: $param);
             $blogs    = [];
             while ($rs_blogs->fetch()) {
                 $blogs[Html::escapeHTML($rs_blogs->f('blog_name') . ' - ' . $rs_blogs->f('blog_url'))] = $rs_blogs->f('blog_id');

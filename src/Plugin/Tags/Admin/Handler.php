@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\Tags\Admin;
 
 // Dotclear\Plugin\Tags\Admin\Handler
 use Dotclear\App;
+use Dotclear\Database\Param;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Action\Action\PostAction;
@@ -79,18 +80,18 @@ class Handler extends AbstractPage
                 }
             }
 
-            $params               = [];
-            $params['limit']      = [(($this->t_page - 1) * $this->t_nb_per_page), $this->t_nb_per_page];
-            $params['no_content'] = true;
+            $param = new Param();
+            $param->set('limit', [(($this->t_page - 1) * $this->t_nb_per_page), $this->t_nb_per_page]);
+            $param->set('no_content', true);
 
-            $params['meta_id']   = $this->t_tag;
-            $params['meta_type'] = 'tag';
-            $params['post_type'] = '';
+            $param->set('meta_id', $this->t_tag);
+            $param->set('meta_type', 'tag');
+            $param->set('post_type', '');
 
             // Get posts
             try {
-                $this->t_posts     = App::core()->meta()->getPostsByMeta($params);
-                $count             = App::core()->meta()->getPostsByMeta($params, true)->fInt();
+                $this->t_posts     = App::core()->meta()->getPostsByMeta($param);
+                $count             = App::core()->meta()->countPostsByMeta($param);
                 $this->t_post_list = new PostInventory($this->t_posts, $count);
             } catch (Exception $e) {
                 App::core()->error()->add($e->getMessage());
@@ -130,7 +131,9 @@ class Handler extends AbstractPage
     protected function getPageContent(): void
     {
         if (empty($this->t_tag)) {
-            $tags = App::core()->meta()->getMetadata(['meta_type' => 'tag']);
+            $param = new Param();
+            $param->set('meta_type', 'tag');
+            $tags = App::core()->meta()->getMetadata(param: $param);
             $tags = App::core()->meta()->computeMetaStats($tags);
             $tags->sort('meta_id_lower', 'asc');
 

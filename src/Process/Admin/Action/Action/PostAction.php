@@ -12,6 +12,7 @@ namespace Dotclear\Process\Admin\Action\Action;
 // Dotclear\Process\Admin\Action\Action\PostAction
 use ArrayObject;
 use Dotclear\App;
+use Dotclear\Database\Param;
 use Dotclear\Helper\Html\Html;
 use Exception;
 
@@ -56,7 +57,7 @@ class PostAction extends DefaultPostAction
 
     protected function fetchEntries(ArrayObject $from): void
     {
-        $params = [];
+        $param = new Param();
         if (!empty($from['entries'])) {
             $entries = $from['entries'];
 
@@ -64,20 +65,20 @@ class PostAction extends DefaultPostAction
                 $entries[$k] = (int) $v;
             }
 
-            $params['sql'] = 'AND P.post_id IN(' . implode(',', $entries) . ') ';
+            $param->push('sql', 'AND P.post_id IN(' . implode(',', $entries) . ') ');
         } else {
-            $params['sql'] = 'AND 1=0 ';
+            $param->push('sql', 'AND 1=0 ');
         }
 
         if (!isset($from['full_content']) || empty($from['full_content'])) {
-            $params['no_content'] = true;
+            $param->set('no_content', true);
         }
 
         if (isset($from['post_type'])) {
-            $params['post_type'] = $from['post_type'];
+            $param->set('post_type', $from['post_type']);
         }
 
-        $posts = App::core()->blog()->posts()->getPosts($params);
+        $posts = App::core()->blog()->posts()->getPosts(param: $param);
         while ($posts->fetch()) {
             $this->entries[$posts->fInt('post_id')] = $posts->f('post_title');
         }

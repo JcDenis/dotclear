@@ -13,6 +13,7 @@ namespace Dotclear\Process\Admin\Action\Action;
 use ArrayObject;
 use Dotclear\App;
 use Dotclear\Core\RsExt\RsExtUser;
+use Dotclear\Database\Param;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Html\Form;
@@ -302,11 +303,11 @@ abstract class DefaultPostAction extends Action
         } else {
             $usersList = [];
             if (App::core()->user()->check('admin', App::core()->blog()->id)) {
-                $params = [
-                    'limit' => 100,
-                    'order' => 'nb_post DESC',
-                ];
-                $rs       = App::core()->users()->getUsers($params);
+                $param = new Param();
+                $param->set('limit', 100);
+                $param->set('order', 'nb_post DESC');
+
+                $rs       = App::core()->users()->getUsers(param: $param);
                 $rsStatic = $rs->toStatic();
                 $rsStatic->extend(new RsExtUser());
                 $rsStatic = $rsStatic->toExtStatic();

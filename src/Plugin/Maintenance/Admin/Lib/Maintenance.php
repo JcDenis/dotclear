@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\Maintenance\Admin\Lib;
 
 // Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance
 use Dotclear\App;
+use Dotclear\Database\Param;
 use Dotclear\Helper\Clock;
 
 /**
@@ -233,11 +234,11 @@ class Maintenance
         }
 
         // Get logs from this task
-        $rs = App::core()->log()->get([
-            'log_msg'   => $id,
-            'log_table' => 'maintenance',
-            'blog_id'   => '*',
-        ]);
+        $param = new Param();
+        $param->set('log_msg', $id);
+        $param->set('log_table', 'maintenance');
+        $param->set('blog_id', '*');
+        $rs = App::core()->log()->getLogs(param: $param);
 
         $logs = [];
         while ($rs->fetch()) {
@@ -246,7 +247,7 @@ class Maintenance
 
         // Delete old logs
         if (!empty($logs)) {
-            App::core()->log()->delete($logs);
+            App::core()->log()->deleteLogs($logs);
         }
 
         // Add new log
@@ -255,7 +256,7 @@ class Maintenance
         $cur->setField('log_table', 'maintenance');
         $cur->setField('user_id', App::core()->user()->userID());
 
-        App::core()->log()->add($cur);
+        App::core()->log()->addLog($cur);
     }
 
     /**
@@ -264,10 +265,10 @@ class Maintenance
     public function delLogs(): void
     {
         // Retrieve logs from this task
-        $rs = App::core()->log()->get([
-            'log_table' => 'maintenance',
-            'blog_id'   => '*',
-        ]);
+        $param = new Param();
+        $param->set('log_table', 'maintenance');
+        $param->set('blog_id', '*');
+        $rs = App::core()->log()->getLogs(param: $param);
 
         $logs = [];
         while ($rs->fetch()) {
@@ -276,7 +277,7 @@ class Maintenance
 
         // Delete old logs
         if (!empty($logs)) {
-            App::core()->log()->delete($logs);
+            App::core()->log()->deleteLogs($logs);
         }
     }
 
@@ -295,10 +296,10 @@ class Maintenance
     public function getLogs(): array
     {
         if (null === $this->logs) {
-            $rs = App::core()->log()->get([
-                'log_table' => 'maintenance',
-                'blog_id'   => '*',
-            ]);
+            $param = new Param();
+            $param->set('log_table', 'maintenance');
+            $param->set('blog_id', '*');
+            $rs = App::core()->log()->getLogs(param: $param);
 
             $this->logs = [];
             while ($rs->fetch()) {

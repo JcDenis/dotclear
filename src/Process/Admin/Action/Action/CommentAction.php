@@ -12,6 +12,7 @@ namespace Dotclear\Process\Admin\Action\Action;
 // Dotclear\Process\Admin\Action\Action\CommentAction
 use ArrayObject;
 use Dotclear\App;
+use Dotclear\Database\Param;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Exception;
@@ -80,7 +81,7 @@ class CommentAction extends DefaultCommentAction
 
     protected function fetchEntries(ArrayObject $from): void
     {
-        $params = [];
+        $param = new Param();
         if (!empty($from['comments'])) {
             $comments = $from['comments'];
 
@@ -88,15 +89,15 @@ class CommentAction extends DefaultCommentAction
                 $comments[$k] = (int) $v;
             }
 
-            $params['sql'] = 'AND C.comment_id IN(' . implode(',', $comments) . ') ';
+            $param->push('sql', 'AND C.comment_id IN(' . implode(',', $comments) . ') ');
         } else {
-            $params['sql'] = 'AND 1=0 ';
+            $param->push('sql', 'AND 1=0 ');
         }
 
         if (!isset($from['full_content']) || empty($from['full_content'])) {
-            $params['no_content'] = true;
+            $param->set('no_content', true);
         }
-        $co = App::core()->blog()->comments()->getComments($params);
+        $co = App::core()->blog()->comments()->getComments(param: $param);
         while ($co->fetch()) {
             $this->entries[$co->comment_id] = [
                 'title'  => $co->post_title,

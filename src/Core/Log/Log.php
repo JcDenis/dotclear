@@ -11,11 +11,11 @@ namespace Dotclear\Core\Log;
 
 // Dotclear\Core\Log\Log
 use Dotclear\App;
-use Dotclear\Core\RsExt\RsExtLog;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\TruncateStatement;
 use Dotclear\Database\Cursor;
+use Dotclear\Database\Param;
 use Dotclear\Database\Record;
 use Dotclear\Exception\CoreException;
 use Dotclear\Helper\Clock;
@@ -25,100 +25,98 @@ use Exception;
 /**
  * Log handling methods.
  *
+ * Use generic class Param as public methods parameter
+ * as we do not know where parameters come from.
+ *
  * @ingroup  Core Log
  */
-class Log
+final class Log
 {
     /**
      * Retrieve logs count.
      *
-     * @see self::get() whitout paramaeter order.
+     * @see LogParam for optionnal paramaters
      *
-     * @param array $params The parameters
+     * @param null|Param           $param The parameters
+     * @param null|SelectStatement $sql   The SQL statement
      *
      * @return int The logs count
      */
-    public function count(array $params = []): int
+    public function countLogs(?Param $param = null, ?SelectStatement $sql = null): int
     {
-        $sql = new SelectStatement(__METHOD__);
-        $sql
-            ->from(App::core()->prefix() . 'log L')
-            ->column($sql->count('log_id'))
-        ;
+        $param = new LogParam($param);
+        $param->unset('order');
+        $param->unset('limit');
 
-        return $this->query($params, $sql)->fInt(0);
+        $query = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $query->column($query->count('log_id'));
+
+        return $this->queryLogTable(param: $param, sql: $query)->fInt();
     }
 
     /**
      * Retrieve logs.
      *
-     * <b>$params</b> is an array taking the following
-     * optionnal parameters:
+     * @see LogParam for optionnal paramaters
      *
-     * - blog_id: Get logs belonging to given blog ID
-     * - user_id: Get logs belonging to given user ID
-     * - log_ip: Get logs belonging to given IP address
-     * - log_table: Get logs belonging to given log table
-     * - log_msg: Get logs belonging to a given message
-     * - order: Order of results (default "ORDER BY log_dt DESC")
-     * - limit: Limit parameter
-     *
-     * @param array $params The parameters
+     * @param null|Param           $param The parameters
+     * @param null|SelectStatement $sql   The SQL statement
      *
      * @return Record The logs
      */
-    public function get(array $params = []): Record
+    public function getLogs(?Param $param = null, ?SelectStatement $sql = null): Record
     {
-        $sql = new SelectStatement(__METHOD__);
-        $sql
-            ->from(App::core()->prefix() . 'log L')
-            ->order(
-                empty($params['order']) ?
-                'log_dt DESC' :
-                $sql->escape($params['order'])
-            )
-        ;
+        $param = new LogParam($param);
 
-        return $this->query($params, $sql);
+        $query = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $query->order($query->escape($param->order('log_dt DESC')));
+
+        if (!empty($param->limit())) {
+            $query->limit($param->limit());
+        }
+
+        return $this->queryLogTable(param: $param, sql: $query);
     }
 
     /**
      * Query log table.
      *
-     * @param array           $params The params
-     * @param SelectStatement $sql    The partial sql statement
+     * @param LogParam        $param The log parameters
+     * @param SelectStatement $sql   The SQL statement
      *
      * @return Record The result
      */
-    private function query(array $params, SelectStatement $sql): Record
+    private function queryLogTable(LogParam $param, SelectStatement $sql): Record
     {
-        if (!empty($params['blog_id'])) {
-            if ('*' != $params['blog_id']) {
-                $sql->where('L.blog_id = ' . $sql->quote($params['blog_id']));
+        $sql->from(App::core()->prefix() . 'log L', false, true);
+
+        if (null !== $param->blog_id()) {
+            if ('*' != $param->blog_id()) {
+                $sql->where('L.blog_id = ' . $sql->quote($param->blog_id()));
             }
         } else {
             $sql->where('L.blog_id = ' . $sql->quote(App::core()->blog()->id));
         }
 
-        if (!empty($params['user_id'])) {
-            $sql->and('L.user_id' . $sql->in($params['user_id']));
+        if (!empty($param->user_id())) {
+            $sql->and('L.user_id' . $sql->in($param->user_id()));
         }
-        if (!empty($params['log_ip'])) {
-            $sql->and('log_ip' . $sql->in($params['log_ip']));
+        if (!empty($param->log_ip())) {
+            $sql->and('log_ip' . $sql->in($param->log_ip()));
         }
-        if (!empty($params['log_table'])) {
-            $sql->and('log_table' . $sql->in($params['log_table']));
+        if (!empty($param->log_table())) {
+            $sql->and('log_table' . $sql->in($param->log_table()));
         }
-        if (!empty($params['log_msg'])) {
-            $sql->and('log_msg' . $sql->in($params['log_msg']));
+        if (!empty($param->log_msg())) {
+            $sql->and('log_msg' . $sql->in($param->log_msg()));
         }
 
-        if (!empty($params['limit'])) {
-            $sql->limit($params['limit']);
+        if (null !== $param->sql()) {
+            $sql->sql($param->sql());
         }
 
         $rs = $sql->select();
-        $rs->extend(new RsExtLog());
+        $rs->extend(new LogRecordExtend());
 
         return $rs;
     }
@@ -132,22 +130,22 @@ class Log
      *
      * @return int The log id
      */
-    public function add(Cursor $cur): int
+    public function addLog(Cursor $cur): int
     {
         App::core()->con()->writeLock(App::core()->prefix() . 'log');
 
         try {
             // Get ID
-            $id = SelectStatement::init(__METHOD__)
-                ->column('MAX(log_id)')
-                ->from(App::core()->prefix() . 'log')
-                ->select()->fInt();
+            $sql = new SelectStatement(__METHOD__);
+            $sql->column($sql->max('log_id'));
+            $sql->from(App::core()->prefix() . 'log');
+            $id = $sql->select()->fInt();
 
             $cur->setField('log_id', $id + 1);
             $cur->setField('blog_id', (string) App::core()->blog()->id);
             $cur->setField('log_dt', Clock::database());
 
-            $this->cursor($cur, $cur->getField('log_id'));
+            $this->cleanLogCursor($cur, $cur->getField('log_id'));
 
             // --BEHAVIOR-- coreBeforeLogCreate, Dotclear\Core\Log, Dotclear\Database\Cursor
             App::core()->behavior()->call('coreBeforeLogCreate', $this, $cur);
@@ -167,32 +165,6 @@ class Log
     }
 
     /**
-     * Delete a log.
-     *
-     * @param array|int $id The identifier
-     */
-    public function delete(int|array $id): void
-    {
-        $sql = new DeleteStatement(__METHOD__);
-        $sql
-            ->where('log_id' . $sql->in($id))
-            ->from(App::core()->prefix() . 'log')
-            ->run()
-        ;
-    }
-
-    /**
-     * Delete all logs.
-     */
-    public function truncate(): void
-    {
-        TruncateStatement::init(__METHOD__)
-            ->from(App::core()->prefix() . 'log')
-            ->run()
-        ;
-    }
-
-    /**
      * Get the log cursor.
      *
      * @param Cursor   $cur    The current
@@ -200,7 +172,7 @@ class Log
      *
      * @throws CoreException
      */
-    private function cursor(Cursor $cur, ?int $log_id = null)
+    private function cleanLogCursor(Cursor $cur, ?int $log_id = null)
     {
         if ('' === $cur->getField('log_msg')) {
             throw new CoreException(__('No log message'));
@@ -223,5 +195,38 @@ class Log
         }
 
         $log_id = is_int($log_id) ? $log_id : (int) $cur->getField('log_id');
+    }
+
+    /**
+     * Delete a log.
+     *
+     * @param int $id The identifier
+     */
+    public function deleteLog(int $id): void
+    {
+        $this->deleteLogs([$id]);
+    }
+
+    /**
+     * Delete given logs.
+     *
+     * @param array $id The identifier
+     */
+    public function deleteLogs(array $id): void
+    {
+        $sql = new DeleteStatement(__METHOD__);
+        $sql->where('log_id' . $sql->in($id));
+        $sql->from(App::core()->prefix() . 'log');
+        $sql->run();
+    }
+
+    /**
+     * Delete all logs.
+     */
+    public function emptyLogTable(): void
+    {
+        $sql = new TruncateStatement(__METHOD__);
+        $sql->from(App::core()->prefix() . 'log');
+        $sql->run();
     }
 }

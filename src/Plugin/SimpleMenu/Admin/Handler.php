@@ -12,6 +12,7 @@ namespace Dotclear\Plugin\SimpleMenu\Admin;
 // Dotclear\Plugin\SimpleMenu\Admin\Handler
 use ArrayObject;
 use Dotclear\App;
+use Dotclear\Database\Param;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -84,7 +85,9 @@ class Handler extends AbstractPage
 
         // Liste des pages -- Doit être pris en charge plus tard par le plugin ?
         try {
-            $rs = App::core()->blog()->posts()->getPosts(['post_type' => 'page']);
+            $param = new Param();
+            $param->set('post_type', 'page');
+            $rs = App::core()->blog()->posts()->getPosts(param: $param);
             while ($rs->fetch()) {
                 $this->sm_pages_combo[$rs->f('post_title')] = $rs->getURL();
             }
@@ -94,7 +97,9 @@ class Handler extends AbstractPage
 
         // Liste des tags -- Doit être pris en charge plus tard par le plugin ?
         try {
-            $rs                                  = App::core()->meta()->getMetadata(['meta_type' => 'tag']);
+            $param = new Param();
+            $param->set('meta_type', 'tag');
+            $rs                                  = App::core()->meta()->getMetadata(param: $param);
             $this->sm_tags_combo[__('All tags')] = '-';
             while ($rs->fetch()) {
                 $this->sm_tags_combo[$rs->f('meta_id')] = $rs->f('meta_id');

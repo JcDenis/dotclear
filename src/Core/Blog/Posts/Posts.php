@@ -14,8 +14,9 @@ use ArrayObject;
 use Dotclear\App;
 use Dotclear\Core\RsExt\RsExtDate;
 use Dotclear\Core\RsExt\RsExtPost;
-use Dotclear\Database\Record;
 use Dotclear\Database\Cursor;
+use Dotclear\Database\Param;
+use Dotclear\Database\Record;
 use Dotclear\Database\Statement\JoinStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Exception\CoreException;
@@ -29,139 +30,152 @@ use Exception;
  *
  * @ingroup  Core Post
  */
-class Posts
+final class Posts
 {
     /**
-     * Retrieve entries.
+     * Retrieve blogs count.
      *
-     * <b>$params</b> is an array taking the following optionnal parameters:
+     * @see PostsParam for optionnal paramaters
      *
-     * - no_content: Don't retrieve entry content (excerpt and content)
-     * - post_type: Get only entries with given type (default "post", array for many types and '' for no type)
-     * - post_id: (integer or array) Get entry with given post_id
-     * - post_url: Get entry with given post_url field
-     * - user_id: (int) Get entries belonging to given user ID
-     * - cat_id: (string or array) Get entries belonging to given category ID
-     * - cat_id_not: deprecated (use cat_id with "id ?not" instead)
-     * - cat_url: (string or array) Get entries belonging to given category URL
-     * - cat_url_not: deprecated (use cat_url with "url ?not" instead)
-     * - post_status: (int) Get entries with given post_status
-     * - post_selected: (bool) Get select flaged entries
-     * - post_year: (int) Get entries with given year
-     * - post_month: (int) Get entries with given month
-     * - post_day: (int) Get entries with given day
-     * - post_lang: Get entries with given language code
-     * - search: Get entries corresponding of the following search string
-     * - columns: (array) More columns to retrieve
-     * - join: Append a JOIN clause for the FROM statement in query
-     * - sql: Append SQL string at the end of the query
-     * - from: Append another FROM source in query
-     * - order: Order of results (default "ORDER BY post_dt DES")
-     * - limit: Limit parameter
-     * - sql_only : return the sql request instead of results. Only ids are selected
-     * - exclude_post_id : (integer or array) Exclude entries with given post_id
+     * @param null|Param           $param The parameters
+     * @param null|SelectStatement $sql   The SQL statement
      *
-     * Please note that on every cat_id or cat_url, you can add ?not to exclude
-     * the category and ?sub to get subcategories.
-     *
-     * @param array           $params     Parameters
-     * @param bool            $count_only Only counts results
-     * @param SelectStatement $sql        Optional SelectStatement instance
-     *
-     * @return Record|string A record with some more capabilities or the SQL request
+     * @return int The posts count
      */
-    public function getPosts(ArrayObject|array $params = [], bool $count_only = false, ?SelectStatement $sql = null): string|Record
+    public function countPosts(?Param $param = null, ?SelectStatement $sql = null): int
     {
-        $params = new ArrayObject($params);
+        $param = new PostsParam($param);
 
-        // --BEHAVIOR-- coreBlogBeforeGetPosts ArrayObject
-        App::core()->behavior()->call('coreBlogBeforeGetPosts', $params);
+        $query = $sql ? clone $sql : new SelectStatement(__METHOD__);
 
-        if (!$sql) {
-            $sql = new SelectStatement(__METHOD__);
-        }
+        // --BEHAVIOR-- coreBlogBeforeCountPosts, Param, SelectStatement
+        App::core()->behavior()->call('coreBlogBeforeCountPosts', $param, $query);
 
-        if ($count_only) {
-            $sql->column($sql->count($sql->unique('P.post_id')));
-        } elseif (!empty($params['sql_only'])) {
-            $sql->column('P.post_id');
-        } else {
-            if (empty($params['no_content'])) {
-                $sql->columns([
-                    'post_excerpt',
-                    'post_excerpt_xhtml',
-                    'post_content',
-                    'post_content_xhtml',
-                    'post_notes',
-                ]);
-            }
+        $param->unset('order');
+        $param->unset('limit');
 
-            if (!empty($params['columns']) && is_array($params['columns'])) {
-                $sql->columns($params['columns']);
-            }
-            $sql->columns([
-                'P.post_id',
-                'P.blog_id',
-                'P.user_id',
-                'P.cat_id',
-                'post_dt',
-                'post_creadt',
-                'post_upddt',
-                'post_format',
-                'post_password',
-                'post_url',
-                'post_lang',
-                'post_title',
-                'post_type',
-                'post_meta',
-                'post_status',
-                'post_firstpub',
-                'post_selected',
-                'post_position',
-                'post_open_comment',
-                'post_open_tb',
-                'nb_comment',
-                'nb_trackback',
-                'U.user_name',
-                'U.user_firstname',
-                'U.user_displayname',
-                'U.user_email',
-                'U.user_url',
-                'C.cat_title',
-                'C.cat_url',
-                'C.cat_desc',
+        $query->column($query->count($query->unique('P.post_id')));
+
+        $rs = $this->queryPostsTable(param: $param, sql: $query);
+
+        // --BEHAVIOR-- coreBlogAfterCountPosts, Record, Param, SelectStatement
+        App::core()->behavior()->call('coreBlogAfterCountPosts', $rs, $param, $query);
+
+        return $rs->fInt();
+    }
+
+    /**
+     * Retrieve posts.
+     *
+     * @see PostsParam for optionnal paramaters
+     *
+     * @param null|Param           $param The parameters
+     * @param null|SelectStatement $sql   The SQL statement
+     *
+     * @return Record The posts
+     */
+    public function getPosts(?Param $param = null, ?SelectStatement $sql = null): Record
+    {
+        $param = new PostsParam($param);
+
+        $query = $sql ? clone $sql : new SelectStatement(__METHOD__);
+
+        // --BEHAVIOR-- coreBlogBeforeGetPosts, Param, SelectStatement
+        App::core()->behavior()->call('coreBlogBeforeGetPosts', $param, $query);
+
+        if (false === $param->no_content()) {
+            $query->columns([
+                'post_excerpt',
+                'post_excerpt_xhtml',
+                'post_content',
+                'post_content_xhtml',
+                'post_notes',
             ]);
         }
+        if (!empty($param->columns())) {
+            $query->columns($param->columns());
+        }
+        $query->columns([
+            'P.post_id',
+            'P.blog_id',
+            'P.user_id',
+            'P.cat_id',
+            'post_dt',
+            'post_creadt',
+            'post_upddt',
+            'post_format',
+            'post_password',
+            'post_url',
+            'post_lang',
+            'post_title',
+            'post_type',
+            'post_meta',
+            'post_status',
+            'post_firstpub',
+            'post_selected',
+            'post_position',
+            'post_open_comment',
+            'post_open_tb',
+            'nb_comment',
+            'nb_trackback',
+            'U.user_name',
+            'U.user_firstname',
+            'U.user_displayname',
+            'U.user_email',
+            'U.user_url',
+            'C.cat_title',
+            'C.cat_url',
+            'C.cat_desc',
+        ]);
+        $query->order($query->escape($param->order('post_dt DESC')));
 
-        $sql
-            ->from(App::core()->prefix() . 'post P', false, true)
-            ->join(
-                JoinStatement::init(__METHOD__)
-                    ->type('INNER')
-                    ->from(App::core()->prefix() . 'user U')
-                    ->on('U.user_id = P.user_id')
-                    ->statement()
-            )
-            ->join(
-                JoinStatement::init(__METHOD__)
-                    ->type('LEFT OUTER')
-                    ->from(App::core()->prefix() . 'category C')
-                    ->on('P.cat_id = C.cat_id')
-                    ->statement()
-            )
-        ;
-
-        if (!empty($params['join'])) {
-            $sql->join($params['join']);
+        if (!empty($param->limit())) {
+            $query->limit($param->limit());
         }
 
-        if (!empty($params['from'])) {
-            $sql->from($params['from']);
+        $rs = $this->queryPostsTable(param: $param, sql: $query);
+
+        // --BEHAVIOR-- coreBlogAfterGetPosts, Record, Param, SelectStatement
+        App::core()->behavior()->call('coreBlogAfterGetPosts', $rs, $param, $query);
+
+        return $rs;
+    }
+
+    /**
+     * Query post table.
+     *
+     * @param PostsParam      $param The log parameters
+     * @param SelectStatement $sql   The SQL statement
+     *
+     * @return Record The result
+     */
+    private function queryPostsTable(PostsParam $param, SelectStatement $sql): Record
+    {
+        $join_user = new JoinStatement(__METHOD__);
+        $join_user->type('INNER');
+        $join_user->from(App::core()->prefix() . 'user U');
+        $join_user->on('U.user_id = P.user_id');
+
+        $join_cat = new JoinStatement(__METHOD__);
+        $join_cat->type('LEFT OUTER');
+        $join_cat->from(App::core()->prefix() . 'category C');
+        $join_cat->on('P.cat_id = C.cat_id');
+
+        $sql->from(App::core()->prefix() . 'post P', false, true);
+        $sql->join($join_user->statement());
+        $sql->join($join_cat->statement());
+
+        if (!empty($param->join())) {
+            $sql->join($param->join());
         }
 
-        if (!empty($params['where'])) {
+        if (!empty($param->from())) {
+            $sql->from($param->from());
+        }
+
+        if (!empty($param->where())) {
             // Cope with legacy code
-            $sql->where($params['where']);
+            $sql->where($param->where());
         } else {
             $sql->where('P.blog_id = ' . $sql->quote(App::core()->blog()->id, true));
         }
@@ -181,163 +195,103 @@ class Posts
         }
 
         // Adding parameters
-        if (isset($params['post_type'])) {
-            if (is_array($params['post_type']) || '' != $params['post_type']) {
-                $sql->and('post_type' . $sql->in($params['post_type']));
-            }
-        } else {
-            $sql->and('post_type = ' . $sql->quote('post'));
+        if (!empty($param->post_type())) {
+            $sql->and('post_type' . $sql->in($param->post_type()));
         }
 
-        if (isset($params['post_id']) && '' !== $params['post_id']) {
-            if (is_array($params['post_id'])) {
-                array_walk($params['post_id'], function (&$v, $k) {
-                    if (null !== $v) {
-                        $v = (int) $v;
-                    }
-                });
-            } else {
-                $params['post_id'] = [(int) $params['post_id']];
-            }
-            $sql->and('P.post_id' . $sql->in($params['post_id']));
+        if (!empty($param->post_id())) {
+            $sql->and('P.post_id' . $sql->in($param->post_id()));
         }
 
-        if (isset($params['exclude_post_id']) && '' !== $params['exclude_post_id']) {
-            if (is_array($params['exclude_post_id'])) {
-                array_walk($params['exclude_post_id'], function (&$v, $k) {
-                    if (null !== $v) {
-                        $v = (int) $v;
-                    }
-                });
-            } else {
-                $params['exclude_post_id'] = [(int) $params['exclude_post_id']];
-            }
-            $sql->and('P.post_id NOT' . $sql->in($params['exclude_post_id']));
+        if (!empty($param->exclude_post_id())) {
+            $sql->and('P.post_id NOT' . $sql->in($param->exclude_post_id()));
         }
 
-        if (isset($params['post_url']) && '' !== $params['post_url']) {
-            $sql->and('post_url = ' . $sql->quote($params['post_url'], true));
+        if (null !== $param->post_url()) {
+            $sql->and('post_url = ' . $sql->quote($param->post_url(), true));
         }
 
-        if (!empty($params['user_id'])) {
-            $sql->and('U.user_id = ' . $sql->quote($params['user_id'], true));
+        if (null !== $param->user_id()) {
+            $sql->and('U.user_id = ' . $sql->quote($param->user_id(), true));
         }
 
-        if (isset($params['cat_id']) && '' !== $params['cat_id']) {
-            if (!is_array($params['cat_id'])) {
-                $params['cat_id'] = [$params['cat_id']];
-            }
-            if (!empty($params['cat_id_not'])) {
-                array_walk($params['cat_id'], function (&$v, $k) {
-                    $v = $v . ' ?not';
-                });
-            }
-
-            $sql->and($this->getPostsCategoryFilter($params['cat_id'], 'cat_id'));
-        } elseif (isset($params['cat_url']) && '' !== $params['cat_url']) {
-            if (!is_array($params['cat_url'])) {
-                $params['cat_url'] = [$params['cat_url']];
-            }
-            if (!empty($params['cat_url_not'])) {
-                array_walk($params['cat_url'], function (&$v, $k) {
-                    $v = $v . ' ?not';
-                });
-            }
-
-            $sql->and($this->getPostsCategoryFilter($params['cat_url'], 'cat_url'));
+        if (!empty($param->cat_id())) {
+            $sql->and($this->getPostsCategoryFilter($param->cat_id(), 'cat_id'));
+        } elseif (!empty($param->cat_url())) {
+            $sql->and($this->getPostsCategoryFilter($param->cat_url(), 'cat_url'));
         }
 
         // Other filters
-        if (isset($params['post_status'])) {
-            $sql->and('post_status = ' . (int) $params['post_status']);
+        if (null !== $param->post_status()) {
+            $sql->and('post_status = ' . $param->post_status());
         }
 
-        if (isset($params['post_firstpub'])) {
-            $sql->and('post_firstpub = ' . (int) $params['post_firstpub']);
+        if (null !== $param->post_firstpub()) {
+            $sql->and('post_firstpub = ' . (int) $param->post_firstpub());
         }
 
-        if (isset($params['post_selected'])) {
-            $sql->and('post_selected = ' . (int) $params['post_selected']);
+        if (null !== $param->post_selected()) {
+            $sql->and('post_selected = ' . (int) $param->post_selected());
         }
 
-        if (!empty($params['post_year'])) {
-            $sql->and($sql->dateFormat('post_dt', '%Y') . ' = ' . $sql->quote(sprintf('%04d', $params['post_year'])));
+        if (null !== $param->post_year()) {
+            $sql->and($sql->dateFormat('post_dt', '%Y') . ' = ' . $sql->quote(sprintf('%04d', $param->post_year())));
         }
 
-        if (!empty($params['post_month'])) {
-            $sql->and($sql->dateFormat('post_dt', '%m') . ' = ' . $sql->quote(sprintf('%02d', $params['post_month'])));
+        if (null !== $param->post_month()) {
+            $sql->and($sql->dateFormat('post_dt', '%m') . ' = ' . $sql->quote(sprintf('%02d', $param->post_month())));
         }
 
-        if (!empty($params['post_day'])) {
-            $sql->and($sql->dateFormat('post_dt', '%d') . ' = ' . $sql->quote(sprintf('%02d', $params['post_day'])));
+        if (null !== $param->post_day()) {
+            $sql->and($sql->dateFormat('post_dt', '%d') . ' = ' . $sql->quote(sprintf('%02d', $param->post_day())));
         }
 
-        if (!empty($params['post_lang'])) {
-            $sql->and('P.post_lang = ' . $sql->quote($params['post_lang'], true));
+        if (null !== $param->post_lang()) {
+            $sql->and('P.post_lang = ' . $sql->quote($param->post_lang(), true));
         }
 
-        if (!empty($params['search'])) {
-            $words = Text::splitWords($params['search']);
+        if (null !== $param->search()) {
+            $words = text::splitWords($param->search());
 
             if (!empty($words)) {
-                // --BEHAVIOR-- corePostSearch
+                $param->set('words', $words);
+                // --BEHAVIOR corePostSearch, Param, SelectStatement
                 if (App::core()->behavior()->has('corePostSearch')) {
-                    App::core()->behavior()->call('corePostSearch', [&$words, &$params, $sql]);
+                    App::core()->behavior()->call('corePostSearch', $param, $sql);
                 }
 
-                foreach ($words as $i => $w) {
-                    $words[$i] = $sql->like('post_words', '%' . $sql->escape($w) . '%');
+                $w = [];
+                foreach ($param->get('words') as $word) {
+                    $w[] = $sql->like('post_words', '%' . $sql->escape($word) . '%');
                 }
-                $sql->and($words);
+                if (!empty($w)) {
+                    $sql->and($w);
+                }
+                $param->unset('words');
             }
         }
 
-        if (isset($params['media'])) {
-            $sqlExists = SelectStatement::init(__METHOD__)
-                ->from(App::core()->prefix() . 'post_media M')
-                ->column('M.post_id')
-                ->where('M.post_id = P.post_id')
-            ;
+        if ($param->isset('media')) {
+            $sql_media = new SelectStatement(__METHOD__);
+            $sql_media->from(App::core()->prefix() . 'post_media M');
+            $sql_media->column('M.post_id');
+            $sql_media->where('M.post_id = P.post_id');
 
-            if (isset($params['link_type'])) {
-                $sqlExists->and('M.link_type' . $sqlExists->in($params['link_type']));
+            if ($param->isset('link_type')) {
+                $sql_media->and('M.link_type' . $sql_media->in($param->get('link_type')));
             }
 
-            $sql->and(('0' == $params['media'] ? 'NOT ' : '') . 'EXISTS (' . $sqlExists->statement() . ')');
+            $sql->and(('0' == $param->get('media') ? 'NOT ' : '') . 'EXISTS (' . $sql_media->statement() . ')');
         }
 
-        if (!empty($params['sql'])) {
-            $sql->sql($params['sql']);
-        }
-
-        if (!$count_only) {
-            if (!empty($params['order'])) {
-                $sql->order($sql->escape($params['order']));
-            } else {
-                $sql->order('post_dt DESC');
-            }
-        }
-
-        if (!$count_only && !empty($params['limit'])) {
-            $sql->limit($params['limit']);
-        }
-
-        if (!empty($params['sql_only'])) {
-            return $sql->statement();
+        if (!empty($param->sql())) {
+            $sql->sql($param->sql());
         }
 
         $rs = $sql->select();
         $rs->extend(new RsExtPost());
 
-        // --BEHAVIOR-- coreBlogGetPosts
-        App::core()->behavior()->call('coreBlogGetPosts', $rs);
-
-        $alt = new ArrayObject(['rs' => $rs, 'params' => $params, 'count_only' => $count_only]);
-
-        // --BEHAVIOR-- coreBlogAfterGetPosts
-        App::core()->behavior()->call('coreBlogAfterGetPosts', $rs, $alt);
-
-        return isset($alt['rs']) && $alt['rs'] instanceof Record ? $alt['rs'] : $rs;
+        return $rs;
     }
 
     /**
@@ -367,23 +321,24 @@ class Posts
             $order = 'DESC';
         }
 
-        $params['post_type'] = $post->f('post_type');
-        $params['limit']     = 1;
-        $params['order']     = 'post_dt ' . $order . ', P.post_id ' . $order;
-        $params['sql']       = 'AND ( ' .
-        "   (post_dt = '" . App::core()->con()->escape($dt) . "' AND P.post_id " . $sign . ' ' . $post_id . ') ' .
-        '   OR post_dt ' . $sign . " '" . App::core()->con()->escape($dt) . "' " .
-            ') ';
+        $param = new Param();
+        $param->set('post_type', $post->f('post_type'));
+        $param->set('limit', 1);
+        $param->set('order', 'post_dt ' . $order . ', P.post_id ' . $order);
+        $param->push('sql', 'AND ( ' .
+            "(post_dt = '" . App::core()->con()->escape($dt) . "' AND P.post_id " . $sign . ' ' . $post_id . ') ' .
+            'OR post_dt ' . $sign . " '" . App::core()->con()->escape($dt) . "' " .
+        ') ');
 
         if ($restrict_to_category) {
-            $params['sql'] .= $post->f('cat_id') ? 'AND P.cat_id = ' . $post->fInt('cat_id') . ' ' : 'AND P.cat_id IS NULL ';
+            $param->push('sql', $post->f('cat_id') ? 'AND P.cat_id = ' . $post->fInt('cat_id') . ' ' : 'AND P.cat_id IS NULL ');
         }
 
         if ($restrict_to_lang) {
-            $params['sql'] .= $post->f('post_lang') ? 'AND P.post_lang = \'' . App::core()->con()->escape($post->f('post_lang')) . '\' ' : 'AND P.post_lang IS NULL ';
+            $param->push('sql', $post->f('post_lang') ? 'AND P.post_lang = \'' . App::core()->con()->escape($post->f('post_lang')) . '\' ' : 'AND P.post_lang IS NULL ');
         }
 
-        $rs = $this->getPosts($params);
+        $rs = $this->getPosts(param: $param);
 
         return $rs->isEmpty() ? null : $rs;
     }
@@ -944,11 +899,12 @@ class Posts
      */
     public function firstPublicationEntries(int|array|ArrayObject $ids): void
     {
-        $posts = $this->getPosts([
-            'post_id'       => App::core()->blog()->cleanIds($ids),
-            'post_status'   => 1,
-            'post_firstpub' => 0,
-        ]);
+        $param = new Param();
+        $param->set('post_id', App::core()->blog()->cleanIds($ids));
+        $param->set('post_status', 1);
+        $param->set('post_firstpub', false);
+
+        $posts = $this->getPosts(param: $param);
 
         /** @var ArrayObject<int, int> */
         $to_change = new ArrayObject();

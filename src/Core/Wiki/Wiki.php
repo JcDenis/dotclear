@@ -11,6 +11,7 @@ namespace Dotclear\Core\Wiki;
 
 // Dotclear\Core\Wiki\Wiki
 use Dotclear\App;
+use Dotclear\Database\Param;
 use Dotclear\Helper\Html\Html;
 
 /**
@@ -212,7 +213,10 @@ class Wiki
             return [];
         }
 
-        $rs = App::core()->blog()->posts()->getPosts(['post_id' => $post_id]);
+        $param = new Param();
+        $param->set('post_id', $post_id);
+
+        $rs = App::core()->blog()->posts()->getPosts(param: $param);
         if ($rs->isEmpty()) {
             return [];
         }

@@ -7,9 +7,10 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core\RsExt;
+namespace Dotclear\Core\Log;
 
-// Dotclear\Core\RsExt\RsExtLog
+// Dotclear\Core\Log\LogRecordExtend
+use Dotclear\Core\RsExt\RsExtend;
 use Dotclear\Core\User\UserContainer;
 
 /**
@@ -17,7 +18,7 @@ use Dotclear\Core\User\UserContainer;
  *
  * @ingroup  Core Log Record
  */
-class RsExtLog extends RsExtend
+class LogRecordExtend extends RsExtend
 {
     /**
      * Gets the user cn.

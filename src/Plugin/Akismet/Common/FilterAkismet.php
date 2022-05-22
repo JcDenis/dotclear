@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\Akismet\Common;
 
 // Dotclear\Plugin\Akismet\Common\FilterAkismet
 use Dotclear\App;
+use Dotclear\Database\Param;
 use Dotclear\Database\Record;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -66,7 +67,9 @@ class FilterAkismet extends Spamfilter
 
         try {
             if ($ak->verify()) {
-                $post = App::core()->blog()->posts()->getPosts(['post_id' => $post_id]);
+                $param = new Param();
+                $param->set('post_id', $post_id);
+                $post = App::core()->blog()->posts()->getPosts(param: $param);
 
                 $c = $ak->comment_check(
                     $post->getURL(),

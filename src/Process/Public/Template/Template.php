@@ -260,7 +260,11 @@ class Template extends BaseTemplate
 
     protected function compileFile(string $file): string
     {
-        return self::$ton . 'use Dotclear\App;' . self::$toff . "\n" . parent::compileFile($file);
+        return
+            self::$ton . "\n" .
+            'use Dotclear\App;' . "\n" .
+            'use Dotclear\Database\Param;' . "\n" .
+            self::$toff . "\n" . parent::compileFile($file);
     }
 
     public function compileBlockNode(string $tag, ArrayObject $attr, string $content): string
@@ -1230,105 +1234,106 @@ class Template extends BaseTemplate
         }
 
         $p = '$_page_number = App::core()->context()->page_number(); if (!$_page_number) { $_page_number = 1; }' . "\n";
+        $p .= "\$param = new Param();\n";
 
         if (0 != $lastn) {
             // Set limit (aka nb of entries needed)
             if (0 < $lastn) {
                 // nb of entries per page specified in template -> regular pagination
-                $p .= "\$params['limit'] = " . $lastn . ";\n";
+                $p .= "\$param->set('limit', " . $lastn . ");\n";
                 $p .= '$nb_entry_first_page = $nb_entry_per_page = ' . $lastn . ";\n";
             } else {
                 // nb of entries per page not specified -> use ctx settings
                 $p .= "\$nb_entry_first_page=App::core()->context()->get('nb_entry_first_page'); \$nb_entry_per_page = App::core()->context()->get('nb_entry_per_page');\n";
                 $p .= "if ((App::core()->url()->type == 'default') || (App::core()->url()->type == 'default-page')) {\n";
-                $p .= "    \$params['limit'] = (\$_page_number == 1 ? \$nb_entry_first_page : \$nb_entry_per_page);\n";
+                $p .= "    \$param->set('limit', (\$_page_number == 1 ? \$nb_entry_first_page : \$nb_entry_per_page));\n";
                 $p .= "} else {\n";
-                $p .= "    \$params['limit'] = \$nb_entry_per_page;\n";
+                $p .= "    \$param->set('limit', \$nb_entry_per_page);\n";
                 $p .= "}\n";
             }
             // Set offset (aka index of first entry)
             if (!isset($attr['ignore_pagination']) || '0' == $attr['ignore_pagination']) {
                 // standard pagination, set offset
                 $p .= "if ((App::core()->url()->type == 'default') || (App::core()->url()->type == 'default-page')) {\n";
-                $p .= "    \$params['limit'] = [(\$_page_number == 1 ? 0 : (\$_page_number - 2) * \$nb_entry_per_page + \$nb_entry_first_page),\$params['limit']];\n";
+                $p .= "    \$param->set('limit', [(\$_page_number == 1 ? 0 : (\$_page_number - 2) * \$nb_entry_per_page + \$nb_entry_first_page),\$param->get('limit')]);\n";
                 $p .= "} else {\n";
-                $p .= "    \$params['limit'] = [(\$_page_number - 1) * \$nb_entry_per_page,\$params['limit']];\n";
+                $p .= "    \$param->set('limit', [(\$_page_number - 1) * \$nb_entry_per_page,\$param->get('limit')]);\n";
                 $p .= "}\n";
             } else {
                 // no pagination, get all posts from 0 to limit
-                $p .= "\$params['limit'] = [0, \$params['limit']];\n";
+                $p .= "\$param->set('limit', [0, \$param->get('limit')]);\n";
             }
         }
 
         if (isset($attr['author'])) {
-            $p .= "\$params['user_id'] = '" . addslashes($attr['author']) . "';\n";
+            $p .= "\$param->set('user_id', '" . addslashes($attr['author']) . "');\n";
         }
 
         if (isset($attr['category'])) {
-            $p .= "\$params['cat_url'] = '" . addslashes($attr['category']) . "';\n";
-            $p .= "App::core()->context()->categoryPostParam(\$params);\n";
+            $p .= "\$param->set('cat_url', '" . addslashes($attr['category']) . "');\n";
+            $p .= "App::core()->context()->categoryPostParam(\$param);\n";
         }
 
         if (isset($attr['with_category']) && $attr['with_category']) {
-            $p .= "@\$params['sql'] .= ' AND P.cat_id IS NOT NULL ';\n";
+            $p .= "\$param->push('sql', ' AND P.cat_id IS NOT NULL ');\n";
         }
 
         if (isset($attr['no_category']) && $attr['no_category']) {
-            $p .= "@\$params['sql'] .= ' AND P.cat_id IS NULL ';\n";
-            $p .= "unset(\$params['cat_url']);\n";
+            $p .= "\$param->push('sql', ' AND P.cat_id IS NULL ');\n";
+            $p .= "\$param->unset('cat_url');\n";
         }
 
         if (!empty($attr['type'])) {
-            $p .= "\$params['post_type'] = preg_split('/\\s*,\\s*/','" . addslashes($attr['type']) . "',-1,PREG_SPLIT_NO_EMPTY);\n";
+            $p .= "\$param->set('post_type', preg_split('/\\s*,\\s*/','" . addslashes($attr['type']) . "',-1,PREG_SPLIT_NO_EMPTY));\n";
         }
 
         if (!empty($attr['url'])) {
-            $p .= "\$params['post_url'] = '" . addslashes($attr['url']) . "';\n";
+            $p .= "\$param->set('post_url', '" . addslashes($attr['url']) . "');\n";
         }
 
         if (empty($attr['no_context'])) {
             if (!isset($attr['author'])) {
                 $p .= 'if (App::core()->context()->exists("users")) { ' .
-                    "\$params['user_id'] = App::core()->context()->get('users')->f('user_id'); " .
+                    "\$param->set('user_id', App::core()->context()->get('users')->f('user_id')); " .
                     "}\n";
             }
 
             if (!isset($attr['category']) && (!isset($attr['no_category']) || !$attr['no_category'])) {
                 $p .= 'if (App::core()->context()->exists("categories")) { ' .
-                    "\$params['cat_id'] = App::core()->context()->get('categories')->fInt('cat_id').(App::core()->blog()->settings()->get('system')->get('inc_subcats')?' ?sub':'');" .
+                    "\$param->set('cat_id', App::core()->context()->get('categories')->fInt('cat_id').(App::core()->blog()->settings()->get('system')->get('inc_subcats')?' ?sub':''));" .
                     "}\n";
             }
 
             $p .= 'if (App::core()->context()->exists("archives")) { ' .
-                "\$params['post_year'] = App::core()->context()->get('archives')->year(); " .
-                "\$params['post_month'] = App::core()->context()->get('archives')->month(); ";
+                "\$param->set('post_year', App::core()->context()->get('archives')->year()); " .
+                "\$param->set('post_month', App::core()->context()->get('archives')->month()); ";
             if (!isset($attr['lastn'])) {
-                $p .= "unset(\$params['limit']); ";
+                $p .= "\$param->unset('limit'); ";
             }
             $p .= "}\n";
 
             $p .= 'if (App::core()->context()->exists("langs")) { ' .
-                "\$params['post_lang'] = App::core()->context()->get('langs')->f('post_lang'); " .
+                "\$param->set('post_lang', App::core()->context()->get('langs')->f('post_lang')); " .
                 "}\n";
 
             $p .= 'if (App::core()->url()->search_string) { ' .
-                "\$params['search'] = App::core()->url()->search_string; " .
+                "\$param->set('search', App::core()->url()->search_string); " .
                 "}\n";
         }
 
-        $p .= "\$params['order'] = '" . $this->getSortByStr($attr, 'post') . "';\n";
+        $p .= "\$param->set('order', '" . $this->getSortByStr($attr, 'post') . "');\n";
 
         if (isset($attr['no_content']) && $attr['no_content']) {
-            $p .= "\$params['no_content'] = true;\n";
+            $p .= "\$param->set('no_content', true);\n";
         }
 
         if (isset($attr['selected'])) {
-            $p .= "\$params['post_selected'] = " . (int) (bool) $attr['selected'] . ';';
+            $p .= "\$param->set('post_selected', " . (bool) $attr['selected'] . ');';
         }
 
         if (isset($attr['age'])) {
             $age = $this->getAge($attr);
-            $p .= !empty($age) ? "@\$params['sql'] .= ' AND P.post_dt > \\'" . $age . "\\'';\n" : '';
+            $p .= !empty($age) ? "\$param->push('sql', ' AND P.post_dt > \\'" . $age . "\\'');\n" : '';
         }
 
         $res = self::$ton . "\n";
@@ -1339,11 +1344,11 @@ class Template extends BaseTemplate
             $attr,
             $content
         );
-        $res .= 'App::core()->context()->set("post_params", $params);' . "\n";
-        $res .= 'App::core()->context()->set("posts", App::core()->blog()->posts()->getPosts($params)); unset($params);' . "\n";
+        $res .= 'App::core()->context()->set("post_param", $param);' . "\n";
+        $res .= 'App::core()->context()->set("posts", App::core()->blog()->posts()->getPosts(param: $param)); unset($param);' . "\n";
         $res .= "?>\n";
         $res .= self::$ton . 'while (App::core()->context()->get("posts")->fetch()) :' . self::$toff . $content . self::$ton . 'endwhile; ' .
-            'App::core()->context()->set("posts", null); App::core()->context()->set("post_params", null);' . self::$toff;
+            'App::core()->context()->set("posts", null); App::core()->context()->set("post_param", null);' . self::$toff;
 
         return $res;
     }
@@ -2203,14 +2208,14 @@ class Template extends BaseTemplate
     public function Pagination(ArrayObject $attr, string $content): string
     {
         $p = self::$ton . "\n";
-        $p .= '$params = App::core()->context()->get("post_params");' . "\n";
+        $p .= '$param = App::core()->context()->get("post_param");' . "\n";
         $p .= App::core()->behavior()->call(
             'templatePrepareParams',
             ['tag' => 'Pagination', 'method' => 'blog()->posts()->getPosts'],
             $attr,
             $content
         );
-        $p .= 'App::core()->context()->set("pagination", App::core()->blog()->posts()->getPosts($params,true)); unset($params);' . "\n";
+        $p .= 'App::core()->context()->set("pagination", App::core()->blog()->posts()->countPosts(param: $param)); unset($param);' . "\n";
         $p .= "?>\n";
 
         if (isset($attr['no_context']) && $attr['no_context']) {
@@ -2306,9 +2311,9 @@ class Template extends BaseTemplate
      */
     public function Comments(ArrayObject $attr, string $content): string
     {
-        $p = '';
+        $p = '$param = new Param();';
         if (empty($attr['with_pings'])) {
-            $p .= "\$params['comment_trackback'] = false;\n";
+            $p .= "\$param->set('comment_trackback', 0);\n";
         }
 
         $lastn = 0;
@@ -2317,22 +2322,22 @@ class Template extends BaseTemplate
         }
 
         if (0 < $lastn) {
-            $p .= "\$params['limit'] = " . $lastn . ";\n";
+            $p .= "\$param->set('limit'," . $lastn . ");\n";
         } else {
-            $p .= "if (App::core()->context()->get('nb_comment_per_page') !== null) { \$params['limit'] = (int) App::core()->context()->get('nb_comment_per_page'); }\n";
+            $p .= "if (App::core()->context()->get('nb_comment_per_page') !== null) { \$param->set('limit', (int) App::core()->context()->get('nb_comment_per_page')); }\n";
         }
 
         if (empty($attr['no_context'])) {
             $p .= 'if (App::core()->context()->get("posts") !== null) { ' .
-                "\$params['post_id'] = App::core()->context()->get('posts')->fInt('post_id'); " .
+                "\$param->set('post_id', App::core()->context()->get('posts')->fInt('post_id')); " .
                 "App::core()->blog()->withoutPassword(false);\n" .
                 "}\n";
             $p .= 'if (App::core()->context()->exists("categories")) { ' .
-                "\$params['cat_id'] = App::core()->context()->get('categories')->fInt('cat_id'); " .
+                "\$param->set('cat_id', App::core()->context()->get('categories')->fInt('cat_id')); " .
                 "}\n";
 
             $p .= 'if (App::core()->context()->exists("langs")) { ' .
-                "\$params['sql'] = \"AND P.post_lang = '\".App::core()->con()->escape(App::core()->context()->get('langs')->f('post_lang')).\"' \"; " .
+                "\$param->push('sql', \"AND P.post_lang = '\".App::core()->con()->escape(App::core()->context()->get('langs')->f('post_lang')).\"' \"); " .
                 "}\n";
         }
 
@@ -2340,15 +2345,15 @@ class Template extends BaseTemplate
             $attr['order'] = 'asc';
         }
 
-        $p .= "\$params['order'] = '" . $this->getSortByStr($attr, 'comment') . "';\n";
+        $p .= "\$param->set('order', '" . $this->getSortByStr($attr, 'comment') . "');\n";
 
         if (isset($attr['no_content']) && $attr['no_content']) {
-            $p .= "\$params['no_content'] = true;\n";
+            $p .= "\$param->set('no_content', true);\n";
         }
 
         if (isset($attr['age'])) {
             $age = $this->getAge($attr);
-            $p .= !empty($age) ? "@\$params['sql'] .= ' AND P.post_dt > \\'" . $age . "\\'';\n" : '';
+            $p .= !empty($age) ? "@\$param->push('sql', ' AND P.post_dt > \\'" . $age . "\\'');\n" : '';
         }
 
         $res = self::$ton . "\n";
@@ -2359,7 +2364,7 @@ class Template extends BaseTemplate
             $content
         );
         $res .= $p;
-        $res .= 'App::core()->context()->set("comments", App::core()->blog()->comments()->getComments($params)); unset($params);' . "\n";
+        $res .= 'App::core()->context()->set("comments", App::core()->blog()->comments()->getComments(param: $param)); unset($param);' . "\n";
         $res .= "if (App::core()->context()->get('posts') !== null) { App::core()->blog()->withoutPassword(true);}\n";
 
         if (!empty($attr['with_pings'])) {
@@ -2912,12 +2917,13 @@ class Template extends BaseTemplate
      */
     public function Pings(ArrayObject $attr, string $content): string
     {
-        $p = 'if (App::core()->context()->get("posts") !== null) { ' .
-            "\$params['post_id'] = App::core()->context()->get('posts')->fInt('post_id'); " .
+        $p = '$param = new Param(); ' .
+            'if (App::core()->context()->get("posts") !== null) { ' .
+            "\$param->set('post_id', App::core()->context()->get('posts')->fInt('post_id')); " .
             "App::core()->blog()->withoutPassword(false);\n" .
             "}\n";
 
-        $p .= "\$params['comment_trackback'] = true;\n";
+        $p .= "\$param->set('comment_trackback', 1);\n";
 
         $lastn = 0;
         if (isset($attr['lastn'])) {
@@ -2925,18 +2931,18 @@ class Template extends BaseTemplate
         }
 
         if (0 < $lastn) {
-            $p .= "\$params['limit'] = " . $lastn . ";\n";
+            $p .= "\$param->set('limit', " . $lastn . ");\n";
         } else {
-            $p .= "if (App::core()->context()->get('nb_comment_per_page') !== null) { \$params['limit'] = App::core()->context()->get('nb_comment_per_page'); }\n";
+            $p .= "if (App::core()->context()->get('nb_comment_per_page') !== null) { \$param->set('limit', App::core()->context()->get('nb_comment_per_page')); }\n";
         }
 
         if (empty($attr['no_context'])) {
             $p .= 'if (App::core()->context()->exists("categories")) { ' .
-                "\$params['cat_id'] = App::core()->context()->get('categories')->fInt('cat_id'); " .
+                "\$param->set('cat_id', App::core()->context()->get('categories')->fInt('cat_id')); " .
                 "}\n";
 
             $p .= 'if (App::core()->context()->exists("langs")) { ' .
-                "\$params['sql'] = \"AND P.post_lang = '\".App::core()->con()->escape(App::core()->context()->get('langs')->f('post_lang')).\"' \"; " .
+                "\$param->push('sql', \"AND P.post_lang = '\".App::core()->con()->escape(App::core()->context()->get('langs')->f('post_lang')).\"' \"); " .
                 "}\n";
         }
 
@@ -2945,10 +2951,10 @@ class Template extends BaseTemplate
             $order = $attr['order'];
         }
 
-        $p .= "\$params['order'] = 'comment_dt " . $order . "';\n";
+        $p .= "\$param->set('order', 'comment_dt " . $order . "');\n";
 
         if (isset($attr['no_content']) && $attr['no_content']) {
-            $p .= "\$params['no_content'] = true;\n";
+            $p .= "\$param->set('no_content', true);\n";
         }
 
         $res = self::$ton . "\n";
@@ -2959,7 +2965,7 @@ class Template extends BaseTemplate
             $attr,
             $content
         );
-        $res .= 'App::core()->context()->set("pings", App::core()->blog()->comments()->getComments($params)); unset($params);' . "\n";
+        $res .= 'App::core()->context()->set("pings", App::core()->blog()->comments()->getComments(param: $param)); unset($param);' . "\n";
         $res .= "if (App::core()->context()->get('posts') !== null) { App::core()->blog()->withoutPassword(true);}\n";
         $res .= "?>\n";
 

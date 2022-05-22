@@ -13,6 +13,7 @@ namespace Dotclear\Plugin\Antispam\Common;
 use ArrayObject;
 use Dotclear\App;
 use Dotclear\Database\Cursor;
+use Dotclear\Database\Param;
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\JoinStatement;
@@ -132,12 +133,18 @@ class Antispam
 
     public function countSpam(): int
     {
-        return App::core()->blog()->comments()->getComments(['comment_status' => -2], true)->fInt();
+        $param = new Param();
+        $param->set('comment_status', -2);
+
+        return App::core()->blog()->comments()->countComments(param: $param);
     }
 
     public function countPublishedComments(): int
     {
-        return App::core()->blog()->comments()->getComments(['comment_status' => 1], true)->fInt();
+        $param = new Param();
+        $param->set('comment_status', 1);
+
+        return App::core()->blog()->comments()->countComments(param: $param);
     }
 
     public function delAllSpam(?string $beforeDate = null): void

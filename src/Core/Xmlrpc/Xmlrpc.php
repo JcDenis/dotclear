@@ -14,6 +14,7 @@ use ArrayObject;
 use Dotclear\App;
 use Dotclear\Core\User\UserContainer;
 use Dotclear\Core\Trackback\Trackback;
+use Dotclear\Database\Param;
 use Dotclear\Exception\CoreException;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\File\Files;
@@ -465,10 +466,12 @@ class Xmlrpc extends XmlrpcIntrospectionServer
     {
         $this->setUser($user, $pwd);
         $this->setBlog();
-        $rs = App::core()->blog()->posts()->getPosts([
-            'post_id'   => (int) $post_id,
-            'post_type' => $post_type,
-        ]);
+
+        $param = new Param();
+        $param->set('post_id', (int) $post_id);
+        $param->set('post_type', $post_type);
+
+        $rs = App::core()->blog()->posts()->getPosts(param: $param);
 
         if ($rs->isEmpty()) {
             throw new CoreException('This entry does not exist');
@@ -738,10 +741,10 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             throw new CoreException('Cannot retrieve more than 50 entries');
         }
 
-        $params          = [];
-        $params['limit'] = $nb_post;
+        $param = new Param();
+        $param->set('limit', $nb_post);
 
-        $posts = App::core()->blog()->posts()->getPosts($params);
+        $posts = App::core()->blog()->posts()->getPosts(param: $param);
 
         $res = [];
         while ($posts->fetch()) {
@@ -1104,19 +1107,18 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $this->setBlog();
         $this->checkPagesPermission();
 
-        $params = [
-            'post_type' => 'page',
-            'order'     => 'post_position ASC, post_title ASC',
-        ];
+        $param = new Param();
+        $param->set('post_type', 'page');
+        $param->set('order', 'post_position ASC, post_title ASC');
 
         if ($id) {
-            $params['post_id'] = (int) $id;
+            $param->set('post_id', (int) $id);
         }
         if ($limit) {
-            $params['limit'] = $limit;
+            $param->set('limit', $limit);
         }
 
-        $posts = App::core()->blog()->posts()->getPosts($params);
+        $posts = App::core()->blog()->posts()->getPosts(param: $param);
 
         $res = [];
         while ($posts->fetch()) {
@@ -1216,7 +1218,10 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $this->setUser($user, $pwd);
         $this->setBlog();
 
-        $tags = App::core()->meta()->getMetadata(['meta_type' => 'tag']);
+        $param = new Param();
+        $param->set('meta_type', 'tag');
+
+        $tags = App::core()->meta()->getMetadata(param: $param);
         $tags = App::core()->meta()->computeMetaStats($tags);
         $tags->sort('meta_id_lower', 'asc');
 
@@ -1317,7 +1322,9 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             'spam'                => 0,
             'total'               => 0,
         ];
-        $rs = App::core()->blog()->comments()->getComments(['post_id' => $post_id]);
+        $param = new Param();
+        $param->set('post_id', $post_id);
+        $rs = App::core()->blog()->comments()->getComments(param: $param);
 
         while ($rs->fetch()) {
             ++$res['total'];
@@ -1338,25 +1345,25 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $this->setUser($user, $pwd);
         $this->setBlog();
 
-        $params = [];
+        $param = new Param();
 
         if (!empty($struct['status'])) {
-            $params['comment_status'] = $this->translateWpCommentstatus($struct['status']);
+            $param->set('comment_status', $this->translateWpCommentstatus($struct['status']));
         }
 
         if (!empty($struct['post_id'])) {
-            $params['post_id'] = (int) $struct['post_id'];
+            $param->set('post_id', (int) $struct['post_id']);
         }
 
         if (isset($id)) {
-            $params['comment_id'] = $id;
+            $param->set('comment_id', $id);
         }
 
         $offset          = !empty($struct['offset']) ? (int) $struct['offset'] : 0;
         $limit           = !empty($struct['number']) ? (int) $struct['number'] : 10;
-        $params['limit'] = [$offset, $limit];
+        $param->set('limit', [$offset, $limit]);
 
-        $rs  = App::core()->blog()->comments()->getComments($params);
+        $rs  = App::core()->blog()->comments()->getComments(param: $param);
         $res = [];
         while ($rs->fetch()) {
             $res[] = [
@@ -1388,12 +1395,14 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             throw new CoreException('Sorry, you cannot post an empty comment', 401);
         }
 
+        $param = new Param();
+
         if (is_numeric($post_id)) {
-            $p['post_id'] = $post_id;
+            $param->set('post_id', $post_id);
         } else {
-            $p['post_url'] = $post_id;
+            $param->set('post_url', $post_id);
         }
-        $rs = App::core()->blog()->posts()->getPosts($p);
+        $rs = App::core()->blog()->posts()->getPosts(param: $param);
         if ($rs->isEmpty()) {
             throw new CoreException('Sorry, no such post.', 404);
         }

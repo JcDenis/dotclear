@@ -11,9 +11,10 @@ namespace Dotclear\Process\Admin\Filter;
 
 // Dotclear\Process\Admin\Filter\Filter
 use Dotclear\App;
-use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
+use Dotclear\Database\Param;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 
 /**
  * Generic class for admin list filters form.
@@ -216,21 +217,16 @@ class Filter extends Filters
     /**
      * Get list query params.
      *
-     * @return array The query params
+     * @return Param The query params
      */
-    public function params(): array
+    public function params(): Param
     {
         $filters = $this->values();
 
-        $params = [
-            'from'    => '',
-            'where'   => '',
-            'sql'     => '',
-            'columns' => [],
-        ];
+        $param = new Param();
 
         if (!empty($filters['sortby']) && !empty($filters['order'])) {
-            $params['order'] = $filters['sortby'] . ' ' . $filters['order'];
+            $param->set('order', $filters['sortby'] . ' ' . $filters['order']);
         }
 
         foreach ($this->filters as $filter) {
@@ -241,18 +237,16 @@ class Filter extends Filters
                         $p[1] = call_user_func($p[1], $filters);
                     }
 
-                    if (in_array($p[0], ['from', 'where', 'sql'])) {
-                        $params[$p[0]] .= $p[1];
-                    } elseif ('columns' == $p[0] && is_array($p[1])) {
-                        $params['columns'] = array_merge($params['columns'], $p[1]);
+                    if (in_array($p[0], ['sql', 'join', 'from', 'where', 'columns'])) {
+                        $param->push($p[0], $p[1]);
                     } else {
-                        $params[$p[0]] = $p[1];
+                        $param->set($p[0], $p[1]);
                     }
                 }
             }
         }
 
-        return $params;
+        return $param;
     }
 
     /**

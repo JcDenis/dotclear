@@ -12,6 +12,7 @@ namespace Dotclear\Plugin\Tags\Common;
 // Dotclear\Plugin\Tags\Common\TagsXmlrpc
 use Dotclear\App;
 use Dotclear\Database\Cursor;
+use Dotclear\Database\Param;
 use Dotclear\Core\Xmlrpc\Xmlrpc;
 
 /**
@@ -32,9 +33,11 @@ class TagsXmlrpc
     {
         $res = &$res[0];
 
-        $rs = App::core()->meta()->getMetadata([
-            'meta_type' => 'tag',
-            'post_id'   => $res['postid'], ]);
+        $param = new Param();
+        $param->set('meta_type', 'tag');
+        $param->set('post_id', $res['postid']);
+
+        $rs = App::core()->meta()->getMetadata(param: $param);
 
         $m = [];
         while ($rs->fetch()) {

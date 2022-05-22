@@ -13,6 +13,7 @@ namespace Dotclear\Plugin\Tags\Admin;
 use ArrayObject;
 use Dotclear\App;
 use Dotclear\Database\Cursor;
+use Dotclear\Database\Param;
 use Dotclear\Database\Record;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\Html\Form;
@@ -142,10 +143,11 @@ class TagsBehavior
             $posts = $ap->getRS();
             while ($posts->fetch()) {
                 // Get tags for post
-                $post_meta = App::core()->meta()->getMetadata([
-                    'meta_type' => 'tag',
-                    'post_id'   => $posts->fInt('post_id'), ]);
-                $pm = [];
+                $param = new Param();
+                $param->set('meta_type', 'tag');
+                $param->set('post_id', $posts->fInt('post_id'));
+                $post_meta = App::core()->meta()->getMetadata(param: $param);
+                $pm        = [];
                 while ($post_meta->fetch()) {
                     $pm[] = $post_meta->f('meta_id');
                 }
@@ -237,12 +239,13 @@ class TagsBehavior
             );
             $ap->redirect(true);
         } else {
-            $tags = [];
+            $tags  = [];
+            $param = new Param();
+            $param->set('meta_type', 'tag');
 
             foreach ($ap->getIDS() as $id) {
-                $post_tags = App::core()->meta()->getMetadata([
-                    'meta_type' => 'tag',
-                    'post_id'   => (int) $id, ])->toStatic()->rows();
+                $param->set('post_id', (int) $id);
+                $post_tags = App::core()->meta()->getMetadata(param: $param)->toStatic()->rows();
                 foreach ($post_tags as $v) {
                     if (isset($tags[$v['meta_id']])) {
                         ++$tags[$v['meta_id']];

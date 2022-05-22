@@ -133,7 +133,7 @@ class PostFilter extends Filter
     public function getPostStatusFilter(): DefaultFilter
     {
         return DefaultFilter::init('status')
-            ->param('post_status')
+            ->param('post_status', fn ($f) => (int) $f[0])
             ->title(__('Status:'))
             ->options(array_merge(
                 ['-' => ''],
@@ -157,7 +157,7 @@ class PostFilter extends Filter
         }
 
         return DefaultFilter::init('format')
-            ->param('where', [$this, 'getPostFormatParam'])
+            ->param('where', fn ($f) => " AND post_format = '" . $f[0] . "' ")
             ->title(__('Format:'))
             ->options(array_merge(
                 ['-' => ''],
@@ -167,18 +167,13 @@ class PostFilter extends Filter
         ;
     }
 
-    public function getPostFormatParam($f): string
-    {
-        return " AND post_format = '" . $f[0] . "' ";
-    }
-
     /**
      * Posts password state select.
      */
     public function getPostPasswordFilter(): DefaultFilter
     {
         return DefaultFilter::init('password')
-            ->param('where', [$this, 'getPostPasswordParam'])
+            ->param('sql', fn ($f) => ' AND post_password IS ' . ($f[0] ? 'NOT ' : '') . 'NULL ')
             ->title(__('Password:'))
             ->options([
                 '-'                    => '',
@@ -189,18 +184,13 @@ class PostFilter extends Filter
         ;
     }
 
-    public function getPostPasswordParam($f): string
-    {
-        return ' AND post_password IS ' . ($f[0] ? 'NOT ' : '') . 'NULL ';
-    }
-
     /**
      * Posts selected state select.
      */
     public function getPostSelectedFilter(): DefaultFilter
     {
         return DefaultFilter::init('selected')
-            ->param('post_selected')
+            ->param('post_selected', fn ($f) => (bool) $f[0])
             ->title(__('Selected:'))
             ->options([
                 '-'                => '',
@@ -249,24 +239,14 @@ class PostFilter extends Filter
         }
 
         return DefaultFilter::init('month')
-            ->param('post_month', [$this, 'getPostMonthParam'])
-            ->param('post_year', [$this, 'getPostYearParam'])
+            ->param('post_month', fn ($f) => (int) substr($f[0], 4, 2))
+            ->param('post_year', fn ($f) => (int) substr($f[0], 0, 4))
             ->title(__('Month:'))
             ->options(array_merge(
                 ['-' => ''],
                 App::core()->combo()->getDatesCombo($dates)
             ))
         ;
-    }
-
-    public function getPostMonthParam($f): string
-    {
-        return substr($f[0], 4, 2);
-    }
-
-    public function getPostYearParam($f): string
-    {
-        return substr($f[0], 0, 4);
     }
 
     /**
@@ -303,7 +283,7 @@ class PostFilter extends Filter
     public function getPostCommentFilter(): DefaultFilter
     {
         return DefaultFilter::init('comment')
-            ->param('where', [$this, 'getPostCommentParam'])
+            ->param('where', fn ($f) => " AND post_open_comment = '" . $f[0] . "' ")
             ->title(__('Comments:'))
             ->options([
                 '-'          => '',
@@ -313,18 +293,13 @@ class PostFilter extends Filter
         ;
     }
 
-    public function getPostCommentParam($f): string
-    {
-        return " AND post_open_comment = '" . $f[0] . "' ";
-    }
-
     /**
      * Posts trackbacks state select.
      */
     public function getPostTrackbackFilter(): DefaultFilter
     {
         return DefaultFilter::init('trackback')
-            ->param('where', [$this, 'getPostTrackbackParam'])
+            ->param('where', fn ($f) => " AND post_open_tb = '" . $f[0] . "' ")
             ->title(__('Trackbacks:'))
             ->options([
                 '-'          => '',
@@ -332,10 +307,5 @@ class PostFilter extends Filter
                 __('Closed') => '0',
             ])
         ;
-    }
-
-    public function getPostTrackbackParam($f): string
-    {
-        return " AND post_open_tb = '" . $f[0] . "' ";
     }
 }

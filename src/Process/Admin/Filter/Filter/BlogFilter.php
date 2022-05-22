@@ -43,7 +43,7 @@ class BlogFilter extends Filter
     public function getBlogStatusFilter(): DefaultFilter
     {
         return DefaultFilter::init('status')
-            ->param('blog_status')
+            ->param('blog_status', fn ($f) => (int) $f[0])
             ->title(__('Status:'))
             ->options(array_merge(
                 ['-' => ''],

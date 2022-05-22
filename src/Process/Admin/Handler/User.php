@@ -12,13 +12,14 @@ namespace Dotclear\Process\Admin\Handler;
 // Dotclear\Process\Admin\Handler\User
 use ArrayObject;
 use Dotclear\App;
-use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Core\User\UserContainer;
 use Dotclear\Core\User\Preference\Preference;
+use Dotclear\Database\Param;
 use Dotclear\Exception\AdminException;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Helper\Clock;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
 
 /**
@@ -152,7 +153,9 @@ class User extends AbstractPage
                 }
                 // Add user
                 else {
-                    if (App::core()->users()->getUsers(['user_id' => $cur->getField('user_id')], true)->fInt() > 0) {
+                    $param = new Param();
+                    $param->set('user_id', $cur->getField('user_id'));
+                    if (App::core()->users()->countUsers(param: $param) > 0) {
                         throw new AdminException(sprintf(__('User "%s" already exists.'), Html::escapeHTML($cur->getField('user_id'))));
                     }
 

@@ -37,7 +37,12 @@ class RsExtComment extends RsExtend
 
     private function spamField(string $field): ?string
     {
-        $rs = SelectStatement::init(__METHOD__)->column($field)->from(App::core()->prefix() . 'comment')->where('comment_id = ' . $this->rs->fInt('comment_id'))->limit(1)->select();
+        $sql = new SelectStatement(__METHOD__);
+        $sql->column($field);
+        $sql->from(App::core()->prefix() . 'comment');
+        $sql->where('comment_id = ' . $this->rs->fInt('comment_id'));
+        $sql->limit(1);
+        $rs = $sql->select();
 
         return $rs->isEmpty() ? null : $rs->f($field);
     }

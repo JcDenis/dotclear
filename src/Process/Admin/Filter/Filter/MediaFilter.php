@@ -11,9 +11,10 @@ namespace Dotclear\Process\Admin\Filter\Filter;
 
 // Dotclear\Process\Admin\Filter\Filter\MediaFilter
 use Dotclear\App;
+use Dotclear\Database\Param;
+use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Filter\Filter;
 use Dotclear\Process\Admin\Filter\FiltersStack;
-use Dotclear\Helper\Html\Html;
 
 /**
  * Admin media list filters form.
@@ -53,13 +54,18 @@ class MediaFilter extends Filter
     {
         $post_id = !empty($_REQUEST['post_id']) ? (int) $_REQUEST['post_id'] : null;
         if ($post_id) {
-            $post = App::core()->blog()->posts()->getPosts(['post_id' => $post_id, 'post_type' => '']);
+            $param = new Param();
+            $param->set('post_id', $post_id);
+            $param->set('post_type', '');
+
+            $post = App::core()->blog()->posts()->getPosts(param: $param);
             if ($post->isEmpty()) {
                 $post_id = null;
+            } else {
+                // keep track of post_title_ and post_type without using filters
+                $this->post_title = $post->f('post_title');
+                $this->post_type  = $post->f('post_type');
             }
-            // keep track of post_title_ and post_type without using filters
-            $this->post_title = $post->f('post_title');
-            $this->post_type  = $post->f('post_type');
         }
 
         return new DefaultFilter('post_id', $post_id);

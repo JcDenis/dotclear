@@ -59,7 +59,7 @@ class CommentFilter extends Filter
     public function getCommentTypeFilter(): DefaultFilter
     {
         return DefaultFilter::init('type')
-            ->param('comment_trackback', [$this, 'getCommentTypeParam'])
+            ->param('comment_trackback', fn ($f) => 'tb' == $f[0])
             ->title(__('Type:'))
             ->options([
                 '-'             => '',
@@ -70,18 +70,13 @@ class CommentFilter extends Filter
         ;
     }
 
-    public function getCommentTypeParam($f): bool
-    {
-        return 'tb' == $f[0];
-    }
-
     /**
      * Comment status select.
      */
     public function getCommentStatusFilter(): DefaultFilter
     {
         return DefaultFilter::init('status')
-            ->param('comment_status')
+            ->param('comment_status', fn ($f) => (int) $f[0])
             ->title(__('Status:'))
             ->options(array_merge(
                 ['-' => ''],

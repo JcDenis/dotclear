@@ -10,11 +10,13 @@ declare(strict_types=1);
 namespace Dotclear\Core\Blogs;
 
 // Dotclear\Core\Blogs\Blogs
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Core\RsExt\RsExtBlog;
 use Dotclear\Database\Cursor;
+use Dotclear\Database\Param;
 use Dotclear\Database\Record;
+use Dotclear\Database\Statement\JoinStatement;
+use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Exception\CoreException;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Html;
@@ -24,7 +26,7 @@ use Dotclear\Helper\Html\Html;
  *
  * @ingroup  Core Blog
  */
-class Blogs
+final class Blogs
 {
     /**
      * Get all blog status.
@@ -118,95 +120,123 @@ class Blogs
      */
     public function getBlog(string $blog_id): ?Record
     {
-        $blog = $this->getBlogs(['blog_id' => $blog_id]);
+        $param = new Param();
+        $param->set('blog_id', $blog_id);
 
-        return $blog->isEmpty() ? null : $blog;
+        $rs = $this->getBlogs(param: $param);
+
+        return $rs->isEmpty() ? null : $rs;
     }
 
     /**
-     * Get a record of blogs.
+     * Retrieve blogs count.
      *
-     * <b>$params</b> is an array with the following optionnal parameters:
-     * - <var>blog_id</var>: Blog ID
-     * - <var>q</var>: Search string on blog_id, blog_name and blog_url
-     * - <var>limit</var>: limit results
+     * @see BlogsParam for optionnal paramaters
      *
-     * @param array|ArrayObject $params     The parameters
-     * @param bool              $count_only Count only results
+     * @param null|Param           $param The parameters
+     * @param null|SelectStatement $sql   The SQL statement
+     *
+     * @return int The blogs count
+     */
+    public function countBlogs(?Param $param = null, ?SelectStatement $sql = null): int
+    {
+        $param = new BlogsParam($param);
+        $param->unset('order');
+        $param->unset('limit');
+
+        $query = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $query->column($query->count('B.blog_id'));
+
+        return $this->queryBlogsTable(param: $param, sql: $query)->fInt();
+    }
+
+    /**
+     * Retrieve blogs.
+     *
+     * @see BlogsParam for optionnal paramaters
+     *
+     * @param null|Param           $param The parameters
+     * @param null|SelectStatement $sql   The SQL statement
      *
      * @return Record The blogs
      */
-    public function getBlogs(array|ArrayObject $params = [], bool $count_only = false): Record
+    public function getBlogs(?Param $param = null, ?SelectStatement $sql = null): Record
     {
-        $join  = ''; // %1$s
-        $where = ''; // %2$s
+        $param = new BlogsParam($param);
 
-        if ($count_only) {
-            $strReq = 'SELECT count(B.blog_id) ' .
-            'FROM ' . App::core()->prefix() . 'blog B ' .
-                '%1$s ' .
-                'WHERE NULL IS NULL ' .
-                '%2$s ';
-        } else {
-            $strReq = 'SELECT B.blog_id, blog_uid, blog_url, blog_name, blog_desc, blog_creadt, ' .
-                'blog_upddt, blog_status ';
-            if (!empty($params['columns'])) {
-                $strReq .= ',';
-                if (is_array($params['columns'])) {
-                    $strReq .= implode(',', $params['columns']);
-                } else {
-                    $strReq .= $params['columns'];
-                }
-                $strReq .= ' ';
-            }
-            $strReq .= 'FROM ' . App::core()->prefix() . 'blog B ' .
-                '%1$s ' .
-                'WHERE NULL IS NULL ' .
-                '%2$s ';
+        $query = $sql ? clone $sql : new SelectStatement(__METHOD__);
 
-            if (!empty($params['order'])) {
-                $strReq .= 'ORDER BY ' . App::core()->con()->escape($params['order']) . ' ';
-            } else {
-                $strReq .= 'ORDER BY B.blog_id ASC ';
-            }
-
-            if (!empty($params['limit'])) {
-                $strReq .= App::core()->con()->limit($params['limit']);
-            }
+        if (!empty($param->columns())) {
+            $query->columns($param->columns());
         }
+
+        $query->columns([
+            'B.blog_id',
+            'blog_uid',
+            'blog_url',
+            'blog_name',
+            'blog_desc',
+            'blog_creadt',
+            'blog_upddt',
+            'blog_status',
+        ]);
+        $query->order($query->escape($param->order('B.blog_id ASC')));
+
+        if (!empty($param->limit())) {
+            $query->limit($param->limit());
+        }
+
+        return $this->queryBlogsTable(param: $param, sql: $query);
+    }
+
+    /**
+     * Query log table.
+     *
+     * @param BlogsParam      $param The log parameters
+     * @param SelectStatement $sql   The SQL statement
+     *
+     * @return Record The result
+     */
+    private function queryBlogsTable(BlogsParam $param, SelectStatement $sql): Record
+    {
+        $sql->from(App::core()->prefix() . 'blog B');
+        $sql->where('NULL IS NULL');
 
         if (App::core()->user()->userID() && !App::core()->user()->isSuperAdmin()) {
-            $join  = 'INNER JOIN ' . App::core()->prefix() . 'permissions PE ON B.blog_id = PE.blog_id ';
-            $where = "AND PE.user_id = '" . App::core()->con()->escape(App::core()->user()->userID()) . "' " .
-                "AND (permissions LIKE '%|usage|%' OR permissions LIKE '%|admin|%' OR permissions LIKE '%|contentadmin|%') " .
-                'AND blog_status IN (1,0) ';
+            $join = new JoinStatement(__METHOD__);
+            $join->type('INNER');
+            $join->from(App::core()->prefix() . 'permissions PE');
+            $join->on('B.blog_id = PE.blog_id');
+
+            $sql->join($join->statement());
+            $sql->and($sql->orGroup([
+                $sql->like('permissions', '%|usage|%'),
+                $sql->like('permissions', '%|admin|%'),
+                $sql->like('permissions', '%|contentadmin|%'),
+            ]));
+            $sql->and('blog_status IN (1,0)');
         } elseif (!App::core()->user()->userID()) {
-            $where = 'AND blog_status IN (1,0) ';
+            $sql->and('blog_status IN (1,0)');
         }
 
-        if (isset($params['blog_status']) && '' !== $params['blog_status'] && App::core()->user()->isSuperAdmin()) {
-            $where .= 'AND blog_status = ' . (int) $params['blog_status'] . ' ';
+        if (null !== $param->blog_status() && App::core()->user()->isSuperAdmin()) {
+            $sql->and('blog_status = ' . $param->blog_status());
         }
 
-        if (isset($params['blog_id']) && '' !== $params['blog_id']) {
-            if (!is_array($params['blog_id'])) {
-                $params['blog_id'] = [$params['blog_id']];
-            }
-            $where .= 'AND B.blog_id ' . App::core()->con()->in($params['blog_id']);
+        if (!empty($param->blog_id())) {
+            $sql->and('B.blog_id ' . $sql->in($param->blog_id()));
         }
 
-        if (!empty($params['q'])) {
-            $params['q'] = strtolower(str_replace('*', '%', $params['q']));
-            $where .= 'AND (' .
-            "LOWER(B.blog_id) LIKE '" . App::core()->con()->escape($params['q']) . "' " .
-            "OR LOWER(B.blog_name) LIKE '" . App::core()->con()->escape($params['q']) . "' " .
-            "OR LOWER(B.blog_url) LIKE '" . App::core()->con()->escape($params['q']) . "' " .
-                ') ';
+        if (!empty($param->q())) {
+            $q = str_replace('*', '%', strtolower($param->q()));
+            $sql->and($sql->orGroup([
+                $sql->like('LOWER(B.blog_id)', $q),
+                $sql->like('LOWER(B.blog_name)', $q),
+                $sql->like('LOWER(B.blog_url)', $q),
+            ]));
         }
 
-        $strReq = sprintf($strReq, $join, $where);
-
-        $rs = App::core()->con()->select($strReq);
+        $rs = $sql->select();
         $rs->extend(new RsExtBlog());
 
         return $rs;

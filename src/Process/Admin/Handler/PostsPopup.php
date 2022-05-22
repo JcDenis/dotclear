@@ -11,10 +11,11 @@ namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\PostsPopup
 use Dotclear\App;
-use Dotclear\Process\Admin\Page\AbstractPage;
-use Dotclear\Process\Admin\Inventory\Inventory\PostMiniInventory;
+use Dotclear\Database\Param;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Process\Admin\Inventory\Inventory\PostMiniInventory;
+use Dotclear\Process\Admin\Page\AbstractPage;
 
 /**
  * Admin posts popup list page.
@@ -49,22 +50,22 @@ class PostsPopup extends AbstractPage
             $this->type = null;
         }
 
-        $params               = [];
-        $params['limit']      = [(($this->page - 1) * 10), 10];
-        $params['no_content'] = true;
-        $params['order']      = 'post_dt DESC';
+        $param = new Param();
+        $param->set('limit', [(($this->page - 1) * 10), 10]);
+        $param->set('no_content', true);
+        $param->set('order', 'post_dt DESC');
 
         if ($this->q) {
-            $params['search'] = $this->q;
+            $param->set('search', $this->q);
         }
 
         if ($this->type) {
-            $params['post_type'] = $this->type;
+            $param->set('post_type', $this->type);
         }
 
         return new PostMiniInventory(
-            App::core()->blog()->posts()->getPosts($params),
-            App::core()->blog()->posts()->getPosts($params, true)->fInt()
+            App::core()->blog()->posts()->getPosts(param: $param),
+            App::core()->blog()->posts()->countPosts(param: $param)
         );
     }
 

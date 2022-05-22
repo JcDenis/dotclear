@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\Tags\Common;
 
 // Dotclear\Plugin\Tags\Common\TagsWidgets
 use Dotclear\App;
+use Dotclear\Database\Param;
 use Dotclear\Database\Record;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Plugin\Widgets\Common\Widget;
@@ -88,19 +89,20 @@ class TagsWidgets
             $order = 'desc';
         }
 
-        $params = ['meta_type' => 'tag'];
+        $param = new Param();
+        $param->set('meta_type', 'tag');
 
         if ('meta_id_lower' != $sort) {
             // As optional limit may restrict result, we should set order (if not computed after)
-            $params['order'] = $sort . ' ' . ('asc' == $order ? 'ASC' : 'DESC');
+            $param->set('order', $sort . ' ' . ('asc' == $order ? 'ASC' : 'DESC'));
         }
 
         if (abs((int) $widget->get('limit'))) {
-            $params['limit'] = abs((int) $widget->get('limit'));
+            $param->set('limit', abs((int) $widget->get('limit')));
         }
 
         $rs = App::core()->meta()->computeMetaStats(
-            App::core()->meta()->getMetadata($params)
+            App::core()->meta()->getMetadata(param: $param)
         );
 
         if ($rs->isEmpty()) {

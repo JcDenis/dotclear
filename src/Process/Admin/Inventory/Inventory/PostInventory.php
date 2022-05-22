@@ -12,6 +12,7 @@ namespace Dotclear\Process\Admin\Inventory\Inventory;
 // Dotclear\Process\Admin\Inventory\Inventory\PostInventory
 use ArrayObject;
 use Dotclear\App;
+use Dotclear\Database\Param;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -55,10 +56,19 @@ class PostInventory extends Inventory
             if ($filter) {
                 $html_block .= '<caption>' . sprintf(__('List of %s entries matching the filter.'), $this->rs_count) . '</caption>';
             } else {
-                $nb_published   = App::core()->blog()->posts()->getPosts(['post_status' => 1], true)->fInt();
-                $nb_pending     = App::core()->blog()->posts()->getPosts(['post_status' => -2], true)->fInt();
-                $nb_programmed  = App::core()->blog()->posts()->getPosts(['post_status' => -1], true)->fInt();
-                $nb_unpublished = App::core()->blog()->posts()->getPosts(['post_status' => 0], true)->fInt();
+                $param = new Param();
+
+                $param->set('post_status', 1);
+                $nb_published   = App::core()->blog()->posts()->countPosts(param: $param);
+
+                $param->set('post_status', -2);
+                $nb_pending     = App::core()->blog()->posts()->countPosts(param: $param);
+
+                $param->set('post_status', -1);
+                $nb_programmed  = App::core()->blog()->posts()->countPosts(param: $param);
+
+                $param->set('post_status', 0);
+                $nb_unpublished = App::core()->blog()->posts()->countPosts(param: $param);
 
                 $html_block .= '<caption>' .
                 sprintf(__('List of entries (%s)'), $this->rs_count) .

@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\Pages\Admin;
 
 // Dotclear\Plugin\Pages\Admin\Handler
 use Dotclear\App;
+use Dotclear\Database\Param;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Process\Admin\Action\Action;
@@ -39,9 +40,8 @@ class Handler extends AbstractPage
 
     protected function getInventoryInstance(): ?Inventory
     {
-        $params = [
-            'post_type' => 'page',
-        ];
+        $param = new Param();
+        $param->set('post_type', 'page');
 
         $this->p_page = !empty($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
         $this->p_nbbp = App::core()->listoption()->getUserFiltersNb('pages');
@@ -50,12 +50,12 @@ class Handler extends AbstractPage
             $this->p_nbbp = (int) $_GET['nb'];
         }
 
-        $params['limit']      = [(($this->p_page - 1) * $this->p_nbbp), $this->p_nbbp];
-        $params['no_content'] = true;
-        $params['order']      = 'post_position ASC, post_title ASC';
+        $param->set('limit', [(($this->p_page - 1) * $this->p_nbbp), $this->p_nbbp]);
+        $param->set('no_content', true);
+        $param->set('order', 'post_position ASC, post_title ASC');
 
-        $pages = App::core()->blog()->posts()->getPosts($params);
-        $count = App::core()->blog()->posts()->getPosts($params, true)->fInt();
+        $pages = App::core()->blog()->posts()->getPosts(param: $param);
+        $count = App::core()->blog()->posts()->countPosts(param: $param);
 
         return new PagesInventory($pages, $count);
     }

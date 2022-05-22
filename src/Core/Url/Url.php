@@ -14,6 +14,7 @@ use ArrayObject;
 use Dotclear\App;
 use Dotclear\Core\Trackback\Trackback;
 use Dotclear\Core\Xmlrpc\Xmlrpc;
+use Dotclear\Database\Param;
 use Dotclear\Exception\CoreException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
@@ -582,9 +583,13 @@ class Url
 
             App::core()->url()->search_string = !empty($_GET['q']) ? Html::escapeHTML(rawurldecode($_GET['q'])) : '';
             if (App::core()->url()->search_string) {
-                $params = new ArrayObject(['search' => App::core()->url()->search_string]);
-                App::core()->behavior()->call('publicBeforeSearchCount', $params);
-                App::core()->url()->search_count = App::core()->blog()->posts()->getPosts($params, true)->fInt();
+                $param = new Param();
+                $param->set('search', App::core()->url()->search_string);
+
+                // --BEHAVIOR-- publicBeforeSearchCount, Param
+                App::core()->behavior()->call('publicBeforeSearchCount', $param);
+
+                App::core()->url()->search_count = App::core()->blog()->posts()->countPosts(param: $param);
             }
 
             $this->serveDocument('search.html');
@@ -696,12 +701,13 @@ class Url
         } else {
             App::core()->blog()->withoutPassword(false);
 
-            $params = new ArrayObject([
-                'post_url' => $args, ]);
+            $param = new Param();
+            $param->set('post_url', $args);
 
-            App::core()->behavior()->call('publicPostBeforeGetPosts', $params, $args);
+            // --BEHAVIOR-- publicPostBeforeGetPosts, Param, string
+            App::core()->behavior()->call('publicPostBeforeGetPosts', $param, $args);
 
-            App::core()->context()->set('posts', App::core()->blog()->posts()->getPosts($params));
+            App::core()->context()->set('posts', App::core()->blog()->posts()->getPosts(param: $param));
 
             /** @var ArrayObject<int, mixed> */
             $cp               = new ArrayObject();
@@ -957,13 +963,14 @@ class Url
 
             $subtitle = ' - ' . App::core()->context()->get('categories')->f('cat_title');
         } elseif ($post_id) {
-            $params = new ArrayObject([
-                'post_id'   => $post_id,
-                'post_type' => '', ]);
+            $param = new Param();
+            $param->set('post_id', $post_id);
+            $param->set('post_type', '');
 
-            App::core()->behavior()->call('publicFeedBeforeGetPosts', $params, $args);
+            // --BEHAVIOR-- publicFeedBeforeGetPosts, Param, string
+            App::core()->behavior()->call('publicFeedBeforeGetPosts', $param, $args);
 
-            App::core()->context()->set('posts', App::core()->blog()->posts()->getPosts($params));
+            App::core()->context()->set('posts', App::core()->blog()->posts()->getPosts(param: $param));
 
             if (App::core()->context()->get('posts')->isEmpty()) {
                 // The specified post does not exist.

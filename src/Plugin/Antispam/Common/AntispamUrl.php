@@ -15,6 +15,7 @@ namespace Dotclear\Plugin\Antispam\Common;
 // Dotclear\Plugin\Antispam\Common\AntispamUrl
 use Dotclear\App;
 use Dotclear\Core\Url\Url;
+use Dotclear\Database\Param;
 use Dotclear\Helper\Html\Html;
 
 /**
@@ -55,15 +56,15 @@ class AntispamUrl extends Url
         header('Content-Type: application/xml; charset=UTF-8');
 
         $title   = App::core()->blog()->name . ' - ' . __('Spam moderation') . ' - ';
-        $params  = [];
+        $param   = new Param();
         $end_url = '';
         if ('spam' == $type) {
             $title .= __('Spam');
-            $params['comment_status'] = -2;
+            $param->set('comment_status', -2);
             $end_url                  = '&status=-2';
         } else {
             $title .= __('Ham');
-            $params['sql'] = ' AND comment_status IN (1,-1) ';
+            $param->push('sql', ' AND comment_status IN (1,-1) ');
         }
 
         echo '<?xml version="1.0" encoding="utf-8"?>' . "\n" .
@@ -75,7 +76,7 @@ class AntispamUrl extends Url
         '<link>' . ('' != App::core()->config()->get('admin_url') ? App::core()->config()->get('admin_url') . '?handler=admin.comments' . $end_url : 'about:blank') . '</link>' . "\n" .
         '<description></description>' . "\n";
 
-        $rs       = App::core()->blog()->comments()->getComments($params);
+        $rs       = App::core()->blog()->comments()->getComments(param: $param);
         $maxitems = 20;
         $nbitems  = 0;
 

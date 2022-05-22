@@ -11,12 +11,12 @@ namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\Posts
 use Dotclear\App;
-use Dotclear\Process\Admin\Page\AbstractPage;
-use Dotclear\Process\Admin\Action\Action\PostAction;
-use Dotclear\Process\Admin\Inventory\Inventory\PostInventory;
-use Dotclear\Process\Admin\Filter\Filter\PostFilter;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Process\Admin\Action\Action\PostAction;
+use Dotclear\Process\Admin\Filter\Filter\PostFilter;
+use Dotclear\Process\Admin\Inventory\Inventory\PostInventory;
+use Dotclear\Process\Admin\Page\AbstractPage;
 
 /**
  * Admin posts list page.
@@ -43,7 +43,7 @@ class Posts extends AbstractPage
     protected function getInventoryInstance(): ?PostInventory
     {
         // get list params
-        $params = $this->filter->params();
+        $param = $this->filter->params();
 
         // lexical sort
         $sortby_lex = [
@@ -55,15 +55,17 @@ class Posts extends AbstractPage
         // --BEHAVIOR-- adminPostsSortbyLexCombo
         App::core()->behavior()->call('adminPostsSortbyLexCombo', [&$sortby_lex]);
 
-        $params['order'] = (array_key_exists($this->filter->get('sortby'), $sortby_lex) ?
+        $param->set('order', (
+            array_key_exists($this->filter->get('sortby'), $sortby_lex) ?
             App::core()->con()->lexFields($sortby_lex[$this->filter->get('sortby')]) :
-            $this->filter->get('sortby')) . ' ' . $this->filter->get('order');
+            $this->filter->get('sortby')
+        ) . ' ' . $this->filter->get('order'));
 
-        $params['no_content'] = true;
+        $param->set('no_content', true);
 
         return new PostInventory(
-            App::core()->blog()->posts()->getPosts($params),
-            App::core()->blog()->posts()->getPosts($params, true)->fInt()
+            App::core()->blog()->posts()->getPosts(param: $param),
+            App::core()->blog()->posts()->countPosts(param: $param)
         );
     }
 
