@@ -341,7 +341,7 @@ class RestMethods
 
         $param = new Param();
         $param->set('comment_id', (int) $get['id']);
-        $rs = App::core()->blog()->comments()->getComments(parm: $param);
+        $rs = App::core()->blog()->comments()->getComments(param: $param);
 
         if ($rs->isEmpty()) {
             throw new AdminException('No comment for this ID');
