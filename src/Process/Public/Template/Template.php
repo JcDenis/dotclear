@@ -497,7 +497,7 @@ class Template extends BaseTemplate
      */
     public function Archives(ArrayObject $attr, string $content): string
     {
-        $p = "\$param = new Param();\n";
+        $p = 'if (!isset($param)) { $param = new Param(); }' . "\n";
         $p .= "\$param->set('type', 'month');\n";
         if (isset($attr['type'])) {
             $p .= "\$param->set('type', '" . addslashes($attr['type']) . "');\n";
@@ -633,7 +633,7 @@ class Template extends BaseTemplate
      */
     public function ArchiveNext(ArrayObject $attr, string $content): string
     {
-        $p = "\$param = new Param();\n";
+        $p = 'if (!isset($param)) { $param = new Param(); }' . "\n";
         $p .= "\$param->set('type', 'month');\n";
         if (isset($attr['type'])) {
             $p .= "\$param->set('type', '" . addslashes($attr['type']) . "');\n";
@@ -675,7 +675,7 @@ class Template extends BaseTemplate
      */
     public function ArchivePrevious(ArrayObject $attr, string $content): string
     {
-        $p = '$param = new Param();';
+        $p = 'if (!isset($param)) { $param = new Param(); }' . "\n";
         $p .= "\$param->set('type', 'month');\n";
         if (isset($attr['type'])) {
             $p .= "\$param->set('type', '" . addslashes($attr['type']) . "');\n";
@@ -1234,7 +1234,7 @@ class Template extends BaseTemplate
         }
 
         $p = '$_page_number = App::core()->context()->page_number(); if (!$_page_number) { $_page_number = 1; }' . "\n";
-        $p .= "\$param = new Param();\n";
+        $p .= 'if (!isset($param)) { $param = new Param(); }' . "\n";
 
         if (0 != $lastn) {
             // Set limit (aka nb of entries needed)
@@ -2103,7 +2103,7 @@ class Template extends BaseTemplate
      */
     public function Languages(ArrayObject $attr, string $content): string
     {
-        $p = "\$param = new Param();\n";
+        $p = 'if (!isset($param)) { $param = new Param(); }' . "\n";
 
         if (isset($attr['lang'])) {
             $p = "\$param->set('post_lang', '" . addslashes($attr['lang']) . "');\n";
@@ -2311,7 +2311,7 @@ class Template extends BaseTemplate
      */
     public function Comments(ArrayObject $attr, string $content): string
     {
-        $p = '$param = new Param();';
+        $p = 'if (!isset($param)) { $param = new Param(); }' . "\n";
         if (empty($attr['with_pings'])) {
             $p .= "\$param->set('comment_trackback', 0);\n";
         }
@@ -2917,7 +2917,7 @@ class Template extends BaseTemplate
      */
     public function Pings(ArrayObject $attr, string $content): string
     {
-        $p = '$param = new Param(); ' .
+        $p = 'if (!isset($param)) { $param = new Param(); }' . "\n" .
             'if (App::core()->context()->get("posts") !== null) { ' .
             "\$param->set('post_id', App::core()->context()->get('posts')->fInt('post_id')); " .
             "App::core()->blog()->withoutPassword(false);\n" .
