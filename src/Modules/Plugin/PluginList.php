@@ -657,16 +657,16 @@ class PluginList
             if (in_array('icon', $cols)) {
                 ++$tds;
                 if (file_exists($module->root() . '/icon.svg')) {
-                    $icon = '?df=' . $module->type() . '/' . $id . '/icon.svg';
+                    $icon = $module->type() . '/' . $id . '/icon.svg';
                 } elseif (file_exists($module->root() . '/icon.png')) {
-                    $icon = '?df=' . $module->type() . '/' . $id . '/icon.png';
+                    $icon = $module->type() . '/' . $id . '/icon.png';
                 } else {
                     $icon = 'images/module.png';
                 }
                 if (file_exists($module->root() . '/icon-dark.svg')) {
-                    $icon = [$icon, '?df=' . $module->type() . '/' . $id . '/icon-dark.svg'];
+                    $icon = [$icon, $module->type() . '/' . $id . '/icon-dark.svg'];
                 } elseif (file_exists($module->root() . '/icon-dark.png')) {
-                    $icon = [$icon, '?df=' . $module->type() . '/' . $id . '/icon-dark.png'];
+                    $icon = [$icon, $module->type() . '/' . $id . '/icon-dark.png'];
                 }
 
                 echo '<td class="module-icon nowrap">' .
