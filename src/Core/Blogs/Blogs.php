@@ -15,6 +15,7 @@ use Dotclear\Core\RsExt\RsExtBlog;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Param;
 use Dotclear\Database\Record;
+use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\JoinStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Exception\CoreException;
@@ -79,21 +80,42 @@ final class Blogs
      */
     public function getBlogPermissions(string $blog_id, bool $with_super = true): array
     {
-        $strReq = 'SELECT U.user_id AS user_id, user_super, user_name, user_firstname, ' .
-        'user_displayname, user_email, permissions ' .
-        'FROM ' . App::core()->prefix() . 'user U ' .
-        'JOIN ' . App::core()->prefix() . 'permissions P ON U.user_id = P.user_id ' .
-        "WHERE blog_id = '" . App::core()->con()->escape($blog_id) . "' ";
+        $join = new JoinStatement(__METHOD__);
+        $join->from(App::core()->prefix() . 'permissions P');
+        $join->on('U.user_id = P.user_id');
+        $join->where('blog_id = ' . $join->quote($blog_id));
+
+        $sql = new SelectStatement(__METHOD__);
+        $sql->from(App::core()->prefix() . 'user U');
+        $sql->columns([
+            'U.user_id AS user_id',
+            'user_super',
+            'user_name',
+            'user_firstname',
+            'user_displayname',
+            'user_email',
+            'permissions',
+        ]);
+        $sql->join($join->statement());
 
         if ($with_super) {
-            $strReq .= 'UNION ' .
-            'SELECT U.user_id AS user_id, user_super, user_name, user_firstname, ' .
-            'user_displayname, user_email, NULL AS permissions ' .
-            'FROM ' . App::core()->prefix() . 'user U ' .
-                'WHERE user_super = 1 ';
+            $union = new SelectStatement(__METHOD__);
+            $union->from(App::core()->prefix() . 'user U');
+            $union->columns([
+                'U.user_id AS user_id',
+                'user_super',
+                'user_name',
+                'user_firstname',
+                'user_displayname',
+                'user_email',
+                'NULL AS permissions',
+            ]);
+            $union->where('user_super = 1');
+
+            $sql->sql('UNION ' . $union->statement());
         }
 
-        $rs = App::core()->con()->select($strReq);
+        $rs = $sql->select();
 
         $res = [];
 
@@ -321,10 +343,10 @@ final class Blogs
             throw new CoreException(__('You are not an administrator'));
         }
 
-        $strReq = 'DELETE FROM ' . App::core()->prefix() . 'blog ' .
-        "WHERE blog_id = '" . App::core()->con()->escape($blog_id) . "' ";
-
-        App::core()->con()->execute($strReq);
+        $sql = new DeleteStatement(__METHOD__);
+        $sql->from(App::core()->prefix() . 'blog');
+        $sql->where('blog_id = ' . $sql->quote($blog_id));
+        $sql->delete();
     }
 
     /**
@@ -336,11 +358,11 @@ final class Blogs
      */
     public function blogExists(string $blog_id): bool
     {
-        $strReq = 'SELECT blog_id ' .
-        'FROM ' . App::core()->prefix() . 'blog ' .
-        "WHERE blog_id = '" . App::core()->con()->escape($blog_id) . "' ";
-
-        $rs = App::core()->con()->select($strReq);
+        $sql = new SelectStatement(__METHOD__);
+        $sql->column('blog_id');
+        $sql->from(App::core()->prefix() . 'blog');
+        $sql->where('blog_id = ' . $sql->quote($blog_id));
+        $rs = $sql->select();
 
         return !$rs->isEmpty();
     }
@@ -355,14 +377,15 @@ final class Blogs
      */
     public function countBlogPosts(string $blog_id, ?string $post_type = null): int
     {
-        $strReq = 'SELECT COUNT(post_id) ' .
-        'FROM ' . App::core()->prefix() . 'post ' .
-        "WHERE blog_id = '" . App::core()->con()->escape($blog_id) . "' ";
+        $sql = new SelectStatement(__METHOD__);
+        $sql->column($sql->count('post_id'));
+        $sql->from(App::core()->prefix() . 'post');
+        $sql->where('blog_id = ' . $sql->quote($blog_id));
 
         if ($post_type) {
-            $strReq .= "AND post_type = '" . App::core()->con()->escape($post_type) . "' ";
+            $sql->and('post_type = ' . $sql->quote($post_type));
         }
 
-        return App::core()->con()->select($strReq)->fInt();
+        return $sql->select()->fInt();
     }
 }
