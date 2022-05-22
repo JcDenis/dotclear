@@ -1328,7 +1328,7 @@ class Template extends BaseTemplate
         }
 
         if (isset($attr['selected'])) {
-            $p .= "\$param->set('post_selected', " . (bool) $attr['selected'] . ');';
+            $p .= "\$param->set('post_selected', " . (((bool) $attr['selected']) ? 'true' : 'false') . ');';
         }
 
         if (isset($attr['age'])) {
@@ -2224,7 +2224,7 @@ class Template extends BaseTemplate
 
         return
             $p .
-            self::$ton . 'if (App::core()->context()->get("pagination")->fInt() > App::core()->context()->get("posts")->count()) :' . self::$toff .
+            self::$ton . 'if (App::core()->context()->get("pagination") > App::core()->context()->get("posts")->count()) :' . self::$toff .
             $content .
             self::$ton . 'endif;' . self::$toff;
     }

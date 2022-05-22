@@ -12,6 +12,7 @@ namespace Dotclear\Plugin\Pages\Public;
 // Dotclear\Plugin\Pages\Public\Prepend
 use ArrayObject;
 use Dotclear\App;
+use Dotclear\database\Param;
 use Dotclear\Modules\ModulePrepend;
 use Dotclear\Plugin\Pages\Common\PagesUrl;
 use Dotclear\Plugin\Pages\Common\PagesWidgets;
@@ -30,27 +31,31 @@ class Prepend extends ModulePrepend
         __('This page\'s comments feed');
 
         // Add post type to queries
-        App::core()->behavior()->add('coreBlogBeforeGetPosts', function (ArrayObject $params): void {
-            if ('search' == App::core()->url()->type) {
-                // Add page post type for searching
-                if (isset($params['post_type'])) {
-                    if (!is_array($params['post_type'])) {
-                        // Convert it in array
-                        $params['post_type'] = [$params['post_type']];
-                    }
-                    if (!in_array('page', $params['post_type'])) {
-                        // Add page post type
-                        $params['post_type'][] = 'page';
-                    }
-                } else {
-                    // Dont miss default post type (aka post)
-                    $params['post_type'] = ['post', 'page'];
-                }
-            }
-        });
+        App::core()->behavior()->add('coreBlogBeforeCountPosts', [$this, 'behaviorCoreBlogBeforeXxxPosts']);
+        App::core()->behavior()->add('coreBlogBeforeGetPosts', [$this, 'behaviorCoreBlogBeforeXxxPosts']);
 
         $this->addTemplatePath();
         new PagesUrl();
         new PagesWidgets();
+    }
+
+    public function behaviorCoreBlogBeforeXxxPosts(Param $param): void
+    {
+        if ('search' == App::core()->url()->type) {
+            // Add page post type for searching (don't use default Param post_type() as it is 'post')
+            if (null !== $param->get('post_type')) {
+                if (!is_array($param->get('post_type'))) {
+                    // Convert it in array
+                    $param->set('post_type', [$param->get('post_type')]);
+                }
+                if (!in_array('page', $param->get('post_type'))) {
+                    // Add page post type
+                    $param->push('post_type', 'page');
+                }
+            } else {
+                // Dont miss default post type (aka post)
+                $param->set('post_type', ['post', 'page']);
+            }
+        } 
     }
 }
