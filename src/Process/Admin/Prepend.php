@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin;
 
 // Dotclear\Process\Admin\Prepend
+use DateTimeZone;
 use Dotclear\App;
 use Dotclear\Core\Core;
 use Dotclear\Helper\Clock;
@@ -36,6 +37,12 @@ use Exception;
  */
 final class Prepend extends Core
 {
+    /**
+     * @var string $timezone
+     *             Admin interface timezone
+     */
+    private $timezone;
+
     /**
      * @var AdminUrl $adminurl
      *               AdminUrl instance
@@ -225,7 +232,17 @@ final class Prepend extends Core
      */
     public function timezone(): string
     {
-        return $this->user()->getInfo('user_tz') ?? Clock::getTZ();
+        if (!$this->timezone) {
+            try {
+                $dtz = new DateTimeZone($this->user()->getInfo('user_tz'));
+                $this->behavior()->call('setAdminInterfaceTimezone', $dtz);
+                $this->timezone = $dtz->getName();
+            } catch(Exception) {
+                $this->timezone = Clock::getTZ();
+            }
+        }
+
+        return $this->timezone;
     }
 
     /**

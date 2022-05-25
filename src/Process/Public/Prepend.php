@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Public;
 
 // Dotclear\Process\Public\Prepend
+use DateTimeZone;
 use Dotclear\App;
 use Dotclear\Core\Core;
 use Dotclear\Core\RsExt\RsExtPostPublic;
@@ -31,6 +32,12 @@ use Exception;
  */
 final class Prepend extends Core
 {
+    /**
+     * @var string $timezone
+     *             Public interface timezone
+     */
+    private $timezone;
+
     /**
      * @var Context $context
      *              Context instance
@@ -70,7 +77,17 @@ final class Prepend extends Core
      */
     public function timezone(): string
     {
-        return $this->blog() ? $this->blog()->settings()->get('system')->get('blog_timezone') : Clock::getTZ();
+        if (!$this->timezone) {
+            try {
+                $dtz = new DateTimeZone($this->blog() ? $this->blog()->settings()->get('system')->get('blog_timezone') : Clock::getTZ());
+                $this->behavior()->call('setPublicInterfaceTimezone', $dtz);
+                $this->timezone = $dtz->getName();
+            } catch(Exception) {
+                $this->timezone = Clock::getTZ();
+            }
+        }
+
+        return $this->timezone;
     }
 
     /**
