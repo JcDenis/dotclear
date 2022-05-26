@@ -181,7 +181,11 @@ class App
      */
     private static function trace(Exception|Error $e): string
     {
-        $lines = $e->getTrace();
+        $dt = debug_backtrace(options: 0);
+        if (!($lines = $dt[0]['args'][0]->getPrevious()?->getTrace())) {
+            $lines = [];
+        }
+
         array_unshift($lines, ['function' => 'Caught in', 'file' => $e->getFile(), 'line' => $e->getLine()]);
         if (null != ($previous = $e->getPrevious())) {
             array_unshift($lines, ['function' => 'Thrown in', 'file' => $previous->getFile(), 'line' => $previous->getLine()]);
