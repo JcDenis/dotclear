@@ -222,7 +222,7 @@ class Combo
     public function getBlogStatusesCombo(): array
     {
         $status_combo = [];
-        foreach (App::core()->blogs()->getAllBlogStatus() as $k => $v) {
+        foreach (App::core()->blogs()->getBlogsStatusNames() as $k => $v) {
             $status_combo[$v] = (string) $k;
         }
 

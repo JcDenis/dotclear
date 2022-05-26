@@ -12,7 +12,8 @@ namespace Dotclear\Process\Admin\Action\Action;
 // Dotclear\Process\Admin\Action\Action\DefaultCommentAction
 use ArrayObject;
 use Dotclear\App;
-use Dotclear\Exception\AdminException;
+use Dotclear\Exception\MissingOrEmptyValue;
+use Dotclear\Helper\Mapper\Integers;
 use Dotclear\Process\Admin\Action\Action;
 
 /**
@@ -47,19 +48,15 @@ abstract class DefaultCommentAction extends Action
 
     public function doChangeCommentStatus(Action $ap, array|ArrayObject $post): void
     {
-        $co_ids = $ap->getIDs();
-        if (empty($co_ids)) {
-            throw new AdminException(__('No comment selected'));
+        $ids = new Integers($ap->getIDs());
+        if (!$ids->count()) {
+            throw new MissingOrEmptyValue(__('No comment selected'));
         }
 
-        $status = match ($ap->getAction()) {
-            'unpublish' => 0,
-            'pending'   => -1,
-            'junk'      => -2,
-            default     => 1,
-        };
-
-        App::core()->blog()->comments()->updCommentsStatus($co_ids, $status);
+        App::core()->blog()->comments()->updCommentsStatus(
+            ids: $ids,
+            status: App::core()->blog()->comments()->getCommentsStatusCode(name: $ap->getAction(), default: 1)
+        );
 
         App::core()->notice()->addSuccessNotice(__('Selected comments have been successfully updated.'));
         $ap->redirect(true);
@@ -67,20 +64,15 @@ abstract class DefaultCommentAction extends Action
 
     public function doDeleteComment(Action $ap, array|ArrayObject $post): void
     {
-        $co_ids = $ap->getIDs();
-        if (empty($co_ids)) {
-            throw new AdminException(__('No comment selected'));
-        }
-        // Backward compatibility
-        foreach ($co_ids as $comment_id) {
-            // --BEHAVIOR-- adminBeforeCommentDelete
-            App::core()->behavior()->call('adminBeforeCommentDelete', $comment_id);
+        $ids = new Integers($ap->getIDs());
+        if (!$ids->count()) {
+            throw new MissingOrEmptyValue(__('No comment selected'));
         }
 
-        // --BEHAVIOR-- adminBeforeCommentsDelete
-        App::core()->behavior()->call('adminBeforeCommentsDelete', $co_ids);
+        // --BEHAVIOR-- adminBeforeCommentsDelete, Integers
+        App::core()->behavior()->call('adminBeforeCommentsDelete', $ids);
 
-        App::core()->blog()->comments()->delComments($co_ids);
+        App::core()->blog()->comments()->delComments(ids: $ids);
         App::core()->notice()->addSuccessNotice(__('Selected comments have been successfully deleted.'));
         $ap->redirect(false);
     }

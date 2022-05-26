@@ -82,7 +82,7 @@ final class Prepend extends Core
                 $dtz = new DateTimeZone($this->blog() ? $this->blog()->settings()->get('system')->get('blog_timezone') : Clock::getTZ());
                 $this->behavior()->call('setPublicInterfaceTimezone', $dtz);
                 $this->timezone = $dtz->getName();
-            } catch(Exception) {
+            } catch (Exception) {
                 $this->timezone = Clock::getTZ();
             }
         }
@@ -165,10 +165,10 @@ final class Prepend extends Core
         parent::process();
 
         // Add Record extensions
-        $this->behavior()->add('coreBlogGetPosts', function (Record $rs): void {
+        $this->behavior()->add('coreBlogAfterGetPosts', function (Record $rs): void {
             $rs->extend(new RsExtPostPublic());
         });
-        $this->behavior()->add('coreBlogGetComments', function (Record $rs): void {
+        $this->behavior()->add('coreBlogAfterGetComments', function (Record $rs): void {
             $rs->extend(new RsExtCommentPublic());
         });
 

@@ -64,7 +64,7 @@ class User extends AbstractPage
         // Get user if we have an ID
         if (!empty($_REQUEST['id'])) {
             try {
-                $rs = App::core()->users()->getUser($_REQUEST['id']);
+                $rs = App::core()->users()->getUser(id: $_REQUEST['id']);
 
                 $this->user->parseFromRecord($rs);
 
@@ -126,7 +126,7 @@ class User extends AbstractPage
                     // --BEHAVIOR-- adminBeforeUserUpdate
                     App::core()->behavior()->call('adminBeforeUserUpdate', $cur, $this->user->getProperty('user_id'));
 
-                    $new_id = App::core()->users()->updUser($this->user->getProperty('user_id'), $cur);
+                    $new_id = App::core()->users()->updUser(id: $this->user->getProperty('user_id'), cursor: $cur);
 
                     // Update profile
                     // Sanitize list of secondary mails and urls if any
@@ -162,7 +162,7 @@ class User extends AbstractPage
                     // --BEHAVIOR-- adminBeforeUserCreate
                     App::core()->behavior()->call('adminBeforeUserCreate', $cur);
 
-                    $new_id = App::core()->users()->addUser($cur);
+                    $new_id = App::core()->users()->addUser(cursor: $cur);
 
                     // Update profile
                     // Sanitize list of secondary mails and urls if any
@@ -381,7 +381,7 @@ class User extends AbstractPage
             '</p>';
 
         // --BEHAVIOR-- adminUserForm
-        App::core()->behavior()->call('adminUserForm', $this->user->getProperty('user_id') ? App::core()->users()->getUser($this->user->getProperty('user_id')) : null);
+        App::core()->behavior()->call('adminUserForm', $this->user->getProperty('user_id') ? App::core()->users()->getUser(id: $this->user->getProperty('user_id')) : null);
 
         echo '</div>' .
             '</div>';
@@ -423,7 +423,7 @@ class User extends AbstractPage
             ], true) . '</p>' .
                 '</form>';
 
-            $permissions = App::core()->users()->getUserPermissions($this->user->getProperty('user_id'));
+            $permissions = App::core()->users()->getUserPermissions(id: $this->user->getProperty('user_id'));
             $perm_types  = App::core()->user()->getPermissionsTypes();
 
             if (count($permissions) == 0) {

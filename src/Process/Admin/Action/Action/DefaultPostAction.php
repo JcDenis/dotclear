@@ -14,11 +14,12 @@ use ArrayObject;
 use Dotclear\App;
 use Dotclear\Core\RsExt\RsExtUser;
 use Dotclear\Database\Param;
-use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Exception\AdminException;
+use Dotclear\Exception\MissingOrEmptyValue;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\L10n;
+use Dotclear\Helper\Mapper\Integers;
 use Dotclear\Process\Admin\Action\Action;
 
 /**
@@ -78,44 +79,35 @@ abstract class DefaultPostAction extends Action
 
     public function doChangePostStatus(Action $ap, array|ArrayObject $post): void
     {
-        $status = match ($ap->getAction()) {
-            'unpublish' => 0,
-            'schedule'  => -1,
-            'pending'   => -2,
-            default     => 1,
-        };
-        $posts_ids = $ap->getIDs();
-        if (empty($posts_ids)) {
-            throw new AdminException(__('No entry selected'));
-        }
+        $ids = $this->getCleanedIDs(ap: $ap);
+
+        $status = App::core()->blog()->posts()->getPostsStatusCode(name: $ap->getAction(), default: 1);
+
         // Do not switch to scheduled already published entries
         if (-1 == $status) {
-            $rs           = $ap->getRS();
-            $excluded_ids = [];
+            $rs = $ap->getRS();
             if ($rs->rows()) {
                 while ($rs->fetch()) {
                     if (1 === $rs->fInt('post_status')) {
-                        $excluded_ids[] = $rs->fInt('post_id');
+                        $ids->remove($rs->fInt('post_id'));
                     }
                 }
             }
-            if (count($excluded_ids)) {
-                $posts_ids = array_diff($posts_ids, $excluded_ids);
-            }
         }
-        if (count($posts_ids) === 0) {
+        if (!$ids->count()) {
             throw new AdminException(__('Published entries cannot be set to scheduled'));
         }
+
         // Set status of remaining entries
-        App::core()->blog()->posts()->updPostsStatus($posts_ids, $status);
+        App::core()->blog()->posts()->updPostsStatus(ids: $ids, status: $status);
         App::core()->notice()->addSuccessNotice(
             sprintf(
                 __(
                     '%d entry has been successfully updated to status : "%s"',
                     '%d entries have been successfully updated to status : "%s"',
-                    count($posts_ids)
+                    $ids->count()
                 ),
-                count($posts_ids),
+                $ids->count(),
                 App::core()->blog()->getPostStatus($status)
             )
         );
@@ -124,21 +116,20 @@ abstract class DefaultPostAction extends Action
 
     public function doUpdateSelectedPost(Action $ap, array|ArrayObject $post): void
     {
-        $posts_ids = $ap->getIDs();
-        if (empty($posts_ids)) {
-            throw new AdminException(__('No entry selected'));
-        }
+        $ids = $this->getCleanedIDs(ap: $ap);
+
         $action = $ap->getAction();
-        App::core()->blog()->posts()->updPostsSelected($posts_ids, 'selected' == $action);
+        App::core()->blog()->posts()->updPostsSelected(ids: $ids, selected: 'selected' == $action);
+
         if ('selected' == $action) {
             App::core()->notice()->addSuccessNotice(
                 sprintf(
                     __(
                         '%d entry has been successfully marked as selected',
                         '%d entries have been successfully marked as selected',
-                        count($posts_ids)
+                        $ids->count()
                     ),
-                    count($posts_ids)
+                    $ids->count()
                 )
             );
         } else {
@@ -147,9 +138,9 @@ abstract class DefaultPostAction extends Action
                     __(
                         '%d entry has been successfully marked as unselected',
                         '%d entries have been successfully marked as unselected',
-                        count($posts_ids)
+                        $ids->count()
                     ),
-                    count($posts_ids)
+                    $ids->count()
                 )
             );
         }
@@ -158,28 +149,20 @@ abstract class DefaultPostAction extends Action
 
     public function doDeletePost(Action $ap, array|ArrayObject $post)
     {
-        $posts_ids = $ap->getIDs();
-        if (empty($posts_ids)) {
-            throw new AdminException(__('No entry selected'));
-        }
-        // Backward compatibility
-        foreach ($posts_ids as $post_id) {
-            // --BEHAVIOR-- adminBeforePostDelete
-            App::core()->behavior()->call('adminBeforePostDelete', (int) $post_id);
-        }
+        $ids = $this->getCleanedIDs(ap: $ap);
 
-        // --BEHAVIOR-- adminBeforePostsDelete
-        App::core()->behavior()->call('adminBeforePostsDelete', $posts_ids);
+        // --BEHAVIOR-- adminBeforePostsDelete, Integers
+        App::core()->behavior()->call('adminBeforePostsDelete', $ids);
 
-        App::core()->blog()->posts()->delPosts($posts_ids);
+        App::core()->blog()->posts()->delPosts(ids: $ids);
         App::core()->notice()->addSuccessNotice(
             sprintf(
                 __(
                     '%d entry has been successfully deleted',
                     '%d entries have been successfully deleted',
-                    count($posts_ids)
+                    $ids->count()
                 ),
-                count($posts_ids)
+                $ids->count()
             )
         );
 
@@ -189,40 +172,39 @@ abstract class DefaultPostAction extends Action
     public function doChangePostCategory(Action $ap, array|ArrayObject $post)
     {
         if (isset($post['new_cat_id'])) {
-            $posts_ids = $ap->getIDs();
-            if (empty($posts_ids)) {
-                throw new AdminException(__('No entry selected'));
+            $ids      = $this->getCleanedIDs(ap: $ap);
+            $category = (int) $post['new_cat_id'];
+
+            // First create new category if required
+            if (!empty($category) && App::core()->user()->check('categories', App::core()->blog()->id)) {
+                // todo: check for duplicate category and throw clean Exception
+                $cursor = App::core()->con()->openCursor(App::core()->prefix() . 'category');
+                $cursor->setField('cat_title', $post['new_cat_title']);
+                $cursor->setField('cat_url', '');
+
+                // --BEHAVIOR-- adminBeforeCategoryCreate, Cursor, int
+                App::core()->behavior()->call('adminBeforeCategoryCreate', $cursor);
+
+                $category = App::core()->blog()->categories()->addCategory(
+                    cursor: $cursor,
+                    parent: !empty($post['new_cat_parent']) ? (int) $category : 0
+                );
+
+                // --BEHAVIOR-- adminAfterCategoryCreate, Cursor, int
+                App::core()->behavior()->call('adminAfterCategoryCreate', $cursor, $category);
             }
-            $new_cat_id = (int) $post['new_cat_id'];
-            if (!empty($post['new_cat_title']) && App::core()->user()->check('categories', App::core()->blog()->id)) {
-                // to do: check for duplicate category and throw clean Exception
-                $cur_cat            = App::core()->con()->openCursor(App::core()->prefix() . 'category');
-                $cur_cat->cat_title = $post['new_cat_title'];
-                $cur_cat->cat_url   = '';
-                $title              = $cur_cat->cat_title;
 
-                $parent_cat = !empty($post['new_cat_parent']) ? $post['new_cat_parent'] : '';
-
-                // --BEHAVIOR-- adminBeforeCategoryCreate
-                App::core()->behavior()->call('adminBeforeCategoryCreate', $cur_cat);
-
-                $new_cat_id = App::core()->blog()->categories()->addCategory($cur_cat, (int) $parent_cat);
-
-                // --BEHAVIOR-- adminAfterCategoryCreate
-                App::core()->behavior()->call('adminAfterCategoryCreate', $cur_cat, $new_cat_id);
-            }
-
-            App::core()->blog()->posts()->updPostsCategory($posts_ids, $new_cat_id);
-            $title = App::core()->blog()->categories()->getCategory($new_cat_id);
+            App::core()->blog()->posts()->updPostsCategory(ids: $ids, category: $category);
+            $record = App::core()->blog()->categories()->getCategory(id: $category);
             App::core()->notice()->addSuccessNotice(
                 sprintf(
                     __(
                         '%d entry has been successfully moved to category "%s"',
                         '%d entries have been successfully moved to category "%s"',
-                        count($posts_ids)
+                        $ids->count()
                     ),
-                    count($posts_ids),
-                    Html::escapeHTML($title->cat_title)
+                    $ids->count(),
+                    Html::escapeHTML($record->f('cat_title'))
                 )
             );
 
@@ -269,33 +251,20 @@ abstract class DefaultPostAction extends Action
 
     public function doChangePostAuthor(Action $ap, array|ArrayObject $post)
     {
-        if (isset($post['new_auth_id']) && App::core()->user()->check('admin', App::core()->blog()->id)) {
-            $new_user_id = $post['new_auth_id'];
-            $posts_ids   = $ap->getIDs();
-            if (empty($posts_ids)) {
-                throw new AdminException(__('No entry selected'));
-            }
-            if (App::core()->users()->getUser($new_user_id)->isEmpty()) {
-                throw new AdminException(__('This user does not exist'));
-            }
+        if (isset($post['new_auth_id'])) {
+            $ids = $this->getCleanedIDs(ap: $ap);
 
-            $sql = new UpdateStatement(__METHOD__);
-            $sql
-                ->set('user_id = ' . $sql->quote($new_user_id))
-                ->where('post_id' . $sql->in($posts_ids))
-                ->from(App::core()->prefix() . 'post')
-                ->update()
-            ;
+            App::core()->blog()->posts()->updPostsAuthor(ids: $ids, author: $post['new_auth_id']);
 
             App::core()->notice()->addSuccessNotice(
                 sprintf(
                     __(
                         '%d entry has been successfully set to user "%s"',
                         '%d entries have been successfully set to user "%s"',
-                        count($posts_ids)
+                        $ids->count()
                     ),
-                    count($posts_ids),
-                    Html::escapeHTML($new_user_id)
+                    $ids->count(),
+                    Html::escapeHTML($post['new_auth_id'])
                 )
             );
 
@@ -313,7 +282,7 @@ abstract class DefaultPostAction extends Action
                 $rsStatic = $rsStatic->toExtStatic();
                 $rsStatic->lexicalSort('user_id');
                 while ($rsStatic->fetch()) {
-                    $usersList[] = $rsStatic->user_id;
+                    $usersList[] = $rsStatic->f('user_id');
                 }
             }
 
@@ -342,27 +311,19 @@ abstract class DefaultPostAction extends Action
 
     public function doChangePostLang(Action $ap, array|ArrayObject $post)
     {
-        $posts_ids = $ap->getIDs();
-        if (empty($posts_ids)) {
-            throw new AdminException(__('No entry selected'));
-        }
         if (isset($post['new_lang'])) {
-            $sql = new UpdateStatement(__METHOD__);
-            $sql
-                ->set('post_lang = ' . $sql->quote($post['new_lang']))
-                ->where('post_id' . $sql->in($posts_ids))
-                ->from(App::core()->prefix() . 'post')
-                ->update()
-            ;
+            $ids = $this->getCleanedIDs(ap: $ap);
+
+            App::core()->blog()->posts()->updPostsLang(ids: $ids, lang: $post['new_lang']);
 
             App::core()->notice()->addSuccessNotice(
                 sprintf(
                     __(
                         '%d entry has been successfully set to language "%s"',
                         '%d entries have been successfully set to language "%s"',
-                        count($posts_ids)
+                        $ids->count()
                     ),
-                    count($posts_ids),
+                    $ids->count(),
                     Html::escapeHTML(L10n::getLanguageName($post['new_lang']))
                 )
             );
@@ -374,11 +335,11 @@ abstract class DefaultPostAction extends Action
             $all_langs  = L10n::getISOcodes(false, true);
             $lang_combo = ['' => '', __('Most used') => [], __('Available') => L10n::getISOcodes(true, true)];
             while ($rs->fetch()) {
-                if (isset($all_langs[$rs->post_lang])) {
-                    $lang_combo[__('Most used')][$all_langs[$rs->post_lang]] = $rs->post_lang;
-                    unset($lang_combo[__('Available')][$all_langs[$rs->post_lang]]);
+                if (isset($all_langs[$rs->f('post_lang')])) {
+                    $lang_combo[__('Most used')][$all_langs[$rs->f('post_lang')]] = $rs->f('post_lang');
+                    unset($lang_combo[__('Available')][$all_langs[$rs->f('post_lang')]]);
                 } else {
-                    $lang_combo[__('Most used')][$rs->post_lang] = $rs->post_lang;
+                    $lang_combo[__('Most used')][$rs->f('post_lang')] = $rs->f('post_lang');
                 }
             }
             unset($all_langs, $rs);
@@ -401,5 +362,22 @@ abstract class DefaultPostAction extends Action
                 '</form>'
             );
         }
+    }
+
+    /**
+     * Parse IDs into cleanded object.
+     *
+     * @param Action $ap The Action instance
+     *
+     * @return Integers The cleaned IDs
+     */
+    private function getCleanedIDs(Action $ap): Integers
+    {
+        $ids = new Integers($ap->getIDs());
+        if (!$ids->count()) {
+            throw new MissingOrEmptyValue(__('No entry selected'));
+        }
+
+        return $ids;
     }
 }

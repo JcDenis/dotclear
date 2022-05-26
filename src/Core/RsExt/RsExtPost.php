@@ -439,6 +439,6 @@ class RsExtPost extends RsExtend
      */
     public function underCat(string $cat_url): bool
     {
-        return App::core()->blog()->categories()->IsInCatSubtree($this->rs->f('cat_url'), $cat_url);
+        return App::core()->blog()->categories()->isInCatSubtree(url: $this->rs->f('cat_url'), parent: $cat_url);
     }
 }

@@ -100,7 +100,7 @@ class BreadcrumbTemplate
             case 'category':
                 // Category
                 $ret        = '<a id="bc-home" href="' . App::core()->blog()->url . '">' . __('Home') . '</a>';
-                $categories = App::core()->blog()->categories()->getCategoryParents(App::core()->context()->get('categories')->fInt('cat_id'));
+                $categories = App::core()->blog()->categories()->getCategoryParents(id: App::core()->context()->get('categories')->fInt('cat_id'));
                 while ($categories->fetch()) {
                     $ret .= $separator . '<a href="' . App::core()->blog()->getURLFor('category', $categories->f('cat_url')) . '">' . $categories->f('cat_title') . '</a>';
                 }
@@ -118,12 +118,12 @@ class BreadcrumbTemplate
                 $ret = '<a id="bc-home" href="' . App::core()->blog()->url . '">' . __('Home') . '</a>';
                 if (App::core()->context()->get('posts')->fInt('cat_id')) {
                     // Parents cats of post's cat
-                    $categories = App::core()->blog()->categories()->getCategoryParents(App::core()->context()->get('posts')->fInt('cat_id'));
+                    $categories = App::core()->blog()->categories()->getCategoryParents(id: App::core()->context()->get('posts')->fInt('cat_id'));
                     while ($categories->fetch()) {
                         $ret .= $separator . '<a href="' . App::core()->blog()->getURLFor('category', $categories->f('cat_url')) . '">' . $categories->f('cat_title') . '</a>';
                     }
                     // Post's cat
-                    $categories = App::core()->blog()->categories()->getCategory(App::core()->context()->get('posts')->fInt('cat_id'));
+                    $categories = App::core()->blog()->categories()->getCategory(id: App::core()->context()->get('posts')->fInt('cat_id'));
                     $ret .= $separator . '<a href="' . App::core()->blog()->getURLFor('category', $categories->f('cat_url')) . '">' . $categories->f('cat_title') . '</a>';
                 }
                 $ret .= $separator . App::core()->context()->get('posts')->f('post_title');

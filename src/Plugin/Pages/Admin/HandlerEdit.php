@@ -17,6 +17,7 @@ use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
+use Dotclear\Helper\Mapper\Integers;
 use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Action\Action\CommentAction;
 use Dotclear\Process\Admin\Page\AbstractPage;
@@ -136,8 +137,8 @@ class HandlerEdit extends AbstractPage
                 $this->can_edit_page = $this->post->call('isEditable');
                 $this->can_delete    = $this->post->call('isDeletable');
 
-                $next_rs = App::core()->blog()->posts()->getNextPost($this->post, 1);
-                $prev_rs = App::core()->blog()->posts()->getNextPost($this->post, -1);
+                $next_rs = App::core()->blog()->posts()->getNextPost(record: $this->post);
+                $prev_rs = App::core()->blog()->posts()->getPreviousPost(record: $this->post);
 
                 if (null !== $next_rs) {
                     $this->next_link = sprintf(
@@ -228,9 +229,7 @@ class HandlerEdit extends AbstractPage
         // Delete post
         if (!empty($_POST['delete']) && $this->can_delete) {
             try {
-                // --BEHAVIOR-- adminBeforePostDelete
-                App::core()->behavior()->call('adminBeforePageDelete', $this->post_id);
-                App::core()->blog()->posts()->delPost($this->post_id);
+                App::core()->blog()->posts()->delPosts(ids: new Integers($this->post_id));
                 App::core()->adminurl()->redirect('admin.plugin.Page');
             } catch (Exception $e) {
                 App::core()->error()->add($e->getMessage());

@@ -99,7 +99,10 @@ class PostFilter extends Filter
         $categories = null;
 
         try {
-            $categories = App::core()->blog()->categories()->getCategories(['post_type' => $this->post_type]);
+            $param = new Param();
+            $param->set('post_type', $this->post_type);
+
+            $categories = App::core()->blog()->categories()->getCategories(param: $param);
             if ($categories->isEmpty()) {
                 return null;
             }

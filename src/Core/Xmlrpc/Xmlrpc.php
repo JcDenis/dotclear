@@ -23,6 +23,7 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Xmlrpc\IntrospectionServer as XmlrpcIntrospectionServer;
 use Dotclear\Helper\Network\Xmlrpc\Date as XmlrpcDate;
 use Dotclear\Helper\Text;
+use Dotclear\Helper\Mapper\Integers;
 use Exception;
 
 /**
@@ -482,7 +483,10 @@ class Xmlrpc extends XmlrpcIntrospectionServer
 
     private function getCatID($cat_url)
     {
-        $rs = App::core()->blog()->categories()->getCategories(['cat_url' => $cat_url]);
+        $param = new Param();
+        $param->set('cat_url', $cat_url);
+
+        $rs = App::core()->blog()->categories()->getCategories(param: $param);
 
         return $rs->isEmpty() ? null : $rs->fInt('cat_id');
     }
@@ -725,7 +729,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $post_id = (int) $post_id;
 
         $this->getPostRS($post_id, $user, $pwd);
-        App::core()->blog()->posts()->delPost($post_id);
+        App::core()->blog()->posts()->delPosts(ids: new Integers($post_id));
 
         return true;
     }
@@ -895,7 +899,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             $cat_id = $this->getCatID($cat_id);
         }
 
-        App::core()->blog()->posts()->updPostCategory($post_id, (int) $cat_id);
+        App::core()->blog()->posts()->updPostsCategory(ids: new Integers($post_id), category: (int) $cat_id);
 
         return true;
     }
@@ -909,7 +913,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         // --BEHAVIOR-- xmlrpcBeforePublishPost
         App::core()->behavior()->call('xmlrpcBeforePublishPost', $this, $post_id);
 
-        App::core()->blog()->posts()->updPostStatus($post_id, 1);
+        App::core()->blog()->posts()->updPostsStatus(ids: new Integers($post_id), status: 1);
 
         // --BEHAVIOR-- xmlrpcAfterPublishPost
         App::core()->behavior()->call('xmlrpcAfterPublishPost', $this, $post_id);
@@ -1189,7 +1193,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $page_id = (int) $page_id;
 
         $this->getPostRS($page_id, $user, $pwd, 'page');
-        App::core()->blog()->posts()->delPost($page_id);
+        App::core()->blog()->posts()->delPosts(ids: new Integers($page_id));
 
         return true;
     }
@@ -1199,7 +1203,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $this->setUser($user, $pwd);
         $this->setBlog();
 
-        $rs  = App::core()->blogs()->getBlogPermissions(App::core()->blog()->id);
+        $rs  = App::core()->blogs()->getBlogPermissions(id: App::core()->blog()->id);
         $res = [];
 
         foreach ($rs as $k => $v) {
@@ -1262,10 +1266,11 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             }
         }
 
-        $parent = !empty($struct['category_parent']) ? (int) $struct['category_parent'] : 0;
-
-        $id = App::core()->blog()->categories()->addCategory($cur, $parent);
-        $rs = App::core()->blog()->categories()->getCategory($id);
+        $id = App::core()->blog()->categories()->addCategory(
+            cursor: $cur,
+            parent: !empty($struct['category_parent']) ? (int) $struct['category_parent'] : 0
+        );
+        $rs = App::core()->blog()->categories()->getCategory(id: $id);
 
         return $rs->f('cat_url');
     }
@@ -1275,14 +1280,17 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $this->setUser($user, $pwd);
         $this->setBlog();
 
-        $rs = App::core()->blog()->categories()->getCategories(['cat_url' => $cat_id]);
+        $param = new Param();
+        $param->set('cat_url', (int) $cat_id);
+
+        $rs = App::core()->blog()->categories()->getCategories(param: $param);
         if ($rs->isEmpty()) {
             throw new CoreException(__('This category does not exist.'));
         }
         $cat_id = $rs->fInt('cat_id');
         unset($rs);
 
-        App::core()->blog()->categories()->delCategory($cat_id);
+        App::core()->blog()->categories()->delCategory(id: $cat_id);
 
         return true;
     }
@@ -1416,7 +1424,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $cur->setField('comment_content', $struct['content']);
         $cur->setField('post_id', (int) $post_id);
 
-        return App::core()->blog()->comments()->addComment($cur);
+        return App::core()->blog()->comments()->addComment(cursor: $cur);
     }
 
     private function updComment($user, $pwd, $comment_id, $struct)
@@ -1455,7 +1463,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             $cur->setField('comment_email', $struct['author_email']);
         }
 
-        App::core()->blog()->comments()->updComment($comment_id, $cur);
+        App::core()->blog()->comments()->updComment(id: $comment_id, cursor: $cur);
 
         return true;
     }
@@ -1465,7 +1473,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $this->setUser($user, $pwd);
         $this->setBlog();
 
-        App::core()->blog()->comments()->delComment($comment_id);
+        App::core()->blog()->comments()->delComments(ids: new Integers($comment_id));
 
         return true;
     }
@@ -1734,7 +1742,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         }
 
         if ($blog_changes) {
-            App::core()->blogs()->updBlog(App::core()->blog()->id, $cur);
+            App::core()->blogs()->updBlog(id: App::core()->blog()->id, cursor: $cur);
             App::core()->setBlog(App::core()->blog()->id);
         }
 

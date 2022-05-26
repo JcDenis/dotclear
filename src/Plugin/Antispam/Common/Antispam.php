@@ -48,7 +48,7 @@ class Antispam
             App::core()->behavior()->add('adminAfterCommentDesc', [$this, 'statusMessage']);
             App::core()->behavior()->add('adminDashboardHeaders', [$this, 'dashboardHeaders']);
             App::core()->behavior()->add('adminCommentsActionsPage', [$this, 'commentsActionsPage']);
-            App::core()->behavior()->add('coreBlogGetComments', [$this, 'blogGetComments']);
+            App::core()->behavior()->add('coreBlogAfterGetComments', [$this, 'blogGetComments']);
             App::core()->behavior()->add('adminCommentListHeader', [$this, 'commentListHeader']);
             App::core()->behavior()->add('adminCommentListValue', [$this, 'commentListValue']);
         }
@@ -223,7 +223,7 @@ class Antispam
             return false;
         }
 
-        $permissions = App::core()->blogs()->getBlogPermissions(App::core()->blog()->id);
+        $permissions = App::core()->blogs()->getBlogPermissions(id: App::core()->blog()->id);
 
         if (empty($permissions[$rs->f('user_id')])) {
             return false;

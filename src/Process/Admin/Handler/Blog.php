@@ -70,7 +70,7 @@ class Blog extends AbstractPage
                 // --BEHAVIOR-- adminBeforeBlogCreate
                 App::core()->behavior()->call('adminBeforeBlogCreate', $cur, $this->blog_id);
 
-                App::core()->blogs()->addBlog($cur);
+                App::core()->blogs()->addBlog(cursor: $cur);
 
                 // Default settings and override some
                 $blog_settings = new Settings($cur->getField('blog_id'));

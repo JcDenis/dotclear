@@ -81,7 +81,7 @@ class UserPref extends AbstractPage
     {
         $page_title = __('My preferences');
 
-        $this->user = new UserContainer(App::core()->users()->getUser(App::core()->user()->userID()));
+        $this->user = new UserContainer(App::core()->users()->getUser(id: App::core()->user()->userID()));
 
         if (empty($this->user->getOption('editor'))) {
             $this->user->setOption('editor', []);
@@ -205,7 +205,7 @@ class UserPref extends AbstractPage
                 App::core()->behavior()->call('adminBeforeUserProfileUpdate', $cur, App::core()->user()->userID());
 
                 // Udate user
-                App::core()->users()->updUser(App::core()->user()->userID(), $cur);
+                App::core()->users()->updUser(id: App::core()->user()->userID(), cursor: $cur);
 
                 // Update profile
                 // Sanitize list of secondary mails and urls if any
@@ -320,7 +320,7 @@ class UserPref extends AbstractPage
                 App::core()->user()->preference()->get('interface')->put('rte_flags', $rf, 'array');
 
                 // Update user
-                App::core()->users()->updUser(App::core()->user()->userID(), $cur);
+                App::core()->users()->updUser(id: App::core()->user()->userID(), cursor: $cur);
 
                 // --BEHAVIOR-- adminAfterUserOptionsUpdate
                 App::core()->behavior()->call('adminAfterUserOptionsUpdate', $cur, App::core()->user()->userID());

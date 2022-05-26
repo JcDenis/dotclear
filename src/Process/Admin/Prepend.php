@@ -237,7 +237,7 @@ final class Prepend extends Core
                 $dtz = new DateTimeZone($this->user()->getInfo('user_tz'));
                 $this->behavior()->call('setAdminInterfaceTimezone', $dtz);
                 $this->timezone = $dtz->getName();
-            } catch(Exception) {
+            } catch (Exception) {
                 $this->timezone = Clock::getTZ();
             }
         }
@@ -520,7 +520,7 @@ final class Prepend extends Core
 
             $class = $this->adminurl()->getBase($handler);
             if (!is_subclass_of($class, 'Dotclear\\Process\\Admin\\Page\\AbstractPage')) {
-                throw new Exception(sprintf(__('URL for handler not found for %s.</p>'), $handler));
+                throw new Exception(sprintf(__('URL handler not found for %s.</p>'), $handler));
             }
             $page = new $class($handler);
 

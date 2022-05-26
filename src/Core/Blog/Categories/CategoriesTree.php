@@ -73,14 +73,13 @@ class CategoriesTree
      * Gets the parents.
      *
      * @param int               $id     The identifier
-     * @param array<int,string> $fields The fields
      *
      * @return Record The parents
      */
-    public function getParents(int $id, array $fields = []): Record
+    public function getParents(int $id): Record
     {
         return App::core()->con()->select(
-            'SELECT C1.cat_id, C1.' . implode(', C1.', array_merge(['cat_title', 'cat_url', 'cat_desc'], $fields)) . ' ' .
+            'SELECT C1.cat_id, C1.cat_title, C1.cat_url, C1.cat_desc ' .
             'FROM ' . App::core()->prefix() . 'category C1, ' . App::core()->prefix() . 'category C2 ' .
             'WHERE C2.cat_id = ' . $id . ' ' .
             'AND C1.cat_lft < C2.cat_lft ' .
@@ -95,14 +94,13 @@ class CategoriesTree
      * Gets the parent.
      *
      * @param int               $id     The identifier
-     * @param array<int,string> $fields The fields
      *
      * @return Record The parent
      */
-    public function getParent(int $id, array $fields = []): Record
+    public function getParent(int $id): Record
     {
         return App::core()->con()->select(
-            'SELECT C1.cat_id, C1.' . implode(', C1.', array_merge(['cat_title', 'cat_url', 'cat_desc'], $fields)) . ' ' .
+            'SELECT C1.cat_id, C1.cat_title, C1.cat_url, C1.cat_desc ' .
             'FROM ' . App::core()->prefix() . 'category C1, ' . App::core()->prefix() . 'category C2 ' .
             'WHERE C2.cat_id = ' . $id . ' ' .
             'AND C1.cat_lft < C2.cat_lft ' .
@@ -120,22 +118,13 @@ class CategoriesTree
     /**
      * Adds a node.
      *
-     * @param array|Cursor $data   The data
-     * @param int   $target The target
+     * @param Cursor $cursor The cursor
+     * @param int    $parent The parent
      *
      * @throws DatabaseException
      */
-    public function addNode(array|Cursor $data, int $target = 0): int|false
+    public function addNode(Cursor $cursor, int $parent = 0): int|false
     {
-        if (is_array($data)) {
-            $D    = $data;
-            $data = App::core()->con()->openCursor(App::core()->prefix() . 'category');
-            foreach ($D as $k => $v) {
-                $data->setField($k, $v);
-            }
-            unset($D);
-        }
-
         // We want to put it at the end
         App::core()->con()->writeLock(App::core()->prefix() . 'category');
 
@@ -150,17 +139,17 @@ class CategoriesTree
             );
             $last = $rs->fInt('n_r') == 0 ? 1 : $rs->fInt('n_r');
 
-            $data->setField('cat_id', $id      + 1);
-            $data->setField('cat_lft', $last  + 1);
-            $data->setField('cat_rgt', $last + 2);
+            $cursor->setField('cat_id', $id      + 1);
+            $cursor->setField('cat_lft', $last  + 1);
+            $cursor->setField('cat_rgt', $last + 2);
 
-            $data->insert();
+            $cursor->insert();
             App::core()->con()->unlock();
 
             try {
-                $this->setNodeParent($id + 1, $target);
+                $this->setNodeParent($id + 1, $parent);
 
-                return $data->getField('cat_id');
+                return $cursor->getField('cat_id');
             } catch (DatabaseException) {
             } // We don't mind error in this case
         } catch (Exception $e) {
@@ -445,9 +434,9 @@ class CategoriesTree
             throw new DatabaseException('Cannot change position');
         }
 
-        $rs      = $this->getParents($nodeA);
+        $rs      = $this->getParents(id: $nodeA);
         $parentA = $rs->isEmpty() ? 0 : $rs->fInt('cat_id');
-        $rs      = $this->getParents($nodeB);
+        $rs      = $this->getParents(id: $nodeB);
         $parentB = $rs->isEmpty() ? 0 : $rs->fInt('cat_id');
 
         if ($parentA != $parentB) {

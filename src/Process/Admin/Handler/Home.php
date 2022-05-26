@@ -31,7 +31,7 @@ class Home extends AbstractPage
         // Set default blog
         if (!empty($_GET['default_blog'])) {
             try {
-                App::core()->users()->setUserDefaultBlog(App::core()->user()->userID(), App::core()->blog()->id);
+                App::core()->users()->setUserDefaultBlog(id: App::core()->user()->userID(), blog: App::core()->blog()->id);
                 App::core()->adminurl()->redirect('admin.home');
             } catch (Exception $e) {
                 App::core()->error()->add($e->getMessage());
@@ -290,7 +290,7 @@ class Home extends AbstractPage
             if (App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)) {
                 // Getting categories
                 $categories_combo = App::core()->combo()->getCategoriesCombo(
-                    App::core()->blog()->categories()->getCategories([])
+                    App::core()->blog()->categories()->getCategories()
                 );
 
                 $dashboardQuickEntry = '<div id="quick">' .

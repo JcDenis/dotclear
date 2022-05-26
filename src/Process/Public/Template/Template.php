@@ -973,22 +973,22 @@ class Template extends BaseTemplate
      */
     public function Categories(ArrayObject $attr, string $content): string
     {
-        $p = "if (!isset(\$params)) \$params = [];\n";
+        $p = 'if (!isset($param)) $param = new Param();' . "\n";
 
         if (isset($attr['url'])) {
-            $p .= "\$params['cat_url'] = '" . addslashes($attr['url']) . "';\n";
+            $p .= "\$param->set('cat_url', '" . addslashes($attr['url']) . "');\n";
         }
 
         if (!empty($attr['post_type'])) {
-            $p .= "\$params['post_type'] = '" . addslashes($attr['post_type']) . "';\n";
+            $p .= "\$param->set('post_type', '" . addslashes($attr['post_type']) . "');\n";
         }
 
         if (!empty($attr['level'])) {
-            $p .= "\$params['level'] = " . (int) $attr['level'] . ";\n";
+            $p .= "\$param->set('level', " . (int) $attr['level'] . ");\n";
         }
 
         if (isset($attr['with_empty']) && ((bool) $attr['with_empty'] == true)) {
-            $p .= '$params[\'without_empty\'] = false;';
+            $p .= '$param->set(\'without_empty\', false);';
         }
 
         $res = self::$ton . "\n";
@@ -999,7 +999,7 @@ class Template extends BaseTemplate
             $attr,
             $content
         );
-        $res .= 'App::core()->context()->set("categories", App::core()->blog()->categories()->getCategories($params));' . "\n";
+        $res .= 'App::core()->context()->set("categories", App::core()->blog()->categories()->getCategories(param: $param));' . "\n";
         $res .= "?>\n";
         $res .= self::$ton . 'while (App::core()->context()->get("categories")->fetch()) :' . self::$toff . $content . self::$ton . 'endwhile; App::core()->context()->set("categories", null); unset($params);' . self::$toff;
 
@@ -1051,13 +1051,13 @@ class Template extends BaseTemplate
             if (substr($url, 0, 1) == '!') {
                 $url = substr($url, 1);
                 if (isset($args['sub'])) {
-                    $if[] = '(!App::core()->blog()->categories()->IsInCatSubtree(App::core()->context()->get("categories")->f("cat_url"), "' . $url . '"))';
+                    $if[] = '(!App::core()->blog()->categories()->isInCatSubtree(url: App::core()->context()->get("categories")->f("cat_url"), "parent: ' . $url . '"))';
                 } else {
                     $if[] = '(App::core()->context()->get("categories")->f("cat_url") != "' . $url . '")';
                 }
             } else {
                 if (isset($args['sub'])) {
-                    $if[] = '(App::core()->blog()->categories()->IsInCatSubtree(App::core()->context()->get("categories")->f("cat_url"), "' . $url . '"))';
+                    $if[] = '(App::core()->blog()->categories()->isInCatSubtree(url: App::core()->context()->get("categories")->f("cat_url"), "parent: ' . $url . '"))';
                 } else {
                     $if[] = '(App::core()->context()->get("categories")->f("cat_url") == "' . $url . '")';
                 }
@@ -1074,13 +1074,13 @@ class Template extends BaseTemplate
                     if (substr($url, 0, 1) == '!') {
                         $url = substr($url, 1);
                         if (isset($args['sub'])) {
-                            $if[] = '(!App::core()->blog()->categories()->IsInCatSubtree(App::core()->context()->get("categories")->f("cat_url"), "' . $url . '"))';
+                            $if[] = '(!App::core()->blog()->categories()->isInCatSubtree(url: App::core()->context()->get("categories")->f("cat_url"), "parent: ' . $url . '"))';
                         } else {
                             $if[] = '(App::core()->context()->get("categories")->f("cat_url") != "' . $url . '")';
                         }
                     } else {
                         if (isset($args['sub'])) {
-                            $if[] = '(App::core()->blog()->categories()->IsInCatSubtree(App::core()->context()->get("categories")->f("cat_url"), "' . $url . '"))';
+                            $if[] = '(App::core()->blog()->categories()->isInCatSubtree(url: App::core()->context()->get("categories")->f("cat_url"), "parent: ' . $url . '"))';
                         } else {
                             $if[] = '(App::core()->context()->get("categories")->f("cat_url") == "' . $url . '")';
                         }
@@ -1115,7 +1115,7 @@ class Template extends BaseTemplate
     {
         return
             self::$ton . "\n" .
-            'App::core()->context()->set("categories", App::core()->blog()->categories()->getCategoryFirstChildren(App::core()->context()->get("categories")->fInt("cat_id")));' . "\n" .
+            'App::core()->context()->set("categories", App::core()->blog()->categories()->getCategoryFirstChildren(id: App::core()->context()->get("categories")->fInt("cat_id")));' . "\n" .
             'while (App::core()->context()->get("categories")->fetch()) :' . self::$toff . $content . self::$ton . 'endwhile; App::core()->context()->set("categories", null);' . self::$toff;
     }
 
@@ -1126,7 +1126,7 @@ class Template extends BaseTemplate
     {
         return
             self::$ton . "\n" .
-            'App::core()->context()->set("categories", App::core()->blog()->categories()->getCategoryParents(App::core()->context()->get("categories")->fInt("cat_id")));' . "\n" .
+            'App::core()->context()->set("categories", App::core()->blog()->categories()->getCategoryParents(id: App::core()->context()->get("categories")->fInt("cat_id")));' . "\n" .
             'while (App::core()->context()->get("categories")->fetch()) :' . self::$toff . $content . self::$ton . 'endwhile; App::core()->context()->set("categories", null);' . self::$toff;
     }
 
@@ -1898,7 +1898,7 @@ class Template extends BaseTemplate
         $restrict_to_lang     = !empty($attr['restrict_to_lang']) ? '1' : '0';
 
         return
-            self::$ton . '$next_post = App::core()->blog()->posts()->getNextPost(App::core()->context()->get("posts"),1,' . $restrict_to_category . ',' . $restrict_to_lang . ');' . self::$toff . "\n" .
+            self::$ton . '$next_post = App::core()->blog()->posts()->getNextPost(App::core()->context()->get("posts"),' . $restrict_to_category . ',' . $restrict_to_lang . ');' . self::$toff . "\n" .
             self::$ton . 'if ($next_post !== null) :' . self::$toff .
 
             self::$ton . 'App::core()->context()->set("posts", $next_post); unset($next_post);' . "\n" .
@@ -1921,7 +1921,7 @@ class Template extends BaseTemplate
         $restrict_to_lang     = !empty($attr['restrict_to_lang']) ? '1' : '0';
 
         return
-            self::$ton . '$prev_post = App::core()->blog()->posts()->getNextPost(App::core()->context()->get("posts"),-1,' . $restrict_to_category . ',' . $restrict_to_lang . ');' . self::$toff . "\n" .
+            self::$ton . '$prev_post = App::core()->blog()->posts()->getPreviousPost(App::core()->context()->get("posts"),' . $restrict_to_category . ',' . $restrict_to_lang . ');' . self::$toff . "\n" .
             self::$ton . 'if ($prev_post !== null) :' . self::$toff .
 
             self::$ton . 'App::core()->context()->set("posts", $prev_post); unset($prev_post);' . "\n" .

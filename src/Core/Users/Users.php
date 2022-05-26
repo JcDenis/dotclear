@@ -32,16 +32,18 @@ use Dotclear\Helper\Clock;
 final class Users
 {
     /**
-     * Gets the user by its ID.
+     * Get a user by its ID.
      *
-     * @param string $user_id The identifier
+     * @todo protect empty urser_id query
+     *
+     * @param string $id The user ID
      *
      * @return Record the user
      */
-    public function getUser(string $user_id): Record
+    public function getUser(string $id): Record
     {
         $param = new Param();
-        $param->set('user_id', $user_id);
+        $param->set('user_id', $id);
 
         return $this->getUsers(param: $param);
     }
@@ -58,14 +60,15 @@ final class Users
      */
     public function countUsers(?Param $param = null, ?SelectStatement $sql = null): int
     {
-        $param = new UsersParam($param);
-        $param->unset('order');
-        $param->unset('limit');
+        $params = new UsersParam($param);
+        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
 
-        $query = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $params->unset('order');
+        $params->unset('limit');
+
         $query->column($query->count('U.user_id'));
 
-        return $this->queryUsersTable(param: $param, sql: $query)->fInt();
+        return $this->queryUsersTable(param: $params, sql: $query)->fInt();
     }
 
     /**
@@ -80,12 +83,11 @@ final class Users
      */
     public function getUsers(?Param $param = null, ?SelectStatement $sql = null): Record
     {
-        $param = new UsersParam($param);
+        $params = new UsersParam($param);
+        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
 
-        $query = $sql ? clone $sql : new SelectStatement(__METHOD__);
-
-        if (!empty($param->columns())) {
-            $query->columns($param->columns());
+        if (!empty($params->columns())) {
+            $query->columns($params->columns());
         }
 
         $join = new JoinStatement(__METHOD__);
@@ -130,26 +132,26 @@ final class Users
             'user_options',
         ]);
 
-        if (!empty($param->order())) {
-            if (preg_match('`^([^. ]+) (?:asc|desc)`i', $param->order(), $matches)) {
+        if (!empty($params->order())) {
+            if (preg_match('`^([^. ]+) (?:asc|desc)`i', $params->order(), $matches)) {
                 if (in_array($matches[1], ['user_id', 'user_name', 'user_firstname', 'user_displayname'])) {
                     $table_prefix = 'U.';
                 } else {
                     $table_prefix = ''; // order = nb_post (asc|desc)
                 }
-                $query->order($table_prefix . $query->escape($param->order()));
+                $query->order($table_prefix . $query->escape($params->order()));
             } else {
-                $query->order($query->escape($param->order()));
+                $query->order($query->escape($params->order()));
             }
         } else {
             $query->order('U.user_id ASC');
         }
 
-        if (!empty($param->limit())) {
-            $query->limit($param->limit());
+        if (!empty($params->limit())) {
+            $query->limit($params->limit());
         }
 
-        return $this->queryUsersTable(param: $param, sql: $query);
+        return $this->queryUsersTable(param: $params, sql: $query);
     }
 
     /**
@@ -192,139 +194,139 @@ final class Users
             $sql->and('U.user_id = ' . $sql->quote($param->user_id()));
         }
 
-        $rs = $sql->select();
-        $rs->extend(new RsExtUser());
+        $record = $sql->select();
+        $record->extend(new RsExtUser());
 
-        return $rs;
+        return $record;
     }
 
     /**
-     * Adds a new user. Takes a cursor as input and returns the new user ID.
+     * Add a new user. Takes a cursor as input and returns the new user ID.
      *
-     * @param Cursor $cur The user cursor
+     * @param Cursor $cursor The user cursor
      *
      * @throws CoreException
      */
-    public function addUser(Cursor $cur): string
+    public function addUser(Cursor $cursor): string
     {
         if (!App::core()->user()->isSuperAdmin()) {
             throw new CoreException(__('You are not an administrator'));
         }
 
-        if ('' == $cur->getField('user_id')) {
+        if ('' == $cursor->getField('user_id')) {
             throw new CoreException(__('No user ID given'));
         }
 
-        if ('' == $cur->getField('user_pwd')) {
+        if ('' == $cursor->getField('user_pwd')) {
             throw new CoreException(__('No password given'));
         }
 
-        $this->getUserCursor($cur);
+        $this->getUserCursor(cursor: $cursor);
 
-        if (null === $cur->getField('user_creadt')) {
-            $cur->setField('user_creadt', Clock::database());
+        if (null === $cursor->getField('user_creadt')) {
+            $cursor->setField('user_creadt', Clock::database());
         }
 
-        $cur->insert();
+        $cursor->insert();
 
-        App::core()->user()->afterAddUser($cur);
+        App::core()->user()->afterAddUser($cursor);
 
-        return $cur->getField('user_id');
+        return $cursor->getField('user_id');
     }
 
     /**
-     * Updates an existing user. Returns the user ID.
+     * Update an existing user. Returns the user ID.
      *
-     * @param string $user_id The user identifier
-     * @param Cursor $cur     The cursor
+     * @param string $id     The user ID
+     * @param Cursor $cursor The cursor
      *
      * @throws CoreException
      */
-    public function updUser(string $user_id, Cursor $cur): string
+    public function updUser(string $id, Cursor $cursor): string
     {
-        $this->getUserCursor($cur);
+        $this->getUserCursor(cursor: $cursor);
 
-        if ((null !== $cur->getField('user_id') || App::core()->user()->userID() != $user_id) && !App::core()->user()->isSuperAdmin()) {
+        if ((null !== $cursor->getField('user_id') || App::core()->user()->userID() != $id) && !App::core()->user()->isSuperAdmin()) {
             throw new CoreException(__('You are not an administrator'));
         }
 
         $sql = new UpdateStatement(__METHOD__);
-        $sql->where('user_id = ' . $sql->quote($user_id));
-        $sql->update($cur);
+        $sql->where('user_id = ' . $sql->quote($id));
+        $sql->update($cursor);
 
-        App::core()->user()->afterUpdUser($user_id, $cur);
+        App::core()->user()->afterUpdUser($id, $cursor);
 
-        if (null !== $cur->getField('user_id')) {
-            $user_id = $cur->getField('user_id');
+        if (null !== $cursor->getField('user_id')) {
+            $id = $cursor->getField('user_id');
         }
 
         // Updating all user's blogs
         $sql = new SelectStatement(__METHOD__);
         $sql->distinct();
-        $sql->where('user_id = ' . $sql->quote($user_id));
+        $sql->where('user_id = ' . $sql->quote($id));
         $sql->from(App::core()->prefix() . 'post');
-        $rs = $sql->select();
 
-        while ($rs->fetch()) {
-            $b = new Blog($rs->f('blog_id'));
-            $b->triggerBlog();
-            unset($b);
+        $record = $sql->select();
+        while ($record->fetch()) {
+            $blog = new Blog($record->f('blog_id'));
+            $blog->triggerBlog();
+            unset($blog);
         }
 
-        return $user_id;
+        return $id;
     }
 
     /**
-     * Deletes a user.
+     * Delete a user.
      *
-     * @param string $user_id The user identifier
+     * @param string $id The user ID
      *
      * @throws CoreException
      */
-    public function delUser(string $user_id): void
+    public function delUser(string $id): void
     {
         if (!App::core()->user()->isSuperAdmin()) {
             throw new CoreException(__('You are not an administrator'));
         }
 
-        if (App::core()->user()->userID() == $user_id) {
+        if (App::core()->user()->userID() == $id) {
             return;
         }
 
-        $rs = $this->getUser($user_id);
-
-        if (0 < $rs->f('nb_post')) {
+        $record = $this->getUser(id: $id);
+        if (0 < $record->f('nb_post')) {
             return;
         }
 
         $sql = new DeleteStatement(__METHOD__);
-        $sql->where('user_id = ' . $sql->quote($user_id));
+        $sql->where('user_id = ' . $sql->quote($id));
         $sql->from(App::core()->prefix() . 'user');
         $sql->delete();
 
-        App::core()->user()->afterDelUser($user_id);
+        App::core()->user()->afterDelUser($id);
     }
 
     /**
-     * Determines if user exists.
+     * Determine if user exists.
      *
-     * @param string $user_id The identifier
+     * @param string $id The user ID
      *
      * @return bool true if user exists, False otherwise
      */
-    public function userExists(string $user_id): bool
+    public function userExists(string $id): bool
     {
         $sql = new SelectStatement(__METHOD__);
         $sql->column('user_id');
-        $sql->where('user_id = ' . $sql->quote($user_id));
+        $sql->where('user_id = ' . $sql->quote($id));
         $sql->from(App::core()->prefix() . 'user');
-        $rs = $sql->select();
 
-        return !$rs->isEmpty();
+        $record = $sql->select();
+
+        return !$record->isEmpty();
     }
 
     /**
-     * Returns all user permissions as an array which looks like:.
+     * Return all user permissions as an array which looks like:.
      *
      * - [blog_id]
      * - [name] => Blog name
@@ -333,11 +335,11 @@ final class Users
      * - [permission] => true
      * - ...
      *
-     * @param string $user_id The user identifier
+     * @param string $id The user ID
      *
      * @return array the user permissions
      */
-    public function getUserPermissions(string $user_id): array
+    public function getUserPermissions(string $id): array
     {
         $join = new JoinStatement(__METHOD__);
         $join->type('INNER');
@@ -353,16 +355,15 @@ final class Users
         ]);
         $sql->from(App::core()->prefix() . 'permissions P');
         $sql->join($join->statement());
-        $sql->where('user_id = ' . $sql->quote($user_id));
-        $rs = $sql->select();
+        $sql->where('user_id = ' . $sql->quote($id));
 
-        $res = [];
-
-        while ($rs->fetch()) {
-            $res[$rs->f('blog_id')] = [
-                'name' => $rs->f('blog_name'),
-                'url'  => $rs->f('blog_url'),
-                'p'    => App::core()->user()->parsePermissions($rs->f('permissions')),
+        $res    = [];
+        $record = $sql->select();
+        while ($record->fetch()) {
+            $res[$record->f('blog_id')] = [
+                'name' => $record->f('blog_name'),
+                'url'  => $record->f('blog_url'),
+                'p'    => App::core()->user()->parsePermissions($record->f('permissions')),
             ];
         }
 
@@ -370,55 +371,55 @@ final class Users
     }
 
     /**
-     * Sets user permissions.
+     * Set user permissions.
      *
      * The <var>$perms</var> array looks like:
      * - [blog_id] => '|perm1|perm2|'
      * - ...
      *
-     * @param string $user_id The user identifier
-     * @param array  $perms   The permissions
+     * @param string $id          The user ID
+     * @param array  $permissions The permissions
      *
      * @throws CoreException
      */
-    public function setUserPermissions(string $user_id, array $perms): void
+    public function setUserPermissions(string $id, array $permissions): void
     {
         if (!App::core()->user()->isSuperAdmin()) {
             throw new CoreException(__('You are not an administrator'));
         }
 
         $sql = new DeleteStatement(__METHOD__);
-        $sql->where('user_id = ' . $sql->quote($user_id));
+        $sql->where('user_id = ' . $sql->quote($id));
         $sql->from(App::core()->prefix() . 'permissions');
         $sql->delete();
 
-        foreach ($perms as $blog_id => $p) {
-            $this->setUserBlogPermissions($user_id, $blog_id, $p, false);
+        foreach ($permissions as $blog => $p) {
+            $this->setUserBlogPermissions(id: $id, blog: $blog, permissions: $p, delete: false);
         }
     }
 
     /**
-     * Sets the user blog permissions.
+     * Set the user blog permissions.
      *
-     * @param string $user_id      The user identifier
-     * @param string $blog_id      The blog identifier
-     * @param array  $perms        The permissions
-     * @param bool   $delete_first Delete permissions first
+     * @param string $id          The user ID
+     * @param string $blog        The blog ID
+     * @param array  $permissions The permissions
+     * @param bool   $delete      Delete permissions first
      *
      * @throws CoreException
      */
-    public function setUserBlogPermissions(string $user_id, string $blog_id, array $perms, bool $delete_first = true): void
+    public function setUserBlogPermissions(string $id, string $blog, array $permissions, bool $delete = true): void
     {
         if (!App::core()->user()->isSuperAdmin()) {
             throw new CoreException(__('You are not an administrator'));
         }
 
-        $no_perm = empty($perms);
+        $no_perm = empty($permissions);
 
-        if ($delete_first || $no_perm) {
+        if ($delete || $no_perm) {
             $sql = new DeleteStatement(__METHOD__);
-            $sql->where('blog_id = ' . $sql->quote($blog_id));
-            $sql->and('user_id = ' . $sql->quote($user_id));
+            $sql->where('blog_id = ' . $sql->quote($blog));
+            $sql->and('user_id = ' . $sql->quote($id));
             $sql->from(App::core()->prefix() . 'permissions');
             $sql->delete();
         }
@@ -431,9 +432,9 @@ final class Users
                 'permissions',
             ]);
             $sql->line([[
-                $sql->quote($user_id),
-                $sql->quote($blog_id),
-                $sql->quote('|' . implode('|', array_keys($perms)) . '|'),
+                $sql->quote($id),
+                $sql->quote($blog),
+                $sql->quote('|' . implode('|', array_keys($permissions)) . '|'),
             ]]);
             $sql->from(App::core()->prefix() . 'permissions');
             $sql->insert();
@@ -441,58 +442,59 @@ final class Users
     }
 
     /**
-     * Sets the user default blog.
+     * Set the user default blog.
      *
      * This blog will be selected when user log in.
      *
-     * @param string $user_id The user identifier
-     * @param string $blog_id The blog identifier
+     * @param string $id   The user ID
+     * @param string $blog The blog ID
      */
-    public function setUserDefaultBlog(string $user_id, string $blog_id): void
+    public function setUserDefaultBlog(string $id, string $blog): void
     {
         $sql = new UpdateStatement(__METHOD__);
-        $sql->set('user_default_blog = ' . $sql->quote($blog_id));
+        $sql->set('user_default_blog = ' . $sql->quote($blog));
         $sql->from(App::core()->prefix() . 'user');
+        $sql->where('user_id = ' . $sql->quote($id));
         $sql->update();
     }
 
     /**
-     * Gets the user cursor.
+     * Get the user cursor.
      *
-     * @param Cursor $cur The user cursor
+     * @param Cursor $cursor The user cursor
      *
      * @throws CoreException
      */
-    private function getUserCursor(Cursor $cur): void
+    private function getUserCursor(Cursor $cursor): void
     {
-        if ($cur->isField('user_id')
-            && !preg_match('/^[A-Za-z0-9@._-]{2,}$/', $cur->getField('user_id'))) {
+        if ($cursor->isField('user_id')
+            && !preg_match('/^[A-Za-z0-9@._-]{2,}$/', $cursor->getField('user_id'))) {
             throw new CoreException(__('User ID must contain at least 2 characters using letters, numbers or symbols.'));
         }
 
-        if (null !== $cur->getField('user_url') && '' != $cur->getField('user_url')) {
-            if (!preg_match('|^http(s?)://|', $cur->getField('user_url'))) {
-                $cur->setField('user_url', 'http://' . $cur->getField('user_url'));
+        if (null !== $cursor->getField('user_url') && '' != $cursor->getField('user_url')) {
+            if (!preg_match('|^http(s?)://|', $cursor->getField('user_url'))) {
+                $cursor->setField('user_url', 'http://' . $cursor->getField('user_url'));
             }
         }
 
-        if ($cur->isField('user_pwd')) {
-            if (6 > strlen($cur->getField('user_pwd'))) {
+        if ($cursor->isField('user_pwd')) {
+            if (6 > strlen($cursor->getField('user_pwd'))) {
                 throw new CoreException(__('Password must contain at least 6 characters.'));
             }
-            $cur->setField('user_pwd', App::core()->user()->crypt($cur->getField('user_pwd')));
+            $cursor->setField('user_pwd', App::core()->user()->crypt($cursor->getField('user_pwd')));
         }
 
-        if (null !== $cur->getField('user_lang') && !preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $cur->getField('user_lang'))) {
+        if (null !== $cursor->getField('user_lang') && !preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $cursor->getField('user_lang'))) {
             throw new CoreException(__('Invalid user language code'));
         }
 
-        if (null === $cur->getField('user_upddt')) {
-            $cur->setField('user_upddt', Clock::database());
+        if (null === $cursor->getField('user_upddt')) {
+            $cursor->setField('user_upddt', Clock::database());
         }
 
-        if (null !== $cur->getField('user_options')) {
-            $cur->setField('user_options', serialize((array) $cur->getField('user_options')));
+        if (null !== $cursor->getField('user_options')) {
+            $cursor->setField('user_options', serialize((array) $cursor->getField('user_options')));
         }
     }
 }

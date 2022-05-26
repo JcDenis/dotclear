@@ -16,8 +16,9 @@ use Dotclear\Database\Param;
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\SelectStatement;
-use Dotclear\Exception\AdminException;
+use Dotclear\Exception\MissingOrEmptyValue;
 use Dotclear\Helper\Clock;
+use Dotclear\Helper\Mapper\Integers;
 use Exception;
 
 /**
@@ -59,14 +60,15 @@ final class Notice
      */
     public function countNotices(?Param $param = null, ?SelectStatement $sql = null): int
     {
-        $param = new NoticeParam($param);
-        $param->unset('order');
-        $param->unset('limit');
+        $params = new NoticeParam($param);
+        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
 
-        $query = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $params->unset('order');
+        $params->unset('limit');
+
         $query->column($query->count('notice_id'));
 
-        return $this->queryNoticeTable(param: $param, sql: $query)->fInt(0);
+        return $this->queryNoticeTable(param: $params, sql: $query)->fInt(0);
     }
 
     /**
@@ -81,9 +83,9 @@ final class Notice
      */
     public function getNotices(?Param $param = null, ?SelectStatement $sql = null): Record
     {
-        $param = new NoticeParam($param);
+        $params = new NoticeParam($param);
+        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
 
-        $query = $sql ? clone $sql : new SelectStatement(__METHOD__);
         $query->columns([
             'notice_id',
             'ses_id',
@@ -93,13 +95,13 @@ final class Notice
             'notice_format',
             'notice_options',
         ]);
-        $query->order($query->escape($param->order('notice_ts DESC')));
+        $query->order($query->escape($params->order('notice_ts DESC')));
 
-        if (!empty($param->limit())) {
-            $query->limit($param->limit());
+        if (!empty($params->limit())) {
+            $query->limit($params->limit());
         }
 
-        return $this->queryNoticeTable(param: $param, sql: $query);
+        return $this->queryNoticeTable(param: $params, sql: $query);
     }
 
     /**
@@ -137,9 +139,11 @@ final class Notice
     /**
      * Add a notice.
      *
-     * @param Cursor $cur The cursor
+     * @param Cursor $cursor The cursor
+     *
+     * @throws MissingOrEmptyValue
      */
-    public function addNotice(Cursor $cur): int
+    public function addNotice(Cursor $cursor): int
     {
         App::core()->con()->writeLock(App::core()->prefix() . 'notice');
 
@@ -148,17 +152,27 @@ final class Notice
             $sql = new SelectStatement(__METHOD__);
             $sql->column($sql->max('notice_id'));
             $sql->from(App::core()->prefix() . 'notice');
-            $rs = $sql->select();
+            $id = $sql->select()->fInt();
 
-            $cur->setField('notice_id', $rs->fInt() + 1);
-            $cur->setField('ses_id', (string) session_id());
+            $cursor->setField('notice_id', $id + 1);
+            $cursor->setField('ses_id', (string) session_id());
 
-            $this->cleanNoticeCursor($cur, $cur->getField('notice_id'));
+            if ('' === $cursor->getField('notice_msg')) {
+                throw new MissingOrEmptyValue(__('No notice message'));
+            }
 
-            // --BEHAVIOR-- coreBeforeNoticeCreate
-            App::core()->behavior()->call('adminBeforeNoticeCreate', $this, $cur);
+            if ('' === $cursor->getField('notice_ts') || null === $cursor->getField('notice_ts')) {
+                $cursor->setField('notice_ts', Clock::database());
+            }
 
-            $cur->insert();
+            if ('' === $cursor->getField('notice_format') || null === $cursor->getField('notice_format')) {
+                $cursor->setField('notice_format', 'text');
+            }
+
+            // --BEHAVIOR-- coreBeforeNoticeCreate, Cursor
+            App::core()->behavior()->call('adminBeforeNoticeCreate', $cursor);
+
+            $cursor->insert();
             App::core()->con()->unlock();
         } catch (Exception $e) {
             App::core()->con()->unlock();
@@ -166,67 +180,34 @@ final class Notice
             throw $e;
         }
 
-        // --BEHAVIOR-- coreAfterNoticeCreate
-        App::core()->behavior()->call('adminAfterNoticeCreate', $this, $cur);
+        // --BEHAVIOR-- coreAfterNoticeCreate, Cursor
+        App::core()->behavior()->call('adminAfterNoticeCreate', $cursor);
 
-        return $cur->getField('notice_id');
-    }
-
-    /**
-     * Delete a notice.
-     *
-     * @param int $id The notice id
-     */
-    public function deleteNotice(int $id): void
-    {
-        $this->deleteNotices([$id]);
+        return $cursor->getField('notice_id');
     }
 
     /**
      * Delete given notices.
      *
-     * @param array<int,int> $id The notices ids
+     * @param Integers $ids The notices ids
      */
-    public function deleteNotices(array $id): void
+    public function deleteNotices(Integers $ids): void
     {
         $sql = new DeleteStatement(__METHOD__);
         $sql->from(App::core()->prefix() . 'notice');
-        $sql->where('notice_id' . $sql->in($id));
+        $sql->where('notice_id' . $sql->in($ids->dump()));
         $sql->delete();
     }
 
     /**
      * Delete all session notices.
      */
-    public function deleteSessionNotice(): void
+    public function deleteSessionNotices(): void
     {
         $sql = new DeleteStatement(__METHOD__);
         $sql->from(App::core()->prefix() . 'notice');
         $sql->where('ses_id = ' . $sql->quote((string) session_id()));
         $sql->delete();
-    }
-
-    /**
-     * Get notices cursor.
-     *
-     * @param Cursor   $cur       The cursor
-     * @param null|int $notice_id The notice id
-     */
-    private function cleanNoticeCursor(Cursor $cur, int $notice_id = null): void
-    {
-        if ('' === $cur->getField('notice_msg')) {
-            throw new AdminException(__('No notice message'));
-        }
-
-        if ('' === $cur->getField('notice_ts') || null === $cur->getField('notice_ts')) {
-            $cur->setField('notice_ts', Clock::database());
-        }
-
-        if ('' === $cur->getField('notice_format') || null === $cur->getField('notice_format')) {
-            $cur->setField('notice_format', 'text');
-        }
-
-        $notice_id = is_int($notice_id) ? $notice_id : $cur->getField('notice_id');
     }
 
     /**
@@ -297,7 +278,7 @@ final class Notice
         } while (--$step);
 
         // Delete returned notices
-        $this->deleteSessionNotice();
+        $this->deleteSessionNotices();
 
         return $res;
     }
@@ -358,7 +339,7 @@ final class Notice
             $cur->setField('notice_format', $options['format']);
         }
 
-        $this->addNotice($cur);
+        $this->addNotice(cursor: $cur);
     }
 
     /**

@@ -11,10 +11,11 @@ namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\Category
 use Dotclear\App;
-use Dotclear\Process\Admin\Page\AbstractPage;
+use Dotclear\Database\Param;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\FormSelectOption;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
 
 /**
@@ -45,7 +46,7 @@ class Category extends AbstractPage
 
         if (!empty($_REQUEST['id'])) {
             try {
-                $rs = App::core()->blog()->categories()->getCategory((int) $_REQUEST['id']);
+                $rs = App::core()->blog()->categories()->getCategory(id: (int) $_REQUEST['id']);
             } catch (Exception $e) {
                 App::core()->error()->add($e->getMessage());
             }
@@ -59,18 +60,21 @@ class Category extends AbstractPage
             unset($rs);
 
             // Getting hierarchy information
-            $parents          = App::core()->blog()->categories()->getCategoryParents($this->cat_id);
-            $rs               = App::core()->blog()->categories()->getCategoryParent($this->cat_id);
+            $parents          = App::core()->blog()->categories()->getCategoryParents(id: $this->cat_id);
+            $rs               = App::core()->blog()->categories()->getCategoryParent(id: $this->cat_id);
             $this->cat_parent = $rs->isEmpty() ? 0 : $rs->fInt('cat_id');
             unset($rs);
 
             // Allowed parents list
-            $children                  = App::core()->blog()->categories()->getCategories(['start' => $this->cat_id]);
+            $param = new Param();
+            $param->set('start', $this->cat_id);
+
+            $children                  = App::core()->blog()->categories()->getCategories(param: $param);
             $this->cat_allowed_parents = [__('Top level') => 0];
 
             $p = [];
             while ($children->fetch()) {
-                $p[$children->f('cat_id')] = 1;
+                $p[$children->fInt('cat_id')] = 1;
             }
 
             $rs = App::core()->blog()->categories()->getCategories();
@@ -85,7 +89,7 @@ class Category extends AbstractPage
             unset($rs);
 
             // Allowed siblings list
-            $rs = App::core()->blog()->categories()->getCategoryFirstChildren($this->cat_parent);
+            $rs = App::core()->blog()->categories()->getCategoryFirstChildren(id: $this->cat_parent);
             while ($rs->fetch()) {
                 if ($rs->fint('cat_id') != $this->cat_id) {
                     $this->cat_siblings[Html::escapeHTML($rs->f('cat_title'))] = $rs->fInt('cat_id');
@@ -99,7 +103,10 @@ class Category extends AbstractPage
             $new_parent = (int) $_POST['cat_parent'];
             if ($this->cat_parent != $new_parent) {
                 try {
-                    App::core()->blog()->categories()->setCategoryParent($this->cat_id, $new_parent);
+                    App::core()->blog()->categories()->setCategoryParent(
+                        id: $this->cat_id,
+                        parent: $new_parent
+                    );
                     App::core()->notice()->addSuccessNotice(__('The category has been successfully moved'));
                     App::core()->adminurl()->redirect('admin.categories');
                 } catch (Exception $e) {
@@ -111,7 +118,11 @@ class Category extends AbstractPage
         // Changing sibling
         if (null !== $this->cat_id && isset($_POST['cat_sibling'])) {
             try {
-                App::core()->blog()->categories()->setCategoryPosition($this->cat_id, (int) $_POST['cat_sibling'], $_POST['cat_move']);
+                App::core()->blog()->categories()->setCategoryPosition(
+                    id: $this->cat_id,
+                    sibling: (int) $_POST['cat_sibling'],
+                    move: $_POST['cat_move']
+                );
                 App::core()->notice()->addSuccessNotice(__('The category has been successfully moved'));
                 App::core()->adminurl()->redirect('admin.categories');
             } catch (Exception $e) {
@@ -141,7 +152,10 @@ class Category extends AbstractPage
                     // --BEHAVIOR-- adminBeforeCategoryUpdate
                     App::core()->behavior()->call('adminBeforeCategoryUpdate', $cur, $this->cat_id);
 
-                    App::core()->blog()->categories()->updCategory((int) $_POST['id'], $cur);
+                    App::core()->blog()->categories()->updCategory(
+                        id: (int) $_POST['id'],
+                        cursor: $cur
+                    );
 
                     // --BEHAVIOR-- adminAfterCategoryUpdate
                     App::core()->behavior()->call('adminAfterCategoryUpdate', $cur, $this->cat_id);
@@ -155,7 +169,10 @@ class Category extends AbstractPage
                     // --BEHAVIOR-- adminBeforeCategoryCreate
                     App::core()->behavior()->call('adminBeforeCategoryCreate', $cur);
 
-                    $id = App::core()->blog()->categories()->addCategory($cur, (int) $_POST['new_cat_parent']);
+                    $id = App::core()->blog()->categories()->addCategory(
+                        cursor: $cur,
+                        parent: (int) $_POST['new_cat_parent']
+                    );
 
                     // --BEHAVIOR-- adminAfterCategoryCreate
                     App::core()->behavior()->call('adminAfterCategoryCreate', $cur, $id);

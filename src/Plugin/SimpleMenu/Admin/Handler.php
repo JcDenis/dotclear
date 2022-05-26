@@ -51,8 +51,11 @@ class Handler extends AbstractPage
     protected function getPagePrepend(): ?bool
     {
         // Liste des catégories
+        $param = new Param();
+        $param->set('post_type', 'post');
+
         $categories_label          = [];
-        $rs                        = App::core()->blog()->categories()->getCategories(['post_type' => 'post']);
+        $rs                        = App::core()->blog()->categories()->getCategories(param: $param);
         $this->sm_categories_combo = App::core()->combo()->getCategoriesCombo($rs, false, true);
         $rs->moveStart();
         while ($rs->fetch()) {

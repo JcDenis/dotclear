@@ -330,7 +330,7 @@ class ImportDc1 extends Module
             App::core()->con()->begin();
 
             while ($rs->fetch()) {
-                if (!App::core()->users()->userExists($rs->f('user_id'))) {
+                if (!App::core()->users()->userExists(id: $rs->f('user_id'))) {
                     $cur = App::core()->con()->openCursor(App::core()->prefix() . 'user');
                     $cur->setField('user_id', $rs->f('user_id'));
                     $cur->setField('user_name', $rs->f('user_nom'));
@@ -372,11 +372,11 @@ class ImportDc1 extends Module
                             break;
                     }
 
-                    App::core()->users()->addUser($cur);
+                    App::core()->users()->addUser(cursor: $cur);
                     App::core()->users()->setUserBlogPermissions(
-                        $rs->f('user_id'),
-                        App::core()->blog()->id,
-                        $permissions
+                        id: $rs->f('user_id'),
+                        blog: App::core()->blog()->id,
+                        permissions: $permissions
                     );
                 }
             }

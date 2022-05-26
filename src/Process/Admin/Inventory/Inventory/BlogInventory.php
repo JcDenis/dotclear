@@ -133,7 +133,7 @@ class BlogInventory extends Inventory
             Html::escapeHTML($this->rs->f('blog_url')) . '">' . Html::escapeHTML($this->rs->f('blog_url')) .
             ' <img src="?df=images/outgoing-link.svg" alt="" /></a></td>',
             'posts' => '<td class="nowrap count">' .
-            App::core()->blogs()->countBlogPosts($this->rs->f('blog_id')) .
+            App::core()->blogs()->countBlogPosts(id: $this->rs->f('blog_id')) .
             '</td>',
             'upddt' => '<td class="nowrap count">' .
             Clock::str(format: __('%Y-%m-%d %H:%M'), date: $this->rs->f('blog_upddt'), to: App::core()->timezone()) .
@@ -142,7 +142,7 @@ class BlogInventory extends Inventory
             sprintf(
                 '<img src="?df=images/%1$s.png" alt="%2$s" title="%2$s" />',
                 (1 == $this->rs->f('blog_status') ? 'check-on' : (0 == $this->rs->f('blog_status') ? 'check-off' : 'check-wrn')),
-                App::core()->blogs()->getBlogStatus($this->rs->fInt('blog_status'))
+                App::core()->blogs()->getBlogsStatusName(code: $this->rs->fInt('blog_status'), default: __('online'))
             ) .
             '</td>',
         ];

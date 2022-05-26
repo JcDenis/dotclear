@@ -44,7 +44,7 @@ class Categories extends AbstractPage
             $cat_id = (int) $keys[0];
 
             // Check if category to delete exists
-            $category = App::core()->blog()->categories()->getCategory($cat_id);
+            $category = App::core()->blog()->categories()->getCategory(id: $cat_id);
             if ($category->isEmpty()) {
                 App::core()->notice()->addErrorNotice(__('This category does not exist.'));
                 App::core()->adminurl()->redirect('admin.categories');
@@ -54,7 +54,7 @@ class Categories extends AbstractPage
 
             try {
                 // Delete category
-                App::core()->blog()->categories()->delCategory($cat_id);
+                App::core()->blog()->categories()->delCategory(id: $cat_id);
                 App::core()->notice()->addSuccessNotice(sprintf(__('The category "%s" has been successfully deleted.'), Html::escapeHTML($name)));
                 App::core()->adminurl()->redirect('admin.categories');
             } catch (Exception $e) {
@@ -73,7 +73,7 @@ class Categories extends AbstractPage
                 $mov_cat = $mov_cat ?: null;
                 $name    = '';
                 if (null !== $mov_cat) {
-                    $category = App::core()->blog()->categories()->getCategory($mov_cat);
+                    $category = App::core()->blog()->categories()->getCategory(id: $mov_cat);
                     if ($category->isEmpty()) {
                         throw new AdminException(__('Category where to move entries does not exist'));
                     }
@@ -82,7 +82,7 @@ class Categories extends AbstractPage
                 }
                 // Move posts
                 if ($mov_cat != $cat_id) {
-                    App::core()->blog()->posts()->changePostsCategory($cat_id, $mov_cat);
+                    App::core()->blog()->posts()->changePostsCategory(old: $cat_id, new: $mov_cat);
                 }
                 App::core()->notice()->addSuccessNotice(sprintf(
                     __('The entries have been successfully moved to category "%s"'),
@@ -100,7 +100,11 @@ class Categories extends AbstractPage
 
             foreach ($categories as $category) {
                 if (!empty($category->item_id) && !empty($category->left) && !empty($category->right)) {
-                    App::core()->blog()->categories()->updCategoryPosition((int) $category->item_id, $category->left, $category->right);
+                    App::core()->blog()->categories()->updCategoryPosition(
+                        id: (int) $category->item_id,
+                        left: $category->left,
+                        right: $category->right
+                    );
                 }
             }
 

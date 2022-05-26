@@ -9,7 +9,6 @@
 - [ ] remove or include to core a maximum of clearbricks class/methods
 - [ ] update all scss files
 - [ ] rework process (avoid abstract extends abstract extends abstract...)
-- [ ] rework Modules with less files
 - [ ] check extends class vs public method, ex: dotclear()->url->getPageNumber()
 - [ ] use class for html form elements and static method for simple cases
 - [ ] remove maximum php magic methods and/or add equivalent methods
@@ -25,12 +24,14 @@
 - [ ] check and use behavior on (de)activate modules (some modules should erase cache etc...)
 - [ ] rework Exceptions by type of exception, not by class hierarchy
 - [ ] avoid logic switch parameters
+- [ ] move GET, POST, REQUEST to mapper
 
 ### Idea
 
 - Merge Distrib into Install
 - Move build-tools features into Plugin BuildTools
 - Use array for permissions
+- Open posts,comments,blogs status
 
 ### Done
 

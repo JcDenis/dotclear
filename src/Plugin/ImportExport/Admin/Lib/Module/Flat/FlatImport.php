@@ -722,10 +722,10 @@ class FlatImport extends FlatBackup
             $post->set('blog_id', $this->blog_id);
 
             $post->set('post_url', App::core()->blog()->posts()->getPostURL(
-                (string) $post->f('post_url'),
-                (string) $post->f('post_dt'),
-                (string) $post->f('post_title'),
-                (int) $post->f('post_id')
+                url: (string) $post->f('post_url'),
+                date: (string) $post->f('post_dt'),
+                title: (string) $post->f('post_title'),
+                id: (int) $post->f('post_id')
             ));
 
             $this->insertPost($post);
@@ -834,7 +834,7 @@ class FlatImport extends FlatBackup
                     $this->cur_user->setField('user_id', (string) $user_id);
                     $this->cur_user->setField('user_pwd', md5(uniqid()));
 
-                    App::core()->users()->addUser($this->cur_user);
+                    App::core()->users()->addUser(cursor: $this->cur_user);
 
                     $this->users[$user_id] = true;
                 }

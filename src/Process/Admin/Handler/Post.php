@@ -18,6 +18,7 @@ use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
+use Dotclear\Helper\Mapper\Integers;
 use Dotclear\Helper\Text;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Action\Action\CommentAction;
@@ -133,8 +134,8 @@ class Post extends AbstractPage
                 $this->can_edit_post = $rs->isEditable();
                 $this->can_delete    = $rs->isDeletable();
 
-                $next_rs = App::core()->blog()->posts()->getNextPost($rs, 1);
-                $prev_rs = App::core()->blog()->posts()->getNextPost($rs, -1);
+                $next_rs = App::core()->blog()->posts()->getNextPost(record: $rs);
+                $prev_rs = App::core()->blog()->posts()->getPreviousPost(record: $rs);
 
                 if (null !== $next_rs) {
                     $this->next_link = sprintf(
@@ -267,9 +268,7 @@ class Post extends AbstractPage
         // Delete post
         if (!empty($_POST['delete']) && $this->can_delete) {
             try {
-                // --BEHAVIOR-- adminBeforePostDelete
-                App::core()->behavior()->call('adminBeforePostDelete', $this->post_id);
-                App::core()->blog()->posts()->delPost($this->post_id);
+                App::core()->blog()->posts()->delPosts(ids: new Integers($this->post_id));
                 App::core()->adminurl()->redirect('admin.posts');
             } catch (Exception $e) {
                 App::core()->error()->add($e->getMessage());
@@ -284,12 +283,13 @@ class Post extends AbstractPage
                 $cur_cat->setField('cat_title', $_POST['new_cat_title']);
                 $cur_cat->setField('cat_url', '');
 
-                $parent_cat = !empty($_POST['new_cat_parent']) ? $_POST['new_cat_parent'] : '';
-
                 // --BEHAVIOR-- adminBeforeCategoryCreate
                 App::core()->behavior()->call('adminBeforeCategoryCreate', $cur_cat);
 
-                $this->cat_id = App::core()->blog()->categories()->addCategory($cur_cat, (int) $parent_cat);
+                $this->cat_id = App::core()->blog()->categories()->addCategory(
+                    cursor: $cur_cat,
+                    parent: !empty($_POST['new_cat_parent']) ? (int) $_POST['new_cat_parent'] : 0
+                );
 
                 // --BEHAVIOR-- adminAfterCategoryCreate
                 App::core()->behavior()->call('adminAfterCategoryCreate', $cur_cat, $this->cat_id);

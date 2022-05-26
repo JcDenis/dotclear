@@ -12,9 +12,10 @@ namespace Dotclear\Process\Admin\Action\Action;
 // Dotclear\Process\Admin\Action\Action\DefaultBlogAction
 use ArrayObject;
 use Dotclear\App;
-use Dotclear\Database\Statement\UpdateStatement;
-use Dotclear\Exception\AdminException;
+use Dotclear\Exception\InsufficientPermissions;
+use Dotclear\Exception\MissingOrEmptyValue;
 use Dotclear\Process\Admin\Action\Action;
+use Dotclear\Helper\Mapper\Strings;
 
 /**
  * Admin handler for default action on selected blogs.
@@ -46,30 +47,18 @@ abstract class DefaultBlogAction extends Action
 
     public function doChangeBlogStatus(Action $ap, array|ArrayObject $post): void
     {
-        if (!App::core()->user()->isSuperAdmin()) {
-            return;
+        $ids = new Strings($ap->getIDs());
+        if (!$ids->count()) {
+            throw new MissingOrEmptyValue(__('No blog selected'));
         }
 
-        $ids = $ap->getIDs();
-        if (empty($ids)) {
-            throw new AdminException(__('No blog selected'));
-        }
+        // --BEHAVIOR-- adminBeforeBlogsStatusUpdate, Strings
+        App::core()->behavior()->call('adminBeforeBlogsStatusUpdate', $ids);
 
-        $status = match ($ap->getAction()) {
-            'online'  => 1,
-            'offline' => 0,
-            'remove'  => -1,
-            default   => 1,
-        };
-
-        $sql = new UpdateStatement(__METHOD__);
-        $sql
-            ->from(App::core()->prefix() . 'blog')
-            ->set('blog_status = ' . $sql->quote($status))
-            // ->set('blog_upddt = ' . $sql->quote(Clock::database()))
-            ->where('blog_id' . $sql->in($ids))
-            ->update()
-        ;
+        App::core()->blogs()->updBlogsStatus(
+            ids: $ids,
+            status: App::core()->blogs()->getBlogsStatusCode(name: $ap->getAction(), default: 1)
+        );
 
         App::core()->notice()->addSuccessNotice(__('Selected blogs have been successfully updated.'));
         $ap->redirect(true);
@@ -77,44 +66,34 @@ abstract class DefaultBlogAction extends Action
 
     public function doDeleteBlog(Action $ap, array|ArrayObject $post): void
     {
-        if (!App::core()->user()->isSuperAdmin()) {
-            return;
-        }
-
-        $ap_ids = $ap->getIDs();
-        if (empty($ap_ids)) {
-            throw new AdminException(__('No blog selected'));
+        $ids = new Strings($ap->getIDs());
+        if (!$ids->count()) {
+            throw new MissingOrEmptyValue(__('No blog selected'));
         }
 
         if (!App::core()->user()->checkPassword($_POST['pwd'])) {
-            throw new AdminException(__('Password verification failed'));
+            throw new InsufficientPermissions(__('Password verification failed'));
         }
 
-        $ids = [];
-        foreach ($ap_ids as $id) {
-            if (App::core()->blog()->id == $id) {
-                App::core()->notice()->addWarningNotice(__('The current blog cannot be deleted.'));
-            } else {
-                $ids[] = $id;
-            }
+        if ($ids->exists(App::core()->blog()->id)) {
+            App::core()->notice()->addWarningNotice(__('The current blog cannot be deleted.'));
+            $ids->remove(App::core()->blog()->id);
         }
 
-        if (!empty($ids)) {
-            // --BEHAVIOR-- adminBeforeBlogsDelete
+        if ($ids->count()) {
+            // --BEHAVIOR-- adminBeforeBlogsDelete, Strings
             App::core()->behavior()->call('adminBeforeBlogsDelete', $ids);
 
-            foreach ($ids as $id) {
-                App::core()->blogs()->delBlog($id);
-            }
+            App::core()->blogs()->delBlogs(ids: $ids);
 
             App::core()->notice()->addSuccessNotice(
                 sprintf(
                     __(
                         '%d blog has been successfully deleted',
                         '%d blogs have been successfully deleted',
-                        count($ids)
+                        $ids->count()
                     ),
-                    count($ids)
+                    $ids->count()
                 )
             );
         }

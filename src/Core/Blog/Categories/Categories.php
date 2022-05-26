@@ -10,14 +10,16 @@ declare(strict_types=1);
 namespace Dotclear\Core\Blog\Categories;
 
 // Dotclear\Core\Blog\Categories\Categories
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Database\Cursor;
+use Dotclear\Database\Param;
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\JoinStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\StaticRecord;
-use Dotclear\Exception\CoreException;
+use Dotclear\Exception\InsufficientPermissions;
+use Dotclear\Exception\InvalidValueReference;
+use Dotclear\Exception\MissingOrEmptyValue;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Text;
 
@@ -26,7 +28,7 @@ use Dotclear\Helper\Text;
  *
  * @ingroup  Core Category
  */
-class Categories
+final class Categories
 {
     /**
      * @var CategoriesTree $categoriestree
@@ -39,7 +41,7 @@ class Categories
      *
      * @return CategoriesTree CategoriesTree instance
      */
-    protected function categoriestree(): CategoriesTree
+    private function categoriestree(): CategoriesTree
     {
         if (!($this->categoriestree instanceof CategoriesTree)) {
             $this->categoriestree = new CategoriesTree();
@@ -49,86 +51,93 @@ class Categories
     }
 
     /**
-     * Retrieves categories. <var>$params</var> is an associative array which can
-     * take the following parameters:.
+     * Get the category by its ID.
      *
-     * - post_type: Get only entries with given type (default "post")
-     * - cat_url: filter on cat_url field
-     * - cat_id: filter on cat_id field
-     * - start: start with a given category
-     * - level: categories level to retrieve
+     * @param int $id The category ID
      *
-     * @param array|ArrayObject $params The parameters
+     * @return Record The category. (StaticRecord)
+     */
+    public function getCategory(int $id): Record
+    {
+        $param = new Param();
+        $param->set('car_id', $id);
+
+        return $this->getCategories(param: $param);
+    }
+
+    /**
+     * Retrieve categories.
+     *
+     * @see CategoriesParam for optionnal parameters
+     *
+     * @param null|Param $param The parameters
      *
      * @return Record The categories. (StaticRecord)
      */
-    public function getCategories(array|ArrayObject $params = []): Record
+    public function getCategories(?Param $param = null): Record
     {
-        $c_params = [];
-        if (isset($params['post_type'])) {
-            $c_params['post_type'] = $params['post_type'];
-            unset($params['post_type']);
-        }
-        $counter = $this->getCategoriesCounter($c_params);
+        $params = new CategoriesParam($param);
 
-        if (isset($params['without_empty']) && (false == $params['without_empty'])) {
+        // Find and use post_type only for posts count
+        $c_params = clone $params;
+        $params->unset('post_type');
+        $counter = $this->getCategoriesPostsCount(param: $c_params);
+
+        if (false === $params->without_empty()) {
             $without_empty = false;
         } else {
             $without_empty = false == App::core()->user()->userID(); // Get all categories if in admin display
         }
 
-        $start = isset($params['start']) ? (int) $params['start'] : 0;
-        $l     = isset($params['level']) ? (int) $params['level'] : 0;
-
-        $rs = $this->categoriestree()->getChildren($start, null, 'desc');
+        $record = $this->categoriestree()->getChildren(start: $params->start(), sort: 'desc');
 
         // Get each categories total posts count
         $data  = [];
         $stack = [];
         $level = 0;
-        $cols  = $rs->columns();
-        while ($rs->fetch()) {
-            $nb_post = isset($counter[$rs->f('cat_id')]) ? (int) $counter[$rs->f('cat_id')] : 0;
+        $cols  = $record->columns();
+        while ($record->fetch()) {
+            $nb_post = $counter[$record->fInt('cat_id')] ?? 0;
 
-            if ($rs->f('level') > $level) {
-                $nb_total               = $nb_post;
-                $stack[$rs->f('level')] = (int) $nb_post;
-            } elseif ($rs->f('level') == $level) {
-                $nb_total = $nb_post;
-                $stack[$rs->f('level')] += $nb_post;
+            if ($record->fInt('level') > $level) {
+                $nb_total                      = $nb_post;
+                $stack[$record->fInt('level')] = $nb_post;
+            } elseif ($record->fInt('level') == $level) {
+                $nb_total                       = $nb_post;
+                $stack[$record->fInt('level')] += $nb_post;
             } else {
-                $nb_total = $stack[$rs->f('level') + 1] + $nb_post;
-                if (isset($stack[$rs->f('level')])) {
-                    $stack[$rs->f('level')] += $nb_total;
+                $nb_total = $stack[$record->fInt('level') + 1] + $nb_post;
+                if (isset($stack[$record->fInt('level')])) {
+                    $stack[$record->fInt('level')] += $nb_total;
                 } else {
-                    $stack[$rs->f('level')] = $nb_total;
+                    $stack[$record->fInt('level')] = $nb_total;
                 }
-                unset($stack[$rs->f('level') + 1]);
+                unset($stack[$record->fInt('level') + 1]);
             }
 
             if (0 == $nb_total && $without_empty) {
                 continue;
             }
 
-            $level = $rs->f('level');
+            $level = $record->fInt('level');
 
             $t = [];
             foreach ($cols as $c) {
-                $t[$c] = $rs->f($c);
+                $t[$c] = $record->f($c);
             }
             $t['nb_post']  = $nb_post;
             $t['nb_total'] = $nb_total;
 
-            if (0 == $l || 0 < $l && $rs->f('level') == $l) {
+            if (0 == $params->level() || 0 < $params->level() && $record->fInt('level') == $params->level()) {
                 array_unshift($data, $t);
             }
         }
 
         // We need to apply filter after counting
-        if (isset($params['cat_id']) && '' !== $params['cat_id']) {
+        if (null !== $params->cat_id()) {
             $found = false;
             foreach ($data as $v) {
-                if ($v['cat_id'] == $params['cat_id']) {
+                if ($params->cat_id() == $v['cat_id']) {
                     $found = true;
                     $data  = [$v];
 
@@ -140,10 +149,10 @@ class Categories
             }
         }
 
-        if (isset($params['cat_url']) && '' !== $params['cat_url'] && !isset($params['cat_id'])) {
+        if (null !== $params->cat_url() && null === $params->cat_id()) {
             $found = false;
             foreach ($data as $v) {
-                if ($v['cat_url'] == $params['cat_url']) {
+                if ($params->cat_url() == $v['cat_url']) {
                     $found = true;
                     $data  = [$v];
 
@@ -159,71 +168,71 @@ class Categories
     }
 
     /**
-     * Gets the category by its ID.
+     * Get the category first parent.
      *
-     * @param int $id The category identifier
-     *
-     * @return Record The category. (StaticRecord)
-     */
-    public function getCategory(int $id): Record
-    {
-        return $this->getCategories(['cat_id' => $id]);
-    }
-
-    /**
-     * Gets the category parents.
-     *
-     * @param int $id The category identifier
-     *
-     * @return Record The category parents. (StaticRecord)
-     */
-    public function getCategoryParents(int $id): Record
-    {
-        return $this->categoriestree()->getParents($id);
-    }
-
-    /**
-     * Gets the category first parent.
-     *
-     * @param int $id The category identifier
+     * @param int $id The category ID
      *
      * @return Record The category parent. (StaticRecord)
      */
     public function getCategoryParent(int $id): Record
     {
-        return $this->categoriestree()->getParent($id);
+        return $this->categoriestree()->getParent(id: $id);
     }
 
     /**
-     * Gets all category's first children.
+     * Get the category parents.
      *
-     * @param int $id The category identifier
+     * @param int $id The category ID
+     *
+     * @return Record The category parents. (StaticRecord)
+     */
+    public function getCategoryParents(int $id): Record
+    {
+        return $this->categoriestree()->getParents(id: $id);
+    }
+
+    /**
+     * Get all category's first children.
+     *
+     * @param int $id The category ID
      *
      * @return Record The category first children. (StaticRecord)
      */
     public function getCategoryFirstChildren(int $id): Record
     {
-        return $this->getCategories(['start' => $id, 'level' => 0 == $id ? 1 : 2]);
+        $param = new Param();
+        $param->set('start', $id);
+        $param->set('level', 0 == $id ? 1 : 2);
+
+        return $this->getCategories(param: $param);
     }
 
     /**
-     * Returns true if a given category if in a given category's subtree.
+     * Check if a given category is in a given category's subtree.
      *
-     * @param string $cat_url   The cat url
-     * @param string $start_url The top cat url
+     * Comparison is done on categories URL.
      *
-     * @return bool True if cat_url is in given start_url cat subtree
+     * @param string $url    The category URL
+     * @param string $parent The top category URL
+     *
+     * @return bool True if category URL is in given category subtree
      */
-    public function IsInCatSubtree(string $cat_url, string $start_url): bool
+    public function isInCatSubtree(string $url, string $parent): bool
     {
+        $param = new Param();
+        $param->set('cat_url', $parent);
+
         // Get cat_id from start_url
-        $cat = $this->getCategories(['cat_url' => $start_url]);
+        $cat = $this->getCategories(param: $param);
         if ($cat->fetch()) {
+            $param->unset('cat_url');
+            $param->set('start', $cat->fInt('cat_id'));
+
             // cat_id found, get cat tree list
-            $cats = $this->getCategories(['start' => $cat->f('cat_id')]);
+            $cats = $this->getCategories(param: $param);
             while ($cats->fetch()) {
                 // check if post category is one of the cat or sub-cats
-                if ($cats->f('cat_url') === $cat_url) {
+                if ($cats->f('cat_url') === $url) {
                     return true;
                 }
             }
@@ -233,68 +242,67 @@ class Categories
     }
 
     /**
-     * Gets the categories posts counter.
+     * Get the categories posts counter.
      *
-     * @param array|ArrayObject $params The parameters
+     * @param CategoriesParam $param The parameters
      *
-     * @return array<int, int> the categories counter
+     * @return array<int,int> The categories counter
      */
-    private function getCategoriesCounter(array|ArrayObject $params = []): array
+    private function getCategoriesPostsCount(CategoriesParam $param): array
     {
+        $join = new JoinStatement(__METHOD__);
+        $join->from(App::core()->prefix() . 'post P');
+        $join->on('C.cat_id = P.cat_id');
+        $join->and('P.blog_id = ' . $join->quote(App::core()->blog()->id));
+
         $sql = new SelectStatement(__METHOD__);
-        $sql
-            ->columns([
-                'C.cat_id',
-                $sql->count('P.post_id', 'nb_post'),
-            ])
-            ->from(App::core()->prefix() . 'category AS C')
-            ->join(
-                JoinStatement::init(__METHOD__)
-                    ->from(App::core()->prefix() . 'post P')
-                    ->on('C.cat_id = P.cat_id')
-                    ->and('P.blog_id = ' . $sql->quote(App::core()->blog()->id))
-                    ->statement()
-            )
-            ->where('C.blog_id = ' . $sql->quote(App::core()->blog()->id))
-            ->group('C.cat_id')
-        ;
+        $sql->columns([
+            'C.cat_id',
+            $sql->count('P.post_id', 'nb_post'),
+        ]);
+        $sql->from(App::core()->prefix() . 'category AS C');
+        $sql->join($join->statement());
+        $sql->where('C.blog_id = ' . $sql->quote(App::core()->blog()->id));
+        $sql->group('C.cat_id');
 
         if (!App::core()->user()->userID()) {
             $sql->and('P.post_status = 1');
         }
 
-        if (!empty($params['post_type'])) {
-            $sql->and('P.post_type' . $sql->in($params['post_type']));
+        if (!empty($param->post_type())) {
+            $sql->and('P.post_type' . $sql->in($param->post_type()));
         }
 
-        $rs       = $sql->select();
         $counters = [];
-        while ($rs->fetch()) {
-            $counters[$rs->fInt('cat_id')] = $rs->fInt('nb_post');
+        $record   = $sql->select();
+        while ($record->fetch()) {
+            $counters[$record->fInt('cat_id')] = $record->fInt('nb_post');
         }
 
         return $counters;
     }
 
     /**
-     * Adds a new category. Takes a cursor as input and returns the new category ID.
+     * Add a new category.
      *
-     * @param Cursor $cur    The category cursor
+     * Takes a cursor as input and returns the new category ID.
+     *
+     * @param Cursor $cursor The category cursor
      * @param int    $parent The parent category ID
      *
-     * @throws CoreException
+     * @throws InsufficientPermissions
      *
-     * @return int New category ID
+     * @return int The new category ID
      */
-    public function addCategory(Cursor $cur, int $parent = 0): int
+    public function addCategory(Cursor $cursor, int $parent = 0): int
     {
         if (!App::core()->user()->check('categories', App::core()->blog()->id)) {
-            throw new CoreException(__('You are not allowed to add categories'));
+            throw new InsufficientPermissions(__('You are not allowed to add categories'));
         }
 
         $url = [];
         if (0 != $parent) {
-            $rs = $this->getCategory($parent);
+            $rs = $this->getCategory(id: $parent);
             if ($rs->isEmpty()) {
                 $url = [];
             } else {
@@ -302,77 +310,77 @@ class Categories
             }
         }
 
-        if ('' == $cur->getField('cat_url')) {
-            $url[] = Text::tidyURL($cur->getField('cat_title'), false);
+        if ('' == $cursor->getField('cat_url')) {
+            $url[] = Text::tidyURL($cursor->getField('cat_title'), false);
         } else {
-            $url[] = $cur->getField('cat_url');
+            $url[] = $cursor->getField('cat_url');
         }
 
-        $cur->setField('cat_url', implode('/', $url));
+        $cursor->setField('cat_url', implode('/', $url));
 
-        $this->getCategoryCursor($cur);
-        $cur->setField('blog_id', (string) App::core()->blog()->id);
+        $this->getCategoryCursor(cursor: $cursor);
+        $cursor->setField('blog_id', (string) App::core()->blog()->id);
 
-        // --BEHAVIOR-- coreBeforeCategoryCreate, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        App::core()->behavior()->call('coreBeforeCategoryCreate', $this, $cur);
+        // --BEHAVIOR-- coreBeforeCategoryCreate, Cursor
+        App::core()->behavior()->call('coreBeforeCategoryCreate', $cursor);
 
-        $id = $this->categoriestree()->addNode($cur, $parent);
+        $id = $this->categoriestree()->addNode(cursor: $cursor, parent: $parent);
         if (false !== $id) {
             // Update category's cursor
-            $rs = $this->getCategory($id);
+            $rs = $this->getCategory(id: $id);
             if (!$rs->isEmpty()) {
-                $cur->setField('cat_lft', $rs->f('cat_lft'));
-                $cur->setField('cat_rgt', $rs->f('cat_rgt'));
+                $cursor->setField('cat_lft', $rs->f('cat_lft'));
+                $cursor->setField('cat_rgt', $rs->f('cat_rgt'));
             }
         }
 
-        // --BEHAVIOR-- coreAfterCategoryCreate, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        App::core()->behavior()->call('coreAfterCategoryCreate', $this, $cur);
+        // --BEHAVIOR-- coreAfterCategoryCreate, Cursor
+        App::core()->behavior()->call('coreAfterCategoryCreate', $cursor);
 
         App::core()->blog()->triggerBlog();
 
-        return (int) $cur->getField('cat_id');
+        return (int) $cursor->getField('cat_id');
     }
 
     /**
-     * Updates an existing category.
+     * Update an existing category.
      *
-     * @param int    $id  The category ID
-     * @param Cursor $cur The category cursor
+     * @param int    $id     The category ID
+     * @param Cursor $cursor The category cursor
      *
-     * @throws CoreException
+     * @throws InsufficientPermissions
      */
-    public function updCategory(int $id, Cursor $cur): void
+    public function updCategory(int $id, Cursor $cursor): void
     {
         if (!App::core()->user()->check('categories', App::core()->blog()->id)) {
-            throw new CoreException(__('You are not allowed to update categories'));
+            throw new InsufficientPermissions(__('You are not allowed to update categories'));
         }
 
-        if ('' == $cur->getField('cat_url')) {
+        if ('' == $cursor->getField('cat_url')) {
             $url = [];
-            $rs  = $this->categoriestree()->getParents($id);
+            $rs  = $this->categoriestree()->getParents(id: $id);
             while ($rs->fetch()) {
                 if ($rs->index() == $rs->count() - 1) {
                     $url[] = $rs->f('cat_url');
                 }
             }
 
-            $url[] = Text::tidyURL($cur->getField('cat_title'), false);
-            $cur->setField('cat_url', implode('/', $url));
+            $url[] = Text::tidyURL($cursor->getField('cat_title'), false);
+            $cursor->setField('cat_url', implode('/', $url));
         }
 
-        $this->getCategoryCursor($cur, $id);
+        $this->getCategoryCursor(cursor: $cursor, id: $id);
 
-        // --BEHAVIOR-- coreBeforeCategoryUpdate, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        App::core()->behavior()->call('coreBeforeCategoryUpdate', $this, $cur);
+        // --BEHAVIOR-- coreBeforeCategoryUpdate, Cursor
+        App::core()->behavior()->call('coreBeforeCategoryUpdate', $cursor);
 
-        $cur->update(
+        $cursor->update(
             'WHERE cat_id = ' . (int) $id . ' ' .
             "AND blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' "
         );
 
-        // --BEHAVIOR-- coreAfterCategoryUpdate, Dotclear\Core\Blog, Dotclear\Database\Cursor
-        App::core()->behavior()->call('coreAfterCategoryUpdate', $this, $cur);
+        // --BEHAVIOR-- coreAfterCategoryUpdate,Cursor
+        App::core()->behavior()->call('coreAfterCategoryUpdate', $cursor);
 
         App::core()->blog()->triggerBlog();
     }
@@ -391,7 +399,7 @@ class Categories
     }
 
     /**
-     * Sets the category parent.
+     * Set the category parent.
      *
      * @param int $id     The category ID
      * @param int $parent The parent category ID
@@ -418,40 +426,43 @@ class Categories
     /**
      * Delete a category.
      *
+     * And keep their children if any.
+     *
      * @param int $id The category ID
      *
-     * @throws CoreException
+     * @throws InsufficientPermissions
+     * @throws InvalidValueReference
      */
     public function delCategory(int $id): void
     {
         if (!App::core()->user()->check('categories', App::core()->blog()->id)) {
-            throw new CoreException(__('You are not allowed to delete categories'));
+            throw new InsufficientPermissions(__('You are not allowed to delete categories'));
         }
 
         $sql = new SelectStatement(__METHOD__);
-        $rs  = $sql
-            ->column($sql->count('post_id', 'nb_post'))
-            ->from(App::core()->prefix() . 'post')
-            ->where('cat_id = ' . $id)
-            ->and('blog_id = ' . $sql->quote(App::core()->blog()->id))
-            ->select()
-        ;
+        $sql->column($sql->count('post_id', 'nb_post'));
+        $sql->from(App::core()->prefix() . 'post');
+        $sql->where('cat_id = ' . $id);
+        $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
 
-        if (0 < $rs->f('nb_post')) {
-            throw new CoreException(__('This category is not empty.'));
+        $record = $sql->select();
+        if (0 < $record->f('nb_post')) {
+            throw new InvalidValueReference(__('This category is not empty.'));
         }
 
-        $this->categoriestree()->deleteNode($id, true);
+        $this->categoriestree()->deleteNode(node: $id);
         App::core()->blog()->triggerBlog();
     }
 
     /**
      * Reset categories order and relocate them to first level.
+     *
+     * @throws InsufficientPermissions
      */
     public function resetCategoriesOrder(): void
     {
         if (!App::core()->user()->check('categories', App::core()->blog()->id)) {
-            throw new CoreException(__('You are not allowed to reset categories order'));
+            throw new InsufficientPermissions(__('You are not allowed to reset categories order'));
         }
 
         $this->categoriestree()->resetOrder();
@@ -464,6 +475,8 @@ class Categories
      * @param string   $title The title
      * @param string   $url   The url
      * @param null|int $id    The identifier
+     *
+     * @throws MissingOrEmptyValue
      *
      * @return string The cateogry URL
      */
@@ -524,42 +537,46 @@ class Categories
 
         // URL is empty?
         if ('' == $url) {
-            throw new CoreException(__('Empty category URL'));
+            throw new MissingOrEmptyValue(__('Empty category URL'));
         }
 
         return $url;
     }
 
     /**
-     * Gets the category cursor.
+     * Get the category cursor.
      *
-     * @param Cursor   $cur The category cursor
-     * @param null|int $id  The category ID
+     * @param Cursor   $cursor The category cursor
+     * @param null|int $id     The category ID
      *
-     * @throws CoreException
+     * @throws MissingOrEmptyValue
      */
-    private function getCategoryCursor(Cursor $cur, ?int $id = null): void
+    private function getCategoryCursor(Cursor $cursor, ?int $id = null): void
     {
-        if ('' == $cur->getField('cat_title')) {
-            throw new CoreException(__('You must provide a category title'));
+        if ('' == $cursor->getField('cat_title')) {
+            throw new MissingOrEmptyValue(__('You must provide a category title'));
         }
 
         // If we don't have any cat_url, let's do one
-        if ('' == $cur->getField('cat_url')) {
-            $cur->setField('cat_url', Text::tidyURL($cur->getField('cat_title'), false));
+        if ('' == $cursor->getField('cat_url')) {
+            $cursor->setField('cat_url', Text::tidyURL($cursor->getField('cat_title'), false));
         }
 
         // Still empty ?
-        if ('' == $cur->getField('cat_url')) {
-            throw new CoreException(__('You must provide a category URL'));
+        if ('' == $cursor->getField('cat_url')) {
+            throw new MissingOrEmptyValue(__('You must provide a category URL'));
         }
-        $cur->setField('cat_url', Text::tidyURL($cur->getField('cat_url'), true));
+        $cursor->setField('cat_url', Text::tidyURL($cursor->getField('cat_url'), true));
 
         // Check if title or url are unique
-        $cur->setField('cat_url', $this->checkCategory($cur->getField('cat_title'), $cur->getField('cat_url'), $id));
+        $cursor->setField('cat_url', $this->checkCategory(
+            title: $cursor->getField('cat_title'),
+            url: $cursor->getField('cat_url'),
+            id: $id
+        ));
 
-        if (null !== $cur->getField('cat_desc')) {
-            $cur->setField('cat_desc', Html::filter($cur->getField('cat_desc')));
+        if (null !== $cursor->getField('cat_desc')) {
+            $cursor->setField('cat_desc', Html::filter($cursor->getField('cat_desc')));
         }
     }
 }

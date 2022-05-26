@@ -265,7 +265,7 @@ class Auth extends AbstractPage
             $cur = App::core()->con()->openCursor(App::core()->prefix() . 'user');
             $cur->setField('user_change_pwd', 0);
             $cur->setField('user_pwd', $_POST['new_pwd']);
-            App::core()->users()->updUser(App::core()->user()->userID(), $cur);
+            App::core()->users()->updUser(id: App::core()->user()->userID(), cursor: $cur);
 
             App::core()->session()->start();
             $_SESSION['sess_user_id']     = $this->auth_id;

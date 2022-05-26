@@ -394,12 +394,13 @@ class RestMethods
             $cur_cat->setField('cat_title', $post['new_cat_title']);
             $cur_cat->setField('cat_url', '');
 
-            $parent_cat = !empty($post['new_cat_parent']) ? $post['new_cat_parent'] : '';
-
-            // --BEHAVIOR-- adminBeforeCategoryCreate
+            // --BEHAVIOR-- adminBeforeCategoryCreate, Cursor
             App::core()->behavior()->call('adminBeforeCategoryCreate', $cur_cat);
 
-            $post['cat_id'] = App::core()->blog()->categories()->addCategory($cur_cat, (int) $parent_cat);
+            $post['cat_id'] = App::core()->blog()->categories()->addCategory(
+                curosr: $cur_cat,
+                parent: !empty($post['new_cat_parent']) ? (int) $post['new_cat_parent'] : 0
+            );
 
             // --BEHAVIOR-- adminAfterCategoryCreate
             App::core()->behavior()->call('adminAfterCategoryCreate', $cur_cat, $post['cat_id']);

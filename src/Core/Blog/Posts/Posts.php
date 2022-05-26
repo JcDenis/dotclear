@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Core\Blog\Posts;
 
 // Dotclear\Core\Blog\Posts\Posts
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Core\RsExt\RsExtDate;
 use Dotclear\Core\RsExt\RsExtPost;
@@ -21,9 +20,12 @@ use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\JoinStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
-use Dotclear\Exception\CoreException;
+use Dotclear\Exception\InsufficientPermissions;
+use Dotclear\Exception\MissingOrEmptyValue;
+use Dotclear\Exception\InvalidValueReference;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Mapper\Integers;
 use Dotclear\Helper\Text;
 use Exception;
 
@@ -34,6 +36,77 @@ use Exception;
  */
 final class Posts
 {
+    /**
+     * Get posts status codes.
+     *
+     * Return an array of unstranslated name /code pair.
+     *
+     * @return array<string,int> All posts status code
+     */
+    public function getPostsStatusCodes(): array
+    {
+        return [
+            'unpublish' => 0,
+            'schedule'  => -1,
+            'pending'   => -2,
+        ];
+    }
+
+    /**
+     * Get a posts status code.
+     *
+     * Returns a posts status code given to a unstranslated name.
+     *
+     * @param string $name    The post status name
+     * @param int    $default The value returned if name not exists
+     *
+     * @return null|int The post status name
+     */
+    public function getPostsStatusCode(string $name, int $default = null): ?int
+    {
+        return match ($name) {
+            'unpublish' => 0,
+            'schedule'  => -1,
+            'pending'   => -2,
+            default     => $default,
+        };
+    }
+
+    /**
+     * Get all posts status name.
+     *
+     * @return array<int,string> An array of available posts status codes and names
+     */
+    public function getPostsStatusNames(): array
+    {
+        return [
+            0  => __('unpublish'),
+            -1 => __('schedule'),
+            -2 => __('pending'),
+        ];
+    }
+
+    /**
+     * Get a posts status name.
+     *
+     * Returns a posts status name given to a code. This is intended to be
+     * human-readable and will be translated, so never use it for tests.
+     *
+     * @param int    $code    The post status code
+     * @param string $default The value returned if code not exists
+     *
+     * @return null|string The post status name
+     */
+    public function getPostsStatusName(int $code, string $default = null): ?string
+    {
+        return match ($code) {
+            0       => __('unpublish'),
+            -1      => __('schedule'),
+            -2      => __('pending'),
+            default => $default,
+        };
+    }
+
     /**
      * Retrieve blogs count.
      *
@@ -46,24 +119,23 @@ final class Posts
      */
     public function countPosts(?Param $param = null, ?SelectStatement $sql = null): int
     {
-        $param = new PostsParam($param);
-
-        $query = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $params = new PostsParam($param);
+        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
 
         // --BEHAVIOR-- coreBlogBeforeCountPosts, Param, SelectStatement
-        App::core()->behavior()->call('coreBlogBeforeCountPosts', $param, $query);
+        App::core()->behavior()->call('coreBlogBeforeCountPosts', $params, $query);
 
-        $param->unset('order');
-        $param->unset('limit');
+        $params->unset('order');
+        $params->unset('limit');
 
         $query->column($query->count($query->unique('P.post_id')));
 
-        $rs = $this->queryPostsTable(param: $param, sql: $query);
+        $record = $this->queryPostsTable(param: $params, sql: $query);
 
         // --BEHAVIOR-- coreBlogAfterCountPosts, Record, Param, SelectStatement
-        App::core()->behavior()->call('coreBlogAfterCountPosts', $rs, $param, $query);
+        App::core()->behavior()->call('coreBlogAfterCountPosts', $record, $params, $query);
 
-        return $rs->fInt();
+        return $record->fInt();
     }
 
     /**
@@ -78,14 +150,13 @@ final class Posts
      */
     public function getPosts(?Param $param = null, ?SelectStatement $sql = null): Record
     {
-        $param = new PostsParam($param);
-
-        $query = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $params = new PostsParam($param);
+        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
 
         // --BEHAVIOR-- coreBlogBeforeGetPosts, Param, SelectStatement
-        App::core()->behavior()->call('coreBlogBeforeGetPosts', $param, $query);
+        App::core()->behavior()->call('coreBlogBeforeGetPosts', $params, $query);
 
-        if (false === $param->no_content()) {
+        if (false === $params->no_content()) {
             $query->columns([
                 'post_excerpt',
                 'post_excerpt_xhtml',
@@ -94,8 +165,8 @@ final class Posts
                 'post_notes',
             ]);
         }
-        if (!empty($param->columns())) {
-            $query->columns($param->columns());
+        if (!empty($params->columns())) {
+            $query->columns($params->columns());
         }
         $query->columns([
             'P.post_id',
@@ -129,18 +200,18 @@ final class Posts
             'C.cat_url',
             'C.cat_desc',
         ]);
-        $query->order($query->escape($param->order('post_dt DESC')));
+        $query->order($query->escape($params->order('post_dt DESC')));
 
-        if (!empty($param->limit())) {
-            $query->limit($param->limit());
+        if (!empty($params->limit())) {
+            $query->limit($params->limit());
         }
 
-        $rs = $this->queryPostsTable(param: $param, sql: $query);
+        $record = $this->queryPostsTable(param: $params, sql: $query);
 
         // --BEHAVIOR-- coreBlogAfterGetPosts, Record, Param, SelectStatement
-        App::core()->behavior()->call('coreBlogAfterGetPosts', $rs, $param, $query);
+        App::core()->behavior()->call('coreBlogAfterGetPosts', $record, $params, $query);
 
-        return $rs;
+        return $record;
     }
 
     /**
@@ -182,7 +253,7 @@ final class Posts
             $sql->where('P.blog_id = ' . $sql->quote(App::core()->blog()->id));
         }
 
-        $this->setUserPermissionStatement($sql);
+        $this->setUserPermissionStatement(sql: $sql);
 
         // Adding parameters
         if (!empty($param->post_type())) {
@@ -278,59 +349,94 @@ final class Posts
             $sql->sql($param->sql());
         }
 
-        $rs = $sql->select();
-        $rs->extend(new RsExtPost());
+        $record = $sql->select();
+        $record->extend(new RsExtPost());
 
-        return $rs;
+        return $record;
     }
 
     /**
-     * Return next or previous post.
+     * Return next post.
      *
-     * This returns a record with post id, title and date
-     * for next or previous post according to the post ID.
-     * $dir could be 1 (next post) or -1 (previous post).
-     *
-     * @param Record $post                 The post Record
-     * @param int    $dir                  The search direction
+     * @param Record $record               The current post Record
      * @param bool   $restrict_to_category Restrict to same category
      * @param bool   $restrict_to_lang     Restrict to same language
      *
-     * @return null|Record The next or previous post
+     * @return null|Record The next post
      */
-    public function getNextPost(Record $post, int $dir, bool $restrict_to_category = false, bool $restrict_to_lang = false): ?Record
+    public function getNextPost(Record $record, bool $restrict_to_category = false, bool $restrict_to_lang = false): ?Record
     {
-        $dt      = $post->f('post_dt');
-        $post_id = $post->fInt('post_id');
-
-        if (0 < $dir) {
-            $sign  = '>';
-            $order = 'ASC';
-        } else {
-            $sign  = '<';
-            $order = 'DESC';
-        }
-
         $param = new Param();
-        $param->set('post_type', $post->f('post_type'));
+        $param->set('order', 'post_dt ASC, P.post_id ASC');
+        $param->set('sign', '>');
+        $param->set('restrict_to_category', $restrict_to_category);
+        $param->set('restrict_to_lang', $restrict_to_lang);
+
+        return $this->getNeighborPost(record: $record, param: $param);
+    }
+
+    /**
+     * Return previous post.
+     *
+     * @param Record $record               The current post Record
+     * @param bool   $restrict_to_category Restrict to same category
+     * @param bool   $restrict_to_lang     Restrict to same language
+     *
+     * @return null|Record The previous post
+     */
+    public function getPreviousPost(Record $record, bool $restrict_to_category = false, bool $restrict_to_lang = false): ?Record
+    {
+        $param = new Param();
+        $param->set('order', 'post_dt DESC, P.post_id DESC');
+        $param->set('sign', '<');
+        $param->set('restrict_to_category', $restrict_to_category);
+        $param->set('restrict_to_lang', $restrict_to_lang);
+
+        return $this->getNeighborPost(record: $record, param: $param);
+    }
+
+    /**
+     * Get neightbor post.
+     *
+     * @param Record $record The current post Record
+     * @param Param  $param  The query parameters
+     *
+     * @return null|Record The post record
+     */
+    private function getNeighborPost(Record $record, Param $param): ?Record
+    {
         $param->set('limit', 1);
-        $param->set('order', 'post_dt ' . $order . ', P.post_id ' . $order);
+
+        // limit to the same post type
+        $param->set('post_type', $record->f('post_type'));
+
+        // next or previous post by date or if same date by id
         $param->push('sql', 'AND ( ' .
-            "(post_dt = '" . App::core()->con()->escape($dt) . "' AND P.post_id " . $sign . ' ' . $post_id . ') ' .
-            'OR post_dt ' . $sign . " '" . App::core()->con()->escape($dt) . "' " .
+            "(post_dt = '" . App::core()->con()->escape($record->f('post_dt')) . "' AND P.post_id " . $param->get('sign') . ' ' . $record->fInt('post_id') . ') ' .
+            'OR post_dt ' . $param->get('sign') . " '" . App::core()->con()->escape($record->f('post_dt')) . "' " .
         ') ');
 
-        if ($restrict_to_category) {
-            $param->push('sql', $post->f('cat_id') ? 'AND P.cat_id = ' . $post->fInt('cat_id') . ' ' : 'AND P.cat_id IS NULL ');
+        // limit to the same category
+        if ($param->get('restrict_to_category')) {
+            if ($record->f('cat_id')) {
+                $param->set('cat_id', [$record->f('cat_id')]);
+            } else {
+                $param->push('sql', 'AND P.cat_id IS NULL ');
+            }
         }
 
-        if ($restrict_to_lang) {
-            $param->push('sql', $post->f('post_lang') ? 'AND post_lang = \'' . App::core()->con()->escape($post->f('post_lang')) . '\' ' : 'AND post_lang IS NULL ');
+        // limit to the same language
+        if ($param->get('restrict_to_lang')) {
+            if ($record->f('post_lang')) {
+                $param->set('post_lang', $record->f('post_lang'));
+            } else {
+                $param->push('sql', 'AND post_lang IS NULL ');
+            }
         }
 
-        $rs = $this->getPosts(param: $param);
+        $record = $this->getPosts(param: $param);
 
-        return $rs->isEmpty() ? null : $rs;
+        return $record->isEmpty() ? null : $record;
     }
 
     /**
@@ -348,7 +454,7 @@ final class Posts
      */
     public function getLangs(Param $param = null): Record
     {
-        $param = new LangsParam($param);
+        $params = new LangsParam($param);
 
         $sql = new SelectStatement(__METHOD__);
         $sql->columns([
@@ -360,16 +466,16 @@ final class Posts
         $sql->and("post_lang <> ''");
         $sql->and('post_lang IS NOT NULL');
         $sql->group('post_lang');
-        $sql->order('post_lang ' . $param->order('desc'));
+        $sql->order('post_lang ' . $params->order('desc'));
 
-        $this->setUserPermissionStatement($sql);
+        $this->setUserPermissionStatement(sql: $sql);
 
-        if (!empty($param->post_type())) {
-            $sql->and('post_type' . $sql->in($param->post_type()));
+        if (!empty($params->post_type())) {
+            $sql->and('post_type' . $sql->in($params->post_type()));
         }
 
-        if (null !== $param->post_lang()) {
-            $sql->and('post_lang = ' . $sql->quote($param->post_lang()));
+        if (null !== $params->post_lang()) {
+            $sql->and('post_lang = ' . $sql->quote($params->post_lang()));
         }
 
         return $sql->select();
@@ -386,17 +492,17 @@ final class Posts
      */
     public function getDates(Param $param = null): Record
     {
-        $param = new DatesParam($param);
+        $params = new DatesParam($param);
 
         $sql = new SelectStatement(__METHOD__);
 
         $dt_f  = '%Y-%m-%d';
         $dt_fc = '%Y%m%d';
 
-        if ('year' == $param->type()) {
+        if ('year' == $params->type()) {
             $dt_f  = '%Y-01-01';
             $dt_fc = '%Y0101';
-        } elseif ('month' == $param->type()) {
+        } elseif ('month' == $params->type()) {
             $dt_f  = '%Y-%m-01';
             $dt_fc = '%Y%m01';
         }
@@ -415,48 +521,48 @@ final class Posts
         $sql->join($join->statement());
         $sql->where('P.blog_id = ' . $sql->quote(App::core()->blog()->id));
 
-        if (null !== $param->cat_id()) {
-            $sql->and('P.cat_id = ' . $param->cat_id());
+        if (null !== $params->cat_id()) {
+            $sql->and('P.cat_id = ' . $params->cat_id());
             $sql->column('C.cat_url');
             $sql->group('C.cat_url');
-        } elseif (null !== $param->cat_url()) {
-            $sql->and('C.cat_url = ' . $sql->quote($param->cat_url()));
+        } elseif (null !== $params->cat_url()) {
+            $sql->and('C.cat_url = ' . $sql->quote($params->cat_url()));
             $sql->column('C.cat_url');
             $sql->group('C.cat_url');
         }
 
-        $this->setUserPermissionStatement($sql);
+        $this->setUserPermissionStatement(sql: $sql);
 
-        if (!empty($param->post_type())) {
-            $sql->and('post_type' . $sql->in($param->post_type()));
+        if (!empty($params->post_type())) {
+            $sql->and('post_type' . $sql->in($params->post_type()));
         }
 
-        if (null !== $param->post_lang()) {
-            $sql->and('post_lang = ' . $sql->quote($param->post_lang()));
+        if (null !== $params->post_lang()) {
+            $sql->and('post_lang = ' . $sql->quote($params->post_lang()));
         }
 
-        if (null !== $param->year()) {
-            $sql->and(App::core()->con()->dateFormat('post_dt', '%Y') . ' = ' . $sql->quote(sprintf('%04d', $param->year())));
+        if (null !== $params->year()) {
+            $sql->and(App::core()->con()->dateFormat('post_dt', '%Y') . ' = ' . $sql->quote(sprintf('%04d', $params->year())));
         }
 
-        if (null !== $param->month()) {
-            $sql->and(App::core()->con()->dateFormat('post_dt', '%m') . ' = ' . $sql->quote(sprintf('%02d', $param->month())));
+        if (null !== $params->month()) {
+            $sql->and(App::core()->con()->dateFormat('post_dt', '%m') . ' = ' . $sql->quote(sprintf('%02d', $params->month())));
         }
 
-        if (null !== $param->day()) {
-            $sql->and(App::core()->con()->dateFormat('post_dt', '%d') . ' = ' . $sql->quote(sprintf('%02d', $param->day())));
+        if (null !== $params->day()) {
+            $sql->and(App::core()->con()->dateFormat('post_dt', '%d') . ' = ' . $sql->quote(sprintf('%02d', $params->day())));
         }
 
         // Get next or previous date
-        if (null !== $param->next() || null !== $param->previous()) {
-            if (null !== $param->next()) {
+        if (null !== $params->next() || null !== $params->previous()) {
+            if (null !== $params->next()) {
                 $pdir = ' > ';
-                $dt   = $param->next();
-                $param->set('order', 'asc');
+                $dt   = $params->next();
+                $params->set('order', 'asc');
             } else {
                 $pdir = ' < ';
-                $dt   = $param->previous();
-                $param->set('order', 'desc');
+                $dt   = $params->previous();
+                $params->set('order', 'desc');
             }
 
             $dt = Clock::format(format: 'YmdHis', date: $dt);
@@ -466,12 +572,12 @@ final class Posts
         }
 
         $sql->group('dt');
-        $sql->order('dt ' . $param->order('desc'));
+        $sql->order('dt ' . $params->order('desc'));
 
-        $rs = $sql->select();
-        $rs->extend(new RsExtDate());
+        $record = $sql->select();
+        $record->extend(new RsExtDate());
 
-        return $rs;
+        return $record;
     }
 
     /**
@@ -501,14 +607,14 @@ final class Posts
      *
      * Takes a cursor as input and returns the new entry ID.
      *
-     * @param Cursor $cur The post cursor
+     * @param Cursor $cursor The post cursor
      *
-     * @throws CoreException
+     * @throws InsufficientPermissions
      */
-    public function addPost(Cursor $cur): int
+    public function addPost(Cursor $cursor): int
     {
         if (!App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)) {
-            throw new CoreException(__('You are not allowed to create an entry'));
+            throw new InsufficientPermissions(__('You are not allowed to create an entry'));
         }
 
         App::core()->con()->writeLock(App::core()->prefix() . 'post');
@@ -518,27 +624,32 @@ final class Posts
             $sql = new SelectStatement(__METHOD__);
             $sql->column($sql->max('post_id'));
             $sql->from(App::core()->prefix() . 'post');
-            $rs = $sql->select();
+            $record = $sql->select();
 
-            $cur->setField('post_id', $rs->fInt() + 1);
-            $cur->setField('blog_id', (string) App::core()->blog()->id);
-            $cur->setField('post_creadt', Clock::database());
-            $cur->setField('post_upddt', Clock::database());
+            $cursor->setField('post_id', $record->fInt() + 1);
+            $cursor->setField('blog_id', (string) App::core()->blog()->id);
+            $cursor->setField('post_creadt', Clock::database());
+            $cursor->setField('post_upddt', Clock::database());
 
             // Post excerpt and content
-            $this->getPostContent($cur, $cur->getField('post_id'));
-            $this->getPostCursor($cur);
+            $this->getPostContent(cursor: $cursor);
+            $this->getPostCursor(cursor: $cursor);
 
-            $cur->setField('post_url', $this->getPostURL($cur->getField('post_url'), $cur->getField('post_dt'), $cur->getField('post_title'), $cur->getField('post_id')));
+            $cursor->setField('post_url', $this->getPostURL(
+                url: $cursor->getField('post_url'),
+                date: $cursor->getField('post_dt'),
+                title: $cursor->getField('post_title'),
+                id: $cursor->getField('post_id')
+            ));
 
             if (!App::core()->user()->check('publish,contentadmin', App::core()->blog()->id)) {
-                $cur->setField('post_status', -2);
+                $cursor->setField('post_status', -2);
             }
 
             // --BEHAVIOR-- coreBeforePostCreate, Cursor
-            App::core()->behavior()->call('coreBeforePostCreate', $cur);
+            App::core()->behavior()->call('coreBeforePostCreate', $cursor);
 
-            $cur->insert();
+            $cursor->insert();
             App::core()->con()->unlock();
         } catch (Exception $e) {
             App::core()->con()->unlock();
@@ -547,46 +658,54 @@ final class Posts
         }
 
         // --BEHAVIOR-- coreAfterPostCreate, Cursor
-        App::core()->behavior()->call('coreAfterPostCreate', $cur);
+        App::core()->behavior()->call('coreAfterPostCreate', $cursor);
 
         App::core()->blog()->triggerBlog();
 
-        $this->firstPublicationEntries([$cur->getField('post_id')]);
+        $this->firstPublicationEntries(ids: new Integers($cursor->getField('post_id')));
 
-        return $cur->getField('post_id');
+        return $cursor->getField('post_id');
     }
 
     /**
      * Update an existing post.
      *
-     * @param int    $id  The post identifier
-     * @param Cursor $cur The post cursor
+     * @param int    $id     The post ID
+     * @param Cursor $cursor The post cursor
      *
-     * @throws CoreException
+     * @throws InsufficientPermissions
+     * @throws MissingOrEmptyValue
      */
-    public function updPost(int $id, Cursor $cur): void
+    public function updPost(int $id, Cursor $cursor): void
     {
         if (!App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)) {
-            throw new CoreException(__('You are not allowed to update entries'));
+            throw new InsufficientPermissions(__('You are not allowed to update entries'));
         }
 
         if (empty($id)) {
-            throw new CoreException(__('No such entry ID'));
+            throw new MissingOrEmptyValue(__('No such entry ID'));
         }
 
-        // Post excerpt and content
-        $this->getPostContent($cur, $id);
-        $this->getPostCursor($cur);
+        $cursor->setField('post_id', $id);
 
-        if (null !== $cur->getField('post_url')) {
-            $cur->setField('post_url', $this->getPostURL($cur->getField('post_url'), $cur->getField('post_dt'), $cur->getField('post_title'), $id));
+        // Post excerpt and content
+        $this->getPostContent(cursor: $cursor);
+        $this->getPostCursor(cursor: $cursor);
+
+        if (null !== $cursor->getField('post_url')) {
+            $cursor->setField('post_url', $this->getPostURL(
+                url: $cursor->getField('post_url'),
+                date: $cursor->getField('post_dt'),
+                title: $cursor->getField('post_title'),
+                id: $id
+            ));
         }
 
         if (!App::core()->user()->check('publish,contentadmin', App::core()->blog()->id)) {
-            $cur->unsetField('post_status');
+            $cursor->unsetField('post_status');
         }
 
-        $cur->setField('post_upddt', Clock::database());
+        $cursor->setField('post_upddt', Clock::database());
 
         // If user is only "usage", we need to check the post's owner
         if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
@@ -595,224 +714,276 @@ final class Posts
             $sql->where('post_id = ' . $id);
             $sql->and('user_id = ' . $sql->quote(App::core()->user()->userID()));
 
-            $rs = $sql->select();
-            if ($rs->isEmpty()) {
-                throw new CoreException(__('You are not allowed to edit this entry'));
+            $record = $sql->select();
+            if ($record->isEmpty()) {
+                throw new InsufficientPermissions(__('You are not allowed to edit this entry'));
             }
         }
 
         // --BEHAVIOR-- coreBeforePostUpdate, Cursor
-        App::core()->behavior()->call('coreBeforePostUpdate', $cur);
+        App::core()->behavior()->call('coreBeforePostUpdate', $cursor);
 
-        $cur->update('WHERE post_id = ' . $id . ' ');
+        $cursor->update('WHERE post_id = ' . $id . ' ');
 
         // --BEHAVIOR-- coreAfterPostUpdate, Cursor
-        App::core()->behavior()->call('coreAfterPostUpdate', $cur);
+        App::core()->behavior()->call('coreAfterPostUpdate', $cursor);
 
         App::core()->blog()->triggerBlog();
 
-        $this->firstPublicationEntries([$id]);
-    }
-
-    /**
-     * Update post status.
-     *
-     * @param int $id     The identifier
-     * @param int $status The status
-     */
-    public function updPostStatus(int $id, int $status): void
-    {
-        $this->updPostsStatus([$id], $status);
+        $this->firstPublicationEntries(ids: new Integers($id));
     }
 
     /**
      * Update posts status.
      *
-     * @param array|ArrayObject $ids    The identifiers
-     * @param int               $status The status
+     * @param Integers $ids    The posts IDs
+     * @param int      $status The status
      *
-     * @throws CoreException
+     * @throws InsufficientPermissions
      */
-    public function updPostsStatus(array|ArrayObject $ids, int $status): void
+    public function updPostsStatus(Integers $ids, int $status): void
     {
         if (!App::core()->user()->check('publish,contentadmin', App::core()->blog()->id)) {
-            throw new CoreException(__('You are not allowed to change this entry status'));
+            throw new InsufficientPermissions(__('You are not allowed to change entries status'));
         }
 
-        $posts_ids = App::core()->blog()->cleanIds($ids);
+        // --BEHAVIOR-- coreBeforePostsStatusUpdate, Integers, int
+        App::core()->behavior()->call('coreBeforePostsStatusUpdate', $ids, $status);
 
-        $strReq = "WHERE blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .
-        'AND post_id' . App::core()->con()->in($posts_ids);
+        if (!$ids->count()) {
+            throw new MissingOrEmptyValue(__('No such entry ID'));
+        }
 
-        // If user can only publish, we need to check the post's owner
+        $sql = new UpdateStatement(__METHOD__);
+        $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
+        $sql->and('post_id' . $sql->in($ids->dump()));
+        $sql->from(App::core()->prefix() . 'post');
+
+        // If user is only usage, we need to check the post's owner
         if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
-            $strReq .= "AND user_id = '" . App::core()->con()->escape(App::core()->user()->userID()) . "' ";
+            ${$sql}->and('user_id = ' . $sql->quote(App::core()->user()->userID()));
         }
 
-        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'post');
+        $sql->set('post_status = ' . $status);
+        $sql->set('post_upddt = ' . $sql->quote(Clock::database()));
 
-        $cur->setField('post_status', $status);
-        $cur->setField('post_upddt', Clock::database());
-
-        $cur->update($strReq);
+        $sql->update();
         App::core()->blog()->triggerBlog();
 
-        $this->firstPublicationEntries($posts_ids);
-    }
-
-    /**
-     * Updates post selection.
-     *
-     * @param int  $id       The identifier
-     * @param bool $selected The selected flag
-     */
-    public function updPostSelected(int $id, bool $selected): void
-    {
-        $this->updPostsSelected([$id], $selected);
+        $this->firstPublicationEntries(ids: $ids);
     }
 
     /**
      * Update posts selection.
      *
-     * @param array|ArrayObject $ids      The identifiers
-     * @param bool              $selected The selected flag
+     * @param Integers $ids      The posts IDs
+     * @param bool     $selected The selected flag
      *
-     * @throws CoreException
+     * @throws InsufficientPermissions
+     * @throws MissingOrEmptyValue
      */
-    public function updPostsSelected(array|ArrayObject $ids, bool $selected): void
+    public function updPostsSelected(Integers $ids, bool $selected): void
     {
         if (!App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)) {
-            throw new CoreException(__('You are not allowed to change this entry category'));
+            throw new InsufficientPermissions(__('You are not allowed to change entries selected flag'));
         }
 
-        $posts_ids = App::core()->blog()->cleanIds($ids);
+        // --BEHAVIOR-- coreBeforePostsAuthorUpdate, Integers, bool
+        App::core()->behavior()->call('coreBeforePostsSelectedUpdate', $ids, $selected);
 
-        $strReq = "WHERE blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .
-        'AND post_id' . App::core()->con()->in($posts_ids);
+        if (!$ids->count()) {
+            throw new MissingOrEmptyValue(__('No such entry ID'));
+        }
+
+        $sql = new UpdateStatement(__METHOD__);
+        $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
+        $sql->and('post_id' . $sql->in($ids->dump()));
+        $sql->from(App::core()->prefix() . 'post');
 
         // If user is only usage, we need to check the post's owner
         if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
-            $strReq .= "AND user_id = '" . App::core()->con()->escape(App::core()->user()->userID()) . "' ";
+            ${$sql}->and('user_id = ' . $sql->quote(App::core()->user()->userID()));
         }
 
-        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'post');
+        $sql->set('post_selected = ' . (int) $selected);
+        $sql->set('post_upddt = ' . $sql->quote(Clock::database()));
 
-        $cur->setField('post_selected', (int) $selected);
-        $cur->setField('post_upddt', Clock::database());
-
-        $cur->update($strReq);
-        App::core()->blog()->triggerBlog();
-    }
-
-    /**
-     * Update post category.
-     *
-     * <b>$cat_id</b> can be null.
-     *
-     * @param int      $id     The identifier
-     * @param null|int $cat_id The cat identifier
-     */
-    public function updPostCategory(int $id, int|null $cat_id): void
-    {
-        $this->updPostsCategory([$id], $cat_id);
-    }
-
-    /**
-     * Update posts category.
-     *
-     * <b>$cat_id</b> can be null.
-     *
-     * @param array|ArrayObject $ids    The identifiers
-     * @param null|int          $cat_id The cat identifier
-     *
-     * @throws CoreException
-     */
-    public function updPostsCategory(array|ArrayObject $ids, int|null $cat_id): void
-    {
-        if (!App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)) {
-            throw new CoreException(__('You are not allowed to change this entry category'));
-        }
-
-        $posts_ids = App::core()->blog()->cleanIds($ids);
-
-        $strReq = "WHERE blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .
-        'AND post_id' . App::core()->con()->in($posts_ids);
-
-        // If user is only usage, we need to check the post's owner
-        if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
-            $strReq .= "AND user_id = '" . App::core()->con()->escape(App::core()->user()->userID()) . "' ";
-        }
-
-        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'post');
-
-        $cur->setField('cat_id', $cat_id ?: null);
-        $cur->setField('post_upddt', Clock::database());
-
-        $cur->update($strReq);
+        $sql->update();
         App::core()->blog()->triggerBlog();
     }
 
     /**
      * Update posts category.
      *
+     * @param Integers $ids    The posts IDs
+     * @param string   $author The author ID
+     *
+     * @throws InsufficientPermissions
+     * @throws MissingOrEmptyValue
+     * @throws InvalidValueReference
+     */
+    public function updPostsAuthor(Integers $ids, string $author): void
+    {
+        if (!App::core()->user()->check('admin', App::core()->blog()->id)) {
+            throw new InsufficientPermissions(__('You are not allowed to change entries author'));
+        }
+
+        // --BEHAVIOR-- coreBeforePostsAuthorUpdate, Integers, string
+        App::core()->behavior()->call('coreBeforePostsAuthorUpdate', $ids, $author);
+
+        if (!$ids->count()) {
+            throw new MissingOrEmptyValue(__('No such entry ID'));
+        }
+
+        if (!$author || App::core()->users()->getUser(id: $author)->isEmpty()) {
+            throw new InvalidValueReference(__('This user does not exist'));
+        }
+
+        $sql = new UpdateStatement(__METHOD__);
+        $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
+        $sql->and('post_id' . $sql->in($ids->dump()));
+        $sql->from(App::core()->prefix() . 'post');
+
+        $sql->set('user_id = ' . $sql->quote($author));
+        $sql->set('post_upddt = ' . $sql->quote(Clock::database()));
+
+        $sql->update();
+        App::core()->blog()->triggerBlog();
+    }
+
+    /**
+     * Update posts lang.
+     *
+     * @param Integers $ids  The posts IDs
+     * @param string   $lang The lang code
+     *
+     * @throws InsufficientPermissions
+     * @throws MissingOrEmptyValue
+     */
+    public function updPostsLang(Integers $ids, string $lang): void
+    {
+        if (!App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)) {
+            throw new InsufficientPermissions(__('You are not allowed to change entries lang'));
+        }
+
+        // --BEHAVIOR-- coreBeforePostsLangUpdate, Integers, string
+        App::core()->behavior()->call('coreBeforePostsLangUpdate', $ids, $lang);
+
+        if (!$ids->count()) {
+            throw new MissingOrEmptyValue(__('No such entry ID'));
+        }
+
+        $sql = new UpdateStatement(__METHOD__);
+        $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
+        $sql->and('post_id' . $sql->in($ids->dump()));
+        $sql->from(App::core()->prefix() . 'post');
+
+        $sql->set('post_lang = ' . $sql->quote($lang));
+        $sql->set('post_upddt = ' . $sql->quote(Clock::database()));
+
+        $sql->update();
+        App::core()->blog()->triggerBlog();
+    }
+
+    /**
+     * Update posts category.
+     *
+     * Based on old posts IDs.
+     * <b>$category</b> can be null.
+     *
+     * @param Integers $ids      The posts IDs
+     * @param null|int $category The category ID
+     *
+     * @throws InsufficientPermissions
+     * @throws MissingOrEmptyValue
+     */
+    public function updPostsCategory(Integers $ids, int|null $category): void
+    {
+        if (!App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)) {
+            throw new InsufficientPermissions(__('You are not allowed to change entries category'));
+        }
+
+        // --BEHAVIOR-- coreBeforePostsCategoryUpdate, Integers, ?int
+        App::core()->behavior()->call('coreBeforePostsCategoryUpdate', $ids, $category);
+
+        if (!$ids->count()) {
+            throw new MissingOrEmptyValue(__('No such entry ID'));
+        }
+
+        $sql = new UpdateStatement(__METHOD__);
+        $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
+        $sql->and('post_id' . $sql->in($ids->dump()));
+        $sql->from(App::core()->prefix() . 'post');
+
+        // If user is only usage, we need to check the post's owner
+        if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
+            $sql->and('user_id = ' . $sql->quote(App::core()->user()->userID()));
+        }
+
+        $sql->set('cat_id = ' . (!$category ? 'NULL' : $category));
+        $sql->set('post_upddt = ' . $sql->quote(Clock::database()));
+
+        $sql->update();
+        App::core()->blog()->triggerBlog();
+    }
+
+    /**
+     * Change posts category.
+     *
+     * Based on old category ID.
      * <b>$new_cat_id</b> can be null.
      *
-     * @param int      $old_cat_id The old cat identifier
-     * @param null|int $new_cat_id The new cat identifier
+     * @param int      $old The old category ID
+     * @param null|int $new The new category ID
      *
-     * @throws CoreException
+     * @throws InsufficientPermissions
      */
-    public function changePostsCategory(int $old_cat_id, ?int $new_cat_id): void
+    public function changePostsCategory(int $old, ?int $new): void
     {
         if (!App::core()->user()->check('contentadmin,categories', App::core()->blog()->id)) {
-            throw new CoreException(__('You are not allowed to change entries category'));
+            throw new InsufficientPermissions(__('You are not allowed to change entries category'));
         }
 
-        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'post');
+        // --BEHAVIOR-- coreBeforePostsCategoryChange, int, ?int
+        App::core()->behavior()->call('coreBeforePostsCategoryChange', $old, $new);
 
-        $cur->setField('cat_id', $new_cat_id ?: null);
-        $cur->setField('post_upddt', Clock::database());
+        $sql = new UpdateStatement(__METHOD__);
+        $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
+        $sql->and('cat_id = ' . $old);
+        $sql->from(App::core()->prefix() . 'post');
 
-        $cur->update(
-            'WHERE cat_id = ' . $old_cat_id . ' ' .
-            "AND blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' "
-        );
+        $sql->set('cat_id =' . (!$new ? 'NULL' : $new));
+        $sql->set('post_upddt = ' . $sql->quote(Clock::database()));
+
+        $sql->update();
         App::core()->blog()->triggerBlog();
-    }
-
-    /**
-     * Delete a post.
-     *
-     * @param int $id The post identifier
-     */
-    public function delPost(int $id): void
-    {
-        $this->delPosts([$id]);
     }
 
     /**
      * Delete multiple posts.
      *
-     * @param array|ArrayObject $ids The posts identifiers
+     * @param Integers $ids The posts IDs
      *
-     * @throws CoreException
+     * @throws InsufficientPermissions
+     * @throws MissingOrEmptyValue
      */
-    public function delPosts(array|ArrayObject $ids): void
+    public function delPosts(Integers $ids): void
     {
         if (!App::core()->user()->check('delete,contentadmin', App::core()->blog()->id)) {
-            throw new CoreException(__('You are not allowed to delete entries'));
+            throw new InsufficientPermissions(__('You are not allowed to delete entries'));
         }
 
-        $posts_ids = App::core()->blog()->cleanIds($ids);
-
-        if (empty($posts_ids)) {
-            throw new CoreException(__('No such entry ID'));
+        if (!$ids->count()) {
+            throw new MissingOrEmptyValue(__('No such entry ID'));
         }
+
+        // --BEHAVIOR-- coreBeforePostsDelete, Integers
+        App::core()->behavior()->call('coreBeforePostsDelete', $ids);
 
         $sql = new DeleteStatement(__METHOD__);
         $sql->from(App::core()->prefix() . 'post');
         $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
-        $sql->and('post_id' . $sql->in($posts_ids));
+        $sql->and('post_id' . $sql->in($ids->dump()));
 
         // If user can only delete, we need to check the post's owner
         if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
@@ -820,7 +991,6 @@ final class Posts
         }
 
         $sql->delete();
-
         App::core()->blog()->triggerBlog();
     }
 
@@ -835,68 +1005,66 @@ final class Posts
         $sql->where('post_status = -1');
         $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
 
-        $rs = $sql->select();
-        if ($rs->isEmpty()) {
+        $record = $sql->select();
+        if ($record->isEmpty()) {
             return;
         }
 
-        /** @var array<int, int> */
-        $to_change = [];
-        while ($rs->fetch()) {
-            if (Clock::ts() >= Clock::ts(date: $rs->f('post_dt'))) {
-                $to_change[] = $rs->fInt('post_id');
+        $posts = new Integers();
+        while ($record->fetch()) {
+            if (Clock::ts() >= Clock::ts(date: $record->f('post_dt'))) {
+                $posts->add($record->fInt('post_id'));
             }
         }
-        if (count($to_change)) {
-            // --BEHAVIOR-- coreBeforeScheduledEntriesPublish, array
-            App::core()->behavior()->call('coreBeforeScheduledEntriesPublish', $to_change);
+        if ($posts->count()) {
+            // --BEHAVIOR-- coreBeforeScheduledEntriesPublish, Integers
+            App::core()->behavior()->call('coreBeforeScheduledEntriesPublish', $posts);
 
             $sql = new UpdateStatement(__METHOD__);
             $sql->from(App::core()->prefix() . 'post');
             $sql->set('post_status = 1');
             $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
-            $sql->and('post_id' . $sql->in($to_change));
+            $sql->and('post_id' . $sql->in($posts->dump()));
             $sql->update();
 
             App::core()->blog()->triggerBlog();
 
-            // --BEHAVIOR-- coreAfterScheduledEntriesPublish, array
-            App::core()->behavior()->call('coreAfterScheduledEntriesPublish', $to_change);
+            // --BEHAVIOR-- coreAfterScheduledEntriesPublish, Integers
+            App::core()->behavior()->call('coreAfterScheduledEntriesPublish', $posts);
 
-            $this->firstPublicationEntries($to_change);
+            $this->firstPublicationEntries(ids: $posts);
         }
     }
 
     /**
      * First publication mecanism (on post create, update, publish, status).
      *
-     * @param array<int,int> $ids The posts identifiers
+     * @param Integers $ids The posts IDs
      */
-    public function firstPublicationEntries(array $ids): void
+    public function firstPublicationEntries(Integers $ids): void
     {
         $param = new Param();
-        $param->set('post_id', App::core()->blog()->cleanIds($ids));
+        $param->set('post_id', $ids->dump());
         $param->set('post_status', 1);
         $param->set('post_firstpub', false);
 
-        $posts = $this->getPosts(param: $param);
+        $record = $this->getPosts(param: $param);
 
-        /** @var array<int, int> */
-        $to_change = [];
-        while ($posts->fetch()) {
-            $to_change[] = $posts->fInt('post_id');
+        $posts = new Integers();
+        while ($record->fetch()) {
+            $posts->add($record->fInt('post_id'));
         }
 
-        if (count($to_change)) {
+        if ($posts->count()) {
             $sql = new UpdateStatement(__METHOD__);
             $sql->from(App::core()->prefix() . 'post');
             $sql->set('post_firstpub = 1');
             $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
-            $sql->and('post_id' . $sql->in($to_change));
+            $sql->and('post_id' . $sql->in($posts->dump()));
             $sql->update();
 
-            // --BEHAVIOR-- coreFirstPublicationEntries, array
-            App::core()->behavior()->call('coreFirstPublicationEntries', $to_change);
+            // --BEHAVIOR-- coreFirstPublicationEntries, Integers
+            App::core()->behavior()->call('coreFirstPublicationEntries', $posts);
         }
     }
 
@@ -984,9 +1152,9 @@ final class Posts
             $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
             $sql->and($field . $sql->in(array_keys($sub)));
 
-            $rs = $sql->select();
-            while ($rs->fetch()) {
-                $queries[$rs->f($field)] = '(C.cat_lft BETWEEN ' . $rs->fInt('cat_lft') . ' AND ' . $rs->fInt('cat_rgt') . ')';
+            $record = $sql->select();
+            while ($record->fetch()) {
+                $queries[$record->f($field)] = '(C.cat_lft BETWEEN ' . $record->fInt('cat_lft') . ' AND ' . $record->fInt('cat_rgt') . ')';
             }
         }
 
@@ -1021,85 +1189,81 @@ final class Posts
     /**
      * Get the post cursor.
      *
-     * @param Cursor $cur     The post cursor
-     * @param int    $post_id The post identifier
+     * @param Cursor $cursor The post cursor
      *
-     * @throws CoreException
+     * @throws MissingOrEmptyValue
      */
-    private function getPostCursor(Cursor $cur, int $post_id = null): void
+    private function getPostCursor(Cursor $cursor): void
     {
-        if ('' == $cur->getField('post_title')) {
-            throw new CoreException(__('No entry title'));
+        if ('' == $cursor->getField('post_title')) {
+            throw new MissingOrEmptyValue(__('No entry title'));
         }
 
-        if ('' == $cur->getField('post_content')) {
-            throw new CoreException(__('No entry content'));
+        if ('' == $cursor->getField('post_content')) {
+            throw new MissingOrEmptyValue(__('No entry content'));
         }
 
-        if ('' === $cur->getField('post_password')) {
-            $cur->setField('post_password', null);
+        if ('' === $cursor->getField('post_password')) {
+            $cursor->setField('post_password', null);
         }
 
-        if ('' == $cur->getField('post_dt')) {
-            $cur->setField('post_dt', Clock::database());
+        if ('' == $cursor->getField('post_dt')) {
+            $cursor->setField('post_dt', Clock::database());
         }
 
-        $post_id = is_int($post_id) ? $post_id : $cur->getField('post_id');
-
-        if ('' == $cur->getField('post_content_xhtml')) {
-            throw new CoreException(__('No entry content'));
+        if ('' == $cursor->getField('post_content_xhtml')) {
+            throw new MissingOrEmptyValue(__('No entry content'));
         }
 
         // Words list
-        if (null !== $cur->getField('post_title')
-            && null !== $cur->getField('post_excerpt_xhtml')
-            && null !== $cur->getField('post_content_xhtml')
+        if (null !== $cursor->getField('post_title')
+            && null !== $cursor->getField('post_excerpt_xhtml')
+            && null !== $cursor->getField('post_content_xhtml')
         ) {
-            $words = $cur->getField('post_title') . ' ' .
-            $cur->getfield('post_excerpt_xhtml') . ' ' .
-            $cur->getField('post_content_xhtml');
+            $words = $cursor->getField('post_title') . ' ' .
+            $cursor->getfield('post_excerpt_xhtml') . ' ' .
+            $cursor->getField('post_content_xhtml');
 
-            $cur->setField('post_words', implode(' ', Text::splitWords($words)));
+            $cursor->setField('post_words', implode(' ', Text::splitWords($words)));
         }
 
-        if ($cur->isField('post_firstpub')) {
-            $cur->unsetField('post_firstpub');
+        if ($cursor->isField('post_firstpub')) {
+            $cursor->unsetField('post_firstpub');
         }
     }
 
     /**
      * Get the post content.
      *
-     * @param Cursor $cur     The post cursor
-     * @param int    $post_id The post identifier
+     * @param Cursor $cursor The post cursor
      */
-    private function getPostContent(Cursor $cur, int $post_id): void
+    private function getPostContent(Cursor $cursor): void
     {
-        $post_excerpt       = $cur->getfield('post_excerpt');
-        $post_excerpt_xhtml = $cur->getfield('post_excerpt_xhtml');
-        $post_content       = $cur->getfield('post_content');
-        $post_content_xhtml = $cur->getfield('post_content_xhtml');
+        $post_excerpt       = $cursor->getField('post_excerpt');
+        $post_excerpt_xhtml = $cursor->getField('post_excerpt_xhtml');
+        $post_content       = $cursor->getField('post_content');
+        $post_content_xhtml = $cursor->getField('post_content_xhtml');
 
         $this->setPostContent(
-            $post_id,
-            $cur->getfield('post_format'),
-            $cur->getfield('post_lang'),
+            $cursor->getField('post_id'),
+            $cursor->getField('post_format'),
+            $cursor->getField('post_lang'),
             $post_excerpt,
             $post_excerpt_xhtml,
             $post_content,
             $post_content_xhtml
         );
 
-        $cur->setfield('post_excerpt', $post_excerpt);
-        $cur->setfield('post_excerpt_xhtml', $post_excerpt_xhtml);
-        $cur->setfield('post_content', $post_content);
-        $cur->setfield('post_content_xhtml', $post_content_xhtml);
+        $cursor->setField('post_excerpt', $post_excerpt);
+        $cursor->setField('post_excerpt_xhtml', $post_excerpt_xhtml);
+        $cursor->setField('post_content', $post_content);
+        $cursor->setField('post_content_xhtml', $post_content_xhtml);
     }
 
     /**
      * Create post HTML content, taking format and lang into account.
      *
-     * @param null|int    $post_id       The post identifier
+     * @param null|int    $id            The post ID
      * @param string      $format        The format
      * @param string      $lang          The language
      * @param null|string $excerpt       The excerpt
@@ -1107,11 +1271,11 @@ final class Posts
      * @param string      $content       The content
      * @param string      $content_xhtml The content xhtml
      */
-    public function setPostContent(?int $post_id, string $format, string $lang, ?string &$excerpt, ?string &$excerpt_xhtml, string &$content, string &$content_xhtml): void
+    public function setPostContent(?int $id, string $format, string $lang, ?string &$excerpt, ?string &$excerpt_xhtml, string &$content, string &$content_xhtml): void
     {
         if ('wiki' == $format) {
             App::core()->wiki()->initWikiPost();
-            App::core()->wiki()->setOpt('note_prefix', 'pnote-' . ($post_id ?? ''));
+            App::core()->wiki()->setOpt('note_prefix', 'pnote-' . ($id ?? ''));
             $tag = match (App::core()->blog()->settings()->get('system')->get('note_title_tag')) {
                 1       => 'h3',
                 2       => 'p',
@@ -1154,24 +1318,26 @@ final class Posts
      *
      * It will try to guess URL and append some figures if needed.
      *
-     * @param null|string $url        The url
-     * @param null|string $post_dt    The post dt
-     * @param null|string $post_title The post title
-     * @param null|int    $post_id    The post identifier
+     * @param null|string $url   The url
+     * @param null|string $date  The post date
+     * @param null|string $title The post title
+     * @param null|int    $id    The post ID
+     *
+     * @throws MissingOrEmptyValue
      *
      * @return string The post url
      */
-    public function getPostURL(?string $url, ?string $post_dt, ?string $post_title, ?int $post_id): string
+    public function getPostURL(?string $url, ?string $date, ?string $title, ?int $id): string
     {
         $url = trim((string) $url);
 
         // Date on post URLs always use core timezone (should not changed if blog timezone changed)
         $url_patterns = [
-            '{y}'  => Clock::format(format: 'Y', date: $post_dt),
-            '{m}'  => Clock::format(format: 'm', date: $post_dt),
-            '{d}'  => Clock::format(format: 'd', date: $post_dt),
-            '{t}'  => Text::tidyURL((string) $post_title),
-            '{id}' => (int) $post_id,
+            '{y}'  => Clock::format(format: 'Y', date: $date),
+            '{m}'  => Clock::format(format: 'm', date: $date),
+            '{d}'  => Clock::format(format: 'd', date: $date),
+            '{t}'  => Text::tidyURL((string) $title),
+            '{id}' => (int) $id,
         ];
 
         // If URL is empty, we create a new one
@@ -1191,12 +1357,12 @@ final class Posts
         $sql->column('post_url');
         $sql->from(App::core()->prefix() . 'post');
         $sql->where('post_url = ' . $sql->quote($url));
-        $sql->and('post_id <> ' . (int) $post_id);
+        $sql->and('post_id <> ' . (int) $id);
         $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
         $sql->order('post_url DESC');
 
-        $rs = $sql->select();
-        if (!$rs->isEmpty()) {
+        $record = $sql->select();
+        if (!$record->isEmpty()) {
             $sql = new SelectStatement(__METHOD__);
 
             if (App::core()->con()->syntax() == 'mysql') {
@@ -1211,14 +1377,14 @@ final class Posts
             $sql->column('post_url');
             $sql->from(App::core()->prefix() . 'post');
             $sql->where('post_url ' . $clause);
-            $sql->and('post_id <> ' . (int) $post_id);
+            $sql->and('post_id <> ' . (int) $id);
             $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
             $sql->order('post_url DESC');
 
-            $rs = $sql->select();
-            $a  = [];
-            while ($rs->fetch()) {
-                $a[] = $rs->f('post_url');
+            $record = $sql->select();
+            $a      = [];
+            while ($record->fetch()) {
+                $a[] = $record->f('post_url');
             }
 
             natsort($a);
@@ -1236,7 +1402,7 @@ final class Posts
 
         // URL is empty?
         if ('' == $url) {
-            throw new CoreException(__('Empty entry URL'));
+            throw new MissingOrEmptyValue(__('Empty entry URL'));
         }
 
         return $url;

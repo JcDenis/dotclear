@@ -143,7 +143,11 @@ class WidgetsStack
             return '';
         }
 
-        $rs = App::core()->blog()->categories()->getCategories(['post_type' => 'post', 'without_empty' => !$widget->get('with_empty')]);
+        $param = new Param();
+        $param->set('post_type', 'post');
+        $param->set('without_empty', !$widget->get('with_empty'));
+
+        $rs = App::core()->blog()->categories()->getCategories(param: $param);
         if ($rs->isEmpty()) {
             return '';
         }
@@ -552,7 +556,10 @@ class WidgetsStack
             ->addOffline()
         ;
 
-        $rs         = App::core()->blog()->categories()->getCategories(['post_type' => 'post']);
+        $param = new Param();
+        $param->set('post_type', 'post');
+
+        $rs         = App::core()->blog()->categories()->getCategories(param: $param);
         $categories = ['' => '', __('Uncategorized') => 'null'];
         while ($rs->fetch()) {
             $categories[str_repeat('&nbsp;&nbsp;', $rs->fInt('level') - 1) . (0 == $rs->fInt('level') - 1 ? '' : '&bull; ') . Html::escapeHTML($rs->f('cat_title'))] = $rs->f('cat_id');

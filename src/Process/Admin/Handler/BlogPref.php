@@ -68,7 +68,7 @@ class BlogPref extends AbstractPage
                 if (empty($_REQUEST['id'])) {
                     throw new AdminException(__('No given blog id.'));
                 }
-                $rs = App::core()->blogs()->getBlog($_REQUEST['id']);
+                $rs = App::core()->blogs()->getBlog(id: $_REQUEST['id']);
 
                 if (!$rs) {
                     throw new AdminException(__('No such blog.'));
@@ -156,7 +156,7 @@ class BlogPref extends AbstractPage
 
             try {
                 if ($cur->getField('blog_id') != null && $cur->getField('blog_id') != $this->blog_id) {
-                    $rs = App::core()->blogs()->getBlog($cur->getField('blog_id'));
+                    $rs = App::core()->blogs()->getBlog(id: $cur->getField('blog_id'));
 
                     if ($rs) {
                         throw new AdminException(__('This blog ID is already used.'));
@@ -170,7 +170,7 @@ class BlogPref extends AbstractPage
                     throw new AdminException(__('Invalid language code'));
                 }
 
-                App::core()->blogs()->updBlog($this->blog_id, $cur);
+                App::core()->blogs()->updBlog(id: $this->blog_id, cursor: $cur);
 
                 // --BEHAVIOR-- adminAfterBlogUpdate
                 App::core()->behavior()->call('adminAfterBlogUpdate', $cur, $this->blog_id);
@@ -795,7 +795,7 @@ class BlogPref extends AbstractPage
         '<p><label for="post_url_format">' . __('New post URL format:') . '</label>' .
         Form::combo('post_url_format', $post_url_combo, Html::escapeHTML($this->blog_settings->get('system')->get('post_url_format')), '', '', false, 'aria-describedby="post_url_format_help"') .
         '</p>' .
-        '<p class="chosen form-note" id="post_url_format_help">' . __('Sample:') . ' ' . App::core()->blog()->posts()->getPostURL('', Clock::format(format: 'Y-m-d H:i:00'), __('Dotclear'), 42) . '</p>' .
+        '<p class="chosen form-note" id="post_url_format_help">' . __('Sample:') . ' ' . App::core()->blog()->posts()->getPostURL(date: Clock::format(format: 'Y-m-d H:i:00'), title: __('Dotclear'), id: 42) . '</p>' .
         '</p>' .
 
         '<p><label for="note_title_tag">' . __('HTML tag for the title of the notes on the blog:') . '</label>' .
@@ -889,7 +889,7 @@ class BlogPref extends AbstractPage
         //
         // Users on the blog (with permissions)
 
-        $blog_users = App::core()->blogs()->getBlogPermissions($this->blog_id, App::core()->user()->isSuperAdmin());
+        $blog_users = App::core()->blogs()->getBlogPermissions(id: $this->blog_id, super: App::core()->user()->isSuperAdmin());
         $perm_types = App::core()->user()->getPermissionsTypes();
 
         echo '<div class="multi-part" id="users" title="' . __('Users') . '">' .

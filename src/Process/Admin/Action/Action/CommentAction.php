@@ -89,21 +89,22 @@ class CommentAction extends DefaultCommentAction
                 $comments[$k] = (int) $v;
             }
 
-            $param->push('sql', 'AND C.comment_id IN(' . implode(',', $comments) . ') ');
+            $param->push('sql', ' AND C.comment_id IN(' . implode(',', $comments) . ') ');
         } else {
-            $param->push('sql', 'AND 1=0 ');
+            $param->push('sql', ' AND 1=0 ');
         }
 
         if (!isset($from['full_content']) || empty($from['full_content'])) {
             $param->set('no_content', true);
         }
-        $co = App::core()->blog()->comments()->getComments(param: $param);
-        while ($co->fetch()) {
-            $this->entries[$co->comment_id] = [
-                'title'  => $co->post_title,
-                'author' => $co->comment_author,
+
+        $rs = App::core()->blog()->comments()->getComments(param: $param);
+        while ($rs->fetch()) {
+            $this->entries[$rs->fInt('comment_id')] = [
+                'title'  => $rs->f('post_title'),
+                'author' => $rs->f('comment_author'),
             ];
         }
-        $this->rs = $co;
+        $this->rs = $rs;
     }
 }

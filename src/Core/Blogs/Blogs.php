@@ -18,9 +18,13 @@ use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\JoinStatement;
 use Dotclear\Database\Statement\SelectStatement;
-use Dotclear\Exception\CoreException;
+use Dotclear\Database\Statement\UpdateStatement;
+use Dotclear\Exception\InsufficientPermissions;
+use Dotclear\Exception\InvalidValueFormat;
+use Dotclear\Exception\MissingOrEmptyValue;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Mapper\Strings;
 
 /**
  * Blogs handling methods.
@@ -30,11 +34,47 @@ use Dotclear\Helper\Html\Html;
 final class Blogs
 {
     /**
-     * Get all blog status.
+     * Get blog status codes.
      *
-     * @return array<int, string> An array of available blog status codes and names
+     * Return an array of unstranslated name /code pair.
+     *
+     * @return array<string,int> All blog status code
      */
-    public function getAllBlogStatus(): array
+    public function getBlogsStatusCodes(): array
+    {
+        return [
+            'online'  => 1,
+            'offline' => 0,
+            'removed' => -1,
+        ];
+    }
+
+    /**
+     * Get a blogs status code.
+     *
+     * Returns a blogs status code given to a unstranslated name.
+     *
+     * @param string $name    The blog status name
+     * @param int    $default The value returned if name not exists
+     *
+     * @return null|int The blog status name
+     */
+    public function getBlogsStatusCode(string $name, int $default = null): ?int
+    {
+        return match ($name) {
+            'online'  => 1,
+            'offline' => 0,
+            'remove'  => -1,
+            default   => $default,
+        };
+    }
+
+    /**
+     * Get all blog status name.
+     *
+     * @return array<int,string> An array of available blog status codes and names
+     */
+    public function getBlogsStatusNames(): array
     {
         return [
             1  => __('online'),
@@ -44,21 +84,24 @@ final class Blogs
     }
 
     /**
-     * Get blog status.
+     * Get a blogs status name.
      *
-     * Returns a blog status name given to a code. This is intended to be
+     * Returns a blogs status name given to a code. This is intended to be
      * human-readable and will be translated, so never use it for tests.
-     * If status code does not exist, returns <i>offline</i>.
      *
-     * @param int $status_code Status code
+     * @param int    $code    The blog status code
+     * @param string $default The value returned if code not exists
      *
-     * @return string the blog status name
+     * @return null|string The blog status name
      */
-    public function getBlogStatus(int $status_code): string
+    public function getBlogsStatusName(int $code, string $default = null): ?string
     {
-        $all = $this->getAllBlogStatus();
-
-        return $all[$status_code] ?? $all[0];
+        return match ($code) {
+            1       => __('online'),
+            0       => __('offline'),
+            -1      => __('removed'),
+            default => $default,
+        };
     }
 
     /**
@@ -73,17 +116,17 @@ final class Blogs
      * - [permission] => true
      * - ...
      *
-     * @param string $blog_id    The blog identifier
-     * @param bool   $with_super Includes super admins in result
+     * @param string $id    The blog ID
+     * @param bool   $super Includes super admins in result
      *
      * @return array<int, array> The blog permissions
      */
-    public function getBlogPermissions(string $blog_id, bool $with_super = true): array
+    public function getBlogPermissions(string $id, bool $super = true): array
     {
         $join = new JoinStatement(__METHOD__);
         $join->from(App::core()->prefix() . 'permissions P');
         $join->on('U.user_id = P.user_id');
-        $join->where('blog_id = ' . $join->quote($blog_id));
+        $join->where('blog_id = ' . $join->quote($id));
 
         $sql = new SelectStatement(__METHOD__);
         $sql->from(App::core()->prefix() . 'user U');
@@ -98,7 +141,7 @@ final class Blogs
         ]);
         $sql->join($join->statement());
 
-        if ($with_super) {
+        if ($super) {
             $union = new SelectStatement(__METHOD__);
             $union->from(App::core()->prefix() . 'user U');
             $union->columns([
@@ -115,18 +158,18 @@ final class Blogs
             $sql->sql('UNION ' . $union->statement());
         }
 
-        $rs = $sql->select();
+        $record = $sql->select();
 
         $res = [];
 
-        while ($rs->fetch()) {
-            $res[$rs->f('user_id')] = [
-                'name'        => $rs->f('user_name'),
-                'firstname'   => $rs->f('user_firstname'),
-                'displayname' => $rs->f('user_displayname'),
-                'email'       => $rs->f('user_email'),
-                'super'       => (bool) $rs->f('user_super'),
-                'p'           => App::core()->user()->parsePermissions($rs->f('permissions')),
+        while ($record->fetch()) {
+            $res[$record->f('user_id')] = [
+                'name'        => $record->f('user_name'),
+                'firstname'   => $record->f('user_firstname'),
+                'displayname' => $record->f('user_displayname'),
+                'email'       => $record->f('user_email'),
+                'super'       => (bool) $record->f('user_super'),
+                'p'           => App::core()->user()->parsePermissions($record->f('permissions')),
             ];
         }
 
@@ -136,18 +179,18 @@ final class Blogs
     /**
      * Get the blog.
      *
-     * @param string $blog_id The blog identifier
+     * @param string $id The blog ID
      *
      * @return null|Record The blog
      */
-    public function getBlog(string $blog_id): ?Record
+    public function getBlog(string $id): ?Record
     {
         $param = new Param();
-        $param->set('blog_id', $blog_id);
+        $param->set('blog_id', $id);
 
-        $rs = $this->getBlogs(param: $param);
+        $record = $this->getBlogs(param: $param);
 
-        return $rs->isEmpty() ? null : $rs;
+        return $record->isEmpty() ? null : $record;
     }
 
     /**
@@ -162,14 +205,23 @@ final class Blogs
      */
     public function countBlogs(?Param $param = null, ?SelectStatement $sql = null): int
     {
-        $param = new BlogsParam($param);
-        $param->unset('order');
-        $param->unset('limit');
+        $params = new BlogsParam($param);
+        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
 
-        $query = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        // --BEHAVIOR-- coreBlogBeforeCountBlogs, Param, SelectStatement
+        App::core()->behavior()->call('coreBlogBeforeCountBlogs', $params, $query);
+
+        $params->unset('order');
+        $params->unset('limit');
+
         $query->column($query->count('B.blog_id'));
 
-        return $this->queryBlogsTable(param: $param, sql: $query)->fInt();
+        $record = $this->queryBlogsTable(param: $params, sql: $query)->fInt();
+
+        // --BEHAVIOR-- coreBlogAfterCountBlogs, Record, Param, SelectStatement
+        App::core()->behavior()->call('coreBlogAfterCountBlogs', $record, $params, $query);
+
+        return $record;
     }
 
     /**
@@ -184,12 +236,11 @@ final class Blogs
      */
     public function getBlogs(?Param $param = null, ?SelectStatement $sql = null): Record
     {
-        $param = new BlogsParam($param);
+        $params = new BlogsParam($param);
+        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
 
-        $query = $sql ? clone $sql : new SelectStatement(__METHOD__);
-
-        if (!empty($param->columns())) {
-            $query->columns($param->columns());
+        if (!empty($params->columns())) {
+            $query->columns($params->columns());
         }
 
         $query->columns([
@@ -202,13 +253,13 @@ final class Blogs
             'blog_upddt',
             'blog_status',
         ]);
-        $query->order($query->escape($param->order('B.blog_id ASC')));
+        $query->order($query->escape($params->order('B.blog_id ASC')));
 
-        if (!empty($param->limit())) {
-            $query->limit($param->limit());
+        if (!empty($params->limit())) {
+            $query->limit($params->limit());
         }
 
-        return $this->queryBlogsTable(param: $param, sql: $query);
+        return $this->queryBlogsTable(param: $params, sql: $query);
     }
 
     /**
@@ -221,7 +272,7 @@ final class Blogs
      */
     private function queryBlogsTable(BlogsParam $param, SelectStatement $sql): Record
     {
-        $sql->from(App::core()->prefix() . 'blog B');
+        $sql->from(App::core()->prefix() . 'blog B', false, true);
         $sql->where('NULL IS NULL');
 
         if (App::core()->user()->userID() && !App::core()->user()->isSuperAdmin()) {
@@ -258,132 +309,162 @@ final class Blogs
             ]));
         }
 
-        $rs = $sql->select();
-        $rs->extend(new RsExtBlog());
+        $record = $sql->select();
+        $record->extend(new RsExtBlog());
 
-        return $rs;
+        return $record;
     }
 
     /**
      * Add a new blog.
      *
-     * @param cursor $cur The blog cursor
+     * @param cursor $cursor The blog cursor
      *
-     * @throws CoreException
+     * @throws InsufficientPermissions
      */
-    public function addBlog(Cursor $cur): void
+    public function addBlog(Cursor $cursor): void
     {
         if (!App::core()->user()->isSuperAdmin()) {
-            throw new CoreException(__('You are not an administrator'));
+            throw new InsufficientPermissions(__('You are not an administrator'));
         }
 
-        $this->getBlogCursor($cur);
+        $this->getBlogCursor(cursor: $cursor);
 
-        $cur->setField('blog_creadt', Clock::database());
-        $cur->setField('blog_upddt', Clock::database());
-        $cur->setField('blog_uid', md5(uniqid()));
+        $cursor->setField('blog_creadt', Clock::database());
+        $cursor->setField('blog_upddt', Clock::database());
+        $cursor->setField('blog_uid', md5(uniqid()));
 
-        $cur->insert();
+        $cursor->insert();
     }
 
     /**
      * Update a given blog.
      *
-     * @param string $blog_id The blog identifier
-     * @param Cursor $cur     The cursor
+     * @param string $id     The blog ID
+     * @param Cursor $cursor The blog cursor
      */
-    public function updBlog(string $blog_id, Cursor $cur): void
+    public function updBlog(string $id, Cursor $cursor): void
     {
-        $this->getBlogCursor($cur);
+        $this->getBlogCursor(cursor: $cursor);
 
-        $cur->setField('blog_upddt', Clock::database());
+        $cursor->setField('blog_upddt', Clock::database());
 
-        $cur->update("WHERE blog_id = '" . App::core()->con()->escape($blog_id) . "'");
+        $cursor->update("WHERE blog_id = '" . App::core()->con()->escape($id) . "'");
     }
 
     /**
      * Get the blog cursor.
      *
-     * @param Cursor $cur The cursor
+     * @param Cursor $cursor The cursor
      *
-     * @throws CoreException
+     * @throws InvalidValueFormat
+     * @throws MissingOrEmptyValue
      */
-    private function getBlogCursor(Cursor $cur): void
+    private function getBlogCursor(Cursor $cursor): void
     {
-        if (null !== $cur->getField('blog_id') && !preg_match('/^[A-Za-z0-9._-]{2,}$/', (string) $cur->getField('blog_id')) || !$cur->getField('blog_id')) {
-            throw new CoreException(__('Blog ID must contain at least 2 characters using letters, numbers or symbols.'));
+        if (null !== $cursor->getField('blog_id') && !preg_match('/^[A-Za-z0-9._-]{2,}$/', (string) $cursor->getField('blog_id')) || !$cursor->getField('blog_id')) {
+            throw new InvalidValueFormat(__('Blog ID must contain at least 2 characters using letters, numbers or symbols.'));
         }
 
-        if (null !== $cur->getField('blog_name') && '' == $cur->getField('blog_name') || !$cur->getField('blog_name')) {
-            throw new CoreException(__('No blog name'));
+        if (null !== $cursor->getField('blog_name') && '' == $cursor->getField('blog_name') || !$cursor->getField('blog_name')) {
+            throw new MissingOrEmptyValue(__('No blog name'));
         }
 
-        if (null !== $cur->getField('blog_url') && '' == $cur->getField('blog_url') || !$cur->getField('blog_url')) {
-            throw new CoreException(__('No blog URL'));
+        if (null !== $cursor->getField('blog_url') && '' == $cursor->getField('blog_url') || !$cursor->getField('blog_url')) {
+            throw new MissingOrEmptyValue(__('No blog URL'));
         }
 
-        if (null !== $cur->getField('blog_desc')) {
-            $cur->setField('blog_desc', Html::clean($cur->getField('blog_desc')));
+        if (null !== $cursor->getField('blog_desc')) {
+            $cursor->setField('blog_desc', Html::clean($cursor->getField('blog_desc')));
         }
     }
 
     /**
-     * Remove a given blog.
+     * Update blogs status.
      *
-     * @warning This will remove everything related to the blog (posts,
-     * categories, comments, links...)
+     * @param Strings $ids    The blogs IDs
+     * @param int     $status The status
      *
-     * @param string $blog_id The blog identifier
-     *
-     * @throws CoreException
+     * @throws InsufficientPermissions
      */
-    public function delBlog(string $blog_id): void
+    public function updBlogsStatus(Strings $ids, int $status): void
     {
         if (!App::core()->user()->isSuperAdmin()) {
-            throw new CoreException(__('You are not an administrator'));
+            throw new InsufficientPermissions(__('You are not an administrator'));
+        }
+
+        $sql = new UpdateStatement(__METHOD__);
+        $sql->from(App::core()->prefix() . 'blog');
+        $sql->set('blog_status = ' . $status);
+        // $sql->set('blog_upddt = ' . $sql->quote(Clock::database()));
+        $sql->where('blog_id' . $sql->in($ids->dump()));
+        $sql->update();
+    }
+
+    /**
+     * Remove blogs.
+     *
+     * @warning This will remove everything related to the blog (posts,
+     *
+     * Current blog can not be deleted.
+     * categories, comments, links...)
+     *
+     * @param Strings $ids The blogs IDs
+     *
+     * @throws InsufficientPermissions
+     */
+    public function delBlogs(Strings $ids): void
+    {
+        if (!App::core()->user()->isSuperAdmin()) {
+            throw new InsufficientPermissions(__('You are not an administrator'));
+        }
+
+        // Do not delete current blog
+        if ($ids->exists(App::core()->blog()->id)) {
+            $ids->remove(App::core()->blog()->id);
         }
 
         $sql = new DeleteStatement(__METHOD__);
         $sql->from(App::core()->prefix() . 'blog');
-        $sql->where('blog_id = ' . $sql->quote($blog_id));
+        $sql->where('blog_id' . $sql->in($ids->dump()));
         $sql->delete();
     }
 
     /**
      * Check if blog exists.
      *
-     * @param string $blog_id The blog identifier
+     * @param string $id The blog ID
      *
      * @return bool True if blog exists, False otherwise
      */
-    public function blogExists(string $blog_id): bool
+    public function blogExists(string $id): bool
     {
         $sql = new SelectStatement(__METHOD__);
         $sql->column('blog_id');
         $sql->from(App::core()->prefix() . 'blog');
-        $sql->where('blog_id = ' . $sql->quote($blog_id));
-        $rs = $sql->select();
+        $sql->where('blog_id = ' . $sql->quote($id));
+        $record = $sql->select();
 
-        return !$rs->isEmpty();
+        return !$record->isEmpty();
     }
 
     /**
      * Counts the number of blog posts.
      *
-     * @param string      $blog_id   The blog identifier
-     * @param null|string $post_type The post type
+     * @param string      $id   The blog ID
+     * @param null|string $type The post type
      *
      * @return int Number of blog posts
      */
-    public function countBlogPosts(string $blog_id, ?string $post_type = null): int
+    public function countBlogPosts(string $id, ?string $type = null): int
     {
         $sql = new SelectStatement(__METHOD__);
         $sql->column($sql->count('post_id'));
         $sql->from(App::core()->prefix() . 'post');
-        $sql->where('blog_id = ' . $sql->quote($blog_id));
+        $sql->where('blog_id = ' . $sql->quote($id));
 
-        if ($post_type) {
-            $sql->and('post_type = ' . $sql->quote($post_type));
+        if ($type) {
+            $sql->and('post_type = ' . $sql->quote($type));
         }
 
         return $sql->select()->fInt();

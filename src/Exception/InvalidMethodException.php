@@ -14,9 +14,9 @@ use Exception;
 use Throwable;
 
 /**
- * Invalid method exception.
+ * Invalid method call exception.
  *
- * @ingroup  Exception
+ * @ingroup Exception
  */
 class InvalidMethodException extends Exception
 {

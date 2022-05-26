@@ -637,14 +637,14 @@ class Url
             // No category was specified.
             $this->p404();
         } else {
-            $params = new ArrayObject([
-                'cat_url'       => $args,
-                'post_type'     => 'post',
-                'without_empty' => false, ]);
+            $param = new Param();
+            $param->set('cat_url', $args);
+            $param->set('post_type', 'post');
+            $param->set('without_empty', false);
 
-            App::core()->behavior()->call('publicCategoryBeforeGetCategories', $params, $args);
+            App::core()->behavior()->call('publicCategoryBeforeGetCategories', $param, $args);
 
-            App::core()->context()->set('categories', App::core()->blog()->categories()->getCategories($params));
+            App::core()->context()->set('categories', App::core()->blog()->categories()->getCategories(param: $param));
 
             if (App::core()->context()->get('categories')->isEmpty()) {
                 // The specified category does no exist.
@@ -830,7 +830,7 @@ class Url
                             // --BEHAVIOR-- publicBeforeCommentCreate
                             App::core()->behavior()->call('publicBeforeCommentCreate', $cur);
                             if ($cur->getField('post_id')) {
-                                $comment_id = App::core()->blog()->comments()->addComment($cur);
+                                $comment_id = App::core()->blog()->comments()->addComment(cursor: $cur);
 
                                 // --BEHAVIOR-- publicAfterCommentCreate
                                 App::core()->behavior()->call('publicAfterCommentCreate', $cur, $comment_id);
@@ -949,13 +949,13 @@ class Url
         }
 
         if ($cat_url) {
-            $params = new ArrayObject([
-                'cat_url'   => $cat_url,
-                'post_type' => 'post', ]);
+            $param = new Param();
+            $param->set('cat_url', $cat_url);
+            $param->set('post_type', 'post');
 
-            App::core()->behavior()->call('publicFeedBeforeGetCategories', $params, $args);
+            App::core()->behavior()->call('publicFeedBeforeGetCategories', $param, $args);
 
-            App::core()->context()->set('categories', App::core()->blog()->categories()->getCategories($params));
+            App::core()->context()->set('categories', App::core()->blog()->categories()->getCategories(param: $param));
 
             if (App::core()->context()->get('categories')->isEmpty()) {
                 // The specified category does no exist.

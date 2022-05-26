@@ -14,6 +14,7 @@ use Dotclear\App;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Mapper\Strings;
 use Exception;
 
 /**
@@ -37,7 +38,7 @@ class BlogDel extends AbstractPage
         $rs = null;
         if (!empty($_POST['blog_id'])) {
             try {
-                $rs = App::core()->blogs()->getBlog($_POST['blog_id']);
+                $rs = App::core()->blogs()->getBlog(id: $_POST['blog_id']);
 
                 if ($rs->isEmpty()) {
                     App::core()->error()->add(__('No such blog ID'));
@@ -56,7 +57,7 @@ class BlogDel extends AbstractPage
                 App::core()->error()->add(__('Password verification failed'));
             } else {
                 try {
-                    App::core()->blogs()->delBlog($this->blog_id);
+                    App::core()->blogs()->delBlogs(ids: new Strings($this->blog_id));
                     App::core()->notice()->addSuccessNotice(sprintf(__('Blog "%s" successfully deleted'), Html::escapeHTML($this->blog_name)));
 
                     App::core()->adminurl()->redirect('admin.blogs');

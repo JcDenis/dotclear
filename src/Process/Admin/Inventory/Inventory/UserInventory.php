@@ -97,7 +97,7 @@ class UserInventory extends Inventory
         $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
         $img_status = '';
 
-        $p = App::core()->users()->getUserPermissions($this->rs->f('user_id'));
+        $p = App::core()->users()->getUserPermissions(id: $this->rs->f('user_id'));
 
         if (isset($p[App::core()->blog()->id]['p']['admin'])) {
             $img_status = sprintf($img, __('admin'), 'admin.png');

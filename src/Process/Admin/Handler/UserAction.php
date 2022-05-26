@@ -39,18 +39,18 @@ class UserAction extends AbstractPage
     {
         $this->users = [];
         if (!empty($_POST['users']) && is_array($_POST['users'])) {
-            foreach ($_POST['users'] as $u) {
-                if (App::core()->users()->userExists($u)) {
-                    $this->users[] = $u;
+            foreach ($_POST['users'] as $user) {
+                if (App::core()->users()->userExists(id: $user)) {
+                    $this->users[] = $user;
                 }
             }
         }
 
         $this->blogs = [];
         if (!empty($_POST['blogs']) && is_array($_POST['blogs'])) {
-            foreach ($_POST['blogs'] as $b) {
-                if (App::core()->blogs()->blogExists($b)) {
-                    $this->blogs[] = $b;
+            foreach ($_POST['blogs'] as $blog) {
+                if (App::core()->blogs()->blogExists(id: $blog)) {
+                    $this->blogs[] = $blog;
                 }
             }
         }
@@ -79,16 +79,16 @@ class UserAction extends AbstractPage
 
             // Delete users
             if ('deleteuser' == $this->user_action && !empty($this->users)) {
-                foreach ($this->users as $u) {
+                foreach ($this->users as $user) {
                     try {
-                        if (App::core()->user()->userID() == $u) {
+                        if (App::core()->user()->userID() == $user) {
                             throw new AdminException(__('You cannot delete yourself.'));
                         }
 
                         // --BEHAVIOR-- adminBeforeUserDelete
-                        App::core()->behavior()->call('adminBeforeUserDelete', $u);
+                        App::core()->behavior()->call('adminBeforeUserDelete', $user);
 
-                        App::core()->users()->delUser($u);
+                        App::core()->users()->delUser(id: $user);
                     } catch (Exception $e) {
                         App::core()->error()->add($e->getMessage());
                     }
@@ -106,19 +106,19 @@ class UserAction extends AbstractPage
                         throw new AdminException(__('Password verification failed'));
                     }
 
-                    foreach ($this->users as $u) {
-                        foreach ($this->blogs as $b) {
+                    foreach ($this->users as $user) {
+                        foreach ($this->blogs as $blog) {
                             $set_perms = [];
 
-                            if (!empty($_POST['perm'][$b])) {
-                                foreach ($_POST['perm'][$b] as $perm_id => $v) {
+                            if (!empty($_POST['perm'][$blog])) {
+                                foreach ($_POST['perm'][$blog] as $perm_id => $v) {
                                     if ($v) {
                                         $set_perms[$perm_id] = true;
                                     }
                                 }
                             }
 
-                            App::core()->users()->setUserBlogPermissions($u, $b, $set_perms, true);
+                            App::core()->users()->setUserBlogPermissions(id: $user, blog: $blog, permissions: $set_perms, delete: true);
                         }
                     }
                 } catch (Exception $e) {
@@ -221,7 +221,7 @@ class UserAction extends AbstractPage
 
                 while ($rs->fetch()) {
                     $img_status = 1 == $rs->fInt('blog_status') ? 'check-on' : (0 == $rs->fInt('blog_status') ? 'check-off' : 'check-wrn');
-                    $txt_status = App::core()->blogs()->getBlogStatus($rs->fInt('blog_status'));
+                    $txt_status = App::core()->blogs()->getBlogsStatusName(code: $rs->fInt('blog_status'), default: __('online'));
                     $img_status = sprintf('<img src="?df=images/%1$s.png" alt="%2$s" title="%2$s" />', $img_status, $txt_status);
 
                     echo '<tr class="line">' .
@@ -238,7 +238,7 @@ class UserAction extends AbstractPage
                     '<td class="maximal">' . Html::escapeHTML($rs->f('blog_name')) . '</td>' .
                     '<td class="nowrap"><a class="outgoing" href="' . Html::escapeHTML($rs->f('blog_url')) . '">' . Html::escapeHTML($rs->f('blog_url')) .
                     ' <img src="?df=images/outgoing-link.svg" alt="" /></a></td>' .
-                    '<td class="nowrap">' . App::core()->blogs()->countBlogPosts($rs->f('blog_id')) . '</td>' .
+                    '<td class="nowrap">' . App::core()->blogs()->countBlogPosts(id: $rs->f('blog_id')) . '</td>' .
                         '<td class="status">' . $img_status . '</td>' .
                         '</tr>';
                 }
@@ -255,7 +255,7 @@ class UserAction extends AbstractPage
         } elseif (!empty($this->blogs) && !empty($this->users) && 'perms' == $this->user_action) {
             $user_perm = $user_list = [];
             if (count($this->users) == 1) {
-                $user_perm = App::core()->users()->getUserPermissions($this->users[0]);
+                $user_perm = App::core()->users()->getUserPermissions(id: $this->users[0]);
             }
 
             foreach ($this->users as $u) {

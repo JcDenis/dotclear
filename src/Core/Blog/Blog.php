@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Core\Blog;
 
 // Dotclear\Core\Blog\Blog
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Core\Blog\Categories\Categories;
 use Dotclear\Core\Blog\Comments\Comments;
@@ -21,6 +20,7 @@ use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Network\Http;
+use Dotclear\Helper\Mapper\Integers;
 
 /**
  * Blog access methods.
@@ -149,7 +149,7 @@ class Blog
      */
     public function __construct(string $id)
     {
-        if (null !== ($rs = App::core()->blogs()->getBlog($id))) {
+        if (null !== ($rs = App::core()->blogs()->getBlog(id: $id))) {
             $this->id     = $id;
             $this->uid    = $rs->f('blog_uid');
             $this->name   = $rs->f('blog_name');
@@ -395,12 +395,11 @@ class Blog
      * Should be called every time a comment or trackback
      * is added, removed or changed its status.
      *
-     * @param int  $id  The comment identifier
-     * @param bool $del If comment is deleted, set this to true
+     * @param int $id The comment identifier
      */
-    public function triggerComment(int $id, bool $del = false): void
+    public function triggerComment(int $id): void
     {
-        $this->triggerComments([$id], $del);
+        $this->triggerComments(ids: new Integers($id));
     }
 
     /**
@@ -409,68 +408,56 @@ class Blog
      * Should be called every time comments or trackbacks are
      * added, removed or changed their status.
      *
-     * @param array|ArrayObject   $ids            The identifiers
-     * @param bool                $del            If comment is delete, set this to true
-     * @param null|array<int,int> $affected_posts The affected posts IDs
+     * @param Integers $ids   The comments IDs
+     * @param Integers $posts The affected posts IDs
      */
-    public function triggerComments(array|ArrayObject $ids, bool $del = false, ?array $affected_posts = null): void
+    public function triggerComments(Integers $ids, Integers $posts = null): void
     {
-        $comments_ids = $this->cleanIds($ids);
-
         // Get posts affected by comments edition
-        if (empty($affected_posts)) {
-            $sql = new SelectStatement(__METHOD__ . 'Id');
-            $rs  = $sql
-                ->from(App::core()->prefix() . 'comment ')
-                ->where('comment_id' . $sql->in($comments_ids))
-                ->group('post_id')
-                ->select()
-            ;
+        if (null === $posts || !$posts->count()) {
+            $sql = new SelectStatement(__METHOD__);
+            $sql->from(App::core()->prefix() . 'comment ');
+            $sql->where('comment_id' . $sql->in($ids->dump()));
+            $sql->group('post_id');
 
-            $affected_posts = [];
+            $posts = new Integers();
+            $rs    = $sql->select();
             while ($rs->fetch()) {
-                $affected_posts[] = $rs->fInt('post_id');
+                $posts->add($rs->fInt('post_id'));
             }
         }
 
-        if (empty($affected_posts)) {
+        if (!$posts->count()) {
             return;
         }
 
         // Count number of comments if exists for affected posts
-        $sql = new SelectStatement(__METHOD__ . 'Count');
-        $rs  = $sql
-            ->columns([
-                'post_id',
-                $sql->count('post_id', 'nb_comment'),
-                'comment_trackback',
-            ])
-            ->from(App::core()->prefix() . 'comment ')
-            ->where('comment_status = 1')
-            ->and('post_id' . $sql->in($affected_posts))
-            ->group(['post_id', 'comment_trackback'])
-            ->select()
-        ;
+        $sql = new SelectStatement(__METHOD__);
+        $sql->columns([
+            'post_id',
+            $sql->count('post_id', 'nb_comment'),
+            'comment_trackback',
+        ]);
+        $sql->from(App::core()->prefix() . 'comment ');
+        $sql->where('comment_status = 1');
+        $sql->and('post_id' . $sql->in($posts->dump()));
+        $sql->group(['post_id', 'comment_trackback']);
 
-        $posts = [];
+        $nb = [];
+        $rs = $sql->select();
         while ($rs->fetch()) {
-            if ($rs->fInt('comment_trackback')) {
-                $posts[$rs->fInt('post_id')]['trackback'] = $rs->f('nb_comment');
-            } else {
-                $posts[$rs->fInt('post_id')]['comment'] = $rs->f('nb_comment');
-            }
+            $nb[$rs->fInt('post_id')][$rs->fInt('comment_trackback') ? 'trackback' : 'comment'] = $rs->f('nb_comment');
         }
 
         // Update number of comments on affected posts
-        foreach ($affected_posts as $post_id) {
-            $sql = UpdateStatement::init(__METHOD__ . $post_id)
-                ->from(App::core()->prefix() . 'post')
-                ->where('post_id = ' . $post_id)
-            ;
+        foreach ($posts->dump() as $post_id) {
+            $sql = new UpdateStatement(__METHOD__);
+            $sql->from(App::core()->prefix() . 'post');
+            $sql->where('post_id = ' . $post_id);
 
-            if (array_key_exists($post_id, $posts)) {
-                $sql->set('nb_trackback = ' . (array_key_exists('trackback', $posts[$post_id]) ? $posts[$post_id]['trackback'] : '0'));
-                $sql->set('nb_comment = ' . (array_key_exists('comment', $posts[$post_id]) ? $posts[$post_id]['comment'] : '0'));
+            if (array_key_exists($post_id, $nb)) {
+                $sql->set('nb_trackback = ' . (array_key_exists('trackback', $nb[$post_id]) ? $nb[$post_id]['trackback'] : '0'));
+                $sql->set('nb_comment = ' . (array_key_exists('comment', $nb[$post_id]) ? $nb[$post_id]['comment'] : '0'));
             } else {
                 $sql->set('nb_trackback = 0');
                 $sql->set('nb_comment = 0');
@@ -478,39 +465,6 @@ class Blog
 
             $sql->update();
         }
-    }
-    // @}
-
-    // / @name Helper methods
-    // @{
-    /**
-     * Cleanup a list of IDs.
-     *
-     * @param mixed $ids The identifiers
-     *
-     * @return array<int, int> The clean ids
-     */
-    public function cleanIds(mixed $ids): array
-    {
-        $clean_ids = [];
-
-        if (!is_array($ids) && !($ids instanceof ArrayObject)) {
-            $ids = [$ids];
-        }
-
-        foreach ($ids as $id) {
-            if (is_array($id) || ($id instanceof ArrayObject)) {
-                $clean_ids = array_merge($clean_ids, $this->cleanIds($id));
-            } else {
-                $id = abs((int) $id);
-
-                if (!empty($id)) {
-                    $clean_ids[] = $id;
-                }
-            }
-        }
-
-        return $clean_ids;
     }
     // @}
 }
