@@ -1327,7 +1327,7 @@ final class Posts
      *
      * @return string The post url
      */
-    public function getPostURL(?string $url, ?string $date, ?string $title, ?int $id): string
+    public function getPostURL(?string $url = null, ?string $date = null, ?string $title = null, ?int $id = null): string
     {
         $url = trim((string) $url);
 
