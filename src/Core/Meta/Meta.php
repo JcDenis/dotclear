@@ -203,14 +203,15 @@ final class Meta
      */
     public function countPostsByMeta(?Param $param = null, ?SelectStatement $sql = null): int
     {
-        $param = new MetaParam($param);
-        $param->unset('order');
-        $param->unset('limit');
+        $params = new MetaParam($param);
+        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
 
-        $query = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $params->unset('order');
+        $params->unset('limit');
 
-        if ($this->queryPostsByMeta(param: $param, sql: $query)) {
-            return App::core()->blog()->posts()->countPosts(param: $param, sql: $query);
+
+        if ($this->queryPostsByMeta(param: $params, sql: $query)) {
+            return App::core()->blog()->posts()->countPosts(param: $params, sql: $query);
         }
 
         return 0;
@@ -228,12 +229,11 @@ final class Meta
      */
     public function getPostsByMeta(?Param $param = null, ?SelectStatement $sql = null): ?Record
     {
-        $param = new MetaParam($param);
+        $params = new MetaParam($param);
+        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
 
-        $query = $sql ? clone $sql : new SelectStatement(__METHOD__);
-
-        if ($this->queryPostsByMeta(param: $param, sql: $query)) {
-            return App::core()->blog()->posts()->getPosts(param: $param, sql: $query);
+        if ($this->queryPostsByMeta(param: $params, sql: $query)) {
+            return App::core()->blog()->posts()->getPosts(param: $params, sql: $query);
         }
 
         return null;
@@ -282,14 +282,14 @@ final class Meta
      */
     public function countCommentsByMeta(?Param $param = null, ?SelectStatement $sql = null): int
     {
-        $param = new MetaParam($param);
-        $param->unset('order');
-        $param->unset('limit');
-
+        $params = new MetaParam($param);
         $query = $sql ? clone $sql : new SelectStatement(__METHOD__);
 
-        if ($this->queryCommentsByMeta(param: $param, sql: $query)) {
-            return App::core()->blog()->posts()->countComments(param: $param, sql: $query);
+        $params->unset('order');
+        $params->unset('limit');
+
+        if ($this->queryCommentsByMeta(param: $params, sql: $query)) {
+            return App::core()->blog()->posts()->countComments(param: $params, sql: $query);
         }
 
         return 0;
@@ -307,12 +307,11 @@ final class Meta
      */
     public function getCommentsByMeta(?Param $param = null, ?SelectStatement $sql = null): ?Record
     {
-        $param = new MetaParam($param);
+        $params = new MetaParam($param);
+        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
 
-        $query = $sql ? clone $sql : new SelectStatement(__METHOD__);
-
-        if ($this->queryCommentsByMeta(param: $param, sql: $query)) {
-            return App::core()->blog()->posts()->getComments(param: $param, sql: $query);
+        if ($this->queryCommentsByMeta(param: $params, sql: $query)) {
+            return App::core()->blog()->posts()->getComments(param: $params, sql: $query);
         }
 
         return null;
@@ -357,14 +356,15 @@ final class Meta
      */
     public function countMetadata(?Param $param = null, ?SelectStatement $sql = null): int
     {
-        $param = new MetaParam($param);
-        $param->unset('order');
-        $param->unset('limit');
+        $params = new MetaParam($param);
+        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
 
-        $query = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $params->unset('order');
+        $params->unset('limit');
+
         $query->column($query->count($query->unique('M.meta_id')));
 
-        return $this->queryMetadataTable(param: $param, sql: $query)->fInt();
+        return $this->queryMetadataTable(param: $params, sql: $query)->fInt();
     }
 
     /**
@@ -379,9 +379,9 @@ final class Meta
      */
     public function getMetadata(?Param $param = null, ?SelectStatement $sql = null): Record
     {
-        $param = new MetaParam($param);
-
+        $params = new MetaParam($param);
         $query = $sql ? clone $sql : new SelectStatement(__METHOD__);
+
         $query->columns([
             'M.meta_id',
             'M.meta_type',
@@ -394,13 +394,13 @@ final class Meta
             'meta_type',
             'P.blog_id',
         ]);
-        $query->order($param->order('count DESC'));
+        $query->order($params->order('count DESC'));
 
-        if (!empty($param->limit())) {
-            $query->limit($param->limit());
+        if (!empty($params->limit())) {
+            $query->limit($params->limit());
         }
 
-        return $this->queryMetadataTable(param: $param, sql: $query);
+        return $this->queryMetadataTable(param: $params, sql: $query);
     }
 
     /**
