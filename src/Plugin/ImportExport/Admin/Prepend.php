@@ -33,10 +33,6 @@ class Prepend extends ModulePrepend
             $modules['import'] = array_merge($modules['import'], [$ns . 'ImportFeed']);
 
             $modules['export'] = array_merge($modules['export'], [$ns . 'ExportFlat']);
-
-            if (App::core()->user()->isSuperAdmin()) {
-                $modules['import'] = array_merge($modules['import'], [$ns . 'ImportDc1']);
-            }
         });
 
         // Maintenance task
