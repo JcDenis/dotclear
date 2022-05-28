@@ -12,6 +12,7 @@ namespace Dotclear\Plugin\ImportExport\Admin;
 // Dotclear\Plugin\ImportExport\Admin\Handler
 use ArrayObject;
 use Dotclear\App;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
@@ -36,21 +37,22 @@ class Handler extends AbstractPage
         App::core()->behavior()->call('importExportModules', $modules);
 
         $type = null;
-        if (!empty($_REQUEST['type']) && in_array($_REQUEST['type'], ['export', 'import'])) {
-            $type = $_REQUEST['type'];
+        if (in_array(GPC::request()->string('type'), ['export', 'import'])) {
+            $type = GPC::request()->string('type');
         }
 
         $module = null;
-        if ($type && !empty($_REQUEST['module'])) {
-            if (isset($modules[$type]) && in_array($_REQUEST['module'], $modules[$type])) {
-                $module = new $_REQUEST['module']();
+        if ($type && !GPC::request()->empty('module')) {
+            if (isset($modules[$type]) && in_array(GPC::request()->string('module'), $modules[$type])) {
+                $m      = GPC::request()->string('module');
+                $module = new $m();
                 $module->init();
             }
         }
 
-        if ($type && null !== $module && !empty($_REQUEST['do'])) {
+        if ($type && null !== $module && !GPC::request()->empty('do')) {
             try {
-                $module->process($_REQUEST['do']);
+                $module->process(GPC::request()->string('do'));
             } catch (Exception $e) {
                 App::core()->error()->add($e->getMessage());
             }

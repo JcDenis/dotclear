@@ -15,6 +15,7 @@ use Dotclear\App;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\GPC\GPC;
 use Exception;
 
 /**
@@ -29,7 +30,7 @@ class Home extends AbstractPage
     protected function getPermissions(): string|bool
     {
         // Set default blog
-        if (!empty($_GET['default_blog'])) {
+        if (!GPC::get()->empty('default_blog')) {
             try {
                 App::core()->users()->setUserDefaultBlog(id: App::core()->user()->userID(), blog: App::core()->blog()->id);
                 App::core()->adminurl()->redirect('admin.home');
@@ -39,10 +40,9 @@ class Home extends AbstractPage
         }
 
         // Logout
-        if (!empty($_GET['logout'])) {
+        if (!GPC::get()->empty('logout')) {
             App::core()->session()->destroy();
-            if (isset($_COOKIE['dc_admin'])) {
-                unset($_COOKIE['dc_admin']);
+            if (GPC::cookie()->isset('dc_admin')) {
                 setcookie('dc_admin', '', -600, '', '', App::core()->config()->get('admin_ssl'));
             }
             App::core()->adminurl()->redirect('admin.auth');

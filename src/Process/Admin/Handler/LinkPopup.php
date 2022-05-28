@@ -12,6 +12,7 @@ namespace Dotclear\Process\Admin\Handler;
 // Dotclear\Process\Admin\Handler\LinkPopup
 use Dotclear\App;
 use Dotclear\Database\Param;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Page\AbstractPage;
@@ -30,14 +31,12 @@ class LinkPopup extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        $plugin_id = !empty($_GET['plugin_id']) ? Html::sanitizeURL($_GET['plugin_id']) : '';
-
         $this
             ->setPageTitle(__('Add a link'))
             ->setPageType('popup')
             ->setPageHead(
                 App::core()->resource()->load('_popup_link.js') .
-                App::core()->behavior()->call('adminPopupLink', $plugin_id)
+                App::core()->behavior()->call('adminPopupLink', Html::sanitizeURL(GPC::get()->string('plugin_id')))
             )
         ;
 
@@ -46,13 +45,10 @@ class LinkPopup extends AbstractPage
 
     protected function getPageContent(): void
     {
-        $href     = !empty($_GET['href']) ? $_GET['href'] : '';
-        $hreflang = !empty($_GET['hreflang']) ? $_GET['hreflang'] : '';
-        $title    = !empty($_GET['title']) ? $_GET['title'] : '';
-
         // Languages combo
         $param = new Param();
         $param->set('order', 'asc');
+
         $rs         = App::core()->blog()->posts()->getLangs(param: $param);
         $lang_combo = App::core()->combo()->getLangsCombo($rs, true);
 
@@ -61,14 +57,14 @@ class LinkPopup extends AbstractPage
         '<form id="link-insert-form" action="#" method="get">' .
         '<p><label class="required" for="href"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Link URL:') . '</label> ' .
         Form::field('href', 35, 512, [
-            'default'    => Html::escapeHTML($href),
+            'default'    => HTML::escapeHTML(GPC::get()->string('href')),
             'extra_html' => 'required placeholder="' . __('URL') . '"',
         ]) .
         '</p>' .
         '<p><label for="title">' . __('Link title:') . '</label> ' .
-        Form::field('title', 35, 512, Html::escapeHTML($title)) . '</p>' .
+        Form::field('title', 35, 512, HTML::escapeHTML(GPC::get()->string('title'))) . '</p>' .
         '<p><label for="hreflang">' . __('Link language:') . '</label> ' .
-        Form::combo('hreflang', $lang_combo, $hreflang) .
+        Form::combo('hreflang', $lang_combo, GPC::get()->string('hreflang')) .
         '</p>' .
 
         '</form>' .

@@ -14,6 +14,7 @@ use ArrayObject;
 use Dotclear\App;
 use Dotclear\Database\Param;
 use Dotclear\Helper\Clock;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Inventory\Inventory;
@@ -45,13 +46,11 @@ class PostInventory extends Inventory
         } else {
             $pager   = new Pager($page, $this->rs_count, $nb_per_page, 10);
             $entries = [];
-            if (isset($_REQUEST['entries'])) {
-                foreach ($_REQUEST['entries'] as $v) {
-                    $entries[(int) $v] = true;
-                }
+            foreach (GPC::request()->array('entries') as $v) {
+                $entries[(int) $v] = true;
             }
-            $html_block = '<div class="table-outer">' .
-                '<table>';
+
+            $html_block = '<div class="table-outer"><table>';
 
             if ($filter) {
                 $html_block .= '<caption>' . sprintf(__('List of %s entries matching the filter.'), $this->rs_count) . '</caption>';

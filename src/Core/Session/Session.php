@@ -16,6 +16,7 @@ use Dotclear\Database\Statement\InsertStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Helper\Clock;
+use Dotclear\Helper\GPC\GPC;
 
 /**
  * Session handling methods.
@@ -64,8 +65,10 @@ class Session
      * Constructor.
      *
      * This method creates an instance of sessionDB class.
+     *
+     * @param null|string $external_session_id Third party auth sess ID
      */
-    public function __construct()
+    public function __construct(private ?string $external_session_id = null)
     {
         $this->cookie_name   = App::core()->config()->get('session_name');
         $this->cookie_path   = '/';
@@ -133,7 +136,11 @@ class Session
             $this->destroy();
         }
 
-        if (!isset($_COOKIE[$this->cookie_name])) {
+        if (null !== $this->external_session_id) {
+            session_id($this->external_session_id);
+        } elseif (GPC::cookie()->isset($this->cookie_name)) {
+            session_id(GPC::cookie()->string($this->cookie_name));
+        } else {
             session_id(sha1(uniqid((string) rand(), true)));
         }
 

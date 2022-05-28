@@ -11,10 +11,11 @@ namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\Blog
 use Dotclear\App;
-use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Core\Blog\Settings\Settings;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
 
 /**
@@ -37,7 +38,7 @@ class Blog extends AbstractPage
     protected function getPagePrepend(): ?bool
     {
         // If there's a blog id, process blog pref
-        if (!empty($_REQUEST['id'])) {
+        if (!GPC::request()->empty('id')) {
             $blog_pref = new BlogPref($this->handler, false);
             $blog_pref->pageProcess();
 
@@ -59,12 +60,12 @@ class Blog extends AbstractPage
         ;
 
         // Create a blog
-        if (!isset($_POST['id']) && isset($_POST['create'])) {
+        if (!GPC::post()->isset('id') && !GPC::post()->empty('create')) {
             $cur                                         = App::core()->con()->openCursor(App::core()->prefix() . 'blog');
-            $cur->setField('blog_id', $this->blog_id     = $_POST['blog_id']);
-            $cur->setField('blog_url', $this->blog_url   = $_POST['blog_url']);
-            $cur->setField('blog_name', $this->blog_name = $_POST['blog_name']);
-            $cur->setField('blog_desc', $this->blog_desc = $_POST['blog_desc']);
+            $cur->setField('blog_id', $this->blog_id     = GPC::post()->string('blog_id'));
+            $cur->setField('blog_url', $this->blog_url   = GPC::post()->string('blog_url'));
+            $cur->setField('blog_name', $this->blog_name = GPC::post()->string('blog_name'));
+            $cur->setField('blog_desc', $this->blog_desc = GPC::post()->string('blog_desc'));
 
             try {
                 // --BEHAVIOR-- adminBeforeBlogCreate

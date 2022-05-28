@@ -14,6 +14,7 @@ use ArrayObject;
 use Dotclear\App;
 use Dotclear\Database\Param;
 use Dotclear\Helper\Clock;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
@@ -75,7 +76,7 @@ class HandlerEdit extends AbstractPage
 
     protected function getActionInstance(): ?Action
     {
-        $action = new CommentAction(App::core()->adminurl()->get('admin.plugin.Page', ['id' => $_REQUEST['id'] ?? ''], '&'));
+        $action = new CommentAction(App::core()->adminurl()->get('admin.plugin.Page', ['id' => GPC::request()->int('id')], '&'));
         $action->setEnableRedirSelection(false);
 
         return $action;
@@ -103,12 +104,12 @@ class HandlerEdit extends AbstractPage
         $img_status_pattern = '<img class="img_select_option" alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
 
         // Get page informations
-        if (!empty($_REQUEST['id'])) {
+        if (!GPC::request()->empty('id')) {
             $page_title = __('Edit page');
 
             $param = new Param();
             $param->set('post_type', 'page');
-            $param->set('post_id', $_REQUEST['id']);
+            $param->set('post_id', GPC::request()->int('id'));
 
             $this->post = App::core()->blog()->posts()->getPosts(param: $param);
 
@@ -179,22 +180,21 @@ class HandlerEdit extends AbstractPage
         }
 
         // Format content
-        if (!empty($_POST) && $this->can_edit_page) {
-            $this->post_format  = $_POST['post_format'];
-            $this->post_excerpt = $_POST['post_excerpt'];
-            $this->post_content = $_POST['post_content'];
+        if (!GPC::post()->count() && $this->can_edit_page) {
+            $this->post_format  = GPC::post()->string('post_format');
+            $this->post_excerpt = GPC::post()->string('post_excerpt');
+            $this->post_content = GPC::post()->string('post_content');
+            $this->post_title   = GPC::post()->string('post_title');
 
-            $this->post_title = $_POST['post_title'];
-
-            if (isset($_POST['post_status'])) {
-                $this->post_status = (int) $_POST['post_status'];
+            if (GPC::post()->isset('post_status')) {
+                $this->post_status = GPC::post()->int('post_status');
             }
 
-            if (empty($_POST['post_dt'])) {
+            if (GPC::post()->empty('post_dt')) {
                 $this->post_dt = '';
             } else {
                 try {
-                    $this->post_dt = Clock::ts(date: $_POST['post_dt'], from: App::core()->timezone());
+                    $this->post_dt = Clock::ts(date: GPC::post()->string('post_dt'), from: App::core()->timezone());
                 } catch (Exception $e) {
                     $this->bad_dt  = true;
                     $this->post_dt = Clock::format('Y-m-d H:i');
@@ -203,16 +203,16 @@ class HandlerEdit extends AbstractPage
                 }
             }
 
-            $this->post_open_comment = !empty($_POST['post_open_comment']);
-            $this->post_open_tb      = !empty($_POST['post_open_tb']);
-            $this->post_selected     = !empty($_POST['post_selected']);
-            $this->post_lang         = $_POST['post_lang'];
-            $this->post_password     = !empty($_POST['post_password']) ? $_POST['post_password'] : null;
-            $this->post_position     = (int) $_POST['post_position'];
-            $this->post_notes        = $_POST['post_notes'];
+            $this->post_open_comment = !GPC::post()->empty('post_open_comment');
+            $this->post_open_tb      = !GPC::post()->empty('post_open_tb');
+            $this->post_selected     = !GPC::post()->empty('post_selected');
+            $this->post_lang         = GPC::post()->string('post_lang');
+            $this->post_password     = GPC::post()->string('post_password', null);
+            $this->post_position     = GPC::post()->int('post_position');
+            $this->post_notes        = GPC::post()->string('post_notes');
 
-            if (isset($_POST['post_url'])) {
-                $this->post_url = $_POST['post_url'];
+            if (GPC::post()->isset('post_url')) {
+                $this->post_url = GPC::post()->string('post_url');
             }
 
             App::core()->blog()->posts()->setPostContent(
@@ -227,7 +227,7 @@ class HandlerEdit extends AbstractPage
         }
 
         // Delete post
-        if (!empty($_POST['delete']) && $this->can_delete) {
+        if (!GPC::post()->empty('delete') && $this->can_delete) {
             try {
                 App::core()->blog()->posts()->delPosts(ids: new Integers($this->post_id));
                 App::core()->adminurl()->redirect('admin.plugin.Page');
@@ -237,7 +237,7 @@ class HandlerEdit extends AbstractPage
         }
 
         // Create or update page
-        if (!empty($_POST) && !empty($_POST['save']) && $this->can_edit_page && !$this->bad_dt) {
+        if (!GPC::post()->empty('save') && $this->can_edit_page && !$this->bad_dt) {
             $cur = App::core()->con()->openCursor(App::core()->prefix() . 'post');
 
             // Magic tweak :)
@@ -260,7 +260,7 @@ class HandlerEdit extends AbstractPage
             $cur->setField('post_open_tb', (int) $this->post_open_tb);
             $cur->setField('post_selected', (int) $this->post_selected);
 
-            if (isset($_POST['post_url'])) {
+            if (GPC::post()->isset('post_url')) {
                 $cur->setField('post_url', $this->post_url);
             }
 
@@ -303,7 +303,7 @@ class HandlerEdit extends AbstractPage
         if (!$this->can_edit_page) {
             $default_tab = '';
         }
-        if (!empty($_GET['co'])) {
+        if (!GPC::get()->empty('co')) {
             $default_tab = 'comments';
         }
 
@@ -403,18 +403,18 @@ class HandlerEdit extends AbstractPage
             }
         }
 
-        if (!empty($_GET['upd'])) {
+        if (!GPC::get()->empty('upd')) {
             App::core()->notice()->success(__('Page has been successfully updated.'));
-        } elseif (!empty($_GET['crea'])) {
+        } elseif (!GPC::get()->empty('crea')) {
             App::core()->notice()->success(__('Page has been successfully created.'));
-        } elseif (!empty($_GET['attached'])) {
+        } elseif (!GPC::get()->empty('attached')) {
             App::core()->notice()->success(__('File has been successfully attached.'));
-        } elseif (!empty($_GET['rmattach'])) {
+        } elseif (!GPC::get()->empty('rmattach')) {
             App::core()->notice()->success(__('Attachment has been successfully removed.'));
         }
 
         // XHTML conversion
-        if (!empty($_GET['xconv'])) {
+        if (!GPC::get()->empty('xconv')) {
             $this->post_excerpt = $this->post_excerpt_xhtml;
             $this->post_content = $this->post_content_xhtml;
             $this->post_format  = 'xhtml';
@@ -805,10 +805,8 @@ class HandlerEdit extends AbstractPage
         '<th>' . __('Edit') . '</th>' .
             '</tr>';
         $comments = [];
-        if (isset($_REQUEST['comments'])) {
-            foreach ($_REQUEST['comments'] as $v) {
-                $comments[(int) $v] = true;
-            }
+        foreach (GPC::request()->array('comments') as $v) {
+            $comments[(int) $v] = true;
         }
 
         while ($rs->fetch()) {

@@ -13,6 +13,7 @@ namespace Dotclear\Plugin\ThemeEditor\Admin;
 use Dotclear\App;
 use Dotclear\Database\Cursor;
 use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\File\Path;
 use Dotclear\Modules\ModuleDefine;
 use Dotclear\Modules\ModulePrepend;
@@ -52,11 +53,8 @@ class Prepend extends ModulePrepend
     {
         // Get and store user's prefs for plugin options
         try {
-            App::core()->user()->preference()->get('interface')->put('colorsyntax', !empty($_POST['colorsyntax']), 'boolean');
-            App::core()->user()->preference()->get('interface')->put(
-                'colorsyntax_theme',
-                (!empty($_POST['colorsyntax_theme']) ? $_POST['colorsyntax_theme'] : '')
-            );
+            App::core()->user()->preference()->get('interface')->put('colorsyntax', !GPC::post()->empty('colorsyntax'), 'boolean');
+            App::core()->user()->preference()->get('interface')->put('colorsyntax_theme', GPC::post()->string('colorsyntax_theme'));
         } catch (Exception $e) {
             App::core()->error()->add($e->getMessage());
         }

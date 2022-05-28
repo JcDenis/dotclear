@@ -12,7 +12,7 @@ namespace Dotclear\Process\Admin\Handler;
 // Dotclear\Process\Admin\Handler\Help
 use Dotclear\App;
 use Dotclear\Process\Admin\Page\AbstractPage;
-use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\GPC\GPC;
 
 /**
  * Admin help page.
@@ -31,10 +31,10 @@ class Help extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        $help_page = !empty($_GET['page']) ? Html::escapeHTML($_GET['page']) : 'index';
+        $help_page = GPC::get()->string('page', 'index');
 
         $this->getHelpContent($help_page);
-        if (('' == $this->help_content) || ('index' == $help_page)) {
+        if ('' == $this->help_content || 'index' == $help_page) {
             $this->getHelpContent('index');
         }
 

@@ -17,8 +17,9 @@ use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Database\Cursor;
 use Dotclear\Exception\CoreException;
-use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Crypt;
+use Dotclear\Helper\GPC\GPC;
+use Dotclear\Helper\Network\Http;
 use Exception;
 
 /**
@@ -245,7 +246,7 @@ class User
      */
     public function sessionExists(): bool
     {
-        return isset($_COOKIE[App::core()->config()->get('session_name')]);
+        return GPC::cookie()->isset(App::core()->config()->get('session_name'));
     }
 
     /**

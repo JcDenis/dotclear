@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\AboutConfig\Admin;
 
 // Dotclear\Plugin\AboutConfig\Admin\Handler
 use Dotclear\App;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Page\AbstractPage;
@@ -31,23 +32,23 @@ class Handler extends AbstractPage
     protected function getPagePrepend(): ?bool
     {
         // Local navigation
-        if (!empty($_POST['gs_nav'])) {
-            App::core()->adminurl()->redirect('admin.plugin.AboutConfig', [], $_POST['gs_nav']);
+        if (!GPC::post()->empty('gs_nav')) {
+            App::core()->adminurl()->redirect('admin.plugin.AboutConfig', [], GPC::post()->string('gs_nav'));
 
             exit;
         }
-        if (!empty($_POST['ls_nav'])) {
-            App::core()->adminurl()->redirect('admin.plugin.AboutConfig', [], $_POST['ls_nav']);
+        if (!GPC::post()->empty('ls_nav')) {
+            App::core()->adminurl()->redirect('admin.plugin.AboutConfig', [], GPC::post()->string('ls_nav'));
 
             exit;
         }
 
         // Local settings update
-        if (!empty($_POST['s']) && is_array($_POST['s'])) {
+        if (!GPC::post()->empty('s')) {
             try {
-                foreach ($_POST['s'] as $ns => $s) {
+                foreach (GPC::post()->array('s') as $ns => $s) {
                     foreach ($s as $k => $v) {
-                        if ('array' == $_POST['s_type'][$ns][$k]) {
+                        if ('array' == GPC::post()->array('s_type')[$ns][$k]) {
                             $v = json_decode($v, true);
                         }
                         App::core()->blog()->settings()->get($ns)->put($k, $v);
@@ -63,11 +64,11 @@ class Handler extends AbstractPage
         }
 
         // Global settings update
-        if (!empty($_POST['gs']) && is_array($_POST['gs'])) {
+        if (!GPC::post()->empty('gs')) {
             try {
-                foreach ($_POST['gs'] as $ns => $s) {
+                foreach (GPC::post()->array('gs') as $ns => $s) {
                     foreach ($s as $k => $v) {
-                        if ('array' == $_POST['gs_type'][$ns][$k]) {
+                        if ('array' == GPC::post()->array('gs_type')[$ns][$k]) {
                             $v = json_decode($v, true);
                         }
                         App::core()->blog()->settings()->get($ns)->put($k, $v, null, null, true, true);
@@ -87,7 +88,7 @@ class Handler extends AbstractPage
             ->setPageTitle(__('about:config'))
             ->setPageHelp('aboutConfig')
             ->setPageHead(
-                App::core()->resource()->pageTabs(!empty($_GET['part']) && 'global' == $_GET['part'] ? 'global' : 'local') .
+                App::core()->resource()->pageTabs('global' == GPC::get()->string('part') ? 'global' : 'local') .
                 App::core()->resource()->load('index.js', 'Plugin', 'AboutConfig')
             )
             ->setPageBreadcrumb([

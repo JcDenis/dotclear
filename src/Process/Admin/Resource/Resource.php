@@ -13,6 +13,7 @@ namespace Dotclear\Process\Admin\Resource;
 use Dotclear\App;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Modules\Modules;
 
@@ -188,11 +189,11 @@ class Resource
      */
     public function serve(): void
     {
-        if (empty($_GET[$this->query])) {
+        if (GPC::get()->empty($this->query)) {
             return;
         }
 
-        $src  = $_GET[$this->query];
+        $src  = GPC::get()->string($this->query);
         $dirs = [];
 
         // Check if it in Var path

@@ -18,6 +18,7 @@ use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Page\AbstractPage;
@@ -52,9 +53,9 @@ class MediaItem extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        $tab = empty($_REQUEST['tab']) ? '' : $_REQUEST['tab'];
+        $tab = GPC::request()->string('tab');
 
-        $post_id = !empty($_REQUEST['post_id']) ? (int) $_REQUEST['post_id'] : null;
+        $post_id = GPC::post()->int('post_id', null);
         if ($post_id) {
             $param = new Param();
             $param->set('post_id', $post_id);
@@ -66,18 +67,18 @@ class MediaItem extends AbstractPage
         }
 
         $this->item_file                  = null;
-        $this->item_popup                 = (int) !empty($_REQUEST['popup']);
-        $this->item_select                = !empty($_REQUEST['select']) ? (int) $_REQUEST['select'] : 0; // 0 : none, 1 : single media, >1 : multiple medias
-        $plugin_id                        = isset($_REQUEST['plugin_id']) ? Html::sanitizeURL($_REQUEST['plugin_id']) : '';
+        $this->item_popup                 = GPC::request()->int('popup');
+        $this->item_select                = GPC::request()->int('select'); // 0 : none, 1 : single media, >1 : multiple medias
+        $plugin_id                        = Html::sanitizeURL(GPC::request()->string('plugin_id'));
         $this->item_page_url_params       = ['popup' => $this->item_popup, 'select' => $this->item_select, 'post_id' => $post_id];
-        $this->media_page_url_params      = ['popup' => $this->item_popup, 'select' => $this->item_select, 'post_id' => $post_id, 'link_type' => !empty($_REQUEST['link_type']) ? $_REQUEST['link_type'] : null];
+        $this->media_page_url_params      = ['popup' => $this->item_popup, 'select' => $this->item_select, 'post_id' => $post_id, 'link_type' => GPC::request()->string('link_type', null)];
 
         if ('' != $plugin_id) {
             $this->item_page_url_params['plugin_id']       = $plugin_id;
             $this->media_page_url_params['plugin_id']      = $plugin_id;
         }
 
-        $this->item_id = !empty($_REQUEST['id']) ? (int) $_REQUEST['id'] : '';
+        $this->item_id = GPC::request()->int('id');
 
         if ('' != $this->item_id) {
             $this->item_page_url_params['id'] = $this->item_id;
@@ -127,24 +128,24 @@ class MediaItem extends AbstractPage
         }
 
         // Update file
-        if ($this->item_file && !empty($_POST['media_file']) && $this->item_file->editable && $this->media_writable) {
+        if ($this->item_file && !GPC::post()->empty('media_file') && $this->item_file->editable && $this->media_writable) {
             $newFile = clone $this->item_file;
 
-            $newFile->basename = $_POST['media_file'];
+            $newFile->basename = GPC::post()->string('media_file');
 
-            if ($_POST['media_path']) {
-                $newFile->dir     = $_POST['media_path'];
-                $newFile->relname = $_POST['media_path'] . '/' . $newFile->basename;
+            if (!GPC::post()->empty('media_path')) {
+                $newFile->dir     = GPC::post()->string('media_path');
+                $newFile->relname = GPC::post()->string('media_path') . '/' . $newFile->basename;
             } else {
                 $newFile->dir     = '';
                 $newFile->relname = $newFile->basename;
             }
-            $newFile->media_title = Html::escapeHTML($_POST['media_title']);
-            $newFile->media_dt    = Clock::ts(date: $_POST['media_dt']);
-            $newFile->media_dtstr = $_POST['media_dt'];
-            $newFile->media_priv  = !empty($_POST['media_private']);
+            $newFile->media_title = Html::escapeHTML(GPC::post()->string('media_title'));
+            $newFile->media_dt    = Clock::ts(date: GPC::post()->string('media_dt'));
+            $newFile->media_dtstr = GPC::post()->string('media_dt');
+            $newFile->media_priv  = !GPC::post()->empty('media_private');
 
-            $desc = isset($_POST['media_desc']) ? Html::escapeHTML($_POST['media_desc']) : '';
+            $desc = Html::escapeHTML(GPC::post()->string('media_desc'));
 
             if ($this->item_file->media_meta instanceof SimpleXMLElement) {
                 if (0 < count($this->item_file->media_meta)) {
@@ -183,7 +184,7 @@ class MediaItem extends AbstractPage
         }
 
         // Update thumbnails
-        if (!empty($_POST['thumbs']) && 'image' == $this->item_file->media_type && $this->item_file->editable && $this->media_writable) {
+        if (!GPC::post()->empty('thumbs') && 'image' == $this->item_file->media_type && $this->item_file->editable && $this->media_writable) {
             try {
                 $foo = null;
                 App::core()->media()->mediaFireRecreateEvent($this->item_file);
@@ -197,9 +198,9 @@ class MediaItem extends AbstractPage
         }
 
         // Unzip file
-        if (!empty($_POST['unzip']) && 'application/zip' == $this->item_file->type && $this->item_file->editable && $this->media_writable) {
+        if (!GPC::post()->empty('unzip') && 'application/zip' == $this->item_file->type && $this->item_file->editable && $this->media_writable) {
             try {
-                $unzip_dir = App::core()->media()->inflateZipFile($this->item_file, 'new' == $_POST['inflate_mode']);
+                $unzip_dir = App::core()->media()->inflateZipFile($this->item_file, 'new' == GPC::post()->string('inflate_mode'));
 
                 App::core()->notice()->addSuccessNotice(__('Zip file has been successfully extracted.'));
                 $this->media_page_url_params['d'] = $unzip_dir;
@@ -210,21 +211,21 @@ class MediaItem extends AbstractPage
         }
 
         // Save media insertion settings for the blog
-        if (!empty($_POST['save_blog_prefs'])) {
-            if (!empty($_POST['pref_src'])) {
-                if (!($s = array_search($_POST['pref_src'], $this->item_file->media_thumb))) {
+        if (!GPC::post()->empty('save_blog_prefs')) {
+            if (!GPC::post()->empty('pref_src')) {
+                if (!($s = array_search(GPC::post()->string('pref_src'), $this->item_file->media_thumb))) {
                     $s = 'o';
                 }
                 App::core()->blog()->settings()->get('system')->put('media_img_default_size', $s);
             }
-            if (!empty($_POST['pref_alignment'])) {
-                App::core()->blog()->settings()->get('system')->put('media_img_default_alignment', $_POST['pref_alignment']);
+            if (!GPC::post()->empty('pref_alignment')) {
+                App::core()->blog()->settings()->get('system')->put('media_img_default_alignment', GPC::post()->string('pref_alignment'));
             }
-            if (!empty($_POST['pref_insertion'])) {
-                App::core()->blog()->settings()->get('system')->put('media_img_default_link', ('link' == $_POST['pref_insertion']));
+            if (!GPC::post()->empty('pref_insertion')) {
+                App::core()->blog()->settings()->get('system')->put('media_img_default_link', ('link' == GPC::post()->string('pref_insertion')));
             }
-            if (!empty($_POST['pref_legend'])) {
-                App::core()->blog()->settings()->get('system')->put('media_img_default_legend', $_POST['pref_legend']);
+            if (!GPC::post()->empty('pref_legend')) {
+                App::core()->blog()->settings()->get('system')->put('media_img_default_legend', GPC::post()->string('pref_legend'));
             }
 
             App::core()->notice()->addSuccessNotice(__('Default media insertion settings have been successfully updated.'));
@@ -232,22 +233,22 @@ class MediaItem extends AbstractPage
         }
 
         // Save media insertion settings for the folder
-        if (!empty($_POST['save_folder_prefs'])) {
+        if (!GPC::post()->empty('save_folder_prefs')) {
             $prefs = [];
-            if (!empty($_POST['pref_src'])) {
-                if (!($s = array_search($_POST['pref_src'], $this->item_file->media_thumb))) {
+            if (!GPC::post()->empty('pref_src')) {
+                if (!($s = array_search(GPC::post()->string('pref_src'), $this->item_file->media_thumb))) {
                     $s = 'o';
                 }
                 $prefs['size'] = $s;
             }
-            if (!empty($_POST['pref_alignment'])) {
-                $prefs['alignment'] = $_POST['pref_alignment'];
+            if (!GPC::post()->empty('pref_alignment')) {
+                $prefs['alignment'] = GPC::post()->string('pref_alignment');
             }
-            if (!empty($_POST['pref_insertion'])) {
-                $prefs['link'] = ('link' == $_POST['pref_insertion']);
+            if (!GPC::post()->empty('pref_insertion')) {
+                $prefs['link'] = ('link' == GPC::post()->string('pref_insertion'));
             }
-            if (!empty($_POST['pref_legend'])) {
-                $prefs['legend'] = $_POST['pref_legend'];
+            if (!GPC::post()->empty('pref_legend')) {
+                $prefs['legend'] = GPC::post()->string('pref_legend');
             }
 
             $local = App::core()->media()->root . '/' . dirname($this->item_file->relname) . '/' . '.mediadef.json';
@@ -258,7 +259,7 @@ class MediaItem extends AbstractPage
         }
 
         // Delete media insertion settings for the folder (.mediadef and .mediadef.json)
-        if (!empty($_POST['remove_folder_prefs'])) {
+        if (!GPC::post()->empty('remove_folder_prefs')) {
             $local      = App::core()->media()->root . '/' . dirname($this->item_file->relname) . '/' . '.mediadef';
             $local_json = $local . '.json';
             if ((file_exists($local) && unlink($local)) || (file_exists($local_json) && unlink($local_json))) {
@@ -308,15 +309,14 @@ class MediaItem extends AbstractPage
 
     protected function getPageContent(): void
     {
-        if (!empty($_GET['fupd']) || !empty($_GET['fupl'])) {
+        if (!GPC::get()->empty('fupd') || !GPC::get()->empty('fupl')) {
             App::core()->notice()->success(__('File has been successfully updated.'));
-        }
-        if (!empty($_GET['thumbupd'])) {
+        } elseif (!GPC::get()->empty('thumbupd')) {
             App::core()->notice()->success(__('Thumbnails have been successfully updated.'));
-        }
-        if (!empty($_GET['blogprefupd'])) {
+        } elseif (!GPC::get()->empty('blogprefupd')) {
             App::core()->notice()->success(__('Default media insertion settings have been successfully updated.'));
         }
+
         if (!$this->item_file) {
             return;
         }
@@ -605,7 +605,7 @@ class MediaItem extends AbstractPage
             '<div class="near-icon">';
 
         if ($this->item_file->media_image) {
-            $thumb_size = !empty($_GET['size']) ? $_GET['size'] : 's';
+            $thumb_size = GPC::get()->string('size', 's');
 
             if (!App::core()->media()->thumbsize()->exists($thumb_size) && 'o' != $thumb_size) {
                 $thumb_size = 's';
@@ -682,7 +682,7 @@ class MediaItem extends AbstractPage
         '<li><strong>' . __('File URL:') . '</strong> <a href="' . $this->item_file->file_url . '">' . $this->item_file->file_url . '</a></li>' .
             '</ul>';
 
-        if (empty($_GET['find_posts'])) {
+        if (GPC::get()->empty('find_posts')) {
             echo '<p><a class="button" href="' . App::core()->adminurl()->get('admin.media.item', array_merge($this->item_page_url_params, ['find_posts' => 1, 'tab' => 'media-details-tab'])) . '">' .
             __('Show entries containing this media') . '</a></p>';
         } else {

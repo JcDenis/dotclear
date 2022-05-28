@@ -14,6 +14,7 @@ use ArrayObject;
 use Dotclear\App;
 use Dotclear\Database\Param;
 use Dotclear\Helper\Clock;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Inventory\Inventory;
@@ -48,11 +49,10 @@ class CommentInventory extends Inventory
             $pager = new Pager($page, $this->rs_count, $nb_per_page, 10);
 
             $comments = [];
-            if (isset($_REQUEST['comments'])) {
-                foreach ($_REQUEST['comments'] as $v) {
-                    $comments[(int) $v] = true;
-                }
+            foreach (GPC::request()->array('comments') as $v) {
+                $comments[(int) $v] = true;
             }
+
             $html_block = '<div class="table-outer">' .
                 '<table>';
 

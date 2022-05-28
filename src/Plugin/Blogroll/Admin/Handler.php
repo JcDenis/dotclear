@@ -13,6 +13,7 @@ namespace Dotclear\Plugin\Blogroll\Admin;
 use Dotclear\App;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\File\Files;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Plugin\Blogroll\Common\Blogroll;
@@ -41,7 +42,7 @@ class Handler extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        if (!empty($_REQUEST['edit']) && !empty($_REQUEST['id'])) {
+        if (!GPC::request()->empty('edit') && !GPC::request()->empty('id')) {
             (new HandlerEdit($this->handler))->pageProcess();
         }
 
@@ -49,7 +50,7 @@ class Handler extends AbstractPage
         $default_tab       = '';
 
         // Import links
-        if (!empty($_POST['import_links']) && !empty($_FILES['links_file'])) {
+        if (!GPC::post()->empty('import_links') && !empty($_FILES['links_file'])) {
             $default_tab = 'import-links';
 
             try {
@@ -78,11 +79,11 @@ class Handler extends AbstractPage
             }
         }
 
-        if (!empty($_POST['import_links_do'])) {
-            foreach ($_POST['entries'] as $idx) {
-                $this->br_link_title = Html::escapeHTML($_POST['title'][$idx]);
-                $this->br_link_href  = Html::escapeHTML($_POST['url'][$idx]);
-                $this->br_link_desc  = Html::escapeHTML($_POST['desc'][$idx]);
+        if (!GPC::post()->empty('import_links_do')) {
+            foreach (GPC::post()->array('entries') as $idx) {
+                $this->br_link_title = Html::escapeHTML(GPC::post()->array('title')[$idx]);
+                $this->br_link_href  = Html::escapeHTML(GPC::post()->array('url')[$idx]);
+                $this->br_link_desc  = Html::escapeHTML(GPC::post()->array('desc')[$idx]);
 
                 try {
                     $this->br_blogroll->addLink($this->br_link_title, $this->br_link_href, $this->br_link_desc, '');
@@ -96,17 +97,17 @@ class Handler extends AbstractPage
             App::core()->adminurl()->redirect('admin.plugin.Blogroll');
         }
 
-        if (!empty($_POST['cancel_import'])) {
+        if (!GPC::post()->empty('cancel_import')) {
             App::core()->error()->add(__('Import operation cancelled.'));
             $default_tab = 'import-links';
         }
 
         // Add link
-        if (!empty($_POST['add_link'])) {
-            $this->br_link_title = Html::escapeHTML($_POST['link_title']);
-            $this->br_link_href  = Html::escapeHTML($_POST['link_href']);
-            $this->br_link_desc  = Html::escapeHTML($_POST['link_desc']);
-            $this->br_link_lang  = Html::escapeHTML($_POST['link_lang']);
+        if (!GPC::post()->empty('add_link')) {
+            $this->br_link_title = Html::escapeHTML(GPC::post()->string('link_title'));
+            $this->br_link_href  = Html::escapeHTML(GPC::post()->string('link_href'));
+            $this->br_link_desc  = Html::escapeHTML(GPC::post()->string('link_desc'));
+            $this->br_link_lang  = Html::escapeHTML(GPC::post()->string('link_lang'));
 
             try {
                 $this->br_blogroll->addLink($this->br_link_title, $this->br_link_href, $this->br_link_desc, $this->br_link_lang);
@@ -120,8 +121,8 @@ class Handler extends AbstractPage
         }
 
         // Add category
-        if (!empty($_POST['add_cat'])) {
-            $this->br_cat_title = Html::escapeHTML($_POST['cat_title']);
+        if (!GPC::post()->empty('add_cat')) {
+            $this->br_cat_title = Html::escapeHTML(GPC::post()->string('cat_title'));
 
             try {
                 $this->br_blogroll->addCategory($this->br_cat_title);
@@ -134,8 +135,8 @@ class Handler extends AbstractPage
         }
 
         // Delete link
-        if (!empty($_POST['removeaction']) && !empty($_POST['remove'])) {
-            foreach ($_POST['remove'] as $k => $v) {
+        if (!GPC::post()->empty('removeaction') && !GPC::post()->empty('remove')) {
+            foreach (GPC::post()->array('remove') as $k => $v) {
                 try {
                     $this->br_blogroll->delItem((int) $v);
                 } catch (Exception $e) {
@@ -153,15 +154,15 @@ class Handler extends AbstractPage
 
         // Order links
         $order = [];
-        if (empty($_POST['links_order']) && !empty($_POST['order'])) {
-            $order = $_POST['order'];
+        if (GPC::post()->empty('links_order') && !GPC::post()->empty('order')) {
+            $order = GPC::post()->array('order');
             asort($order);
             $order = array_keys($order);
-        } elseif (!empty($_POST['links_order'])) {
-            $order = explode(',', $_POST['links_order']);
+        } elseif (!GPC::post()->empty('links_order')) {
+            $order = explode(',', GPC::post()->string('links_order'));
         }
 
-        if (!empty($_POST['saveorder']) && !empty($order)) {
+        if (!GPC::post()->empty('saveorder') && !empty($order)) {
             foreach ($order as $pos => $l) {
                 $pos = ((int) $pos) + 1;
 

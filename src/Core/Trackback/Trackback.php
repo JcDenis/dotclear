@@ -18,6 +18,7 @@ use Dotclear\Database\Statement\InsertStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Exception\CoreException;
 use Dotclear\Helper\Clock;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Network\Xmlrpc\Client as XmlrpcClient;
@@ -197,7 +198,7 @@ class Trackback
     public function receiveTrackback(int $post_id): void
     {
         header('Content-Type: text/xml; charset=UTF-8');
-        if (empty($_POST)) {
+        if (!GPC::post()->count()) {
             Http::head(405, 'Method Not Allowed');
             echo '<?xml version="1.0" encoding="utf-8"?>' . "\n" .
                 "<response>\n" .
@@ -208,10 +209,10 @@ class Trackback
             return;
         }
 
-        $title     = !empty($_POST['title']) ? $_POST['title'] : '';
-        $excerpt   = !empty($_POST['excerpt']) ? $_POST['excerpt'] : '';
-        $url       = !empty($_POST['url']) ? $_POST['url'] : '';
-        $blog_name = !empty($_POST['blog_name']) ? $_POST['blog_name'] : '';
+        $title     = GPC::post()->string('title');
+        $excerpt   = GPC::post()->string('excerpt');
+        $url       = GPC::post()->string('url');
+        $blog_name = GPC::post()->string('blog_name');
         $charset   = '';
         $comment   = '';
 
@@ -296,7 +297,7 @@ class Trackback
             $resp .= '  <message>' . $msg . "</message>\n";
         }
 
-        if (!empty($_POST['__debug'])) {
+        if (!GPC::post()->empty('__debug')) {
             $resp .= "  <debug>\n" .
                 '    <title>' . $title . "</title>\n" .
                 '    <excerpt>' . $excerpt . "</excerpt>\n" .
@@ -385,12 +386,12 @@ class Trackback
 
         try {
             // Check if post and target are valid URL
-            if (empty($_POST['source']) || empty($_POST['target'])) {
+            if (GPC::post()->empty('source') || GPC::post()->empty('target')) {
                 throw new CoreException('Source or target is not valid', 0);
             }
 
-            $from_url = urldecode($_POST['source']);
-            $to_url   = urldecode($_POST['target']);
+            $from_url = urldecode(GPC::post()->string('source'));
+            $to_url   = urldecode(GPC::post()->string('target'));
 
             self::checkURLs($from_url, $to_url);
 

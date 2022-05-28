@@ -13,6 +13,7 @@ namespace Dotclear\Plugin\Pages\Admin;
 use ArrayObject;
 use Dotclear\App;
 use Dotclear\Database\Param;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Modules\ModulePrepend;
 use Dotclear\Plugin\Pages\Common\PagesUrl;
 use Dotclear\Plugin\Pages\Common\PagesWidgets;
@@ -61,7 +62,7 @@ class Prepend extends ModulePrepend
                 'url'         => App::core()->adminurl()->get('admin.plugin.Page'),
                 'icons'       => ['Plugin/Pages/icon-np.svg', 'Plugin/Pages/icon-np-dark.svg'],
                 'permissions' => 'contentadmin,pages',
-                'active_cb'   => fn () => App::core()->adminurl()->is('admin.plugin.Page') && empty($_REQUEST['id']),
+                'active_cb'   => fn () => App::core()->adminurl()->is('admin.plugin.Page') && GPC::request()->empty('id'),
             ]);
         });
 

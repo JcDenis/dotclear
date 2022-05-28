@@ -12,6 +12,7 @@ namespace Dotclear\Plugin\Tags\Admin;
 // Dotclear\Plugin\Tags\Admin\Handler
 use Dotclear\App;
 use Dotclear\Database\Param;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Action\Action\PostAction;
@@ -29,7 +30,6 @@ class Handler extends AbstractPage
     private $t_tag = '';
     private $t_posts;
     private $t_post_list;
-    private $t_posts_actions_page;
     private $t_page        = 1;
     private $t_nb_per_page = 30;
 
@@ -38,9 +38,16 @@ class Handler extends AbstractPage
         return 'usage,contentadmin';
     }
 
+    protected function getActionInstance(): ?PostAction
+    {
+        return GPC::request()->empty('tag') ?
+            null :
+            new PostAction(App::core()->adminurl()->get('admin.plugin.Tags'), ['tag' => GPC::request()->string('tag')]);
+    }
+
     protected function getPagePrepend(): ?bool
     {
-        $this->t_tag = $_REQUEST['tag'] ?? '';
+        $this->t_tag = GPC::request()->string('tag');
 
         if (empty($this->t_tag)) {
             $this
@@ -53,11 +60,11 @@ class Handler extends AbstractPage
                 ])
             ;
         } else {
-            $this->t_page = !empty($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
+            $this->t_page = !GPC::get()->empty('page') ? max(1, GPC::get()->int('page')) : 1;
 
             // Rename a tag
-            if (isset($_POST['new_tag_id'])) {
-                $new_id = App::core()->meta()::sanitizeMetaID($_POST['new_tag_id']);
+            if (GPC::post()->isset('new_tag_id')) {
+                $new_id = App::core()->meta()::sanitizeMetaID(GPC::post()->string('new_tag_id'));
 
                 try {
                     if (App::core()->meta()->updateMeta($this->t_tag, $new_id, 'tag')) {
@@ -70,7 +77,7 @@ class Handler extends AbstractPage
             }
 
             // Delete a tag
-            if (!empty($_POST['delete']) && App::core()->user()->check('publish,contentadmin', App::core()->blog()->id)) {
+            if (!GPC::post()->empty('delete') && App::core()->user()->check('publish,contentadmin', App::core()->blog()->id)) {
                 try {
                     App::core()->meta()->delMeta($this->t_tag, 'tag');
                     App::core()->adminurl()->addSuccessNotice(__('Tag has been successfully removed'));
@@ -95,12 +102,6 @@ class Handler extends AbstractPage
                 $this->t_post_list = new PostInventory($this->t_posts, $count);
             } catch (Exception $e) {
                 App::core()->error()->add($e->getMessage());
-            }
-
-            $this->t_posts_actions_page = new PostAction(App::core()->adminurl()->get('admin.plugin.Tags'), ['tag' => $this->t_tag]);
-
-            if ($this->t_posts_actions_page->getPagePrepend()) {
-                return null;
             }
 
             $this
@@ -209,7 +210,7 @@ class Handler extends AbstractPage
                     '<p class="col checkboxes-helpers"></p>' .
 
                     '<p class="col right"><label for="action" class="classic">' . __('Selected entries action:') . '</label> ' .
-                    form::combo('action', $this->t_posts_actions_page->getCombo()) .
+                    form::combo('action', $this->action->getCombo()) .
                     '<input id="do-action" type="submit" value="' . __('OK') . '" /></p>' .
                     App::core()->adminurl()->getHiddenFormFields('admin.plugin.Tags', ['post_type' => '', 'tag' => $this->t_tag], true) .
                     '</div>' .

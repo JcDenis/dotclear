@@ -10,12 +10,12 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Action\Action;
 
 // Dotclear\Process\Admin\Action\Action\DefaultPostAction
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Core\RsExt\RsExtUser;
 use Dotclear\Database\Param;
 use Dotclear\Exception\AdminException;
 use Dotclear\Exception\MissingOrEmptyValue;
+use Dotclear\Helper\GPC\GPCGroup;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\L10n;
@@ -29,7 +29,7 @@ use Dotclear\Process\Admin\Action\Action;
  */
 abstract class DefaultPostAction extends Action
 {
-    public function loadPostAction(Action $ap): void
+    protected function loadPostAction(Action $ap): void
     {
         if (App::core()->user()->check('publish,contentadmin', App::core()->blog()->id)) {
             $ap->addAction(
@@ -77,7 +77,7 @@ abstract class DefaultPostAction extends Action
         }
     }
 
-    public function doChangePostStatus(Action $ap, array|ArrayObject $post): void
+    protected function doChangePostStatus(Action $ap): void
     {
         $ids = $this->getCleanedIDs(ap: $ap);
 
@@ -114,7 +114,7 @@ abstract class DefaultPostAction extends Action
         $ap->redirect(true);
     }
 
-    public function doUpdateSelectedPost(Action $ap, array|ArrayObject $post): void
+    protected function doUpdateSelectedPost(Action $ap): void
     {
         $ids = $this->getCleanedIDs(ap: $ap);
 
@@ -147,7 +147,7 @@ abstract class DefaultPostAction extends Action
         $ap->redirect(true);
     }
 
-    public function doDeletePost(Action $ap, array|ArrayObject $post)
+    protected function doDeletePost(Action $ap)
     {
         $ids = $this->getCleanedIDs(ap: $ap);
 
@@ -169,17 +169,17 @@ abstract class DefaultPostAction extends Action
         $ap->redirect(false);
     }
 
-    public function doChangePostCategory(Action $ap, array|ArrayObject $post)
+    protected function doChangePostCategory(Action $ap, GPCGroup $from)
     {
-        if (isset($post['new_cat_id'])) {
+        if ($from->isset('new_cat_id')) {
             $ids      = $this->getCleanedIDs(ap: $ap);
-            $category = (int) $post['new_cat_id'];
+            $category = $from->int('new_cat_id');
 
             // First create new category if required
             if (!empty($category) && App::core()->user()->check('categories', App::core()->blog()->id)) {
                 // todo: check for duplicate category and throw clean Exception
                 $cursor = App::core()->con()->openCursor(App::core()->prefix() . 'category');
-                $cursor->setField('cat_title', $post['new_cat_title']);
+                $cursor->setField('cat_title', $from->string('new_cat_title'));
                 $cursor->setField('cat_url', '');
 
                 // --BEHAVIOR-- adminBeforeCategoryCreate, Cursor, int
@@ -187,7 +187,7 @@ abstract class DefaultPostAction extends Action
 
                 $category = App::core()->blog()->categories()->addCategory(
                     cursor: $cursor,
-                    parent: !empty($post['new_cat_parent']) ? (int) $category : 0
+                    parent: $from->int('new_cat_parent')
                 );
 
                 // --BEHAVIOR-- adminAfterCategoryCreate, Cursor, int
@@ -249,12 +249,15 @@ abstract class DefaultPostAction extends Action
         }
     }
 
-    public function doChangePostAuthor(Action $ap, array|ArrayObject $post)
+    protected function doChangePostAuthor(Action $ap, GPCGroup $from)
     {
-        if (isset($post['new_auth_id'])) {
+        if ($from->isset('new_auth_id')) {
             $ids = $this->getCleanedIDs(ap: $ap);
 
-            App::core()->blog()->posts()->updPostsAuthor(ids: $ids, author: $post['new_auth_id']);
+            App::core()->blog()->posts()->updPostsAuthor(
+                ids: $ids,
+                author: $from->string('new_auth_id')
+            );
 
             App::core()->notice()->addSuccessNotice(
                 sprintf(
@@ -264,7 +267,7 @@ abstract class DefaultPostAction extends Action
                         $ids->count()
                     ),
                     $ids->count(),
-                    Html::escapeHTML($post['new_auth_id'])
+                    Html::escapeHTML($from->string('new_auth_id'))
                 )
             );
 
@@ -309,12 +312,12 @@ abstract class DefaultPostAction extends Action
         }
     }
 
-    public function doChangePostLang(Action $ap, array|ArrayObject $post)
+    protected function doChangePostLang(Action $ap, GPCGroup $from)
     {
-        if (isset($post['new_lang'])) {
+        if ($from->isset('new_lang')) {
             $ids = $this->getCleanedIDs(ap: $ap);
 
-            App::core()->blog()->posts()->updPostsLang(ids: $ids, lang: $post['new_lang']);
+            App::core()->blog()->posts()->updPostsLang(ids: $ids, lang: $from->string('new_lang'));
 
             App::core()->notice()->addSuccessNotice(
                 sprintf(
@@ -324,7 +327,7 @@ abstract class DefaultPostAction extends Action
                         $ids->count()
                     ),
                     $ids->count(),
-                    Html::escapeHTML(L10n::getLanguageName($post['new_lang']))
+                    Html::escapeHTML(L10n::getLanguageName($from->string('new_lang')))
                 )
             );
             $ap->redirect(true);

@@ -15,6 +15,7 @@ use Dotclear\App;
 use Dotclear\Core\Url\Url;
 use Dotclear\Database\Param;
 use Dotclear\Exception\AdminException;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\HtmlFilter;
 use Dotclear\Helper\Network\Http;
@@ -76,8 +77,8 @@ class PagesUrl extends Url
                 // Password protected entry
                 if ('' != $post_password && !App::core()->context()->get('preview')) {
                     // Get passwords cookie
-                    if (isset($_COOKIE['dc_passwd'])) {
-                        $pwd_cookie = json_decode($_COOKIE['dc_passwd']);
+                    if (GPC::cookie()->isset('dc_passwd')) {
+                        $pwd_cookie = json_decode(GPC::cookie()->string('dc_passwd'));
                         if (null === $pwd_cookie) {
                             $pwd_cookie = [];
                         } else {
@@ -90,7 +91,7 @@ class PagesUrl extends Url
                     // Check for match
                     // Note: We must prefix post_id key with '#'' in pwd_cookie array in order to avoid integer conversion
                     // because MyArray["12345"] is treated as MyArray[12345]
-                    if ((!empty($_POST['password']) && $_POST['password'] == $post_password)
+                    if ((!GPC::post()->empty('password') && GPC::post()->string('password') == $post_password)
                         || (isset($pwd_cookie['#' . $post_id]) && $pwd_cookie['#' . $post_id] == $post_password)) {
                         $pwd_cookie['#' . $post_id] = $post_password;
                         setcookie('dc_passwd', json_encode($pwd_cookie), 0, '/');
@@ -101,12 +102,15 @@ class PagesUrl extends Url
                     }
                 }
 
-                $post_comment = isset($_POST['c_name'], $_POST['c_mail'], $_POST['c_site'], $_POST['c_content']) && App::core()->context()->get('posts')->commentsActive();
-
                 // Posting a comment
-                if ($post_comment) {
+                if (GPC::post()->isset('c_name')
+                    && GPC::post()->isset('c_mail')
+                    && GPC::post()->isset('c_site')
+                    && GPC::post()->isset('c_content')
+                    && App::core()->context()->get('posts')->commentsActive()
+                ) {
                     // Spam trap
-                    if (!empty($_POST['f_mail'])) {
+                    if (!GPC::post()->empty('f_mail')) {
                         Http::head(412, 'Precondition Failed');
                         header('Content-Type: text/plain');
                         echo 'So Long, and Thanks For All the Fish';
@@ -114,11 +118,11 @@ class PagesUrl extends Url
                         exit;
                     }
 
-                    $name    = $_POST['c_name'];
-                    $mail    = $_POST['c_mail'];
-                    $site    = $_POST['c_site'];
-                    $content = $_POST['c_content'];
-                    $preview = !empty($_POST['preview']);
+                    $name    = GPC::post()->string('c_name');
+                    $mail    = GPC::post()->string('c_mail');
+                    $site    = GPC::post()->string('c_site');
+                    $content = GPC::post()->string('c_content');
+                    $preview = !GPC::post()->empty('preview');
 
                     if ('' != $content) {
                         // --BEHAVIOR-- publicBeforeCommentTransform
@@ -138,7 +142,7 @@ class PagesUrl extends Url
 
                     $cp = App::core()->context()->get('comment_preview')
                         ->set('content', $content)
-                        ->set('rawcontent', $_POST['c_content'])
+                        ->set('rawcontent', GPC::post()->string('c_content'))
                         ->set('name', $name)
                         ->set('mail', $mail)
                         ->set('site', $site)

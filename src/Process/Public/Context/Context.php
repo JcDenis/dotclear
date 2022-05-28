@@ -15,6 +15,7 @@ use Dotclear\Database\Param;
 use Dotclear\Database\Record;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Text;
 use Exception;
 
@@ -437,8 +438,8 @@ class Context
         }
 
         // If search param
-        if (!empty($_GET['q'])) {
-            $url .= (str_contains($url, '?') ? '&amp;' : '?') . 'q=' . rawurlencode($_GET['q']);
+        if (!GPC::get()->empty('q')) {
+            $url .= (str_contains($url, '?') ? '&amp;' : '?') . 'q=' . rawurlencode(GPC::get()->string('q'));
         }
 
         return $url;

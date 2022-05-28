@@ -541,7 +541,8 @@ class Core
     final public function session(): Session
     {
         if (!($this->session instanceof Session)) {
-            $this->session = new Session();
+            $id            = defined('DOTCLEAR_AUTH_SESS_ID') ? DOTCLEAR_AUTH_SESS_ID : null;
+            $this->session = new Session(external_session_id: $id);
         }
 
         return $this->session;
@@ -713,7 +714,6 @@ class Core
         // Set some Http stuff
         Http::$https_scheme_on_443 = $this->config()->get('force_scheme_443');
         Http::$reverse_proxy       = $this->config()->get('reverse_proxy');
-        Http::trimRequest();
 
         // Check master key
         if (32 > strlen($this->config()->get('master_key'))) {

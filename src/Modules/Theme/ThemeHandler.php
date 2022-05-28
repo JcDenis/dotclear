@@ -11,6 +11,7 @@ namespace Dotclear\Modules\Theme;
 
 // Dotclear\Modules\Theme\ThemeHandler
 use Dotclear\App;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Page\AbstractPage;
@@ -146,7 +147,7 @@ class ThemeHandler extends AbstractPage
         // -- Display modules lists --
         if (App::core()->user()->isSuperAdmin()) {
             if (!App::core()->error()->flag()) {
-                if (!empty($_GET['nocache'])) {
+                if (!GPC::get()->empty('nocache')) {
                     App::core()->notice()->success(__('Manual checking of themes update done successfully.'));
                 }
             }

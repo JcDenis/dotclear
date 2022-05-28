@@ -12,6 +12,7 @@ namespace Dotclear\Process\Admin\Handler;
 // Dotclear\Process\Admin\Handler\PostsPopup
 use Dotclear\App;
 use Dotclear\Database\Param;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Inventory\Inventory\PostMiniInventory;
@@ -37,10 +38,10 @@ class PostsPopup extends AbstractPage
 
     protected function getInventoryInstance(): ?PostMiniInventory
     {
-        $this->plugin_id = !empty($_REQUEST['plugin_id']) ? Html::sanitizeURL($_REQUEST['plugin_id']) : '';
-        $this->q         = !empty($_REQUEST['q']) ? $_REQUEST['q'] : null;
-        $this->page      = !empty($_REQUEST['page']) ? max(1, (int) $_REQUEST['page']) : 1;
-        $this->type      = !empty($_REQUEST['type']) ? $_REQUEST['type'] : null;
+        $this->plugin_id = Html::sanitizeURL(GPC::request()->string('plugin_id'));
+        $this->q         = GPC::request()->string('q', null);
+        $this->page      = !GPC::request()->empty('page') ? max(1, GPC::request()->int('page')) : 1;
+        $this->type      = GPC::request()->string('type', null);
 
         $post_types = App::core()->posttype()->getPostTypes();
         foreach ($post_types as $k => $v) {

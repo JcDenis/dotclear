@@ -12,6 +12,7 @@ namespace Dotclear\Plugin\CKEditor\Admin;
 // Dotclear\Plugin\CKEditor\Admin\CKEditorBehavior
 use ArrayObject;
 use Dotclear\App;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 use Dotclear\Process\Admin\Filter\FiltersStack;
@@ -95,8 +96,8 @@ class CKEditorBehavior
 
     public function adminMediaFilter(FiltersStack $fs): void
     {
-        if (!empty($_GET['editor'])) {
-            $fs->add(new DefaultFilter('editor', Html::sanitizeURL($_GET['editor'])));
+        if (!GPC::get()->empty('editor')) {
+            $fs->add(new DefaultFilter('editor', Html::sanitizeURL(GPC::get()->string('editor'))));
         }
     }
 

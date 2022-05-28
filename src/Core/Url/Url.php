@@ -18,6 +18,7 @@ use Dotclear\Database\Param;
 use Dotclear\Exception\CoreException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Text;
@@ -328,18 +329,22 @@ class Url
 
             // Recreates some _GET and _REQUEST pairs
             if (!empty($qs)) {
-                foreach ($_GET as $k => $v) {
-                    if (isset($_REQUEST[$k])) {
-                        unset($_REQUEST[$k]);
-                    }
-                }
-                $_GET     = $qs;
-                $_REQUEST = array_merge($qs, $_REQUEST);
-
+                /**
+                 * // todo: find a way to reproduce this with readonly GPC.
+                 *
+                 * foreach ($_GET as $k => $v) {
+                 * if (isset($_REQUEST[$k])) {
+                 * unset($_REQUEST[$k]);
+                 * }
+                 * }.
+                 *
+                 * $_GET     = $qs;
+                 * $_REQUEST = array_merge($qs, $_REQUEST);
+                 * //*/
                 foreach ($qs as $k => $v) {
                     if (null === $v) {
                         $part = $k;
-                        unset($_GET[$k], $_REQUEST[$k]);
+//                        unset($_GET[$k], $_REQUEST[$k]);
                     }
 
                     break;
@@ -541,7 +546,7 @@ class Url
                 }
             }
 
-            if (empty($_GET['q'])) {
+            if (GPC::get()->empty('q')) {
                 if (null !== App::core()->blog()->settings()->get('system')->get('nb_post_for_home')) {
                     App::core()->context()->set('nb_entry_first_page', App::core()->blog()->settings()->get('system')->get('nb_post_for_home'));
                 }
@@ -562,7 +567,7 @@ class Url
     {
         App::core()->url()->type = 'static';
 
-        if (empty($_GET['q'])) {
+        if (GPC::get()->empty('q')) {
             $this->serveDocument('static.html');
             App::core()->blog()->posts()->publishScheduledEntries();
         } else {
@@ -581,7 +586,7 @@ class Url
         } else {
             App::core()->url()->type = 'search';
 
-            App::core()->url()->search_string = !empty($_GET['q']) ? Html::escapeHTML(rawurldecode($_GET['q'])) : '';
+            App::core()->url()->search_string = Html::escapeHTML(rawurldecode(GPC::get()->string('q')));
             if (App::core()->url()->search_string) {
                 $param = new Param();
                 $param->set('search', App::core()->url()->search_string);
@@ -735,8 +740,8 @@ class Url
                 // Password protected entry
                 if ('' != $post_password && !App::core()->context()->get('preview')) {
                     // Get passwords cookie
-                    if (isset($_COOKIE['dc_passwd'])) {
-                        $pwd_cookie = json_decode($_COOKIE['dc_passwd']);
+                    if (GPC::cookie()->isset('dc_passwd')) {
+                        $pwd_cookie = json_decode(GPC::cookie()->string('dc_passwd'));
                         if (null === $pwd_cookie) {
                             $pwd_cookie = [];
                         } else {
@@ -749,7 +754,7 @@ class Url
                     // Check for match
                     // Note: We must prefix post_id key with '#'' in pwd_cookie array in order to avoid integer conversion
                     // because MyArray["12345"] is treated as MyArray[12345]
-                    if (!empty($_POST['password']) && $_POST['password'] == $post_password
+                    if (!GPC::post()->empty('password') && GPC::post()->string('password') == $post_password
                         || isset($pwd_cookie['#' . $post_id]) && $pwd_cookie['#' . $post_id] == $post_password
                     ) {
                         $pwd_cookie['#' . $post_id] = $post_password;
@@ -761,12 +766,15 @@ class Url
                     }
                 }
 
-                $post_comment = isset($_POST['c_name'], $_POST['c_mail'], $_POST['c_site'], $_POST['c_content']) && App::core()->context()->get('posts')->commentsActive();
-
                 // Posting a comment
-                if ($post_comment) {
+                if (GPC::post()->isset('c_name')
+                    && GPC::post()->isset('c_mail')
+                    && GPC::post()->isset('c_site')
+                    && GPC::post()->isset('c_content')
+                    && App::core()->context()->get('posts')->commentsActive()
+                ) {
                     // Spam trap
-                    if (!empty($_POST['f_mail'])) {
+                    if (!GPC::post()->empty('f_mail')) {
                         Http::head(412, 'Precondition Failed');
                         header('Content-Type: text/plain');
                         echo 'So Long, and Thanks For All the Fish';
@@ -774,11 +782,11 @@ class Url
                         exit;
                     }
 
-                    $name    = $_POST['c_name'];
-                    $mail    = $_POST['c_mail'];
-                    $site    = $_POST['c_site'];
-                    $content = $_POST['c_content'];
-                    $preview = !empty($_POST['preview']);
+                    $name    = GPC::post()->string('c_name');
+                    $mail    = GPC::post()->string('c_mail');
+                    $site    = GPC::post()->string('c_site');
+                    $content = GPC::post()->string('c_content');
+                    $preview = !GPC::post()->empty('preview');
 
                     if ('' != $content) {
                         // --BEHAVIOR-- publicBeforeCommentTransform
@@ -798,7 +806,7 @@ class Url
 
                     $cp               = App::core()->context()->get('comment_preview');
                     $cp['content']    = $content;
-                    $cp['rawcontent'] = $_POST['c_content'];
+                    $cp['rawcontent'] = GPC::post()->string('c_content');
                     $cp['name']       = $name;
                     $cp['mail']       = $mail;
                     $cp['site']       = $site;

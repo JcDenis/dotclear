@@ -13,6 +13,7 @@ namespace Dotclear\Plugin\Akismet\Common;
 use Dotclear\App;
 use Dotclear\Database\Param;
 use Dotclear\Database\Record;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
@@ -118,9 +119,9 @@ class FilterAkismet extends Spamfilter
         $ak_key      = App::core()->blog()->settings()->get('akismet')->get('ak_key');
         $ak_verified = null;
 
-        if (isset($_POST['ak_key'])) {
+        if (GPC::post()->isset('ak_key')) {
             try {
-                $ak_key = $_POST['ak_key'];
+                $ak_key = GPC::post()->string('ak_key');
 
                 App::core()->blog()->settings()->get('akismet')->put('ak_key', $ak_key, 'string');
 

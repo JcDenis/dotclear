@@ -12,6 +12,7 @@ namespace Dotclear\Plugin\Blogroll\Admin;
 // Dotclear\Plugin\Blogroll\Admin\HandlerEdit
 use Dotclear\App;
 use Dotclear\Database\Param;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Plugin\Blogroll\Common\Blogroll;
@@ -47,7 +48,7 @@ class HandlerEdit extends AbstractPage
     protected function getPagePrepend(): ?bool
     {
         $this->br_blogroll = new Blogroll();
-        $this->br_id       = (int) $_REQUEST['id'];
+        $this->br_id       = GPC::request()->int('id');
 
         $rs = null;
 
@@ -70,34 +71,34 @@ class HandlerEdit extends AbstractPage
         }
 
         // Update a link
-        if ($this->br_has_rs && !$this->br_is_cat && !empty($_POST['edit_link'])) {
-            $this->br_link_title = Html::escapeHTML($_POST['link_title']);
-            $this->br_link_href  = Html::escapeHTML($_POST['link_href']);
-            $this->br_link_desc  = Html::escapeHTML($_POST['link_desc']);
-            $this->br_link_lang  = Html::escapeHTML($_POST['link_lang']);
+        if ($this->br_has_rs && !$this->br_is_cat && !GPC::post()->empty('edit_link')) {
+            $this->br_link_title = Html::escapeHTML(GPC::post()->string('link_title'));
+            $this->br_link_href  = Html::escapeHTML(GPC::post()->string('link_href'));
+            $this->br_link_desc  = Html::escapeHTML(GPC::post()->string('link_desc'));
+            $this->br_link_lang  = Html::escapeHTML(GPC::post()->string('link_lang'));
 
             $this->br_link_xfn = '';
 
-            if (!empty($_POST['identity'])) {
-                $this->br_link_xfn .= $_POST['identity'];
+            if (!GPC::post()->empty('identity')) {
+                $this->br_link_xfn .= GPC::post()->string('identity');
             } else {
-                if (!empty($_POST['friendship'])) {
-                    $this->br_link_xfn .= ' ' . $_POST['friendship'];
+                if (!GPC::post()->empty('friendship')) {
+                    $this->br_link_xfn .= ' ' . GPC::post()->string('friendship');
                 }
-                if (!empty($_POST['physical'])) {
+                if (!GPC::post()->empty('physical')) {
                     $this->br_link_xfn .= ' met';
                 }
-                if (!empty($_POST['professional'])) {
-                    $this->br_link_xfn .= ' ' . implode(' ', $_POST['professional']);
+                if (!GPC::post()->empty('professional')) {
+                    $this->br_link_xfn .= ' ' . implode(' ', GPC::post()->array('professional'));
                 }
-                if (!empty($_POST['geographical'])) {
-                    $this->br_link_xfn .= ' ' . $_POST['geographical'];
+                if (!GPC::post()->empty('geographical')) {
+                    $this->br_link_xfn .= ' ' . GPC::post()->string('geographical');
                 }
-                if (!empty($_POST['family'])) {
-                    $this->br_link_xfn .= ' ' . $_POST['family'];
+                if (!GPC::post()->empty('family')) {
+                    $this->br_link_xfn .= ' ' . GPC::post()->string('family');
                 }
-                if (!empty($_POST['romantic'])) {
-                    $this->br_link_xfn .= ' ' . implode(' ', $_POST['romantic']);
+                if (!GPC::post()->empty('romantic')) {
+                    $this->br_link_xfn .= ' ' . implode(' ', GPC::post()->array('romantic'));
                 }
             }
 
@@ -111,8 +112,8 @@ class HandlerEdit extends AbstractPage
         }
 
         // Update a category
-        if ($this->br_has_rs && $this->br_is_cat && !empty($_POST['edit_cat'])) {
-            $this->br_link_desc = Html::escapeHTML($_POST['link_desc']);
+        if ($this->br_has_rs && $this->br_is_cat && !GPC::post()->empty('edit_cat')) {
+            $this->br_link_desc = Html::escapeHTML(GPC::post()->string('link_desc'));
 
             try {
                 $this->br_blogroll->updateCategory($this->br_id, $this->br_link_desc);

@@ -12,6 +12,7 @@ namespace Dotclear\Modules\Plugin;
 // Dotclear\Modules\Plugin\PluginList
 use Dotclear\App;
 use Dotclear\Helper\File\Files;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
@@ -333,7 +334,7 @@ class PluginList
      */
     public function setRedir(string $default = ''): static
     {
-        $this->page_redir = empty($_REQUEST['redir']) ? $default : $_REQUEST['redir'];
+        $this->page_redir = GPC::request()->empty('redir') ? $default : GPC::request()->string('redir');
 
         return $this;
     }
@@ -358,9 +359,9 @@ class PluginList
      */
     public function getSearch(): ?string
     {
-        $query = !empty($_REQUEST['m_search']) ? $_REQUEST['m_search'] : null;
+        $query = GPC::request()->string('m_search');
 
-        return strlen((string) $query) >= 2 ? $query : null;
+        return strlen($query) >= 2 ? $query : null;
     }
 
     /**
@@ -431,7 +432,7 @@ class PluginList
      */
     public function getIndex(): string
     {
-        return isset($_REQUEST['m_nav']) && in_array($_REQUEST['m_nav'], $this->nav_list) ? $_REQUEST['m_nav'] : $this->nav_list[0];
+        return in_array(GPC::request()->string('m_nav'), $this->nav_list) ? GPC::request()->string('m_nav') : $this->nav_list[0];
     }
 
     /**
@@ -510,7 +511,7 @@ class PluginList
      */
     public function getSort(): string
     {
-        return !empty($_REQUEST['m_sort']) ? $_REQUEST['m_sort'] : $this->sort_field;
+        return GPC::request()->empty('m_sort') ? $this->sort_field : GPC::request()->string('m_sort');
     }
 
     /**
@@ -996,16 +997,16 @@ class PluginList
      */
     public function doActions(): void
     {
-        if (empty($_POST) || !empty($_REQUEST['conf']) || !$this->isWritablePath()) {
+        if (!GPC::post()->count() || !GPC::request()->empty('conf') || !$this->isWritablePath()) {
             return;
         }
 
-        $modules = !empty($_POST['modules']) && is_array($_POST['modules']) ? array_values($_POST['modules']) : [];
+        $modules = array_values(GPC::post()->array('modules'));
 
         // Delete
-        if (App::core()->user()->isSuperAdmin() && !empty($_POST['delete'])) {
-            if (is_array($_POST['delete'])) {
-                $modules = array_keys($_POST['delete']);
+        if (App::core()->user()->isSuperAdmin() && !GPC::post()->empty('delete')) {
+            if (count(GPC::post()->array('delete'))) {
+                $modules = array_keys(GPC::post()->array('delete'));
             }
 
             $list = $this->modules()->getDisabledModules();
@@ -1053,9 +1054,9 @@ class PluginList
             Http::redirect($this->getURL());
 
         // Install //! waiting for store modules to be from ModuleDefine
-        } elseif (App::core()->user()->isSuperAdmin() && !empty($_POST['install'])) {
-            if (is_array($_POST['install'])) {
-                $modules = array_keys($_POST['install']);
+        } elseif (App::core()->user()->isSuperAdmin() && !GPC::post()->empty('install')) {
+            if (count(GPC::post()->array('install'))) {
+                $modules = array_keys(GPC::post()->array('install'));
             }
 
             $list = $this->modules()->store()->get();
@@ -1089,9 +1090,9 @@ class PluginList
             Http::redirect($this->getURL());
 
         // Activate
-        } elseif (App::core()->user()->isSuperAdmin() && !empty($_POST['activate'])) {
-            if (is_array($_POST['activate'])) {
-                $modules = array_keys($_POST['activate']);
+        } elseif (App::core()->user()->isSuperAdmin() && !GPC::post()->empty('activate')) {
+            if (count(GPC::post()->array('activate'))) {
+                $modules = array_keys(GPC::post()->array('activate'));
             }
 
             $list = $this->modules()->getDisabledModules();
@@ -1122,9 +1123,9 @@ class PluginList
             Http::redirect($this->getURL());
 
         // Deactivate
-        } elseif (App::core()->user()->isSuperAdmin() && !empty($_POST['deactivate'])) {
-            if (is_array($_POST['deactivate'])) {
-                $modules = array_keys($_POST['deactivate']);
+        } elseif (App::core()->user()->isSuperAdmin() && !GPC::post()->empty('deactivate')) {
+            if (count(GPC::post()->array('deactivate'))) {
+                $modules = array_keys(GPC::post()->array('deactivate'));
             }
 
             $list = $this->modules()->getModules();
@@ -1166,9 +1167,9 @@ class PluginList
             Http::redirect($this->getURL());
 
         // Update //! waiting for store modules to be from ModuleDefine
-        } elseif (App::core()->user()->isSuperAdmin() && !empty($_POST['update'])) {
-            if (is_array($_POST['update'])) {
-                $modules = array_keys($_POST['update']);
+        } elseif (App::core()->user()->isSuperAdmin() && !GPC::post()->empty('update')) {
+            if (count(GPC::post()->array('update'))) {
+                $modules = array_keys(GPC::post()->array('update'));
             }
 
             $list = $this->modules()->store()->get(true);
@@ -1211,13 +1212,14 @@ class PluginList
         }
 
         // Manual actions
-        elseif (!empty($_POST['upload_pkg']) && !empty($_FILES['pkg_file'])
-            || !empty($_POST['fetch_pkg']) && !empty($_POST['pkg_url'])) {
-            if (empty($_POST['your_pwd']) || !App::core()->user()->checkPassword($_POST['your_pwd'])) {
+        elseif (!GPC::post()->empty('upload_pkg') && !empty($_FILES['pkg_file'])
+            || !GPC::post()->empty('fetch_pkg') && !GPC::post()->empty('pkg_url')
+        ) {
+            if (!App::core()->user()->checkPassword(GPC::post()->string('your_pwd'))) {
                 throw new AdminException(__('Password verification failed'));
             }
 
-            if (!empty($_POST['upload_pkg'])) {
+            if (!GPC::post()->empty('upload_pkg')) {
                 Files::uploadStatus($_FILES['pkg_file']);
 
                 $dest = $this->getPath() . '/' . $_FILES['pkg_file']['name'];
@@ -1225,7 +1227,7 @@ class PluginList
                     throw new AdminException(__('Unable to move uploaded file.'));
                 }
             } else {
-                $url  = urldecode($_POST['pkg_url']);
+                $url  = urldecode(GPC::post()->string('pkg_url'));
                 $dest = $this->getPath() . '/' . basename($url);
                 $this->modules()->store()->download($url, $dest);
             }
@@ -1320,11 +1322,11 @@ class PluginList
     public function loadModuleConfiguration(?string $id = null): bool
     {
         // Check request
-        if (empty($_REQUEST['conf']) || empty($_REQUEST['module']) && !$id) {
+        if (GPC::request()->empty('conf') || GPC::request()->empty('module') && !$id) {
             return false;
         }
-        if (!empty($_REQUEST['module']) && empty($id)) {
-            $id = $_REQUEST['module'];
+        if (!GPC::request()->empty('module') && empty($id)) {
+            $id = GPC::post()->string('module');
         }
 
         // Check module and get its definition
@@ -1369,8 +1371,8 @@ class PluginList
 
         try {
             // Save changes
-            if (!empty($_POST)) {
-                $this->config_class->setConfiguration($_POST);
+            if (GPC::post()->count()) {
+                $this->config_class->setConfiguration(GPC::post()->dump());
             }
 
             // Get form content

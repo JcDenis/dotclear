@@ -11,9 +11,10 @@ namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\Xmlrpc
 use Dotclear\App;
-use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Core\Xmlrpc\Xmlrpc as CoreXmlrpc;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Network\Http;
+use Dotclear\Process\Admin\Page\AbstractPage;
 
 /**
  * Admin xmlrpc page.
@@ -29,11 +30,10 @@ class Xmlrpc extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
+        $blog_id = GPC::get()->string('b');
+
         if (isset($_SERVER['PATH_INFO'])) {
-            $blog_id = trim($_SERVER['PATH_INFO']);
-            $blog_id = preg_replace('#^/#', '', $blog_id);
-        } elseif (!empty($_GET['b'])) {
-            $blog_id = $_GET['b'];
+            $blog_id = preg_replace('#^/#', '', trim($_SERVER['PATH_INFO']));
         }
 
         if (empty($blog_id)) {

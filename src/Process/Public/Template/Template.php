@@ -264,6 +264,7 @@ class Template extends BaseTemplate
             self::$ton . "\n" .
             'use Dotclear\App;' . "\n" .
             'use Dotclear\Database\Param;' . "\n" .
+            'use Dotclear\Helper\GPC\GPC;' . "\n" .
             self::$toff . "\n" . parent::compileFile($file);
     }
 
@@ -3161,7 +3162,7 @@ class Template extends BaseTemplate
     public function SysIfCommentPublished(ArrayObject $attr, string $content): string
     {
         return
-            self::$ton . 'if (!empty($_GET[\'pub\'])) :' . self::$toff .
+            self::$ton . 'if (!GPC::get()->empty(\'pub\')) :' . self::$toff .
             $content .
             self::$ton . 'endif;' . self::$toff;
     }
@@ -3172,7 +3173,7 @@ class Template extends BaseTemplate
     public function SysIfCommentPending(ArrayObject $attr, string $content): string
     {
         return
-            self::$ton . 'if (isset($_GET[\'pub\']) && $_GET[\'pub\'] == 0) :' . self::$toff .
+            self::$ton . 'if (GPC::get()->int(\'pub\', -1) == 0) :' . self::$toff .
             $content .
             self::$ton . 'endif;' . self::$toff;
     }

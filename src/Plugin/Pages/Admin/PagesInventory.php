@@ -14,6 +14,7 @@ use ArrayObject;
 use Dotclear\App;
 use Dotclear\Process\Admin\Page\Pager;
 use Dotclear\Process\Admin\Inventory\Inventory;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Clock;
@@ -32,11 +33,10 @@ class PagesInventory extends Inventory
         } else {
             $pager   = new Pager($page, $this->rs_count, $nb_per_page, 10);
             $entries = [];
-            if (isset($_REQUEST['entries'])) {
-                foreach ($_REQUEST['entries'] as $v) {
-                    $entries[(int) $v] = true;
-                }
+            foreach (GPC::request()->array('entries') as $v) {
+                $entries[(int) $v] = true;
             }
+
             $html_block = '<div class="table-outer">' .
                 '<table class="maximal dragable"><thead><tr>';
 

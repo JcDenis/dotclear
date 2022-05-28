@@ -10,11 +10,11 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Action\Action;
 
 // Dotclear\Process\Admin\Action\Action\DefaultBlogAction
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Exception\InsufficientPermissions;
 use Dotclear\Exception\MissingOrEmptyValue;
 use Dotclear\Process\Admin\Action\Action;
+use Dotclear\Helper\GPC\GPCGroup;
 use Dotclear\Helper\Mapper\Strings;
 
 /**
@@ -24,7 +24,7 @@ use Dotclear\Helper\Mapper\Strings;
  */
 abstract class DefaultBlogAction extends Action
 {
-    public function loadBlogsAction(Action $ap): void
+    protected function loadBlogsAction(Action $ap): void
     {
         if (!App::core()->user()->isSuperAdmin()) {
             return;
@@ -45,7 +45,7 @@ abstract class DefaultBlogAction extends Action
         );
     }
 
-    public function doChangeBlogStatus(Action $ap, array|ArrayObject $post): void
+    protected function doChangeBlogStatus(Action $ap): void
     {
         $ids = new Strings($ap->getIDs());
         if (!$ids->count()) {
@@ -64,14 +64,14 @@ abstract class DefaultBlogAction extends Action
         $ap->redirect(true);
     }
 
-    public function doDeleteBlog(Action $ap, array|ArrayObject $post): void
+    protected function doDeleteBlog(Action $ap, GPCgroup $from): void
     {
         $ids = new Strings($ap->getIDs());
         if (!$ids->count()) {
             throw new MissingOrEmptyValue(__('No blog selected'));
         }
 
-        if (!App::core()->user()->checkPassword($_POST['pwd'])) {
+        if (!App::core()->user()->checkPassword($from->string('pwd'))) {
             throw new InsufficientPermissions(__('Password verification failed'));
         }
 

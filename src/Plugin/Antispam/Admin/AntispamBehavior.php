@@ -13,6 +13,7 @@ namespace Dotclear\Plugin\Antispam\Admin;
 use ArrayObject;
 use Dotclear\App;
 use Dotclear\Core\Blog\Settings\Settings;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\XmlTag;
 use Dotclear\Plugin\Antispam\Common\Antispam;
@@ -99,7 +100,7 @@ class AntispamBehavior
 
     public function behaviorAdminBeforeBlogSettingsUpdate(Settings $settings): void
     {
-        $settings->get('antispam')->put('antispam_moderation_ttl', (int) $_POST['antispam_moderation_ttl']);
+        $settings->get('antispam')->put('antispam_moderation_ttl', GPC::post()->int('antispam_moderation_ttl'));
     }
 
     /**

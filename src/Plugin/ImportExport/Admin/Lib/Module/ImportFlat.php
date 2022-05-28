@@ -15,6 +15,7 @@ use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Zip\Unzip;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
@@ -51,7 +52,7 @@ class ImportFlat extends Module
         // Single blog import
         $files      = $this->getPublicFiles();
         $single_upl = null;
-        if (!empty($_POST['public_single_file']) && in_array($_POST['public_single_file'], $files)) {
+        if (!GPC::post()->empty('public_single_file') && in_array(GPC::post()->string('public_single_file'), $files)) {
             $single_upl = false;
         } elseif (!empty($_FILES['up_single_file'])) {
             $single_upl = true;
@@ -66,7 +67,7 @@ class ImportFlat extends Module
                 }
                 $to_unlink = true;
             } else {
-                $file = $_POST['public_single_file'];
+                $file = GPC::post()->string('public_single_file');
             }
 
             $unzip_file = '';
@@ -102,14 +103,14 @@ class ImportFlat extends Module
 
         // Full import
         $full_upl = null;
-        if (!empty($_POST['public_full_file']) && in_array($_POST['public_full_file'], $files)) {
+        if (!GPC::post()->empty('public_full_file') && in_array(GPC::post()->string('public_full_file'), $files)) {
             $full_upl = false;
         } elseif (!empty($_FILES['up_full_file'])) {
             $full_upl = true;
         }
 
         if (null !== $full_upl && App::core()->user()->isSuperAdmin()) {
-            if (empty($_POST['your_pwd']) || !App::core()->user()->checkPassword($_POST['your_pwd'])) {
+            if (!App::core()->user()->checkPassword(GPC::post()->string('your_pwd'))) {
                 throw new ModuleException(__('Password verification failed'));
             }
 
@@ -121,7 +122,7 @@ class ImportFlat extends Module
                 }
                 $to_unlink = true;
             } else {
-                $file = $_POST['public_full_file'];
+                $file = GPC::post()->string('public_full_file');
             }
 
             $unzip_file = '';
@@ -154,7 +155,7 @@ class ImportFlat extends Module
         }
 
         header('content-type:text/plain');
-        var_dump($_POST);
+        var_dump(GPC::post()->dump());
 
         exit;
     }

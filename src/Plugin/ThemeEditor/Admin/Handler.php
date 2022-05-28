@@ -12,6 +12,7 @@ namespace Dotclear\Plugin\ThemeEditor\Admin;
 // Dotclear\Plugin\ThemeEditor\Admin\Handler
 use Dotclear\App;
 use Dotclear\Helper\File\Path;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Page\AbstractPage;
@@ -60,16 +61,16 @@ class Handler extends AbstractPage
 
         try {
             try {
-                if (!empty($_REQUEST['tpl'])) {
-                    $this->te_file = $this->te_editor->getFileContent('tpl', $_REQUEST['tpl']);
-                } elseif (!empty($_REQUEST['css'])) {
-                    $this->te_file = $this->te_editor->getFileContent('css', $_REQUEST['css']);
-                } elseif (!empty($_REQUEST['js'])) {
-                    $this->te_file = $this->te_editor->getFileContent('js', $_REQUEST['js']);
-                } elseif (!empty($_REQUEST['po'])) {
-                    $this->te_file = $this->te_editor->getFileContent('po', $_REQUEST['po']);
-                } elseif (!empty($_REQUEST['php'])) {
-                    $this->te_file = $this->te_editor->getFileContent('php', $_REQUEST['php']);
+                if (!GPC::request()->empty('tpl')) {
+                    $this->te_file = $this->te_editor->getFileContent('tpl', GPC::request()->string('tpl'));
+                } elseif (!GPC::request()->empty('css')) {
+                    $this->te_file = $this->te_editor->getFileContent('css', GPC::request()->string('css'));
+                } elseif (!GPC::request()->empty('js')) {
+                    $this->te_file = $this->te_editor->getFileContent('js', GPC::request()->string('js'));
+                } elseif (!GPC::request()->empty('po')) {
+                    $this->te_file = $this->te_editor->getFileContent('po', GPC::request()->string('po'));
+                } elseif (!GPC::request()->empty('php')) {
+                    $this->te_file = $this->te_editor->getFileContent('php', GPC::request()->string('php'));
                 }
             } catch (Exception $e) {
                 $this->te_file = $file_default;
@@ -78,13 +79,13 @@ class Handler extends AbstractPage
             }
 
             // Write file
-            if (!empty($_POST['write'])) {
-                $this->te_file['c'] = $_POST['file_content'];
+            if (!GPC::post()->empty('write')) {
+                $this->te_file['c'] = GPC::post()->string('file_content');
                 $this->te_editor->writeFile($this->te_file['type'], $this->te_file['f'], $this->te_file['c']);
             }
 
             // Delete file
-            if (!empty($_POST['delete'])) {
+            if (!GPC::post()->empty('delete')) {
                 $this->te_editor->deleteFile($this->te_file['type'], $this->te_file['f']);
                 App::core()->notice()->addSuccessNotice(__('The file has been reset.'));
                 App::core()->adminurl()->redirect('admin.plugin.ThemeEditor', [$this->te_file['type'] => $this->te_file['f']]);
@@ -176,11 +177,13 @@ class Handler extends AbstractPage
             echo '</div></form>';
 
             if (App::core()->user()->preference()->get('interface')->get('colorsyntax')) {
-                $editorMode = (!empty($_REQUEST['css']) ? 'css' :
-                    (!empty($_REQUEST['js']) ? 'javascript' :
-                    (!empty($_REQUEST['po']) ? 'text/plain' :
-                    (!empty($_REQUEST['php']) ? 'php' :
-                    'text/html'))));
+                $editorMode =
+                    (!GPC::request()->empty('css') ? 'css' :
+                    (!GPC::request()->empty('js') ? 'javascript' :
+                    (!GPC::request()->empty('po') ? 'text/plain' :
+                    (!GPC::request()->empty('php') ? 'php' :
+                    'text/html'))))
+                    ;
                 App::core()->resource()->json('theme_editor_mode', ['mode' => $editorMode]);
                 echo App::core()->resource()->load('mode.js', 'Plugin', 'themeEditor');
                 echo App::core()->resource()->runCodeMirror('editor', 'file_content', 'dotclear', App::core()->user()->preference()->get('interface')->get('colorsyntax_theme'));

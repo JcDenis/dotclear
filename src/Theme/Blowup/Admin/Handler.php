@@ -14,6 +14,7 @@ use Dotclear\App;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\File\Files;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Theme\Blowup\Common\BlowupConfig;
@@ -128,63 +129,66 @@ class Handler extends AbstractPage
             $this->Blowup_user = array_merge($this->Blowup_user, $Blowup_user);
         }
 
-        if (!empty($_POST)) {
+        if (GPC::post()->count()) {
             try {
-                $this->Blowup_user['body_txt_f']       = $_POST['body_txt_f'];
-                $this->Blowup_user['body_txt_s']       = $this->Blowup_config->utils->adjustFontSize($_POST['body_txt_s']);
-                $this->Blowup_user['body_txt_c']       = $this->Blowup_config->utils->adjustColor($_POST['body_txt_c']);
-                $this->Blowup_user['body_line_height'] = $this->Blowup_config->utils->adjustFontSize($_POST['body_line_height']);
+                $this->Blowup_user['body_txt_f']       = GPC::post()->string('body_txt_f');
+                $this->Blowup_user['body_txt_s']       = $this->Blowup_config->utils->adjustFontSize(GPC::post()->string('body_txt_s'));
+                $this->Blowup_user['body_txt_c']       = $this->Blowup_config->utils->adjustColor(GPC::post()->string('body_txt_c'));
+                $this->Blowup_user['body_line_height'] = $this->Blowup_config->utils->adjustFontSize(GPC::post()->string('body_line_height'));
 
-                $this->Blowup_user['blog_title_hide'] = (int) !empty($_POST['blog_title_hide']);
-                $update_blog_title                    = !$this->Blowup_user['blog_title_hide'] && (
-                    !empty($_POST['blog_title_f']) || !empty($_POST['blog_title_s']) || !empty($_POST['blog_title_c']) || !empty($_POST['blog_title_a']) || !empty($_POST['blog_title_p'])
-                );
+                $this->Blowup_user['blog_title_hide'] = (int) !GPC::post()->empty('blog_title_hide');
 
-                if ($update_blog_title) {
-                    $this->Blowup_user['blog_title_f'] = $_POST['blog_title_f'];
-                    $this->Blowup_user['blog_title_s'] = $this->Blowup_config->utils->adjustFontSize($_POST['blog_title_s']);
-                    $this->Blowup_user['blog_title_c'] = $this->Blowup_config->utils->adjustColor($_POST['blog_title_c']);
-                    $this->Blowup_user['blog_title_a'] = preg_match('/^(left|center|right)$/', ($_POST['blog_title_a'] ?? '')) ? $_POST['blog_title_a'] : null;
-                    $this->Blowup_user['blog_title_p'] = $this->Blowup_config->utils->adjustPosition($_POST['blog_title_p']);
+                if (!$this->Blowup_user['blog_title_hide'] && (
+                    !GPC::post()->empty('blog_title_f')
+                    || !GPC::post()->empty('blog_title_s')
+                    || !GPC::post()->empty('blog_title_c')
+                    || !GPC::post()->empty('blog_title_a')
+                    || !GPC::post()->empty('blog_title_p')
+                )) {
+                    $this->Blowup_user['blog_title_f'] = GPC::post()->string('blog_title_f');
+                    $this->Blowup_user['blog_title_s'] = $this->Blowup_config->utils->adjustFontSize(GPC::post()->string('blog_title_s'));
+                    $this->Blowup_user['blog_title_c'] = $this->Blowup_config->utils->adjustColor(GPC::post()->string('blog_title_c'));
+                    $this->Blowup_user['blog_title_a'] = preg_match('/^(left|center|right)$/', GPC::post()->string('blog_title_a')) ? GPC::post()->string('blog_title_a') : null;
+                    $this->Blowup_user['blog_title_p'] = $this->Blowup_config->utils->adjustPosition(GPC::post()->string('blog_title_p'));
                 }
 
-                $this->Blowup_user['body_link_c']   = $this->Blowup_config->utils->adjustColor($_POST['body_link_c']);
-                $this->Blowup_user['body_link_f_c'] = $this->Blowup_config->utils->adjustColor($_POST['body_link_f_c']);
-                $this->Blowup_user['body_link_v_c'] = $this->Blowup_config->utils->adjustColor($_POST['body_link_v_c']);
+                $this->Blowup_user['body_link_c']   = $this->Blowup_config->utils->adjustColor(GPC::post()->string('body_link_c'));
+                $this->Blowup_user['body_link_f_c'] = $this->Blowup_config->utils->adjustColor(GPC::post()->string('body_link_f_c'));
+                $this->Blowup_user['body_link_v_c'] = $this->Blowup_config->utils->adjustColor(GPC::post()->string('body_link_v_c'));
 
-                $this->Blowup_user['sidebar_text_f']   = ($_POST['sidebar_text_f'] ?? null);
-                $this->Blowup_user['sidebar_text_s']   = $this->Blowup_config->utils->adjustFontSize($_POST['sidebar_text_s']);
-                $this->Blowup_user['sidebar_text_c']   = $this->Blowup_config->utils->adjustColor($_POST['sidebar_text_c']);
-                $this->Blowup_user['sidebar_title_f']  = ($_POST['sidebar_title_f'] ?? null);
-                $this->Blowup_user['sidebar_title_s']  = $this->Blowup_config->utils->adjustFontSize($_POST['sidebar_title_s']);
-                $this->Blowup_user['sidebar_title_c']  = $this->Blowup_config->utils->adjustColor($_POST['sidebar_title_c']);
-                $this->Blowup_user['sidebar_title2_f'] = ($_POST['sidebar_title2_f'] ?? null);
-                $this->Blowup_user['sidebar_title2_s'] = $this->Blowup_config->utils->adjustFontSize($_POST['sidebar_title2_s']);
-                $this->Blowup_user['sidebar_title2_c'] = $this->Blowup_config->utils->adjustColor($_POST['sidebar_title2_c']);
-                $this->Blowup_user['sidebar_line_c']   = $this->Blowup_config->utils->adjustColor($_POST['sidebar_line_c']);
-                $this->Blowup_user['sidebar_link_c']   = $this->Blowup_config->utils->adjustColor($_POST['sidebar_link_c']);
-                $this->Blowup_user['sidebar_link_f_c'] = $this->Blowup_config->utils->adjustColor($_POST['sidebar_link_f_c']);
-                $this->Blowup_user['sidebar_link_v_c'] = $this->Blowup_config->utils->adjustColor($_POST['sidebar_link_v_c']);
+                $this->Blowup_user['sidebar_text_f']   = GPC::post()->string('sidebar_text_f', null);
+                $this->Blowup_user['sidebar_text_s']   = $this->Blowup_config->utils->adjustFontSize(GPC::post()->string('sidebar_text_s'));
+                $this->Blowup_user['sidebar_text_c']   = $this->Blowup_config->utils->adjustColor(GPC::post()->string('sidebar_text_c'));
+                $this->Blowup_user['sidebar_title_f']  = GPC::post()->string('sidebar_title_f', null);
+                $this->Blowup_user['sidebar_title_s']  = $this->Blowup_config->utils->adjustFontSize(GPC::post()->string('sidebar_title_s'));
+                $this->Blowup_user['sidebar_title_c']  = $this->Blowup_config->utils->adjustColor(GPC::post()->string('sidebar_title_c'));
+                $this->Blowup_user['sidebar_title2_f'] = GPC::post()->string('sidebar_title2_f', null);
+                $this->Blowup_user['sidebar_title2_s'] = $this->Blowup_config->utils->adjustFontSize(GPC::post()->string('sidebar_title2_s'));
+                $this->Blowup_user['sidebar_title2_c'] = $this->Blowup_config->utils->adjustColor(GPC::post()->string('sidebar_title2_c'));
+                $this->Blowup_user['sidebar_line_c']   = $this->Blowup_config->utils->adjustColor(GPC::post()->string('sidebar_line_c'));
+                $this->Blowup_user['sidebar_link_c']   = $this->Blowup_config->utils->adjustColor(GPC::post()->string('sidebar_link_c'));
+                $this->Blowup_user['sidebar_link_f_c'] = $this->Blowup_config->utils->adjustColor(GPC::post()->string('sidebar_link_f_c'));
+                $this->Blowup_user['sidebar_link_v_c'] = $this->Blowup_config->utils->adjustColor(GPC::post()->string('sidebar_link_v_c'));
 
-                $this->Blowup_user['sidebar_position'] = 'left' == ($_POST['sidebar_position'] ?? '') ? 'left' : null;
+                $this->Blowup_user['sidebar_position'] = 'left' == GPC::post()->string('sidebar_position') ? 'left' : null;
 
-                $this->Blowup_user['date_title_f'] = ($_POST['date_title_f'] ?? null);
-                $this->Blowup_user['date_title_s'] = $this->Blowup_config->utils->adjustFontSize($_POST['date_title_s']);
-                $this->Blowup_user['date_title_c'] = $this->Blowup_config->utils->adjustColor($_POST['date_title_c']);
+                $this->Blowup_user['date_title_f'] = GPC::post()->string('date_title_f', null);
+                $this->Blowup_user['date_title_s'] = $this->Blowup_config->utils->adjustFontSize(GPC::post()->string('date_title_s'));
+                $this->Blowup_user['date_title_c'] = $this->Blowup_config->utils->adjustColor(GPC::post()->string('date_title_c'));
 
-                $this->Blowup_user['post_title_f']     = ($_POST['post_title_f'] ?? null);
-                $this->Blowup_user['post_title_s']     = $this->Blowup_config->utils->adjustFontSize($_POST['post_title_s']);
-                $this->Blowup_user['post_title_c']     = $this->Blowup_config->utils->adjustColor($_POST['post_title_c']);
-                $this->Blowup_user['post_comment_c']   = $this->Blowup_config->utils->adjustColor($_POST['post_comment_c']);
-                $this->Blowup_user['post_commentmy_c'] = $this->Blowup_config->utils->adjustColor($_POST['post_commentmy_c']);
+                $this->Blowup_user['post_title_f']     = GPC::post()->string('post_title_f', null);
+                $this->Blowup_user['post_title_s']     = $this->Blowup_config->utils->adjustFontSize(GPC::post()->string('post_title_s'));
+                $this->Blowup_user['post_title_c']     = $this->Blowup_config->utils->adjustColor(GPC::post()->string('post_title_c'));
+                $this->Blowup_user['post_comment_c']   = $this->Blowup_config->utils->adjustColor(GPC::post()->string('post_comment_c'));
+                $this->Blowup_user['post_commentmy_c'] = $this->Blowup_config->utils->adjustColor(GPC::post()->string('post_commentmy_c'));
 
-                $this->Blowup_user['footer_f']    = ($_POST['footer_f'] ?? null);
-                $this->Blowup_user['footer_s']    = $this->Blowup_config->utils->adjustFontSize($_POST['footer_s']);
-                $this->Blowup_user['footer_c']    = $this->Blowup_config->utils->adjustColor($_POST['footer_c']);
-                $this->Blowup_user['footer_l_c']  = $this->Blowup_config->utils->adjustColor($_POST['footer_l_c']);
-                $this->Blowup_user['footer_bg_c'] = $this->Blowup_config->utils->adjustColor($_POST['footer_bg_c']);
+                $this->Blowup_user['footer_f']    = GPC::post()->string('footer_f', null);
+                $this->Blowup_user['footer_s']    = $this->Blowup_config->utils->adjustFontSize(GPC::post()->string('footer_s'));
+                $this->Blowup_user['footer_c']    = $this->Blowup_config->utils->adjustColor(GPC::post()->string('footer_c'));
+                $this->Blowup_user['footer_l_c']  = $this->Blowup_config->utils->adjustColor(GPC::post()->string('footer_l_c'));
+                $this->Blowup_user['footer_bg_c'] = $this->Blowup_config->utils->adjustColor(GPC::post()->string('footer_bg_c'));
 
-                $this->Blowup_user['extra_css'] = $this->Blowup_config->utils->cleanCSS($_POST['extra_css']);
+                $this->Blowup_user['extra_css'] = $this->Blowup_config->utils->cleanCSS(GPC::post()->string('extra_css'));
 
                 if ($this->Blowup_can_write_images) {
                     $uploaded = null;
@@ -198,13 +202,13 @@ class Handler extends AbstractPage
                         $this->Blowup_user['uploaded'] = basename($uploaded);
                     }
 
-                    $this->Blowup_user['top_image'] = in_array(($_POST['top_image'] ?? ''), self::BlowupTopImagesCombo()) ? $_POST['top_image'] : 'default';
+                    $this->Blowup_user['top_image'] = in_array(GPC::post()->string('top_image'), self::BlowupTopImagesCombo()) ? GPC::post()->string('top_image') : 'default';
 
-                    $this->Blowup_user['body_bg_c']           = $this->Blowup_config->utils->adjustColor($_POST['body_bg_c']);
-                    $this->Blowup_user['body_bg_g']           = in_array(($_POST['body_bg_g'] ?? ''), $this->BlowupGradientTypesCombo()) ? $_POST['body_bg_g'] : '';
-                    $this->Blowup_user['post_comment_bg_c']   = $this->Blowup_config->utils->adjustColor($_POST['post_comment_bg_c']);
-                    $this->Blowup_user['post_commentmy_bg_c'] = $this->Blowup_config->utils->adjustColor($_POST['post_commentmy_bg_c']);
-                    $this->Blowup_user['prelude_c']           = $this->Blowup_config->utils->adjustColor($_POST['prelude_c']);
+                    $this->Blowup_user['body_bg_c']           = $this->Blowup_config->utils->adjustColor(GPC::post()->string('body_bg_c'));
+                    $this->Blowup_user['body_bg_g']           = in_array(GPC::post()->string('body_bg_g'), $this->BlowupGradientTypesCombo()) ? GPC::post()->string('body_bg_g') : '';
+                    $this->Blowup_user['post_comment_bg_c']   = $this->Blowup_config->utils->adjustColor(GPC::post()->string('post_comment_bg_c'));
+                    $this->Blowup_user['post_commentmy_bg_c'] = $this->Blowup_config->utils->adjustColor(GPC::post()->string('post_commentmy_bg_c'));
+                    $this->Blowup_user['prelude_c']           = $this->Blowup_config->utils->adjustColor(GPC::post()->string('prelude_c'));
                     $this->Blowup_config->createImages($this->Blowup_user, $uploaded);
                 }
 

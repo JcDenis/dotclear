@@ -16,6 +16,8 @@ use Dotclear\Database\Cursor;
 use Dotclear\Database\Param;
 use Dotclear\Database\Record;
 use Dotclear\Exception\ModuleException;
+use Dotclear\Helper\GPC\GPC;
+use Dotclear\Helper\GPC\GPCGroup;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Action\Action;
@@ -100,8 +102,8 @@ class TagsBehavior
 
     public function tagsField(ArrayObject $main, ArrayObject $sidebar, ?Record $post, string $type = null): void
     {
-        if (!empty($_POST['post_tags'])) {
-            $value = $_POST['post_tags'];
+        if (!GPC::post()->empty('post_tags')) {
+            $value = GPC::post()->string('post_tags');
         } else {
             $value = $post ? App::core()->meta()->getMetaStr((string) $post->f('post_meta'), 'tag') : '';
         }
@@ -111,8 +113,8 @@ class TagsBehavior
 
     public function setTags(Cursor $cur, int $post_id): void
     {
-        if (isset($_POST['post_tags'])) {
-            $tags = $_POST['post_tags'];
+        if (GPC::post()->isset('post_tags')) {
+            $tags = GPC::post()->string('post_tags');
             App::core()->meta()->delPostMeta($post_id, 'tag');
 
             foreach (App::core()->meta()->splitMetaValues($tags) as $tag) {
@@ -136,10 +138,10 @@ class TagsBehavior
         }
     }
 
-    public function adminAddTags(Action $ap, ArrayObject $post): void
+    public function adminAddTags(Action $ap, GPCGroup $from): void
     {
-        if (!empty($post['new_tags'])) {
-            $tags  = App::core()->meta()->splitMetaValues($post['new_tags']);
+        if (!$from->empty('new_tags')) {
+            $tags  = App::core()->meta()->splitMetaValues($from->string('new_tags'));
             $posts = $ap->getRS();
             while ($posts->fetch()) {
                 // Get tags for post
@@ -219,12 +221,12 @@ class TagsBehavior
         }
     }
 
-    public function adminRemoveTags(Action $ap, ArrayObject $post): void
+    public function adminRemoveTags(Action $ap, GPCGroup $from): void
     {
-        if (!empty($post['meta_id']) && App::core()->user()->check('delete,contentadmin', App::core()->blog()->id)) {
+        if (!$from->empty('meta_id') && App::core()->user()->check('delete,contentadmin', App::core()->blog()->id)) {
             $posts = $ap->getRS();
             while ($posts->fetch()) {
-                foreach ($_POST['meta_id'] as $v) {
+                foreach ($from->array('meta_id') as $v) {
                     App::core()->meta()->delPostMeta($posts->fInt('post_id'), 'tag', $v);
                 }
             }
@@ -233,7 +235,7 @@ class TagsBehavior
                     __(
                         'Tag has been successfully removed from selected entries',
                         'Tags have been successfully removed from selected entries',
-                        count($_POST['meta_id'])
+                        count($from->array('meta_id'))
                     )
                 )
             );
@@ -264,7 +266,7 @@ class TagsBehavior
                     __('Remove selected tags from this selection')  => '',
                 ]
             );
-            $posts_count = count($_POST['entries']);
+            $posts_count = count($from->array('entries'));
 
             $ap->setPageContent(
                 '<form action="' . $ap->getURI() . '" method="post">' .
@@ -354,7 +356,7 @@ class TagsBehavior
     {
         if (!is_null($user_id)) {
             $opt                    = $cur->getField('user_options');
-            $opt['tag_list_format'] = $_POST['user_tag_list_format'];
+            $opt['tag_list_format'] = GPC::post()->string('user_tag_list_format');
             $cur->setField('user_options', $opt);
         }
     }

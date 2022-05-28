@@ -12,6 +12,7 @@ namespace Dotclear\Plugin\Breadcrumb\Admin;
 // Dotclear\Plugin\Breadcrumb\Admin\BreadcrumbBehavior
 use Dotclear\App;
 use Dotclear\Core\Blog\Settings\Settings;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 
 /**
@@ -41,7 +42,7 @@ class BreadcrumbBehavior
 
     public function behaviorAdminBeforeBlogSettingsUpdate(Settings $settings): void
     {
-        $settings->get('breadcrumb')->put('breadcrumb_enabled', !empty($_POST['breadcrumb_enabled']), 'boolean');
-        $settings->get('breadcrumb')->put('breadcrumb_alone', !empty($_POST['breadcrumb_alone']), 'boolean');
+        $settings->get('breadcrumb')->put('breadcrumb_enabled', !GPC::post()->empty('breadcrumb_enabled'), 'boolean');
+        $settings->get('breadcrumb')->put('breadcrumb_alone', !GPC::post()->empty('breadcrumb_alone'), 'boolean');
     }
 }

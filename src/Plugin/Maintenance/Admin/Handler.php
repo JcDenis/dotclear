@@ -12,6 +12,7 @@ namespace Dotclear\Plugin\Maintenance\Admin;
 // Dotclear\Plugin\Maintenance\Admin\Handler
 use Dotclear\App;
 use Dotclear\Helper\Clock;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance;
@@ -40,12 +41,12 @@ class Handler extends AbstractPage
     {
         $this->m_maintenance = new Maintenance();
         $this->m_tasks       = $this->m_maintenance->getTasks();
-        $this->m_code        = empty($_POST['code']) ? 0 : (int) $_POST['code'];
-        $this->m_tab         = empty($_REQUEST['tab']) ? '' : $_REQUEST['tab'];
+        $this->m_code        = GPC::post()->int('code');
+        $this->m_tab         = GPC::request()->string('tab');
 
         // Get task object
-        if (!empty($_REQUEST['task'])) {
-            $this->m_task = $this->m_maintenance->getTask($_REQUEST['task']);
+        if (!GPC::request()->empty('task')) {
+            $this->m_task = $this->m_maintenance->getTask(GPC::request()->string('task'));
 
             if (null === $this->m_task) {
                 App::core()->error()->add('Unknown task ID');
@@ -55,7 +56,7 @@ class Handler extends AbstractPage
         }
 
         // Execute task
-        if ($this->m_task && !empty($_POST['task']) && $this->m_task->id() == $_POST['task']) {
+        if ($this->m_task && !GPC::post()->empty('task') && $this->m_task->id() == GPC::post()->string('task')) {
             try {
                 $this->m_code = $this->m_task->execute();
                 if (false === $this->m_code) {
@@ -73,11 +74,11 @@ class Handler extends AbstractPage
         }
 
         // Save settings
-        if (!empty($_POST['save_settings'])) {
+        if (!GPC::post()->empty('save_settings')) {
             try {
                 App::core()->blog()->settings()->get('maintenance')->put(
                     'plugin_message',
-                    !empty($_POST['settings_plugin_message']),
+                    !GPC::post()->empty('settings_plugin_message'),
                     'boolean',
                     'Display alert message of late tasks on plugin page',
                     true,
@@ -89,10 +90,10 @@ class Handler extends AbstractPage
                         continue;
                     }
 
-                    if (!empty($_POST['settings_recall_type']) && 'all' == $_POST['settings_recall_type']) {
-                        $ts = $_POST['settings_recall_time'];
+                    if ('all' == GPC::post()->string('settings_recall_type')) {
+                        $ts = GPC::post()->int('settings_recall_time');
                     } else {
-                        $ts = empty($_POST['settings_ts_' . $t->id()]) ? 0 : $_POST['settings_ts_' . $t->id()];
+                        $ts = GPC::post()->int('settings_ts_' . $t->id());
                     }
                     App::core()->blog()->settings()->get('maintenance')->put(
                         'ts_' . $t->id(),
@@ -112,18 +113,18 @@ class Handler extends AbstractPage
         }
 
         // Save system settings
-        if (!empty($_POST['save_system'])) {
+        if (!GPC::post()->empty('save_system')) {
             try {
                 // Default (global) settings
-                App::core()->blog()->settings()->get('system')->put('csp_admin_on', !empty($_POST['system_csp_global']), null, null, true, true);
-                App::core()->blog()->settings()->get('system')->put('csp_admin_report_only', !empty($_POST['system_csp_global_report_only']), null, null, true, true);
+                App::core()->blog()->settings()->get('system')->put('csp_admin_on', !GPC::post()->empty('system_csp_global'), null, null, true, true);
+                App::core()->blog()->settings()->get('system')->put('csp_admin_report_only', !GPC::post()->empty('system_csp_global_report_only'), null, null, true, true);
                 // Current blog settings
-                App::core()->blog()->settings()->get('system')->put('csp_admin_on', !empty($_POST['system_csp']));
-                App::core()->blog()->settings()->get('system')->put('csp_admin_report_only', !empty($_POST['system_csp_report_only']));
+                App::core()->blog()->settings()->get('system')->put('csp_admin_on', !GPC::post()->empty('system_csp'));
+                App::core()->blog()->settings()->get('system')->put('csp_admin_report_only', !GPC::post()->empty('system_csp_report_only'));
 
                 App::core()->notice()->addSuccessNotice(__('System settings have been saved.'));
 
-                if (!empty($_POST['system_csp_reset'])) {
+                if (!GPC::post()->empty('system_csp_reset')) {
                     App::core()->blog()->settings()->get('system')->dropEvery('csp_admin_on');
                     App::core()->blog()->settings()->get('system')->dropEvery('csp_admin_report_only');
                     App::core()->notice()->addSuccessNotice(__('All blog\'s Content-Security-Policy settings have been reset to default.'));

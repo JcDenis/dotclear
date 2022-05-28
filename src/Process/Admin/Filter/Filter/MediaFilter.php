@@ -12,6 +12,7 @@ namespace Dotclear\Process\Admin\Filter\Filter;
 // Dotclear\Process\Admin\Filter\Filter\MediaFilter
 use Dotclear\App;
 use Dotclear\Database\Param;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Filter\Filter;
 use Dotclear\Process\Admin\Filter\FiltersStack;
@@ -52,7 +53,7 @@ class MediaFilter extends Filter
 
     protected function getPostIdFilter(): DefaultFilter
     {
-        $post_id = !empty($_REQUEST['post_id']) ? (int) $_REQUEST['post_id'] : null;
+        $post_id = GPC::request()->int('post_id', null);
         if ($post_id) {
             $param = new Param();
             $param->set('post_id', $post_id);
@@ -83,7 +84,7 @@ class MediaFilter extends Filter
 
     protected function getDirFilter(): DefaultFilter
     {
-        $get = $_REQUEST['d'] ?? null;
+        $get = GPC::request()->string('d', null);
         if (null === $get && isset($_SESSION['media_manager_dir'])) {
             // We get session information
             $get = $_SESSION['media_manager_dir'];
@@ -99,8 +100,8 @@ class MediaFilter extends Filter
 
     protected function getFileModeFilter(): DefaultFilter
     {
-        if (!empty($_GET['file_mode'])) {
-            $_SESSION['media_file_mode'] = 'grid' == $_GET['file_mode'] ? 'grid' : 'list';
+        if (!GPC::get()->empty('file_mode')) {
+            $_SESSION['media_file_mode'] = 'grid' == GPC::get()->string('file_mode') ? 'grid' : 'list';
         }
         $get = !empty($_SESSION['media_file_mode']) ? $_SESSION['media_file_mode'] : 'grid';
 
@@ -109,21 +110,21 @@ class MediaFilter extends Filter
 
     protected function getPluginIdFilter(): DefaultFilter
     {
-        $get = isset($_REQUEST['plugin_id']) ? Html::sanitizeURL($_REQUEST['plugin_id']) : '';
+        $get = Html::sanitizeURL(GPC::request()->string('plugin_id'));
 
         return new DefaultFilter('plugin_id', $get);
     }
 
     protected function getLinkTypeFilter(): DefaultFilter
     {
-        $get = !empty($_REQUEST['link_type']) ? Html::escapeHTML($_REQUEST['link_type']) : null;
+        $get = !GPC::request()->empty('link_type') ? Html::escapeHTML(GPC::request()->string('link_type')) : null;
 
         return new DefaultFilter('link_type', $get);
     }
 
     protected function getPopupFilter(): DefaultFilter
     {
-        $get = (int) !empty($_REQUEST['popup']);
+        $get = (int) !GPC::request()->empty('popup');
 
         return new DefaultFilter('popup', $get);
     }
@@ -131,7 +132,7 @@ class MediaFilter extends Filter
     protected function getMediaSelectFilter(): DefaultFilter
     {
         // 0 : none, 1 : single media, >1 : multiple media
-        $get = !empty($_REQUEST['select']) ? (int) $_REQUEST['select'] : 0;
+        $get = GPC::request()->int('select');
 
         return new DefaultFilter('select', $get);
     }

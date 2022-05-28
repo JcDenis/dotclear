@@ -11,18 +11,19 @@ namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\Media
 use Dotclear\App;
-use Dotclear\Process\Admin\Page\AbstractPage;
-use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
-use Dotclear\Process\Admin\Filter\Filter\MediaFilter;
-use Dotclear\Process\Admin\Inventory\Inventory\MediaInventory;
 use Dotclear\Database\StaticRecord;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Zip\Zip;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
+use Dotclear\Process\Admin\Filter\Filter\MediaFilter;
+use Dotclear\Process\Admin\Inventory\Inventory\MediaInventory;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
 
 /**
@@ -135,7 +136,7 @@ class Media extends AbstractPage
         $this->media_uploader = (bool) App::core()->user()->preference()->get('interface')->get('enhanceduploader');
 
         // Zip download
-        if (!empty($_GET['zipdl']) && App::core()->user()->check('media_admin', App::core()->blog()->id)) {
+        if (!GPC::get()->empty('zipdl') && App::core()->user()->check('media_admin', App::core()->blog()->id)) {
             try {
                 if (str_starts_with(realpath(App::core()->media()->root . '/' . $this->filter->get('d')), realpath(App::core()->media()->root))) {
                     // Media folder or one of it's sub-folder(s)
@@ -163,8 +164,8 @@ class Media extends AbstractPage
 
         // User last and fav dirs
         if ($this->showLast()) {
-            if (!empty($_GET['fav'])) {
-                if ($this->updateFav(rtrim((string) $this->filter->get('d'), '/'), 'n' == $_GET['fav'])) {
+            if (!GPC::get()->empty('fav')) {
+                if ($this->updateFav(rtrim((string) $this->filter->get('d'), '/'), 'n' == GPC::get()->string('fav'))) {
                     App::core()->adminurl()->redirect('admin.media', $this->filter->values());
                 }
             }
@@ -172,8 +173,8 @@ class Media extends AbstractPage
         }
 
         // New directory
-        if ($this->getDirs() && !empty($_POST['newdir'])) {
-            $nd = Files::tidyFileName($_POST['newdir']);
+        if ($this->getDirs() && !GPC::post()->empty('newdir')) {
+            $nd = Files::tidyFileName(GPC::post()->string('newdir'));
             if (array_filter($this->getDirs('files'), fn ($i) => $i->basename === $nd)
                 || array_filter($this->getDirs('dirs'), fn ($i) => $i->basename === $nd)
             ) {
@@ -183,7 +184,7 @@ class Media extends AbstractPage
                 ));
             } else {
                 try {
-                    App::core()->media()->makeDir($_POST['newdir']);
+                    App::core()->media()->makeDir(GPC::post()->string('newdir'));
                     App::core()->notice()->addSuccessNotice(sprintf(
                         __('Directory "%s" has been successfully created.'),
                         Html::escapeHTML($nd)
@@ -235,10 +236,12 @@ class Media extends AbstractPage
             try {
                 Files::uploadStatus($upfile);
 
-                $f_title   = (isset($_POST['upfiletitle']) ? Html::escapeHTML($_POST['upfiletitle']) : '');
-                $f_private = ($_POST['upfilepriv'] ?? false);
-
-                App::core()->media()->uploadMediaFile($upfile['tmp_name'], $upfile['name'], $f_title, $f_private);
+                App::core()->media()->uploadMediaFile(
+                    $upfile['tmp_name'],
+                    $upfile['name'],
+                    Html::escapeHTML(GPC::post()->string('upfiletitle')),
+                    !GPC::post()->empty('upfilepriv')
+                );
 
                 App::core()->notice()->addSuccessNotice(__('Files have been successfully uploaded.'));
                 App::core()->adminurl()->redirect('admin.media', $this->filter->values());
@@ -248,9 +251,9 @@ class Media extends AbstractPage
         }
 
         // Removing items
-        if ($this->getDirs() && !empty($_POST['medias']) && !empty($_POST['delete_medias'])) {
+        if ($this->getDirs() && !GPC::post()->empty('medias') && !GPC::post()->empty('delete_medias')) {
             try {
-                foreach ($_POST['medias'] as $media) {
+                foreach (GPC::post()->array('medias') as $media) {
                     App::core()->media()->removeItem(rawurldecode($media));
                 }
                 App::core()->notice()->addSuccessNotice(
@@ -258,9 +261,9 @@ class Media extends AbstractPage
                         __(
                             'Successfully delete one media.',
                             'Successfully delete %d medias.',
-                            count($_POST['medias'])
+                            count(GPC::post()->array('medias'))
                         ),
-                        count($_POST['medias'])
+                        count(GPC::post()->array('medias'))
                     )
                 );
                 App::core()->adminurl()->redirect('admin.media', $this->filter->values());
@@ -270,22 +273,22 @@ class Media extends AbstractPage
         }
 
         // Removing item from popup only
-        if ($this->getDirs() && !empty($_POST['rmyes']) && !empty($_POST['remove'])) {
-            $_POST['remove'] = rawurldecode($_POST['remove']);
-            $forget          = false;
+        if ($this->getDirs() && !GPC::post()->empty('rmyes') && !GPC::post()->empty('remove')) {
+            $remove = rawurldecode(GPC::post()->string('remove'));
+            $forget = false;
 
             try {
-                if (is_dir(Path::real(App::core()->media()->getPwd() . '/' . Path::clean($_POST['remove']), false))) {
+                if (is_dir(Path::real(App::core()->media()->getPwd() . '/' . Path::clean($remove), false))) {
                     $msg = __('Directory has been successfully removed.');
                     // Remove dir from recents/favs if necessary
                     $forget = true;
                 } else {
                     $msg = __('File has been successfully removed.');
                 }
-                App::core()->media()->removeItem($_POST['remove']);
+                App::core()->media()->removeItem($remove);
                 if ($forget) {
-                    $this->updateLast($this->filter->get('d') . '/' . Path::clean($_POST['remove']), true);
-                    $this->updateFav($this->filter->get('d') . '/' . Path::clean($_POST['remove']), true);
+                    $this->updateLast($this->filter->get('d') . '/' . Path::clean($remove), true);
+                    $this->updateFav($this->filter->get('d') . '/' . Path::clean($remove), true);
                 }
                 App::core()->notice()->addSuccessNotice($msg);
                 App::core()->adminurl()->redirect('admin.media', $this->filter->values());
@@ -295,7 +298,7 @@ class Media extends AbstractPage
         }
 
         // Rebuild directory
-        if ($this->getDirs() && App::core()->user()->isSuperAdmin() && !empty($_POST['rebuild'])) {
+        if ($this->getDirs() && App::core()->user()->isSuperAdmin() && !GPC::post()->empty('rebuild')) {
             try {
                 App::core()->media()->rebuild($this->filter->get('d'));
 
@@ -312,7 +315,7 @@ class Media extends AbstractPage
         }
 
         // DISPLAY confirm page for rmdir & rmfile
-        if ($this->getDirs() && !empty($_GET['remove']) && empty($_GET['noconfirm'])) {
+        if ($this->getDirs() && !GPC::get()->empty('remove') && GPC::get()->empty('noconfirm')) {
             $this->breadcrumb([__('confirm removal') => '']);
         } else {
             $this->breadcrumb();
@@ -333,16 +336,16 @@ class Media extends AbstractPage
 
     protected function getPageContent(): void
     {
-        if ($this->getDirs() && !empty($_GET['remove']) && empty($_GET['noconfirm'])) {
+        if ($this->getDirs() && !GPC::get()->empty('remove') && GPC::get()->empty('noconfirm')) {
             echo '<form action="' . App::core()->adminurl()->root() . '" method="post">' .
             '<p>' . sprintf(
                 __('Are you sure you want to remove %s?'),
-                Html::escapeHTML($_GET['remove'])
+                Html::escapeHTML(GPC::get()->string('remove'))
             ) . '</p>' .
             '<p><input type="submit" value="' . __('Cancel') . '" /> ' .
             ' &nbsp; <input type="submit" name="rmyes" value="' . __('Yes') . '" />' .
             App::core()->adminurl()->getHiddenFormFields('admin.media', $this->filter->values(), true) .
-            form::hidden('remove', Html::escapeHTML($_GET['remove'])) . '</p>' .
+            form::hidden('remove', Html::escapeHTML(GPC::get()->string('remove'))) . '</p>' .
             '</form>';
 
             return;

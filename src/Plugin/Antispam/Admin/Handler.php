@@ -12,6 +12,7 @@ namespace Dotclear\Plugin\Antispam\Admin;
 // Dotclear\Plugin\Antispam\Admin\Handler
 use Dotclear\App;
 use Dotclear\Helper\Clock;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Plugin\Antispam\Common\Antispam;
@@ -45,30 +46,30 @@ class Handler extends AbstractPage
 
         try {
             // Show filter configuration GUI
-            if (!empty($_GET['f'])) {
-                if (!isset($this->a_filters[$_GET['f']])) {
+            if (!GPC::get()->empty('f')) {
+                if (!isset($this->a_filters[GPC::get()->string('f')])) {
                     throw new Exception(__('Filter does not exist.'));
                 }
 
-                if (!$this->a_filters[$_GET['f']]->hasGUI()) {
+                if (!$this->a_filters[GPC::get()->string('f')]->hasGUI()) {
                     throw new Exception(__('Filter has no user interface.'));
                 }
 
-                $filter      = $this->a_filters[$_GET['f']];
+                $filter      = $this->a_filters[GPC::get()->string('f')];
                 $this->a_gui = $filter->gui($filter->guiURL());
                 $this->a_tab = $filter->guiTab();
             }
 
             // Remove all spam
-            if (!empty($_POST['delete_all'])) {
-                $this->a_antispam->delAllSpam(Clock::database(date: (int) $_POST['ts']));
+            if (!GPC::post()->empty('delete_all')) {
+                $this->a_antispam->delAllSpam(Clock::database(date: GPC::post()->int('ts')));
 
                 App::core()->notice()->addSuccessNotice(__('Spam comments have been successfully deleted.'));
                 App::core()->adminurl()->redirect('admin.plugin.Antispam');
             }
 
             // Update filters
-            if (isset($_POST['filters_upd'])) {
+            if (GPC::post()->isset('filters_upd')) {
                 $filters_opt = [];
                 $i           = 0;
                 foreach ($this->a_filters as $fid => $f) {
@@ -77,19 +78,17 @@ class Handler extends AbstractPage
                 }
 
                 // Enable active filters
-                if (isset($_POST['filters_active']) && is_array($_POST['filters_active'])) {
-                    foreach ($_POST['filters_active'] as $v) {
-                        $filters_opt[$v][0] = true;
-                    }
+                foreach (GPC::post()->array('filters_active') as $v) {
+                    $filters_opt[$v][0] = true;
                 }
 
                 // Order filters
-                if (!empty($_POST['f_order']) && empty($_POST['filters_order'])) {
-                    $order = $_POST['f_order'];
+                if (!GPC::post()->empty('f_order') && GPC::post()->empty('filters_order')) {
+                    $order = GPC::post()->array('f_order');
                     asort($order);
                     $order = array_keys($order);
-                } elseif (!empty($_POST['filters_order'])) {
-                    $order = explode(',', trim($_POST['filters_order'], ','));
+                } elseif (!GPC::post()->empty('filters_order')) {
+                    $order = explode(',', trim(GPC::post()->string('filters_order'), ','));
                 }
 
                 if (isset($order)) {
@@ -99,10 +98,8 @@ class Handler extends AbstractPage
                 }
 
                 // Set auto delete flag
-                if (isset($_POST['filters_auto_del']) && is_array($_POST['filters_auto_del'])) {
-                    foreach ($_POST['filters_auto_del'] as $v) {
-                        $filters_opt[$v][2] = true;
-                    }
+                foreach (GPC::post()->array('filters_auto_del') as $v) {
+                    $filters_opt[$v][2] = true;
                 }
 
                 $this->a_antispam->filters->saveFilterOpts($filters_opt);
@@ -194,7 +191,7 @@ class Handler extends AbstractPage
         // Filters
         echo '<form action="' . App::core()->adminurl()->root() . '" method="post" id="filters-list-form">';
 
-        if (!empty($_GET['upd'])) {
+        if (!GPC::get()->empty('upd')) {
             App::core()->notice()->success(__('Filters configuration has been successfully saved.'));
         }
 

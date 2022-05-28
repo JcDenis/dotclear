@@ -12,6 +12,7 @@ namespace Dotclear\Plugin\Pings\Admin;
 // Dotclear\Plugin\Pings\Admin\Handler
 use Dotclear\App;
 use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Plugin\Pings\Common\PingsAPI;
 use Dotclear\Process\Admin\Page\AbstractPage;
@@ -40,9 +41,9 @@ class Handler extends AbstractPage
                 $this->pings_uris = [];
             }
 
-            if (isset($_POST['pings_srv_name'])) {
-                $pings_srv_name   = is_array($_POST['pings_srv_name']) ? $_POST['pings_srv_name'] : [];
-                $pings_srv_uri    = is_array($_POST['pings_srv_uri']) ? $_POST['pings_srv_uri'] : [];
+            if (GPC::post()->isset('pings_srv_name')) {
+                $pings_srv_name   = GPC::post()->array('pings_srv_name');
+                $pings_srv_uri    = GPC::post()->array('pings_srv_uri');
                 $this->pings_uris = [];
 
                 foreach ($pings_srv_name as $k => $v) {
@@ -51,10 +52,10 @@ class Handler extends AbstractPage
                     }
                 }
                 // Settings for all blogs
-                App::core()->blog()->settings()->get('pings')->put('pings_active', !empty($_POST['pings_active']), null, null, true, true);
+                App::core()->blog()->settings()->get('pings')->put('pings_active', !GPC::post()->empty('pings_active'), null, null, true, true);
                 App::core()->blog()->settings()->get('pings')->put('pings_uris', $this->pings_uris, null, null, true, true);
                 // Settings for current blog only
-                App::core()->blog()->settings()->get('pings')->put('pings_auto', !empty($_POST['pings_auto']), null, null, true, false);
+                App::core()->blog()->settings()->get('pings')->put('pings_auto', !GPC::post()->empty('pings_auto'), null, null, true, false);
 
                 App::core()->notice()->addSuccessNotice(__('Settings have been successfully updated.'));
                 App::core()->adminurl()->redirect('admin.plugin.Pings');
@@ -92,7 +93,7 @@ class Handler extends AbstractPage
                 'default' => Html::escapeHTML($u),
             ]);
 
-            if (!empty($_GET['test'])) {
+            if (!GPC::get()->empty('test')) {
                 try {
                     PingsAPI::doPings($u, 'Example site', 'http://example.com');
                     echo ' <img src="?df=images/check-on.png" alt="OK" />';

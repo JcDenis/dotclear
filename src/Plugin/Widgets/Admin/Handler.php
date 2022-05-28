@@ -13,6 +13,7 @@ namespace Dotclear\Plugin\Widgets\Admin;
 use ArrayObject;
 use Dotclear\App;
 use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Plugin\Widgets\Common\Widgets;
 use Dotclear\Plugin\Widgets\Common\WidgetsStack;
@@ -64,10 +65,10 @@ class Handler extends AbstractPage
         }
 
         // Adding widgets to sidebars
-        if (!empty($_POST['append']) && is_array($_POST['addw'])) {
+        if (!GPC::post()->empty('append')) {
             // Filter selection
             $addw = [];
-            foreach ($_POST['addw'] as $k => $v) {
+            foreach (GPC::post()->array('addw') as $k => $v) {
                 if (in_array($v, ['extra', 'nav', 'custom']) && null !== WidgetsStack::$__widgets->get($k)) {
                     $addw[$k] = $v;
                 }
@@ -75,8 +76,8 @@ class Handler extends AbstractPage
 
             // Append 1 widget
             $wid = false;
-            if ('array' == gettype($_POST['append']) && 1 == count($_POST['append'])) {
-                $wid = array_keys($_POST['append']);
+            if ('array' == gettype(GPC::post()->get('append')) && 1 == count(GPC::post()->array('append'))) {
+                $wid = array_keys(GPC::post()->array('append'));
                 $wid = $wid[0];
             }
 
@@ -125,78 +126,72 @@ class Handler extends AbstractPage
             }
         }
 
+        $w = GPC::post()->array('w');
+
         // Removing ?
         $removing = false;
-        if (isset($_POST['w']) && is_array($_POST['w'])) {
-            foreach ($_POST['w'] as $nsid => $nsw) {
-                foreach ($nsw as $i => $v) {
-                    if (!empty($v['_rem'])) {
-                        $removing = true;
+        foreach ($w as $nsid => $nsw) {
+            foreach ($nsw as $i => $v) {
+                if (!empty($v['_rem'])) {
+                    $removing = true;
 
-                        break 2;
-                    }
+                    break 2;
                 }
             }
         }
 
         // Move ?
         $move = false;
-        if (isset($_POST['w']) && is_array($_POST['w'])) {
-            foreach ($_POST['w'] as $nsid => $nsw) {
-                foreach ($nsw as $i => $v) {
-                    if (!empty($v['_down'])) {
-                        $oldorder = $_POST['w'][$nsid][$i]['order'];
-                        $neworder = $oldorder + 1;
-                        if (isset($_POST['w'][$nsid][$neworder])) {
-                            $_POST['w'][$nsid][$i]['order']        = $neworder;
-                            $_POST['w'][$nsid][$neworder]['order'] = $oldorder;
-                            $move                                  = true;
-                        }
+        foreach ($w as $nsid => $nsw) {
+            foreach ($nsw as $i => $v) {
+                if (!empty($v['_down'])) {
+                    $oldorder = $w[$nsid][$i]['order'];
+                    $neworder = $oldorder + 1;
+                    if (isset($w[$nsid][$neworder])) {
+                        $w[$nsid][$i]['order']                 = $neworder;
+                        $w[$nsid][$neworder]['order']          = $oldorder;
+                        $move                                  = true;
                     }
-                    if (!empty($v['_up'])) {
-                        $oldorder = $_POST['w'][$nsid][$i]['order'];
-                        $neworder = $oldorder - 1;
-                        if (isset($_POST['w'][$nsid][$neworder])) {
-                            $_POST['w'][$nsid][$i]['order']        = $neworder;
-                            $_POST['w'][$nsid][$neworder]['order'] = $oldorder;
-                            $move                                  = true;
-                        }
+                }
+                if (!empty($v['_up'])) {
+                    $oldorder = $w[$nsid][$i]['order'];
+                    $neworder = $oldorder - 1;
+                    if (isset($w[$nsid][$neworder])) {
+                        $w[$nsid][$i]['order']                 = $neworder;
+                        $w[$nsid][$neworder]['order']          = $oldorder;
+                        $move                                  = true;
                     }
                 }
             }
         }
 
         // Update sidebars
-        if (!empty($_POST['wup']) || $removing || $move) {
-            if (!isset($_POST['w']) || !is_array($_POST['w'])) {
-                $_POST['w'] = [];
-            }
-
+        if (!GPC::post()->empty('wup') || $removing || $move) {
             try {
                 // Removing mark as _rem widgets
-                foreach ($_POST['w'] as $nsid => $nsw) {
+                foreach ($w as $nsid => $nsw) {
                     foreach ($nsw as $i => $v) {
                         if (!empty($v['_rem'])) {
-                            unset($_POST['w'][$nsid][$i]);
+                            unset($w[$nsid][$i]);
 
                             continue;
                         }
                     }
                 }
 
-                if (!isset($_POST['w']['nav'])) {
-                    $_POST['w']['nav'] = [];
+                if (!isset($w['nav'])) {
+                    $w['nav'] = [];
                 }
-                if (!isset($_POST['w']['extra'])) {
-                    $_POST['w']['extra'] = [];
+                if (!isset($w['extra'])) {
+                    $w['extra'] = [];
                 }
-                if (!isset($_POST['w']['custom'])) {
-                    $_POST['w']['custom'] = [];
+                if (!isset($w['custom'])) {
+                    $w['custom'] = [];
                 }
 
-                $this->widgets_nav    = $widgets->loadArray($_POST['w']['nav'], WidgetsStack::$__widgets);
-                $this->widgets_extra  = $widgets->loadArray($_POST['w']['extra'], WidgetsStack::$__widgets);
-                $this->widgets_custom = $widgets->loadArray($_POST['w']['custom'], WidgetsStack::$__widgets);
+                $this->widgets_nav    = $widgets->loadArray($w['nav'], WidgetsStack::$__widgets);
+                $this->widgets_extra  = $widgets->loadArray($w['extra'], WidgetsStack::$__widgets);
+                $this->widgets_custom = $widgets->loadArray($w['custom'], WidgetsStack::$__widgets);
 
                 App::core()->blog()->settings()->get('widgets')->put('widgets_nav', $this->widgets_nav->store());
                 App::core()->blog()->settings()->get('widgets')->put('widgets_extra', $this->widgets_extra->store());
@@ -208,7 +203,7 @@ class Handler extends AbstractPage
             } catch (Exception $e) {
                 App::core()->error()->add($e->getMessage());
             }
-        } elseif (!empty($_POST['wreset'])) {
+        } elseif (!GPC::post()->empty('wreset')) {
             try {
                 App::core()->blog()->settings()->get('widgets')->put('widgets_nav', '');
                 App::core()->blog()->settings()->get('widgets')->put('widgets_extra', '');

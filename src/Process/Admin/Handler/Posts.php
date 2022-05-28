@@ -11,6 +11,7 @@ namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\Posts
 use Dotclear\App;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Action\Action\PostAction;
@@ -87,11 +88,12 @@ class Posts extends AbstractPage
 
     protected function getPageContent(): void
     {
-        if (!empty($_GET['upd'])) {
+        if (!GPC::get()->empty('upd')) {
             App::core()->notice()->success(__('Selected entries have been successfully updated.'));
-        } elseif (!empty($_GET['del'])) {
+        } elseif (!GPC::get()->empty('del')) {
             App::core()->notice()->success(__('Selected entries have been successfully deleted.'));
         }
+
         if (!App::core()->error()->flag()) {
             echo '<p class="top-add"><a class="button add" href="' . App::core()->adminurl()->get('admin.post') . '">' . __('New post') . '</a></p>';
 

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Filter;
 
 // Dotclear\Process\Admin\Filter\Filters
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 
 /**
@@ -68,7 +69,7 @@ class Filters
     public function getPageFilter(string $id = 'page'): DefaultFilter
     {
         return DefaultFilter::init($id)
-            ->value(!empty($_GET[$id]) ? max(1, (int) $_GET[$id]) : 1)
+            ->value(!GPC::get()->empty($id) ? max(1, GPC::get()->int($id)) : 1)
             ->param('limit', fn ($f) => [(($f[0] - 1) * $f['nb']), $f['nb']])
         ;
     }

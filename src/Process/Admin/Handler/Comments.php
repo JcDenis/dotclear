@@ -16,6 +16,7 @@ use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Action\Action\CommentAction;
 use Dotclear\Process\Admin\Inventory\Inventory\CommentInventory;
 use Dotclear\Process\Admin\Filter\Filter\CommentFilter;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Exception;
@@ -76,7 +77,7 @@ class Comments extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        if (!empty($_POST['delete_all_spam'])) {
+        if (!GPC::post()->empty('delete_all_spam')) {
             try {
                 App::core()->blog()->comments()->delJunkComments();
                 $_SESSION['comments_del_spam'] = true;
@@ -102,9 +103,9 @@ class Comments extends AbstractPage
 
     protected function getPageContent(): void
     {
-        if (!empty($_GET['upd'])) {
+        if (!GPC::get()->empty('upd')) {
             App::core()->notice()->success(__('Selected comments have been successfully updated.'));
-        } elseif (!empty($_GET['del'])) {
+        } elseif (!GPC::get()->empty('del')) {
             App::core()->notice()->success(__('Selected comments have been successfully deleted.'));
         }
 

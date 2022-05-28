@@ -13,6 +13,7 @@ namespace Dotclear\Process\Admin\Favorite;
 use ArrayObject;
 use Dotclear\App;
 use Dotclear\Core\User\Preference\Workspace;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Process\Admin\Menu\Summary;
 use Dotclear\Process\Admin\Menu\MenuItem;
 
@@ -464,7 +465,7 @@ class Favorite
      */
     private function cbNewpostActive(): bool
     {
-        return App::core()->adminurl()->is('admin.post') && !isset($_REQUEST['id']);
+        return App::core()->adminurl()->is('admin.post') && !GPC::request()->isset('id');
     }
 
     /**

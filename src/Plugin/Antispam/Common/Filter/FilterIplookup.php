@@ -12,6 +12,7 @@ namespace Dotclear\Plugin\Antispam\Common\Filter;
 // Dotclear\Plugin\Antispam\Common\Filter\FilterIpookup
 use Dotclear\App;
 use Dotclear\Plugin\Antispam\Common\Spamfilter;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Network\Http;
@@ -80,9 +81,9 @@ class FilterIplookup extends Spamfilter
     {
         $bls = $this->getServers();
 
-        if (isset($_POST['bls'])) {
+        if (GPC::post()->isset('bls')) {
             try {
-                App::core()->blog()->settings()->get('antispam')->put('antispam_dnsbls', $_POST['bls'], 'string', 'Antispam DNSBL servers', true, false);
+                App::core()->blog()->settings()->get('antispam')->put('antispam_dnsbls', GPC::post()->string('bls'), 'string', 'Antispam DNSBL servers', true, false);
                 App::core()->notice()->addSuccessNotice(__('The list of DNSBL servers has been succesfully updated.'));
                 Http::redirect($url);
             } catch (Exception $e) {
@@ -92,7 +93,7 @@ class FilterIplookup extends Spamfilter
 
         /* DISPLAY
         ---------------------------------------------- */
-        $res = '<form action="' . Html::escapeURL($url) . '" method="post" class="fieldset">' .
+        return '<form action="' . Html::escapeURL($url) . '" method="post" class="fieldset">' .
         '<h3>' . __('IP Lookup servers') . '</h3>' .
         '<p><label for="bls">' . __('Add here a coma separated list of servers.') . '</label>' .
         Form::textarea('bls', 40, 3, Html::escapeHTML($bls), 'maximal') .
@@ -100,8 +101,6 @@ class FilterIplookup extends Spamfilter
         '<p><input type="submit" value="' . __('Save') . '" />' .
         App::core()->nonce()->form() . '</p>' .
             '</form>';
-
-        return $res;
     }
 
     private function getServers(): string

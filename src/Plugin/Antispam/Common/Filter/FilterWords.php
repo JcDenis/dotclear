@@ -16,8 +16,9 @@ use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\InsertStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
-use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Plugin\Antispam\Common\Spamfilter;
 use Exception;
@@ -72,7 +73,7 @@ class FilterWords extends Spamfilter
     public function gui(string $url): string
     {
         // Create list
-        if (!empty($_POST['createlist'])) {
+        if (!GPC::post()->empty('createlist')) {
             try {
                 $this->defaultWordsList();
                 App::core()->notice()->addSuccessNotice(__('Words have been successfully added.'));
@@ -83,11 +84,12 @@ class FilterWords extends Spamfilter
         }
 
         // Adding a word
-        if (!empty($_POST['swa'])) {
-            $globalsw = !empty($_POST['globalsw']) && App::core()->user()->isSuperAdmin();
-
+        if (!GPC::post()->empty('swa')) {
             try {
-                $this->addRule($_POST['swa'], $globalsw);
+                $this->addRule(
+                    GPC::post()->string('swa'),
+                    !GPC::post()->empty('globalsw') && App::core()->user()->isSuperAdmin()
+                );
                 App::core()->notice()->addSuccessNotice(__('Word has been successfully added.'));
                 Http::redirect($url);
             } catch (Exception $e) {
@@ -96,9 +98,9 @@ class FilterWords extends Spamfilter
         }
 
         // Removing spamwords
-        if (!empty($_POST['swd']) && is_array($_POST['swd'])) {
+        if (!GPC::post()->empty('swd')) {
             try {
-                $this->removeRule($_POST['swd']);
+                $this->removeRule(GPC::post()->array('swd'));
                 App::core()->notice()->addSuccessNotice(__('Words have been successfully removed.'));
                 Http::redirect($url);
             } catch (Exception $e) {

@@ -11,6 +11,7 @@ namespace Dotclear\Process\Admin\Menu;
 
 // Dotclear\Process\Admin\Menu\Summary
 use Dotclear\App;
+use Dotclear\Helper\GPC\GPC;
 
 /**
  * Admin menu handling facilities.
@@ -73,7 +74,7 @@ class Summary
     {
         $match = App::core()->adminurl()->is($adminurl);
         if ($strict && $match) {
-            $match = 1 == count($_GET);
+            $match = 1 == GPC::get()->count();
         }
 
         if (!isset($this->stack[$section])) {

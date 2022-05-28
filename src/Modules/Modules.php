@@ -16,6 +16,7 @@ use Dotclear\Helper\ErrorTrait;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Zip\Unzip;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Modules\Repository\Repository;
@@ -122,7 +123,7 @@ class Modules
     public function store(): Repository
     {
         if (!($this->store instanceof Repository)) {
-            $this->store = new Repository($this, (string) App::core()->blog()?->settings()->get('system')->get('store_' . $this->getType(true) . '_url'), !empty($_GET['nocache']));
+            $this->store = new Repository($this, (string) App::core()->blog()?->settings()->get('system')->get('store_' . $this->getType(true) . '_url'), !GPC::get()->empty('nocache'));
         }
 
         return $this->store;
@@ -866,7 +867,7 @@ class Modules
      */
     public function disableDependencies(string $redir_url): bool
     {
-        if (isset($_GET['dep'])) {
+        if (GPC::get()->isset('dep')) {
             // Avoid infinite redirects
             return false;
         }

@@ -10,9 +10,9 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Action\Action;
 
 // Dotclear\Process\Admin\Action\Action\BlogAction
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Database\Param;
+use Dotclear\Helper\GPC\GPCGroup;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\Form;
 use Exception;
@@ -53,7 +53,7 @@ class BlogAction extends DefaultBlogAction
         $this->loadBlogsAction($this);
     }
 
-    public function error(Exception $e): void
+    protected function error(Exception $e): void
     {
         App::core()->error()->add($e->getMessage());
         $this->setPageContent('<p><a class="back" href="' . $this->getRedirection(true) . '">' . __('Back to blogs list') . '</a></p>');
@@ -83,20 +83,20 @@ class BlogAction extends DefaultBlogAction
             '</tr>' . $ret . '</table>';
     }
 
-    protected function fetchEntries(ArrayObject $from): void
+    protected function fetchEntries(GPCgroup $from): void
     {
         $param = new Param();
-        if (!empty($from['blogs'])) {
-            $param->set('blog_id', $from['blogs']);
+        if (!$from->empty('blogs')) {
+            $param->set('blog_id', $from->array('blogs'));
         }
 
-        $rs = App::core()->blogs()->getBlogs(param: $param);
-        while ($rs->fetch()) {
-            $this->entries[$rs->f('blog_id')] = [
-                'blog' => $rs->f('blog_id'),
-                'name' => $rs->f('blog_name'),
+        $record = App::core()->blogs()->getBlogs(param: $param);
+        while ($record->fetch()) {
+            $this->entries[$record->f('blog_id')] = [
+                'blog' => $record->f('blog_id'),
+                'name' => $record->f('blog_name'),
             ];
         }
-        $this->rs = $rs;
+        $this->rs = $record;
     }
 }

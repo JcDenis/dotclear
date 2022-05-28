@@ -13,6 +13,7 @@ namespace Dotclear\Process\Admin\Inventory\Inventory;
 use ArrayObject;
 use Dotclear\App;
 use Dotclear\Helper\Clock;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Inventory\Inventory;
@@ -43,10 +44,8 @@ class BlogInventory extends Inventory
             }
         } else {
             $blogs = [];
-            if (isset($_REQUEST['blogs'])) {
-                foreach ($_REQUEST['blogs'] as $v) {
-                    $blogs[$v] = true;
-                }
+            foreach (GPC::request()->array('blogs') as $v) {
+                $blogs[$v] = true;
             }
 
             $pager = new Pager($page, $this->rs_count, $nb_per_page, 10);

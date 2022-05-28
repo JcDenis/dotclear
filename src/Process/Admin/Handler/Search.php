@@ -13,13 +13,14 @@ namespace Dotclear\Process\Admin\Handler;
 use ArrayObject;
 use Dotclear\App;
 use Dotclear\Database\Param;
-use Dotclear\Process\Admin\Page\AbstractPage;
+use Dotclear\Helper\GPC\GPC;
+use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Action\Action\PostAction;
 use Dotclear\Process\Admin\Action\Action\CommentAction;
 use Dotclear\Process\Admin\Inventory\Inventory\PostInventory;
 use Dotclear\Process\Admin\Inventory\Inventory\CommentInventory;
-use Dotclear\Helper\Html\Form;
-use Dotclear\Helper\Html\Html;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
 
 /**
@@ -57,16 +58,16 @@ class Search extends AbstractPage
         App::core()->behavior()->call('adminSearchPageCombo', $qtype_combo);
 
         $this->s_qtype_combo = $qtype_combo->getArrayCopy();
-        $q                   = !empty($_REQUEST['q']) ? $_REQUEST['q'] : (!empty($_REQUEST['qx']) ? $_REQUEST['qx'] : null);
-        $qtype               = !empty($_REQUEST['qtype']) ? $_REQUEST['qtype'] : 'p';
+        $q                   = GPC::request()->empty('q') ? GPC::request()->string('qx', null) : GPC::request()->string('q');
+        $qtype               = !GPC::request()->empty('qtype') ? GPC::request()->string('qtype') : 'p';
         if (!empty($q) && !in_array($qtype, $this->s_qtype_combo)) {
             $qtype = 'p';
         }
 
-        $page = !empty($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
+        $page = GPC::get()->empty('page') ? 1 : max(1, GPC::get()->int('page'));
         $nb   = App::core()->listoption()->getUserFiltersNb('search');
-        if (!empty($_GET['nb']) && (int) $_GET['nb'] > 0) {
-            $nb = (int) $_GET['nb'];
+        if (0 < GPC::get()->int('nb')) {
+            $nb = GPC::get()->int('nb');
         }
 
         $this->s_args = ['q' => $q, 'qtype' => $qtype, 'page' => $page, 'nb' => $nb];

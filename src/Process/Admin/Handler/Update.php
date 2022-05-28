@@ -12,14 +12,15 @@ namespace Dotclear\Process\Admin\Handler;
 // Dotclear\Process\Admin\Handler\Update
 use Dotclear\App;
 use Dotclear\Exception\AdminException;
+use Dotclear\Helper\ErrorTrait;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Zip\Unzip;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Service\Updater;
-use Dotclear\Helper\ErrorTrait;
 use Exception;
 
 /**
@@ -65,20 +66,20 @@ class Update extends AbstractPage
         }
 
         $this->upd_updater     = new Updater(App::core()->config()->get('core_update_url'), 'dotclear', App::core()->config()->get('core_update_channel'), App::core()->config()->get('cache_dir') . '/versions');
-        $this->upd_new_version = $this->upd_updater->check(App::core()->config()->get('core_version'), !empty($_GET['nocache']));
+        $this->upd_new_version = $this->upd_updater->check(App::core()->config()->get('core_version'), !GPC::get()->empty('nocache'));
         $zip_file              = empty($this->upd_new_version) ? '' : App::core()->config()->get('backup_dir') . '/' . basename($this->upd_updater->getFileURL());
 
         // Hide "update me" message
-        if (!empty($_GET['hide_msg'])) {
+        if (!GPC::get()->empty('hide_msg')) {
             $this->upd_updater->setNotify(false);
             App::core()->adminurl()->redirect('admin.home');
         }
 
-        $this->upd_step = $_GET['step'] ?? '';
+        $this->upd_step = GPC::get()->string('step');
         $this->upd_step = in_array($this->upd_step, ['check', 'download', 'backup', 'unzip']) ? $this->upd_step : '';
 
-        $default_tab = !empty($_GET['tab']) ? Html::escapeHTML($_GET['tab']) : 'update';
-        if (!empty($_POST['backup_file'])) {
+        $default_tab = !GPC::get()->empty('tab') ? Html::escapeHTML(GPC::get()->string('tab')) : 'update';
+        if (!GPC::post()->empty('backup_file')) {
             $default_tab = 'files';
         }
 
@@ -101,18 +102,18 @@ class Update extends AbstractPage
         }
 
         // Revert or delete backup file
-        if (!empty($_POST['backup_file']) && in_array($_POST['backup_file'], $this->upd_archives)) {
-            $b_file = $_POST['backup_file'];
+        if (!GPC::post()->empty('backup_file') && in_array(GPC::post()->string('backup_file'), $this->upd_archives)) {
+            $b_file = GPC::post()->string('backup_file');
 
             try {
-                if (!empty($_POST['b_del'])) {
+                if (!GPC::post()->empty('b_del')) {
                     if (!@unlink(App::core()->config()->get('backup_dir') . '/' . $b_file)) {
                         throw new AdminException(sprintf(__('Unable to delete file %s'), Html::escapeHTML($b_file)));
                     }
                     App::core()->adminurl()->redirect('admin.update', ['tab' => 'files']);
                 }
 
-                if (!empty($_POST['b_revert'])) {
+                if (!GPC::post()->empty('b_revert')) {
                     $zip = new Unzip(App::core()->config()->get('backup_dir') . '/' . $b_file);
                     $zip->unzipAll(App::core()->config()->get('backup_dir') . '/');
                     @unlink(App::core()->config()->get('backup_dir') . '/' . $b_file);
@@ -215,7 +216,7 @@ class Update extends AbstractPage
         }
 
         if (!App::core()->error()->flag()) {
-            if (!empty($_GET['nocache'])) {
+            if (!GPC::get()->empty('nocache')) {
                 App::core()->notice()->success(__('Manual checking of update done successfully.'));
             }
         }

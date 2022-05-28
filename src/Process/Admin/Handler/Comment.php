@@ -14,6 +14,7 @@ use Dotclear\App;
 use Dotclear\Database\Param;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Clock;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
@@ -49,10 +50,10 @@ class Comment extends AbstractPage
     protected function getPagePrepend(): ?bool
     {
         // Adding comment (comming from post form, comments tab)
-        if (!empty($_POST['add']) && !empty($_POST['post_id'])) {
+        if (!GPC::post()->empty('add') && !GPC::post()->empty('post_id')) {
             try {
                 $param = new Param();
-                $param->set('post_id', $_POST['post_id']);
+                $param->set('post_id', GPC::post()->int('post_id'));
                 $param->set('post_type', '');
 
                 $rs = App::core()->blog()->posts()->getPosts(param: $param);
@@ -62,11 +63,11 @@ class Comment extends AbstractPage
 
                 $cur = App::core()->con()->openCursor(App::core()->prefix() . 'comment');
 
-                $cur->setField('comment_author', $_POST['comment_author']);
-                $cur->setField('comment_email', Html::clean($_POST['comment_email']));
-                $cur->setField('comment_site', Html::clean($_POST['comment_site']));
-                $cur->setField('comment_content', Html::filter($_POST['comment_content']));
-                $cur->setField('post_id', (int) $_POST['post_id']);
+                $cur->setField('comment_author', GPC::post()->string('comment_author'));
+                $cur->setField('comment_email', Html::clean(GPC::post()->string('comment_email')));
+                $cur->setField('comment_site', Html::clean(GPC::post()->string('comment_site')));
+                $cur->setField('comment_content', Html::filter(GPC::post()->string('comment_content')));
+                $cur->setField('post_id', GPC::post()->int('post_id'));
 
                 // --BEHAVIOR-- adminBeforeCommentCreate
                 App::core()->behavior()->call('adminBeforeCommentCreate', $cur);
@@ -88,10 +89,10 @@ class Comment extends AbstractPage
         $post_type  = '';
         $post_title = '';
 
-        if (!empty($_REQUEST['id'])) {
+        if (!GPC::request()->empty('id')) {
             try {
                 $param = new Param();
-                $param->set('comment_id', $_REQUEST['id']);
+                $param->set('comment_id', GPC::request()->int('id'));
                 $rs = App::core()->blog()->comments()->getComments(param: $param);
                 if (!$rs->isEmpty()) {
                     $this->comment_id      = $rs->fInt('comment_id');
@@ -130,16 +131,16 @@ class Comment extends AbstractPage
             }
 
             // update comment
-            if (!empty($_POST['update']) && $this->commnet_can_edit) {
+            if (!GPC::post()->empty('update') && $this->commnet_can_edit) {
                 $cur = App::core()->con()->openCursor(App::core()->prefix() . 'comment');
 
-                $cur->setField('comment_author', $_POST['comment_author']);
-                $cur->setField('comment_email', Html::clean($_POST['comment_email']));
-                $cur->setField('comment_site', Html::clean($_POST['comment_site']));
-                $cur->setField('comment_content', Html::filter($_POST['comment_content']));
+                $cur->setField('comment_author', GPC::post()->string('comment_author'));
+                $cur->setField('comment_email', Html::clean(GPC::post()->string('comment_email')));
+                $cur->setField('comment_site', Html::clean(GPC::post()->string('comment_site')));
+                $cur->setField('comment_content', Html::filter(GPC::post()->string('comment_content')));
 
-                if (isset($_POST['comment_status'])) {
-                    $cur->setField('comment_status', (int) $_POST['comment_status']);
+                if (GPC::post()->isset('comment_status')) {
+                    $cur->setField('comment_status', GPC::post()->int('comment_status'));
                 }
 
                 try {
@@ -158,7 +159,7 @@ class Comment extends AbstractPage
                 }
             }
 
-            if (!empty($_POST['delete']) && $this->commnet_can_delete) {
+            if (!GPC::post()->empty('delete') && $this->commnet_can_delete) {
                 try {
                     // --BEHAVIOR-- adminBeforeCommentDelete
                     App::core()->behavior()->call('adminBeforeCommentDelete', $this->comment_id);
@@ -211,7 +212,7 @@ class Comment extends AbstractPage
             return;
         }
 
-        if (!empty($_GET['upd'])) {
+        if (!GPC::get()->empty('upd')) {
             App::core()->notice()->success(__('Comment has been successfully updated.'));
         }
 

@@ -12,6 +12,7 @@ namespace Dotclear\Plugin\CKEditor\Admin;
 // Dotclear\Plugin\CKEditor\Admin\HandlerPost
 use ArrayObject;
 use Dotclear\App;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Process\Admin\Page\AbstractPage;
 
 /**
@@ -32,11 +33,7 @@ class HandlerPost extends AbstractPage
 
         header('Content-type: text/javascript');
 
-        if (!empty($_GET['context'])) {
-            $context = $_GET['context'];
-        } else {
-            $context = '';
-        }
+        $context = GPC::get()->string('context');
 
         /** @var ArrayObject<int, array> */
         $__extraPlugins = new ArrayObject();

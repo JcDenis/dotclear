@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\CKEditor\Admin;
 
 // Dotclear\Plugin\CKEditor\Admin\Handler
 use Dotclear\App;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Page\AbstractPage;
@@ -56,42 +57,42 @@ class Handler extends AbstractPage
             'was_actived'                 => $s->get('active'),
         ];
 
-        if (!empty($_POST['saveconfig'])) {
+        if (!GPC::post()->empty('saveconfig')) {
             try {
-                $this->ckes['active'] = (empty($_POST['dcckeditor_active'])) ? false : true;
+                $this->ckes['active'] = !GPC::post()->empty('dcckeditor_active');
                 App::core()->blog()->settings()->get('dcckeditor')->put('active', $this->ckes['active'], 'boolean');
 
                 // change other settings only if they were in html page
                 if ($this->ckes['was_actived']) {
-                    $this->ckes['alignment_buttons'] = (empty($_POST['dcckeditor_alignment_buttons'])) ? false : true;
+                    $this->ckes['alignment_buttons'] = !GPC::post()->empty('dcckeditor_alignment_buttons');
                     $s->put('alignment_buttons', $this->ckes['alignment_buttons'], 'boolean');
 
-                    $this->ckes['list_buttons'] = (empty($_POST['dcckeditor_list_buttons'])) ? false : true;
+                    $this->ckes['list_buttons'] = !GPC::post()->empty('dcckeditor_list_buttons');
                     $s->put('list_buttons', $this->ckes['list_buttons'], 'boolean');
 
-                    $this->ckes['textcolor_button'] = (empty($_POST['dcckeditor_textcolor_button'])) ? false : true;
+                    $this->ckes['textcolor_button'] = !GPC::post()->empty('dcckeditor_textcolor_button');
                     $s->put('textcolor_button', $this->ckes['textcolor_button'], 'boolean');
 
-                    $this->ckes['background_textcolor_button'] = !empty($_POST['dcckeditor_background_textcolor_button']);
+                    $this->ckes['background_textcolor_button'] = !GPC::post()->empty('dcckeditor_background_textcolor_button');
                     $s->put('background_textcolor_button', $this->ckes['background_textcolor_button'], 'boolean');
 
-                    $this->ckes['custom_color_list'] = str_replace(['#', ' '], '', $_POST['dcckeditor_custom_color_list']);
+                    $this->ckes['custom_color_list'] = str_replace(['#', ' '], '', GPC::post()->string('dcckeditor_custom_color_list'));
                     $s->put('custom_color_list', $this->ckes['custom_color_list'], 'string');
 
-                    $this->ckes['colors_per_row'] = abs((int) $_POST['dcckeditor_colors_per_row']);
+                    $this->ckes['colors_per_row'] = abs(GPC::post()->int('dcckeditor_colors_per_row'));
                     $s->put('colors_per_row', $this->ckes['colors_per_row']);
 
-                    $this->ckes['cancollapse_button'] = (empty($_POST['dcckeditor_cancollapse_button'])) ? false : true;
+                    $this->ckes['cancollapse_button'] = !GPC::post()->empty('dcckeditor_cancollapse_button');
                     $s->put('cancollapse_button', $this->ckes['cancollapse_button'], 'boolean');
 
-                    $this->ckes['format_select'] = (empty($_POST['dcckeditor_format_select'])) ? false : true;
+                    $this->ckes['format_select'] = !GPC::post()->empty('dcckeditor_format_select');
                     $s->put('format_select', $this->ckes['format_select'], 'boolean');
 
                     // default tags : p;h1;h2;h3;h4;h5;h6;pre;address
                     $this->ckes['format_tags'] = 'p;h1;h2;h3;h4;h5;h6;pre;address';
                     $allowed_tags              = explode(';', $this->ckes['format_tags']);
-                    if (!empty($_POST['dcckeditor_format_tags'])) {
-                        $tags     = explode(';', $_POST['dcckeditor_format_tags']);
+                    if (!GPC::post()->empty('dcckeditor_format_tags')) {
+                        $tags     = explode(';', GPC::post()->string('dcckeditor_format_tags'));
                         $new_tags = true;
                         foreach ($tags as $tag) {
                             if (!in_array($tag, $allowed_tags)) {
@@ -101,21 +102,21 @@ class Handler extends AbstractPage
                             }
                         }
                         if ($new_tags) {
-                            $this->ckes['format_tags'] = $_POST['dcckeditor_format_tags'];
+                            $this->ckes['format_tags'] = GPC::post()->string('dcckeditor_format_tags');
                         }
                     }
                     $s->put('format_tags', $this->ckes['format_tags'], 'string');
 
-                    $this->ckes['table_button'] = (empty($_POST['dcckeditor_table_button'])) ? false : true;
+                    $this->ckes['table_button'] = !GPC::post()->empty('dcckeditor_table_button');
                     $s->put('table_button', $this->ckes['table_button'], 'boolean');
 
-                    $this->ckes['clipboard_buttons'] = (empty($_POST['dcckeditor_clipboard_buttons'])) ? false : true;
+                    $this->ckes['clipboard_buttons'] = !GPC::post()->empty('dcckeditor_clipboard_buttons');
                     $s->put('clipboard_buttons', $this->ckes['clipboard_buttons'], 'boolean');
 
-                    $this->ckes['action_buttons'] = (empty($_POST['dcckeditor_action_buttons'])) ? false : true;
+                    $this->ckes['action_buttons'] = !GPC::post()->empty('dcckeditor_action_buttons');
                     $s->put('action_buttons', $this->ckes['action_buttons'], 'boolean');
 
-                    $this->ckes['disable_native_spellchecker'] = (empty($_POST['dcckeditor_disable_native_spellchecker'])) ? false : true;
+                    $this->ckes['disable_native_spellchecker'] = !GPC::post()->empty('dcckeditor_disable_native_spellchecker');
                     $s->put('disable_native_spellchecker', $this->ckes['disable_native_spellchecker'], 'boolean');
                 }
                 App::core()->blog()->triggerBlog(); // !

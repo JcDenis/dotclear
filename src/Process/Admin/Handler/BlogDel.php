@@ -11,10 +11,11 @@ namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\BlogDel
 use Dotclear\App;
-use Dotclear\Process\Admin\Page\AbstractPage;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Mapper\Strings;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
 
 /**
@@ -36,9 +37,9 @@ class BlogDel extends AbstractPage
     {
         // search the blog
         $rs = null;
-        if (!empty($_POST['blog_id'])) {
+        if (!GPC::post()->empty('blog_id')) {
             try {
-                $rs = App::core()->blogs()->getBlog(id: $_POST['blog_id']);
+                $rs = App::core()->blogs()->getBlog(id: GPC::post()->string('blog_id'));
 
                 if ($rs->isEmpty()) {
                     App::core()->error()->add(__('No such blog ID'));
@@ -52,8 +53,8 @@ class BlogDel extends AbstractPage
         }
 
         // Delete the blog
-        if (!App::core()->error()->flag() && $this->blog_id && !empty($_POST['del'])) {
-            if (!App::core()->user()->checkPassword($_POST['pwd'])) {
+        if (!App::core()->error()->flag() && $this->blog_id && !GPC::post()->empty('del')) {
+            if (!App::core()->user()->checkPassword(GPC::post()->string('pwd'))) {
                 App::core()->error()->add(__('Password verification failed'));
             } else {
                 try {

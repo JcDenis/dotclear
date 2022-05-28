@@ -10,9 +10,9 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Action\Action;
 
 // Dotclear\Process\Admin\Action\Action\PostAction
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Database\Param;
+use Dotclear\Helper\GPC\GPCGroup;
 use Dotclear\Helper\Html\Html;
 use Exception;
 
@@ -49,20 +49,19 @@ class PostAction extends DefaultPostAction
         App::core()->behavior()->call('adminPostsActionsPage', $this);
     }
 
-    public function error(Exception $e)
+    protected function error(Exception $e)
     {
         App::core()->error()->add($e->getMessage());
         $this->setPageContent('<p><a class="back" href="' . $this->getRedirection(true) . '">' . __('Back to entries list') . '</a></p>');
     }
 
-    protected function fetchEntries(ArrayObject $from): void
+    protected function fetchEntries(GPCgroup $from): void
     {
         $param = new Param();
-        if (!empty($from['entries'])) {
-            $entries = $from['entries'];
-
-            foreach ($entries as $k => $v) {
-                $entries[$k] = (int) $v;
+        if (!$from->empty('entries')) {
+            $entries = [];
+            foreach ($from->array('entries') as $v) {
+                $entries[] = (int) $v;
             }
 
             $param->push('sql', 'AND P.post_id IN(' . implode(',', $entries) . ') ');
@@ -70,18 +69,18 @@ class PostAction extends DefaultPostAction
             $param->push('sql', 'AND 1=0 ');
         }
 
-        if (!isset($from['full_content']) || empty($from['full_content'])) {
+        if ($from->empty('full_content')) {
             $param->set('no_content', true);
         }
 
-        if (isset($from['post_type'])) {
-            $param->set('post_type', $from['post_type']);
+        if ($from->isset('post_type')) {
+            $param->set('post_type', $from->string('post_type'));
         }
 
-        $posts = App::core()->blog()->posts()->getPosts(param: $param);
-        while ($posts->fetch()) {
-            $this->entries[$posts->fInt('post_id')] = $posts->f('post_title');
+        $record = App::core()->blog()->posts()->getPosts(param: $param);
+        while ($record->fetch()) {
+            $this->entries[$record->fInt('post_id')] = $record->f('post_title');
         }
-        $this->rs = $posts;
+        $this->rs = $record;
     }
 }

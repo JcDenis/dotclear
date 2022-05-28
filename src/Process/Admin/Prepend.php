@@ -18,6 +18,7 @@ use Dotclear\Helper\L10n;
 use Dotclear\Helper\Lexical;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Modules\Modules;
 use Dotclear\Process\Admin\AdminUrl\AdminUrl;
@@ -304,17 +305,13 @@ final class Prepend extends Core
         // Check user session
         if (defined('DOTCLEAR_AUTH_SESS_ID') && defined('DOTCLEAR_AUTH_SESS_UID')) {
             // We have session information in constants
-            $_COOKIE[$this->config()->get('session_name')] = \DOTCLEAR_AUTH_SESS_ID;
-
             if (!$this->user()->checkSession(\DOTCLEAR_AUTH_SESS_UID)) {
                 App::stop(new Exception(__('Invalid session data.'), 625));
             }
 
             // Check nonce from POST requests
-            if (!empty($_POST)) {
-                if (empty($_POST['xd_check']) || !$this->nonce()->check($_POST['xd_check'])) {
-                    App::stop(new Exception(__('Precondition Failed.'), 625));
-                }
+            if (GPC::post()->count() && !$this->nonce()->check(GPC::post()->string('xd_check'))) {
+                App::stop(new Exception(__('Precondition Failed.'), 625));
             }
 
             if (empty($_SESSION['sess_blog_id'])) {
@@ -346,15 +343,12 @@ final class Prepend extends Core
             }
 
             // Check nonce from POST requests
-            if (!empty($_POST)) {
-                if (empty($_POST['xd_check']) || !$this->nonce()->check($_POST['xd_check'])) {
-                    App::stop(new Exception(__('Precondition Failed.'), 412));
-                }
+            if (GPC::post()->count() && !$this->nonce()->check(GPC::post()->string('xd_check'))) {
+                App::stop(new Exception(__('Precondition Failed.'), 412));
             }
 
-            if (!empty($_REQUEST['switchblog'])
-                && $this->user()->getPermissions($_REQUEST['switchblog']) !== false) {
-                $_SESSION['sess_blog_id'] = $_REQUEST['switchblog'];
+            if (!GPC::request()->empty('switchblog') && false !== $this->user()->getPermissions(GPC::request()->string('switchblog'))) {
+                $_SESSION['sess_blog_id'] = GPC::request()->string('switchblog');
                 if (isset($_SESSION['media_manager_dir'])) {
                     unset($_SESSION['media_manager_dir']);
                 }
@@ -362,9 +356,9 @@ final class Prepend extends Core
                     unset($_SESSION['media_manager_page']);
                 }
 
-                if (!empty($_REQUEST['redir'])) {
+                if (GPC::request()->empty('redir')) {
                     // Keep context as far as possible
-                    $redir = $_REQUEST['redir'];
+                    $redir = GPC::request()->string('redir');
                 } else {
                     // Removing switchblog from URL
                     $redir = $_SERVER['REQUEST_URI'];
@@ -510,7 +504,7 @@ final class Prepend extends Core
     {
         // no handler, go to admin home page
         if (null === $handler) {
-            $handler = $_REQUEST['handler'] ?? 'admin.home';
+            $handler = GPC::request()->string('handler', 'admin.home');
         }
 
         // Create page instance

@@ -15,6 +15,7 @@ use Dotclear\App;
 use Dotclear\Database\Param;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
@@ -162,9 +163,9 @@ class Handler extends AbstractPage
         // Saving new configuration
         $item_targetBlank = false;
         $step_label       = '';
-        if (!empty($_POST['saveconfig'])) {
+        if (!GPC::post()->empty('saveconfig')) {
             try {
-                $menu_active = (empty($_POST['active'])) ? false : true;
+                $menu_active = !GPC::post()->empty('active');
                 App::core()->blog()->settings()->get('system')->put('simpleMenu_active', $menu_active, 'boolean');
                 App::core()->blog()->triggerBlog();
 
@@ -176,14 +177,14 @@ class Handler extends AbstractPage
             }
         } else {
             // Récupération paramètres postés
-            $this->sm_item_type   = $_POST['item_type']   ?? '';
-            $this->sm_item_select = $_POST['item_select'] ?? '';
-            $this->sm_item_label  = $_POST['item_label']  ?? '';
-            $this->sm_item_descr  = $_POST['item_descr']  ?? '';
-            $this->sm_item_url    = $_POST['item_url']    ?? '';
-            $item_targetBlank     = isset($_POST['item_targetBlank']) ? (empty($_POST['item_targetBlank'])) ? false : true : false;
+            $this->sm_item_type   = GPC::post()->string('item_type');
+            $this->sm_item_select = GPC::post()->string('item_select');
+            $this->sm_item_label  = GPC::post()->string('item_label');
+            $this->sm_item_descr  = GPC::post()->string('item_descr');
+            $this->sm_item_url    = GPC::post()->string('item_url');
+            $item_targetBlank     = !GPC::post()->empty('item_targetBlank');
             // Traitement
-            $this->sm_step = (!empty($_REQUEST['add']) ? (int) $_REQUEST['add'] : 0);
+            $this->sm_step = GPC::request()->int('add');
             if (4 < $this->sm_step || 0 > $this->sm_step) {
                 $this->sm_step = 0;
             }
@@ -331,10 +332,10 @@ class Handler extends AbstractPage
                 }
             } else {
                 // Remove selected menu items
-                if (!empty($_POST['removeaction'])) {
+                if (!GPC::post()->empty('removeaction')) {
                     try {
-                        if (!empty($_POST['items_selected'])) {
-                            foreach ($_POST['items_selected'] as $k => $v) {
+                        if (!GPC::post()->empty('items_selected')) {
+                            foreach (GPC::post()->array('items_selected') as $k => $v) {
                                 $this->sm_menu[$v]['label'] = '';
                             }
                             $newmenu = [];
@@ -365,25 +366,25 @@ class Handler extends AbstractPage
                 }
 
                 // Update menu items
-                if (!empty($_POST['updateaction'])) {
+                if (!GPC::post()->empty('updateaction')) {
                     try {
-                        foreach ($_POST['items_label'] as $k => $v) {
+                        foreach (GPC::post()->array('items_label') as $k => $v) {
                             if (!$v) {
                                 throw new ModuleException(__('Label is mandatory.'));
                             }
                         }
-                        foreach ($_POST['items_url'] as $k => $v) {
+                        foreach (GPC::post()->array('items_url') as $k => $v) {
                             if (!$v) {
                                 throw new ModuleException(__('URL is mandatory.'));
                             }
                         }
                         $newmenu = [];
-                        for ($i = 0; count($_POST['items_label']) > $i; ++$i) {
+                        for ($i = 0; count(GPC::post()->array('items_label')) > $i; ++$i) {
                             $newmenu[] = [
-                                'label'       => $_POST['items_label'][$i],
-                                'descr'       => $_POST['items_descr'][$i],
-                                'url'         => $_POST['items_url'][$i],
-                                'targetBlank' => (empty($_POST['items_targetBlank' . $i])) ? false : true,
+                                'label'       => GPC::post()->array('items_label')[$i],
+                                'descr'       => GPC::post()->array('items_label')[$i],
+                                'url'         => GPC::post()->array('items_label')[$i],
+                                'targetBlank' => !GPC::post()->empty('items_targetBlank' . $i),
                             ];
                         }
                         $this->sm_menu = $newmenu;
@@ -391,12 +392,12 @@ class Handler extends AbstractPage
                         if (App::core()->user()->preference()->get('accessibility')->get('nodragdrop')) {
                             // Order menu items
                             $order = [];
-                            if (empty($_POST['im_order']) && !empty($_POST['order'])) {
-                                $order = $_POST['order'];
+                            if (GPC::post()->empty('im_order') && !GPC::post()->empty('order')) {
+                                $order = GPC::post()->array('order');
                                 asort($order);
                                 $order = array_keys($order);
-                            } elseif (!empty($_POST['im_order'])) {
-                                $order = $_POST['im_order'];
+                            } elseif (!GPC::post()->empty('im_order')) {
+                                $order = GPC::post()->string('im_order');
                                 if (substr($order, -1) == ',') {
                                     $order = substr($order, 0, strlen($order) - 1);
                                 }

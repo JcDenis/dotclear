@@ -12,6 +12,7 @@ namespace Dotclear\Process\Admin\AdminUrl;
 // Dotclear\Process\Admin\AdminUrl\AdminUrl
 use Dotclear\App;
 use Dotclear\Exception\AdminException;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Network\Http;
 
@@ -47,7 +48,7 @@ class AdminUrl
      */
     public function called(): string
     {
-        return $_REQUEST['handler'] ?? (empty($this->urls) ? '' : key($this->urls));
+        return GPC::request()->string('handler', empty($this->urls) ? '' : key($this->urls));
     }
 
     /**

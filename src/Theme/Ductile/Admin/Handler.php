@@ -15,6 +15,7 @@ use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Modules\ModuleHelper;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
@@ -181,28 +182,28 @@ class Handler extends AbstractPage
             }
         }
 
-        $this->Ductile_conf_tab = $_POST['conf_tab'] ?? 'html';
+        $this->Ductile_conf_tab = GPC::post()->string('conf_tab', 'html');
 
-        if (!empty($_POST)) {
+        if (GPC::post()->count()) {
             try {
                 // HTML
                 if ('html' == $this->Ductile_conf_tab) {
-                    $this->Ductile_user['subtitle_hidden']       = (int) !empty($_POST['subtitle_hidden']);
-                    $this->Ductile_user['logo_src']              = $_POST['logo_src'];
-                    $this->Ductile_user['preview_not_mandatory'] = (int) !empty($_POST['preview_not_mandatory']);
+                    $this->Ductile_user['subtitle_hidden']       = GPC::post()->int('subtitle_hidden');
+                    $this->Ductile_user['logo_src']              = GPC::post()->string('logo_src');
+                    $this->Ductile_user['preview_not_mandatory'] = GPC::post()->int('preview_not_mandatory');
 
                     $this->Ductile_stickers = [];
-                    for ($i = 0; count($_POST['sticker_image']) > $i; ++$i) {
+                    for ($i = 0; count(GPC::post()->array('sticker_image')) > $i; ++$i) {
                         $this->Ductile_stickers[] = [
-                            'label' => $_POST['sticker_label'][$i],
-                            'url'   => $_POST['sticker_url'][$i],
-                            'image' => $_POST['sticker_image'][$i],
+                            'label' => GPC::post()->array('sticker_label')[$i],
+                            'url'   => GPC::post()->array('sticker_url')[$i],
+                            'image' => GPC::post()->array('sticker_image')[$i],
                         ];
                     }
 
                     $order = [];
-                    if (empty($_POST['ds_order']) && !empty($_POST['order'])) {
-                        $order = $_POST['order'];
+                    if (GPC::post()->empty('ds_order') && !GPC::post()->empty('order')) {
+                        $order = GPC::post()->array('order');
                         asort($order);
                         $order = array_keys($order);
                     }
@@ -218,48 +219,48 @@ class Handler extends AbstractPage
                         $this->Ductile_stickers = $new_ductile_stickers;
                     }
 
-                    for ($i = 0; count($_POST['list_type']) > $i; ++$i) {
-                        $this->Ductile_lists[$_POST['list_ctx'][$i]] = $_POST['list_type'][$i];
+                    for ($i = 0; count(GPC::post()->array('list_type')) > $i; ++$i) {
+                        $this->Ductile_lists[GPC::post()->array('list_ctx')[$i]] = GPC::post()->array('list_type')[$i];
                     }
 
-                    for ($i = 0; count($_POST['count_nb']) > $i; ++$i) {
-                        $this->Ductile_counts[$_POST['count_ctx'][$i]] = $_POST['count_nb'][$i];
+                    for ($i = 0; count(GPC::post()->array('count_nb')) > $i; ++$i) {
+                        $this->Ductile_counts[GPC::post()->array('count_ctx')[$i]] = GPC::post()->array('count_nb')[$i];
                     }
                 }
 
                 // CSS
                 if ('css' == $this->Ductile_conf_tab) {
-                    $this->Ductile_user['body_font']           = $_POST['body_font'];
-                    $this->Ductile_user['body_webfont_family'] = $_POST['body_webfont_family'];
-                    $this->Ductile_user['body_webfont_url']    = $_POST['body_webfont_url'];
-                    $this->Ductile_user['body_webfont_api']    = $_POST['body_webfont_api'];
+                    $this->Ductile_user['body_font']           = GPC::post()->string('body_font');
+                    $this->Ductile_user['body_webfont_family'] = GPC::post()->string('body_webfont_family');
+                    $this->Ductile_user['body_webfont_url']    = GPC::post()->string('body_webfont_url');
+                    $this->Ductile_user['body_webfont_api']    = GPC::post()->string('body_webfont_api');
 
-                    $this->Ductile_user['alternate_font']           = $_POST['alternate_font'];
-                    $this->Ductile_user['alternate_webfont_family'] = $_POST['alternate_webfont_family'];
-                    $this->Ductile_user['alternate_webfont_url']    = $_POST['alternate_webfont_url'];
-                    $this->Ductile_user['alternate_webfont_api']    = $_POST['alternate_webfont_api'];
+                    $this->Ductile_user['alternate_font']           = GPC::post()->string('alternate_font');
+                    $this->Ductile_user['alternate_webfont_family'] = GPC::post()->string('alternate_webfont_family');
+                    $this->Ductile_user['alternate_webfont_url']    = GPC::post()->string('alternate_webfont_url');
+                    $this->Ductile_user['alternate_webfont_api']    = GPC::post()->string('alternate_webfont_api');
 
-                    $this->Ductile_user['blog_title_w'] = (int) !empty($_POST['blog_title_w']);
-                    $this->Ductile_user['blog_title_s'] = $this->Ductile_config->adjustFontSize($_POST['blog_title_s']);
-                    $this->Ductile_user['blog_title_c'] = $this->Ductile_config->adjustColor($_POST['blog_title_c']);
+                    $this->Ductile_user['blog_title_w'] = (int) !GPC::post()->empty('blog_title_w');
+                    $this->Ductile_user['blog_title_s'] = $this->Ductile_config->adjustFontSize(GPC::post()->string('blog_title_s'));
+                    $this->Ductile_user['blog_title_c'] = $this->Ductile_config->adjustColor(GPC::post()->string('blog_title_c'));
 
-                    $this->Ductile_user['post_title_w'] = (int) !empty($_POST['post_title_w']);
-                    $this->Ductile_user['post_title_s'] = $this->Ductile_config->adjustFontSize($_POST['post_title_s']);
-                    $this->Ductile_user['post_title_c'] = $this->Ductile_config->adjustColor($_POST['post_title_c']);
+                    $this->Ductile_user['post_title_w'] = (int) !GPC::post()->empty('post_title_w');
+                    $this->Ductile_user['post_title_s'] = $this->Ductile_config->adjustFontSize(GPC::post()->string('post_title_s'));
+                    $this->Ductile_user['post_title_c'] = $this->Ductile_config->adjustColor(GPC::post()->string('post_title_c'));
 
-                    $this->Ductile_user['post_link_w']   = (int) !empty($_POST['post_link_w']);
-                    $this->Ductile_user['post_link_v_c'] = $this->Ductile_config->adjustColor($_POST['post_link_v_c']);
-                    $this->Ductile_user['post_link_f_c'] = $this->Ductile_config->adjustColor($_POST['post_link_f_c']);
+                    $this->Ductile_user['post_link_w']   = (int) !GPC::post()->empty('post_link_w');
+                    $this->Ductile_user['post_link_v_c'] = $this->Ductile_config->adjustColor(GPC::post()->string('post_link_v_c'));
+                    $this->Ductile_user['post_link_f_c'] = $this->Ductile_config->adjustColor(GPC::post()->string('post_link_f_c'));
 
-                    $this->Ductile_user['post_simple_title_c'] = $this->Ductile_config->adjustColor($_POST['post_simple_title_c']);
+                    $this->Ductile_user['post_simple_title_c'] = $this->Ductile_config->adjustColor(GPC::post()->string('post_simple_title_c'));
 
-                    $this->Ductile_user['blog_title_w_m'] = (int) !empty($_POST['blog_title_w_m']);
-                    $this->Ductile_user['blog_title_s_m'] = $this->Ductile_config->adjustFontSize($_POST['blog_title_s_m']);
-                    $this->Ductile_user['blog_title_c_m'] = $this->Ductile_config->adjustColor($_POST['blog_title_c_m']);
+                    $this->Ductile_user['blog_title_w_m'] = (int) !GPC::post()->empty('blog_title_w_m');
+                    $this->Ductile_user['blog_title_s_m'] = $this->Ductile_config->adjustFontSize(GPC::post()->string('blog_title_s_m'));
+                    $this->Ductile_user['blog_title_c_m'] = $this->Ductile_config->adjustColor(GPC::post()->string('blog_title_c_m'));
 
-                    $this->Ductile_user['post_title_w_m'] = (int) !empty($_POST['post_title_w_m']);
-                    $this->Ductile_user['post_title_s_m'] = $this->Ductile_config->adjustFontSize($_POST['post_title_s_m']);
-                    $this->Ductile_user['post_title_c_m'] = $this->Ductile_config->adjustColor($_POST['post_title_c_m']);
+                    $this->Ductile_user['post_title_w_m'] = (int) !GPC::post()->empty('post_title_w_m');
+                    $this->Ductile_user['post_title_s_m'] = $this->Ductile_config->adjustFontSize(GPC::post()->string('post_title_s_m'));
+                    $this->Ductile_user['post_title_c_m'] = $this->Ductile_config->adjustColor(GPC::post()->string('post_title_c_m'));
                 }
 
                 App::core()->blog()->settings()->get('themes')->put(App::core()->blog()->settings()->get('system')->get('theme') . '_style', serialize($this->Ductile_user));

@@ -13,10 +13,11 @@ namespace Dotclear\Process\Admin\Handler;
 use Dotclear\App;
 use Dotclear\Core\RsExt\RsExtUser;
 use Dotclear\Database\Param;
-use Dotclear\Process\Admin\Page\AbstractPage;
-use Dotclear\Process\Admin\Inventory\Inventory\UserInventory;
-use Dotclear\Process\Admin\Filter\Filter\UserFilter;
 use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\GPC\GPC;
+use Dotclear\Process\Admin\Filter\Filter\UserFilter;
+use Dotclear\Process\Admin\Inventory\Inventory\UserInventory;
+use Dotclear\Process\Admin\Page\AbstractPage;
 
 /**
  * Admin users list page.
@@ -93,10 +94,9 @@ class Users extends AbstractPage
             return;
         }
 
-        if (!empty($_GET['del'])) {
+        if (!GPC::get()->empty('del')) {
             App::core()->notice()->message(__('User has been successfully removed.'));
-        }
-        if (!empty($_GET['upd'])) {
+        } elseif (!GPC::get()->empty('upd')) {
             App::core()->notice()->message(__('The permissions have been successfully updated.'));
         }
 

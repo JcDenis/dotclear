@@ -13,6 +13,8 @@ namespace Dotclear\Process\Admin\Action;
 use ArrayObject;
 use Dotclear\App;
 use Dotclear\Database\Record;
+use Dotclear\Helper\GPC\GPC;
+use Dotclear\Helper\GPC\GPCGroup;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\FormSelectOption;
 use Dotclear\Helper\Network\Http;
@@ -69,8 +71,8 @@ abstract class Action extends AbstractPage
     protected $caction = '';
 
     /**
-     * @var ArrayObject $from
-     *                  list of url parameters (usually)
+     * @var GPCgroup $from
+     *               List of url parameters (usually)
      */
     protected $from;
 
@@ -120,7 +122,7 @@ abstract class Action extends AbstractPage
         $this->caction         = '';
         $this->cb_title        = __('Title');
         $this->entries         = [];
-        $this->from            = new ArrayObject($_POST);
+        $this->from            = GPC::post();
         $this->field_entries   = 'entries';
         $this->caller_title    = __('Entries');
         if (isset($this->redir_args['_ANCHOR'])) {
@@ -255,13 +257,13 @@ abstract class Action extends AbstractPage
      * by default, $_POST fields as defined in redirect_fields attributes
      * are set into redirect_args.
      *
-     * @param array|ArrayObject $from Input to parse fields from (usually $_POST)
+     * @param GPCgroup $from Input to parse fields from (usually $_POST)
      */
-    protected function setupRedir(array|ArrayObject $from): void
+    protected function setupRedir(GPCgroup $from): void
     {
         foreach ($this->redirect_fields as $p) {
-            if (isset($from[$p])) {
-                $this->redir_args[$p] = $from[$p];
+            if ($from->isset($p)) {
+                $this->redir_args[$p] = $from->get($p);
             }
         }
     }
@@ -352,13 +354,13 @@ abstract class Action extends AbstractPage
     {
         $this->setupRedir($this->from);
         $this->fetchEntries($this->from);
-        if (isset($this->from['action'])) {
-            $this->caction = $this->from['action'];
+        if ($this->from->isset('action')) {
+            $this->caction = $this->from->string('action');
 
             try {
                 $performed = false;
                 foreach ($this->actions as $k => $v) {
-                    if ($this->from['action'] == $k) {
+                    if ($this->from->string('action') == $k) {
                         $performed = true;
                         call_user_func($v, $this, $this->from);
                     }
@@ -408,7 +410,7 @@ abstract class Action extends AbstractPage
      *      entries ids are array keys, values contain entry description (if relevant)
      *   * rs : record given by db request
      *
-     * @param ArrayObject $from Entries from
+     * @param GPCgroup $from Entries from
      */
-    abstract protected function fetchEntries(ArrayObject $from): void;
+    abstract protected function fetchEntries(GPCgroup $from): void;
 }

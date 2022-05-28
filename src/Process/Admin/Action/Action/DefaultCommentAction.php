@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Action\Action;
 
 // Dotclear\Process\Admin\Action\Action\DefaultCommentAction
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Exception\MissingOrEmptyValue;
 use Dotclear\Helper\Mapper\Integers;
@@ -46,7 +45,7 @@ abstract class DefaultCommentAction extends Action
         }
     }
 
-    public function doChangeCommentStatus(Action $ap, array|ArrayObject $post): void
+    protected function doChangeCommentStatus(Action $ap): void
     {
         $ids = new Integers($ap->getIDs());
         if (!$ids->count()) {
@@ -62,7 +61,7 @@ abstract class DefaultCommentAction extends Action
         $ap->redirect(true);
     }
 
-    public function doDeleteComment(Action $ap, array|ArrayObject $post): void
+    protected function doDeleteComment(Action $ap): void
     {
         $ids = new Integers($ap->getIDs());
         if (!$ids->count()) {

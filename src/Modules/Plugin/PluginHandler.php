@@ -11,6 +11,7 @@ namespace Dotclear\Modules\Plugin;
 
 // Dotclear\Modules\Plugin\PluginHandler
 use Dotclear\App;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Page\AbstractPage;
@@ -145,7 +146,7 @@ class PluginHandler extends AbstractPage
 
         // -- Display modules lists --
         if (App::core()->user()->isSuperAdmin()) {
-            if (!App::core()->error()->flag() && !empty($_GET['nocache'])) {
+            if (!App::core()->error()->flag() && !GPC::get()->empty('nocache')) {
                 App::core()->notice()->success(__('Manual checking of plugins update done successfully.'));
             }
 

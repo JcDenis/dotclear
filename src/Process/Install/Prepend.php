@@ -13,6 +13,7 @@ namespace Dotclear\Process\Install;
 use Dotclear\Core\Core;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Process\Admin\Resource\Resource;
 use Dotclear\Process\Admin\Favorite\Favorite;
 
@@ -68,8 +69,8 @@ final class Prepend extends Core
     protected function process(string $_ = null): void
     {
         // Serve a file (css, png, ...)
-        if (!empty($_GET['df'])) {
-            Files::serveFile($_GET['df'], [Path::implodeSrc('Process', 'Admin', 'resources')]);
+        if (!GPC::get()->empty('df')) {
+            Files::serveFile(GPC::get()->string('df'), [Path::implodeSrc('Process', 'Admin', 'resources')]);
 
             exit;
         }

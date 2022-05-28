@@ -16,6 +16,7 @@ use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\InsertStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Network\Http;
@@ -70,17 +71,17 @@ class FilterIpv6 extends Spamfilter
     {
         // Set current type and tab
         $ip_type = 'blackv6';
-        if (!empty($_REQUEST['ip_type']) && 'whitev6' == $_REQUEST['ip_type']) {
+        if ('whitev6' == GPC::request()->string('ip_type')) {
             $ip_type = 'whitev6';
         }
         $this->tab = 'tab_' . $ip_type;
 
         // Add IP to list
-        if (!empty($_POST['addip'])) {
+        if (!GPC::post()->empty('addip')) {
             try {
-                $global = !empty($_POST['globalip']) && App::core()->user()->isSuperAdmin();
+                $global = !GPC::post()->empty('globalip') && App::core()->user()->isSuperAdmin();
 
-                $this->addIP($ip_type, $_POST['addip'], $global);
+                $this->addIP($ip_type, GPC::post()->string('addip'), $global);
                 App::core()->notice()->addSuccessNotice(__('IP address has been successfully added.'));
                 Http::redirect($url . '&ip_type=' . $ip_type);
             } catch (Exception $e) {
@@ -89,9 +90,9 @@ class FilterIpv6 extends Spamfilter
         }
 
         // Remove IP from list
-        if (!empty($_POST['delip']) && is_array($_POST['delip'])) {
+        if (!GPC::post()->empty('delip')) {
             try {
-                $this->removeRule($_POST['delip']);
+                $this->removeRule(GPC::post()->array('delip'));
                 App::core()->notice()->addSuccessNotice(__('IP addresses have been successfully removed.'));
                 Http::redirect($url . '&ip_type=' . $ip_type);
             } catch (Exception $e) {
@@ -101,10 +102,8 @@ class FilterIpv6 extends Spamfilter
 
         /* DISPLAY
         ---------------------------------------------- */
-        $res = $this->displayForms($url, 'blackv6', __('Blocklist')) .
+        return $this->displayForms($url, 'blackv6', __('Blocklist')) .
         $this->displayForms($url, 'whitev6', __('Allowlist'));
-
-        return $res;
     }
 
     public function guiTab(): ?string

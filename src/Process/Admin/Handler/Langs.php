@@ -15,6 +15,7 @@ use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Zip\Unzip;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Feed\Reader;
@@ -43,9 +44,9 @@ class Langs extends AbstractPage
         $this->lang_iso_codes   = L10n::getISOCodes();
 
         // Delete a language pack
-        if ($this->lang_is_writable && !empty($_POST['delete']) && !empty($_POST['locale_id'])) {
+        if ($this->lang_is_writable && !GPC::post()->empty('delete') && !GPC::post()->empty('locale_id')) {
             try {
-                $locale_id = $_POST['locale_id'];
+                $locale_id = GPC::post()->string('locale_id');
                 if (!isset($this->lang_iso_codes[$locale_id]) || !is_dir(App::core()->config()->get('l10n_dir') . '/' . $locale_id)) {
                     throw new AdminException(__('No such installed language'));
                 }
@@ -66,13 +67,13 @@ class Langs extends AbstractPage
         }
 
         // Download a language pack
-        if ($this->lang_is_writable && !empty($_POST['pkg_url'])) {
+        if ($this->lang_is_writable && !GPC::post()->empty('pkg_url')) {
             try {
-                if (empty($_POST['your_pwd']) || !App::core()->user()->checkPassword($_POST['your_pwd'])) {
+                if (!App::core()->user()->checkPassword(GPC::post()->string('your_pwd'))) {
                     throw new AdminException(__('Password verification failed'));
                 }
 
-                $url  = Html::escapeHTML($_POST['pkg_url']);
+                $url  = HTML::escapeHTML(GPC::post()->string('pkg_url'));
                 $dest = App::core()->config()->get('l10n_dir') . '/' . basename($url);
                 if (!preg_match('#^https://[^.]+\.dotclear\.(net|org)/.*\.zip$#', $url)) {
                     throw new AdminException(__('Invalid language file URL.'));
@@ -106,9 +107,9 @@ class Langs extends AbstractPage
         }
 
         // Upload a language pack
-        if ($this->lang_is_writable && !empty($_POST['upload_pkg'])) {
+        if ($this->lang_is_writable && !GPC::post()->empty('upload_pkg')) {
             try {
-                if (empty($_POST['your_pwd']) || !App::core()->user()->checkPassword($_POST['your_pwd'])) {
+                if (!App::core()->user()->checkPassword(GPC::post()->string('your_pwd'))) {
                     throw new AdminException(__('Password verification failed'));
                 }
 
@@ -154,12 +155,10 @@ class Langs extends AbstractPage
 
     protected function getPageContent(): void
     {
-        if (!empty($_GET['removed'])) {
+        if (!GPC::get()->empty('removed')) {
             App::core()->notice()->success(__('Language has been successfully deleted.'));
-        }
-
-        if (!empty($_GET['added'])) {
-            App::core()->notice()->success((2 == $_GET['added'] ? __('Language has been successfully upgraded') : __('Language has been successfully installed.')));
+        } elseif (!GPC::get()->empty('added')) {
+            App::core()->notice()->success((2 == GPC::get()->int('added') ? __('Language has been successfully upgraded') : __('Language has been successfully installed.')));
         }
 
         // Get languages list on Dotclear.net

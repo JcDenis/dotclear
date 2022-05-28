@@ -16,10 +16,11 @@ use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Database\Param;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Clock;
-use Dotclear\Helper\Lexical;
 use Dotclear\Helper\File\Path;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Lexical;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Network\NetHttp\NetHttp;
 use Dotclear\Process\Admin\Page\AbstractPage;
@@ -65,10 +66,10 @@ class BlogPref extends AbstractPage
             $redir             = App::core()->adminurl()->get('admin.blog.pref');
         } else {
             try {
-                if (empty($_REQUEST['id'])) {
+                if (GPC::request()->empty('id')) {
                     throw new AdminException(__('No given blog id.'));
                 }
-                $rs = App::core()->blogs()->getBlog(id: $_REQUEST['id']);
+                $rs = App::core()->blogs()->getBlog(id: GPC::request()->string('id'));
 
                 if (!$rs) {
                     throw new AdminException(__('No such blog.'));
@@ -89,7 +90,7 @@ class BlogPref extends AbstractPage
         }
 
         // Update a blog
-        if ($this->blog_id && !empty($_POST) && App::core()->user()->check('admin', $this->blog_id)) {
+        if ($this->blog_id && GPC::post()->count() && App::core()->user()->check('admin', $this->blog_id)) {
             // URL scan modes
             $url_scan_combo = [
                 'PATH_INFO'    => 'path_info',
@@ -100,56 +101,56 @@ class BlogPref extends AbstractPage
             $status_combo = App::core()->combo()->getBlogStatusesCombo();
 
             $cur = App::core()->con()->openCursor(App::core()->prefix() . 'blog');
-            $cur->setField('blog_id', $_POST['blog_id']);
-            $cur->setField('blog_url', preg_replace('/\?+$/', '?', $_POST['blog_url']));
-            $cur->setField('blog_name', $_POST['blog_name']);
-            $cur->setField('blog_desc', $_POST['blog_desc']);
+            $cur->setField('blog_id', GPC::post()->string('blog_id'));
+            $cur->setField('blog_url', preg_replace('/\?+$/', '?', GPC::post()->string('blog_url')));
+            $cur->setField('blog_name', GPC::post()->string('blog_name'));
+            $cur->setField('blog_desc', GPC::post()->string('blog_desc'));
 
-            if (App::core()->user()->isSuperAdmin() && in_array($_POST['blog_status'], $status_combo)) {
-                $cur->setField('blog_status', (int) $_POST['blog_status']);
+            if (App::core()->user()->isSuperAdmin() && in_array(GPC::post()->string('blog_status'), $status_combo)) {
+                $cur->setField('blog_status', GPC::post()->int('blog_status'));
             }
 
-            $media_img_t_size = (int) $_POST['media_img_t_size'];
+            $media_img_t_size = GPC::post()->int('media_img_t_size');
             if (0 > $media_img_t_size) {
                 $media_img_t_size = 100;
             }
 
-            $media_img_s_size = (int) $_POST['media_img_s_size'];
+            $media_img_s_size = GPC::post()->int('media_img_s_size');
             if (0 > $media_img_s_size) {
                 $media_img_s_size = 240;
             }
 
-            $media_img_m_size = (int) $_POST['media_img_m_size'];
+            $media_img_m_size = GPC::post()->int('media_img_m_size');
             if (0 > $media_img_m_size) {
                 $media_img_m_size = 448;
             }
 
-            $media_video_width = (int) $_POST['media_video_width'];
+            $media_video_width = GPC::post()->int('media_video_width');
             if (0 > $media_video_width) {
                 $media_video_width = 400;
             }
 
-            $media_video_height = (int) $_POST['media_video_height'];
+            $media_video_height = GPC::post()->int('media_video_height');
             if (0 > $media_video_height) {
                 $media_video_height = 300;
             }
 
-            $nb_post_for_home = abs((int) $_POST['nb_post_for_home']);
+            $nb_post_for_home = abs(GPC::post()->int('nb_post_for_home'));
             if (1 > $nb_post_for_home) {
                 $nb_post_for_home = 1;
             }
 
-            $nb_post_per_page = abs((int) $_POST['nb_post_per_page']);
+            $nb_post_per_page = abs(GPC::post()->int('nb_post_per_page'));
             if (1 > $nb_post_per_page) {
                 $nb_post_per_page = 1;
             }
 
-            $nb_post_per_feed = abs((int) $_POST['nb_post_per_feed']);
+            $nb_post_per_feed = abs(GPC::post()->int('nb_post_per_feed'));
             if (1 > $nb_post_per_feed) {
                 $nb_post_per_feed = 1;
             }
 
-            $nb_comment_per_feed = abs((int) $_POST['nb_comment_per_feed']);
+            $nb_comment_per_feed = abs(GPC::post()->int('nb_comment_per_feed'));
             if (1 > $nb_comment_per_feed) {
                 $nb_comment_per_feed = 1;
             }
@@ -166,7 +167,7 @@ class BlogPref extends AbstractPage
                 // --BEHAVIOR-- adminBeforeBlogUpdate
                 App::core()->behavior()->call('adminBeforeBlogUpdate', $cur, $this->blog_id);
 
-                if (!preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $_POST['lang'])) {
+                if (!preg_match('/^[a-z]{2}(-[a-z]{2})?$/', GPC::post()->string('lang'))) {
                     throw new AdminException(__('Invalid language code'));
                 }
 
@@ -187,58 +188,58 @@ class BlogPref extends AbstractPage
                     $this->blog_id = $cur->getField('blog_id');
                 }
 
-                $this->blog_settings->get('system')->put('editor', $_POST['editor']);
-                $this->blog_settings->get('system')->put('copyright_notice', $_POST['copyright_notice']);
-                $this->blog_settings->get('system')->put('post_url_format', $_POST['post_url_format']);
-                $this->blog_settings->get('system')->put('lang', $_POST['lang']);
-                $this->blog_settings->get('system')->put('blog_timezone', $_POST['blog_timezone']);
-                $this->blog_settings->get('system')->put('date_format', $_POST['date_format']);
-                $this->blog_settings->get('system')->put('time_format', $_POST['time_format']);
-                $this->blog_settings->get('system')->put('comments_ttl', abs((int) $_POST['comments_ttl']));
-                $this->blog_settings->get('system')->put('trackbacks_ttl', abs((int) $_POST['trackbacks_ttl']));
-                $this->blog_settings->get('system')->put('allow_comments', !empty($_POST['allow_comments']));
-                $this->blog_settings->get('system')->put('allow_trackbacks', !empty($_POST['allow_trackbacks']));
-                $this->blog_settings->get('system')->put('comments_pub', empty($_POST['comments_pub']));
-                $this->blog_settings->get('system')->put('trackbacks_pub', empty($_POST['trackbacks_pub']));
-                $this->blog_settings->get('system')->put('comments_nofollow', !empty($_POST['comments_nofollow']));
-                $this->blog_settings->get('system')->put('wiki_comments', !empty($_POST['wiki_comments']));
-                $this->blog_settings->get('system')->put('comment_preview_optional', !empty($_POST['comment_preview_optional']));
-                $this->blog_settings->get('system')->put('enable_xmlrpc', !empty($_POST['enable_xmlrpc']));
-                $this->blog_settings->get('system')->put('note_title_tag', $_POST['note_title_tag']);
+                $this->blog_settings->get('system')->put('editor', GPC::post()->string('editor'));
+                $this->blog_settings->get('system')->put('copyright_notice', GPC::post()->string('copyright_notice'));
+                $this->blog_settings->get('system')->put('post_url_format', GPC::post()->string('post_url_format'));
+                $this->blog_settings->get('system')->put('lang', GPC::post()->string('lang'));
+                $this->blog_settings->get('system')->put('blog_timezone', GPC::post()->string('blog_timezone'));
+                $this->blog_settings->get('system')->put('date_format', GPC::post()->string('date_format'));
+                $this->blog_settings->get('system')->put('time_format', GPC::post()->string('time_format'));
+                $this->blog_settings->get('system')->put('comments_ttl', abs(GPC::post()->int('comments_ttl')));
+                $this->blog_settings->get('system')->put('trackbacks_ttl', abs(GPC::post()->int('trackbacks_ttl')));
+                $this->blog_settings->get('system')->put('allow_comments', !GPC::post()->empty('allow_comments'));
+                $this->blog_settings->get('system')->put('allow_trackbacks', !GPC::post()->empty('allow_trackbacks'));
+                $this->blog_settings->get('system')->put('comments_pub', GPC::post()->empty('comments_pub'));
+                $this->blog_settings->get('system')->put('trackbacks_pub', GPC::post()->empty('trackbacks_pub'));
+                $this->blog_settings->get('system')->put('comments_nofollow', !GPC::post()->empty('comments_nofollow'));
+                $this->blog_settings->get('system')->put('wiki_comments', !GPC::post()->empty('wiki_comments'));
+                $this->blog_settings->get('system')->put('comment_preview_optional', !GPC::post()->empty('comment_preview_optional'));
+                $this->blog_settings->get('system')->put('enable_xmlrpc', !GPC::post()->empty('enable_xmlrpc'));
+                $this->blog_settings->get('system')->put('note_title_tag', GPC::post()->string('note_title_tag'));
                 $this->blog_settings->get('system')->put('nb_post_for_home', $nb_post_for_home);
                 $this->blog_settings->get('system')->put('nb_post_per_page', $nb_post_per_page);
-                $this->blog_settings->get('system')->put('use_smilies', !empty($_POST['use_smilies']));
-                $this->blog_settings->get('system')->put('no_search', !empty($_POST['no_search']));
-                $this->blog_settings->get('system')->put('inc_subcats', !empty($_POST['inc_subcats']));
+                $this->blog_settings->get('system')->put('use_smilies', !GPC::post()->empty('use_smilies'));
+                $this->blog_settings->get('system')->put('no_search', !GPC::post()->empty('no_search'));
+                $this->blog_settings->get('system')->put('inc_subcats', !GPC::post()->empty('inc_subcats'));
                 $this->blog_settings->get('system')->put('media_img_t_size', $media_img_t_size);
                 $this->blog_settings->get('system')->put('media_img_s_size', $media_img_s_size);
                 $this->blog_settings->get('system')->put('media_img_m_size', $media_img_m_size);
                 $this->blog_settings->get('system')->put('media_video_width', $media_video_width);
                 $this->blog_settings->get('system')->put('media_video_height', $media_video_height);
-                $this->blog_settings->get('system')->put('media_img_title_pattern', $_POST['media_img_title_pattern']);
-                $this->blog_settings->get('system')->put('media_img_use_dto_first', !empty($_POST['media_img_use_dto_first']));
-                $this->blog_settings->get('system')->put('media_img_no_date_alone', !empty($_POST['media_img_no_date_alone']));
-                $this->blog_settings->get('system')->put('media_img_default_size', $_POST['media_img_default_size']);
-                $this->blog_settings->get('system')->put('media_img_default_alignment', $_POST['media_img_default_alignment']);
-                $this->blog_settings->get('system')->put('media_img_default_link', !empty($_POST['media_img_default_link']));
-                $this->blog_settings->get('system')->put('media_img_default_legend', $_POST['media_img_default_legend']);
+                $this->blog_settings->get('system')->put('media_img_title_pattern', GPC::post()->string('media_img_title_pattern'));
+                $this->blog_settings->get('system')->put('media_img_use_dto_first', !GPC::post()->empty('media_img_use_dto_first'));
+                $this->blog_settings->get('system')->put('media_img_no_date_alone', !GPC::post()->empty('media_img_no_date_alone'));
+                $this->blog_settings->get('system')->put('media_img_default_size', GPC::post()->string('media_img_default_size'));
+                $this->blog_settings->get('system')->put('media_img_default_alignment', GPC::post()->string('media_img_default_alignment'));
+                $this->blog_settings->get('system')->put('media_img_default_link', !GPC::post()->empty('media_img_default_link'));
+                $this->blog_settings->get('system')->put('media_img_default_legend', GPC::post()->string('media_img_default_legend'));
                 $this->blog_settings->get('system')->put('nb_post_per_feed', $nb_post_per_feed);
                 $this->blog_settings->get('system')->put('nb_comment_per_feed', $nb_comment_per_feed);
-                $this->blog_settings->get('system')->put('short_feed_items', !empty($_POST['short_feed_items']));
-                if (isset($_POST['robots_policy'])) {
-                    $this->blog_settings->get('system')->put('robots_policy', $_POST['robots_policy']);
+                $this->blog_settings->get('system')->put('short_feed_items', !GPC::post()->empty('short_feed_items'));
+                if (GPC::post()->isset('robots_policy')) {
+                    $this->blog_settings->get('system')->put('robots_policy', GPC::post()->string('robots_policy'));
                 }
-                $this->blog_settings->get('system')->put('jquery_needed', !empty($_POST['jquery_needed']));
-                $this->blog_settings->get('system')->put('jquery_version', $_POST['jquery_version']);
-                $this->blog_settings->get('system')->put('prevents_clickjacking', !empty($_POST['prevents_clickjacking']));
-                $this->blog_settings->get('system')->put('static_home', !empty($_POST['static_home']));
-                $this->blog_settings->get('system')->put('static_home_url', $_POST['static_home_url']);
+                $this->blog_settings->get('system')->put('jquery_needed', !GPC::post()->empty('jquery_needed'));
+                $this->blog_settings->get('system')->put('jquery_version', GPC::post()->string('jquery_version'));
+                $this->blog_settings->get('system')->put('prevents_clickjacking', !GPC::post()->empty('prevents_clickjacking'));
+                $this->blog_settings->get('system')->put('static_home', !GPC::post()->empty('static_home'));
+                $this->blog_settings->get('system')->put('static_home_url', GPC::post()->string('static_home_url'));
 
                 // --BEHAVIOR-- adminBeforeBlogSettingsUpdate
                 App::core()->behavior()->call('adminBeforeBlogSettingsUpdate', $this->blog_settings);
 
-                if (App::core()->user()->isSuperAdmin() && in_array($_POST['url_scan'], $url_scan_combo)) {
-                    $this->blog_settings->get('system')->put('url_scan', $_POST['url_scan']);
+                if (App::core()->user()->isSuperAdmin() && in_array(GPC::post()->string('url_scan'), $url_scan_combo)) {
+                    $this->blog_settings->get('system')->put('url_scan', GPC::post()->string('url_scan'));
                 }
                 App::core()->notice()->addSuccessNotice(__('Blog has been successfully updated.'));
 
@@ -399,11 +400,9 @@ class BlogPref extends AbstractPage
             }
         }
 
-        if (!empty($_GET['add'])) {
+        if (!GPC::get()->empty('add')) {
             App::core()->notice()->success(__('Blog has been successfully created.'));
-        }
-
-        if (!empty($_GET['upd'])) {
+        } elseif (!GPC::get()->empty('upd')) {
             App::core()->notice()->success(__('Blog has been successfully updated.'));
         }
 

@@ -10,11 +10,11 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Pages\Admin;
 
 // Dotclear\Plugin\Pages\Admin\PagesAction
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Clock;
+use Dotclear\Helper\GPC\GPCGroup;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Action\Action\PostAction;
@@ -88,17 +88,21 @@ class PagesAction extends PostAction
     public function getPagePrepend(): ?bool
     {
         // fake action for pages reordering
-        if (!empty($this->from['reorder'])) {
-            $this->from['action'] = 'reorder';
+        $from = $this->from->dump();
+
+        if (!$this->from->empty('reorder')) {
+            $from['action'] = 'reorder';
         }
-        $this->from['post_type'] = 'page';
+        $from['post_type'] = 'page';
+
+        $this->from = new GPCGroup($from);
 
         return parent::getPagePrepend();
     }
 
-    public function doReorderPages(Action $ap, array|ArrayObject $post): void
+    public function doReorderPages(Action $ap, GPCGroup $from): void
     {
-        foreach ($post['order'] as $post_id => $value) {
+        foreach ($from->array('order') as $post_id => $value) {
             if (!App::core()->user()->check('publish,contentadmin', App::core()->blog()->id)) {
                 throw new AdminException(__('You are not allowed to change this entry status'));
             }

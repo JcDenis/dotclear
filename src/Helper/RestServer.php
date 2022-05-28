@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Helper;
 
 // Dotclear\Helper\RestServer
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\XmlTag;
 use Exception;
 
@@ -82,10 +83,7 @@ class RestServer
      */
     public function serve(string $encoding = 'UTF-8'): bool
     {
-        $get  = $_GET ?: [];
-        $post = $_POST ?: [];
-
-        if (!isset($_REQUEST['f'])) {
+        if (!GPC::request()->isset('f')) {
             $this->rsp->insertAttr('status', 'failed');
             $this->rsp->insertNode(new XmlTag('message', 'No function given'));
             $this->getXML($encoding);
@@ -93,16 +91,16 @@ class RestServer
             return false;
         }
 
-        if (!isset($this->functions[$_REQUEST['f']])) {
+        if (!isset($this->functions[GPC::request()->string('f')])) {
             $this->rsp->insertAttr('status', 'failed');
-            $this->rsp->insertNode(new XmlTag('message', 'Function does not exist' . $_REQUEST['f']));
+            $this->rsp->insertNode(new XmlTag('message', 'Function does not exist' . GPC::request()->string('f')));
             $this->getXML($encoding);
 
             return false;
         }
 
         try {
-            $res = $this->callFunction($_REQUEST['f'], $get, $post);
+            $res = $this->callFunction(GPC::request()->string('f'), GPC::get()->dump(), GPC::post()->dump());
         } catch (Exception $e) {
             $this->rsp->insertAttr('status', 'failed');
             $this->rsp->insertNode(new XmlTag('message', $e->getMessage()));

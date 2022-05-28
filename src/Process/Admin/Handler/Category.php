@@ -14,6 +14,7 @@ use Dotclear\App;
 use Dotclear\Database\Param;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\FormSelectOption;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
@@ -44,9 +45,9 @@ class Category extends AbstractPage
         $rs      = null;
         $parents = null;
 
-        if (!empty($_REQUEST['id'])) {
+        if (!GPC::request()->empty('id')) {
             try {
-                $rs = App::core()->blog()->categories()->getCategory(id: (int) $_REQUEST['id']);
+                $rs = App::core()->blog()->categories()->getCategory(id: GPC::request()->int('id'));
             } catch (Exception $e) {
                 App::core()->error()->add($e->getMessage());
             }
@@ -99,8 +100,8 @@ class Category extends AbstractPage
         }
 
         // Changing parent
-        if (null !== $this->cat_id && isset($_POST['cat_parent'])) {
-            $new_parent = (int) $_POST['cat_parent'];
+        if (null !== $this->cat_id && GPC::post()->isset('cat_parent')) {
+            $new_parent = GPC::post()->int('cat_parent');
             if ($this->cat_parent != $new_parent) {
                 try {
                     App::core()->blog()->categories()->setCategoryParent(
@@ -116,12 +117,12 @@ class Category extends AbstractPage
         }
 
         // Changing sibling
-        if (null !== $this->cat_id && isset($_POST['cat_sibling'])) {
+        if (null !== $this->cat_id && GPC::post()->isset('cat_sibling')) {
             try {
                 App::core()->blog()->categories()->setCategoryPosition(
                     id: $this->cat_id,
-                    sibling: (int) $_POST['cat_sibling'],
-                    move: $_POST['cat_move']
+                    sibling: GPC::post()->int('cat_sibling'),
+                    move: GPC::post()->string('cat_move')
                 );
                 App::core()->notice()->addSuccessNotice(__('The category has been successfully moved'));
                 App::core()->adminurl()->redirect('admin.categories');
@@ -131,17 +132,17 @@ class Category extends AbstractPage
         }
 
         // Create or update a category
-        if (isset($_POST['cat_title'])) {
+        if (GPC::post()->isset('cat_title')) {
             $cur = App::core()->con()->openCursor(App::core()->prefix() . 'category');
 
-            $cur->setField('cat_title', $this->cat_title = $_POST['cat_title']);
+            $cur->setField('cat_title', $this->cat_title = GPC::post()->string('cat_title'));
 
-            if (isset($_POST['cat_desc'])) {
-                $cur->setField('cat_desc', $this->cat_desc = $_POST['cat_desc']);
+            if (GPC::post()->isset('cat_desc')) {
+                $cur->setField('cat_desc', $this->cat_desc = GPC::post()->string('cat_desc'));
             }
 
-            if (isset($_POST['cat_url'])) {
-                $cur->setField('cat_url', $this->cat_url = $_POST['cat_url']);
+            if (GPC::post()->isset('cat_url')) {
+                $cur->setField('cat_url', $this->cat_url = GPC::post()->string('cat_url'));
             } else {
                 $cur->setField('cat_url', $this->cat_url);
             }
@@ -153,7 +154,7 @@ class Category extends AbstractPage
                     App::core()->behavior()->call('adminBeforeCategoryUpdate', $cur, $this->cat_id);
 
                     App::core()->blog()->categories()->updCategory(
-                        id: (int) $_POST['id'],
+                        id: GPC::post()->int('id'),
                         cursor: $cur
                     );
 
@@ -162,7 +163,7 @@ class Category extends AbstractPage
 
                     App::core()->notice()->addSuccessNotice(__('The category has been successfully updated.'));
 
-                    App::core()->adminurl()->redirect('admin.category', ['id' => $_POST['id']]);
+                    App::core()->adminurl()->redirect('admin.category', ['id' => GPC::post()->string('id')]);
                 }
                 // Create category
                 else {
@@ -171,7 +172,7 @@ class Category extends AbstractPage
 
                     $id = App::core()->blog()->categories()->addCategory(
                         cursor: $cur,
-                        parent: (int) $_POST['new_cat_parent']
+                        parent: GPC::post()->int('new_cat_parent')
                     );
 
                     // --BEHAVIOR-- adminAfterCategoryCreate
@@ -225,7 +226,7 @@ class Category extends AbstractPage
 
     protected function getPageContent(): void
     {
-        if (!empty($_GET['upd'])) {
+        if (!GPC::get()->empty('upd')) {
             App::core()->notice()->success(__('Category has been successfully updated.'));
         }
 
@@ -243,7 +244,7 @@ class Category extends AbstractPage
             '<select id="new_cat_parent" name="new_cat_parent" >' .
             '<option value="0">' . __('(none)') . '</option>';
             while ($rs->fetch()) {
-                echo '<option value="' . $rs->f('cat_id') . '" ' . (!empty($_POST['new_cat_parent']) && $rs->f('cat_id') == $_POST['new_cat_parent'] ? 'selected="selected"' : '') . '>' .
+                echo '<option value="' . $rs->f('cat_id') . '" ' . ($rs->fInt('cat_id')                                  == GPC::post()->int('new_cat_parent') ? 'selected="selected"' : '') . '>' .
                 str_repeat('&nbsp;&nbsp;', $rs->fInt('level') - 1) . (0                                                  == $rs->fInt('level') - 1 ? '' : '&bull; ') . Html::escapeHTML($rs->f('cat_title')) . '</option>';
             }
             echo '</select></label></p>';

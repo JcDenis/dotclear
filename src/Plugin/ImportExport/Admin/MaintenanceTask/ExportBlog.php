@@ -12,6 +12,7 @@ namespace Dotclear\Plugin\ImportExport\Admin\MaintenanceTask;
 // Dotclear\Plugin\ImportExport\Admin\MaintenanceTask\ExportBlog
 use Dotclear\App;
 use Dotclear\Helper\Clock;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceTask;
@@ -42,8 +43,8 @@ class ExportBlog extends MaintenanceTask
     public function execute(): int|bool
     {
         // Create zip file
-        if (!empty($_POST['file_name'])) {
-            if (empty($_POST['your_pwd']) || !App::core()->user()->checkPassword($_POST['your_pwd'])) {
+        if (!GPC::post()->empty('file_name')) {
+            if (!App::core()->user()->checkPassword(GPC::post()->string('your_pwd'))) {
                 $this->error = __('Password verification failed');
 
                 return false;

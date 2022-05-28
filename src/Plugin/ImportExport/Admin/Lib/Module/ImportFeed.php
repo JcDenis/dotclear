@@ -13,6 +13,7 @@ namespace Dotclear\Plugin\ImportExport\Admin\Lib\Module;
 use Dotclear\App;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\Clock;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
@@ -101,11 +102,11 @@ class ImportFeed extends Module
             return;
         }
 
-        if (empty($_POST['feed_url'])) {
+        if (GPC::post()->empty('feed_url')) {
             return;
         }
 
-        $this->feed_url = $_POST['feed_url'];
+        $this->feed_url = GPC::post()->string('feed_url');
 
         // Check feed URL
         if (App::core()->blog()->settings()->get('system')->get('import_feed_url_control')) {

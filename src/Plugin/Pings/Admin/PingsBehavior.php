@@ -15,6 +15,7 @@ use Dotclear\App;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
 use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Plugin\Pings\Common\PingsAPI;
 
@@ -65,14 +66,9 @@ class PingsBehavior
             return;
         }
 
-        if (!empty($_POST['pings_do']) && is_array($_POST['pings_do'])) {
-            $pings_do = $_POST['pings_do'];
-        } else {
-            $pings_do = [];
-        }
-
-        $item = '<h5 class="ping-services">' . __('Pings') . '</h5>';
-        $i    = 0;
+        $pings_do = GPC::post()->array('pings_do');
+        $item     = '<h5 class="ping-services">' . __('Pings') . '</h5>';
+        $i        = 0;
         foreach ($pings_uris as $k => $v) {
             $item .= '<p class="ping-services"><label for="pings_do-' . $i . '" class="classic">' .
             Form::checkbox(['pings_do[]', 'pings_do-' . $i], Html::escapeHTML($v), in_array($v, $pings_do), 'check-ping-services') . ' ' .
@@ -84,7 +80,7 @@ class PingsBehavior
 
     public function doPings(Cursor $cur, int $post_id): void
     {
-        if (empty($_POST['pings_do']) || !is_array($_POST['pings_do'])) {
+        if (GPC::post()->empty('pings_do')) {
             return;
         }
 
@@ -97,7 +93,7 @@ class PingsBehavior
             return;
         }
 
-        foreach ($_POST['pings_do'] as $uri) {
+        foreach (GPC::post()->array('pings_do') as $uri) {
             if (in_array($uri, $pings_uris)) {
                 try {
                     PingsAPI::doPings($uri, App::core()->blog()->name, App::core()->blog()->url);

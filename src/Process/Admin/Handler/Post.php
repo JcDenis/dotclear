@@ -15,13 +15,14 @@ use Dotclear\App;
 use Dotclear\Core\Trackback\Trackback;
 use Dotclear\Database\Param;
 use Dotclear\Helper\Clock;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Mapper\Integers;
+use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Text;
-use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Action\Action\CommentAction;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
 
 /**
@@ -101,11 +102,11 @@ class Post extends AbstractPage
         }
 
         // Get entry informations
-        if (!empty($_REQUEST['id'])) {
+        if (!GPC::request()->empty('id')) {
             $page_title = __('Edit post');
 
             $param = new Param();
-            $param->set('post_id', (int) $_REQUEST['id']);
+            $param->set('post_id', GPC::request()->int('id'));
 
             $this->post = $rs = App::core()->blog()->posts()->getPosts(param: $param);
 
@@ -176,23 +177,23 @@ class Post extends AbstractPage
                 */
 
                 // Sanitize trackbacks excerpt
-                $this->tb_excerpt = empty($_POST['tb_excerpt']) ?
-                    $this->post_excerpt_xhtml . ' ' . $this->post_content_xhtml : $_POST['tb_excerpt'];
+                $this->tb_excerpt = GPC::post()->empty('tb_excerpt') ?
+                    $this->post_excerpt_xhtml . ' ' . $this->post_content_xhtml : GPC::post()->string('tb_excerpt');
                 $this->tb_excerpt = Html::decodeEntities(Html::clean($this->tb_excerpt));
                 $this->tb_excerpt = Text::cutString(Html::escapeHTML($this->tb_excerpt), 255);
                 $this->tb_excerpt = preg_replace('/\s+/ms', ' ', $this->tb_excerpt);
             }
         }
 
-        $anchor = isset($_REQUEST['section']) && 'trackbacks' == $_REQUEST['section'] ? 'trackbacks' : 'comments';
+        $anchor = GPC::request()->isset('section') && 'trackbacks' == GPC::request()->string('section') ? 'trackbacks' : 'comments';
 
         $this->comments_actions = new CommentAction(App::core()->adminurl()->get('admin.post'), ['id' => $this->post_id, '_ANCHOR' => $anchor, 'section' => $anchor]);
         $this->comments_actions->pageProcess(); // Redirect on action made
 
         // Ping blogs
-        if (!empty($_POST['ping'])) {
-            if (!empty($_POST['tb_urls']) && $this->post_id && 1 == $this->post_status && $this->can_edit_post) {
-                $this->tb_urls = $_POST['tb_urls'];
+        if (!GPC::post()->empty('ping')) {
+            if (!GPC::post()->empty('tb_urls') && $this->post_id && 1 == $this->post_status && $this->can_edit_post) {
+                $this->tb_urls = GPC::post()->string('tb_urls');
                 $this->tb_urls = str_replace("\r", '', $this->tb_urls);
                 $tb_post_title = Html::escapeHTML(trim(Html::clean($this->post_title)));
                 $tb_post_url   = $this->post->getURL();
@@ -219,22 +220,22 @@ class Post extends AbstractPage
         }
 
         // Format excerpt and content
-        elseif (!empty($_POST) && $this->can_edit_post) {
-            $this->post_format  = $_POST['post_format'];
-            $this->post_excerpt = $_POST['post_excerpt'];
-            $this->post_content = $_POST['post_content'];
-            $this->post_title   = $_POST['post_title'];
-            $this->cat_id       = (int) $_POST['cat_id'];
+        elseif (GPC::post()->count() && $this->can_edit_post) {
+            $this->post_format  = GPC::post()->string('post_format');
+            $this->post_excerpt = GPC::post()->string('post_excerpt');
+            $this->post_content = GPC::post()->string('post_content');
+            $this->post_title   = GPC::post()->string('post_title');
+            $this->cat_id       = GPC::post()->int('cat_id');
 
-            if (isset($_POST['post_status'])) {
-                $this->post_status = (int) $_POST['post_status'];
+            if (GPC::post()->isset('post_status')) {
+                $this->post_status = GPC::post()->int('post_status');
             }
 
-            if (empty($_POST['post_dt'])) {
+            if (GPC::post()->empty('post_dt')) {
                 $this->post_dt = '';
             } else {
                 try {
-                    $this->post_dt = Clock::ts(date: $_POST['post_dt'], from: App::core()->timezone());
+                    $this->post_dt = Clock::ts(date: GPC::post()->string('post_dt'), from: App::core()->timezone());
                 } catch (Exception $e) {
                     $this->bad_dt  = true;
                     $this->post_dt = Clock::format(format: 'Y-m-d H:i');
@@ -243,15 +244,15 @@ class Post extends AbstractPage
                 }
             }
 
-            $this->post_open_comment = !empty($_POST['post_open_comment']);
-            $this->post_open_tb      = !empty($_POST['post_open_tb']);
-            $this->post_selected     = !empty($_POST['post_selected']);
-            $this->post_lang         = $_POST['post_lang'];
-            $this->post_password     = !empty($_POST['post_password']) ? $_POST['post_password'] : null;
-            $this->post_notes        = $_POST['post_notes'];
+            $this->post_open_comment = !GPC::post()->empty('post_open_comment');
+            $this->post_open_tb      = !GPC::post()->empty('post_open_tb');
+            $this->post_selected     = !GPC::post()->empty('post_selected');
+            $this->post_lang         = GPC::post()->string('post_lang');
+            $this->post_password     = GPC::post()->empty('post_password') ? null : GPC::post()->string('post_password');
+            $this->post_notes        = GPC::post()->string('post_notes');
 
-            if (isset($_POST['post_url'])) {
-                $this->post_url = $_POST['post_url'];
+            if (GPC::post()->isset('post_url')) {
+                $this->post_url = GPC::post()->string('post_url');
             }
 
             App::core()->blog()->posts()->setPostContent(
@@ -266,7 +267,7 @@ class Post extends AbstractPage
         }
 
         // Delete post
-        if (!empty($_POST['delete']) && $this->can_delete) {
+        if (!GPC::post()->empty('delete') && $this->can_delete) {
             try {
                 App::core()->blog()->posts()->delPosts(ids: new Integers($this->post_id));
                 App::core()->adminurl()->redirect('admin.posts');
@@ -276,11 +277,11 @@ class Post extends AbstractPage
         }
 
         // Create or update post
-        if (!empty($_POST) && !empty($_POST['save']) && $this->can_edit_post && !$this->bad_dt) {
+        if (!GPC::post()->empty('save') && $this->can_edit_post && !$this->bad_dt) {
             // Create category
-            if (!empty($_POST['new_cat_title']) && App::core()->user()->check('categories', App::core()->blog()->id)) {
+            if (!GPC::post()->empty('new_cat_title') && App::core()->user()->check('categories', App::core()->blog()->id)) {
                 $cur_cat = App::core()->con()->openCursor(App::core()->prefix() . 'category');
-                $cur_cat->setField('cat_title', $_POST['new_cat_title']);
+                $cur_cat->setField('cat_title', GPC::post()->string('new_cat_title'));
                 $cur_cat->setField('cat_url', '');
 
                 // --BEHAVIOR-- adminBeforeCategoryCreate
@@ -288,7 +289,7 @@ class Post extends AbstractPage
 
                 $this->cat_id = App::core()->blog()->categories()->addCategory(
                     cursor: $cur_cat,
-                    parent: !empty($_POST['new_cat_parent']) ? (int) $_POST['new_cat_parent'] : 0
+                    parent: GPC::post()->int('new_cat_parent')
                 );
 
                 // --BEHAVIOR-- adminAfterCategoryCreate
@@ -313,7 +314,7 @@ class Post extends AbstractPage
             $cur->setField('post_open_comment', (int) $this->post_open_comment);
             $cur->setField('post_open_tb', (int) $this->post_open_tb);
 
-            if (isset($_POST['post_url'])) {
+            if (GPC::post()->isset('post_url')) {
                 $cur->setField('post_url', $this->post_url);
             }
 
@@ -366,9 +367,9 @@ class Post extends AbstractPage
         if (!$this->can_edit_post) {
             $default_tab = '';
         }
-        if (!empty($_GET['co'])) {
+        if (!GPC::get()->empty('co')) {
             $default_tab = 'comments';
-        } elseif (!empty($_GET['tb'])) {
+        } elseif (!GPC::get()->empty('tb')) {
             $default_tab = 'trackbacks';
         }
 
@@ -475,25 +476,25 @@ class Post extends AbstractPage
             }
         }
 
-        if (!empty($_GET['upd'])) {
+        if (!GPC::get()->empty('upd')) {
             App::core()->notice()->success(__('Entry has been successfully updated.'));
-        } elseif (!empty($_GET['crea'])) {
+        } elseif (!GPC::get()->empty('crea')) {
             App::core()->notice()->success(__('Entry has been successfully created.'));
-        } elseif (!empty($_GET['attached'])) {
+        } elseif (!GPC::get()->empty('attached')) {
             App::core()->notice()->success(__('File has been successfully attached.'));
-        } elseif (!empty($_GET['rmattach'])) {
+        } elseif (!GPC::get()->empty('rmattach')) {
             App::core()->notice()->success(__('Attachment has been successfully removed.'));
         }
 
-        if (!empty($_GET['creaco'])) {
+        if (!GPC::get()->empty('creaco')) {
             App::core()->notice()->success(__('Comment has been successfully created.'));
         }
-        if (!empty($_GET['tbsent'])) {
+        if (!GPC::get()->empty('tbsent')) {
             App::core()->notice()->success(__('All pings sent.'));
         }
 
         // XHTML conversion
-        if (!empty($_GET['xconv'])) {
+        if (!GPC::get()->empty('xconv')) {
             $this->post_excerpt = $this->post_excerpt_xhtml;
             $this->post_content = $this->post_content_xhtml;
             $this->post_format  = 'xhtml';
@@ -841,7 +842,7 @@ class Post extends AbstractPage
             $combo_action = $this->comments_actions->getCombo();
             $has_action   = !empty($combo_action) && !$trackbacks->isEmpty();
 
-            if (!empty($_GET['tb_auto'])) {
+            if (!GPC::get()->empty('tb_auto')) {
                 $this->tb_urls = implode("\n", $this->trackback->discover($this->post_excerpt_xhtml . ' ' . $this->post_content_xhtml));
             }
 
@@ -891,7 +892,7 @@ class Post extends AbstractPage
                 '<p>' .
                 App::core()->adminurl()->getHiddenFormFields('admin.post', ['id' => $this->post_id], true) .
                 '<input type="submit" name="ping" value="' . __('Ping blogs') . '" />' .
-                    (empty($_GET['tb_auto']) ?
+                    (GPC::get()->empty('tb_auto') ?
                     '&nbsp;&nbsp;<a class="button" href="' .
                     App::core()->adminurl()->get('admin.post', ['id' => $this->post_id, 'tb_auto' => 1, 'tb' => 1]) .
                     '">' . __('Auto discover ping URLs') . '</a>'
@@ -950,10 +951,8 @@ class Post extends AbstractPage
         '<th>' . __('Edit') . '</th>' .
             '</tr>';
         $comments = [];
-        if (isset($_REQUEST['comments'])) {
-            foreach ($_REQUEST['comments'] as $v) {
-                $comments[(int) $v] = true;
-            }
+        foreach (GPC::request()->array('comments') as $v) {
+            $comments[(int) $v] = true;
         }
 
         while ($rs->fetch()) {

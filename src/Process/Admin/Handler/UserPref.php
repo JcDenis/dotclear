@@ -12,13 +12,14 @@ namespace Dotclear\Process\Admin\Handler;
 // Dotclear\Process\Admin\Handler\UserPref
 use ArrayObject;
 use Dotclear\App;
-use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Core\User\UserContainer;
 use Dotclear\Exception\AdminException;
+use Dotclear\Helper\Clock;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Helper\Clock;
 use Dotclear\Helper\Lexical;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
 
 /**
@@ -116,11 +117,19 @@ class UserPref extends AbstractPage
         $this->user_ui_media_nb_last_dirs = App::core()->user()->preference()->get('interface')->get('media_nb_last_dirs');
         $this->user_ui_nocheckadblocker   = App::core()->user()->preference()->get('interface')->get('nocheckadblocker');
 
-        $default_tab = !empty($_GET['tab']) ? Html::escapeHTML($_GET['tab']) : 'user-profile';
+        $default_tab = !GPC::get()->empty('tab') ? Html::escapeHTML(GPC::get()->string('tab')) : 'user-profile';
 
-        if (!empty($_GET['append']) || !empty($_GET['removed']) || !empty($_GET['neworder']) || !empty($_GET['replaced']) || !empty($_POST['appendaction']) || !empty($_POST['removeaction']) || !empty($_GET['db-updated']) || !empty($_POST['resetorder'])) {
+        if (!GPC::get()->empty('append')
+            || !GPC::get()->empty('removed')
+            || !GPC::get()->empty('neworder')
+            || !GPC::get()->empty('replaced')
+            || !GPC::post()->empty('appendaction')
+            || !GPC::post()->empty('removeaction')
+            || !GPC::get()->empty('db-updated')
+            || !GPC::post()->empty('resetorder')
+        ) {
             $default_tab = 'user-favorites';
-        } elseif (!empty($_GET['updated'])) {
+        } elseif (!GPC::get()->empty('updated')) {
             $default_tab = 'user-options';
         }
         if (('user-profile' != $default_tab) && ('user-options' != $default_tab) && ('user-favorites' != $default_tab)) {
@@ -170,35 +179,35 @@ class UserPref extends AbstractPage
         $this->sorts = App::core()->listoption()->getUserFilters();
 
         // Add or update user
-        if (isset($_POST['user_name'])) {
+        if (GPC::post()->isset('user_name')) {
             try {
-                $pwd_check = !empty($_POST['cur_pwd']) && App::core()->user()->checkPassword($_POST['cur_pwd']);
+                $pwd_check = App::core()->user()->checkPassword(GPC::post()->string('cur_pwd'));
 
-                if (App::core()->user()->allowPassChange() && !$pwd_check && $this->user->getProperty('user_email') != $_POST['user_email']) {
+                if (App::core()->user()->allowPassChange() && !$pwd_check && $this->user->getProperty('user_email') != GPC::post()->string('user_email')) {
                     throw new AdminException(__('If you want to change your email or password you must provide your current password.'));
                 }
 
                 $cur = App::core()->con()->openCursor(App::core()->prefix() . 'user');
 
-                $cur->setField('user_name', $this->user->setProperty('user_name', $_POST['user_name']));
-                $cur->setField('user_firstname', $this->user->setProperty('user_firstname', $_POST['user_firstname']));
-                $cur->setField('user_displayname', $this->user->setProperty('user_displayname', $_POST['user_displayname']));
-                $cur->setField('user_email', $this->user->setProperty('user_email', $_POST['user_email']));
-                $cur->setField('user_url', $this->user->setProperty('user_url', $_POST['user_url']));
-                $cur->setField('user_lang', $this->user->setProperty('user_lang', $_POST['user_lang']));
-                $cur->setField('user_tz', $this->user->setProperty('user_tz', $_POST['user_tz']));
+                $cur->setField('user_name', $this->user->setProperty('user_name', GPC::post()->string('user_name')));
+                $cur->setField('user_firstname', $this->user->setProperty('user_firstname', GPC::post()->string('user_firstname')));
+                $cur->setField('user_displayname', $this->user->setProperty('user_displayname', GPC::post()->string('user_displayname')));
+                $cur->setField('user_email', $this->user->setProperty('user_email', GPC::post()->string('user_email')));
+                $cur->setField('user_url', $this->user->setProperty('user_url', GPC::post()->string('user_url')));
+                $cur->setField('user_lang', $this->user->setProperty('user_lang', GPC::post()->string('user_lang')));
+                $cur->setField('user_tz', $this->user->setProperty('user_tz', GPC::post()->string('user_tz')));
                 $cur->setField('user_options', new ArrayObject($this->user->getOptions()));
 
-                if (App::core()->user()->allowPassChange() && !empty($_POST['new_pwd'])) {
+                if (App::core()->user()->allowPassChange() && !GPC::post()->empty('new_pwd')) {
                     if (!$pwd_check) {
                         throw new AdminException(__('If you want to change your email or password you must provide your current password.'));
                     }
 
-                    if ($_POST['new_pwd'] != $_POST['new_pwd_c']) {
+                    if (GPC::post()->string('new_pwd') != GPC::post()->string('new_pwd_c')) {
                         throw new AdminException(__("Passwords don't match"));
                     }
 
-                    $cur->setField('user_pwd', $_POST['new_pwd']);
+                    $cur->setField('user_pwd', GPC::post()->string('new_pwd'));
                 }
 
                 // --BEHAVIOR-- adminBeforeUserUpdate
@@ -210,11 +219,11 @@ class UserPref extends AbstractPage
                 // Update profile
                 // Sanitize list of secondary mails and urls if any
                 $mails = $urls = '';
-                if (!empty($_POST['user_profile_mails'])) {
-                    $mails = implode(',', array_filter(filter_var_array(array_map('trim', explode(',', $_POST['user_profile_mails'])), FILTER_VALIDATE_EMAIL)));
+                if (!GPC::post()->empty('user_profile_mails')) {
+                    $mails = implode(',', array_filter(filter_var_array(array_map('trim', explode(',', GPC::post()->string('user_profile_mails'))), FILTER_VALIDATE_EMAIL)));
                 }
-                if (!empty($_POST['user_profile_urls'])) {
-                    $urls = implode(',', array_filter(filter_var_array(array_map('trim', explode(',', $_POST['user_profile_urls'])), FILTER_VALIDATE_URL)));
+                if (!GPC::post()->empty('user_profile_urls')) {
+                    $urls = implode(',', array_filter(filter_var_array(array_map('trim', explode(',', GPC::post()->string('user_profile_urls'))), FILTER_VALIDATE_URL)));
                 }
                 App::core()->user()->preference()->get('profile')->put('mails', $mails, 'string');
                 App::core()->user()->preference()->get('profile')->put('urls', $urls, 'string');
@@ -231,7 +240,7 @@ class UserPref extends AbstractPage
         }
 
         // Update user options
-        if (isset($_POST['user_options_submit'])) {
+        if (GPC::post()->isset('user_options_submit')) {
             try {
                 $cur = App::core()->con()->openCursor(App::core()->prefix() . 'user');
 
@@ -242,16 +251,16 @@ class UserPref extends AbstractPage
                 $cur->setField('user_url', $this->user->getProperty('user_url'));
                 $cur->setField('user_lang', $this->user->getProperty('user_lang'));
                 $cur->setField('user_tz', $this->user->getProperty('user_tz'));
-                $cur->setField('user_post_status', $this->user->setProperty('user_post_status', $_POST['user_post_status']));
+                $cur->setField('user_post_status', $this->user->setProperty('user_post_status', GPC::post()->string('user_post_status')));
 
-                $this->user->setOption('edit_size', $_POST['user_edit_size']);
+                $this->user->setOption('edit_size', GPC::post()->int('user_edit_size'));
                 if ($this->user->getOption('edit_size') < 1) {
                     $this->user->setOption('edit_size', 10);
                 }
-                $this->user->setOption('post_format', $_POST['user_post_format']);
-                $this->user->setOption('editor', $_POST['user_editor']);
-                $this->user->setOption('enable_wysiwyg', !empty($_POST['user_wysiwyg']));
-                $this->user->setOption('toolbar_bottom', !empty($_POST['user_toolbar_bottom']));
+                $this->user->setOption('post_format', GPC::post()->string('user_post_format'));
+                $this->user->setOption('editor', GPC::post()->array('user_editor'));
+                $this->user->setOption('enable_wysiwyg', !GPC::post()->empty('user_wysiwyg'));
+                $this->user->setOption('toolbar_bottom', !GPC::post()->empty('user_toolbar_bottom'));
 
                 $cur->setField('user_options', new ArrayObject($this->user->getOptions()));
 
@@ -259,29 +268,29 @@ class UserPref extends AbstractPage
                 App::core()->behavior()->call('adminBeforeUserOptionsUpdate', $cur, App::core()->user()->userID());
 
                 // Update user prefs
-                App::core()->user()->preference()->get('accessibility')->put('nodragdrop', !empty($_POST['user_acc_nodragdrop']), 'boolean');
-                App::core()->user()->preference()->get('interface')->put('theme', $_POST['user_ui_theme'], 'string');
-                App::core()->user()->preference()->get('interface')->put('enhanceduploader', !empty($_POST['user_ui_enhanceduploader']), 'boolean');
-                App::core()->user()->preference()->get('interface')->put('blank_preview', !empty($_POST['user_ui_blank_preview']), 'boolean');
-                App::core()->user()->preference()->get('interface')->put('hidemoreinfo', !empty($_POST['user_ui_hidemoreinfo']), 'boolean');
-                App::core()->user()->preference()->get('interface')->put('hidehelpbutton', !empty($_POST['user_ui_hidehelpbutton']), 'boolean');
-                App::core()->user()->preference()->get('interface')->put('showajaxloader', !empty($_POST['user_ui_showajaxloader']), 'boolean');
-                App::core()->user()->preference()->get('interface')->put('htmlfontsize', $_POST['user_ui_htmlfontsize'], 'string');
+                App::core()->user()->preference()->get('accessibility')->put('nodragdrop', !GPC::post()->empty('user_acc_nodragdrop'), 'boolean');
+                App::core()->user()->preference()->get('interface')->put('theme', GPC::post()->string('user_ui_theme'), 'string');
+                App::core()->user()->preference()->get('interface')->put('enhanceduploader', !GPC::post()->empty('user_ui_enhanceduploader'), 'boolean');
+                App::core()->user()->preference()->get('interface')->put('blank_preview', !GPC::post()->empty('user_ui_blank_preview'), 'boolean');
+                App::core()->user()->preference()->get('interface')->put('hidemoreinfo', !GPC::post()->empty('user_ui_hidemoreinfo'), 'boolean');
+                App::core()->user()->preference()->get('interface')->put('hidehelpbutton', !GPC::post()->empty('user_ui_hidehelpbutton'), 'boolean');
+                App::core()->user()->preference()->get('interface')->put('showajaxloader', !GPC::post()->empty('user_ui_showajaxloader'), 'boolean');
+                App::core()->user()->preference()->get('interface')->put('htmlfontsize', GPC::post()->string('user_ui_htmlfontsize'), 'string');
                 if (App::core()->user()->isSuperAdmin()) {
                     // Applied to all users
-                    App::core()->user()->preference()->get('interface')->put('hide_std_favicon', !empty($_POST['user_ui_hide_std_favicon']), 'boolean', null, true, true);
+                    App::core()->user()->preference()->get('interface')->put('hide_std_favicon', !GPC::post()->empty('user_ui_hide_std_favicon'), 'boolean', null, true, true);
                 }
-                App::core()->user()->preference()->get('interface')->put('media_nb_last_dirs', (int) $_POST['user_ui_media_nb_last_dirs'], 'integer');
+                App::core()->user()->preference()->get('interface')->put('media_nb_last_dirs', GPC::post()->int('user_ui_media_nb_last_dirs'), 'integer');
                 App::core()->user()->preference()->get('interface')->put('media_last_dirs', [], 'array', null, false);
                 App::core()->user()->preference()->get('interface')->put('media_fav_dirs', [], 'array', null, false);
-                App::core()->user()->preference()->get('interface')->put('nocheckadblocker', !empty($_POST['user_ui_nocheckadblocker']), 'boolean');
+                App::core()->user()->preference()->get('interface')->put('nocheckadblocker', !GPC::post()->empty('user_ui_nocheckadblocker'), 'boolean');
 
                 // Update user columns (lists)
                 $cu = [];
                 foreach ($this->cols as $col_type => $cols_list) {
                     $ct = [];
                     foreach ($cols_list[1] as $col_name => $col_data) {
-                        $ct[$col_name] = isset($_POST['cols_' . $col_type]) && in_array($col_name, $_POST['cols_' . $col_type], true) ? true : false;
+                        $ct[$col_name] = in_array($col_name, GPC::post()->array('cols_' . $col_type), true) ? true : false;
                     }
                     if (count($ct)) {
                         $cu[$col_type] = $ct;
@@ -295,27 +304,27 @@ class UserPref extends AbstractPage
                     if (null !== $sort_data[1]) {
                         $k = 'sorts_' . $sort_type . '_sortby';
 
-                        $su[$sort_type][0] = isset($_POST[$k]) && in_array($_POST[$k], $sort_data[1]) ? $_POST[$k] : $sort_data[2];
+                        $su[$sort_type][0] = in_array(GPC::post()->string($k), $sort_data[1]) ? GPC::post()->string($k) : $sort_data[2];
                     }
                     if (null !== $sort_data[3]) {
                         $k = 'sorts_' . $sort_type . '_order';
 
-                        $su[$sort_type][1] = isset($_POST[$k]) && in_array($_POST[$k], ['asc', 'desc']) ? $_POST[$k] : $sort_data[3];
+                        $su[$sort_type][1] = in_array(GPC::post()->string($k), ['asc', 'desc']) ? GPC::post()->string($k) : $sort_data[3];
                     }
                     if (null !== $sort_data[4]) {
                         $k = 'sorts_' . $sort_type . '_nb';
 
-                        $su[$sort_type][2] = isset($_POST[$k]) ? abs((int) $_POST[$k]) : $sort_data[4][1];
+                        $su[$sort_type][2] = GPC::post()->isset($k) ? abs(GPC::post()->int($k)) : $sort_data[4][1];
                     }
                 }
                 App::core()->user()->preference()->get('interface')->put('sorts', $su, 'array');
                 // All filters
-                App::core()->user()->preference()->get('interface')->put('auto_filter', !empty($_POST['user_ui_auto_filter']), 'boolean');
+                App::core()->user()->preference()->get('interface')->put('auto_filter', !GPC::post()->empty('user_ui_auto_filter'), 'boolean');
 
                 // Update user xhtml editor flags
                 $rf = [];
                 foreach ($this->rte as $rk => $rv) {
-                    $rf[$rk] = isset($_POST['rte_flags']) && in_array($rk, $_POST['rte_flags'], true) ? true : false;
+                    $rf[$rk] = in_array($rk, GPC::post()->array('rte_flags'), true);
                 }
                 App::core()->user()->preference()->get('interface')->put('rte_flags', $rf, 'array');
 
@@ -333,20 +342,20 @@ class UserPref extends AbstractPage
         }
 
         // Dashboard options
-        if (isset($_POST['db-options'])) {
+        if (GPC::post()->isset('db-options')) {
             try {
                 // --BEHAVIOR-- adminBeforeUserOptionsUpdate
                 App::core()->behavior()->call('adminBeforeDashboardOptionsUpdate', App::core()->user()->userID());
 
                 // Update user prefs
-                App::core()->user()->preference()->get('dashboard')->put('doclinks', !empty($_POST['user_dm_doclinks']), 'boolean');
-                App::core()->user()->preference()->get('dashboard')->put('dcnews', !empty($_POST['user_dm_dcnews']), 'boolean');
-                App::core()->user()->preference()->get('dashboard')->put('quickentry', !empty($_POST['user_dm_quickentry']), 'boolean');
-                App::core()->user()->preference()->get('dashboard')->put('nofavicons', empty($_POST['user_dm_nofavicons']), 'boolean');
+                App::core()->user()->preference()->get('dashboard')->put('doclinks', !GPC::post()->empty('user_dm_doclinks'), 'boolean');
+                App::core()->user()->preference()->get('dashboard')->put('dcnews', !GPC::post()->empty('user_dm_dcnews'), 'boolean');
+                App::core()->user()->preference()->get('dashboard')->put('quickentry', !GPC::post()->empty('user_dm_quickentry'), 'boolean');
+                App::core()->user()->preference()->get('dashboard')->put('nofavicons', GPC::post()->empty('user_dm_nofavicons'), 'boolean');
                 if (App::core()->user()->isSuperAdmin()) {
-                    App::core()->user()->preference()->get('dashboard')->put('nodcupdate', !empty($_POST['user_dm_nodcupdate']), 'boolean');
+                    App::core()->user()->preference()->get('dashboard')->put('nodcupdate', !GPC::post()->empty('user_dm_nodcupdate'), 'boolean');
                 }
-                App::core()->user()->preference()->get('interface')->put('nofavmenu', empty($_POST['user_ui_nofavmenu']), 'boolean');
+                App::core()->user()->preference()->get('interface')->put('nofavmenu', GPC::post()->empty('user_ui_nofavmenu'), 'boolean');
 
                 // --BEHAVIOR-- adminAfterUserOptionsUpdate
                 App::core()->behavior()->call('adminAfterDashboardOptionsUpdate', App::core()->user()->userID());
@@ -359,13 +368,13 @@ class UserPref extends AbstractPage
         }
 
         // Add selected favorites
-        if (!empty($_POST['appendaction'])) {
+        if (!GPC::post()->empty('appendaction')) {
             try {
-                if (empty($_POST['append'])) {
+                if (GPC::post()->empty('append')) {
                     throw new AdminException(__('No favorite selected'));
                 }
                 $user_favs = App::core()->favorite()->getFavoriteIDs(false);
-                foreach ($_POST['append'] as $k => $v) {
+                foreach (GPC::post()->array('append') as $k => $v) {
                     if (App::core()->favorite()->exists($v)) {
                         $user_favs[] = $v;
                     }
@@ -382,16 +391,16 @@ class UserPref extends AbstractPage
         }
 
         // Delete selected favorites
-        if (!empty($_POST['removeaction'])) {
+        if (!GPC::post()->empty('removeaction')) {
             try {
-                if (empty($_POST['remove'])) {
+                if (GPC::post()->empty('remove')) {
                     throw new AdminException(__('No favorite selected'));
                 }
                 $user_fav_ids = [];
                 foreach (App::core()->favorite()->getFavoriteIDs(false) as $v) {
                     $user_fav_ids[$v] = true;
                 }
-                foreach ($_POST['remove'] as $v) {
+                foreach (GPC::post()->array('remove') as $v) {
                     if (isset($user_fav_ids[$v])) {
                         unset($user_fav_ids[$v]);
                     }
@@ -408,15 +417,15 @@ class UserPref extends AbstractPage
 
         // Order favs
         $order = [];
-        if (empty($_POST['favs_order']) && !empty($_POST['order'])) {
-            $order = $_POST['order'];
+        if (GPC::post()->empty('favs_order') && !GPC::post()->empty('order')) {
+            $order = GPC::post()->array('order');
             asort($order);
             $order = array_keys($order);
-        } elseif (!empty($_POST['favs_order'])) {
-            $order = explode(',', $_POST['favs_order']);
+        } elseif (!GPC::post()->empty('favs_order')) {
+            $order = explode(',', GPC::post()->string('favs_order'));
         }
 
-        if (!empty($_POST['saveorder']) && !empty($order)) {
+        if (!GPC::post()->empty('saveorder') && !empty($order)) {
             foreach ($order as $k => $v) {
                 if (!App::core()->favorite()->exists($v)) {
                     unset($order[$k]);
@@ -430,7 +439,7 @@ class UserPref extends AbstractPage
         }
 
         // Replace default favorites by current set (super admin only)
-        if (!empty($_POST['replace']) && App::core()->user()->isSuperAdmin()) {
+        if (!GPC::post()->empty('replace') && App::core()->user()->isSuperAdmin()) {
             $user_favs = App::core()->favorite()->getFavoriteIDs(false);
             App::core()->favorite()->setFavoriteIDs($user_favs, true);
 
@@ -441,7 +450,7 @@ class UserPref extends AbstractPage
         }
 
         // Reset dashboard items order
-        if (!empty($_POST['resetorder'])) {
+        if (!GPC::post()->empty('resetorder')) {
             App::core()->user()->preference()->get('dashboard')->drop('main_order');
             App::core()->user()->preference()->get('dashboard')->drop('boxes_order');
             App::core()->user()->preference()->get('dashboard')->drop('boxes_items_order');

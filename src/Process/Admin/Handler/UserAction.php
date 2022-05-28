@@ -13,6 +13,7 @@ namespace Dotclear\Process\Admin\Handler;
 use Dotclear\App;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Exception\AdminException;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
@@ -38,35 +39,31 @@ class UserAction extends AbstractPage
     protected function getPagePrepend(): ?bool
     {
         $this->users = [];
-        if (!empty($_POST['users']) && is_array($_POST['users'])) {
-            foreach ($_POST['users'] as $user) {
-                if (App::core()->users()->userExists(id: $user)) {
-                    $this->users[] = $user;
-                }
+        foreach (GPC::post()->array('users') as $user) {
+            if (App::core()->users()->userExists(id: $user)) {
+                $this->users[] = $user;
             }
         }
 
         $this->blogs = [];
-        if (!empty($_POST['blogs']) && is_array($_POST['blogs'])) {
-            foreach ($_POST['blogs'] as $blog) {
-                if (App::core()->blogs()->blogExists(id: $blog)) {
-                    $this->blogs[] = $blog;
-                }
+        foreach (GPC::post()->array('blogs') as $blog) {
+            if (App::core()->blogs()->blogExists(id: $blog)) {
+                $this->blogs[] = $blog;
             }
         }
 
-        if (!empty($_POST['action']) && !empty($_POST['users'])) {
-            $this->user_action = $_POST['action'];
+        if (!GPC::post()->empty('action') && !GPC::post()->empty('users')) {
+            $this->user_action = GPC::post()->string('action');
 
-            if (isset($_POST['redir']) && !str_contains($_POST['redir'], '://')) {
-                $this->user_redir = $_POST['redir'];
+            if (GPC::post()->isset('redir') && !str_contains(GPC::post()->string('redir'), '://')) {
+                $this->user_redir = GPC::post()->string('redir');
             } else {
                 $this->user_redir = App::core()->adminurl()->get('admin.users', [
-                    'q'      => $_POST['q'] ?? '',
-                    'sortby' => $_POST['sortby'] ?? '',
-                    'order'  => $_POST['order'] ?? '',
-                    'page'   => $_POST['page'] ?? '',
-                    'nb'     => $_POST['nb'] ?? '',
+                    'q'      => GPC::post()->string('q'),
+                    'sortby' => GPC::post()->string('sortby'),
+                    'order'  => GPC::post()->string('order'),
+                    'page'   => GPC::post()->int('page'),
+                    'nb'     => GPC::post()->int('nb'),
                 ], '&');
             }
 
@@ -102,7 +99,7 @@ class UserAction extends AbstractPage
             // Update users perms
             if ('updateperm' == $this->user_action && !empty($this->users) && !empty($this->blogs)) {
                 try {
-                    if (empty($_POST['your_pwd']) || !App::core()->user()->checkPassword($_POST['your_pwd'])) {
+                    if (!App::core()->user()->checkPassword(GPC::post()->string('your_pwd'))) {
                         throw new AdminException(__('Password verification failed'));
                     }
 
@@ -110,8 +107,8 @@ class UserAction extends AbstractPage
                         foreach ($this->blogs as $blog) {
                             $set_perms = [];
 
-                            if (!empty($_POST['perm'][$blog])) {
-                                foreach ($_POST['perm'][$blog] as $perm_id => $v) {
+                            if (!empty(GPC::post()->array('perm')[$blog])) {
+                                foreach (GPC::post()->array('perm')[$blog] as $perm_id => $v) {
                                     if ($v) {
                                         $set_perms[$perm_id] = true;
                                     }
@@ -169,15 +166,15 @@ class UserAction extends AbstractPage
             $hidden_fields .= Form::hidden(['users[]'], $u);
         }
 
-        if (isset($_POST['redir']) && !str_contains($_POST['redir'], '://')) {
-            $hidden_fields .= Form::hidden(['redir'], Html::escapeURL($_POST['redir']));
+        if (GPC::post()->isset('redir') && !str_contains(GPC::post()->string('redir'), '://')) {
+            $hidden_fields .= Form::hidden(['redir'], Html::escapeURL(GPC::post()->string('redir')));
         } else {
             $hidden_fields .=
-            Form::hidden(['q'], Html::escapeHTML($_POST['q'] ?? '')) .
-            Form::hidden(['sortby'], $_POST['sortby']        ?? '') .
-            Form::hidden(['order'], $_POST['order']          ?? '') .
-            Form::hidden(['page'], $_POST['page']            ?? '') .
-            Form::hidden(['nb'], $_POST['nb']                ?? '');
+            Form::hidden(['q'], Html::escapeHTML(GPC::post()->string('q'))) .
+            Form::hidden(['sortby'], GPC::post()->string('sortby')) .
+            Form::hidden(['order'], GPC::post()->string('order')) .
+            Form::hidden(['page'], GPC::post()->int('page')) .
+            Form::hidden(['nb'], GPC::post()->int('nb'));
         }
 
         echo '<p><a class="back" href="' . Html::escapeURL($this->user_redir) . '">' . __('Back to user profile') . '</a></p>';

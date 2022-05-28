@@ -15,6 +15,7 @@ use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Database\Record;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Html;
 use Exception;
 
@@ -39,8 +40,8 @@ class Categories extends AbstractPage
     protected function getPagePrepend(): ?bool
     {
         // Remove a categories
-        if (!empty($_POST['delete'])) {
-            $keys   = array_keys($_POST['delete']);
+        if (!GPC::post()->empty('delete')) {
+            $keys   = array_keys(GPC::post()->array('delete'));
             $cat_id = (int) $keys[0];
 
             // Check if category to delete exists
@@ -63,12 +64,12 @@ class Categories extends AbstractPage
         }
 
         // move post into a category
-        if (!empty($_POST['mov']) && !empty($_POST['mov_cat'])) {
+        if (!GPC::post()->empty('mov') && !GPC::post()->empty('mov_cat')) {
             try {
                 // Check if category where to move posts exists
-                $keys    = array_keys($_POST['mov']);
+                $keys    = array_keys(GPC::post()->array('mov'));
                 $cat_id  = (int) $keys[0];
-                $mov_cat = (int) $_POST['mov_cat'][$cat_id];
+                $mov_cat = (int) GPC::post()->array('mov_cat')[$cat_id];
 
                 $mov_cat = $mov_cat ?: null;
                 $name    = '';
@@ -95,8 +96,8 @@ class Categories extends AbstractPage
         }
 
         // Update order
-        if (!empty($_POST['save_order']) && !empty($_POST['categories_order'])) {
-            $categories = json_decode($_POST['categories_order']);
+        if (!GPC::post()->empty('save_order') && !GPC::post()->empty('categories_order')) {
+            $categories = json_decode(GPC::post()->string('categories_order'));
 
             foreach ($categories as $category) {
                 if (!empty($category->item_id) && !empty($category->left) && !empty($category->right)) {
@@ -113,7 +114,7 @@ class Categories extends AbstractPage
         }
 
         // Reset order
-        if (!empty($_POST['reset'])) {
+        if (!GPC::post()->empty('reset')) {
             try {
                 App::core()->blog()->categories()->resetCategoriesOrder();
                 App::core()->notice()->addSuccessNotice(__('Categories order has been successfully reset.'));
@@ -154,13 +155,11 @@ class Categories extends AbstractPage
 
     protected function getPageContent(): void
     {
-        if (!empty($_GET['del'])) {
+        if (!GPC::get()->empty('del')) {
             App::core()->notice()->success(__('The category has been successfully removed.'));
-        }
-        if (!empty($_GET['reord'])) {
+        } elseif (!GPC::get()->empty('reord')) {
             App::core()->notice()->success(__('Categories have been successfully reordered.'));
-        }
-        if (!empty($_GET['move'])) {
+        } elseif (!GPC::get()->empty('move')) {
             App::core()->notice()->success(__('Entries have been successfully moved to the category you choose.'));
         }
 

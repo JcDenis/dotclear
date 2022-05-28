@@ -18,13 +18,14 @@ use Dotclear\Database\AbstractSchema;
 use Dotclear\Database\Structure;
 use Dotclear\Exception\InstallException;
 use Dotclear\Helper\Clock;
-use Dotclear\Helper\L10n;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Helper\Text;
+use Dotclear\Helper\L10n;
 use Dotclear\Helper\Network\Http;
+use Dotclear\Helper\Text;
 use Dotclear\Process\Distrib\Distrib;
 use Error;
 use Exception;
@@ -82,13 +83,13 @@ class Install
 
         $mail_sent = false;
 
-        if ($can_install && !empty($_POST)) {
-            $u_email     = !empty($_POST['u_email']) ? $_POST['u_email'] : null;
-            $u_firstname = !empty($_POST['u_firstname']) ? $_POST['u_firstname'] : null;
-            $u_name      = !empty($_POST['u_name']) ? $_POST['u_name'] : null;
-            $u_login     = !empty($_POST['u_login']) ? $_POST['u_login'] : null;
-            $u_pwd       = !empty($_POST['u_pwd']) ? $_POST['u_pwd'] : null;
-            $u_pwd2      = !empty($_POST['u_pwd2']) ? $_POST['u_pwd2'] : null;
+        if ($can_install && GPC::post()->count()) {
+            $u_email     = GPC::post()->string('u_email', null);
+            $u_firstname = GPC::post()->string('u_firstname', null);
+            $u_name      = GPC::post()->string('u_name', null);
+            $u_login     = GPC::post()->string('u_login', null);
+            $u_pwd       = GPC::post()->string('u_pwd', null);
+            $u_pwd2      = GPC::post()->string('u_pwd2', null);
 
             try {
                 // Check user information
@@ -114,8 +115,8 @@ class Install
 
                 // Try to guess timezone
                 $default_tz = 'Europe/London';
-                if (!empty($_POST['u_date'])) {
-                    if (preg_match('/\((.+)\)$/', $_POST['u_date'], $_tz)) {
+                if (!GPC::post()->empty('u_date')) {
+                    if (preg_match('/\((.+)\)$/', GPC::post()->string('u_date'), $_tz)) {
                         if (Clock::zoneExists($_tz[1])) {
                             $default_tz = $_tz[1];
                         }
@@ -339,7 +340,7 @@ class Install
             echo '<div class="error" role="alert"><p><strong>' . __('Errors:') . '</strong></p>' . $err . '</div>';
         }
 
-        if (!empty($_GET['wiz'])) {
+        if (!GPC::get()->empty('wiz')) {
             echo '<p class="success" role="alert">' . __('Configuration file has been successfully created.') . '</p>';
         }
 

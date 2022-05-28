@@ -17,8 +17,10 @@ use Dotclear\Helper\Mail;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Distrib\Upgrade;
+use Exception;
 
 /**
  * Admin user auth page.
@@ -104,11 +106,11 @@ class Auth extends AbstractPage
             App::core()->adminurl()->redirect('admin.home');
         }
 
-        $this->auth_change_pwd       = App::core()->user()->allowPassChange() && isset($_POST['new_pwd'], $_POST['new_pwd_c'], $_POST['login_data']);
-        $this->auth_login_data       = !empty($_POST['login_data']) ? Html::escapeHTML($_POST['login_data']) : null;
-        $this->auth_recover          = App::core()->user()->allowPassChange() && !empty($_REQUEST['recover']);
-        $this->auth_safe_mode        = !empty($_REQUEST['safe_mode']);
-        $this->auth_akey             = App::core()->user()->allowPassChange() && !empty($_GET['akey']) ? $_GET['akey'] : null;
+        $this->auth_change_pwd       = App::core()->user()->allowPassChange() && GPC::post()->isset('new_pwd') && GPC::post()->isset('new_pwd_c') && GPC::post()->isset('login_data');
+        $this->auth_login_data       = HTML::escapeHTML(GPC::post()->string('login_data'));
+        $this->auth_recover          = App::core()->user()->allowPassChange() && !GPC::request()->empty('recover');
+        $this->auth_safe_mode        = !GPC::request()->empty('safe_mode');
+        $this->auth_akey             = App::core()->user()->allowPassChange() ? GPC::get()->string('akey', null) : null;
         $this->auth_id               =
         $this->auth_pwd              =
         $this->auth_key              =
@@ -119,18 +121,18 @@ class Auth extends AbstractPage
         $this->upgrade();
 
         // If we have POST login informations, go throug auth process
-        if (!empty($_POST['user_id']) && !empty($_POST['user_pwd'])) {
-            $this->auth_id  = !empty($_POST['user_id']) ? $_POST['user_id'] : null;
-            $this->auth_pwd = !empty($_POST['user_pwd']) ? $_POST['user_pwd'] : null;
+        if (!GPC::post()->empty('user_id') && !GPC::post()->empty('user_pwd')) {
+            $this->auth_id  = GPC::post()->string('user_id', null);
+            $this->auth_pwd = GPC::post()->string('user_pwd', null);
         }
         // If we have COOKIE login informations, go throug auth process
-        elseif (isset($_COOKIE['dc_admin']) && strlen($_COOKIE['dc_admin']) == 104) {
+        elseif (GPC::cookie()->isset('dc_admin') && 104 == strlen(GPC::cookie()->string('dc_admin'))) {
             // If we have a remember cookie, go through auth process with auth_key
-            $user_id = substr($_COOKIE['dc_admin'], 40);
+            $user_id = substr(GPC::cookie()->string('dc_admin'), 40);
             $user_id = @unpack('a32', @pack('H*', $user_id));
             if (is_array($user_id)) {
                 $this->auth_id  = trim((string) $user_id[1]);
-                $this->auth_key = substr($_COOKIE['dc_admin'], 0, 40);
+                $this->auth_key = substr(GPC::cookie()->string('dc_admin'), 0, 40);
                 $this->auth_pwd = null;
             } else {
                 $this->auth_id = null;
@@ -138,7 +140,7 @@ class Auth extends AbstractPage
         }
 
         // Recover password
-        if ($this->auth_recover && !empty($_POST['user_id']) && !empty($_POST['user_email'])) {
+        if ($this->auth_recover && !GPC::post()->empty('user_id') && !GPC::post()->empty('user_email')) {
             $this->recoverPassword();
         // Send new password
         } elseif ($this->auth_akey) {
@@ -151,24 +153,24 @@ class Auth extends AbstractPage
             $this->logon();
         }
 
-        if (isset($_GET['user'])) {
-            $this->auth_id = $_GET['user'];
+        if (GPC::get()->isset('user')) {
+            $this->auth_id = GPC::get()->string('user');
         }
     }
 
     protected function upgrade(): void
     {
         // Auto upgrade
-        $get = $_GET;
-        if (isset($get['handler'])) {
-            unset($get['handler']);
+        $get = GPC::get()->count();
+        if (GPC::get()->isset('handler')) {
+            --$get;
         }
-        if (empty($get) && empty($_POST)) {
+        if (!$get && !GPC::post()->count()) {
             try {
                 if (($changes = (-1 !== (new Upgrade())->doUpgrade()))) {
                     $this->auth_success = __('Dotclear has been upgraded.') . '<!-- ' . $changes . ' -->';
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->auth_error = $e->getMessage();
             }
         }
@@ -176,8 +178,8 @@ class Auth extends AbstractPage
 
     protected function recoverPassword(): void
     {
-        $this->auth_id    = !empty($_POST['user_id']) ? $_POST['user_id'] : null;
-        $this->auth_email = !empty($_POST['user_email']) ? Html::escapeHTML($_POST['user_email']) : '';
+        $this->auth_id    = GPC::post()->string('user_id', null);
+        $this->auth_email = HTML::escapeHTML(GPC::post()->string('user_email'));
 
         try {
             $recover_key = App::core()->user()->setRecoverKey($this->auth_id, $this->auth_email);
@@ -193,7 +195,7 @@ class Auth extends AbstractPage
 
             Mail::sendMail($this->auth_email, $subject, $message, $headers);
             $this->auth_success = sprintf(__('The e-mail was sent successfully to %s.'), $this->auth_email);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->auth_error = $e->getMessage();
         }
     }
@@ -213,7 +215,7 @@ class Auth extends AbstractPage
 
             Mail::sendMail($recover_res['user_email'], $subject, $message, $headers);
             $this->auth_success = __('Your new password is in your mailbox.');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->auth_error = $e->getMessage();
         }
     }
@@ -221,7 +223,7 @@ class Auth extends AbstractPage
     protected function changePassword(): void
     {
         try {
-            $tmp_data = explode('/', $_POST['login_data']);
+            $tmp_data = explode('/', GPC::post()->string('login_data'));
             if (count($tmp_data) != 3) {
                 throw new AdminException();
             }
@@ -254,17 +256,17 @@ class Auth extends AbstractPage
                 throw new AdminException();
             }
 
-            if ($_POST['new_pwd'] != $_POST['new_pwd_c']) {
+            if (GPC::post()->string('new_pwd') != GPC::post()->string('new_pwd_c')) {
                 throw new AdminException(__("Passwords don't match"));
             }
 
-            if (App::core()->user()->checkUser($this->auth_id, $_POST['new_pwd']) === true) {
+            if (App::core()->user()->checkUser($this->auth_id, GPC::post()->string('new_pwd')) === true) {
                 throw new AdminException(__("You didn't change your password."));
             }
 
             $cur = App::core()->con()->openCursor(App::core()->prefix() . 'user');
             $cur->setField('user_change_pwd', 0);
-            $cur->setField('user_pwd', $_POST['new_pwd']);
+            $cur->setField('user_pwd', GPC::post()->string('new_pwd'));
             App::core()->users()->updUser(id: App::core()->user()->userID(), cursor: $cur);
 
             App::core()->session()->start();
@@ -276,7 +278,7 @@ class Auth extends AbstractPage
             }
 
             App::core()->adminurl()->redirect('admin.home');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->auth_error = $e->getMessage();
         }
     }
@@ -298,7 +300,7 @@ class Auth extends AbstractPage
             $this->auth_login_data = join('/', [
                 base64_encode($this->auth_id),
                 $cookie_admin,
-                empty($_POST['user_remember']) ? '0' : '1',
+                GPC::post()->empty('user_remember') ? '0' : '1',
             ]);
 
             if (!App::core()->user()->allowPassChange()) {
@@ -307,22 +309,22 @@ class Auth extends AbstractPage
                 $this->auth_error        = __('In order to login, you have to change your password now.');
                 $this->auth_change_pwd   = true;
             }
-        } elseif ($check_perms && !empty($_POST['safe_mode']) && !App::core()->user()->isSuperAdmin()) {
+        } elseif ($check_perms && !GPC::post()->empty('safe_mode') && !App::core()->user()->isSuperAdmin()) {
             $this->auth_error = __('Safe Mode can only be used for super administrators.');
         } elseif ($check_perms) {
             App::core()->session()->start();
             $_SESSION['sess_user_id']     = $this->auth_id;
             $_SESSION['sess_browser_uid'] = Http::browserUID(App::core()->config()->get('master_key'));
 
-            if (!empty($_POST['blog'])) {
-                $_SESSION['sess_blog_id'] = $_POST['blog'];
+            if (!GPC::post()->empty('blog')) {
+                $_SESSION['sess_blog_id'] = GPC::post()->string('blog');
             }
 
-            if (!empty($_POST['safe_mode']) && App::core()->user()->isSuperAdmin()) {
+            if (!GPC::post()->empty('safe_mode') && App::core()->user()->isSuperAdmin()) {
                 $_SESSION['sess_safe_mode'] = true;
             }
 
-            if (!empty($_POST['user_remember'])) {
+            if (!GPC::post()->empty('user_remember')) {
                 setcookie('dc_admin', $cookie_admin, Clock::ts(date: '+15 days'), '', '', App::core()->config()->get('admin_ssl'));
             }
 
@@ -331,10 +333,9 @@ class Auth extends AbstractPage
             if ($check_user) {
                 $this->auth_error = __('Insufficient permissions');
             } else {
-                $this->auth_error = isset($_COOKIE['dc_admin']) ? __('Administration session expired') : __('Wrong username or password');
+                $this->auth_error = GPC::cookie()->isset('dc_admin') ? __('Administration session expired') : __('Wrong username or password');
             }
-            if (isset($_COOKIE['dc_admin'])) {
-                unset($_COOKIE['dc_admin']);
+            if (GPC::cookie()->isset('dc_admin')) {
                 setcookie('dc_admin', '', -600, '', '', App::core()->config()->get('admin_ssl'));
             }
         }
@@ -507,8 +508,8 @@ class Auth extends AbstractPage
 
                 '<p><input type="submit" value="' . __('log in') . '" class="login" /></p>';
 
-                if (!empty($_REQUEST['blog'])) {
-                    echo Form::hidden('blog', Html::escapeHTML($_REQUEST['blog']));
+                if (!GPC::request()->empty('blog')) {
+                    echo Form::hidden('blog', HTML::escapeHTML(GPC::request()->string('blog')));
                 }
                 if ($this->auth_safe_mode) {
                     echo Form::hidden('safe_mode', 1) .

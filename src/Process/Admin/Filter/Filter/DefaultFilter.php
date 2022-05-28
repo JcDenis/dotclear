@@ -11,6 +11,7 @@ namespace Dotclear\Process\Admin\Filter\Filter;
 
 // Dotclear\Process\Admin\Filter\Filter\DefaultFilter
 use Dotclear\Exception\AdminException;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form\Select as FormSelect;
 use Dotclear\Helper\Html\Form\Label as FormLabel;
 use Dotclear\Helper\Html\Form\Input as FormInput;
@@ -241,7 +242,7 @@ class DefaultFilter
         if ('select' == $this->get('form')) {
             // _GET value
             if (null === $this->get('value')) {
-                $get = $_GET[$this->get('id')] ?? '';
+                $get = GPC::get()->string($this->get('id'));
                 if ('' === $get || !in_array($get, $this->get('options'), true)) {
                     $get = '';
                 }
@@ -263,7 +264,7 @@ class DefaultFilter
         } elseif ('input' == $this->get('form')) {
             // _GET value
             if (null === $this->get('value')) {
-                $this->value(!empty($_GET[$this->get('id')]) ? $_GET[$this->get('id')] : '');
+                $this->value(GPC::get()->string($this->get('id')));
             }
             // HTML field
             $input = FormInput::init($this->get('id'))

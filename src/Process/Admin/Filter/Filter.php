@@ -13,6 +13,7 @@ namespace Dotclear\Process\Admin\Filter;
 use Dotclear\App;
 use Dotclear\Database\Param;
 use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 
@@ -66,12 +67,12 @@ class Filter extends Filters
                 ->options($options[1])
             ;
 
-            if (!empty($_GET['sortby'])
-                && in_array($_GET['sortby'], $options[1], true)
-                && App::core()->listoption()->getUserFiltersSortby($this->type) != $_GET['sortby']
+            if (!GPC::get()->empty('sortby')
+                && in_array(GPC::get()->string('sortby'), $options[1], true)
+                && App::core()->listoption()->getUserFiltersSortby($this->type) != GPC::get()->string('sortby')
             ) {
                 $this->show(true);
-                $this->filters['sortby']->value($_GET['sortby']);
+                $this->filters['sortby']->value(GPC::get()->string('sortby'));
             }
         }
         if (!empty($options[3])) {
@@ -79,12 +80,12 @@ class Filter extends Filters
                 ->options(App::core()->combo()->getOrderCombo())
             ;
 
-            if (!empty($_GET['order'])
-                && in_array($_GET['order'], App::core()->combo()->getOrderCombo(), true)
-                && App::core()->listoption()->getUserFiltersOrder($this->type) != $_GET['order']
+            if (!GPC::get()->empty('order')
+                && in_array(GPC::get()->string('order'), App::core()->combo()->getOrderCombo(), true)
+                && App::core()->listoption()->getUserFiltersOrder($this->type) != GPC::get()->string('order')
             ) {
                 $this->show(true);
-                $this->filters['order']->value($_GET['order']);
+                $this->filters['order']->value(GPC::get()->string('order'));
             }
         }
         if (!empty($options[4])) {
@@ -92,12 +93,11 @@ class Filter extends Filters
                 ->title($options[4][0])
             ;
 
-            if (!empty($_GET['nb'])
-                && (int) $_GET['nb'] > 0
-                && (int) $_GET['nb'] != App::core()->listoption()->getUserFiltersNb($this->type)
+            if (0 < GPC::get()->int('nb')
+                && GPC::get()->int('nb') != App::core()->listoption()->getUserFiltersNb($this->type)
             ) {
                 $this->show(true);
-                $this->filters['nb']->value((int) $_GET['nb']);
+                $this->filters['nb']->value(GPC::get()->int('nb'));
             }
         }
     }

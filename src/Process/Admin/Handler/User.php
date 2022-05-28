@@ -17,6 +17,7 @@ use Dotclear\Core\User\Preference\Preference;
 use Dotclear\Database\Param;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Clock;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Page\AbstractPage;
@@ -62,9 +63,9 @@ class User extends AbstractPage
         $this->user->setProperty('user_tz', App::core()->user()->getInfo('user_tz'));
 
         // Get user if we have an ID
-        if (!empty($_REQUEST['id'])) {
+        if (!GPC::request()->empty('id')) {
             try {
-                $rs = App::core()->users()->getUser(id: $_REQUEST['id']);
+                $rs = App::core()->users()->getUser(id: GPC::request()->string('id'));
 
                 $this->user->parseFromRecord($rs);
 
@@ -79,40 +80,40 @@ class User extends AbstractPage
         }
 
         // Add or update user
-        if (isset($_POST['user_name'])) {
+        if (GPC::post()->isset('user_name')) {
             try {
-                if (empty($_POST['your_pwd']) || !App::core()->user()->checkPassword($_POST['your_pwd'])) {
+                if (!App::core()->user()->checkPassword(GPC::post()->string('your_pwd'))) {
                     throw new AdminException(__('Password verification failed'));
                 }
 
-                $this->user->setProperty('user_id', $_POST['user_id']);
-                $this->user->setProperty('user_super', !empty($_POST['user_super']));
-                $this->user->setProperty('user_name', Html::escapeHTML($_POST['user_name']));
-                $this->user->setProperty('user_firstname', Html::escapeHTML($_POST['user_firstname']));
-                $this->user->setProperty('user_displayname', Html::escapeHTML($_POST['user_displayname']));
-                $this->user->setProperty('user_email', Html::escapeHTML($_POST['user_email']));
-                $this->user->setProperty('user_url', Html::escapeHTML($_POST['user_url']));
-                $this->user->setProperty('user_lang', Html::escapeHTML($_POST['user_lang']));
-                $this->user->setProperty('user_tz', Html::escapeHTML($_POST['user_tz']));
-                $this->user->setProperty('user_post_status', Html::escapeHTML($_POST['user_post_status']));
+                $this->user->setProperty('user_id', GPC::post()->string('user_id'));
+                $this->user->setProperty('user_super', !GPC::post()->empty('user_super'));
+                $this->user->setProperty('user_name', Html::escapeHTML(GPC::post()->string('user_name')));
+                $this->user->setProperty('user_firstname', Html::escapeHTML(GPC::post()->string('user_firstname')));
+                $this->user->setProperty('user_displayname', Html::escapeHTML(GPC::post()->string('user_displayname')));
+                $this->user->setProperty('user_email', Html::escapeHTML(GPC::post()->string('user_email')));
+                $this->user->setProperty('user_url', Html::escapeHTML(GPC::post()->string('user_url')));
+                $this->user->setProperty('user_lang', Html::escapeHTML(GPC::post()->string('user_lang')));
+                $this->user->setProperty('user_tz', Html::escapeHTML(GPC::post()->string('user_tz')));
+                $this->user->setProperty('user_post_status', Html::escapeHTML(GPC::post()->string('user_post_status')));
 
                 if ($this->user->getProperty('user_id') == App::core()->user()->userID() && App::core()->user()->isSuperAdmin()) {
                     // force super_user to true if current user
                     $this->user->setProperty('user_super', true);
                 }
                 if (App::core()->user()->allowPassChange()) {
-                    $this->user->setProperty('user_change_pwd', !empty($_POST['user_change_pwd']) ? 1 : 0);
+                    $this->user->setProperty('user_change_pwd', !GPC::post()->empty('user_change_pwd') ? 1 : 0);
                 }
 
-                if (!empty($_POST['new_pwd'])) {
-                    if ($_POST['new_pwd'] != $_POST['new_pwd_c']) {
+                if (!GPC::post()->empty('new_pwd')) {
+                    if (GPC::post()->string('new_pwd') != GPC::post()->string('new_pwd_c')) {
                         throw new AdminException(__("Passwords don't match"));
                     }
-                    $this->user->setProperty('user_pwd', $_POST['new_pwd']);
+                    $this->user->setProperty('user_pwd', GPC::post()->string('new_pwd'));
                 }
 
-                $this->user->setOption('post_format', Html::escapeHTML($_POST['user_post_format']));
-                $this->user->setOption('edit_size', $_POST['user_edit_size']);
+                $this->user->setOption('post_format', Html::escapeHTML(GPC::post()->string('user_post_format')));
+                $this->user->setOption('edit_size', GPC::post()->int('user_edit_size'));
 
                 if ($this->user->getOption('edit_size') < 1) {
                     $this->user->setOption('edit_size', 10);
@@ -122,7 +123,7 @@ class User extends AbstractPage
                 $cur->setField('user_options', new ArrayObject($this->user->getOptions()));
 
                 // Udate user
-                if (!empty($_REQUEST['id'])) {
+                if (!GPC::request()->empty('id')) {
                     // --BEHAVIOR-- adminBeforeUserUpdate
                     App::core()->behavior()->call('adminBeforeUserUpdate', $cur, $this->user->getProperty('user_id'));
 
@@ -131,11 +132,11 @@ class User extends AbstractPage
                     // Update profile
                     // Sanitize list of secondary mails and urls if any
                     $mails = $urls = '';
-                    if (!empty($_POST['user_profile_mails'])) {
-                        $mails = implode(',', array_filter(filter_var_array(array_map('trim', explode(',', $_POST['user_profile_mails'])), FILTER_VALIDATE_EMAIL)));
+                    if (!GPC::post()->empty('user_profile_mails')) {
+                        $mails = implode(',', array_filter(filter_var_array(array_map('trim', explode(',', GPC::post()->string('user_profile_mails'))), FILTER_VALIDATE_EMAIL)));
                     }
-                    if (!empty($_POST['user_profile_urls'])) {
-                        $urls = implode(',', array_filter(filter_var_array(array_map('trim', explode(',', $_POST['user_profile_urls'])), FILTER_VALIDATE_URL)));
+                    if (!GPC::post()->empty('user_profile_urls')) {
+                        $urls = implode(',', array_filter(filter_var_array(array_map('trim', explode(',', GPC::post()->string('user_profile_urls'))), FILTER_VALIDATE_URL)));
                     }
                     $user_prefs = new Preference($this->user->getProperty('user_id'), 'profile');
                     $user_prefs->get('profile')->put('mails', $mails, 'string');
@@ -167,11 +168,11 @@ class User extends AbstractPage
                     // Update profile
                     // Sanitize list of secondary mails and urls if any
                     $mails = $urls = '';
-                    if (!empty($_POST['user_profile_mails'])) {
-                        $mails = implode(',', array_filter(filter_var_array(array_map('trim', explode(',', $_POST['user_profile_mails'])), FILTER_VALIDATE_EMAIL)));
+                    if (!GPC::post()->empty('user_profile_mails')) {
+                        $mails = implode(',', array_filter(filter_var_array(array_map('trim', explode(',', GPC::post()->string('user_profile_mails'))), FILTER_VALIDATE_EMAIL)));
                     }
-                    if (!empty($_POST['user_profile_urls'])) {
-                        $urls = implode(',', array_filter(filter_var_array(array_map('trim', explode(',', $_POST['user_profile_urls'])), FILTER_VALIDATE_URL)));
+                    if (!GPC::post()->empty('user_profile_urls')) {
+                        $urls = implode(',', array_filter(filter_var_array(array_map('trim', explode(',', GPC::post()->string('user_profile_urls'))), FILTER_VALIDATE_URL)));
                     }
                     $user_prefs = new Preference($new_id, 'profile');
                     $user_prefs->get('profile')->put('mails', $mails, 'string');
@@ -182,7 +183,7 @@ class User extends AbstractPage
 
                     App::core()->notice()->addSuccessNotice(__('User has been successfully created.'));
                     App::core()->notice()->addWarningNotice(__('User has no permission, he will not be able to login yet. See below to add some.'));
-                    if (!empty($_POST['saveplus'])) {
+                    if (!GPC::post()->empty('saveplus')) {
                         App::core()->adminurl()->redirect('admin.user');
                     } else {
                         App::core()->adminurl()->redirect('admin.user', ['id' => $new_id]);
@@ -220,11 +221,9 @@ class User extends AbstractPage
 
     protected function getPageContent(): void
     {
-        if (!empty($_GET['upd'])) {
+        if (!GPC::get()->empty('upd')) {
             App::core()->notice()->success(__('User has been successfully updated.'));
-        }
-
-        if (!empty($_GET['add'])) {
+        } elseif (!GPC::get()->empty('add')) {
             App::core()->notice()->success(__('User has been successfully created.'));
         }
 

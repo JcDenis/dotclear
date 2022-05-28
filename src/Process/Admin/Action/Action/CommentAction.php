@@ -10,9 +10,9 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Action\Action;
 
 // Dotclear\Process\Admin\Action\Action\CommentAction
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Database\Param;
+use Dotclear\Helper\GPC\GPCGroup;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Exception;
@@ -51,7 +51,7 @@ class CommentAction extends DefaultCommentAction
         App::core()->behavior()->call('adminCommentsActionsPage', $this);
     }
 
-    public function error(Exception $e): void
+    protected function error(Exception $e): void
     {
         App::core()->error()->add($e->getMessage());
         $this->setPageContent('<p><a class="back" href="' . $this->getRedirection(true) . '">' . __('Back') . '</a></p>');
@@ -79,14 +79,13 @@ class CommentAction extends DefaultCommentAction
         return $ret;
     }
 
-    protected function fetchEntries(ArrayObject $from): void
+    protected function fetchEntries(GPCGroup $from): void
     {
         $param = new Param();
-        if (!empty($from['comments'])) {
-            $comments = $from['comments'];
-
-            foreach ($comments as $k => $v) {
-                $comments[$k] = (int) $v;
+        if (!$from->empty('comments')) {
+            $comments = [];
+            foreach ($from->array('comments') as $v) {
+                $comments[] = (int) $v;
             }
 
             $param->push('sql', ' AND C.comment_id IN(' . implode(',', $comments) . ') ');
@@ -94,17 +93,17 @@ class CommentAction extends DefaultCommentAction
             $param->push('sql', ' AND 1=0 ');
         }
 
-        if (!isset($from['full_content']) || empty($from['full_content'])) {
+        if ($from->empty('full_content')) {
             $param->set('no_content', true);
         }
 
-        $rs = App::core()->blog()->comments()->getComments(param: $param);
-        while ($rs->fetch()) {
-            $this->entries[$rs->fInt('comment_id')] = [
-                'title'  => $rs->f('post_title'),
-                'author' => $rs->f('comment_author'),
+        $record = App::core()->blog()->comments()->getComments(param: $param);
+        while ($record->fetch()) {
+            $this->entries[$record->fInt('comment_id')] = [
+                'title'  => $record->f('post_title'),
+                'author' => $record->f('comment_author'),
             ];
         }
-        $this->rs = $rs;
+        $this->rs = $record;
     }
 }

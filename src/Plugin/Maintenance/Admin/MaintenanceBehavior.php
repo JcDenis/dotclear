@@ -13,6 +13,7 @@ namespace Dotclear\Plugin\Maintenance\Admin;
 use ArrayObject;
 use Dotclear\App;
 use Dotclear\Helper\Clock;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance;
 use Dotclear\Process\Admin\Favorite\Favorite;
@@ -202,8 +203,8 @@ class MaintenanceBehavior
             return;
         }
 
-        App::core()->user()->preference()->get('maintenance')->put('dashboard_icon', !empty($_POST['maintenance_dashboard_icon']), 'boolean');
-        App::core()->user()->preference()->get('maintenance')->put('dashboard_item', !empty($_POST['maintenance_dashboard_item']), 'boolean');
+        App::core()->user()->preference()->get('maintenance')->put('dashboard_icon', !GPC::post()->empty('maintenance_dashboard_icon'), 'boolean');
+        App::core()->user()->preference()->get('maintenance')->put('dashboard_item', !GPC::post()->empty('maintenance_dashboard_item'), 'boolean');
     }
 
     /**

@@ -14,6 +14,7 @@ use Dotclear\App;
 use Dotclear\Core\Media\PostMedia as CoreMedia;
 use Dotclear\Database\Param;
 use Dotclear\Exception\AdminException;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
@@ -34,9 +35,9 @@ class PostMedia extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        $post_id   = !empty($_REQUEST['post_id']) ? (int) $_REQUEST['post_id'] : null;
-        $media_id  = !empty($_REQUEST['media_id']) ? (int) $_REQUEST['media_id'] : null;
-        $link_type = !empty($_REQUEST['link_type']) ? $_REQUEST['link_type'] : null;
+        $post_id   = GPC::request()->int('post_id', null);
+        $media_id  = GPC::request()->int('media_id', null);
+        $link_type = GPC::request()->string('link_type', null);
 
         if (!$post_id) {
             exit;
@@ -53,7 +54,7 @@ class PostMedia extends AbstractPage
         try {
             $postmedia = new CoreMedia();
 
-            if (null !== $post_id && null !== $media_id && !empty($_REQUEST['attach'])) {
+            if (null !== $post_id && null !== $media_id && !GPC::request()->empty('attach')) {
                 $postmedia->addPostMedia($post_id, $media_id, $link_type);
                 if (!empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
                     header('Content-type: application/json');
@@ -77,16 +78,16 @@ class PostMedia extends AbstractPage
 
         // Remove a media from en
         if (($post_id && $media_id) || App::core()->error()->flag()) {
-            if (!empty($_POST['remove'])) {
+            if (!GPC::post()->empty('remove')) {
                 $postmedia->removePostMedia($post_id, $media_id, $link_type);
 
                 App::core()->notice()->addSuccessNotice(__('Attachment has been successfully removed.'));
                 Http::redirect(App::core()->posttype()->getPostAdminURL($rs->f('post_type'), $post_id));
-            } elseif (isset($_POST['post_id'])) {
+            } elseif (GPC::post()->isset('post_id')) {
                 Http::redirect(App::core()->posttype()->getPostAdminURL($rs->f('post_type'), $post_id));
             }
 
-            if (!empty($_GET['remove'])) {
+            if (!GPC::get()->empty('remove')) {
                 $this
                     ->setPageTitle(__('Remove attachment'))
                     ->setPageBreadcrumb([

@@ -22,6 +22,7 @@ use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Process\Distrib\Distrib;
 
@@ -57,15 +58,15 @@ class Wizard
                 'the documentation</a> to learn how to do this.') . '</p>';
         }
 
-        $DBDRIVER      = !empty($_POST['DBDRIVER']) ? $_POST['DBDRIVER'] : 'mysqli';
-        $DBHOST        = !empty($_POST['DBHOST']) ? $_POST['DBHOST'] : '';
-        $DBNAME        = !empty($_POST['DBNAME']) ? $_POST['DBNAME'] : '';
-        $DBUSER        = !empty($_POST['DBUSER']) ? $_POST['DBUSER'] : '';
-        $DBPASSWORD    = !empty($_POST['DBPASSWORD']) ? $_POST['DBPASSWORD'] : '';
-        $DBPREFIX      = !empty($_POST['DBPREFIX']) ? $_POST['DBPREFIX'] : 'dc_';
-        $ADMINMAILFROM = !empty($_POST['ADMINMAILFROM']) ? $_POST['ADMINMAILFROM'] : '';
+        $DBDRIVER      = GPC::post()->string('DBDRIVER', 'mysqli');
+        $DBHOST        = GPC::post()->string('DBHOST', '');
+        $DBNAME        = GPC::post()->string('DBNAME', '');
+        $DBUSER        = GPC::post()->string('DBUSER', '');
+        $DBPASSWORD    = GPC::post()->string('DBPASSWORD', '');
+        $DBPREFIX      = GPC::post()->string('DBPREFIX', 'dc_');
+        $ADMINMAILFROM = GPC::post()->string('ADMINMAILFROM', '');
 
-        if (!empty($_POST)) {
+        if (GPC::post()->count()) {
             try {
                 if ('sqlite' == $DBDRIVER) {
                     if (!str_contains($DBNAME, '/')) {

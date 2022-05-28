@@ -12,6 +12,7 @@ namespace Dotclear\Plugin\Pages\Admin;
 // Dotclear\Plugin\Pages\Admin\Handler
 use Dotclear\App;
 use Dotclear\Database\Param;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Process\Admin\Action\Action;
@@ -43,11 +44,11 @@ class Handler extends AbstractPage
         $param = new Param();
         $param->set('post_type', 'page');
 
-        $this->p_page = !empty($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
+        $this->p_page = !GPC::get()->empty('page') ? max(1, GPC::get()->int('page')) : 1;
         $this->p_nbbp = App::core()->listoption()->getUserFiltersNb('pages');
 
-        if (!empty($_GET['nb']) && 0 < (int) $_GET['nb']) {
-            $this->p_nbbp = (int) $_GET['nb'];
+        if (0 < GPC::get()->int('nb')) {
+            $this->p_nbbp = GPC::get()->int('nb');
         }
 
         $param->set('limit', [(($this->p_page - 1) * $this->p_nbbp), $this->p_nbbp]);
@@ -82,11 +83,11 @@ class Handler extends AbstractPage
 
     protected function getPageContent(): void
     {
-        if (!empty($_GET['upd'])) {
+        if (!GPC::get()->empty('upd')) {
             App::core()->notice()->success(__('Selected pages have been successfully updated.'));
-        } elseif (!empty($_GET['del'])) {
+        } elseif (!GPC::post()->empty('del')) {
             App::core()->notice()->success(__('Selected pages have been successfully deleted.'));
-        } elseif (!empty($_GET['reo'])) {
+        } elseif (!GPC::post()->empty('reo')) {
             App::core()->notice()->success(__('Selected pages have been successfully reordered.'));
         }
 
