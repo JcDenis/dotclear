@@ -80,7 +80,7 @@ class Handler extends AbstractPage
             if (!GPC::post()->empty('delete') && App::core()->user()->check('publish,contentadmin', App::core()->blog()->id)) {
                 try {
                     App::core()->meta()->delMeta($this->t_tag, 'tag');
-                    App::core()->adminurl()->addSuccessNotice(__('Tag has been successfully removed'));
+                    App::core()->notice()->addSuccessNotice(__('Tag has been successfully removed'));
                     App::core()->adminurl()->redirect('admin.plugin.Tags');
                 } catch (Exception $e) {
                     App::core()->error()->add($e->getMessage());
