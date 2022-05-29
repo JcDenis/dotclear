@@ -33,6 +33,17 @@
 - Use array for permissions
 - Open posts,comments,blogs status
 
+### Rules
+Should be followed...one day...
+- No ArrayObject, use tiny custom class
+- No magic methods, use real methods
+- No chaining methods, recall class each time
+- No additionnal logic switch methods parameters, or only if it's the best way
+- No mixed type return, use multiple methods to split returned types or return object
+- Use method named arguments, even if there's only one argument
+- Use word(s) for variables names, not initials
+- Use final keyword on class every time it's possible
+
 ### Done
 
 - Require PHP 8.1

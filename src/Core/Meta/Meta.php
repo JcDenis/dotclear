@@ -209,7 +209,6 @@ final class Meta
         $params->unset('order');
         $params->unset('limit');
 
-
         if ($this->queryPostsByMeta(param: $params, sql: $query)) {
             return App::core()->blog()->posts()->countPosts(param: $params, sql: $query);
         }
@@ -283,7 +282,7 @@ final class Meta
     public function countCommentsByMeta(?Param $param = null, ?SelectStatement $sql = null): int
     {
         $params = new MetaParam($param);
-        $query = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
 
         $params->unset('order');
         $params->unset('limit');
@@ -380,7 +379,7 @@ final class Meta
     public function getMetadata(?Param $param = null, ?SelectStatement $sql = null): Record
     {
         $params = new MetaParam($param);
-        $query = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
 
         $query->columns([
             'M.meta_id',
