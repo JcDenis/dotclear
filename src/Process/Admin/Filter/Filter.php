@@ -7,391 +7,277 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Process\Admin\Filter;
+namespace Dotclear\Process\Admin\Filter\Filter;
 
-// Dotclear\Process\Admin\Filter\Filter
-use Dotclear\App;
-use Dotclear\Database\Param;
-use Dotclear\Helper\Html\Form;
+// Dotclear\Process\Admin\Filter\Filter\DefaultFilter
+use Dotclear\Exception\AdminException;
 use Dotclear\Helper\GPC\GPC;
-use Dotclear\Helper\Html\Html;
-use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
+use Dotclear\Helper\Html\Form\Select as FormSelect;
+use Dotclear\Helper\Html\Form\Label as FormLabel;
+use Dotclear\Helper\Html\Form\Input as FormInput;
 
 /**
- * Generic class for admin list filters form.
+ * Admin filter.
+ *
+ * Dotclear utility class that provides reuseable list filter
+ * Should be used with Filter
  *
  * @ingroup  Admin Filter
+ *
+ * @since 2.20
  */
-class Filter extends Filters
+class DefaultFilter
 {
     /**
-     * @var array<string,DefaultFilter> $filters
-     *                                  Filters objects
+     * @var array<string,mixed> $properties
+     *                          The filter properties
      */
-    protected $filters = [];
+    protected $properties = [
+        'id'      => '',
+        'value'   => null,
+        'form'    => 'none',
+        'prime'   => false,
+        'title'   => '',
+        'options' => [],
+        'html'    => '',
+        'params'  => [],
+    ];
 
     /**
-     * @var bool $show
-     *           Show filter indicator
-     */
-    protected $show = false;
-
-    /**
-     * @var bool $has_user_pref
-     *           Has user preferences
-     */
-    protected $has_user_pref = false;
-
-    /**
-     * Constructs a new instance.
+     * Constructs a new filter.
      *
-     * @param string $type The filter form main id
+     * @param string $id    The filter id
+     * @param mixed  $value The filter value
      */
-    public function __construct(protected string $type)
+    public function __construct(string $id, mixed $value = null)
     {
-        $this->parseOptions();
+        if (!preg_match('/^[A-Za-z0-9_-]+$/', $id)) {
+            throw new AdminException('not a valid id');
+        }
+        $this->properties['id']    = $id;
+        $this->properties['value'] = $value;
     }
 
     /**
-     * Parse _GET user pref options (sortby, order, nb).
+     * Create default filter instance.
+     *
+     * @param string $id    The filter id
+     * @param mixed  $value The filter value
+     *
+     * @return DefaultFilter Self instance
      */
-    protected function parseOptions(): void
+    public static function init(string $id, mixed $value = null): DefaultFilter
     {
-        $options = App::core()->listoption()->getUserFiltersType($this->type);
-        if (!empty($options)) {
-            $this->has_user_pref = true;
-        }
-
-        if (!empty($options[1])) {
-            $this->filters['sortby'] = DefaultFilter::init('sortby', App::core()->listoption()->getUserFiltersSortby($this->type))
-                ->options($options[1])
-            ;
-
-            if (!GPC::get()->empty('sortby')
-                && in_array(GPC::get()->string('sortby'), $options[1], true)
-                && App::core()->listoption()->getUserFiltersSortby($this->type) != GPC::get()->string('sortby')
-            ) {
-                $this->show(true);
-                $this->filters['sortby']->value(GPC::get()->string('sortby'));
-            }
-        }
-        if (!empty($options[3])) {
-            $this->filters['order'] = DefaultFilter::init('order', App::core()->listoption()->getUserFiltersOrder($this->type))
-                ->options(App::core()->combo()->getOrderCombo())
-            ;
-
-            if (!GPC::get()->empty('order')
-                && in_array(GPC::get()->string('order'), App::core()->combo()->getOrderCombo(), true)
-                && App::core()->listoption()->getUserFiltersOrder($this->type) != GPC::get()->string('order')
-            ) {
-                $this->show(true);
-                $this->filters['order']->value(GPC::get()->string('order'));
-            }
-        }
-        if (!empty($options[4])) {
-            $this->filters['nb'] = DefaultFilter::init('nb', App::core()->listoption()->getUserFiltersNb($this->type))
-                ->title($options[4][0])
-            ;
-
-            if (0 < GPC::get()->int('nb')
-                && GPC::get()->int('nb') != App::core()->listoption()->getUserFiltersNb($this->type)
-            ) {
-                $this->show(true);
-                $this->filters['nb']->value(GPC::get()->int('nb'));
-            }
-        }
+        return new self($id, $value);
     }
 
     /**
-     * Get filters key/value pairs.
+     * Check if filter property exists.
      *
-     * @param bool $escape  Escape widlcard %
-     * @param bool $ui_only Limit to filters with ui
+     * @param string $property The property
      *
-     * @return array The filters
+     * @return bool Is set
      */
-    public function values(bool $escape = false, bool $ui_only = false): array
+    public function exists(string $property): bool
     {
-        $res = [];
-        foreach ($this->filters as $id => $filter) {
-            if ($ui_only) {
-                if (in_array($id, ['sortby', 'order', 'nb']) || '' != $filter->get('html')) {
-                    $res[$id] = $filter->get('value');
+        return isset($this->properties[$property]);
+    }
+
+    /**
+     * Get a filter property.
+     *
+     * @param string $property The property
+     *
+     * @return mixed The value
+     */
+    public function get(string $property): mixed
+    {
+        return $this->properties[$property] ?? null;
+    }
+
+    /**
+     * Set a property value.
+     *
+     * @param string $property The property
+     * @param mixed  $value    The value
+     *
+     * @return DefaultFilter The filter instance
+     */
+    public function set(string $property, mixed $value): DefaultFilter
+    {
+        if (isset($this->properties[$property]) && method_exists($this, $property)) {
+            return call_user_func([$this, $property], $value);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set filter form type.
+     *
+     * @param string $type The type
+     *
+     * @return DefaultFilter The filter instance
+     */
+    public function form(string $type): DefaultFilter
+    {
+        if (in_array($type, ['none', 'input', 'select', 'html'])) {
+            $this->properties['form'] = $type;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set filter form title.
+     *
+     * @param string $title The title
+     *
+     * @return DefaultFilter The filter instance
+     */
+    public function title(string $title): DefaultFilter
+    {
+        $this->properties['title'] = $title;
+
+        return $this;
+    }
+
+    /**
+     * Set filter form options.
+     *
+     * If filter form is a select box, this is the select options
+     *
+     * @param array $options  The options
+     * @param bool  $set_form Auto set form type
+     *
+     * @return DefaultFilter The filter instance
+     */
+    public function options(array $options, bool $set_form = true): DefaultFilter
+    {
+        $this->properties['options'] = $options;
+        if ($set_form) {
+            $this->form('select');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set filter value.
+     *
+     * @param mixed $value The value
+     *
+     * @return DefaultFilter The filter instance
+     */
+    public function value(mixed $value): DefaultFilter
+    {
+        $this->properties['value'] = $value;
+
+        return $this;
+    }
+
+    /**
+     * Set filter column in form.
+     *
+     * @param bool $prime First column
+     *
+     * @return DefaultFilter The filter instance
+     */
+    public function prime(bool $prime): DefaultFilter
+    {
+        $this->properties['prime'] = $prime;
+
+        return $this;
+    }
+
+    /**
+     * Set filter html contents.
+     *
+     * @param string $contents The contents
+     * @param bool   $set_form Auto set form type
+     *
+     * @return DefaultFilter The filter instance
+     */
+    public function html(string $contents, bool $set_form = true): DefaultFilter
+    {
+        $this->properties['html'] = $contents;
+        if ($set_form) {
+            $this->form('html');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set filter param (list query param).
+     *
+     * @param null|string $name  The param name
+     * @param mixed       $value The param value
+     *
+     * @return DefaultFilter The filter instance
+     */
+    public function param(?string $name = null, mixed $value = null): DefaultFilter
+    {
+        // filter id as param name
+        if (null === $name) {
+            $name = $this->properties['id'];
+        }
+        // filter value as param value
+        if (null === $value) {
+            $value = fn ($f) => $f[0];
+        }
+        $this->properties['params'][] = [$name, $value];
+
+        return $this;
+    }
+
+    /**
+     * Parse the filter properties.
+     *
+     * Only input and select forms are parsed
+     */
+    public function parse(): void
+    {
+        // form select
+        if ('select' == $this->get('form')) {
+            // _GET value
+            if (null === $this->get('value')) {
+                $get = GPC::get()->string($this->get('id'));
+                if ('' === $get || !in_array($get, $this->get('options'), true)) {
+                    $get = '';
                 }
-            } else {
-                $res[$id] = $filter->get('value');
+                $this->value($get);
             }
-        }
+            // HTML field
+            $select = FormSelect::init($this->get('id'))
+                ->set('default', $this->get('value'))
+                ->set('items', $this->get('options'))
+            ;
 
-        return $escape ? preg_replace('/%/', '%%', $res) : $res;
-    }
+            $label = FormLabel::init($this->get('title'), 2, $this->get('id'))
+                ->set('class', 'ib')
+            ;
 
-    /**
-     * Get a filter value.
-     *
-     * @param string $id        The filter id
-     * @param mixed  $undefined The value to return if not set
-     *
-     * @return mixed The filter value
-     */
-    public function value(string $id, mixed $undefined = null): mixed
-    {
-        return isset($this->filters[$id]) ? $this->filters[$id]->get('value') : $undefined;
-    }
+            $this->html($label->render($select->render()), false);
 
-    /**
-     * @see self::value()
-     */
-    public function get(string $id): mixed
-    {
-        return $this->value($id);
-    }
-
-    /**
-     * Update a filter value.
-     */
-    public function set(string $id, mixed $value, mixed $undefined = null): mixed
-    {
-        return isset($this->filters[$id]) ? $this->filters[$id]->value($value) : $undefined;
-    }
-
-    /**
-     * Add filters.
-     *
-     * @param FiltersStack $filters The stack of filters
-     */
-    public function addStack(FiltersStack $filters): void
-    {
-        foreach ($filters->dump() as $filter) {
-            $this->add($filter);
-        }
-    }
-
-    /**
-     * Add a filter.
-     *
-     * @param null|DefaultFilter $filter The filter
-     *
-     * @return mixed The filter value
-     */
-    public function add(?DefaultFilter $filter): mixed
-    {
-        // empty filter (ex: do not show form if there are no categories on a blog)
-        if (null === $filter) {
-            return null;
-        }
-
-        // parse _GET values and create html forms
-        $filter->parse();
-
-        // set key/value pair
-        $this->filters[$filter->get('id')] = $filter;
-
-        // has contents
-        if ('' != $filter->get('html') && 'none' != $filter->get('form')) {
-            // not default value = show filters form
-            $this->show('' !== $filter->get('value'));
-        }
-
-        return $filter->get('value');
-    }
-
-    /**
-     * Remove a filter.
-     *
-     * @param string $id The filter id
-     *
-     * @return bool The success
-     */
-    public function remove(string $id): bool
-    {
-        if (array_key_exists($id, $this->filters)) {
-            unset($this->filters[$id]);
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Get list query params.
-     *
-     * @return Param The query params
-     */
-    public function params(): Param
-    {
-        $filters = $this->values();
-
-        $param = new Param();
-
-        if (!empty($filters['sortby']) && !empty($filters['order'])) {
-            $param->set('order', $filters['sortby'] . ' ' . $filters['order']);
-        }
-
-        foreach ($this->filters as $filter) {
-            if ('' !== $filter->get('value')) {
-                $filters[0] = $filter->get('value');
-                foreach ($filter->get('params') as $p) {
-                    if (is_callable($p[1])) {
-                        $p[1] = call_user_func($p[1], $filters);
-                    }
-
-                    if (in_array($p[0], ['sql', 'join', 'from', 'where', 'columns'])) {
-                        $param->push($p[0], $p[1]);
-                    } else {
-                        $param->set($p[0], $p[1]);
-                    }
-                }
+        // form input
+        } elseif ('input' == $this->get('form')) {
+            // _GET value
+            if (null === $this->get('value')) {
+                $this->value(GPC::get()->string($this->get('id')));
             }
+            // HTML field
+            $input = FormInput::init($this->get('id'))
+                ->set('size', 20)
+                ->set('maxlength', 255)
+                ->set('value', $this->get('value'))
+            ;
+
+            $label = FormLabel::init($this->get('title'), 2, $this->get('id'))
+                ->set('class', 'ib')
+            ;
+
+            $this->html($label->render($input->render()), false);
         }
-
-        return $param;
-    }
-
-    /**
-     * Show foldable filters form.
-     *
-     * @param bool $set Force to show filter form
-     *
-     * @return bool Show filter form
-     */
-    public function show(bool $set = false): bool
-    {
-        if (true === $set) {
-            $this->show = true;
-        }
-
-        return $this->show;
-    }
-
-    /**
-     * Get js filters foldable form control.
-     *
-     * @param string $reset_url The filter reset url
-     *
-     * @return string The HTML JS code
-     */
-    public function js(string $reset_url = ''): string
-    {
-        $js = [
-            'show_filters'      => $this->show(),
-            'filter_posts_list' => __('Show filters and display options'),
-            'cancel_the_filter' => __('Cancel filters and display options'),
-            'filter_reset_url'  => $reset_url ?: App::core()->adminurl()->get(App::core()->adminurl()->called()),
-        ];
-
-        return
-            App::core()->resource()->json('filter_controls', $js) .
-            App::core()->resource()->json('filter_options', ['auto_filter' => App::core()->user()->preference()->get('interface')->get('auto_filter')]) .
-            App::core()->resource()->load('filter-controls.js');
-    }
-
-    /**
-     * Echo filter form.
-     *
-     * @param array|string $adminurl The registered adminurl
-     * @param string       $extra    The extra contents
-     */
-    public function display(array|string $adminurl, string $extra = ''): void
-    {
-        $tab = '';
-        if (is_array($adminurl)) {
-            $tab      = $adminurl[1];
-            $adminurl = $adminurl[0];
-        }
-
-        echo '<form action="' . App::core()->adminurl()->get($adminurl) . $tab . '" method="get" id="filters-form">' .
-        '<h3 class="out-of-screen-if-js">' . __('Show filters and display options') . '</h3>' .
-
-        '<div class="table">';
-
-        $prime = true;
-        $cols  = [];
-        foreach ($this->filters as $filter) {
-            if (in_array($filter->get('id'), ['sortby', 'order', 'nb'])) {
-                continue;
-            }
-            if ('' != $filter->get('html')) {
-                $cols[$filter->get('prime') ? 1 : 0][$filter->get('id')] = sprintf('<p>%s</p>', $filter->get('html'));
-            }
-        }
-        sort($cols);
-        foreach ($cols as $col) {
-            echo sprintf(
-                $prime ?
-                    '<div class="cell"><h4>' . __('Filters') . '</h4>%s</div>' :
-                    '<div class="cell filters-sibling-cell">%s</div>',
-                implode('', $col)
-            );
-            $prime = false;
-        }
-
-        if (isset($this->filters['sortby']) || isset($this->filters['order']) || isset($this->filters['nb'])) {
-            echo '<div class="cell filters-options">' .
-            '<h4>' . __('Display options') . '</h4>';
-
-            if (isset($this->filters['sortby'])) {
-                $label = Form\Label::init(__('Order by:'), Form\Label::OUTSIDE_LABEL_BEFORE, 'sortby')
-                    ->set('class', 'ib')
-                ;
-
-                $select = Form\Select::init('sortby')
-                    ->set('default', $this->filters['sortby']->get('value'))
-                    ->set('items', $this->filters['sortby']->get('options'))
-                ;
-
-                echo sprintf(
-                    '<p>%s</p>',
-                    $label->render($select->render())
-                );
-            }
-            if (isset($this->filters['order'])) {
-                $label = Form\Label::init(__('Sort:'), Form\Label::OUTSIDE_LABEL_BEFORE, 'order')
-                    ->set('class', 'ib')
-                ;
-
-                $select = Form\Select::init('order')
-                    ->set('default', $this->filters['order']->get('value'))
-                    ->set('items', $this->filters['order']->get('options'))
-                ;
-
-                echo sprintf(
-                    '<p>%s</p>',
-                    $label->render($select->render())
-                );
-            }
-            if (isset($this->filters['nb'])) {
-                $label = Form\Label::init($this->filters['nb']->get('title'), Form\Label::INSIDE_TEXT_AFTER, 'nb')
-                    ->set('class', 'classic')
-                ;
-
-                $number = Form\Number::init('nb')
-                    ->set('min', 0)
-                    ->set('max', 999)
-                    ->set('value', $this->filters['nb']->get('value'))
-                ;
-
-                echo sprintf(
-                    '<p><span class="label ib">' . __('Show') . '</span> %s</p>',
-                    $label->render($number->render())
-                );
-            }
-
-            if ($this->has_user_pref) {
-                echo Form::hidden('filters-options-id', $this->type) .
-                '<p class="hidden-if-no-js"><a href="#" id="filter-options-save">' . __('Save current options') . '</a></p>';
-            }
-            echo '</div>';
-        }
-
-        echo '</div>' .
-        '<p><input type="submit" value="' . __('Apply filters and display options') . '" />' .
-        Form::hidden(['handler'], $adminurl) .
-
-        $extra .
-
-        '<br class="clear" /></p>' . // Opera sucks
-        '</form>';
     }
 }
