@@ -14,8 +14,8 @@ use ArrayObject;
 use Dotclear\App;
 use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
-use Dotclear\Process\Admin\Filter\FiltersStack;
+use Dotclear\Process\Admin\Filter\Filter;
+use Dotclear\Process\Admin\Filter\FilterStack;
 
 /**
  * Admin behaviors for plugin CKEditor.
@@ -30,7 +30,7 @@ class CKEditorBehavior
         App::core()->behavior()->add('adminPopupMedia', [$this, 'adminPopupMedia']);
         App::core()->behavior()->add('adminPopupLink', [$this, 'adminPopupLink']);
         App::core()->behavior()->add('adminPopupPosts', [$this, 'adminPopupPosts']);
-        App::core()->behavior()->add('adminMediaFilter', [$this, 'adminMediaFilter']);
+        App::core()->behavior()->add('adminFiltersAddStack', [$this, 'adminFiltersAddStack']);
         App::core()->behavior()->add('adminPageHTTPHeaderCSP', [$this, 'adminPageHTTPHeaderCSP']);
     }
 
@@ -94,10 +94,11 @@ class CKEditorBehavior
         return 'CKEditor' != $editor ? '' : App::core()->resource()->load('popup_posts.js', 'Plugin', 'CKEditor');
     }
 
-    public function adminMediaFilter(FiltersStack $fs): void
+    public function adminFiltersAddStack(string $type, FilterStack $fs): void
     {
-        if (!GPC::get()->empty('editor')) {
-            $fs->add(new DefaultFilter('editor', Html::sanitizeURL(GPC::get()->string('editor'))));
+        if ('media' == $type && !GPC::get()->empty('editor')) {
+            // Add hidden filter to pass editor to filters URLs
+            $fs->add(filter: new Filter(id: 'editor', value: Html::sanitizeURL(GPC::get()->string('editor'))));
         }
     }
 

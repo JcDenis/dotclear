@@ -7,10 +7,10 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Process\Admin\Filter\Filter;
+namespace Dotclear\Process\Admin\Filter;
 
-// Dotclear\Process\Admin\Filter\Filter\DefaultFilter
-use Dotclear\Exception\AdminException;
+// Dotclear\Process\Admin\Filter\Filter
+use Dotclear\Exception\InvalidValueFormat;
 use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form\Select as FormSelect;
 use Dotclear\Helper\Html\Form\Label as FormLabel;
@@ -20,13 +20,13 @@ use Dotclear\Helper\Html\Form\Input as FormInput;
  * Admin filter.
  *
  * Dotclear utility class that provides reuseable list filter
- * Should be used with Filter
+ * Should be used with Filters
  *
  * @ingroup  Admin Filter
  *
  * @since 2.20
  */
-class DefaultFilter
+class Filter
 {
     /**
      * @var array<string,mixed> $properties
@@ -52,94 +52,69 @@ class DefaultFilter
     public function __construct(string $id, mixed $value = null)
     {
         if (!preg_match('/^[A-Za-z0-9_-]+$/', $id)) {
-            throw new AdminException('not a valid id');
+            throw new InvalidValueFormat('not a valid id');
         }
         $this->properties['id']    = $id;
         $this->properties['value'] = $value;
     }
 
     /**
-     * Create default filter instance.
-     *
-     * @param string $id    The filter id
-     * @param mixed  $value The filter value
-     *
-     * @return DefaultFilter Self instance
-     */
-    public static function init(string $id, mixed $value = null): DefaultFilter
-    {
-        return new self($id, $value);
-    }
-
-    /**
      * Check if filter property exists.
      *
-     * @param string $property The property
+     * @param string $key The property
      *
      * @return bool Is set
      */
-    public function exists(string $property): bool
+    public function exists(string $key): bool
     {
-        return isset($this->properties[$property]);
+        return isset($this->properties[$key]);
     }
 
     /**
      * Get a filter property.
      *
-     * @param string $property The property
+     * @param string $key The property
      *
      * @return mixed The value
      */
-    public function get(string $property): mixed
+    public function get(string $key): mixed
     {
-        return $this->properties[$property] ?? null;
+        return $this->properties[$key] ?? null;
     }
 
     /**
      * Set a property value.
      *
-     * @param string $property The property
-     * @param mixed  $value    The value
-     *
-     * @return DefaultFilter The filter instance
+     * @param string $key   The property
+     * @param mixed  $value The value
      */
-    public function set(string $property, mixed $value): DefaultFilter
+    public function set(string $key, mixed $value): void
     {
-        if (isset($this->properties[$property]) && method_exists($this, $property)) {
-            return call_user_func([$this, $property], $value);
+        if (isset($this->properties[$key]) && method_exists($this, $key)) {
+            call_user_func([$this, $key], $value);
         }
-
-        return $this;
     }
 
     /**
      * Set filter form type.
      *
      * @param string $type The type
-     *
-     * @return DefaultFilter The filter instance
      */
-    public function form(string $type): DefaultFilter
+    public function form(string $type): void
     {
         if (in_array($type, ['none', 'input', 'select', 'html'])) {
             $this->properties['form'] = $type;
         }
-
-        return $this;
     }
 
     /**
      * Set filter form title.
      *
      * @param string $title The title
-     *
-     * @return DefaultFilter The filter instance
      */
-    public function title(string $title): DefaultFilter
+    public function title(string $title): void
     {
         $this->properties['title'] = $title;
-
-        return $this;
     }
 
     /**
@@ -147,65 +122,49 @@ class DefaultFilter
      *
      * If filter form is a select box, this is the select options
      *
-     * @param array $options  The options
-     * @param bool  $set_form Auto set form type
-     *
-     * @return DefaultFilter The filter instance
+     * @param array $options The options
+     * @param bool  $typed   Auto set form type
      */
-    public function options(array $options, bool $set_form = true): DefaultFilter
+    public function options(array $options, bool $typed = true): void
     {
         $this->properties['options'] = $options;
-        if ($set_form) {
-            $this->form('select');
+        if ($typed) {
+            $this->form(type: 'select');
         }
-
-        return $this;
     }
 
     /**
      * Set filter value.
      *
      * @param mixed $value The value
-     *
-     * @return DefaultFilter The filter instance
      */
-    public function value(mixed $value): DefaultFilter
+    public function value(mixed $value): void
     {
         $this->properties['value'] = $value;
-
-        return $this;
     }
 
     /**
      * Set filter column in form.
      *
      * @param bool $prime First column
-     *
-     * @return DefaultFilter The filter instance
      */
-    public function prime(bool $prime): DefaultFilter
+    public function prime(bool $prime): void
     {
         $this->properties['prime'] = $prime;
-
-        return $this;
     }
 
     /**
      * Set filter html contents.
      *
      * @param string $contents The contents
-     * @param bool   $set_form Auto set form type
-     *
-     * @return DefaultFilter The filter instance
+     * @param bool   $typed    Auto set form type
      */
-    public function html(string $contents, bool $set_form = true): DefaultFilter
+    public function html(string $contents, bool $typed = true): void
     {
         $this->properties['html'] = $contents;
-        if ($set_form) {
-            $this->form('html');
+        if ($typed) {
+            $this->form(type: 'html');
         }
-
-        return $this;
     }
 
     /**
@@ -213,10 +172,8 @@ class DefaultFilter
      *
      * @param null|string $name  The param name
      * @param mixed       $value The param value
-     *
-     * @return DefaultFilter The filter instance
      */
-    public function param(?string $name = null, mixed $value = null): DefaultFilter
+    public function param(?string $name = null, mixed $value = null): void
     {
         // filter id as param name
         if (null === $name) {
@@ -227,8 +184,6 @@ class DefaultFilter
             $value = fn ($f) => $f[0];
         }
         $this->properties['params'][] = [$name, $value];
-
-        return $this;
     }
 
     /**
@@ -239,45 +194,41 @@ class DefaultFilter
     public function parse(): void
     {
         // form select
-        if ('select' == $this->get('form')) {
+        if ('select' == $this->get(key: 'form')) {
             // _GET value
-            if (null === $this->get('value')) {
-                $get = GPC::get()->string($this->get('id'));
-                if ('' === $get || !in_array($get, $this->get('options'), true)) {
+            if (null === $this->get(key: 'value')) {
+                $get = GPC::get()->string($this->get(key: 'id'));
+                if ('' === $get || !in_array($get, $this->get(key: 'options'), true)) {
                     $get = '';
                 }
-                $this->value($get);
+                $this->value(value: $get);
             }
             // HTML field
-            $select = FormSelect::init($this->get('id'))
-                ->set('default', $this->get('value'))
-                ->set('items', $this->get('options'))
-            ;
+            $form = new FormSelect($this->get(key: 'id'));
+            $form->set('default', $this->get(key: 'value'));
+            $form->set('items', $this->get(key: 'options'));
 
-            $label = FormLabel::init($this->get('title'), 2, $this->get('id'))
-                ->set('class', 'ib')
-            ;
+            $label = new FormLabel($this->get(key: 'title'), 2, $this->get(key: 'id'));
+            $label->set('class', 'ib');
 
-            $this->html($label->render($select->render()), false);
+            $this->html(contents: $label->render($form->render()), typed: false);
 
         // form input
-        } elseif ('input' == $this->get('form')) {
+        } elseif ('input' == $this->get(key: 'form')) {
             // _GET value
-            if (null === $this->get('value')) {
-                $this->value(GPC::get()->string($this->get('id')));
+            if (null === $this->get(key: 'value')) {
+                $this->value(value: GPC::get()->string($this->get(key: 'id')));
             }
             // HTML field
-            $input = FormInput::init($this->get('id'))
-                ->set('size', 20)
-                ->set('maxlength', 255)
-                ->set('value', $this->get('value'))
-            ;
+            $form = new FormInput($this->get(key: 'id'));
+            $form->set('size', 20);
+            $form->set('maxlength', 255);
+            $form->set('value', $this->get(key: 'value'));
 
-            $label = FormLabel::init($this->get('title'), 2, $this->get('id'))
-                ->set('class', 'ib')
-            ;
+            $label = new FormLabel($this->get(key: 'title'), 2, $this->get(key: 'id'));
+            $label->set('class', 'ib');
 
-            $this->html($label->render($input->render()), false);
+            $this->html($label->render($form->render()), false);
         }
     }
 }

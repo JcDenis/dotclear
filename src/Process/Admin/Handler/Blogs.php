@@ -16,7 +16,7 @@ use Dotclear\Database\Param;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Action\Action\BlogAction;
 use Dotclear\Process\Admin\Inventory\Inventory\BlogInventory;
-use Dotclear\Process\Admin\Filter\Filter\BlogFilter;
+use Dotclear\Process\Admin\Filter\Filter\BlogFilters;
 use Dotclear\Helper\Html\Form;
 
 /**
@@ -36,9 +36,9 @@ class Blogs extends AbstractPage
         return App::core()->user()->isSuperAdmin() ? new BlogAction(App::core()->adminurl()->get('admin.blogs')) : null;
     }
 
-    protected function getFilterInstance(): ?BlogFilter
+    protected function getFilterInstance(): ?BlogFilters
     {
-        return new BlogFilter();
+        return new BlogFilters();
     }
 
     protected function getInventoryInstance(): ?BlogInventory
@@ -52,11 +52,11 @@ class Blogs extends AbstractPage
         $rs    = App::core()->blogs()->getBlogs(param: $param);
 
         $rsStatic = $rs->toStatic();
-        if (($this->filter->get('sortby') != 'blog_upddt') && ($this->filter->get('sortby') != 'blog_status')) {
+        if ('blog_upddt' != $this->filter->get(id: 'sortby') && 'blog_status' != $this->filter->get(id: 'sortby')) {
             // Sort blog list using lexical order if necessary
             $rsStatic->extend(new RsExtUser());
             // $rsStatic = $rsStatic->toExtStatic();
-            $rsStatic->lexicalSort(($this->filter->get('sortby') == 'UPPER(blog_name)' ? 'blog_name' : 'blog_id'), $this->filter->get('order'));
+            $rsStatic->lexicalSort(($this->filter->get(id: 'sortby') == 'UPPER(blog_name)' ? 'blog_name' : 'blog_id'), $this->filter->get(id: 'order'));
         }
 
         return new BlogInventory($rs, $count);
@@ -90,12 +90,12 @@ class Blogs extends AbstractPage
             echo '<p class="top-add"><a class="button add" href="' . App::core()->adminurl()->get('admin.blog') . '">' . __('Create a new blog') . '</a></p>';
         }
 
-        $this->filter->display('admin.blogs');
+        $this->filter->display(adminurl: 'admin.blogs');
 
         // Show blogs
         $this->inventory->display(
-            $this->filter->get('page'),
-            $this->filter->get('nb'),
+            $this->filter->get(id: 'page'),
+            $this->filter->get(id: 'nb'),
             (App::core()->user()->isSuperAdmin() ?
                 '<form action="' . App::core()->adminurl()->root() . '" method="post" id="form-blogs">' : '') .
 
@@ -117,7 +117,7 @@ class Blogs extends AbstractPage
                 '<p><label for="pwd" class="classic">' . __('Please give your password to confirm blog(s) deletion:') . '</label> ' .
                 Form::password('pwd', 20, 255, ['autocomplete' => 'current-password']) . '</p>' .
 
-                App::core()->adminurl()->getHiddenFormFields('admin.blogs', $this->filter->values(true), true) .
+                App::core()->adminurl()->getHiddenFormFields('admin.blogs', $this->filter->values(escape: true), true) .
                 '</form>' : ''),
             $this->filter->show()
         );

@@ -15,7 +15,7 @@ use Dotclear\Database\Param;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Action\Action\CommentAction;
 use Dotclear\Process\Admin\Inventory\Inventory\CommentInventory;
-use Dotclear\Process\Admin\Filter\Filter\CommentFilter;
+use Dotclear\Process\Admin\Filter\Filter\CommentFilters;
 use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -38,9 +38,9 @@ class Comments extends AbstractPage
         return new CommentAction(App::core()->adminurl()->get('admin.comments'));
     }
 
-    protected function getFilterInstance(): ?CommentFilter
+    protected function getFilterInstance(): ?CommentFilters
     {
-        return new CommentFilter();
+        return new CommentFilters();
     }
 
     protected function getInventoryInstance(): ?CommentInventory
@@ -58,13 +58,13 @@ class Comments extends AbstractPage
         App::core()->behavior()->call('adminCommentsSortbyLexCombo', [&$sortby_lex]);
 
         $param->set('order', (
-            array_key_exists($this->filter->get('sortby'), $sortby_lex) ?
-                App::core()->con()->lexFields($sortby_lex[$this->filter->get('sortby')]) :
-                $this->filter->get('sortby')
-        ) . ' ' . $this->filter->get('order'));
+            array_key_exists($this->filter->get(id: 'sortby'), $sortby_lex) ?
+                App::core()->con()->lexFields($sortby_lex[$this->filter->get(id: 'sortby')]) :
+                $this->filter->get(id: 'sortby')
+        ) . ' ' . $this->filter->get(id: 'order'));
 
         // default filter ? do not display spam
-        if (!$this->filter->show() && '' == $this->filter->get('status')) {
+        if (!$this->filter->show() && '' == $this->filter->get(id: 'status')) {
             $param->set('comment_status_not', -2);
         }
         $param->set('no_content', true);
@@ -115,7 +115,7 @@ class Comments extends AbstractPage
 
         $combo_action = [];
         $default      = '';
-        if (App::core()->user()->check('delete,contentadmin', App::core()->blog()->id) && -2 == $this->filter->get('status')) {
+        if (App::core()->user()->check('delete,contentadmin', App::core()->blog()->id) && -2 == $this->filter->get(id: 'status')) {
             $default = 'delete';
         }
 
@@ -130,7 +130,7 @@ class Comments extends AbstractPage
         if (0 < $spam_count) {
             echo '<form action="' . App::core()->adminurl()->root() . '" method="post" class="fieldset">';
 
-            if (!$this->filter->show() || -2 != $this->filter->get('status')) {
+            if (!$this->filter->show() || -2 != $this->filter->get(id: 'status')) {
                 if (1 == $spam_count) {
                     echo '<p>' . sprintf(__('You have one spam comment.'), '<strong>' . $spam_count . '</strong>') . ' ' .
                     '<a href="' . App::core()->adminurl()->get('admin.comments', ['status' => -2]) . '">' . __('Show it.') . '</a></p>';
@@ -154,8 +154,8 @@ class Comments extends AbstractPage
 
         // Show comments
         $this->inventory->display(
-            $this->filter->get('page'),
-            $this->filter->get('nb'),
+            $this->filter->get(id: 'page'),
+            $this->filter->get(id: 'nb'),
             '<form action="' . App::core()->adminurl()->root() . '" method="post" id="form-comments">' .
 
             '%s' .
@@ -170,12 +170,12 @@ class Comments extends AbstractPage
                 ['default' => $default, 'extra_html' => 'title="' . __('Actions') . '"']
             ) .
             '<input id="do-action" type="submit" value="' . __('ok') . '" /></p>' .
-            App::core()->adminurl()->getHiddenFormFields('admin.comments', $this->filter->values(true), true) .
+            App::core()->adminurl()->getHiddenFormFields('admin.comments', $this->filter->values(escape: true), true) .
             '</div>' .
 
             '</form>',
             $this->filter->show(),
-            ($this->filter->show() || -2 == $this->filter->get('status')),
+            ($this->filter->show() || -2 == $this->filter->get(id: 'status')),
             App::core()->user()->check('contentadmin', App::core()->blog()->id)
         );
     }

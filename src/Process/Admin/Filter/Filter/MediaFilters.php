@@ -9,13 +9,14 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Filter\Filter;
 
-// Dotclear\Process\Admin\Filter\Filter\MediaFilter
+// Dotclear\Process\Admin\Filter\Filter\MediaFilters
 use Dotclear\App;
 use Dotclear\Database\Param;
 use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Filter\Filter;
-use Dotclear\Process\Admin\Filter\FiltersStack;
+use Dotclear\Process\Admin\Filter\Filters;
+use Dotclear\Process\Admin\Filter\FilterStack;
 
 /**
  * Admin media list filters form.
@@ -24,16 +25,14 @@ use Dotclear\Process\Admin\Filter\FiltersStack;
  *
  * @since 2.20
  */
-class MediaFilter extends Filter
+class MediaFilters extends Filters
 {
     protected $post_type  = '';
     protected $post_title = '';
 
     public function __construct(string $type = 'media')
     {
-        parent::__construct($type);
-
-        $fs = new FiltersStack(
+        parent::__construct(type: $type, filters: new FilterStack(
             $this->getPageFilter(),
             $this->getSearchFilter(),
             $this->getPostIdFilter(),
@@ -43,15 +42,10 @@ class MediaFilter extends Filter
             $this->getLinkTypeFilter(),
             $this->getPopupFilter(),
             $this->getMediaSelectFilter()
-        );
-
-        // --BEHAVIOR-- adminMediaFilter, FiltersStack
-        App::core()->behavior()->call('adminMediaFilter', $fs);
-
-        $this->addStack($fs);
+        ));
     }
 
-    protected function getPostIdFilter(): DefaultFilter
+    protected function getPostIdFilter(): Filter
     {
         $post_id = GPC::request()->int('post_id', null);
         if ($post_id) {
@@ -69,7 +63,7 @@ class MediaFilter extends Filter
             }
         }
 
-        return new DefaultFilter('post_id', $post_id);
+        return new Filter('post_id', $post_id);
     }
 
     public function getPostTitle(): string
@@ -82,7 +76,7 @@ class MediaFilter extends Filter
         return $this->post_type;
     }
 
-    protected function getDirFilter(): DefaultFilter
+    protected function getDirFilter(): Filter
     {
         $get = GPC::request()->string('d', null);
         if (null === $get && isset($_SESSION['media_manager_dir'])) {
@@ -95,45 +89,45 @@ class MediaFilter extends Filter
             unset($_SESSION['media_manager_dir']);
         }
 
-        return new DefaultFilter('d', $get);
+        return new Filter('d', $get);
     }
 
-    protected function getFileModeFilter(): DefaultFilter
+    protected function getFileModeFilter(): Filter
     {
         if (!GPC::get()->empty('file_mode')) {
             $_SESSION['media_file_mode'] = 'grid' == GPC::get()->string('file_mode') ? 'grid' : 'list';
         }
         $get = !empty($_SESSION['media_file_mode']) ? $_SESSION['media_file_mode'] : 'grid';
 
-        return new DefaultFilter('file_mode', $get);
+        return new Filter('file_mode', $get);
     }
 
-    protected function getPluginIdFilter(): DefaultFilter
+    protected function getPluginIdFilter(): Filter
     {
         $get = Html::sanitizeURL(GPC::request()->string('plugin_id'));
 
-        return new DefaultFilter('plugin_id', $get);
+        return new Filter('plugin_id', $get);
     }
 
-    protected function getLinkTypeFilter(): DefaultFilter
+    protected function getLinkTypeFilter(): Filter
     {
         $get = !GPC::request()->empty('link_type') ? Html::escapeHTML(GPC::request()->string('link_type')) : null;
 
-        return new DefaultFilter('link_type', $get);
+        return new Filter('link_type', $get);
     }
 
-    protected function getPopupFilter(): DefaultFilter
+    protected function getPopupFilter(): Filter
     {
         $get = (int) !GPC::request()->empty('popup');
 
-        return new DefaultFilter('popup', $get);
+        return new Filter('popup', $get);
     }
 
-    protected function getMediaSelectFilter(): DefaultFilter
+    protected function getMediaSelectFilter(): Filter
     {
         // 0 : none, 1 : single media, >1 : multiple media
         $get = GPC::request()->int('select');
 
-        return new DefaultFilter('select', $get);
+        return new Filter('select', $get);
     }
 }

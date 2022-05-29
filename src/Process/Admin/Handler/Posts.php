@@ -15,7 +15,7 @@ use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Action\Action\PostAction;
-use Dotclear\Process\Admin\Filter\Filter\PostFilter;
+use Dotclear\Process\Admin\Filter\Filter\PostFilters;
 use Dotclear\Process\Admin\Inventory\Inventory\PostInventory;
 use Dotclear\Process\Admin\Page\AbstractPage;
 
@@ -36,9 +36,9 @@ class Posts extends AbstractPage
         return new PostAction(App::core()->adminurl()->get('admin.posts'));
     }
 
-    protected function getFilterInstance(): ?PostFilter
+    protected function getFilterInstance(): ?PostFilters
     {
-        return new PostFilter();
+        return new PostFilters();
     }
 
     protected function getInventoryInstance(): ?PostInventory
@@ -57,10 +57,10 @@ class Posts extends AbstractPage
         App::core()->behavior()->call('adminPostsSortbyLexCombo', [&$sortby_lex]);
 
         $param->set('order', (
-            array_key_exists($this->filter->get('sortby'), $sortby_lex) ?
-            App::core()->con()->lexFields($sortby_lex[$this->filter->get('sortby')]) :
-            $this->filter->get('sortby')
-        ) . ' ' . $this->filter->get('order'));
+            array_key_exists($this->filter->get(id: 'sortby'), $sortby_lex) ?
+            App::core()->con()->lexFields($sortby_lex[$this->filter->get(id: 'sortby')]) :
+            $this->filter->get(id: 'sortby')
+        ) . ' ' . $this->filter->get(id: 'order'));
 
         $param->set('no_content', true);
 
@@ -98,12 +98,12 @@ class Posts extends AbstractPage
             echo '<p class="top-add"><a class="button add" href="' . App::core()->adminurl()->get('admin.post') . '">' . __('New post') . '</a></p>';
 
             // filters
-            $this->filter->display('admin.posts');
+            $this->filter->display(adminurl: 'admin.posts');
 
             // Show posts
             $this->inventory->display(
-                $this->filter->get('page'),
-                $this->filter->get('nb'),
+                $this->filter->get(id: 'page'),
+                $this->filter->get(id: 'nb'),
                 '<form action="' . App::core()->adminurl()->root() . '" method="post" id="form-entries">' .
 
                 '%s' .

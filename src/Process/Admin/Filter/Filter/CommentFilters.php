@@ -9,23 +9,22 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Filter\Filter;
 
-// Dotclear\Process\Admin\Filter\Filter\CommentFilter
+// Dotclear\Process\Admin\Filter\Filter\CommentFilters
 use Dotclear\App;
 use Dotclear\Process\Admin\Filter\Filter;
-use Dotclear\Process\Admin\Filter\FiltersStack;
+use Dotclear\Process\Admin\Filter\Filters;
+use Dotclear\Process\Admin\Filter\FilterStack;
 
 /**
  * Admin comments list filters form.
  *
  * @ingroup  Admin Comment Filter
  */
-class CommentFilter extends Filter
+class CommentFilters extends Filters
 {
     public function __construct()
     {
-        parent::__construct('comments');
-
-        $fs = new FiltersStack(
+        parent::__construct(type: 'comments', filters: new FilterStack(
             $this->getPageFilter(),
             $this->getCommentAuthorFilter(),
             $this->getCommentTypeFilter(),
@@ -33,72 +32,71 @@ class CommentFilter extends Filter
             $this->getCommentIpFilter(),
             $this->getInputFilter('email', __('Email:'), 'comment_email'),
             $this->getInputFilter('site', __('Web site:'), 'comment_site')
-        );
-
-        // --BEHAVIOR-- adminCommentFilter, FiltersStack
-        App::core()->behavior()->call('adminCommentFilter', $fs);
-
-        $this->addStack($fs);
+        ));
     }
 
     /**
      * Comment author select.
      */
-    public function getCommentAuthorFilter(): DefaultFilter
+    public function getCommentAuthorFilter(): Filter
     {
-        return DefaultFilter::init('author')
-            ->param('q_author')
-            ->form('input')
-            ->title(__('Author:'))
-        ;
+        $filter = new Filter('author');
+        $filter->param('q_author');
+        $filter->form('input');
+        $filter->title(__('Author:'));
+
+        return $filter;
     }
 
     /**
      * Comment type select.
      */
-    public function getCommentTypeFilter(): DefaultFilter
+    public function getCommentTypeFilter(): Filter
     {
-        return DefaultFilter::init('type')
-            ->param('comment_trackback', fn ($f) => 'tb' == $f[0])
-            ->title(__('Type:'))
-            ->options([
-                '-'             => '',
-                __('Comment')   => 'co',
-                __('Trackback') => 'tb',
-            ])
-            ->prime(true)
-        ;
+        $filter = new Filter('type');
+        $filter->param('comment_trackback', fn ($f) => 'tb' == $f[0]);
+        $filter->title(__('Type:'));
+        $filter->options([
+            '-'             => '',
+            __('Comment')   => 'co',
+            __('Trackback') => 'tb',
+        ]);
+        $filter->prime(true);
+
+        return $filter;
     }
 
     /**
      * Comment status select.
      */
-    public function getCommentStatusFilter(): DefaultFilter
+    public function getCommentStatusFilter(): Filter
     {
-        return DefaultFilter::init('status')
-            ->param('comment_status', fn ($f) => (int) $f[0])
-            ->title(__('Status:'))
-            ->options(array_merge(
-                ['-' => ''],
-                App::core()->combo()->getCommentStatusesCombo()
-            ))
-            ->prime(true)
-        ;
+        $filter = new Filter('status');
+        $filter->param('comment_status', fn ($f) => (int) $f[0]);
+        $filter->title(__('Status:'));
+        $filter->options(array_merge(
+            ['-' => ''],
+            App::core()->combo()->getCommentStatusesCombo()
+        ));
+        $filter->prime(true);
+
+        return $filter;
     }
 
     /**
      * Common IP field.
      */
-    public function getCommentIpFilter(): ?DefaultFilter
+    public function getCommentIpFilter(): ?Filter
     {
         if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
             return null;
         }
 
-        return DefaultFilter::init('ip')
-            ->param('comment_ip')
-            ->form('input')
-            ->title(__('IP address:'))
-        ;
+        $filter = new Filter('ip');
+        $filter->param('comment_ip');
+        $filter->form('input');
+        $filter->title(__('IP address:'));
+
+        return $filter;
     }
 }

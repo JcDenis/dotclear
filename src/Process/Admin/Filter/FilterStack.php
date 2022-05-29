@@ -9,8 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Filter;
 
-// Dotclear\Process\Admin\Filter\FiltersStackr
-use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
+// Dotclear\Process\Admin\Filter\FilterStack
 
 /**
  * Simple filters stack.
@@ -19,11 +18,11 @@ use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
  *
  * @ingroup  Admin Filter Stack
  */
-class FiltersStack
+class FilterStack
 {
     /**
-     * @var array<int,DefaultFilter> $filters
-     *                               The filters stack
+     * @var array<int,Filter> $filters
+     *                        The filters stack
      */
     private $filters = [];
 
@@ -31,13 +30,13 @@ class FiltersStack
      * Constructor.
      *
      * Usage:
-     * $fs = new FiltersStack($filter1, $filter2, $filter3);
+     * $fs = new FilterStack($filter1, $filter2, $filter3);
      * $fs->add($filter4);
      * $filters_array = $fs->dump();
      *
-     * @param null|DefaultFilter ...$filters The filters
+     * @param null|Filter ...$filters The filters
      */
-    public function __construct(?DefaultFilter ...$filters)
+    public function __construct(?Filter ...$filters)
     {
         foreach ($filters as $filter) {
             $this->add($filter);
@@ -50,9 +49,9 @@ class FiltersStack
      * Empty filter is no added to the stack
      * ex: In post list, do not show form if there are no categories on a blog
      *
-     * @param null|DefaultFilter $filter The filter
+     * @param null|Filter $filter The filter
      */
-    public function add(?DefaultFilter $filter): void
+    public function add(?Filter $filter): void
     {
         if (null !== $filter) {
             $this->filters[] = $filter;
@@ -62,7 +61,7 @@ class FiltersStack
     /**
      * Get filters stack array.
      *
-     * @return array<int,DefaultFilter> The filters stack array
+     * @return array<int,Filter> The filters stack array
      */
     public function dump(): array
     {

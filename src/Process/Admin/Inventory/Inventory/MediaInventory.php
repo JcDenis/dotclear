@@ -16,7 +16,7 @@ use Dotclear\Core\Media\Manager\Item;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\File\Files;
-use Dotclear\Process\Admin\Filter\Filter\MediaFilter;
+use Dotclear\Process\Admin\Filter\Filter\MediaFilters;
 use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Process\Admin\Page\Pager;
 
@@ -30,12 +30,12 @@ class MediaInventory extends Inventory
     /**
      * Display a media list.
      *
-     * @param MediaFilter $filters       The filters
-     * @param string      $enclose_block The enclose block
-     * @param bool        $query         If it's a query or not
-     * @param string      $page_adminurl Page URL
+     * @param MediaFilters $filters       The filters
+     * @param string       $enclose_block The enclose block
+     * @param bool         $query         If it's a query or not
+     * @param string       $page_adminurl Page URL
      */
-    public function display(MediaFilter $filters, string $enclose_block = '', bool $query = false, string $page_adminurl = 'admin.media'): void
+    public function display(MediaFilters $filters, string $enclose_block = '', bool $query = false, string $page_adminurl = 'admin.media'): void
     {
         $nb_items   = $this->rs_count - ($filters->get('d') ? 1 : 0);
         $nb_folders = $filters->get('d') ? -1 : 0;
@@ -99,15 +99,15 @@ class MediaInventory extends Inventory
     /**
      * Get a media line.
      *
-     * @param MediaFilter $filters       The filters
-     * @param Item        $f             The current media item
-     * @param int         $i             The current index
-     * @param bool        $query         If it's a query or not
-     * @param string      $page_adminurl Page URL
+     * @param MediaFilters $filters       The filters
+     * @param Item         $f             The current media item
+     * @param int          $i             The current index
+     * @param bool         $query         If it's a query or not
+     * @param string       $page_adminurl Page URL
      *
      * @return string The line
      */
-    public function mediaLine(MediaFilter $filters, Item $f, int $i, bool $query = false, string $page_adminurl = 'admin.media'): string
+    public function mediaLine(MediaFilters $filters, Item $f, int $i, bool $query = false, string $page_adminurl = 'admin.media'): string
     {
         $fname = $f->basename;
         $file  = $query ? $f->relname : $f->basename;

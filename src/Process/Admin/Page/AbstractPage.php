@@ -21,7 +21,7 @@ use Dotclear\Helper\L10n;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Statistic;
 use Dotclear\Process\Admin\Action\Action;
-use Dotclear\Process\Admin\Filter\Filter;
+use Dotclear\Process\Admin\Filter\Filters;
 use Dotclear\Process\Admin\Inventory\Inventory;
 use Exception;
 
@@ -857,7 +857,7 @@ abstract class AbstractPage
      * If page contains list Filter, load instance from here.
      * It wil be accessible from $this->filter
      */
-    protected function getFilterInstance(): ?Filter
+    protected function getFilterInstance(): ?Filters
     {
         return null;
     }

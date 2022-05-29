@@ -9,10 +9,9 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Filter\Filter;
 
-// Dotclear\Process\Admin\Filter\Filter\UserFilter
-use Dotclear\App;
-use Dotclear\Process\Admin\Filter\Filter;
-use Dotclear\Process\Admin\Filter\FiltersStack;
+// Dotclear\Process\Admin\Filter\Filter\UserFilters
+use Dotclear\Process\Admin\Filter\Filters;
+use Dotclear\Process\Admin\Filter\FilterStack;
 
 /**
  * Admin users list filters form.
@@ -21,20 +20,13 @@ use Dotclear\Process\Admin\Filter\FiltersStack;
  *
  * @since 2.20
  */
-class UserFilter extends Filter
+class UserFilters extends Filters
 {
     public function __construct()
     {
-        parent::__construct('users');
-
-        $fs = new FiltersStack(
+        parent::__construct(type: 'users', filters: new FilterStack(
             $this->getPageFilter(),
             $this->getSearchFilter()
-        );
-
-        // --BEHAVIOR-- adminUserFilter
-        App::core()->behavior()->call('adminUserFilter', $fs);
-
-        $this->addStack($fs);
+        ));
     }
 }

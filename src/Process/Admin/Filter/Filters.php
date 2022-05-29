@@ -9,24 +9,23 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Filter;
 
-// Dotclear\Process\Admin\Filter\Filter
+// Dotclear\Process\Admin\Filter\Filters
 use Dotclear\App;
 use Dotclear\Database\Param;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Process\Admin\Filter\Filter\DefaultFilter;
 
 /**
  * Generic class for admin list filters form.
  *
  * @ingroup  Admin Filter
  */
-class Filter extends Filters
+class Filters
 {
     /**
-     * @var array<string,DefaultFilter> $filters
-     *                                  Filters objects
+     * @var array<string,Filter> $filters
+     *                           Filters objects
      */
     protected $filters = [];
 
@@ -45,11 +44,21 @@ class Filter extends Filters
     /**
      * Constructs a new instance.
      *
-     * @param string $type The filter form main id
+     * @param string      $type    The filter form main id
+     * @param FilterStack $filters The filter stack
      */
-    public function __construct(protected string $type)
+    public function __construct(protected readonly string $type, FilterStack $filters = null)
     {
         $this->parseOptions();
+
+        if (null !== $filters) {
+            // --BEHAVIOR-- adminFiltersAddStack, string, FilterStack
+            App::core()->behavior()->call('adminFiltersAddStack', $this->type, $filters);
+
+            foreach ($filters->dump() as $filter) {
+                $this->add(filter: $filter);
+            }
+        }
     }
 
     /**
@@ -63,41 +72,38 @@ class Filter extends Filters
         }
 
         if (!empty($options[1])) {
-            $this->filters['sortby'] = DefaultFilter::init('sortby', App::core()->listoption()->getUserFiltersSortby($this->type))
-                ->options($options[1])
-            ;
+            $this->filters['sortby'] = new Filter(id: 'sortby', value: App::core()->listoption()->getUserFiltersSortby($this->type));
+            $this->filters['sortby']->options(options: $options[1]);
 
             if (!GPC::get()->empty('sortby')
                 && in_array(GPC::get()->string('sortby'), $options[1], true)
                 && App::core()->listoption()->getUserFiltersSortby($this->type) != GPC::get()->string('sortby')
             ) {
-                $this->show(true);
-                $this->filters['sortby']->value(GPC::get()->string('sortby'));
+                $this->show(show: true);
+                $this->filters['sortby']->value(value: GPC::get()->string('sortby'));
             }
         }
         if (!empty($options[3])) {
-            $this->filters['order'] = DefaultFilter::init('order', App::core()->listoption()->getUserFiltersOrder($this->type))
-                ->options(App::core()->combo()->getOrderCombo())
-            ;
+            $this->filters['order'] = new Filter(id: 'order', value: App::core()->listoption()->getUserFiltersOrder($this->type));
+            $this->filters['order']->options(options: App::core()->combo()->getOrderCombo());
 
             if (!GPC::get()->empty('order')
                 && in_array(GPC::get()->string('order'), App::core()->combo()->getOrderCombo(), true)
                 && App::core()->listoption()->getUserFiltersOrder($this->type) != GPC::get()->string('order')
             ) {
-                $this->show(true);
-                $this->filters['order']->value(GPC::get()->string('order'));
+                $this->show(show: true);
+                $this->filters['order']->value(value: GPC::get()->string('order'));
             }
         }
         if (!empty($options[4])) {
-            $this->filters['nb'] = DefaultFilter::init('nb', App::core()->listoption()->getUserFiltersNb($this->type))
-                ->title($options[4][0])
-            ;
+            $this->filters['nb'] = new Filter(id: 'nb', value: App::core()->listoption()->getUserFiltersNb($this->type));
+            $this->filters['nb']->title(title: $options[4][0]);
 
             if (0 < GPC::get()->int('nb')
                 && GPC::get()->int('nb') != App::core()->listoption()->getUserFiltersNb($this->type)
             ) {
-                $this->show(true);
-                $this->filters['nb']->value(GPC::get()->int('nb'));
+                $this->show(show: true);
+                $this->filters['nb']->value(value: GPC::get()->int('nb'));
             }
         }
     }
@@ -105,21 +111,21 @@ class Filter extends Filters
     /**
      * Get filters key/value pairs.
      *
-     * @param bool $escape  Escape widlcard %
-     * @param bool $ui_only Limit to filters with ui
+     * @param bool $escape Escape widlcard %
+     * @param bool $ui     Limit to filters with ui
      *
      * @return array The filters
      */
-    public function values(bool $escape = false, bool $ui_only = false): array
+    public function values(bool $escape = false, bool $ui = false): array
     {
         $res = [];
         foreach ($this->filters as $id => $filter) {
-            if ($ui_only) {
-                if (in_array($id, ['sortby', 'order', 'nb']) || '' != $filter->get('html')) {
-                    $res[$id] = $filter->get('value');
+            if ($ui) {
+                if (in_array($id, ['sortby', 'order', 'nb']) || '' != $filter->get(key: 'html')) {
+                    $res[$id] = $filter->get(key: 'value');
                 }
             } else {
-                $res[$id] = $filter->get('value');
+                $res[$id] = $filter->get(key: 'value');
             }
         }
 
@@ -129,71 +135,64 @@ class Filter extends Filters
     /**
      * Get a filter value.
      *
-     * @param string $id        The filter id
-     * @param mixed  $undefined The value to return if not set
+     * @param string $id      The filter id
+     * @param mixed  $default The value to return if not set
      *
      * @return mixed The filter value
      */
-    public function value(string $id, mixed $undefined = null): mixed
+    public function value(string $id, mixed $default = null): mixed
     {
-        return isset($this->filters[$id]) ? $this->filters[$id]->get('value') : $undefined;
+        return isset($this->filters[$id]) ? $this->filters[$id]->get(key: 'value') : $default;
     }
 
     /**
      * @see self::value()
+     *
+     * @param string $id The filter ID
+     *
+     * @return mixed The filter value
      */
     public function get(string $id): mixed
     {
-        return $this->value($id);
+        return $this->value(id: $id);
     }
 
     /**
      * Update a filter value.
-     */
-    public function set(string $id, mixed $value, mixed $undefined = null): mixed
-    {
-        return isset($this->filters[$id]) ? $this->filters[$id]->value($value) : $undefined;
-    }
-
-    /**
-     * Add filters.
      *
-     * @param FiltersStack $filters The stack of filters
+     * @param string $id    The filter ID
+     * @param mixed  $value The filter value
      */
-    public function addStack(FiltersStack $filters): void
+    public function set(string $id, mixed $value): void
     {
-        foreach ($filters->dump() as $filter) {
-            $this->add($filter);
+        if (isset($this->filters[$id])) {
+            $this->filters[$id]->value(value: $value);
         }
     }
 
     /**
      * Add a filter.
      *
-     * @param null|DefaultFilter $filter The filter
-     *
-     * @return mixed The filter value
+     * @param null|Filter $filter The filter
      */
-    public function add(?DefaultFilter $filter): mixed
+    public function add(?Filter $filter): void
     {
         // empty filter (ex: do not show form if there are no categories on a blog)
         if (null === $filter) {
-            return null;
+            return;
         }
 
         // parse _GET values and create html forms
         $filter->parse();
 
         // set key/value pair
-        $this->filters[$filter->get('id')] = $filter;
+        $this->filters[$filter->get(key: 'id')] = $filter;
 
         // has contents
-        if ('' != $filter->get('html') && 'none' != $filter->get('form')) {
+        if ('' != $filter->get(key: 'html') && 'none' != $filter->get(key: 'form')) {
             // not default value = show filters form
-            $this->show('' !== $filter->get('value'));
+            $this->show(show: '' !== $filter->get(key: 'value'));
         }
-
-        return $filter->get('value');
     }
 
     /**
@@ -230,9 +229,9 @@ class Filter extends Filters
         }
 
         foreach ($this->filters as $filter) {
-            if ('' !== $filter->get('value')) {
-                $filters[0] = $filter->get('value');
-                foreach ($filter->get('params') as $p) {
+            if ('' !== $filter->get(key: 'value')) {
+                $filters[0] = $filter->get(key: 'value');
+                foreach ($filter->get(key: 'params') as $p) {
                     if (is_callable($p[1])) {
                         $p[1] = call_user_func($p[1], $filters);
                     }
@@ -252,13 +251,13 @@ class Filter extends Filters
     /**
      * Show foldable filters form.
      *
-     * @param bool $set Force to show filter form
+     * @param bool $show Force to show filter form
      *
      * @return bool Show filter form
      */
-    public function show(bool $set = false): bool
+    public function show(bool $show = false): bool
     {
-        if (true === $set) {
+        if (true === $show) {
             $this->show = true;
         }
 
@@ -266,19 +265,19 @@ class Filter extends Filters
     }
 
     /**
-     * Get js filters foldable form control.
+     * Get JS filters foldable form control.
      *
-     * @param string $reset_url The filter reset url
+     * @param string $url The filter reset URL
      *
      * @return string The HTML JS code
      */
-    public function js(string $reset_url = ''): string
+    public function js(string $url = ''): string
     {
         $js = [
             'show_filters'      => $this->show(),
             'filter_posts_list' => __('Show filters and display options'),
             'cancel_the_filter' => __('Cancel filters and display options'),
-            'filter_reset_url'  => $reset_url ?: App::core()->adminurl()->get(App::core()->adminurl()->called()),
+            'filter_reset_url'  => $url ?: App::core()->adminurl()->get(App::core()->adminurl()->called()),
         ];
 
         return
@@ -291,9 +290,9 @@ class Filter extends Filters
      * Echo filter form.
      *
      * @param array|string $adminurl The registered adminurl
-     * @param string       $extra    The extra contents
+     * @param string       $append   The extra contents
      */
-    public function display(array|string $adminurl, string $extra = ''): void
+    public function display(array|string $adminurl, string $append = ''): void
     {
         $tab = '';
         if (is_array($adminurl)) {
@@ -309,11 +308,11 @@ class Filter extends Filters
         $prime = true;
         $cols  = [];
         foreach ($this->filters as $filter) {
-            if (in_array($filter->get('id'), ['sortby', 'order', 'nb'])) {
+            if (in_array($filter->get(key: 'id'), ['sortby', 'order', 'nb'])) {
                 continue;
             }
-            if ('' != $filter->get('html')) {
-                $cols[$filter->get('prime') ? 1 : 0][$filter->get('id')] = sprintf('<p>%s</p>', $filter->get('html'));
+            if ('' != $filter->get(key: 'html')) {
+                $cols[$filter->get(key: 'prime') ? 1 : 0][$filter->get(key: 'id')] = sprintf('<p>%s</p>', $filter->get(key: 'html'));
             }
         }
         sort($cols);
@@ -332,14 +331,12 @@ class Filter extends Filters
             '<h4>' . __('Display options') . '</h4>';
 
             if (isset($this->filters['sortby'])) {
-                $label = Form\Label::init(__('Order by:'), Form\Label::OUTSIDE_LABEL_BEFORE, 'sortby')
-                    ->set('class', 'ib')
-                ;
+                $label = new Form\Label(__('Order by:'), Form\Label::OUTSIDE_LABEL_BEFORE, 'sortby');
+                $label->set('class', 'ib');
 
-                $select = Form\Select::init('sortby')
-                    ->set('default', $this->filters['sortby']->get('value'))
-                    ->set('items', $this->filters['sortby']->get('options'))
-                ;
+                $select = new Form\Select('sortby');
+                $select->set('default', $this->filters['sortby']->get(key: 'value'));
+                $select->set('items', $this->filters['sortby']->get(key: 'options'));
 
                 echo sprintf(
                     '<p>%s</p>',
@@ -347,14 +344,12 @@ class Filter extends Filters
                 );
             }
             if (isset($this->filters['order'])) {
-                $label = Form\Label::init(__('Sort:'), Form\Label::OUTSIDE_LABEL_BEFORE, 'order')
-                    ->set('class', 'ib')
-                ;
+                $label = new Form\Label(__('Sort:'), Form\Label::OUTSIDE_LABEL_BEFORE, 'order');
+                $label->set('class', 'ib');
 
-                $select = Form\Select::init('order')
-                    ->set('default', $this->filters['order']->get('value'))
-                    ->set('items', $this->filters['order']->get('options'))
-                ;
+                $select = new Form\Select('order');
+                $select->set('default', $this->filters['order']->get(key: 'value'));
+                $select->set('items', $this->filters['order']->get(key: 'options'));
 
                 echo sprintf(
                     '<p>%s</p>',
@@ -362,15 +357,13 @@ class Filter extends Filters
                 );
             }
             if (isset($this->filters['nb'])) {
-                $label = Form\Label::init($this->filters['nb']->get('title'), Form\Label::INSIDE_TEXT_AFTER, 'nb')
-                    ->set('class', 'classic')
-                ;
+                $label = new Form\Label($this->filters['nb']->get(key: 'title'), Form\Label::INSIDE_TEXT_AFTER, 'nb');
+                $label->set('class', 'classic');
 
-                $number = Form\Number::init('nb')
-                    ->set('min', 0)
-                    ->set('max', 999)
-                    ->set('value', $this->filters['nb']->get('value'))
-                ;
+                $number = new Form\Number('nb');
+                $number->set('min', 0);
+                $number->set('max', 999);
+                $number->set('value', $this->filters['nb']->get(key: 'value'));
 
                 echo sprintf(
                     '<p><span class="label ib">' . __('Show') . '</span> %s</p>',
@@ -389,9 +382,79 @@ class Filter extends Filters
         '<p><input type="submit" value="' . __('Apply filters and display options') . '" />' .
         Form::hidden(['handler'], $adminurl) .
 
-        $extra .
+        $append .
 
         '<br class="clear" /></p>' . // Opera sucks
         '</form>';
     }
+
+    // / @name Common filters methods
+    // @{
+    /**
+     * Common default input field.
+     *
+     * @param string      $id    The form id
+     * @param string      $title The form name
+     * @param null|string $param The form parameters
+     */
+    public function getInputFilter(string $id, string $title, ?string $param = null): Filter
+    {
+        $filter = new Filter(id: $id);
+        $filter->param(name: $param ?: $id);
+        $filter->form(type: 'input');
+        $filter->title(title: $title);
+
+        return $filter;
+    }
+
+    /**
+     * Common default select field.
+     *
+     * @param string      $id      The form id
+     * @param string      $title   The form title
+     * @param array       $options The form options
+     * @param null|string $param   The form parameters
+     */
+    public function getSelectFilter(string $id, string $title, array $options, ?string $param = null): ?Filter
+    {
+        if (empty($options)) {
+            return null;
+        }
+
+        $filter = new Filter(id: $id);
+        $filter->param(name: $param ?: $id);
+        $filter->title(title: $title);
+        $filter->options(options: $options);
+
+        return $filter;
+    }
+
+    /**
+     * Common page filter (no field).
+     *
+     * @param string $id The id
+     */
+    public function getPageFilter(string $id = 'page'): Filter
+    {
+        $filter = new Filter(id: $id);
+        $filter->value(value: !GPC::get()->empty($id) ? max(1, GPC::get()->int($id)) : 1);
+        $filter->param(name: 'limit', value: fn ($f) => [(($f[0] - 1) * $f['nb']), $f['nb']]);
+
+        return $filter;
+    }
+
+    /**
+     * Common search field.
+     */
+    public function getSearchFilter(): Filter
+    {
+        $filter = new Filter(id: 'q');
+        $filter->param(name: 'q', value: fn ($f) => $f['q']);
+        $filter->form(type: 'input');
+        $filter->title(title: __('Search:'));
+        $filter->prime(prime: true);
+
+        return $filter;
+    }
+    // @}
 }

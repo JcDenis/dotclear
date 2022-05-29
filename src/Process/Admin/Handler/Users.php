@@ -15,7 +15,7 @@ use Dotclear\Core\RsExt\RsExtUser;
 use Dotclear\Database\Param;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\GPC\GPC;
-use Dotclear\Process\Admin\Filter\Filter\UserFilter;
+use Dotclear\Process\Admin\Filter\Filter\UserFilters;
 use Dotclear\Process\Admin\Inventory\Inventory\UserInventory;
 use Dotclear\Process\Admin\Page\AbstractPage;
 
@@ -31,9 +31,9 @@ class Users extends AbstractPage
         return '';
     }
 
-    protected function getFilterInstance(): ?UserFilter
+    protected function getFilterInstance(): ?UserFilters
     {
-        return new UserFilter();
+        return new UserFilters();
     }
 
     protected function getInventoryInstance(): ?UserInventory
@@ -52,10 +52,10 @@ class Users extends AbstractPage
         App::core()->behavior()->call('adminUsersSortbyLexCombo', [&$sortby_lex]);
 
         $param->set('order', (
-            array_key_exists($this->filter->get('sortby'), $sortby_lex) ?
-            App::core()->con()->lexFields($sortby_lex[$this->filter->get('sortby')]) :
-            $this->filter->get('sortby')
-        ) . ' ' . $this->filter->get('order'));
+            array_key_exists($this->filter->get(id: 'sortby'), $sortby_lex) ?
+            App::core()->con()->lexFields($sortby_lex[$this->filter->get(id: 'sortby')]) :
+            $this->filter->get(id: 'sortby')
+        ) . ' ' . $this->filter->get(id: 'order'));
 
         // --BEHAVIOR-- adminGetUsers, Param
         App::core()->behavior()->call('adminGetUsers', $param);
@@ -63,11 +63,11 @@ class Users extends AbstractPage
         $rs       = App::core()->users()->getUsers(param: $param);
         $count    = App::core()->users()->countUsers(param: $param);
         $rsStatic = $rs->toStatic();
-        if ('nb_post' != $this->filter->get('sortby')) {
+        if ('nb_post' != $this->filter->get(id: 'sortby')) {
             // Sort user list using lexical order if necessary
             $rsStatic->extend(new RsExtUser());
             // $rsStatic = $rsStatic->toExtStatic();
-            $rsStatic->lexicalSort($this->filter->get('sortby'), $this->filter->get('order'));
+            $rsStatic->lexicalSort($this->filter->get(id: 'sortby'), $this->filter->get(id: 'order'));
         }
 
         return new UserInventory($rsStatic, $count);
@@ -110,12 +110,12 @@ class Users extends AbstractPage
 
         echo '<p class="top-add"><strong><a class="button add" href="' . App::core()->adminurl()->get('admin.user') . '">' . __('New user') . '</a></strong></p>';
 
-        $this->filter->display('admin.users');
+        $this->filter->display(adminurl: 'admin.users');
 
         // Show users
         $this->inventory->display(
-            $this->filter->get('page'),
-            $this->filter->get('nb'),
+            $this->filter->get(id: 'page'),
+            $this->filter->get(id: 'nb'),
             '<form action="' . App::core()->adminurl()->root() . '" method="post" id="form-users">' .
 
             '%s' .
@@ -130,7 +130,7 @@ class Users extends AbstractPage
             '<input id="do-action" type="submit" value="' . __('ok') . '" />' .
             '</p>' .
             '</div>' .
-            App::core()->adminurl()->getHiddenFormFields('admin.user.actions', $this->filter->values(true), true) .
+            App::core()->adminurl()->getHiddenFormFields('admin.user.actions', $this->filter->values(escape: true), true) .
             '</form>',
             $this->filter->show()
         );
