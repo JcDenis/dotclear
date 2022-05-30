@@ -37,9 +37,9 @@ class RsExtDate extends RsExtend
     /**
      * Get date year.
      */
-    public function year(): string
+    public function year(): int
     {
-        return Clock::format(
+        return (int) Clock::format(
             format: 'Y',
             date: $this->ts(),
             from: App::core()->timezone(),
@@ -50,9 +50,9 @@ class RsExtDate extends RsExtend
     /**
      * Get date month.
      */
-    public function month(): string
+    public function month(): int
     {
-        return Clock::format(
+        return (int) Clock::format(
             format: 'm',
             date: $this->ts(),
             from: App::core()->timezone(),
@@ -63,9 +63,9 @@ class RsExtDate extends RsExtend
     /**
      * Get date day.
      */
-    public function day(): string
+    public function day(): int
     {
-        return Clock::format(
+        return (int) Clock::format(
             format: 'd',
             date: $this->ts(),
             from: App::core()->timezone(),

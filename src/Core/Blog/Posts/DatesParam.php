@@ -32,31 +32,31 @@ final class DatesParam extends Param
     /**
      * Get dates for given year.
      *
-     * @return null|string The date year
+     * @return null|int The date year
      */
-    public function year(): ?string
+    public function year(): ?int
     {
-        return $this->getCleanedValue('year', 'string');
+        return $this->getCleanedValue('year', 'int');
     }
 
     /**
      * Get dates for given month.
      *
-     * @return null|string The date month
+     * @return null|int The date month
      */
-    public function month(): ?string
+    public function month(): ?int
     {
-        return $this->getCleanedValue('month', 'string');
+        return $this->getCleanedValue('month', 'int');
     }
 
     /**
      * Get dates for given day.
      *
-     * @return null|string The date day
+     * @return null|int The date day
      */
-    public function day(): ?string
+    public function day(): ?int
     {
-        return $this->getCleanedValue('day', 'string');
+        return $this->getCleanedValue('day', 'int');
     }
 
     /**

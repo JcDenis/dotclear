@@ -134,31 +134,31 @@ final class PostsParam extends Param
     /**
      * Get blogs with given post year.
      *
-     * @return null|string The post year
+     * @return null|int The post year
      */
-    public function post_year(): ?string
+    public function post_year(): ?int
     {
-        return $this->getCleanedValue('post_year', 'string');
+        return $this->getCleanedValue('post_year', 'int');
     }
 
     /**
      * Get blogs with given post month.
      *
-     * @return null|string The post month
+     * @return null|int The post month
      */
-    public function post_month(): ?string
+    public function post_month(): ?int
     {
-        return $this->getCleanedValue('post_month', 'string');
+        return $this->getCleanedValue('post_month', 'int');
     }
 
     /**
      * Get blogs with given post day.
      *
-     * @return null|string The post day
+     * @return null|int The post day
      */
-    public function post_day(): ?string
+    public function post_day(): ?int
     {
-        return $this->getCleanedValue('post_day', 'string');
+        return $this->getCleanedValue('post_day', 'int');
     }
 
     /**
