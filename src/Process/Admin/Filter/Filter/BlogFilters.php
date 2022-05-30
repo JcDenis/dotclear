@@ -24,7 +24,7 @@ class BlogFilters extends Filters
 {
     public function __construct()
     {
-        parent::__construct(type: 'blogs', filters: new FilterStack(
+        parent::__construct(id: 'blogs', filters: new FilterStack(
             $this->getPageFilter(),
             $this->getSearchFilter(),
             $this->getBlogStatusFilter()
@@ -36,15 +36,17 @@ class BlogFilters extends Filters
      */
     public function getBlogStatusFilter(): Filter
     {
-        $filter = new Filter('status');
-        $filter->param('blog_status', fn ($f) => (int) $f[0]);
-        $filter->title(__('Status:'));
-        $filter->options(array_merge(
-            ['-' => ''],
-            App::core()->combo()->getBlogStatusesCombo()
-        ));
-        $filter->prime(true);
-
-        return $filter;
+        return new Filter(
+            id: 'status',
+            title: __('Status:'),
+            params: [
+                ['blog_status', fn ($f) => (int) $f[0]],
+            ],
+            options: array_merge(
+                ['-' => ''],
+                App::core()->combo()->getBlogStatusesCombo()
+            ),
+            prime: true
+        );
     }
 }

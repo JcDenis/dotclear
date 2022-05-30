@@ -37,17 +37,17 @@ class MediaInventory extends Inventory
      */
     public function display(MediaFilters $filters, string $enclose_block = '', bool $query = false, string $page_adminurl = 'admin.media'): void
     {
-        $nb_items   = $this->rs_count - ($filters->get('d') ? 1 : 0);
-        $nb_folders = $filters->get('d') ? -1 : 0;
+        $nb_items   = $this->rs_count - ($filters->getValue(id: 'd') ? 1 : 0);
+        $nb_folders = $filters->getValue(id: 'd') ? -1 : 0;
 
-        if ($filters->get('q') && !$query) {
+        if ($filters->getValue(id: 'q') && !$query) {
             echo '<p><strong>' . __('No file matches the filter') . '</strong></p>';
         } elseif (1 > $nb_items) {
             echo '<p><strong>' . __('No file.') . '</strong></p>';
         }
 
-        if ($this->rs_count && !($filters->get('q') && !$query)) {
-            $pager = new Pager($filters->get('page'), $this->rs_count, $filters->get('nb'), 10);
+        if ($this->rs_count && !($filters->getValue(id: 'q') && !$query)) {
+            $pager = new Pager($filters->getValue(id: 'page'), $this->rs_count, $filters->getValue(id: 'nb'), 10);
 
             $items = $this->rs->rows();
             foreach ($items as $item) {
@@ -57,7 +57,7 @@ class MediaInventory extends Inventory
             }
             $nb_files = $nb_items - $nb_folders;
 
-            if ($filters->show() && $query) {
+            if ($filters->isUnfolded() && $query) {
                 $caption = sprintf(__('%d file matches the filter.', '%d files match the filter.', $nb_items), $nb_items);
             } else {
                 $caption = ($nb_files && $nb_folders ?
@@ -70,7 +70,7 @@ class MediaInventory extends Inventory
                 $group[$items[$i]->d ? 'dirs' : 'files'][] = $this->mediaLine($filters, $items[$i], $j, $query, $page_adminurl);
             }
 
-            if ('list' == $filters->get('file_mode')) {
+            if ('list' == $filters->getValue(id: 'file_mode')) {
                 $table = sprintf(
                     '<div class="table-outer">' .
                     '<table class="media-items-bloc">' .
@@ -113,11 +113,11 @@ class MediaInventory extends Inventory
         $file  = $query ? $f->relname : $f->basename;
 
         $class = 'media-item-bloc'; // cope with js message for grid AND list
-        $class .= 'list' == $filters->get('file_mode') ? '' : ' media-item media-col-' . ($i % 2);
+        $class .= 'list' == $filters->getValue(id: 'file_mode') ? '' : ' media-item media-col-' . ($i % 2);
 
         if ($f->d) {
             // Folder
-            $link = App::core()->adminurl()->get('admin.media', array_merge($filters->values(), ['d' => Html::sanitizeURL($f->relname)]));
+            $link = App::core()->adminurl()->get('admin.media', array_merge($filters->getValues(), ['d' => Html::sanitizeURL($f->relname)]));
             if ($f->parent) {
                 $fname = '..';
                 $class .= ' media-folder-up';
@@ -126,7 +126,7 @@ class MediaInventory extends Inventory
             }
         } else {
             // Item
-            $params = array_merge($filters->values(), ['id' => $f->media_id]);
+            $params = array_merge($filters->getValues(), ['id' => $f->media_id]);
 
             // !App::core()->behavior()->call('adminMediaURLParams', $params);
 
@@ -143,8 +143,8 @@ class MediaInventory extends Inventory
 
         $act = '';
         if (!$f->d) {
-            if (0 < $filters->get('select')) {
-                if (1 == $filters->get('select')) {
+            if (0 < $filters->getValue(id: 'select')) {
+                if (1 == $filters->getValue(id: 'select')) {
                     // Single media selection button
                     $act .= '<a href="' . $link . '"><img src="?df=images/plus.png" alt="' . __('Select this file') . '" ' .
                     'title="' . __('Select this file') . '" /></a> ';
@@ -154,18 +154,18 @@ class MediaInventory extends Inventory
                 }
             } else {
                 // Item
-                if ($filters->get('post_id')) {
+                if ($filters->getValue(id: 'post_id')) {
                     // Media attachment button
                     $act .= '<a class="attach-media" title="' . __('Attach this file to entry') . '" href="' .
                     App::core()->adminurl()->get(
                         'admin.post.media',
-                        ['media_id' => $f->media_id, 'post_id' => $filters->get('post_id'), 'attach' => 1, 'link_type' => $filters->get('link_type')]
+                        ['media_id' => $f->media_id, 'post_id' => $filters->getValue(id: 'post_id'), 'attach' => 1, 'link_type' => $filters->getValue(id: 'link_type')]
                     ) .
                     '">' .
                     '<img src="?df=images/plus.png" alt="' . __('Attach this file to entry') . '"/>' .
                         '</a>';
                 }
-                if ($filters->get('popup')) {
+                if ($filters->getValue(id: 'popup')) {
                     // Media insertion button
                     $act .= '<a href="' . $link . '"><img src="?df=images/plus.png" alt="' . __('Insert this file into entry') . '" ' .
                     'title="' . __('Insert this file into entry') . '" /></a> ';
@@ -174,14 +174,14 @@ class MediaInventory extends Inventory
         }
         if ($f->del) {
             // Deletion button or checkbox
-            if (!$filters->get('popup') && !$f->d) {
-                if (2 > $filters->get('select')) {
+            if (!$filters->getValue(id: 'popup') && !$f->d) {
+                if (2 > $filters->getValue(id: 'select')) {
                     // Already set for multiple media selection
                     $act .= Form::checkbox(['medias[]', 'media_' . rawurlencode($file)], $file);
                 }
             } else {
                 $act .= '<a class="media-remove" ' .
-                'href="' . App::core()->adminurl()->get($page_adminurl, array_merge($filters->values(), ['remove' => rawurlencode($file)])) . '">' .
+                'href="' . App::core()->adminurl()->get($page_adminurl, array_merge($filters->getValues(), ['remove' => rawurlencode($file)])) . '">' .
                 '<img src="?df=images/trash.png" alt="' . __('Delete') . '" title="' . __('delete') . '" /></a>';
             }
         }
@@ -190,7 +190,7 @@ class MediaInventory extends Inventory
         $class_open = 'class="modal-' . $file_type[0] . '" ';
 
         // Render markup
-        if ('list' != $filters->get('file_mode')) {
+        if ('list' != $filters->getValue(id: 'file_mode')) {
             $res = '<div class="' . $class . '"><p><a class="media-icon media-link" href="' . rawurldecode($link) . '">' .
             '<img class="media-icon-square" src="' . $f->media_icon . '" alt="" />' . ($query ? $file : $fname) . '</a></p>';
 

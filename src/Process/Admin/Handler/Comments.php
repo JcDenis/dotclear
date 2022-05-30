@@ -45,7 +45,7 @@ class Comments extends AbstractPage
 
     protected function getInventoryInstance(): ?CommentInventory
     {
-        $param = $this->filter->params();
+        $param = $this->filter->getParams();
 
         // lexical sort
         $sortby_lex = [
@@ -58,13 +58,13 @@ class Comments extends AbstractPage
         App::core()->behavior()->call('adminCommentsSortbyLexCombo', [&$sortby_lex]);
 
         $param->set('order', (
-            array_key_exists($this->filter->get(id: 'sortby'), $sortby_lex) ?
-                App::core()->con()->lexFields($sortby_lex[$this->filter->get(id: 'sortby')]) :
-                $this->filter->get(id: 'sortby')
-        ) . ' ' . $this->filter->get(id: 'order'));
+            array_key_exists($this->filter->getValue(id: 'sortby'), $sortby_lex) ?
+                App::core()->con()->lexFields($sortby_lex[$this->filter->getValue(id: 'sortby')]) :
+                $this->filter->getValue(id: 'sortby')
+        ) . ' ' . $this->filter->getValue(id: 'order'));
 
         // default filter ? do not display spam
-        if (!$this->filter->show() && '' == $this->filter->get(id: 'status')) {
+        if (!$this->filter->isUnfolded() && '' == $this->filter->getValue(id: 'status')) {
             $param->set('comment_status_not', -2);
         }
         $param->set('no_content', true);
@@ -91,7 +91,7 @@ class Comments extends AbstractPage
         $this
             ->setPageTitle(__('Comments and trackbacks'))
             ->setPageHelp('core_comments')
-            ->setPageHead(App::core()->resource()->load('_comments.js') . $this->filter->js())
+            ->setPageHead(App::core()->resource()->load('_comments.js') . $this->filter?->getFoldableJSCode())
             ->setPageBreadcrumb([
                 Html::escapeHTML(App::core()->blog()->name) => '',
                 __('Comments and trackbacks')               => '',
@@ -115,7 +115,7 @@ class Comments extends AbstractPage
 
         $combo_action = [];
         $default      = '';
-        if (App::core()->user()->check('delete,contentadmin', App::core()->blog()->id) && -2 == $this->filter->get(id: 'status')) {
+        if (App::core()->user()->check('delete,contentadmin', App::core()->blog()->id) && -2 == $this->filter->getValue(id: 'status')) {
             $default = 'delete';
         }
 
@@ -130,7 +130,7 @@ class Comments extends AbstractPage
         if (0 < $spam_count) {
             echo '<form action="' . App::core()->adminurl()->root() . '" method="post" class="fieldset">';
 
-            if (!$this->filter->show() || -2 != $this->filter->get(id: 'status')) {
+            if (!$this->filter->isUnfolded() || -2 != $this->filter->getValue(id: 'status')) {
                 if (1 == $spam_count) {
                     echo '<p>' . sprintf(__('You have one spam comment.'), '<strong>' . $spam_count . '</strong>') . ' ' .
                     '<a href="' . App::core()->adminurl()->get('admin.comments', ['status' => -2]) . '">' . __('Show it.') . '</a></p>';
@@ -150,12 +150,12 @@ class Comments extends AbstractPage
             echo '</form>';
         }
 
-        $this->filter->display('admin.comments');
+        $this->filter?->displayHTMLForm('admin.comments');
 
         // Show comments
-        $this->inventory->display(
-            $this->filter->get(id: 'page'),
-            $this->filter->get(id: 'nb'),
+        $this->inventory?->display(
+            $this->filter->getValue(id: 'page'),
+            $this->filter->getValue(id: 'nb'),
             '<form action="' . App::core()->adminurl()->root() . '" method="post" id="form-comments">' .
 
             '%s' .
@@ -170,12 +170,12 @@ class Comments extends AbstractPage
                 ['default' => $default, 'extra_html' => 'title="' . __('Actions') . '"']
             ) .
             '<input id="do-action" type="submit" value="' . __('ok') . '" /></p>' .
-            App::core()->adminurl()->getHiddenFormFields('admin.comments', $this->filter->values(escape: true), true) .
+            App::core()->adminurl()->getHiddenFormFields('admin.comments', $this->filter->getEscapeValues(), true) .
             '</div>' .
 
             '</form>',
-            $this->filter->show(),
-            ($this->filter->show() || -2 == $this->filter->get(id: 'status')),
+            $this->filter->isUnfolded(),
+            ($this->filter->isUnfolded() || -2 == $this->filter->getValue(id: 'status')),
             App::core()->user()->check('contentadmin', App::core()->blog()->id)
         );
     }

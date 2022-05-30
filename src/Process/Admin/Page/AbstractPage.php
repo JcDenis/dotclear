@@ -79,20 +79,20 @@ abstract class AbstractPage
     private $page_xframe_loaded = false;
 
     /**
-     * @var object $action
-     *             Action instance
+     * @var null|object $action
+     *                  Action instance
      */
     protected $action;
 
     /**
-     * @var object $filter
-     *             Filter instance
+     * @var null|object $filter
+     *                  Filters instance
      */
     protected $filter;
 
     /**
-     * @var object $inventory
-     *             Inventory instance
+     * @var null|object $inventory
+     *                  Inventory instance
      */
     protected $inventory;
 

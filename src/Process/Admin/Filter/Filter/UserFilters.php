@@ -24,7 +24,7 @@ class UserFilters extends Filters
 {
     public function __construct()
     {
-        parent::__construct(type: 'users', filters: new FilterStack(
+        parent::__construct(id: 'users', filters: new FilterStack(
             $this->getPageFilter(),
             $this->getSearchFilter()
         ));

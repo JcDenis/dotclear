@@ -38,7 +38,7 @@ class Users extends AbstractPage
 
     protected function getInventoryInstance(): ?UserInventory
     {
-        $param = $this->filter->params();
+        $param = $this->filter->getParams();
 
         // lexical sort
         $sortby_lex = [
@@ -52,10 +52,10 @@ class Users extends AbstractPage
         App::core()->behavior()->call('adminUsersSortbyLexCombo', [&$sortby_lex]);
 
         $param->set('order', (
-            array_key_exists($this->filter->get(id: 'sortby'), $sortby_lex) ?
-            App::core()->con()->lexFields($sortby_lex[$this->filter->get(id: 'sortby')]) :
-            $this->filter->get(id: 'sortby')
-        ) . ' ' . $this->filter->get(id: 'order'));
+            array_key_exists($this->filter->getValue(id: 'sortby'), $sortby_lex) ?
+            App::core()->con()->lexFields($sortby_lex[$this->filter->getValue(id: 'sortby')]) :
+            $this->filter->getValue(id: 'sortby')
+        ) . ' ' . $this->filter->getValue(id: 'order'));
 
         // --BEHAVIOR-- adminGetUsers, Param
         App::core()->behavior()->call('adminGetUsers', $param);
@@ -63,11 +63,11 @@ class Users extends AbstractPage
         $rs       = App::core()->users()->getUsers(param: $param);
         $count    = App::core()->users()->countUsers(param: $param);
         $rsStatic = $rs->toStatic();
-        if ('nb_post' != $this->filter->get(id: 'sortby')) {
+        if ('nb_post' != $this->filter->getValue(id: 'sortby')) {
             // Sort user list using lexical order if necessary
             $rsStatic->extend(new RsExtUser());
             // $rsStatic = $rsStatic->toExtStatic();
-            $rsStatic->lexicalSort($this->filter->get(id: 'sortby'), $this->filter->get(id: 'order'));
+            $rsStatic->lexicalSort($this->filter->getValue(id: 'sortby'), $this->filter->getValue(id: 'order'));
         }
 
         return new UserInventory($rsStatic, $count);
@@ -78,7 +78,7 @@ class Users extends AbstractPage
         $this
             ->setPageTitle(__('Users'))
             ->setPageHelp('core_users')
-            ->setPageHead(App::core()->resource()->load('_users.js') . $this->filter->js())
+            ->setPageHead(App::core()->resource()->load('_users.js') . $this->filter?->getFoldableJSCode())
             ->setPageBreadcrumb([
                 __('System') => '',
                 __('Users')  => '',
@@ -110,12 +110,12 @@ class Users extends AbstractPage
 
         echo '<p class="top-add"><strong><a class="button add" href="' . App::core()->adminurl()->get('admin.user') . '">' . __('New user') . '</a></strong></p>';
 
-        $this->filter->display(adminurl: 'admin.users');
+        $this->filter->displayHTMLForm(adminurl: 'admin.users');
 
         // Show users
         $this->inventory->display(
-            $this->filter->get(id: 'page'),
-            $this->filter->get(id: 'nb'),
+            $this->filter->getValue(id: 'page'),
+            $this->filter->getValue(id: 'nb'),
             '<form action="' . App::core()->adminurl()->root() . '" method="post" id="form-users">' .
 
             '%s' .
@@ -130,9 +130,9 @@ class Users extends AbstractPage
             '<input id="do-action" type="submit" value="' . __('ok') . '" />' .
             '</p>' .
             '</div>' .
-            App::core()->adminurl()->getHiddenFormFields('admin.user.actions', $this->filter->values(escape: true), true) .
+            App::core()->adminurl()->getHiddenFormFields('admin.user.actions', $this->filter->getEscapeValues(), true) .
             '</form>',
-            $this->filter->show()
+            $this->filter->isUnfolded()
         );
     }
 }

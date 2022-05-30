@@ -44,7 +44,7 @@ class Posts extends AbstractPage
     protected function getInventoryInstance(): ?PostInventory
     {
         // get list params
-        $param = $this->filter->params();
+        $param = $this->filter->getParams();
 
         // lexical sort
         $sortby_lex = [
@@ -57,10 +57,10 @@ class Posts extends AbstractPage
         App::core()->behavior()->call('adminPostsSortbyLexCombo', [&$sortby_lex]);
 
         $param->set('order', (
-            array_key_exists($this->filter->get(id: 'sortby'), $sortby_lex) ?
-            App::core()->con()->lexFields($sortby_lex[$this->filter->get(id: 'sortby')]) :
-            $this->filter->get(id: 'sortby')
-        ) . ' ' . $this->filter->get(id: 'order'));
+            array_key_exists($this->filter->getValue(id: 'sortby'), $sortby_lex) ?
+            App::core()->con()->lexFields($sortby_lex[$this->filter->getValue(id: 'sortby')]) :
+            $this->filter->getValue(id: 'sortby')
+        ) . ' ' . $this->filter->getValue(id: 'order'));
 
         $param->set('no_content', true);
 
@@ -75,7 +75,7 @@ class Posts extends AbstractPage
         $this->setPageHelp('core_posts');
         $this->setPageTitle(__('Posts'));
         $this->setPageHead(
-            $this->filter->js() .
+            $this->filter?->getFoldableJSCode() .
             App::core()->resource()->load('_posts_list.js')
         );
         $this->setPageBreadcrumb([
@@ -98,12 +98,12 @@ class Posts extends AbstractPage
             echo '<p class="top-add"><a class="button add" href="' . App::core()->adminurl()->get('admin.post') . '">' . __('New post') . '</a></p>';
 
             // filters
-            $this->filter->display(adminurl: 'admin.posts');
+            $this->filter->displayHTMLForm(adminurl: 'admin.posts');
 
             // Show posts
             $this->inventory->display(
-                $this->filter->get(id: 'page'),
-                $this->filter->get(id: 'nb'),
+                $this->filter->getValue(id: 'page'),
+                $this->filter->getValue(id: 'nb'),
                 '<form action="' . App::core()->adminurl()->root() . '" method="post" id="form-entries">' .
 
                 '%s' .
@@ -114,10 +114,10 @@ class Posts extends AbstractPage
                 '<p class="col right"><label for="action" class="classic">' . __('Selected entries action:') . '</label> ' .
                 Form::combo('action', $this->action->getCombo()) .
                 '<input id="do-action" type="submit" value="' . __('ok') . '" disabled /></p>' .
-                App::core()->adminurl()->getHiddenFormFields('admin.posts', $this->filter->values(), true) .
+                App::core()->adminurl()->getHiddenFormFields('admin.posts', $this->filter->getValues(), true) .
                 '</div>' .
                 '</form>',
-                $this->filter->show()
+                $this->filter->isUnfolded()
             );
         }
     }

@@ -26,48 +26,66 @@ use Dotclear\Helper\Html\Form\Input as FormInput;
  *
  * @since 2.20
  */
-class Filter
+final class Filter
 {
-    /**
-     * @var array<string,mixed> $properties
-     *                          The filter properties
-     */
-    protected $properties = [
-        'id'      => '',
-        'value'   => null,
-        'form'    => 'none',
-        'prime'   => false,
-        'title'   => '',
-        'options' => [],
-        'html'    => '',
-        'params'  => [],
-    ];
-
     /**
      * Constructs a new filter.
      *
-     * @param string $id    The filter id
-     * @param mixed  $value The filter value
+     * @param string              $id       The filter id
+     * @param mixed               $value    The filter value
+     * @param string              $type     The filter type
+     * @param string              $title    The filter title
+     * @param array<string,mixed> $options  The filter select combo options
+     * @param string              $contents The filters contents (commonly HTML)
+     * @param array<int,array>    $params   The filter params (for db query)
+     * @param bool                $prime    The filter is placed in first column
      */
-    public function __construct(string $id, mixed $value = null)
-    {
-        if (!preg_match('/^[A-Za-z0-9_-]+$/', $id)) {
+    public function __construct(
+        private string $id,
+        private mixed $value = null,
+        private string $type = 'default',
+        private string $title = '',
+        private array $options = [],
+        private string $contents = '',
+        private array $params = [],// [[null, null],],
+        private bool $prime = false
+    ) {
+        if (!preg_match('/^[A-Za-z0-9_-]+$/', $this->id)) {
             throw new InvalidValueFormat('not a valid id');
         }
-        $this->properties['id']    = $id;
-        $this->properties['value'] = $value;
+        if (!in_array($this->type, ['default', 'none', 'input', 'select', 'html'])) {
+            throw new InvalidValueFormat('not a valid type');
+        }
+
+        if ('default' == $this->type) {
+            if (!empty($this->options)) {
+                $this->type = 'select';
+            } elseif (!empty($this->contents)) {
+                $this->type = 'html';
+            }
+        }
+
+        foreach ($this->params as $param) {
+            // filter id as param name
+            if (null === $param[0]) {
+                $param[0] = $this->id;
+            }
+            // filter value as param value
+            if (null === $param[1]) {
+                $param[1] = fn ($f) => $f[0];
+            }
+            $this->params[] = [$param[0], $param[1]];
+        }
     }
 
     /**
-     * Check if filter property exists.
+     * Update filter value.
      *
-     * @param string $key The property
-     *
-     * @return bool Is set
+     * @param mixed $value The filter value
      */
-    public function exists(string $key): bool
+    public function setValue(mixed $value): void
     {
-        return isset($this->properties[$key]);
+        $this->value = $value;
     }
 
     /**
@@ -77,113 +95,9 @@ class Filter
      *
      * @return mixed The value
      */
-    public function get(string $key): mixed
+    public function getProperty(string $key): mixed
     {
-        return $this->properties[$key] ?? null;
-    }
-
-    /**
-     * Set a property value.
-     *
-     * @param string $key   The property
-     * @param mixed  $value The value
-     */
-    public function set(string $key, mixed $value): void
-    {
-        if (isset($this->properties[$key]) && method_exists($this, $key)) {
-            call_user_func([$this, $key], $value);
-        }
-    }
-
-    /**
-     * Set filter form type.
-     *
-     * @param string $type The type
-     */
-    public function form(string $type): void
-    {
-        if (in_array($type, ['none', 'input', 'select', 'html'])) {
-            $this->properties['form'] = $type;
-        }
-    }
-
-    /**
-     * Set filter form title.
-     *
-     * @param string $title The title
-     */
-    public function title(string $title): void
-    {
-        $this->properties['title'] = $title;
-    }
-
-    /**
-     * Set filter form options.
-     *
-     * If filter form is a select box, this is the select options
-     *
-     * @param array $options The options
-     * @param bool  $typed   Auto set form type
-     */
-    public function options(array $options, bool $typed = true): void
-    {
-        $this->properties['options'] = $options;
-        if ($typed) {
-            $this->form(type: 'select');
-        }
-    }
-
-    /**
-     * Set filter value.
-     *
-     * @param mixed $value The value
-     */
-    public function value(mixed $value): void
-    {
-        $this->properties['value'] = $value;
-    }
-
-    /**
-     * Set filter column in form.
-     *
-     * @param bool $prime First column
-     */
-    public function prime(bool $prime): void
-    {
-        $this->properties['prime'] = $prime;
-    }
-
-    /**
-     * Set filter html contents.
-     *
-     * @param string $contents The contents
-     * @param bool   $typed    Auto set form type
-     */
-    public function html(string $contents, bool $typed = true): void
-    {
-        $this->properties['html'] = $contents;
-        if ($typed) {
-            $this->form(type: 'html');
-        }
-    }
-
-    /**
-     * Set filter param (list query param).
-     *
-     * @param null|string $name  The param name
-     * @param mixed       $value The param value
-     */
-    public function param(?string $name = null, mixed $value = null): void
-    {
-        // filter id as param name
-        if (null === $name) {
-            $name = $this->properties['id'];
-        }
-        // filter value as param value
-        if (null === $value) {
-            $value = fn ($f) => $f[0];
-        }
-        $this->properties['params'][] = [$name, $value];
+        return $this->{$key} ?? null;
     }
 
     /**
@@ -191,44 +105,44 @@ class Filter
      *
      * Only input and select forms are parsed
      */
-    public function parse(): void
+    public function parsePropertries(): void
     {
         // form select
-        if ('select' == $this->get(key: 'form')) {
+        if ('select' == $this->type) {
             // _GET value
-            if (null === $this->get(key: 'value')) {
-                $get = GPC::get()->string($this->get(key: 'id'));
-                if ('' === $get || !in_array($get, $this->get(key: 'options'), true)) {
+            if (null === $this->value) {
+                $get = GPC::get()->string($this->id);
+                if ('' === $get || !in_array($get, $this->options, true)) {
                     $get = '';
                 }
-                $this->value(value: $get);
+                $this->value = $get;
             }
             // HTML field
-            $form = new FormSelect($this->get(key: 'id'));
-            $form->set('default', $this->get(key: 'value'));
-            $form->set('items', $this->get(key: 'options'));
+            $form = new FormSelect($this->id);
+            $form->set('default', $this->value);
+            $form->set('items', $this->options);
 
-            $label = new FormLabel($this->get(key: 'title'), 2, $this->get(key: 'id'));
+            $label = new FormLabel($this->title, 2, $this->id);
             $label->set('class', 'ib');
 
-            $this->html(contents: $label->render($form->render()), typed: false);
+            $this->contents = $label->render($form->render());
 
         // form input
-        } elseif ('input' == $this->get(key: 'form')) {
+        } elseif ('input' == $this->type) {
             // _GET value
-            if (null === $this->get(key: 'value')) {
-                $this->value(value: GPC::get()->string($this->get(key: 'id')));
+            if (null === $this->value) {
+                $this->value = GPC::get()->string($this->id);
             }
             // HTML field
-            $form = new FormInput($this->get(key: 'id'));
+            $form = new FormInput($this->id);
             $form->set('size', 20);
             $form->set('maxlength', 255);
-            $form->set('value', $this->get(key: 'value'));
+            $form->set('value', $this->value);
 
-            $label = new FormLabel($this->get(key: 'title'), 2, $this->get(key: 'id'));
+            $label = new FormLabel($this->title, 2, $this->id);
             $label->set('class', 'ib');
 
-            $this->html($label->render($form->render()), false);
+            $this->contents = $label->render($form->render());
         }
     }
 }

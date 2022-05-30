@@ -18,7 +18,7 @@ namespace Dotclear\Process\Admin\Filter;
  *
  * @ingroup  Admin Filter Stack
  */
-class FilterStack
+final class FilterStack
 {
     /**
      * @var array<int,Filter> $filters
@@ -39,7 +39,7 @@ class FilterStack
     public function __construct(?Filter ...$filters)
     {
         foreach ($filters as $filter) {
-            $this->add($filter);
+            $this->addFilter($filter);
         }
     }
 
@@ -51,7 +51,7 @@ class FilterStack
      *
      * @param null|Filter $filter The filter
      */
-    public function add(?Filter $filter): void
+    public function addFilter(?Filter $filter): void
     {
         if (null !== $filter) {
             $this->filters[] = $filter;
@@ -63,7 +63,7 @@ class FilterStack
      *
      * @return array<int,Filter> The filters stack array
      */
-    public function dump(): array
+    public function dumpFilters(): array
     {
         return $this->filters;
     }

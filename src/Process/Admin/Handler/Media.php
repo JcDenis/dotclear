@@ -94,22 +94,22 @@ class Media extends AbstractPage
 
         // try to load core media and themes
         try {
-            App::core()->media()->setFileSort($this->filter->get(id: 'sortby') . '-' . $this->filter->get(id: 'order'));
+            App::core()->media()->setFileSort($this->filter->getValue(id: 'sortby') . '-' . $this->filter->getValue(id: 'order'));
 
-            if ('' != $this->filter->get(id: 'q')) {
-                $this->media_has_query = App::core()->media()->searchMedia($this->filter->get(id: 'q'));
+            if ('' != $this->filter->getValue(id: 'q')) {
+                $this->media_has_query = App::core()->media()->searchMedia($this->filter->getValue(id: 'q'));
             }
             if (!$this->media_has_query) {
-                $try_d = $this->filter->get(id: 'd');
+                $try_d = $this->filter->getValue(id: 'd');
                 // Reset current dir
-                $this->filter->set(id: 'd', value: null);
+                $this->filter->updateValue(id: 'd', value: null);
                 // Change directory (may cause an exception if directory doesn't exist)
                 App::core()->media()->chdir($try_d);
                 // Restore current dir variable
-                $this->filter->set(id: 'd', value: $try_d);
+                $this->filter->updateValue(id: 'd', value: $try_d);
                 App::core()->media()->getDir();
             } else {
-                $this->filter->set(id: 'd', value: null);
+                $this->filter->updateValue(id: 'd', value: null);
                 App::core()->media()->chdir('');
             }
             $this->media_writable = App::core()->media()->writable();
@@ -127,26 +127,30 @@ class Media extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        if ($this->filter->get(id: 'popup')) {
+        if (!$this->filter) {
+            return true;
+        }
+
+        if ($this->filter->getValue(id: 'popup')) {
             $this->setPageType('popup');
         }
 
-        $this->filter->add(filter: new Filter(id: 'handler', value: 'admin.media'));
+        $this->filter->addFilter(filter: new Filter(id: 'handler', value: 'admin.media'));
 
         $this->media_uploader = (bool) App::core()->user()->preference()->get('interface')->get('enhanceduploader');
 
         // Zip download
         if (!GPC::get()->empty('zipdl') && App::core()->user()->check('media_admin', App::core()->blog()->id)) {
             try {
-                if (str_starts_with(realpath(App::core()->media()->root . '/' . $this->filter->get(id: 'd')), realpath(App::core()->media()->root))) {
+                if (str_starts_with(realpath(App::core()->media()->root . '/' . $this->filter->getValue(id: 'd')), realpath(App::core()->media()->root))) {
                     // Media folder or one of it's sub-folder(s)
                     @set_time_limit(300);
                     $fp  = fopen('php://output', 'wb');
                     $zip = new Zip($fp);
                     $zip->addExclusion('#(^|/).(.*?)_(m|s|sq|t).jpg$#');
-                    $zip->addDirectory(App::core()->media()->root . '/' . $this->filter->get(id: 'd'), '', true);
+                    $zip->addDirectory(App::core()->media()->root . '/' . $this->filter->getValue(id: 'd'), '', true);
 
-                    header('Content-Disposition: attachment;filename=' . Clock::format(format: 'Y-m-d') . '-' . App::core()->blog()->id . '-' . ($this->filter->get(id: 'd') ?: 'media') . '.zip');
+                    header('Content-Disposition: attachment;filename=' . Clock::format(format: 'Y-m-d') . '-' . App::core()->blog()->id . '-' . ($this->filter->getValue(id: 'd') ?: 'media') . '.zip');
                     header('Content-Type: application/x-zip');
                     $zip->write();
                     unset($zip);
@@ -154,7 +158,7 @@ class Media extends AbstractPage
                     exit;
                 }
                 $this->filter->set(id: 'd', value: null);
-                App::core()->media()->chdir($this->filter->get(id: 'd'));
+                App::core()->media()->chdir($this->filter->getValue(id: 'd'));
 
                 throw new AdminException(__('Not a valid directory'));
             } catch (Exception $e) {
@@ -165,11 +169,11 @@ class Media extends AbstractPage
         // User last and fav dirs
         if ($this->showLast()) {
             if (!GPC::get()->empty('fav')) {
-                if ($this->updateFav(rtrim((string) $this->filter->get(id: 'd'), '/'), 'n' == GPC::get()->string('fav'))) {
-                    App::core()->adminurl()->redirect('admin.media', $this->filter->values());
+                if ($this->updateFav(rtrim((string) $this->filter->getValue(id: 'd'), '/'), 'n' == GPC::get()->string('fav'))) {
+                    App::core()->adminurl()->redirect('admin.media', $this->filter->getValues());
                 }
             }
-            $this->updateLast(rtrim((string) $this->filter->get(id: 'd'), '/'));
+            $this->updateLast(rtrim((string) $this->filter->getValue(id: 'd'), '/'));
         }
 
         // New directory
@@ -189,7 +193,7 @@ class Media extends AbstractPage
                         __('Directory "%s" has been successfully created.'),
                         Html::escapeHTML($nd)
                     ));
-                    App::core()->adminurl()->redirect('admin.media', $this->filter->values());
+                    App::core()->adminurl()->redirect('admin.media', $this->filter->getValues());
                 } catch (Exception $e) {
                     App::core()->error()->add($e->getMessage());
                 }
@@ -244,7 +248,7 @@ class Media extends AbstractPage
                 );
 
                 App::core()->notice()->addSuccessNotice(__('Files have been successfully uploaded.'));
-                App::core()->adminurl()->redirect('admin.media', $this->filter->values());
+                App::core()->adminurl()->redirect('admin.media', $this->filter->getValues());
             } catch (Exception $e) {
                 App::core()->error()->add($e->getMessage());
             }
@@ -266,7 +270,7 @@ class Media extends AbstractPage
                         count(GPC::post()->array('medias'))
                     )
                 );
-                App::core()->adminurl()->redirect('admin.media', $this->filter->values());
+                App::core()->adminurl()->redirect('admin.media', $this->filter->getValues());
             } catch (Exception $e) {
                 App::core()->error()->add($e->getMessage());
             }
@@ -287,11 +291,11 @@ class Media extends AbstractPage
                 }
                 App::core()->media()->removeItem($remove);
                 if ($forget) {
-                    $this->updateLast($this->filter->get(id: 'd') . '/' . Path::clean($remove), true);
-                    $this->updateFav($this->filter->get(id: 'd') . '/' . Path::clean($remove), true);
+                    $this->updateLast($this->filter->getValue(id: 'd') . '/' . Path::clean($remove), true);
+                    $this->updateFav($this->filter->getValue(id: 'd') . '/' . Path::clean($remove), true);
                 }
                 App::core()->notice()->addSuccessNotice($msg);
-                App::core()->adminurl()->redirect('admin.media', $this->filter->values());
+                App::core()->adminurl()->redirect('admin.media', $this->filter->getValues());
             } catch (Exception $e) {
                 App::core()->error()->add($e->getMessage());
             }
@@ -300,15 +304,15 @@ class Media extends AbstractPage
         // Rebuild directory
         if ($this->getDirs() && App::core()->user()->isSuperAdmin() && !GPC::post()->empty('rebuild')) {
             try {
-                App::core()->media()->rebuild($this->filter->get(id: 'd'));
+                App::core()->media()->rebuild($this->filter->getValue(id: 'd'));
 
                 App::core()->notice()->success(
                     sprintf(
                         __('Directory "%s" has been successfully rebuilt.'),
-                        Html::escapeHTML($this->filter->get(id: 'd'))
+                        Html::escapeHTML($this->filter->getValue(id: 'd'))
                     )
                 );
-                App::core()->adminurl()->redirect('admin.media', $this->filter->values());
+                App::core()->adminurl()->redirect('admin.media', $this->filter->getValues());
             } catch (Exception $e) {
                 App::core()->error()->add($e->getMessage());
             }
@@ -321,13 +325,13 @@ class Media extends AbstractPage
             $this->breadcrumb();
             $this->setPageHead(
                 App::core()->resource()->modal() .
-                $this->filter->js(url: App::core()->adminurl()->get('admin.media', array_diff_key($this->filter->values(), $this->filter->values(ui: true)), '&')) .
+                $this->filter->getFoldableJSCode(url: App::core()->adminurl()->get('admin.media', array_diff_key($this->filter->getValues(), $this->filter->getFormValues()), '&')) .
                 App::core()->resource()->load('_media.js') .
-                ($this->mediaWritable() ? App::core()->resource()->upload(['d=' . $this->filter->get(id: 'd')]) : '')
+                ($this->mediaWritable() ? App::core()->resource()->upload(['d=' . $this->filter->getValue(id: 'd')]) : '')
             );
         }
 
-        if ($this->filter->get(id: 'popup')) {
+        if ($this->filter->getValue(id: 'popup')) {
             $this->setPageType('popup');
         }
 
@@ -344,7 +348,7 @@ class Media extends AbstractPage
             ) . '</p>' .
             '<p><input type="submit" value="' . __('Cancel') . '" /> ' .
             ' &nbsp; <input type="submit" name="rmyes" value="' . __('Yes') . '" />' .
-            App::core()->adminurl()->getHiddenFormFields('admin.media', $this->filter->values(), true) .
+            App::core()->adminurl()->getHiddenFormFields('admin.media', $this->filter->getValues(), true) .
             form::hidden('remove', Html::escapeHTML(GPC::get()->string('remove'))) . '</p>' .
             '</form>';
 
@@ -370,13 +374,13 @@ class Media extends AbstractPage
             $fav_dirs = $this->getFav();
             foreach ($fav_dirs as $ld) {
                 // Add favorites dirs on top of combo
-                $ld_params      = $this->filter->values();
+                $ld_params      = $this->filter->getValues();
                 $ld_params['d'] = $ld;
                 $ld_params['q'] = ''; // Reset search
                 $last_folders_item .= '<option value="' . urldecode(App::core()->adminurl()->get('admin.media', $ld_params)) . '"' .
-                    (rtrim((string) $this->filter->get(id: 'd'), '/') == $ld ? ' selected="selected"' : '') . '>' .
+                    (rtrim((string) $this->filter->getValue(id: 'd'), '/') == $ld ? ' selected="selected"' : '') . '>' .
                     '/' . $ld . '</option>' . "\n";
-                if (rtrim((string) $this->filter->get(id: 'd'), '/') == $ld) {
+                if (rtrim((string) $this->filter->getValue(id: 'd'), '/') == $ld) {
                     // Current directory is a favorite → button will un-fav
                     $ld_params['fav'] = 'n';
                     $fav_url          = urldecode(App::core()->adminurl()->get('admin.media', $ld_params));
@@ -393,13 +397,13 @@ class Media extends AbstractPage
             $last_dirs = $this->getlast();
             foreach ($last_dirs as $ld) {
                 if (!in_array($ld, $fav_dirs)) {
-                    $ld_params      = $this->filter->values();
+                    $ld_params      = $this->filter->getValues();
                     $ld_params['d'] = $ld;
                     $ld_params['q'] = ''; // Reset search
                     $last_folders_item .= '<option value="' . urldecode(App::core()->adminurl()->get('admin.media', $ld_params)) . '"' .
-                        (rtrim((string) $this->filter->get(id: 'd'), '/') == $ld ? ' selected="selected"' : '') . '>' .
+                        (rtrim((string) $this->filter->getValue(id: 'd'), '/') == $ld ? ' selected="selected"' : '') . '>' .
                         '/' . $ld . '</option>' . "\n";
-                    if (rtrim((string) $this->filter->get(id: 'd'), '/') == $ld) {
+                    if (rtrim((string) $this->filter->getValue(id: 'd'), '/') == $ld) {
                         // Current directory is not a favorite → button will fav
                         $ld_params['fav'] = 'y';
                         $fav_url          = urldecode(App::core()->adminurl()->get('admin.media', $ld_params));
@@ -420,10 +424,10 @@ class Media extends AbstractPage
             }
         }
 
-        if ($this->filter->get(id: 'select')) {
+        if ($this->filter->getValue(id: 'select')) {
             // Select mode (popup or not)
-            echo '<div class="' . ($this->filter->get(id: 'popup') ? 'form-note ' : '') . 'info"><p>';
-            if (1 == $this->filter->get(id: 'select')) {
+            echo '<div class="' . ($this->filter->getValue(id: 'popup') ? 'form-note ' : '') . 'info"><p>';
+            if (1 == $this->filter->getValue(id: 'select')) {
                 echo sprintf(__('Select a file by clicking on %s'), '<img src="?df=images/plus.png" alt="' . __('Select this file') . '" />');
             } else {
                 echo sprintf(__('Select files and click on <strong>%s</strong> button'), __('Choose selected medias'));
@@ -433,11 +437,11 @@ class Media extends AbstractPage
             }
             echo '</p></div>';
         } else {
-            if ($this->filter->get(id: 'post_id')) {
+            if ($this->filter->getValue(id: 'post_id')) {
                 echo '<div class="form-note info"><p>' . sprintf(
                     __('Choose a file to attach to entry %s by clicking on %s'),
                     '<a href="' .
-                    Html::escapeHTML(App::core()->posttype()->getPostAdminURL($this->filter->getPostType(), $this->filter->get(id: 'post_id'))) . '">' .
+                    Html::escapeHTML(App::core()->posttype()->getPostAdminURL($this->filter->getPostType(), $this->filter->getValue(id: 'post_id'))) . '">' .
                     Html::escapeHTML($this->filter->getPostTitle()) . '</a>',
                     '<img src="?df=images/plus.png" alt="' . __('Attach this file to entry') . '" />'
                 );
@@ -446,7 +450,7 @@ class Media extends AbstractPage
                 }
                 echo '</p></div>';
             }
-            if ($this->filter->get(id: 'popup')) {
+            if ($this->filter->getValue(id: 'popup')) {
                 echo '<div class="info"><p>' . sprintf(
                     __('Choose a file to insert into entry by clicking on %s'),
                     '<img src="?df=images/plus.png" alt="' . __('Attach this file to entry') . '" />'
@@ -459,36 +463,35 @@ class Media extends AbstractPage
         }
 
         // add file mode into the filter box
-        $filter = new Filter(id: 'file_mode', value: $this->filter->get(id: 'file_mode'));
-        $filter->html(
+        $this->filter->addFilter(new Filter(
+            id: 'file_mode',
+            value: $this->filter->getValue(id: 'file_mode'),
+            type: 'none',
             contents: '<p><span class="media-file-mode">' .
-            '<a href="' . App::core()->adminurl()->get('admin.media', array_merge($this->filter->values(), ['file_mode' => 'grid'])) . '" title="' . __('Grid display mode') . '">' .
-            '<img src="?df=images/grid-' . ('grid' == $this->filter->get(id: 'file_mode') ? 'on' : 'off') . '.png" alt="' . __('Grid display mode') . '" />' .
-            '</a>' .
-            '<a href="' . App::core()->adminurl()->get('admin.media', array_merge($this->filter->values(), ['file_mode' => 'list'])) . '" title="' . __('List display mode') . '">' .
-            '<img src="?df=images/list-' . ('list' == $this->filter->get(id: 'file_mode') ? 'on' : 'off') . '.png" alt="' . __('List display mode') . '" />' .
-            '</a>' .
-            '</span></p>',
-            typed: false
-        );
-
-        $this->filter->add(filter: $filter);
+                '<a href="' . App::core()->adminurl()->get('admin.media', array_merge($this->filter->getValues(), ['file_mode' => 'grid'])) . '" title="' . __('Grid display mode') . '">' .
+                '<img src="?df=images/grid-' . ('grid' == $this->filter->getValue(id: 'file_mode') ? 'on' : 'off') . '.png" alt="' . __('Grid display mode') . '" />' .
+                '</a>' .
+                '<a href="' . App::core()->adminurl()->get('admin.media', array_merge($this->filter->getValues(), ['file_mode' => 'list'])) . '" title="' . __('List display mode') . '">' .
+                '<img src="?df=images/list-' . ('list' == $this->filter->getValue(id: 'file_mode') ? 'on' : 'off') . '.png" alt="' . __('List display mode') . '" />' .
+                '</a>' .
+                '</span></p>'
+        ));
 
         $fmt_form_media = '<form action="' . App::core()->adminurl()->root() . '" method="post" id="form-medias">' .
         '<div class="files-group">%s</div>' .
         '<p class="hidden">' .
-        App::core()->adminurl()->getHiddenFormFields('admin.media', $this->filter->values(), true) .
+        App::core()->adminurl()->getHiddenFormFields('admin.media', $this->filter->getValues(), true) .
         '</p>';
 
-        if (!$this->filter->get(id: 'popup') || 1 < $this->filter->get(id: 'select')) {
+        if (!$this->filter->getValue(id: 'popup') || 1 < $this->filter->getValue(id: 'select')) {
             // Checkboxes and action
-            $fmt_form_media .= '<div class="' . (!$this->filter->get(id: 'popup') ? 'medias-delete' : '') . ' ' . (1 < $this->filter->get(id: 'select') ? 'medias-select' : '') . '">' .
+            $fmt_form_media .= '<div class="' . (!$this->filter->getValue(id: 'popup') ? 'medias-delete' : '') . ' ' . (1 < $this->filter->getValue(id: 'select') ? 'medias-select' : '') . '">' .
                 '<p class="checkboxes-helpers"></p>' .
                 '<p>';
-            if (1 < $this->filter->get(id: 'select')) {
+            if (1 < $this->filter->getValue(id: 'select')) {
                 $fmt_form_media .= '<input type="submit" class="select" id="select_medias" name="select_medias" value="' . __('Choose selected medias') . '"/> ';
             }
-            if (!$this->filter->get(id: 'popup')) {
+            if (!$this->filter->getValue(id: 'popup')) {
                 $fmt_form_media .= '<input type="submit" class="delete" id="delete_medias" name="delete_medias" value="' . __('Remove selected medias') . '"/>';
             }
             $fmt_form_media .= '</p>' .
@@ -500,10 +503,10 @@ class Media extends AbstractPage
         echo $last_folders;
 
         // remove form filters from hidden fields
-        $form_filters_hidden_fields = array_diff_key($this->filter->values(), ['nb' => '', 'order' => '', 'sortby' => '', 'q' => '']);
+        $form_filters_hidden_fields = array_diff_key($this->filter->getValues(), ['nb' => '', 'order' => '', 'sortby' => '', 'q' => '']);
 
         // display filter
-        $this->filter->display(adminurl: 'admin.media', append: App::core()->adminurl()->getHiddenFormFields('admin.media', $form_filters_hidden_fields));
+        $this->filter->displayHTMLForm(adminurl: 'admin.media', append: App::core()->adminurl()->getHiddenFormFields('admin.media', $form_filters_hidden_fields));
 
         // display list
         if (null !== $this->inventory) {
@@ -514,7 +517,7 @@ class Media extends AbstractPage
 
         if ((!$this->hasQuery()) && ($this->mediaWritable() || $this->mediaArchivable())) {
             echo '<div class="vertical-separator">' .
-            '<h3 class="out-of-screen-if-js">' . sprintf(__('In %s:'), ('' == $this->filter->get(id: 'd') ? '“' . __('Media manager') . '”' : '“' . $this->filter->get(id: 'd') . '”')) . '</h3>';
+            '<h3 class="out-of-screen-if-js">' . sprintf(__('In %s:'), ('' == $this->filter->getValue(id: 'd') ? '“' . __('Media manager') . '”' : '“' . $this->filter->getValue(id: 'd') . '”')) . '</h3>';
         }
 
         if ((!$this->hasQuery()) && ($this->mediaWritable() || $this->mediaArchivable())) {
@@ -528,19 +531,19 @@ class Media extends AbstractPage
                 '<p><label for="newdir">' . __('Directory Name:') . '</label>' .
                 form::field('newdir', 35, 255) . '</p>' .
                 '<p><input type="submit" value="' . __('Create') . '" />' .
-                App::core()->adminurl()->getHiddenFormFields('admin.media', $this->filter->values(), true) .
+                App::core()->adminurl()->getHiddenFormFields('admin.media', $this->filter->getValues(), true) .
                     '</p>' .
                     '</div>' .
                     '</form>';
             }
 
             // Get zip directory
-            if ($this->mediaArchivable() && !$this->filter->get(id: 'popup')) {
+            if ($this->mediaArchivable() && !$this->filter->getValue(id: 'popup')) {
                 echo '<div class="fieldset">' .
-                '<h4 class="pretty-title">' . sprintf(__('Backup content of %s'), ('' == $this->filter->get(id: 'd') ? '“' . __('Media manager') . '”' : '“' . $this->filter->get(id: 'd') . '”')) . '</h4>' .
+                '<h4 class="pretty-title">' . sprintf(__('Backup content of %s'), ('' == $this->filter->getValue(id: 'd') ? '“' . __('Media manager') . '”' : '“' . $this->filter->getValue(id: 'd') . '”')) . '</h4>' .
                 '<p><a class="button submit" href="' . App::core()->adminurl()->get(
                     'admin.media',
-                    array_merge($this->filter->values(), ['zipdl' => 1])
+                    array_merge($this->filter->getValues(), ['zipdl' => 1])
                 ) . '">' . __('Download zip file') . '</a></p>' .
                     '</div>';
             }
@@ -567,7 +570,7 @@ class Media extends AbstractPage
 
             echo '<p><label for="upfile">' . '<span class="add-label one-file">' . __('Choose file') . '</span>' . '</label>' .
             '<button class="button choose_files">' . __('Choose files') . '</button>' .
-            '<input type="file" id="upfile" name="upfile[]"' . ($this->showUploader() ? ' multiple="mutiple"' : '') . ' data-url="' . Html::escapeURL(App::core()->adminurl()->get('admin.media', $this->filter->values(), '&')) . '" /></p>';
+            '<input type="file" id="upfile" name="upfile[]"' . ($this->showUploader() ? ' multiple="mutiple"' : '') . ' data-url="' . Html::escapeURL(App::core()->adminurl()->get('admin.media', $this->filter->getValues(), '&')) . '" /></p>';
 
             echo '<p class="max-sizer form-note">&nbsp;' . __('Maximum file size allowed:') . ' ' . Files::size((int) App::core()->config()->get('media_upload_maxsize')) . '</p>';
 
@@ -586,7 +589,7 @@ class Media extends AbstractPage
                 '</div>';
 
             echo '<p style="clear:both;">' .
-            App::core()->adminurl()->getHiddenFormFields('admin.media', $this->filter->values(), true) .
+            App::core()->adminurl()->getHiddenFormFields('admin.media', $this->filter->getValues(), true) .
                 '</p>' .
                 '</form>' .
                 '</div>' .
@@ -597,7 +600,7 @@ class Media extends AbstractPage
         echo '<form id="media-remove-hide" action="' . App::core()->adminurl()->root() . '" method="post" class="hidden">' .
         '<div>' .
         form::hidden('rmyes', 1) .
-        App::core()->adminurl()->getHiddenFormFields('admin.media', $this->filter->values(), true) .
+        App::core()->adminurl()->getHiddenFormFields('admin.media', $this->filter->getValues(), true) .
         form::hidden('remove', '') .
         App::core()->nonce()->form() .
             '</div>' .
@@ -607,7 +610,7 @@ class Media extends AbstractPage
             echo '</div>';
         }
 
-        if (!$this->filter->get(id: 'popup')) {
+        if (!$this->filter->getValue(id: 'popup')) {
             echo '<div class="info"><p>' . sprintf(
                 __('Current settings for medias and images are defined in %s'),
                 '<a href="' . App::core()->adminurl()->get('admin.blog.pref') . '#medias-settings">' . __('Blog parameters') . '</a>'
@@ -633,12 +636,12 @@ class Media extends AbstractPage
                 'q' => '',
             ];
 
-            if ($this->media_has_query || $this->filter->get(id: 'q')) {
+            if ($this->media_has_query || $this->filter->getValue(id: 'q')) {
                 $count = $this->media_has_query ? count($this->getDirs('files')) : 0;
 
-                $element[__('Search:') . ' ' . $this->filter->get(id: 'q') . ' (' . sprintf(__('%s file found', '%s files found', $count), $count) . ')'] = '';
+                $element[__('Search:') . ' ' . $this->filter->getValue(id: 'q') . ' (' . sprintf(__('%s file found', '%s files found', $count), $count) . ')'] = '';
             } else {
-                $bc_url   = App::core()->adminurl()->get('admin.media', array_merge($this->filter->values(escape: true), ['d' => '%s']), '&');
+                $bc_url   = App::core()->adminurl()->get('admin.media', array_merge($this->filter->getEscapeValues(), ['d' => '%s']), '&');
                 $bc_media = App::core()->media()->breadCrumb($bc_url, '<span class="page-title">%s</span>');
                 if ('' != $bc_media) {
                     $element[$bc_media] = '';
@@ -650,10 +653,10 @@ class Media extends AbstractPage
         $elements = [
             Html::escapeHTML(App::core()->blog()->name) => '',
             __('Media manager')                         => empty($param) ? '' :
-                App::core()->adminurl()->get('admin.media', array_merge($this->filter->values(), array_merge($this->filter->values(), $param))),
+                App::core()->adminurl()->get('admin.media', array_merge($this->filter->getValues(), array_merge($this->filter->getValues(), $param))),
         ];
         $options = [
-            'home_link' => !$this->filter->get(id: 'popup'),
+            'home_link' => !$this->filter->getValue(id: 'popup'),
         ];
 
         $this->setPageBreadcrumb(array_merge($elements, $element), array_merge($options, $option));
@@ -795,7 +798,7 @@ class Media extends AbstractPage
      */
     public function updateLast(string $dir, bool $remove = false): bool
     {
-        if ($this->filter->get(id: 'q')) {
+        if ($this->filter->getValue(id: 'q')) {
             return false;
         }
 
@@ -865,7 +868,7 @@ class Media extends AbstractPage
      */
     public function updateFav(string $dir, bool $remove = false): bool
     {
-        if ($this->filter->get(id: 'q')) {
+        if ($this->filter->getValue(id: 'q')) {
             return false;
         }
 

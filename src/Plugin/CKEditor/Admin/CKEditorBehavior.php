@@ -30,7 +30,7 @@ class CKEditorBehavior
         App::core()->behavior()->add('adminPopupMedia', [$this, 'adminPopupMedia']);
         App::core()->behavior()->add('adminPopupLink', [$this, 'adminPopupLink']);
         App::core()->behavior()->add('adminPopupPosts', [$this, 'adminPopupPosts']);
-        App::core()->behavior()->add('adminFiltersAddStack', [$this, 'adminFiltersAddStack']);
+        App::core()->behavior()->add('adminFiltersAddFilters', [$this, 'adminFiltersAddFilters']);
         App::core()->behavior()->add('adminPageHTTPHeaderCSP', [$this, 'adminPageHTTPHeaderCSP']);
     }
 
@@ -94,11 +94,11 @@ class CKEditorBehavior
         return 'CKEditor' != $editor ? '' : App::core()->resource()->load('popup_posts.js', 'Plugin', 'CKEditor');
     }
 
-    public function adminFiltersAddStack(string $type, FilterStack $fs): void
+    public function adminFiltersAddFilters(string $id, FilterStack $filter_stack): void
     {
-        if ('media' == $type && !GPC::get()->empty('editor')) {
+        if ('media' == $id && !GPC::get()->empty('editor')) {
             // Add hidden filter to pass editor to filters URLs
-            $fs->add(filter: new Filter(id: 'editor', value: Html::sanitizeURL(GPC::get()->string('editor'))));
+            $filter_stack->addFilter(filter: new Filter(id: 'editor', value: Html::sanitizeURL(GPC::get()->string('editor'))));
         }
     }
 

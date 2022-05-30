@@ -24,7 +24,7 @@ class CommentFilters extends Filters
 {
     public function __construct()
     {
-        parent::__construct(type: 'comments', filters: new FilterStack(
+        parent::__construct(id: 'comments', filters: new FilterStack(
             $this->getPageFilter(),
             $this->getCommentAuthorFilter(),
             $this->getCommentTypeFilter(),
@@ -40,12 +40,14 @@ class CommentFilters extends Filters
      */
     public function getCommentAuthorFilter(): Filter
     {
-        $filter = new Filter('author');
-        $filter->param('q_author');
-        $filter->form('input');
-        $filter->title(__('Author:'));
-
-        return $filter;
+        return new Filter(
+            id: 'author',
+            type: 'input',
+            title: __('Author:'),
+            params: [
+                ['q_author', null],
+            ]
+        );
     }
 
     /**
@@ -53,17 +55,19 @@ class CommentFilters extends Filters
      */
     public function getCommentTypeFilter(): Filter
     {
-        $filter = new Filter('type');
-        $filter->param('comment_trackback', fn ($f) => 'tb' == $f[0]);
-        $filter->title(__('Type:'));
-        $filter->options([
-            '-'             => '',
-            __('Comment')   => 'co',
-            __('Trackback') => 'tb',
-        ]);
-        $filter->prime(true);
-
-        return $filter;
+        return new Filter(
+            id: 'type',
+            title: __('Type:'),
+            prime: true,
+            params: [
+                ['comment_trackback', fn ($f) => 'tb' == $f[0]],
+            ],
+            options: [
+                '-'             => '',
+                __('Comment')   => 'co',
+                __('Trackback') => 'tb',
+            ]
+        );
     }
 
     /**
@@ -71,16 +75,18 @@ class CommentFilters extends Filters
      */
     public function getCommentStatusFilter(): Filter
     {
-        $filter = new Filter('status');
-        $filter->param('comment_status', fn ($f) => (int) $f[0]);
-        $filter->title(__('Status:'));
-        $filter->options(array_merge(
-            ['-' => ''],
-            App::core()->combo()->getCommentStatusesCombo()
-        ));
-        $filter->prime(true);
-
-        return $filter;
+        return new Filter(
+            id: 'status',
+            title: __('Status:'),
+            prime: true,
+            params : [
+                ['comment_status', fn ($f) => (int) $f[0]],
+            ],
+            options: array_merge(
+                ['-' => ''],
+                App::core()->combo()->getCommentStatusesCombo()
+            )
+        );
     }
 
     /**
@@ -92,11 +98,13 @@ class CommentFilters extends Filters
             return null;
         }
 
-        $filter = new Filter('ip');
-        $filter->param('comment_ip');
-        $filter->form('input');
-        $filter->title(__('IP address:'));
-
-        return $filter;
+        return new Filter(
+            id: 'ip',
+            type: 'input',
+            title: __('IP address:'),
+            params: [
+                ['comment_ip', null],
+            ]
+        );
     }
 }

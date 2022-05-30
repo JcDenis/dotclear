@@ -43,7 +43,7 @@ class Blogs extends AbstractPage
 
     protected function getInventoryInstance(): ?BlogInventory
     {
-        $param = $this->filter->params();
+        $param = $this->filter->getParams();
 
         // --BEHAVIOR-- adminGetBlogs, Param
         App::core()->behavior()->call('adminGetBlogs', $param);
@@ -52,11 +52,11 @@ class Blogs extends AbstractPage
         $rs    = App::core()->blogs()->getBlogs(param: $param);
 
         $rsStatic = $rs->toStatic();
-        if ('blog_upddt' != $this->filter->get(id: 'sortby') && 'blog_status' != $this->filter->get(id: 'sortby')) {
+        if ('blog_upddt' != $this->filter->getValue(id: 'sortby') && 'blog_status' != $this->filter->getValue(id: 'sortby')) {
             // Sort blog list using lexical order if necessary
             $rsStatic->extend(new RsExtUser());
             // $rsStatic = $rsStatic->toExtStatic();
-            $rsStatic->lexicalSort(($this->filter->get(id: 'sortby') == 'UPPER(blog_name)' ? 'blog_name' : 'blog_id'), $this->filter->get(id: 'order'));
+            $rsStatic->lexicalSort(($this->filter->getValue(id: 'sortby') == 'UPPER(blog_name)' ? 'blog_name' : 'blog_id'), $this->filter->getValue(id: 'order'));
         }
 
         return new BlogInventory($rs, $count);
@@ -68,7 +68,7 @@ class Blogs extends AbstractPage
             ->setPageHelp('core_blogs')
             ->setPageTitle(__('List of blogs'))
             ->setPageHead(
-                $this->filter->js() .
+                $this->filter?->getFoldableJSCode() .
                 App::core()->resource()->load('_blogs.js')
             )
             ->setPageBreadcrumb([
@@ -90,12 +90,12 @@ class Blogs extends AbstractPage
             echo '<p class="top-add"><a class="button add" href="' . App::core()->adminurl()->get('admin.blog') . '">' . __('Create a new blog') . '</a></p>';
         }
 
-        $this->filter->display(adminurl: 'admin.blogs');
+        $this->filter?->displayHTMLForm(adminurl: 'admin.blogs');
 
         // Show blogs
-        $this->inventory->display(
-            $this->filter->get(id: 'page'),
-            $this->filter->get(id: 'nb'),
+        $this->inventory?->display(
+            $this->filter->getValue(id: 'page'),
+            $this->filter->getValue(id: 'nb'),
             (App::core()->user()->isSuperAdmin() ?
                 '<form action="' . App::core()->adminurl()->root() . '" method="post" id="form-blogs">' : '') .
 
@@ -117,9 +117,9 @@ class Blogs extends AbstractPage
                 '<p><label for="pwd" class="classic">' . __('Please give your password to confirm blog(s) deletion:') . '</label> ' .
                 Form::password('pwd', 20, 255, ['autocomplete' => 'current-password']) . '</p>' .
 
-                App::core()->adminurl()->getHiddenFormFields('admin.blogs', $this->filter->values(escape: true), true) .
+                App::core()->adminurl()->getHiddenFormFields('admin.blogs', $this->filter->getEscapeValues(), true) .
                 '</form>' : ''),
-            $this->filter->show()
+            $this->filter->isUnfolded()
         );
     }
 }

@@ -28,34 +28,35 @@ use Exception;
  */
 class PostFilters extends Filters
 {
-    public function __construct(string $type = 'posts', protected string $post_type = 'post')
+    public function __construct(string $id = 'posts', private string $post_type = 'post')
     {
-        $stack = new FilterStack();
+        $filter_stack = new FilterStack();
 
         if (!App::core()->posttype()->exists($this->post_type)) {
             $this->post_type = 'post';
         }
         if ('post' != $this->post_type) {
-            $filter = new Filter(id: 'post_type', value: $this->post_type);
-            $filter->param(name: 'post_type');
-
-            $stack->add(filter: $filter);
+            $filter_stack->addFilter(new Filter(
+                id: 'post_type',
+                value: $this->post_type,
+                params: [['post_type', null]],
+            ));
         }
 
-        $stack->add(filter: $this->getPageFilter());
-        $stack->add(filter: $this->getPostUserFilter());
-        $stack->add(filter: $this->getPostCategoriesFilter());
-        $stack->add(filter: $this->getPostStatusFilter());
-        $stack->add(filter: $this->getPostFormatFilter());
-        $stack->add(filter: $this->getPostPasswordFilter());
-        $stack->add(filter: $this->getPostSelectedFilter());
-        $stack->add(filter: $this->getPostAttachmentFilter());
-        $stack->add(filter: $this->getPostMonthFilter());
-        $stack->add(filter: $this->getPostLangFilter());
-        $stack->add(filter: $this->getPostCommentFilter());
-        $stack->add(filter: $this->getPostTrackbackFilter());
+        $filter_stack->addFilter(filter: $this->getPageFilter());
+        $filter_stack->addFilter(filter: $this->getPostUserFilter());
+        $filter_stack->addFilter(filter: $this->getPostCategoriesFilter());
+        $filter_stack->addFilter(filter: $this->getPostStatusFilter());
+        $filter_stack->addFilter(filter: $this->getPostFormatFilter());
+        $filter_stack->addFilter(filter: $this->getPostPasswordFilter());
+        $filter_stack->addFilter(filter: $this->getPostSelectedFilter());
+        $filter_stack->addFilter(filter: $this->getPostAttachmentFilter());
+        $filter_stack->addFilter(filter: $this->getPostMonthFilter());
+        $filter_stack->addFilter(filter: $this->getPostLangFilter());
+        $filter_stack->addFilter(filter: $this->getPostCommentFilter());
+        $filter_stack->addFilter(filter: $this->getPostTrackbackFilter());
 
-        parent::__construct(type: $type, filters: $stack);
+        parent::__construct(id: $id, filters: $filter_stack);
     }
 
     /**
@@ -79,16 +80,16 @@ class PostFilters extends Filters
         $combo = App::core()->combo()->getUsersCombo($users);
         Lexical::lexicalKeySort($combo);
 
-        $filter = new Filter(id: 'user_id');
-        $filter->param();
-        $filter->title(title: __('Author:'));
-        $filter->options(options: array_merge(
-            ['-' => ''],
-            $combo
-        ));
-        $filter->prime(prime: true);
-
-        return $filter;
+        return new Filter(
+            id: 'user_id',
+            title: __('Author:'),
+            prime: true,
+            // params: [[null, null],],
+            options: array_merge(
+                ['-' => ''],
+                $combo
+            ),
+        );
     }
 
     /**
@@ -123,13 +124,13 @@ class PostFilters extends Filters
             ] = (string) $categories->f('cat_id');
         }
 
-        $filter = new Filter(id: 'cat_id');
-        $filter->param();
-        $filter->title(title: __('Category:'));
-        $filter->options(options: $combo);
-        $filter->prime(prime: true);
-
-        return $filter;
+        return new Filter(
+            id: 'cat_id',
+            title: __('Category:'),
+            prime: true,
+            params: [[null, null]],
+            options: $combo,
+        );
     }
 
     /**
@@ -137,16 +138,18 @@ class PostFilters extends Filters
      */
     public function getPostStatusFilter(): Filter
     {
-        $filter = new Filter(id: 'status');
-        $filter->param(name: 'post_status', value: fn ($f) => (int) $f[0]);
-        $filter->title(title: __('Status:'));
-        $filter->options(options: array_merge(
-            ['-' => ''],
-            App::core()->combo()->getPostStatusesCombo()
-        ));
-        $filter->prime(prime: true);
-
-        return $filter;
+        return new Filter(
+            id: 'status',
+            title: __('Status:'),
+            prime: true,
+            params: [
+                ['post_status', fn ($f) => (int) $f[0]],
+            ],
+            options: array_merge(
+                ['-' => ''],
+                App::core()->combo()->getPostStatusesCombo()
+            ),
+        );
     }
 
     /**
@@ -162,16 +165,18 @@ class PostFilters extends Filters
             }
         }
 
-        $filter = new Filter(id: 'format');
-        $filter->param(name: 'where', value: fn ($f) => " AND post_format = '" . $f[0] . "' ");
-        $filter->title(title: __('Format:'));
-        $filter->options(options: array_merge(
-            ['-' => ''],
-            $available_formats
-        ));
-        $filter->prime(prime: true);
-
-        return $filter;
+        return new Filter(
+            id: 'format',
+            title: __('Format:'),
+            prime: true,
+            params: [
+                ['where', fn ($f) => " AND post_format = '" . $f[0] . "' "],
+            ],
+            options: array_merge(
+                ['-' => ''],
+                $available_formats
+            ),
+        );
     }
 
     /**
@@ -179,17 +184,19 @@ class PostFilters extends Filters
      */
     public function getPostPasswordFilter(): Filter
     {
-        $filter = new Filter(id: 'password');
-        $filter->param(name: 'sql', value: fn ($f) => ' AND post_password IS ' . ($f[0] ? 'NOT ' : '') . 'NULL ');
-        $filter->title(title: __('Password:'));
-        $filter->options(options: [
-            '-'                    => '',
-            __('With password')    => '1',
-            __('Without password') => '0',
-        ]);
-        $filter->prime(prime: true);
-
-        return $filter;
+        return new Filter(
+            id: 'password',
+            title: __('Password:'),
+            prime: true,
+            params: [
+                ['sql', fn ($f) => ' AND post_password IS ' . ($f[0] ? 'NOT ' : '') . 'NULL '],
+            ],
+            options: [
+                '-'                    => '',
+                __('With password')    => '1',
+                __('Without password') => '0',
+            ],
+        );
     }
 
     /**
@@ -197,16 +204,18 @@ class PostFilters extends Filters
      */
     public function getPostSelectedFilter(): Filter
     {
-        $filter = new Filter(id: 'selected');
-        $filter->param(name: 'post_selected', value: fn ($f) => (bool) $f[0]);
-        $filter->title(title: __('Selected:'));
-        $filter->options(options: [
-            '-'                => '',
-            __('Selected')     => '1',
-            __('Not selected') => '0',
-        ]);
-
-        return $filter;
+        return new Filter(
+            id: 'selected',
+            title: __('Selected:'),
+            params: [
+                ['post_selected', fn ($f) => (bool) $f[0]],
+            ],
+            options: [
+                '-'                => '',
+                __('Selected')     => '1',
+                __('Not selected') => '0',
+            ],
+        );
     }
 
     /**
@@ -214,17 +223,19 @@ class PostFilters extends Filters
      */
     public function getPostAttachmentFilter(): Filter
     {
-        $filter = new Filter(id: 'attachment');
-        $filter->param(name: 'media');
-        $filter->param(name: 'link_type', value: 'attachment');
-        $filter->title(title: __('Attachments:'));
-        $filter->options(options: [
-            '-'                       => '',
-            __('With attachments')    => '1',
-            __('Without attachments') => '0',
-        ]);
-
-        return $filter;
+        return new Filter(
+            id: 'attachment',
+            title: __('Attachments:'),
+            params: [
+                ['media', null],
+                ['link_type', 'attachment'],
+            ],
+            options: [
+                '-'                       => '',
+                __('With attachments')    => '1',
+                __('Without attachments') => '0',
+            ],
+        );
     }
 
     /**
@@ -249,16 +260,18 @@ class PostFilters extends Filters
             return null;
         }
 
-        $filter = new Filter(id: 'month');
-        $filter->param(name: 'post_month', value: fn ($f) => (int) substr($f[0], 4, 2));
-        $filter->param(name: 'post_year', value: fn ($f) => (int) substr($f[0], 0, 4));
-        $filter->title(title: __('Month:'));
-        $filter->options(options: array_merge(
-            ['-' => ''],
-            App::core()->combo()->getDatesCombo($dates)
-        ));
-
-        return $filter;
+        return new Filter(
+            id: 'month',
+            title: __('Month:'),
+            params: [
+                ['post_month', fn ($f) => (int) substr($f[0], 4, 2)],
+                ['post_year', fn ($f) => (int) substr($f[0], 0, 4)],
+            ],
+            options: array_merge(
+                ['-' => ''],
+                App::core()->combo()->getDatesCombo($dates)
+            ),
+        );
     }
 
     /**
@@ -282,15 +295,17 @@ class PostFilters extends Filters
             return null;
         }
 
-        $filter = new Filter(id: 'lang');
-        $filter->param(name: 'post_lang');
-        $filter->title(title: __('Lang:'));
-        $filter->options(options: array_merge(
-            ['-' => ''],
-            App::core()->combo()->getLangsCombo($langs, false)
-        ));
-
-        return $filter;
+        return new Filter(
+            id: 'lang',
+            title: __('Lang:'),
+            params: [
+                ['post_lang', null],
+            ],
+            options: array_merge(
+                ['-' => ''],
+                App::core()->combo()->getLangsCombo($langs, false)
+            ),
+        );
     }
 
     /**
@@ -298,16 +313,18 @@ class PostFilters extends Filters
      */
     public function getPostCommentFilter(): Filter
     {
-        $filter = new Filter(id: 'comment');
-        $filter->param(name: 'where', value: fn ($f) => " AND post_open_comment = '" . $f[0] . "' ");
-        $filter->title(title: __('Comments:'));
-        $filter->options(options: [
-            '-'          => '',
-            __('Opened') => '1',
-            __('Closed') => '0',
-        ]);
-
-        return $filter;
+        return new Filter(
+            id: 'comment',
+            title: __('Comments:'),
+            params: [
+                ['where', fn ($f) => " AND post_open_comment = '" . $f[0] . "' "],
+            ],
+            options: [
+                '-'          => '',
+                __('Opened') => '1',
+                __('Closed') => '0',
+            ],
+        );
     }
 
     /**
@@ -315,15 +332,17 @@ class PostFilters extends Filters
      */
     public function getPostTrackbackFilter(): Filter
     {
-        $filter = new Filter(id: 'trackback');
-        $filter->param(name: 'where', value: fn ($f) => " AND post_open_tb = '" . $f[0] . "' ");
-        $filter->title(title: __('Trackbacks:'));
-        $filter->options(options: [
-            '-'          => '',
-            __('Opened') => '1',
-            __('Closed') => '0',
-        ]);
-
-        return $filter;
+        return new Filter(
+            id: 'trackback',
+            title: __('Trackbacks:'),
+            params: [
+                ['where', fn ($f) => " AND post_open_tb = '" . $f[0] . "' "],
+            ],
+            options: [
+                '-'          => '',
+                __('Opened') => '1',
+                __('Closed') => '0',
+            ],
+        );
     }
 }
