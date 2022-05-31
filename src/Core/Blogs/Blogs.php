@@ -177,23 +177,6 @@ final class Blogs
     }
 
     /**
-     * Get the blog.
-     *
-     * @param string $id The blog ID
-     *
-     * @return null|Record The blog
-     */
-    public function getBlog(string $id): ?Record
-    {
-        $param = new Param();
-        $param->set('blog_id', $id);
-
-        $record = $this->getBlogs(param: $param);
-
-        return $record->isEmpty() ? null : $record;
-    }
-
-    /**
      * Retrieve blogs count.
      *
      * @see BlogsParam for optionnal paramaters

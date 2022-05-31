@@ -69,18 +69,20 @@ class BlogPref extends AbstractPage
                 if (GPC::request()->empty('id')) {
                     throw new AdminException(__('No given blog id.'));
                 }
-                $rs = App::core()->blogs()->getBlog(id: GPC::request()->string('id'));
+                $param = new Param();
+                $param->set('blog_id', GPC::request()->string('id'));
 
-                if (!$rs) {
+                $record = App::core()->blogs()->getBlogs(param: $param);
+                if ($record->isEmpty()) {
                     throw new AdminException(__('No such blog.'));
                 }
 
-                $this->blog_id       = $rs->f('blog_id');
-                $this->blog_status   = $rs->fInt('blog_status');
-                $this->blog_name     = $rs->f('blog_name');
-                $this->blog_desc     = $rs->f('blog_desc');
+                $this->blog_id       = $record->f('blog_id');
+                $this->blog_status   = $record->fInt('blog_status');
+                $this->blog_name     = $record->f('blog_name');
+                $this->blog_desc     = $record->f('blog_desc');
                 $this->blog_settings = new Settings($this->blog_id);
-                $this->blog_url      = $rs->f('blog_url');
+                $this->blog_url      = $record->f('blog_url');
             } catch (Exception $e) {
                 App::core()->error()->add($e->getMessage());
             }
@@ -157,9 +159,11 @@ class BlogPref extends AbstractPage
 
             try {
                 if ($cur->getField('blog_id') != null && $cur->getField('blog_id') != $this->blog_id) {
-                    $rs = App::core()->blogs()->getBlog(id: $cur->getField('blog_id'));
+                    $param = new Param();
+                    $param->set('blog_id', $cur->getField('blog_id'));
 
-                    if ($rs) {
+                    $record = App::core()->blogs()->getBlogs(param: $param);
+                    if (!$record->isEmpty()) {
                         throw new AdminException(__('This blog ID is already used.'));
                     }
                 }

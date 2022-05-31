@@ -11,6 +11,7 @@ namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\BlogDel
 use Dotclear\App;
+use Dotclear\Database\Param;
 use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -36,16 +37,17 @@ class BlogDel extends AbstractPage
     protected function getPagePrepend(): ?bool
     {
         // search the blog
-        $rs = null;
         if (!GPC::post()->empty('blog_id')) {
             try {
-                $rs = App::core()->blogs()->getBlog(id: GPC::post()->string('blog_id'));
+                $param = new Param();
+                $param->set('blog_id', GPC::post()->string('blog_id'));
 
-                if ($rs->isEmpty()) {
+                $record = App::core()->blogs()->getBlogs(param: $param);
+                if ($record->isEmpty()) {
                     App::core()->error()->add(__('No such blog ID'));
                 } else {
-                    $this->blog_id   = $rs->f('blog_id');
-                    $this->blog_name = $rs->f('blog_name');
+                    $this->blog_id   = $record->f('blog_id');
+                    $this->blog_name = $record->f('blog_name');
                 }
             } catch (Exception $e) {
                 App::core()->error()->add($e->getMessage());

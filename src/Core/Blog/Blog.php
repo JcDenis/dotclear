@@ -15,6 +15,7 @@ use Dotclear\Core\Blog\Categories\Categories;
 use Dotclear\Core\Blog\Comments\Comments;
 use Dotclear\Core\Blog\Posts\Posts;
 use Dotclear\Core\Blog\Settings\Settings;
+use Dotclear\Database\Param;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Helper\Clock;
@@ -30,7 +31,7 @@ use Dotclear\Helper\Mapper\Integers;
  *
  * @ingroup  Core Blog
  */
-class Blog
+final class Blog
 {
     /**
      * @var categories $categories
@@ -149,16 +150,20 @@ class Blog
      */
     public function __construct(string $id)
     {
-        if (null !== ($rs = App::core()->blogs()->getBlog(id: $id))) {
+        $param = new Param();
+        $param->set('blog_id', $id);
+
+        $record = App::core()->blogs()->getBlogs(param: $param);
+        if (!$record->isEmpty()) {
             $this->id     = $id;
-            $this->uid    = $rs->f('blog_uid');
-            $this->name   = $rs->f('blog_name');
-            $this->desc   = $rs->f('blog_desc');
-            $this->url    = $rs->f('blog_url');
+            $this->uid    = $record->f('blog_uid');
+            $this->name   = $record->f('blog_name');
+            $this->desc   = $record->f('blog_desc');
+            $this->url    = $record->f('blog_url');
             $this->host   = Http::getHostFromURL($this->url);
-            $this->creadt = Clock::ts(date: $rs->f('blog_creadt'));
-            $this->upddt  = Clock::ts(date: $rs->f('blog_upddt'));
-            $this->status = (int) $rs->f('blog_status');
+            $this->creadt = Clock::ts(date: $record->f('blog_creadt'));
+            $this->upddt  = Clock::ts(date: $record->f('blog_upddt'));
+            $this->status = (int) $record->f('blog_status');
 
             $this->public_path = Path::real(Path::fullFromRoot($this->settings()->get('system')->get('public_path'), App::core()->config()->get('base_dir')));
             $this->public_url  = $this->getURLFor('resources'); // ! to enhance
@@ -178,9 +183,10 @@ class Blog
         }
     }
 
-    // / @name Blog sub instances methods
-    // @{
     /**
+     * // / @name Blog sub instances methods
+     * // @{.
+     * /**
      * Get categories instance.
      *
      * Categories methods are accesible from App::core()->blog()->categories()
