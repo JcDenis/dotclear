@@ -382,7 +382,7 @@ final class Comments
         // --BEHAVIOR-- coreAfterCommentCreate, Comments, Cursor
         App::core()->behavior()->call('coreAfterCommentCreate', $cursor);
 
-        App::core()->blog()->triggerComment(id: $cursor->getField('comment_id'));
+        App::core()->blog()->triggerComments(ids: new Integers($cursor->getField('comment_id')));
         if (-2 != $cursor->getField('comment_status')) {
             App::core()->blog()->triggerBlog();
         }
@@ -440,7 +440,7 @@ final class Comments
         // --BEHAVIOR-- coreAfterCommentUpdate, Cursor, Record
         App::core()->behavior()->call('coreAfterCommentUpdate', $cursor, $record);
 
-        App::core()->blog()->triggerComment(id: $id);
+        App::core()->blog()->triggerComments(ids: new Integers($id));
         App::core()->blog()->triggerBlog();
     }
 

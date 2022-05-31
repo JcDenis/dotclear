@@ -333,30 +333,15 @@ final class Blog
      */
     public function triggerBlog(): void
     {
-        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'blog')
-            ->setField('blog_upddt', Clock::database())
-        ;
+        $cursor = App::core()->con()->openCursor(App::core()->prefix() . 'blog');
+        $cursor->setField('blog_upddt', Clock::database());
 
         $sql = new UpdateStatement(__METHOD__);
-        $sql->where('blog_id = ' . $sql->quote($this->id))
-            ->update($cur)
-        ;
+        $sql->where('blog_id = ' . $sql->quote($this->id));
+        $sql->update($cursor);
 
         // --BEHAVIOR-- coreBlogAfterTriggerBlog, Dotclear\Database\Cursor
-        App::core()->behavior()->call('coreBlogAfterTriggerBlog', $cur);
-    }
-
-    /**
-     * Updates comment and trackback counters in post table.
-     *
-     * Should be called every time a comment or trackback
-     * is added, removed or changed its status.
-     *
-     * @param int $id The comment identifier
-     */
-    public function triggerComment(int $id): void
-    {
-        $this->triggerComments(ids: new Integers($id));
+        App::core()->behavior()->call('coreBlogAfterTriggerBlog', $cursor);
     }
 
     /**
@@ -377,10 +362,10 @@ final class Blog
             $sql->where('comment_id' . $sql->in($ids->dump()));
             $sql->group('post_id');
 
-            $posts = new Integers();
-            $rs    = $sql->select();
-            while ($rs->fetch()) {
-                $posts->add($rs->fInt('post_id'));
+            $posts  = new Integers();
+            $record = $sql->select();
+            while ($record->fetch()) {
+                $posts->add($record->fInt('post_id'));
             }
         }
 
@@ -400,10 +385,10 @@ final class Blog
         $sql->and('post_id' . $sql->in($posts->dump()));
         $sql->group(['post_id', 'comment_trackback']);
 
-        $nb = [];
-        $rs = $sql->select();
-        while ($rs->fetch()) {
-            $nb[$rs->fInt('post_id')][$rs->fInt('comment_trackback') ? 'trackback' : 'comment'] = $rs->f('nb_comment');
+        $nb     = [];
+        $record = $sql->select();
+        while ($record->fetch()) {
+            $nb[$record->fInt('post_id')][$record->fInt('comment_trackback') ? 'trackback' : 'comment'] = $record->f('nb_comment');
         }
 
         // Update number of comments on affected posts
