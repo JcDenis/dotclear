@@ -70,70 +70,70 @@ final class Blog
     private $comment_status = [];
 
     /**
-     * @var string $id
-     *             The blog id
+     * @var null|string $id
+     *                  The blog id
      */
-    public $id;
+    public readonly ?string $id;
 
     /**
-     * @var string $uid
-     *             The blog unique id
+     * @var null|string $uid
+     *                  The blog unique id
      */
-    public $uid;
+    public readonly ?string $uid;
 
     /**
      * @var string $name
      *             The blog name
      */
-    public $name;
+    public readonly ?string $name;
 
     /**
      * @var string $desc
      *             The blog description
      */
-    public $desc;
+    public readonly ?string $desc;
 
     /**
      * @var string $url
      *             The blog URL
      */
-    public $url;
+    public readonly ?string $url;
 
     /**
      * @var string $host
      *             The blog host
      */
-    public $host;
+    public readonly ?string $host;
 
     /**
      * @var int $creadt
      *          The blog creation date
      */
-    public $creadt;
+    public readonly ?int $creadt;
 
     /**
      * @var int $upddt
      *          The blog last update date
      */
-    public $upddt;
+    public readonly ?int $upddt;
 
     /**
      * @var int $status
      *          The blog status
      */
-    public $status;
+    public readonly ?int $status;
 
     /**
      * @var false|string $public_path
      *                   The blog public path
      */
-    public $public_path;
+    public readonly false|string $public_path;
 
     /**
      * @var string $public_url
      *             The blog public url
      */
-    public $public_url;
+    public readonly ?string $public_url;
 
     /**
      * @var bool $without_password
@@ -154,33 +154,32 @@ final class Blog
         $param->set('blog_id', $id);
 
         $record = App::core()->blogs()->getBlogs(param: $param);
-        if (!$record->isEmpty()) {
-            $this->id     = $id;
-            $this->uid    = $record->f('blog_uid');
-            $this->name   = $record->f('blog_name');
-            $this->desc   = $record->f('blog_desc');
-            $this->url    = $record->f('blog_url');
-            $this->host   = Http::getHostFromURL($this->url);
-            $this->creadt = Clock::ts(date: $record->f('blog_creadt'));
-            $this->upddt  = Clock::ts(date: $record->f('blog_upddt'));
-            $this->status = (int) $record->f('blog_status');
 
-            $this->public_path = Path::real(Path::fullFromRoot($this->settings()->get('system')->get('public_path'), App::core()->config()->get('base_dir')));
-            $this->public_url  = $this->getURLFor('resources'); // ! to enhance
+        $this->id     = $record->isEmpty() ? null : $id;
+        $this->uid    = $record->isEmpty() ? null : $record->f('blog_uid');
+        $this->name   = $record->isEmpty() ? null : $record->f('blog_name');
+        $this->desc   = $record->isEmpty() ? null : $record->f('blog_desc');
+        $this->url    = $record->isEmpty() ? null : $record->f('blog_url');
+        $this->host   = $record->isEmpty() ? null : Http::getHostFromURL($this->url);
+        $this->creadt = $record->isEmpty() ? null : Clock::ts(date: $record->f('blog_creadt'));
+        $this->upddt  = $record->isEmpty() ? null : Clock::ts(date: $record->f('blog_upddt'));
+        $this->status = $record->isEmpty() ? null : (int) $record->f('blog_status');
 
-            $this->post_status['-2'] = __('Pending');
-            $this->post_status['-1'] = __('Scheduled');
-            $this->post_status['0']  = __('Unpublished');
-            $this->post_status['1']  = __('Published');
+        $this->public_url  = $record->isEmpty() ? null : $this->getURLFor('resources'); // ! to enhance;
+        $this->public_path = $record->isEmpty() ? false : Path::real(Path::fullFromRoot($this->settings()->get('system')->get('public_path'), App::core()->config()->get('base_dir')));
 
-            $this->comment_status['-2'] = __('Junk');
-            $this->comment_status['-1'] = __('Pending');
-            $this->comment_status['0']  = __('Unpublished');
-            $this->comment_status['1']  = __('Published');
+        $this->post_status['-2'] = __('Pending');
+        $this->post_status['-1'] = __('Scheduled');
+        $this->post_status['0']  = __('Unpublished');
+        $this->post_status['1']  = __('Published');
 
-            // --BEHAVIOR-- coreBlogConstruct, Dotclear\Core\Blog
-            App::core()->behavior()->call('coreBlogConstruct', $this);
-        }
+        $this->comment_status['-2'] = __('Junk');
+        $this->comment_status['-1'] = __('Pending');
+        $this->comment_status['0']  = __('Unpublished');
+        $this->comment_status['1']  = __('Published');
+
+        // --BEHAVIOR-- coreBlogConstruct, Blog, Record
+        App::core()->behavior()->call('coreBlogConstruct', $this, $record);
     }
 
     /**
