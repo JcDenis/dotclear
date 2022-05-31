@@ -84,7 +84,7 @@ final class Comments
     {
         return [
             1  => __('Published'),
-            0  => __('Unpublish'),
+            0  => __('Unpublished'),
             -1 => __('Pending'),
             -2 => __('Junk'),
         ];
@@ -105,7 +105,7 @@ final class Comments
     {
         return match ($code) {
             1       => __('Published'),
-            0       => __('Unpublish'),
+            0       => __('Unpublished'),
             -1      => __('Pending'),
             -2      => __('Junk'),
             default => $default,
