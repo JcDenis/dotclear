@@ -47,6 +47,7 @@ final class Comments
     public function getCommentsStatusCodes(): array
     {
         return [
+            'pusblish'  => 1,
             'unpublish' => 0,
             'pending'   => -1,
             'junk'      => -2,
@@ -66,6 +67,7 @@ final class Comments
     public function getCommentsStatusCode(string $name, int $default = null): ?int
     {
         return match ($name) {
+            'pusblish'  => 1,
             'unpublish' => 0,
             'pending'   => -1,
             'junk'      => -2,
@@ -81,9 +83,10 @@ final class Comments
     public function getCommentsStatusNames(): array
     {
         return [
-            0  => __('unpublish'),
-            -1 => __('pending'),
-            -2 => __('junk'),
+            1  => __('Published'),
+            0  => __('Unpublish'),
+            -1 => __('Pending'),
+            -2 => __('Junk'),
         ];
     }
 
@@ -101,9 +104,10 @@ final class Comments
     public function getCommentsStatusName(int $code, string $default = null): ?string
     {
         return match ($code) {
-            0       => __('unpublish'),
-            -1      => __('pending'),
-            -2      => __('junk'),
+            1       => __('Published'),
+            0       => __('Unpublish'),
+            -1      => __('Pending'),
+            -2      => __('Junk'),
             default => $default,
         };
     }

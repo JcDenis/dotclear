@@ -58,18 +58,6 @@ final class Blog
     private $settings;
 
     /**
-     * @var array<int,string> $post_status
-     *                        The post status list
-     */
-    private $post_status    = [];
-
-    /**
-     * @var array<int,string> $comment_status
-     *                        The comment status list
-     */
-    private $comment_status = [];
-
-    /**
      * @var null|string $id
      *                  The blog id
      */
@@ -167,16 +155,6 @@ final class Blog
 
         $this->public_url  = $record->isEmpty() ? null : $this->getURLFor('resources'); // ! to enhance;
         $this->public_path = $record->isEmpty() ? false : Path::real(Path::fullFromRoot($this->settings()->get('system')->get('public_path'), App::core()->config()->get('base_dir')));
-
-        $this->post_status['-2'] = __('Pending');
-        $this->post_status['-1'] = __('Scheduled');
-        $this->post_status['0']  = __('Unpublished');
-        $this->post_status['1']  = __('Published');
-
-        $this->comment_status['-2'] = __('Junk');
-        $this->comment_status['-1'] = __('Pending');
-        $this->comment_status['0']  = __('Unpublished');
-        $this->comment_status['1']  = __('Published');
 
         // --BEHAVIOR-- coreBlogConstruct, Blog, Record
         App::core()->behavior()->call('coreBlogConstruct', $this, $record);
@@ -299,41 +277,6 @@ final class Blog
         }
 
         return 'jquery/' . $version;
-    }
-
-    /**
-     * Returns an entry status name given to a code.
-     *
-     * Status are translated, never use it for tests.
-     * If status code does not exist, returns <i>unpublished</i>.
-     *
-     * @param int $s The status code
-     *
-     * @return string The post status
-     */
-    public function getPostStatus(int $s): string
-    {
-        return $this->post_status[$s] ?? $this->post_status['0'];
-    }
-
-    /**
-     * Returns an array of available entry status codes and names.
-     *
-     * @return array<int, string> Simple array with codes in keys and names in value
-     */
-    public function getAllPostStatus(): array
-    {
-        return $this->post_status;
-    }
-
-    /**
-     * Returns an array of available comment status codes and names.
-     *
-     * @return array<int, string> Simple array with codes in keys and names in value
-     */
-    public function getAllCommentStatus(): array
-    {
-        return $this->comment_status;
     }
 
     /**

@@ -65,12 +65,7 @@ class Combo
      */
     public function getPostStatusesCombo(): array
     {
-        $status_combo = [];
-        foreach (App::core()->blog()->getAllPostStatus() as $k => $v) {
-            $status_combo[$v] = (string) $k;
-        }
-
-        return $status_combo;
+        return array_flip(App::core()->blog()->posts()->getPostsStatusNames());
     }
 
     /**
@@ -236,12 +231,7 @@ class Combo
      */
     public function getCommentStatusesCombo(): array
     {
-        $status_combo = [];
-        foreach (App::core()->blog()->getAllCommentStatus() as $k => $v) {
-            $status_combo[$v] = (string) $k;
-        }
-
-        return $status_combo;
+        return array_flip(App::core()->blog()->comments()->getCommentsStatusNames());
     }
 
     /**

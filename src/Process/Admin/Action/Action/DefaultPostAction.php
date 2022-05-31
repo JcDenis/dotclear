@@ -108,7 +108,7 @@ abstract class DefaultPostAction extends Action
                     $ids->count()
                 ),
                 $ids->count(),
-                App::core()->blog()->getPostStatus($status)
+                App::core()->blog()->posts()->getPostsStatusName($status)
             )
         );
         $ap->redirect(true);

@@ -46,6 +46,7 @@ final class Posts
     public function getPostsStatusCodes(): array
     {
         return [
+            'publish'   => 1,
             'unpublish' => 0,
             'schedule'  => -1,
             'pending'   => -2,
@@ -65,6 +66,7 @@ final class Posts
     public function getPostsStatusCode(string $name, int $default = null): ?int
     {
         return match ($name) {
+            'publish'   => 1,
             'unpublish' => 0,
             'schedule'  => -1,
             'pending'   => -2,
@@ -80,9 +82,10 @@ final class Posts
     public function getPostsStatusNames(): array
     {
         return [
-            0  => __('unpublish'),
-            -1 => __('schedule'),
-            -2 => __('pending'),
+            1  => __('Published'),
+            0  => __('Unpublished'),
+            -1 => __('Scheduled'),
+            -2 => __('Pending'),
         ];
     }
 
@@ -100,9 +103,10 @@ final class Posts
     public function getPostsStatusName(int $code, string $default = null): ?string
     {
         return match ($code) {
-            0       => __('unpublish'),
-            -1      => __('schedule'),
-            -2      => __('pending'),
+            1       => __('Published'),
+            0       => __('Unpublished'),
+            -1      => __('Scheduled'),
+            -2      => __('Pending'),
             default => $default,
         };
     }

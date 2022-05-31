@@ -77,9 +77,9 @@ final class Blogs
     public function getBlogsStatusNames(): array
     {
         return [
-            1  => __('online'),
-            0  => __('offline'),
-            -1 => __('removed'),
+            1  => __('Online'),
+            0  => __('Offline'),
+            -1 => __('Removed'),
         ];
     }
 
@@ -97,9 +97,9 @@ final class Blogs
     public function getBlogsStatusName(int $code, string $default = null): ?string
     {
         return match ($code) {
-            1       => __('online'),
-            0       => __('offline'),
-            -1      => __('removed'),
+            1       => __('Online'),
+            0       => __('Offline'),
+            -1      => __('Removed'),
             default => $default,
         };
     }
