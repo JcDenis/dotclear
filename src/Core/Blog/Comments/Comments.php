@@ -244,7 +244,7 @@ final class Comments
                 'P.post_status = 1',
             ];
 
-            if (App::core()->blog()->withoutPassword()) {
+            if (App::core()->blog()->isWithoutPassword()) {
                 $and[] = 'post_password IS NULL';
             }
 

@@ -591,7 +591,7 @@ final class Posts
             $user_id = App::core()->user()->userID();
 
             $and = ['post_status = 1'];
-            if (App::core()->blog()->withoutPassword()) {
+            if (App::core()->blog()->isWithoutPassword()) {
                 $and[] = 'post_password IS NULL';
             }
             $or = [$sql->andGroup($and)];

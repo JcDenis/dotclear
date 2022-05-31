@@ -337,20 +337,29 @@ final class Blog
     }
 
     /**
-     * Disallows entries password protection.
+     * Check entries password protection state.
      *
-     * You need to set it to <var>false</var> while serving a public blog.
-     * Set it to null to read current value.
-     *
-     * @param null|bool $v true to set password usage, null to read it
+     * @return bool True if without password protection
      */
-    public function withoutPassword(?bool $v = null): bool
+    public function isWithoutPassword(): bool
     {
-        if (null !== $v) {
-            $this->without_password = $v;
-        }
-
         return $this->without_password;
+    }
+
+    /**
+     * Disallow entries password protection.
+     */
+    public function setWithoutPassword()
+    {
+        $this->without_password = true;
+    }
+
+    /**
+     * Allow entries password protection.
+     */
+    public function setWithPassword()
+    {
+        $this->without_password = false;
     }
 
     /**

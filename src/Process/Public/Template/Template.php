@@ -2331,7 +2331,7 @@ class Template extends BaseTemplate
         if (empty($attr['no_context'])) {
             $p .= 'if (App::core()->context()->get("posts") !== null) { ' .
                 "\$param->set('post_id', App::core()->context()->get('posts')->fInt('post_id')); " .
-                "App::core()->blog()->withoutPassword(false);\n" .
+                "App::core()->blog()->setWithPassword();\n" .
                 "}\n";
             $p .= 'if (App::core()->context()->exists("categories")) { ' .
                 "\$param->set('cat_id', App::core()->context()->get('categories')->fInt('cat_id')); " .
@@ -2366,7 +2366,7 @@ class Template extends BaseTemplate
         );
         $res .= $p;
         $res .= 'App::core()->context()->set("comments", App::core()->blog()->comments()->getComments(param: $param)); unset($param);' . "\n";
-        $res .= "if (App::core()->context()->get('posts') !== null) { App::core()->blog()->withoutPassword(true);}\n";
+        $res .= "if (App::core()->context()->get('posts') !== null) { App::core()->blog()->setWithoutPassword();}\n";
 
         if (!empty($attr['with_pings'])) {
             $res .= 'App::core()->context()->set("pings", App::core()->context()->get("comments"));' . "\n";
@@ -2921,7 +2921,7 @@ class Template extends BaseTemplate
         $p = 'if (!isset($param)) { $param = new Param(); }' . "\n" .
             'if (App::core()->context()->get("posts") !== null) { ' .
             "\$param->set('post_id', App::core()->context()->get('posts')->fInt('post_id')); " .
-            "App::core()->blog()->withoutPassword(false);\n" .
+            "App::core()->blog()->setWithPassword();\n" .
             "}\n";
 
         $p .= "\$param->set('comment_trackback', 1);\n";
@@ -2967,7 +2967,7 @@ class Template extends BaseTemplate
             $content
         );
         $res .= 'App::core()->context()->set("pings", App::core()->blog()->comments()->getComments(param: $param)); unset($param);' . "\n";
-        $res .= "if (App::core()->context()->get('posts') !== null) { App::core()->blog()->withoutPassword(true);}\n";
+        $res .= "if (App::core()->context()->get('posts') !== null) { App::core()->blog()->setWithoutPassword();}\n";
         $res .= "?>\n";
 
         $res .= self::$ton . 'while (App::core()->context()->get("pings")->fetch()) :' . self::$toff . $content . self::$ton . 'endwhile; App::core()->context()->set("pings", null);' . self::$toff;

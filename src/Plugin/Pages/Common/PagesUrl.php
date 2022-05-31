@@ -43,7 +43,7 @@ class PagesUrl extends Url
             // No page was specified.
             App::core()->url()->p404();
         } else {
-            App::core()->blog()->withoutPassword(false);
+            App::core()->blog()->setWithPassword();
 
             $param = new Param();
             $param->set('post_type', 'page');
@@ -65,7 +65,7 @@ class PagesUrl extends Url
             $cp['remember']   = false;
             App::core()->context()->set('comment_preview', $cp);
 
-            App::core()->blog()->withoutPassword(true);
+            App::core()->blog()->setWithoutPassword();
 
             if (App::core()->context()->get('posts')->isEmpty()) {
                 // The specified page does not exist.

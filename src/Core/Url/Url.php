@@ -707,7 +707,7 @@ class Url
             // No entry was specified.
             $this->p404();
         } else {
-            App::core()->blog()->withoutPassword(false);
+            App::core()->blog()->setWithPassword();
 
             $param = new Param();
             $param->set('post_url', $args);
@@ -728,7 +728,7 @@ class Url
             $cp['remember']   = false;
             App::core()->context()->set('comment_preview', $cp);
 
-            App::core()->blog()->withoutPassword(true);
+            App::core()->blog()->setWithoutPassword();
 
             if (App::core()->context()->get('posts')->isEmpty()) {
                 // The specified entry does not exist.
