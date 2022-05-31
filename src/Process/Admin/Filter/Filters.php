@@ -146,7 +146,7 @@ class Filters
         }
     }
 
-    public function getID()
+    public function getId()
     {
         return $this->id;
     }
