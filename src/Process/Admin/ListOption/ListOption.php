@@ -242,6 +242,6 @@ class ListOption
     {
         $this->getUserFilters();
 
-        return isset($this->sorts[$type]) && is_array($this->sorts[$type][4]) ? abs((int) $this->sorts[$type][4][1]) : 0;
+        return isset($this->sorts[$type]) && is_array($this->sorts[$type][4]) ? abs((int) $this->sorts[$type][4][1]) : 20;
     }
 }
