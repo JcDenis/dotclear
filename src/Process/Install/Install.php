@@ -158,9 +158,10 @@ class Install
                 // Create global blog settings
                 Distrib::setBlogDefaultSettings();
 
-                $blog_settings = new Settings('default');
-                $blog_settings->get('system')->put('blog_timezone', $default_tz);
-                $blog_settings->get('system')->put('lang', $dlang);
+                $settings = new Settings(blog: 'default');
+                $system   = $settings->getGroup('system');
+                $system->putSetting('blog_timezone', $default_tz);
+                $system->putSetting('lang', $dlang);
 
                 // date and time formats
                 $formatDate   = __('%A, %B %e %Y');
@@ -175,13 +176,13 @@ class Install
                         $date_formats
                     );
                 }
-                $blog_settings->get('system')->put('date_format', $formatDate);
-                $blog_settings->get('system')->put('date_formats', $date_formats, 'array', 'Date formats examples', true, true);
-                $blog_settings->get('system')->put('time_formats', $time_formats, 'array', 'Time formats examples', true, true);
+                $system->putSetting('date_format', $formatDate);
+                $system->putSetting('date_formats', $date_formats, 'array', 'Date formats examples', true, true);
+                $system->putSetting('time_formats', $time_formats, 'array', 'Time formats examples', true, true);
 
                 // Add repository URL for themes and plugins
-                $blog_settings->get('system')->put('store_plugin_url', App::core()->config()->get('plugin_update_url'), 'string', 'Plugins XML feed location', true, true);
-                $blog_settings->get('system')->put('store_theme_url', App::core()->config()->get('theme_update_url'), 'string', 'Themes XML feed location', true, true);
+                $system->putSetting('store_plugin_url', App::core()->config()->get('plugin_update_url'), 'string', 'Plugins XML feed location', true, true);
+                $system->putSetting('store_theme_url', App::core()->config()->get('theme_update_url'), 'string', 'Themes XML feed location', true, true);
 
                 // CSP directive (admin part)
 
@@ -191,9 +192,9 @@ class Install
                 $csp_prefix = App::core()->con()->driver() == 'sqlite' ? 'localhost ' : ''; // Hack for SQlite Clearbricks driver
                 $csp_suffix = App::core()->con()->driver() == 'sqlite' ? ' 127.0.0.1' : ''; // Hack for SQlite Clearbricks driver
 
-                $blog_settings->get('system')->put('csp_admin_on', true, 'boolean', 'Send CSP header (admin)', true, true);
-                $blog_settings->get('system')->put('csp_admin_report_only', false, 'boolean', 'CSP Report only violations (admin)', true, true);
-                $blog_settings->get('system')->put(
+                $system->putSetting('csp_admin_on', true, 'boolean', 'Send CSP header (admin)', true, true);
+                $system->putSetting('csp_admin_report_only', false, 'boolean', 'CSP Report only violations (admin)', true, true);
+                $system->putSetting(
                     'csp_admin_default',
                     $csp_prefix . "'self'" . $csp_suffix,
                     'string',
@@ -201,7 +202,7 @@ class Install
                     true,
                     true
                 );
-                $blog_settings->get('system')->put(
+                $system->putSetting(
                     'csp_admin_script',
                     $csp_prefix . "'self' 'unsafe-eval'" . $csp_suffix,
                     'string',
@@ -209,7 +210,7 @@ class Install
                     true,
                     true
                 );
-                $blog_settings->get('system')->put(
+                $system->putSetting(
                     'csp_admin_style',
                     $csp_prefix . "'self' 'unsafe-inline'" . $csp_suffix,
                     'string',
@@ -217,7 +218,7 @@ class Install
                     true,
                     true
                 );
-                $blog_settings->get('system')->put(
+                $system->putSetting(
                     'csp_admin_img',
                     $csp_prefix . "'self' data: https://media.dotaddict.org blob:",
                     'string',
@@ -227,8 +228,8 @@ class Install
                 );
 
                 // JQuery stuff
-                $blog_settings->get('system')->put('jquery_migrate_mute', true, 'boolean', 'Mute warnings for jquery migrate plugin ?', false);
-                $blog_settings->get('system')->put('jquery_allow_old_version', false, 'boolean', 'Allow older version of jQuery', false, true);
+                $system->putSetting('jquery_migrate_mute', true, 'boolean', 'Mute warnings for jquery migrate plugin ?', false);
+                $system->putSetting('jquery_allow_old_version', false, 'boolean', 'Allow older version of jQuery', false, true);
 
                 // Add Dotclear version
                 $cur = App::core()->con()->openCursor(App::core()->prefix() . 'version');

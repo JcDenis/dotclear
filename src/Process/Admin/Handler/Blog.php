@@ -71,15 +71,11 @@ class Blog extends AbstractPage
                 App::core()->blogs()->createBlog(cursor: $cur);
 
                 // Default settings and override some
-                $blog_settings = new Settings($cur->getField('blog_id'));
-                $blog_settings->get('system')->put('lang', App::core()->user()->getInfo('user_lang'));
-                $blog_settings->get('system')->put('blog_timezone', App::core()->user()->getInfo('user_tz'));
-
-                if ('?' == substr($this->blog_url, -1)) {
-                    $blog_settings->get('system')->put('url_scan', 'query_string');
-                } else {
-                    $blog_settings->get('system')->put('url_scan', 'path_info');
-                }
+                $settings = new Settings(blog: $cur->getField('blog_id'));
+                $system   = $settings->getGroup('system');
+                $system->putSetting('lang', App::core()->user()->getInfo('user_lang'));
+                $system->putSetting('blog_timezone', App::core()->user()->getInfo('user_tz'));
+                $system->putSetting('url_scan', '?' == substr($this->blog_url, -1) ? 'query_string' : 'path_info');
 
                 App::core()->notice()->addSuccessNotice(sprintf(__('Blog "%s" successfully created'), Html::escapeHTML($cur->getField('blog_name'))));
                 App::core()->adminurl()->redirect('admin.blog', ['id' => $cur->getField('blog_id'), 'edit_blog_mode' => 1]);

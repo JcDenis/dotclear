@@ -86,7 +86,7 @@ class ModulePrepend
         }
 
         App::core()->behavior()->add('publicBeforeDocument', function () {
-            $tplset = App::core()->themes()->getModule((string) App::core()->blog()->settings()->get('system')->get('theme'))->templateset();
+            $tplset = App::core()->themes()->getModule((string) App::core()->blog()->settings()->getGroup('system')->getSetting('theme'))->templateset();
             App::core()->template()->setPath(
                 App::core()->template()->getPath(),
                 $this->define()->root() . '/templates/' . (!empty($tplset) && is_dir($this->define()->root() . '/templates/' . $tplset) ? $tplset : App::core()->config()->get('template_default'))
@@ -185,7 +185,7 @@ class ModulePrepend
      */
     protected function isTheme()
     {
-        return 'Theme' == $this->define()->type() && App::core()->blog()->settings()->get('system')->get('theme') == $this->define()->id();
+        return 'Theme' == $this->define()->type() && App::core()->blog()->settings()->getGroup('system')->getSetting('theme') == $this->define()->id();
     }
     // @}
 }

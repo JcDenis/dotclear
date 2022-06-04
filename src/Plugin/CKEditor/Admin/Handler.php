@@ -37,56 +37,56 @@ class Handler extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        $s          = App::core()->blog()->settings()->get('dcckeditor');
+        $s          = App::core()->blog()->settings()->getGroup('dcckeditor');
         $this->ckes = [
             'is_admin'                    => App::core()->user()->check('admin,contentadmin', App::core()->blog()->id) || App::core()->user()->isSuperAdmin(),
-            'active'                      => $s->get('active'),
-            'alignment_buttons'           => $s->get('alignment_buttons'),
-            'list_buttons'                => $s->get('list_buttons'),
-            'textcolor_button'            => $s->get('textcolor_button'),
-            'background_textcolor_button' => $s->get('background_textcolor_button'),
-            'custom_color_list'           => $s->get('custom_color_list'),
-            'colors_per_row'              => $s->get('colors_per_row'),
-            'cancollapse_button'          => $s->get('cancollapse_button'),
-            'format_select'               => $s->get('format_select'),
-            'format_tags'                 => $s->get('format_tags'),
-            'table_button'                => $s->get('table_button'),
-            'clipboard_buttons'           => $s->get('clipboard_buttons'),
-            'action_buttons'              => $s->get('action_buttons'),
-            'disable_native_spellchecker' => $s->get('disable_native_spellchecker'),
-            'was_actived'                 => $s->get('active'),
+            'active'                      => $s->getSetting('active'),
+            'alignment_buttons'           => $s->getSetting('alignment_buttons'),
+            'list_buttons'                => $s->getSetting('list_buttons'),
+            'textcolor_button'            => $s->getSetting('textcolor_button'),
+            'background_textcolor_button' => $s->getSetting('background_textcolor_button'),
+            'custom_color_list'           => $s->getSetting('custom_color_list'),
+            'colors_per_row'              => $s->getSetting('colors_per_row'),
+            'cancollapse_button'          => $s->getSetting('cancollapse_button'),
+            'format_select'               => $s->getSetting('format_select'),
+            'format_tags'                 => $s->getSetting('format_tags'),
+            'table_button'                => $s->getSetting('table_button'),
+            'clipboard_buttons'           => $s->getSetting('clipboard_buttons'),
+            'action_buttons'              => $s->getSetting('action_buttons'),
+            'disable_native_spellchecker' => $s->getSetting('disable_native_spellchecker'),
+            'was_actived'                 => $s->getSetting('active'),
         ];
 
         if (!GPC::post()->empty('saveconfig')) {
             try {
                 $this->ckes['active'] = !GPC::post()->empty('dcckeditor_active');
-                App::core()->blog()->settings()->get('dcckeditor')->put('active', $this->ckes['active'], 'boolean');
+                $s->putSetting('active', $this->ckes['active'], 'boolean');
 
                 // change other settings only if they were in html page
                 if ($this->ckes['was_actived']) {
                     $this->ckes['alignment_buttons'] = !GPC::post()->empty('dcckeditor_alignment_buttons');
-                    $s->put('alignment_buttons', $this->ckes['alignment_buttons'], 'boolean');
+                    $s->putSetting('alignment_buttons', $this->ckes['alignment_buttons'], 'boolean');
 
                     $this->ckes['list_buttons'] = !GPC::post()->empty('dcckeditor_list_buttons');
-                    $s->put('list_buttons', $this->ckes['list_buttons'], 'boolean');
+                    $s->putSetting('list_buttons', $this->ckes['list_buttons'], 'boolean');
 
                     $this->ckes['textcolor_button'] = !GPC::post()->empty('dcckeditor_textcolor_button');
-                    $s->put('textcolor_button', $this->ckes['textcolor_button'], 'boolean');
+                    $s->putSetting('textcolor_button', $this->ckes['textcolor_button'], 'boolean');
 
                     $this->ckes['background_textcolor_button'] = !GPC::post()->empty('dcckeditor_background_textcolor_button');
-                    $s->put('background_textcolor_button', $this->ckes['background_textcolor_button'], 'boolean');
+                    $s->putSetting('background_textcolor_button', $this->ckes['background_textcolor_button'], 'boolean');
 
                     $this->ckes['custom_color_list'] = str_replace(['#', ' '], '', GPC::post()->string('dcckeditor_custom_color_list'));
-                    $s->put('custom_color_list', $this->ckes['custom_color_list'], 'string');
+                    $s->putSetting('custom_color_list', $this->ckes['custom_color_list'], 'string');
 
                     $this->ckes['colors_per_row'] = abs(GPC::post()->int('dcckeditor_colors_per_row'));
-                    $s->put('colors_per_row', $this->ckes['colors_per_row']);
+                    $s->putSetting('colors_per_row', $this->ckes['colors_per_row']);
 
                     $this->ckes['cancollapse_button'] = !GPC::post()->empty('dcckeditor_cancollapse_button');
-                    $s->put('cancollapse_button', $this->ckes['cancollapse_button'], 'boolean');
+                    $s->putSetting('cancollapse_button', $this->ckes['cancollapse_button'], 'boolean');
 
                     $this->ckes['format_select'] = !GPC::post()->empty('dcckeditor_format_select');
-                    $s->put('format_select', $this->ckes['format_select'], 'boolean');
+                    $s->putSetting('format_select', $this->ckes['format_select'], 'boolean');
 
                     // default tags : p;h1;h2;h3;h4;h5;h6;pre;address
                     $this->ckes['format_tags'] = 'p;h1;h2;h3;h4;h5;h6;pre;address';
@@ -105,19 +105,19 @@ class Handler extends AbstractPage
                             $this->ckes['format_tags'] = GPC::post()->string('dcckeditor_format_tags');
                         }
                     }
-                    $s->put('format_tags', $this->ckes['format_tags'], 'string');
+                    $s->putSetting('format_tags', $this->ckes['format_tags'], 'string');
 
                     $this->ckes['table_button'] = !GPC::post()->empty('dcckeditor_table_button');
-                    $s->put('table_button', $this->ckes['table_button'], 'boolean');
+                    $s->putSetting('table_button', $this->ckes['table_button'], 'boolean');
 
                     $this->ckes['clipboard_buttons'] = !GPC::post()->empty('dcckeditor_clipboard_buttons');
-                    $s->put('clipboard_buttons', $this->ckes['clipboard_buttons'], 'boolean');
+                    $s->putSetting('clipboard_buttons', $this->ckes['clipboard_buttons'], 'boolean');
 
                     $this->ckes['action_buttons'] = !GPC::post()->empty('dcckeditor_action_buttons');
-                    $s->put('action_buttons', $this->ckes['action_buttons'], 'boolean');
+                    $s->putSetting('action_buttons', $this->ckes['action_buttons'], 'boolean');
 
                     $this->ckes['disable_native_spellchecker'] = !GPC::post()->empty('dcckeditor_disable_native_spellchecker');
-                    $s->put('disable_native_spellchecker', $this->ckes['disable_native_spellchecker'], 'boolean');
+                    $s->putSetting('disable_native_spellchecker', $this->ckes['disable_native_spellchecker'], 'boolean');
                 }
                 App::core()->blog()->triggerBlog(); // !
 

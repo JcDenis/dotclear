@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Blog\Settings;
 
-// Dotclear\Core\Blog\Settings\Settingspace
+// Dotclear\Core\Blog\Settings\SettingsGroup
 use Dotclear\App;
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
@@ -17,40 +17,36 @@ use Dotclear\Database\Statement\InsertStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Exception\CoreException;
+use Dotclear\Exception\InvalidValueFormat;
+use Dotclear\Exception\MissingOrEmptyValue;
 
 /**
  * Blog settings namespace handling methods.
  *
  * @ingroup  Core Setting
  */
-class Settingspace
+final class SettingsGroup
 {
-    /**
-     * @var array<string,array> $global_settings
-     *                          Global settings array
-     */
-    protected $global_settings = [];
+    private const NS_GROUP_SCHEMA = '/^[a-zA-Z][a-zA-Z0-9]+$/';
+    private const NS_ID_SCHEMA    = '/^[a-zA-Z][a-zA-Z0-9_]+$/';
 
     /**
-     * @var array<string,array> $local_settings
-     *                          Local settings array
+     * @var array<string,Setting> $global_settings
+     *                            Global settings array
      */
-    protected $local_settings = [];
+    private $global_settings = [];
 
     /**
-     * @var array<string,array> $settings
-     *                          Associative settings array
+     * @var array<string,Setting> $local_settings
+     *                            Local settings array
      */
-    protected $settings = [];
+    private $local_settings = [];
 
     /**
-     * @var string $ns
-     *             Current namespace
+     * @var array<string,Setting> $settings
+     *                            Associative settings array
      */
-    protected $ns;
-
-    protected const NS_NAME_SCHEMA = '/^[a-zA-Z][a-zA-Z0-9]+$/';
-    protected const NS_ID_SCHEMA   = '/^[a-zA-Z][a-zA-Z0-9_]+$/';
+    private $settings = [];
 
     /**
      * Constructor.
@@ -59,147 +55,133 @@ class Settingspace
      *
      * Local (blog) settings have a highest priority than global settings.
      *
-     * @param null|string $blog_id The blog identifier
-     * @param string      $name    The namespace ID
-     * @param null|Record $rs      The record, if any
+     * @param null|string $blog   The blog ID
+     * @param string      $group  The settings group ID
+     * @param null|Record $record The record, if any
      *
      * @throws CoreException
      */
-    public function __construct(protected string|null $blog_id, string $name, ?Record $rs = null)
+    public function __construct(private string|null $blog, public readonly string $group, ?Record $record = null)
     {
-        if (preg_match(self::NS_NAME_SCHEMA, $name)) {
-            $this->ns = $name;
-        } else {
-            throw new CoreException(sprintf(__('Invalid setting Namespace: %s'), $name));
+        if (!preg_match(self::NS_GROUP_SCHEMA, $this->group)) {
+            throw new InvalidValueFormat(sprintf(__('Invalid setting Namespace: %s'), $this->group));
         }
 
-        $this->getSettings($rs);
-    }
-
-    /**
-     * Load settings from database.
-     *
-     * @param Record $rs
-     */
-    private function getSettings(Record $rs = null): bool
-    {
-        if (null == $rs) {
+        if (null == $record) {
             try {
                 $sql = new SelectStatement(__METHOD__);
-                $rs  = $sql
-                    ->columns([
-                        'blog_id',
-                        'setting_id',
-                        'setting_value',
-                        'setting_type',
-                        'setting_label',
-                        'setting_ns',
-                    ])
-                    ->from(App::core()->prefix() . 'setting')
-                    ->where($sql->orGroup([
-                        'blog_id = ' . $sql->quote($this->blog_id),
-                        'blog_id IS NULL',
-                    ]))
-                    ->and('setting_ns = ' . $sql->quote($this->ns))
-                    ->order('setting_id DESC')
-                    ->select()
-                ;
+                $sql->columns([
+                    'blog_id',
+                    'setting_id',
+                    'setting_value',
+                    'setting_type',
+                    'setting_label',
+                    'setting_ns',
+                ]);
+                $sql->from(App::core()->prefix() . 'setting');
+                $sql->where($sql->orGroup([
+                    'blog_id = ' . $sql->quote($this->blog),
+                    'blog_id IS NULL',
+                ]));
+                $sql->and('setting_ns = ' . $sql->quote($this->group));
+                $sql->order('setting_id DESC');
+
+                $record = $sql->select();
             } catch (\Exception) {
                 trigger_error(__('Unable to retrieve settings:') . ' ' . App::core()->con()->error(), E_USER_ERROR);
             }
         }
-        while ($rs->fetch()) {
-            if ($rs->f('setting_ns') != $this->ns) {
+        while ($record->fetch()) {
+            if ($record->f('setting_ns') != $this->group) {
                 break;
             }
-            $id    = trim($rs->f('setting_id'));
-            $value = $rs->f('setting_value');
-            $type  = $rs->f('setting_type');
+            $id    = trim($record->f('setting_id'));
+            $value = $record->f('setting_value');
+            $type  = $record->f('setting_type');
 
             if ('array' == $type) {
                 $value = @json_decode($value, true);
-            } else {
-                if ('float' == $type || 'double' == $type) {
-                    $type = 'float';
-                } elseif ('boolean' != $type && 'integer' != $type) {
-                    $type = 'string';
-                }
+            } elseif ('float' == $type || 'double' == $type) {
+                $type = 'float';
+            } elseif ('boolean' != $type && 'integer' != $type) {
+                $type = 'string';
             }
 
             settype($value, $type);
 
-            $array = $rs->f('blog_id') ? 'local' : 'global';
+            $array = $record->f('blog_id') ? 'local' : 'global';
 
-            $this->{$array . '_settings'}[$id] = [
-                'ns'     => $this->ns,
-                'value'  => $value,
-                'type'   => $type,
-                'label'  => (string) $rs->f('setting_label'),
-                'global' => $rs->f('blog_id') == '',
-            ];
+            $this->{$array . '_settings'}[$id] = new Setting(
+                group: $this->group,
+                id: $id,
+                value: $value,
+                type: $type,
+                label: (string) $record->f('setting_label'),
+                global: $record->f('blog_id') == '',
+            );
         }
 
-        $this->settings = $this->global_settings;
-
-        foreach ($this->local_settings as $id => $v) {
-            $this->settings[$id] = $v;
-        }
-
-        return true;
+        $this->settings = array_merge($this->global_settings, $this->local_settings);
     }
 
     /**
-     * Check if a setting exists.
+     * Check if a setting exists in local settings.
      *
-     * @param string $id     The identifier
-     * @param bool   $global The global
+     * @param string $id The setting ID
      *
-     * @return bool True if settings exists
+     * @return bool True if setting exists
      */
-    public function settingExists(string $id, bool $global = false): bool
+    public function hasLocalSetting(string $id): bool
     {
-        $array = $global ? 'global' : 'local';
+        return isset($this->local_settings[$id]);
+    }
 
-        return isset($this->{$array . '_settings'}[$id]);
+    /**
+     * Check if a setting exists in global settings.
+     *
+     * @param string $id The setting ID
+     *
+     * @return bool True if setting exists
+     */
+    public function hasGlobalSetting(string $id): bool
+    {
+        return isset($this->global_settings[$id]);
     }
 
     /**
      * Get setting value if exists.
      *
-     * @param string $n Setting name
+     * @param string $id The setting ID
      *
      * @return mixed The setting value (or null if not)
      */
-    public function get(string $n): mixed
+    public function getSetting(string $id): mixed
     {
-        return isset($this->settings[$n]) && isset($this->settings[$n]['value']) ?
-                $this->settings[$n]['value'] : null;
+        return isset($this->settings[$id]) ? $this->settings[$id]->value : null;
     }
 
     /**
      * Get global setting value if exists.
      *
-     * @param string $n Setting name
+     * @param string $id The setting ID
      *
      * @return mixed The global setting value (or null if not)
      */
-    public function getGlobal(string $n): mixed
+    public function getGlobalSetting(string $id): mixed
     {
-        return isset($this->global_settings[$n]) && isset($this->global_settings[$n]['value']) ?
-            $this->global_settings[$n]['value'] : null;
+        return isset($this->global_settings[$id]) ? $this->global_settings[$id]->value : null;
     }
 
     /**
      * Get local setting value if exists.
      *
-     * @param string $n Setting name
+     * @param string $id The setting ID
      *
      * @return mixed The local setting value (or null if not)
      */
-    public function getLocal(string $n): mixed
+    public function getLocalSetting(string $id): mixed
     {
-        return isset($this->local_settings[$n]) && isset($this->local_settings[$n]['value']) ?
-            $this->local_settings[$n]['value'] : null;
+        return isset($this->local_settings[$id]) ? $this->local_settings[$id]->value : null;
     }
 
     /**
@@ -208,13 +190,13 @@ class Settingspace
      * This sets the setting for script
      * execution time only and if setting exists.
      *
-     * @param string $n The setting name
-     * @param mixed  $v The setting value
+     * @param string $id    The setting ID
+     * @param mixed  $value The setting value
      */
-    public function set(string $n, mixed $v): void
+    public function setSetting(string $id, mixed $value): void
     {
-        if (isset($this->settings[$n])) {
-            $this->settings[$n]['value'] = $v;
+        if (isset($this->settings[$id])) {
+            $this->settings[$id]->value = $value;
         }
     }
 
@@ -224,31 +206,31 @@ class Settingspace
      * $type could be 'string', 'integer', 'float', 'boolean', 'array' or null.
      * If $type is null and setting exists, it will keep current setting type.
      *
-     * $value_change allow you to not change setting.
+     * $change allow you to not change setting.
      * Useful if you need to change a setting label or type
      * and don't want to change its value.
      *
-     * @param string $id           The setting identifier
-     * @param mixed  $value        The setting value
-     * @param string $type         The setting type
-     * @param string $label        The setting label
-     * @param bool   $value_change Change setting value or not
-     * @param bool   $global       Setting is global
+     * @param string $id     The setting ID
+     * @param mixed  $value  The setting value
+     * @param string $type   The setting type
+     * @param string $label  The setting label
+     * @param bool   $change Change setting value or not
+     * @param bool   $global Setting is global
      *
-     * @throws CoreException
+     * @throws InvalidValueFormat
      */
-    public function put(string $id, mixed $value, ?string $type = null, ?string $label = null, bool $value_change = true, bool $global = false): void
+    public function putSetting(string $id, mixed $value, ?string $type = null, ?string $label = null, bool $change = true, bool $global = false): void
     {
         if (!preg_match(self::NS_ID_SCHEMA, $id)) {
-            throw new CoreException(sprintf(__('%s is not a valid setting id'), $id));
+            throw new InvalidValueFormat(sprintf(__('%s is not a valid setting id'), $id));
         }
 
         // We don't want to change setting value
-        if (!$value_change) {
-            if (!$global && $this->settingExists($id, false)) {
-                $value = $this->local_settings[$id]['value'];
-            } elseif ($this->settingExists($id, true)) {
-                $value = $this->global_settings[$id]['value'];
+        if (!$change) {
+            if (!$global && $this->hasLocalSetting(id: $id)) {
+                $value = $this->local_settings[$id]->value;
+            } elseif ($this->hasGlobalSetting(id: $id)) {
+                $value = $this->global_settings[$id]->value;
             }
         }
 
@@ -256,10 +238,10 @@ class Settingspace
         if ('double' == $type) {
             $type = 'float';
         } elseif (null === $type) {
-            if (!$global && $this->settingExists($id, false)) {
-                $type = $this->local_settings[$id]['type'];
-            } elseif ($this->settingExists($id, true)) {
-                $type = $this->global_settings[$id]['type'];
+            if (!$global && $this->hasLocalSetting(id: $id)) {
+                $type = $this->local_settings[$id]->type;
+            } elseif ($this->hasGlobalSetting(id: $id)) {
+                $type = $this->global_settings[$id]->type;
             } else {
                 if (is_array($value)) {
                     $type = 'array';
@@ -273,10 +255,10 @@ class Settingspace
 
         // We don't change label
         if (null == $label) {
-            if (!$global && $this->settingExists($id, false)) {
-                $label = $this->local_settings[$id]['label'];
-            } elseif ($this->settingExists($id, true)) {
-                $label = $this->global_settings[$id]['label'];
+            if (!$global && $this->hasLocalSetting(id: $id)) {
+                $label = $this->local_settings[$id]->label;
+            } elseif ($this->hasGlobalSetting(id: $id)) {
+                $label = $this->global_settings[$id]->label;
             }
         }
 
@@ -287,194 +269,211 @@ class Settingspace
         }
 
         // If we are local, compare to global value
-        if (!$global && $this->settingExists($id, true)) {
+        if (!$global && $this->hasGlobalSetting(id: $id)) {
             $g            = $this->global_settings[$id];
-            $same_setting = ($g['ns'] == $this->ns && $g['value'] == $value && $g['type'] == $type && $g['label'] == $label);
+            $same_setting = ($g->group == $this->group && $g->value == $value && $g->type == $type && $g->label == $label);
 
             // Drop setting if same value as global
-            if ($same_setting && $this->settingExists($id, false)) {
-                $this->drop($id);
+            if ($same_setting && $this->hasLocalSetting(id: $id)) {
+                $this->dropSetting($id);
             } elseif ($same_setting) {
                 return;
             }
         }
 
         // Update
-        if ($this->settingExists($id, $global) && $this->ns == $this->settings[$id]['ns']) {
+        if (($global && $this->hasGlobalSetting(id: $id) || !$global && $this->hasLocalSetting(id: $id))
+            && $this->group == $this->settings[$id]->group
+        ) {
             $sql = new UpdateStatement(__METHOD__);
-            $sql
-                ->set([
-                    'setting_value = ' . $sql->quote('boolean' == $type ? (string) (int) $value : (string) $value),
-                    'setting_type = ' . $sql->quote($type),
-                    'setting_label = ' . $sql->quote($label),
-                ])
-                ->where(
-                    $global ?
-                    'blog_id IS NULL' :
-                    'blog_id = ' . $sql->quote($this->blog_id)
-                )
-                ->and('setting_id = ' . $sql->quote($id))
-                ->and('setting_ns = ' . $sql->quote($this->ns))
-                ->from(App::core()->prefix() . 'setting')
-                ->update()
-            ;
+            $sql->set([
+                'setting_value = ' . $sql->quote('boolean' == $type ? (string) (int) $value : (string) $value),
+                'setting_type = ' . $sql->quote($type),
+                'setting_label = ' . $sql->quote($label),
+            ]);
+            $sql->where(
+                $global ?
+                'blog_id IS NULL' :
+                'blog_id = ' . $sql->quote($this->blog)
+            );
+            $sql->and('setting_id = ' . $sql->quote($id));
+            $sql->and('setting_ns = ' . $sql->quote($this->group));
+            $sql->from(App::core()->prefix() . 'setting');
+            $sql->update();
         // Insert
         } else {
             $sql = new InsertStatement(__METHOD__);
-            $sql
-                ->columns([
-                    'setting_value',
-                    'setting_type',
-                    'setting_label',
-                    'setting_id',
-                    'blog_id',
-                    'setting_ns',
-                ])
-                ->line([[
-                    $sql->quote('boolean' == $type ? (string) (int) $value : (string) $value),
-                    $sql->quote($type),
-                    $sql->quote($label),
-                    $sql->quote($id),
-                    $global ? 'NULL' : $sql->quote($this->blog_id),
-                    $sql->quote($this->ns),
-                ]])
-                ->from(App::core()->prefix() . 'setting')
-                ->insert()
-            ;
+            $sql->columns([
+                'setting_value',
+                'setting_type',
+                'setting_label',
+                'setting_id',
+                'blog_id',
+                'setting_ns',
+            ]);
+            $sql->line([[
+                $sql->quote('boolean' == $type ? (string) (int) $value : (string) $value),
+                $sql->quote($type),
+                $sql->quote($label),
+                $sql->quote($id),
+                $global ? 'NULL' : $sql->quote($this->blog),
+                $sql->quote($this->group),
+            ]]);
+            $sql->from(App::core()->prefix() . 'setting');
+            $sql->insert();
         }
     }
 
     /**
-     * Rename an existing setting in a Namespace.
+     * Rename an existing setting in a group.
      *
-     * @param string $oldId The old setting identifier
-     * @param string $newId The new setting identifier
+     * @param string $from The old setting ID
+     * @param string $to   The new setting ID
      *
-     * @throws CoreException
+     * @throws MissingOrEmptyValue
+     * @throws InvalidValueFormat
+     *
+     * @return bool True on success
      */
-    public function rename(string $oldId, string $newId): bool
+    public function renameSetting(string $from, string $to): bool
     {
-        if (!$this->ns) {
-            throw new CoreException(__('No namespace specified'));
+        if (!$this->group) {
+            throw new MissingOrEmptyValue(__('No namespace specified'));
         }
 
-        if (!array_key_exists($oldId, $this->settings) || array_key_exists($newId, $this->settings)) {
+        if (!array_key_exists($from, $this->settings) || array_key_exists($to, $this->settings)) {
             return false;
         }
 
-        if (!preg_match(self::NS_ID_SCHEMA, $newId)) {
-            throw new CoreException(sprintf(__('%s is not a valid setting id'), $newId));
+        if (!preg_match(self::NS_ID_SCHEMA, $to)) {
+            throw new InvalidValueFormat(sprintf(__('%s is not a valid setting id'), $to));
         }
 
         // Rename the setting in the settings array
-        $this->settings[$newId] = $this->settings[$oldId];
-        unset($this->settings[$oldId]);
+        $this->settings[$to] = $this->settings[$from];
+        unset($this->settings[$from]);
 
         // Rename the setting in the database
         $sql = new UpdateStatement(__METHOD__);
-        $sql->from(App::core()->prefix() . 'setting')
-            ->set('setting_id = ' . $sql->quote($newId))
-            ->where('setting_ns = ' . $sql->quote($this->ns))
-            ->and('setting_id = ' . $sql->quote($oldId))
-            ->update()
-        ;
+        $sql->from(App::core()->prefix() . 'setting');
+        $sql->set('setting_id = ' . $sql->quote($to));
+        $sql->where('setting_ns = ' . $sql->quote($this->group));
+        $sql->and('setting_id = ' . $sql->quote($from));
+        $sql->update();
 
         return true;
     }
 
     /**
-     * Remove an existing setting in a namespace.
+     * Remove an existing setting in a group.
      *
-     * @param string $id The setting identifier
+     * Apply to current settings blog,
+     * or global if blog is not set.
      *
-     * @throws CoreException
+     * @param string $id The setting ID
      */
-    public function drop(string $id): void
+    public function dropSetting(string $id): void
     {
-        if (!$this->ns) {
-            throw new CoreException(__('No namespace specified'));
+        if (null === $this->blog) {
+            $this->dropGlobalSetting(id: $id);
+        } else {
+            $this->deleteSetting(id: $id, where: "blog_id = '" . App::core()->con()->escape($this->blog) . "'");
         }
-
-        $sql = new DeleteStatement(__METHOD__);
-        $sql->from(App::core()->prefix() . 'setting')
-            ->where(
-                null === $this->blog_id ?
-                'blog_id IS NULL' :
-                'blog_id = ' . $sql->quote($this->blog_id)
-            )
-            ->and('setting_id = ' . $sql->quote($id))
-            ->and('setting_ns = ' . $sql->quote($this->ns))
-            ->delete()
-        ;
     }
 
     /**
-     * Remove every existing specific setting in a namespace.
+     * Remove an existing global setting in a group.
      *
-     * @param string $id     Setting ID
-     * @param bool   $global Remove global setting too
-     *
-     * @throws CoreException
+     * @param string $id The setting ID
      */
-    public function dropEvery(string $id, bool $global = false): void
+    public function dropGlobalSetting(string $id)
     {
-        if (!$this->ns) {
-            throw new CoreException(__('No namespace specified'));
+        $this->deleteSetting(id: $id, where: 'blog_id IS NULL');
+    }
+
+    /**
+     * Remove an existing non global setting in a group.
+     *
+     * @param string $id The setting ID
+     */
+    public function dropNonGlobalSetting(string $id): void
+    {
+        $this->deleteSetting(id: $id, where: 'blog_id IS NOT NULL');
+    }
+
+    /**
+     * Remove an existing setting in a group.
+     *
+     * @param string $id    The setting ID
+     * @param string $where The blog ID SQL where clause
+     *
+     * @throws MissingOrEmptyValue
+     */
+    private function deleteSetting(string $id, string $where)
+    {
+        if (!$this->group) {
+            throw new MissingOrEmptyValue(__('No namespace specified'));
         }
 
         $sql = new DeleteStatement(__METHOD__);
-        $sql->from(App::core()->prefix() . 'setting')
-            ->where('setting_id = ' . $sql->quote($id))
-            ->and('setting_ns = ' . $sql->quote($this->ns))
-        ;
-
-        if (!$global) {
-            $sql->and('blog_id IS NOT NULL');
-        }
-
+        $sql->from(App::core()->prefix() . 'setting');
+        $sql->where($where);
+        $sql->and('setting_id = ' . $sql->quote($id));
+        $sql->and('setting_ns = ' . $sql->quote($this->group));
         $sql->delete();
     }
 
     /**
-     * Remove all existing settings in a namespace.
+     * Remove all existing settings in a group.
      *
-     * @param bool $force_global Force global pref drop
+     * Apply to current settings blog,
+     * or global if blog is not set.
      *
-     * @throws CoreException
+     * @throws MissingOrEmptyValue
      */
-    public function dropAll(bool $force_global = false): void
+    public function dropSettings(): void
     {
-        if (!$this->ns) {
-            throw new CoreException(__('No namespace specified'));
+        if (!$this->group) {
+            throw new MissingOrEmptyValue(__('No namespace specified'));
         }
 
-        $global = $force_global || null === $this->blog_id;
+        if (null === $this->blog) {
+            $this->dropGlobalSettings();
+
+            return;
+        }
 
         $sql = new DeleteStatement(__METHOD__);
-        $sql->from(App::core()->prefix() . 'setting')
-            ->where(
-                $global ?
-                'blog_id IS NULL' :
-                'blog_id = ' . $sql->quote($this->blog_id)
-            )
-            ->and('setting_ns = ' . $sql->quote($this->ns))
-            ->delete()
-        ;
+        $sql->from(App::core()->prefix() . 'setting');
+        $sql->where('blog_id = ' . $sql->quote($this->blog));
+        $sql->and('setting_ns = ' . $sql->quote($this->group));
+        $sql->delete();
 
-        $array = $global ? 'global' : 'local';
-        unset($this->{$array . '_settings'});
-        $this->{$array . '_settings'} = [];
-
-        $array          = $global ? 'local' : 'global';
-        $this->settings = $this->{$array . '_settings'};
+        unset($this->local_settings);
+        $this->local_settings = [];
+        $this->settings       = $this->global_settings;
     }
 
     /**
-     * Dump a namespace.
+     * Remove all existing global settings in a group.
+     *
+     * @throws MissingOrEmptyValue
      */
-    public function dumpNamespace(): string
+    public function dropGlobalSettings()
     {
-        return $this->ns;
+        if (!$this->group) {
+            throw new MissingOrEmptyValue(__('No namespace specified'));
+        }
+
+        $sql = new DeleteStatement(__METHOD__);
+        $sql->from(App::core()->prefix() . 'setting');
+        $sql->where('blog_id IS NULL');
+        $sql->and('setting_ns = ' . $sql->quote($this->group));
+        $sql->delete();
+
+        unset($this->global_settings);
+        $this->global_settings = [];
+        $this->settings        = $this->local_settings;
     }
 
     /**

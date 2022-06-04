@@ -51,7 +51,7 @@ class Handler extends AbstractPage
                         if ('array' == GPC::post()->array('s_type')[$ns][$k]) {
                             $v = json_decode($v, true);
                         }
-                        App::core()->blog()->settings()->get($ns)->put($k, $v);
+                        App::core()->blog()->settings()->getGroup($ns)->putSetting($k, $v);
                     }
                     App::core()->blog()->triggerBlog();
                 }
@@ -71,7 +71,7 @@ class Handler extends AbstractPage
                         if ('array' == GPC::post()->array('gs_type')[$ns][$k]) {
                             $v = json_decode($v, true);
                         }
-                        App::core()->blog()->settings()->get($ns)->put($k, $v, null, null, true, true);
+                        App::core()->blog()->settings()->getGroup($ns)->putSetting($k, $v, null, null, true, true);
                     }
                     App::core()->blog()->triggerBlog();
                 }
@@ -107,7 +107,7 @@ class Handler extends AbstractPage
         '<h3 class="out-of-screen-if-js">' . sprintf(__('Settings for %s'), Html::escapeHTML(App::core()->blog()->name)) . '</h3>';
 
         $settings = [];
-        foreach (App::core()->blog()->settings()->dump() as $ns => $namespace) {
+        foreach (App::core()->blog()->settings()->dumpGroups() as $ns => $namespace) {
             foreach ($namespace->dumpSettings() as $k => $v) {
                 $settings[$ns][$k] = $v;
             }
@@ -130,7 +130,7 @@ class Handler extends AbstractPage
         '<h3 class="out-of-screen-if-js">' . __('Global settings') . '</h3>';
 
         $settings = [];
-        foreach (App::core()->blog()->settings()->dump() as $ns => $namespace) {
+        foreach (App::core()->blog()->settings()->dumpGroups() as $ns => $namespace) {
             foreach ($namespace->dumpGlobalSettings() as $k => $v) {
                 $settings[$ns][$k] = $v;
             }
@@ -180,8 +180,8 @@ class Handler extends AbstractPage
         foreach ($prefs as $ws => $s) {
             ksort($s);
             echo sprintf($table_header, ($global ? 'g_' : 'l_') . $ws, $ws);
-            foreach ($s as $k => $v) {
-                echo self::settingLine($k, $v, $ws, ($global ? 'gs' : 's'), ($global ? false : !$v['global']));
+            foreach ($s as $v) {
+                echo self::settingLine($v, ($global ? 'gs' : 's'), ($global ? false : !$v->global));
             }
             echo $table_footer;
         }
@@ -192,62 +192,62 @@ class Handler extends AbstractPage
         '</form>';
     }
 
-    private function settingLine($id, $s, $ns, $field_name, $strong_label)
+    private function settingLine($s, $field_name, $strong_label)
     {
-        switch ($s['type']) {
+        switch ($s->type) {
             case 'boolean':
                 $field = Form::combo(
-                    [$field_name . '[' . $ns . '][' . $id . ']', $field_name . '_' . $ns . '_' . $id],
+                    [$field_name . '[' . $s->group . '][' . $s->id . ']', $field_name . '_' . $s->group . '_' . $s->id],
                     [__('yes') => 1, __('no') => 0],
-                    (int) $s['value']
+                    (int) $s->value
                 );
 
                 break;
 
             case 'array':
                 $field = Form::field(
-                    [$field_name . '[' . $ns . '][' . $id . ']', $field_name . '_' . $ns . '_' . $id],
+                    [$field_name . '[' . $s->group . '][' . $s->id . ']', $field_name . '_' . $s->group . '_' . $s->id],
                     40,
                     null,
-                    Html::escapeHTML(json_encode($s['value']))
+                    Html::escapeHTML(json_encode($s->value))
                 );
 
                 break;
 
             case 'integer':
                 $field = Form::number(
-                    [$field_name . '[' . $ns . '][' . $id . ']', $field_name . '_' . $ns . '_' . $id],
+                    [$field_name . '[' . $s->group . '][' . $s->id . ']', $field_name . '_' . $s->group . '_' . $s->id],
                     null,
                     null,
-                    Html::escapeHTML((string) $s['value'])
+                    Html::escapeHTML((string) $s->value)
                 );
 
                 break;
 
             default:
                 $field = Form::field(
-                    [$field_name . '[' . $ns . '][' . $id . ']', $field_name . '_' . $ns . '_' . $id],
+                    [$field_name . '[' . $s->group . '][' . $s->id . ']', $field_name . '_' . $s->group . '_' . $s->id],
                     40,
                     null,
-                    Html::escapeHTML($s['value'])
+                    Html::escapeHTML($s->value)
                 );
 
                 break;
         }
 
         $type = Form::hidden(
-            [$field_name . '_type' . '[' . $ns . '][' . $id . ']', $field_name . '_' . $ns . '_' . $id . '_type'],
-            Html::escapeHTML($s['type'])
+            [$field_name . '_type' . '[' . $s->group . '][' . $s->id . ']', $field_name . '_' . $s->group . '_' . $s->id . '_type'],
+            Html::escapeHTML($s->type)
         );
 
         $slabel = $strong_label ? '<strong>%s</strong>' : '%s';
 
         return
         '<tr class="line">' .
-        '<td scope="row"><label for="' . $field_name . '_' . $ns . '_' . $id . '">' . sprintf($slabel, Html::escapeHTML($id)) . '</label></td>' .
+        '<td scope="row"><label for="' . $field_name . '_' . $s->group . '_' . $s->id . '">' . sprintf($slabel, Html::escapeHTML($s->id)) . '</label></td>' .
         '<td>' . $field . '</td>' .
-        '<td>' . $s['type'] . $type . '</td>' .
-        '<td>' . Html::escapeHTML($s['label']) . '</td>' .
+        '<td>' . $s->type . $type . '</td>' .
+        '<td>' . Html::escapeHTML($s->label) . '</td>' .
             '</tr>';
     }
 }

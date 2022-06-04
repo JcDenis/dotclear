@@ -250,7 +250,7 @@ class Widget
             return '';
         }
 
-        $theme = App::core()->themes()->getModule((string) App::core()->blog()->settings()->get('system')->get('theme'));
+        $theme = App::core()->themes()->getModule((string) App::core()->blog()->settings()->getGroup('system')->getSetting('theme'));
         if (!$theme) {
             return '';
         }
@@ -282,7 +282,7 @@ class Widget
             return '';
         }
 
-        $theme = App::core()->themes()->getModule((string) App::core()->blog()->settings()->get('system')->get('theme'));
+        $theme = App::core()->themes()->getModule((string) App::core()->blog()->settings()->getGroup('system')->getSetting('theme'));
         if (!$theme) {
             return '';
         }

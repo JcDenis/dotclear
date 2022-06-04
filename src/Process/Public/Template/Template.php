@@ -45,8 +45,8 @@ class Template extends BaseTemplate
     {
         parent::__construct($cache_dir, $self_name);
 
-        $this->remove_php = !App::core()->blog()->settings()->get('system')->get('tpl_allow_php');
-        $this->use_cache  = App::core()->blog()->settings()->get('system')->get('tpl_use_cache');
+        $this->remove_php = !App::core()->blog()->settings()->getGroup('system')->getSetting('tpl_allow_php');
+        $this->use_cache  = App::core()->blog()->settings()->getGroup('system')->getSetting('tpl_use_cache');
 
         // l10n
         $this->addValue('lang', [$this, 'l10n']);
@@ -730,7 +730,7 @@ class Template extends BaseTemplate
      */
     public function BlogCopyrightNotice(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->blog()->settings()->get("system")->get("copyright_notice")') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->blog()->settings()->getGroup("system")->getSetting("copyright_notice")') . ';' . self::$toff;
     }
 
     /*dtd
@@ -746,7 +746,7 @@ class Template extends BaseTemplate
      */
     public function BlogEditor(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->blog()->settings()->get("system")->get("editor")') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->blog()->settings()->getGroup("system")->getSetting("editor")') . ';' . self::$toff;
     }
 
     /*dtd
@@ -787,7 +787,7 @@ class Template extends BaseTemplate
      */
     public function BlogLanguage(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->blog()->settings()->get("system")->get("lang")') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->blog()->settings()->getGroup("system")->getSetting("lang")') . ';' . self::$toff;
     }
 
     /*dtd
@@ -910,7 +910,7 @@ class Template extends BaseTemplate
     {
         $robots = isset($attr['robots']) ? addslashes($attr['robots']) : '';
 
-        return self::$ton . "echo App::core()->context()->robotsPolicy(App::core()->blog()->settings()->get('system')->get('robots_policy'),'" . $robots . "');" . self::$toff;
+        return self::$ton . "echo App::core()->context()->robotsPolicy(App::core()->blog()->settings()->getGroup('system')->getSetting('robots_policy'),'" . $robots . "');" . self::$toff;
     }
 
     /*dtd
@@ -926,7 +926,7 @@ class Template extends BaseTemplate
      */
     public function BlogPostsURL(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), ('App::core()->blog()->settings()->get("system")->get("static_home") ? App::core()->blog()->getURLFor("posts") : App::core()->blog()->url')) . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), ('App::core()->blog()->settings()->getGroup("system")->getSetting("static_home") ? App::core()->blog()->getURLFor("posts") : App::core()->blog()->url')) . ';' . self::$toff;
     }
 
     /*dtd
@@ -935,7 +935,7 @@ class Template extends BaseTemplate
     public function IfBlogStaticEntryURL(ArrayObject $attr, string $content): string
     {
         return
-            self::$ton . "if (App::core()->blog()->settings()->get('system')->get('static_home_url') != '') :" . self::$toff .
+            self::$ton . "if (App::core()->blog()->settings()->getGroup('system')->getSetting('static_home_url') != '') :" . self::$toff .
             $content .
             self::$ton . 'endif;' . self::$toff;
     }
@@ -946,7 +946,7 @@ class Template extends BaseTemplate
     public function BlogStaticEntryURL(ArrayObject $attr): string
     {
         $p = "\$params['post_type'] = array_keys(App::core()->posttype()->getPostTypes());\n";
-        $p .= "\$params['post_url'] = " . sprintf($this->getFilters($attr), 'urldecode(App::core()->blog()->settings()->get("system")->get("static_home_url"))') . ";\n";
+        $p .= "\$params['post_url'] = " . sprintf($this->getFilters($attr), 'urldecode(App::core()->blog()->settings()->getGroup("system")->getSetting("static_home_url"))') . ";\n";
 
         return self::$ton . "\n" . $p . self::$toff;
     }
@@ -956,7 +956,7 @@ class Template extends BaseTemplate
      */
     public function BlogNbEntriesFirstPage(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->blog()->settings()->get("system")->get("nb_post_for_home")') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->blog()->settings()->getGroup("system")->getSetting("nb_post_for_home")') . ';' . self::$toff;
     }
 
     /*dtd
@@ -964,7 +964,7 @@ class Template extends BaseTemplate
      */
     public function BlogNbEntriesPerPage(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->blog()->settings()->get("system")->get("nb_post_per_page")') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->blog()->settings()->getGroup("system")->getSetting("nb_post_per_page")') . ';' . self::$toff;
     }
 
     // Categories -----------------------------------------
@@ -1301,7 +1301,7 @@ class Template extends BaseTemplate
 
             if (!isset($attr['category']) && (!isset($attr['no_category']) || !$attr['no_category'])) {
                 $p .= 'if (App::core()->context()->exists("categories")) { ' .
-                    "\$param->set('cat_id', App::core()->context()->get('categories')->fInt('cat_id').(App::core()->blog()->settings()->get('system')->get('inc_subcats')?' ?sub':''));" .
+                    "\$param->set('cat_id', App::core()->context()->get('categories')->fInt('cat_id').(App::core()->blog()->settings()->getGroup('system')->getSetting('inc_subcats')?' ?sub':''));" .
                     "}\n";
             }
 
@@ -1882,7 +1882,7 @@ class Template extends BaseTemplate
         self::$ton . 'if (App::core()->context()->get("posts")->f("post_lang")) { ' .
         'echo ' . sprintf($f, 'App::core()->context()->get("posts")->f("post_lang")') . '; ' .
         '} else {' .
-        'echo ' . sprintf($f, 'App::core()->blog()->settings()->get("system")->get("lang")') . '; ' .
+        'echo ' . sprintf($f, 'App::core()->blog()->settings()->getGroup("system")->getSetting("lang")') . '; ' .
             '}' . self::$toff;
     }
 
@@ -2196,7 +2196,7 @@ class Template extends BaseTemplate
         'elseif (App::core()->context()->exists("posts") && App::core()->context()->get("posts")->exists("post_lang")) ' . "\n" .
         '   { echo ' . sprintf($f, 'App::core()->context()->get("posts")->get("post_lang")') . '; }' . "\n" .
         'else ' . "\n" .
-        '   { echo ' . sprintf($f, 'App::core()->blog()->settings()->get("system")->get("lang")') . '; }' . self::$toff;
+        '   { echo ' . sprintf($f, 'App::core()->blog()->settings()->getGroup("system")->getSetting("lang")') . '; }' . self::$toff;
     }
 
     // Pagination -------------------------------------
@@ -2666,7 +2666,7 @@ class Template extends BaseTemplate
     public function CommentHelp(ArrayObject $attr, string $content): string
     {
         return
-            self::$ton . "if (App::core()->blog()->settings()->get('system')->get('wiki_comments')) {\n" .
+            self::$ton . "if (App::core()->blog()->settings()->getGroup('system')->getSetting('wiki_comments')) {\n" .
             "  echo __('Comments can be formatted using a simple wiki syntax.');\n" .
             "} else {\n" .
             "  echo __('HTML code is displayed as text and web addresses are automatically converted.');\n" .
@@ -2680,7 +2680,7 @@ class Template extends BaseTemplate
     public function IfCommentPreviewOptional(ArrayObject $attr, string $content): string
     {
         return
-            self::$ton . 'if (App::core()->blog()->settings()->get("system")->get("comment_preview_optional") || (App::core()->context()->get("comment_preview") !== null && App::core()->context()->get("comment_preview")["preview"])) :' . self::$toff .
+            self::$ton . 'if (App::core()->blog()->settings()->getGroup("system")->getSetting("comment_preview_optional") || (App::core()->context()->get("comment_preview") !== null && App::core()->context()->get("comment_preview")["preview"])) :' . self::$toff .
             $content .
             self::$ton . 'endif;' . self::$toff;
     }
@@ -2886,7 +2886,7 @@ class Template extends BaseTemplate
     public function PingNoFollow(ArrayObject $attr): string
     {
         return
-            self::$ton . 'if(App::core()->blog()->settings()->get("system")->get("comments_nofollow")) { ' .
+            self::$ton . 'if(App::core()->blog()->settings()->getGroup("system")->getSetting("comments_nofollow")) { ' .
             'echo \' rel="nofollow"\';' .
             '}' . self::$toff;
     }
@@ -3075,7 +3075,7 @@ class Template extends BaseTemplate
                 $sign              = '!';
                 $attr['blog_lang'] = substr($attr['blog_lang'], 1);
             }
-            $if[] = 'App::core()->blog()->settings()->get("system")->get("lang") ' . $sign . "= '" . addslashes($attr['blog_lang']) . "'";
+            $if[] = 'App::core()->blog()->settings()->getGroup("system")->getSetting("lang") ' . $sign . "= '" . addslashes($attr['blog_lang']) . "'";
         }
 
         if (isset($attr['current_tpl'])) {
@@ -3125,17 +3125,17 @@ class Template extends BaseTemplate
 
         if (isset($attr['comments_active'])) {
             $sign = (bool) $attr['comments_active'] ? '' : '!';
-            $if[] = $sign . 'App::core()->blog()->settings()->get("system")->get("allow_comments")';
+            $if[] = $sign . 'App::core()->blog()->settings()->getGroup("system")->getSetting("allow_comments")';
         }
 
         if (isset($attr['pings_active'])) {
             $sign = (bool) $attr['pings_active'] ? '' : '!';
-            $if[] = $sign . 'App::core()->blog()->settings()->get("system")->get("allow_trackbacks")';
+            $if[] = $sign . 'App::core()->blog()->settings()->getGroup("system")->getSetting("allow_trackbacks")';
         }
 
         if (isset($attr['wiki_comments'])) {
             $sign = (bool) $attr['wiki_comments'] ? '' : '!';
-            $if[] = $sign . 'App::core()->blog()->settings()->get("system")->get("wiki_comments")';
+            $if[] = $sign . 'App::core()->blog()->settings()->getGroup("system")->getSetting("wiki_comments")';
         }
 
         if (isset($attr['search_count']) && preg_match('/^((=|!|&gt;|&lt;)=|(&gt;|&lt;))\s*[0-9]+$/', trim($attr['search_count']))) {
@@ -3144,7 +3144,7 @@ class Template extends BaseTemplate
 
         if (isset($attr['jquery_needed'])) {
             $sign = (bool) $attr['jquery_needed'] ? '' : '!';
-            $if[] = $sign . 'App::core()->blog()->settings()->get("system")->get("jquery_needed")';
+            $if[] = $sign . 'App::core()->blog()->settings()->getGroup("system")->getSetting("jquery_needed")';
         }
 
         App::core()->behavior()->call('tplIfConditions', 'SysIf', $attr, $content, $if);

@@ -56,7 +56,7 @@ class Handler extends AbstractPage
         $user_ui_colorsyntax = App::core()->user()->preference()->get('interface')->get('colorsyntax');
 
         // Loading themes
-        $this->te_theme  = App::core()->themes()->getModule((string) App::core()->blog()->settings()->get('system')->get('theme'));
+        $this->te_theme  = App::core()->themes()->getModule((string) App::core()->blog()->settings()->getGroup('system')->getSetting('theme'));
         $this->te_editor = new ThemeEditor();
 
         try {
@@ -143,7 +143,7 @@ class Handler extends AbstractPage
 
         echo '<p><strong>' . sprintf(__('Your current theme on this blog is "%s".'), Html::escapeHTML($this->te_theme->name())) . '</strong></p>';
 
-        if ('default' == App::core()->blog()->settings()->get('system')->get('theme')) {
+        if ('default' == App::core()->blog()->settings()->getGroup('system')->getSetting('theme')) {
             echo '<div class="error"><p>' . __("You can't edit default theme.") . '</p></div>';
 
             return;
@@ -213,7 +213,7 @@ class Handler extends AbstractPage
 
     private function isEditableTheme(): bool
     {
-        $theme = App::core()->themes()->getModule((string) App::core()->blog()->settings()->get('system')->get('theme'));
+        $theme = App::core()->themes()->getModule((string) App::core()->blog()->settings()->getGroup('system')->getSetting('theme'));
         if ($theme && 'default' != $theme->id() && App::core()->user()->isSuperAdmin()) {
             $path = App::core()->themes()->getPaths();
 

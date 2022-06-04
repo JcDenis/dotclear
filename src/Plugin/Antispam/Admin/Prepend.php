@@ -75,7 +75,7 @@ class Prepend extends ModulePrepend
             unset($_o);
         }
 
-        App::core()->blog()->settings()->get('antispam')->put('antispam_moderation_ttl', 0, 'integer', 'Antispam Moderation TTL (days)', false);
+        App::core()->blog()->settings()->getGroup('antispam')->putSetting('antispam_moderation_ttl', 0, 'integer', 'Antispam Moderation TTL (days)', false);
 
         return true;
     }

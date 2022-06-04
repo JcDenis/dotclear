@@ -148,7 +148,7 @@ class MaintenanceBehavior
                 sprintf(
                     __('Last execution of this task was on %s.'),
                     Clock::str(
-                        format: App::core()->blog()->settings()->get('system')->get('date_format') . ' ' . App::core()->blog()->settings()->get('system')->get('time_format'),
+                        format: App::core()->blog()->settings()->getGroup('system')->getSetting('date_format') . ' ' . App::core()->blog()->settings()->getGroup('system')->getSetting('time_format'),
                         date: $ts,
                         to: App::core()->timezone()
                     )

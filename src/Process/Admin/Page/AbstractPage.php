@@ -255,7 +255,8 @@ abstract class AbstractPage
         }
 
         // Content-Security-Policy (only if safe mode if not active, it may help)
-        if (!App::core()->rescue() && App::core()->blog()->settings()->get('system')->get('csp_admin_on')) {
+        $system = App::core()->blog()->settings()->getGroup('system');
+        if (!App::core()->rescue() && $system->getSetting('csp_admin_on')) {
             // Get directives from settings if exist, else set defaults
             /** @var ArrayObject<string, string> */
             $csp = new ArrayObject();
@@ -265,13 +266,13 @@ abstract class AbstractPage
             $csp_prefix = App::core()->con()->syntax() == 'sqlite' ? 'localhost ' : ''; // Hack for SQlite Clearbricks syntax
             $csp_suffix = App::core()->con()->syntax() == 'sqlite' ? ' 127.0.0.1' : ''; // Hack for SQlite Clearbricks syntax
 
-            $csp['default-src'] = App::core()->blog()->settings()->get('system')->get('csp_admin_default') ?:
+            $csp['default-src'] = $system->getSetting('csp_admin_default') ?:
             $csp_prefix . "'self'" . $csp_suffix;
-            $csp['script-src'] = App::core()->blog()->settings()->get('system')->get('csp_admin_script') ?:
+            $csp['script-src'] = $system->getSetting('csp_admin_script') ?:
             $csp_prefix . "'self' 'unsafe-eval'" . $csp_suffix;
-            $csp['style-src'] = App::core()->blog()->settings()->get('system')->get('csp_admin_style') ?:
+            $csp['style-src'] = $system->getSetting('csp_admin_style') ?:
             $csp_prefix . "'self' 'unsafe-inline'" . $csp_suffix;
-            $csp['img-src'] = App::core()->blog()->settings()->get('system')->get('csp_admin_img') ?:
+            $csp['img-src'] = $system->getSetting('csp_admin_img') ?:
             $csp_prefix . "'self' data: https://media.dotaddict.org blob:";
 
             // Cope with blog post preview (via public URL in iframe)
@@ -302,7 +303,7 @@ abstract class AbstractPage
             }
             if (count($directives)) {
                 $directives[]   = 'report-uri ' . App::core()->config()->get('admin_url') . '?handler=admin.cspreport';
-                $report_only    = App::core()->blog()->settings()->get('system')->get('csp_admin_report_only') ? '-Report-Only' : '';
+                $report_only    = $system->getSetting('csp_admin_report_only') ? '-Report-Only' : '';
                 $headers['csp'] = 'Content-Security-Policy' . $report_only . ': ' . implode(' ; ', $directives);
             }
         }

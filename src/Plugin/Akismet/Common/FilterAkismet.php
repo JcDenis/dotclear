@@ -53,11 +53,11 @@ class FilterAkismet extends Spamfilter
 
     private function akInit(): Akismet|false
     {
-        if (!App::core()->blog()->settings()->get('akismet')->get('ak_key')) {
+        if (!App::core()->blog()->settings()->getGroup('akismet')->getSetting('ak_key')) {
             return false;
         }
 
-        return new Akismet(App::core()->blog()->url, App::core()->blog()->settings()->get('akismet')->get('ak_key'));
+        return new Akismet(App::core()->blog()->url, App::core()->blog()->settings()->getGroup('akismet')->getSetting('ak_key'));
     }
 
     public function isSpam(string $type, string $author, string $email, string $site, string $ip, string $content, int $post_id, ?int &$status): ?bool
@@ -116,14 +116,14 @@ class FilterAkismet extends Spamfilter
 
     public function gui(string $url): string
     {
-        $ak_key      = App::core()->blog()->settings()->get('akismet')->get('ak_key');
+        $ak_key      = App::core()->blog()->settings()->getGroup('akismet')->getSetting('ak_key');
         $ak_verified = null;
 
         if (GPC::post()->isset('ak_key')) {
             try {
                 $ak_key = GPC::post()->string('ak_key');
 
-                App::core()->blog()->settings()->get('akismet')->put('ak_key', $ak_key, 'string');
+                App::core()->blog()->settings()->getGroup('akismet')->putSetting('ak_key', $ak_key, 'string');
 
                 App::core()->notice()->addSuccessNotice(__('Filter configuration have been successfully saved.'));
                 Http::redirect($url);
@@ -132,9 +132,9 @@ class FilterAkismet extends Spamfilter
             }
         }
 
-        if (App::core()->blog()->settings()->get('akismet')->get('ak_key')) {
+        if (App::core()->blog()->settings()->getGroup('akismet')->getSetting('ak_key')) {
             try {
-                $ak          = new Akismet(App::core()->blog()->url, App::core()->blog()->settings()->get('akismet')->get('ak_key'));
+                $ak          = new Akismet(App::core()->blog()->url, App::core()->blog()->settings()->getGroup('akismet')->getSetting('ak_key'));
                 $ak_verified = $ak->verify();
             } catch (Exception $e) {
                 App::core()->error()->add($e->getMessage());

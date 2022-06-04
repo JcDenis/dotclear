@@ -34,9 +34,10 @@ class Prepend extends ModulePrepend
 
     public function installModule(): ?bool
     {
-        App::core()->blog()->settings()->get('pings')->put('pings_active', 1, 'boolean', 'Activate pings plugin', false, true);
-        App::core()->blog()->settings()->get('pings')->put('pings_auto', 0, 'boolean', 'Auto pings on 1st publication', false, true);
-        App::core()->blog()->settings()->get('pings')->put('pings_uris', ['Ping-o-Matic!' => 'http://rpc.pingomatic.com/'], 'array', 'Pings services URIs', false, true);
+        $s = App::core()->blog()->settings()->getGroup('pings');
+        $s->putSetting('pings_active', 1, 'boolean', 'Activate pings plugin', false, true);
+        $s->putSetting('pings_auto', 0, 'boolean', 'Auto pings on 1st publication', false, true);
+        $s->putSetting('pings_uris', ['Ping-o-Matic!' => 'http://rpc.pingomatic.com/'], 'array', 'Pings services URIs', false, true);
 
         return true;
     }

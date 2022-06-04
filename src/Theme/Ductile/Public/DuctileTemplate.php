@@ -47,7 +47,7 @@ class DuctileTemplate
     {
         $nb_other = $nb_first = 0;
 
-        $s = App::core()->blog()->settings()->get('themes')->get(App::core()->blog()->settings()->get('system')->get('theme') . '_entries_counts');
+        $s = App::core()->blog()->settings()->getGroup('themes')->getSetting(App::core()->blog()->settings()->getGroup('system')->getSetting('theme') . '_entries_counts');
         if (null !== $s) {
             $s = @unserialize($s);
             if (is_array($s)) {
@@ -152,7 +152,7 @@ class DuctileTemplate
 
     public static function ductileEntriesListHelper(string $default): string
     {
-        $s = App::core()->blog()->settings()->get('themes')->get(App::core()->blog()->settings()->get('system')->get('theme') . '_entries_lists');
+        $s = App::core()->blog()->settings()->getGroup('themes')->getSetting(App::core()->blog()->settings()->getGroup('system')->getSetting('theme') . '_entries_lists');
         if (null !== $s) {
             $s = @unserialize($s);
             if (is_array($s)) {
@@ -174,7 +174,7 @@ class DuctileTemplate
     {
         $img_url = App::core()->blog()->getURLFor('resources', 'img/logo.png');
 
-        $s = App::core()->blog()->settings()->get('themes')->get(App::core()->blog()->settings()->get('system')->get('theme') . '_style');
+        $s = App::core()->blog()->settings()->getGroup('themes')->getSetting(App::core()->blog()->settings()->getGroup('system')->getSetting('theme') . '_style');
         if (null === $s) {
             // no settings yet, return default logo
             return $img_url;
@@ -204,7 +204,7 @@ class DuctileTemplate
 
     public function IfPreviewIsNotMandatory(ArrayObject $attr, string $content): string
     {
-        $s = App::core()->blog()->settings()->get('themes')->get(App::core()->blog()->settings()->get('system')->get('theme') . '_style');
+        $s = App::core()->blog()->settings()->getGroup('themes')->getSetting(App::core()->blog()->settings()->getGroup('system')->getSetting('theme') . '_style');
         if (null !== $s) {
             $s = @unserialize($s);
             if (is_array($s)) {

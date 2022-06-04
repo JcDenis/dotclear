@@ -479,10 +479,10 @@ class Distrib
             ];
         }
 
-        $settings = new Settings(null);
+        $settings = new Settings(blog: null);
 
         foreach ($defaults as $v) {
-            $settings->get('system')->put($v[0], $v[2], $v[1], $v[3], false, true);
+            $settings->getGroup('system')->putSetting($v[0], $v[2], $v[1], $v[3], false, true);
         }
     }
 }

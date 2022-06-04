@@ -52,16 +52,17 @@ class Handler extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        $widgets = new Widgets();
+        $widgets  = new Widgets();
+        $settings = App::core()->blog()->settings()->getGroup('widgets');
         // Loading navigation, extra widgets and custom widgets
-        if (App::core()->blog()->settings()->get('widgets')->get('widgets_nav')) {
-            $this->widgets_nav = $widgets->load(App::core()->blog()->settings()->get('widgets')->get('widgets_nav'));
+        if ($settings->getSetting('widgets_nav')) {
+            $this->widgets_nav = $widgets->load($settings->getSetting('widgets_nav'));
         }
-        if (App::core()->blog()->settings()->get('widgets')->get('widgets_extra')) {
-            $this->widgets_extra = $widgets->load(App::core()->blog()->settings()->get('widgets')->get('widgets_extra'));
+        if ($settings->getSetting('widgets_extra')) {
+            $this->widgets_extra = $widgets->load($settings->getSetting('widgets_extra'));
         }
-        if (App::core()->blog()->settings()->get('widgets')->get('widgets_custom')) {
-            $this->widgets_custom = $widgets->load(App::core()->blog()->settings()->get('widgets')->get('widgets_custom'));
+        if ($settings->getSetting('widgets_custom')) {
+            $this->widgets_custom = $widgets->load($settings->getSetting('widgets_custom'));
         }
 
         // Adding widgets to sidebars
@@ -115,9 +116,9 @@ class Handler extends AbstractPage
                 }
 
                 try {
-                    App::core()->blog()->settings()->get('widgets')->put('widgets_nav', $this->widgets_nav->store());
-                    App::core()->blog()->settings()->get('widgets')->put('widgets_extra', $this->widgets_extra->store());
-                    App::core()->blog()->settings()->get('widgets')->put('widgets_custom', $this->widgets_custom->store());
+                    $settings->putSetting('widgets_nav', $this->widgets_nav->store());
+                    $settings->putSetting('widgets_extra', $this->widgets_extra->store());
+                    $settings->putSetting('widgets_custom', $this->widgets_custom->store());
                     App::core()->blog()->triggerBlog();
                     App::core()->adminurl()->redirect('admin.plugin.Widgets');
                 } catch (Exception $e) {
@@ -193,9 +194,9 @@ class Handler extends AbstractPage
                 $this->widgets_extra  = $widgets->loadArray($w['extra'], WidgetsStack::$__widgets);
                 $this->widgets_custom = $widgets->loadArray($w['custom'], WidgetsStack::$__widgets);
 
-                App::core()->blog()->settings()->get('widgets')->put('widgets_nav', $this->widgets_nav->store());
-                App::core()->blog()->settings()->get('widgets')->put('widgets_extra', $this->widgets_extra->store());
-                App::core()->blog()->settings()->get('widgets')->put('widgets_custom', $this->widgets_custom->store());
+                $settings->putSetting('widgets_nav', $this->widgets_nav->store());
+                $settings->putSetting('widgets_extra', $this->widgets_extra->store());
+                $settings->putSetting('widgets_custom', $this->widgets_custom->store());
                 App::core()->blog()->triggerBlog();
 
                 App::core()->notice()->addSuccessNotice(__('Sidebars and their widgets have been saved.'));
@@ -205,9 +206,9 @@ class Handler extends AbstractPage
             }
         } elseif (!GPC::post()->empty('wreset')) {
             try {
-                App::core()->blog()->settings()->get('widgets')->put('widgets_nav', '');
-                App::core()->blog()->settings()->get('widgets')->put('widgets_extra', '');
-                App::core()->blog()->settings()->get('widgets')->put('widgets_custom', '');
+                $settings->putSetting('widgets_nav', '');
+                $settings->putSetting('widgets_extra', '');
+                $settings->putSetting('widgets_custom', '');
                 App::core()->blog()->triggerBlog();
 
                 App::core()->notice()->addSuccessNotice(__('Sidebars have been resetting.'));

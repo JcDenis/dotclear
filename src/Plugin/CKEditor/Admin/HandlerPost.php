@@ -29,7 +29,7 @@ class HandlerPost extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        $s = App::core()->blog()->settings()->get('dcckeditor');
+        $s = App::core()->blog()->settings()->getGroup('dcckeditor');
 
         header('Content-type: text/javascript');
 
@@ -98,7 +98,7 @@ $(function() {
 
     CKEDITOR.timestamp = '';
 
-<?php if ($s->get('disable_native_spellchecker')) { ?>
+<?php if ($s->getSetting('disable_native_spellchecker')) { ?>
     CKEDITOR.config.disableNativeSpellChecker = true;
 <?php } else { ?>
     CKEDITOR.config.disableNativeSpellChecker = false;
@@ -108,7 +108,7 @@ $(function() {
     CKEDITOR.config.baseHref = dotclear.base_url;
     CKEDITOR.config.height = '<?php echo App::core()->user()->getOption('edit_size') * 14; ?>px';
 
-<?php if (!empty($s->get('cancollapse_button'))) { ?>
+<?php if (!empty($s->getSetting('cancollapse_button'))) { ?>
     CKEDITOR.config.toolbarCanCollapse = true;
 <?php } ?>
 
@@ -117,13 +117,13 @@ $(function() {
     CKEDITOR.plugins.addExternal('media',dotclear.dcckeditor_plugin_url+'/js/ckeditor-plugins/media/');
     CKEDITOR.plugins.addExternal('img',dotclear.dcckeditor_plugin_url+'/js/ckeditor-plugins/img/');
 
-<?php if (!empty($s->get('textcolor_button')) || !empty($s->get('background_textcolor_button'))) { ?>
+<?php if (!empty($s->getSetting('textcolor_button')) || !empty($s->getSetting('background_textcolor_button'))) { ?>
     // button add "More Colors..." can be added if colordialog plugin is enabled
     CKEDITOR.config.colorButton_enableMore = true;
-    <?php if (!empty($s->get('custom_color_list'))) { ?>
-        CKEDITOR.config.colorButton_colors = '<?php echo $s->get('custom_color_list'); ?>';
+    <?php if (!empty($s->getSetting('custom_color_list'))) { ?>
+        CKEDITOR.config.colorButton_colors = '<?php echo $s->getSetting('custom_color_list'); ?>';
     <?php }?>
-    CKEDITOR.config.colorButton_colorsPerRow = <?php echo $s->get('colors_per_row') ?: 6; ?>;
+    CKEDITOR.config.colorButton_colorsPerRow = <?php echo $s->getSetting('colors_per_row') ?: 6; ?>;
 <?php } ?>
 
     CKEDITOR.config.defaultLanguage = dotclear.user_language;
@@ -157,11 +157,11 @@ $defautExtraPlugins = 'entrylink,dclink,media,justify,colorbutton,format,img,foo
                 dotclear.msg.img_select_accesskey.toUpperCase().charCodeAt(0),'mediaCommand' ],    // Ctrl+Alt+m
         ],
 
-<?php if (!empty($s->get('format_select'))) { ?>
+<?php if (!empty($s->getSetting('format_select'))) { ?>
         // format tags
 
-    <?php if (!empty($s->get('format_tags'))) { ?>
-        format_tags: '<?php echo $s->get('format_tags'); ?>',
+    <?php if (!empty($s->getSetting('format_tags'))) { ?>
+        format_tags: '<?php echo $s->getSetting('format_tags'); ?>',
     <?php } else { ?>
         format_tags: 'p;h1;h2;h3;h4;h5;h6;pre;address',
     <?php }?>
@@ -186,13 +186,13 @@ $defautExtraPlugins = 'entrylink,dclink,media,justify,colorbutton,format,img,foo
                 name: 'basicstyles',
                 items: [
 
-<?php if (!empty($s->get('format_select'))) { ?>
+<?php if (!empty($s->getSetting('format_select'))) { ?>
                     'Format',
 <?php } ?>
 
                     'Bold','Italic','Underline','Strike','Subscript','Superscript','Code','Blockquote',
 
-<?php if (!empty($s->get('list_buttons'))) { ?>
+<?php if (!empty($s->getSetting('list_buttons'))) { ?>
                     'NumberedList','BulletedList',
 <?php } ?>
 
@@ -200,28 +200,28 @@ $defautExtraPlugins = 'entrylink,dclink,media,justify,colorbutton,format,img,foo
                 ]
             },
 
-<?php if (!empty($s->get('clipboard_buttons'))) { ?>
+<?php if (!empty($s->getSetting('clipboard_buttons'))) { ?>
             {
                 name: 'clipoard',
                 items: ['Cut','Copy','Paste','PasteText','PasteFromWord']
             },
 <?php } ?>
 
-<?php if (!empty($s->get('action_buttons'))) { ?>
+<?php if (!empty($s->getSetting('action_buttons'))) { ?>
             {
                 name: 'action',
                 items: ['Undo','Redo']
             },
 <?php } ?>
 
-<?php if (!empty($s->get('alignment_buttons'))) { ?>
+<?php if (!empty($s->getSetting('alignment_buttons'))) { ?>
             {
                 name: 'paragraph',
                 items: ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock']
             },
 <?php } ?>
 
-<?php if (!empty($s->get('table_button'))) { ?>
+<?php if (!empty($s->getSetting('table_button'))) { ?>
             {
                 name: 'table',
                 items: ['Table']
@@ -234,11 +234,11 @@ $defautExtraPlugins = 'entrylink,dclink,media,justify,colorbutton,format,img,foo
                     'EntryLink','dcLink','Media','img','Footnotes','-',
                     'Source'
 
-<?php if (!empty($s->get('textcolor_button'))) { ?>
+<?php if (!empty($s->getSetting('textcolor_button'))) { ?>
                     ,'TextColor'
 <?php } ?>
 
-<?php if (!empty($s->get('background_textcolor_button'))) { ?>
+<?php if (!empty($s->getSetting('background_textcolor_button'))) { ?>
                     ,'BGColor'
 <?php } ?>
                 ]
@@ -262,7 +262,7 @@ if (!empty($extraPlugins)) {
         ],
 
 <?php // footnotes related
-    $tag = match (App::core()->blog()->settings()->get('system')->get('note_title_tag')) {
+    $tag = match (App::core()->blog()->settings()->getGroup('system')->getSetting('note_title_tag')) {
         1       => 'h3',
         2       => 'p',
         default => 'h4',

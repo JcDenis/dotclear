@@ -123,12 +123,12 @@ class Media extends Manager
 
         $this->chdir('');
 
-        $this->path = (string) App::core()->blog()->settings()->get('system')->get('public_path');
+        $this->path = (string) App::core()->blog()->settings()->getGroup('system')->getSetting('public_path');
         // !
         $this->addExclusion(Path::implodeSrc());
         $this->addExclusion(__DIR__ . '/../');
 
-        $this->exclude_pattern = App::core()->blog()->settings()->get('system')->get('media_exclusion');
+        $this->exclude_pattern = App::core()->blog()->settings()->getGroup('system')->getSetting('media_exclusion');
 
         // Event handlers
         $this->addFileHandler('image/jpeg', 'create', [$this, 'imageThumbCreate']);
@@ -156,9 +156,9 @@ class Media extends Manager
 
         // Thumbnails sizes
         $this->thumbsize()
-            ->set('m', abs(App::core()->blog()->settings()->get('system')->get('media_img_m_size')), false, __('medium'))
-            ->set('s', abs(App::core()->blog()->settings()->get('system')->get('media_img_s_size')), false, __('small'))
-            ->set('t', abs(App::core()->blog()->settings()->get('system')->get('media_img_t_size')), false, __('thumbnail'))
+            ->set('m', abs(App::core()->blog()->settings()->getGroup('system')->getSetting('media_img_m_size')), false, __('medium'))
+            ->set('s', abs(App::core()->blog()->settings()->getGroup('system')->getSetting('media_img_s_size')), false, __('small'))
+            ->set('t', abs(App::core()->blog()->settings()->getGroup('system')->getSetting('media_img_t_size')), false, __('thumbnail'))
             ->set('sq', 48, true, __('square'))
         ;
 

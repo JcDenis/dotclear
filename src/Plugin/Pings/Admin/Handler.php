@@ -36,7 +36,7 @@ class Handler extends AbstractPage
     {
         try {
             // Pings URIs are managed globally (for all blogs)
-            $this->pings_uris = App::core()->blog()->settings()->get('pings')->getGlobal('pings_uris');
+            $this->pings_uris = App::core()->blog()->settings()->getGroup('pings')->getGlobalSetting('pings_uris');
             if (!$this->pings_uris) {
                 $this->pings_uris = [];
             }
@@ -52,10 +52,10 @@ class Handler extends AbstractPage
                     }
                 }
                 // Settings for all blogs
-                App::core()->blog()->settings()->get('pings')->put('pings_active', !GPC::post()->empty('pings_active'), null, null, true, true);
-                App::core()->blog()->settings()->get('pings')->put('pings_uris', $this->pings_uris, null, null, true, true);
+                App::core()->blog()->settings()->getGroup('pings')->putSetting('pings_active', !GPC::post()->empty('pings_active'), null, null, true, true);
+                App::core()->blog()->settings()->getGroup('pings')->putSetting('pings_uris', $this->pings_uris, null, null, true, true);
                 // Settings for current blog only
-                App::core()->blog()->settings()->get('pings')->put('pings_auto', !GPC::post()->empty('pings_auto'), null, null, true, false);
+                App::core()->blog()->settings()->getGroup('pings')->putSetting('pings_auto', !GPC::post()->empty('pings_auto'), null, null, true, false);
 
                 App::core()->notice()->addSuccessNotice(__('Settings have been successfully updated.'));
                 App::core()->adminurl()->redirect('admin.plugin.Pings');
@@ -80,7 +80,7 @@ class Handler extends AbstractPage
     protected function getPageContent(): void
     {
         echo '<form action="' . App::core()->adminurl()->root() . '" method="post">' .
-        '<p><label for="pings_active" class="classic">' . Form::checkbox('pings_active', 1, App::core()->blog()->settings()->get('pings')->get('pings_active')) .
+        '<p><label for="pings_active" class="classic">' . Form::checkbox('pings_active', 1, App::core()->blog()->settings()->getGroup('pings')->getSetting('pings_active')) .
         __('Activate pings extension') . '</label></p>';
 
         $i = 0;
@@ -112,7 +112,7 @@ class Handler extends AbstractPage
         Form::url(['pings_srv_uri[]', 'pings_srv_uri2'], 40) .
         '</p>' .
 
-        '<p><label for="pings_auto" class="classic">' . Form::checkbox('pings_auto', 1, App::core()->blog()->settings()->get('pings')->get('pings_auto')) .
+        '<p><label for="pings_auto" class="classic">' . Form::checkbox('pings_auto', 1, App::core()->blog()->settings()->getGroup('pings')->getSetting('pings_auto')) .
         __('Auto pings all services on first publication of entry (current blog only)') . '</label></p>' .
 
         '<p><input type="submit" value="' . __('Save') . '" />' .

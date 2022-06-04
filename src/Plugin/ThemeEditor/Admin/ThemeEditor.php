@@ -47,7 +47,7 @@ class ThemeEditor
         $this->tplset_name  = App::core()->config()->get('template_default');
 
         // Current theme
-        $module = App::core()->themes()->getModule((string) App::core()->blog()->settings()->get('system')->get('theme'));
+        $module = App::core()->themes()->getModule((string) App::core()->blog()->settings()->getGroup('system')->getSetting('theme'));
         if (!$module) {
             throw new AdminException('Blog theme is not set');
         }

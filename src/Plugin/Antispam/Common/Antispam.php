@@ -238,15 +238,15 @@ class Antispam
         $defaultModerationTTL = '7';
         $init                 = false;
 
-        $dateLastPurge = App::core()->blog()->settings()->get('antispam')->get('antispam_date_last_purge');
+        $dateLastPurge = App::core()->blog()->settings()->getGroup('antispam')->getSetting('antispam_date_last_purge');
         if (null === $dateLastPurge) {
             $init = true;
-            App::core()->blog()->settings()->get('antispam')->put('antispam_date_last_purge', $defaultDateLastPurge, 'integer', 'Antispam Date Last Purge (unix timestamp)', true, false);
+            App::core()->blog()->settings()->getGroup('antispam')->putSetting('antispam_date_last_purge', $defaultDateLastPurge, 'integer', 'Antispam Date Last Purge (unix timestamp)', true, false);
             $dateLastPurge = $defaultDateLastPurge;
         }
-        $moderationTTL = App::core()->blog()->settings()->get('antispam')->get('antispam_moderation_ttl');
+        $moderationTTL = App::core()->blog()->settings()->getGroup('antispam')->getSetting('antispam_moderation_ttl');
         if (null === $moderationTTL) {
-            App::core()->blog()->settings()->get('antispam')->put('antispam_moderation_ttl', $defaultModerationTTL, 'integer', 'Antispam Moderation TTL (days)', true, false);
+            App::core()->blog()->settings()->getGroup('antispam')->putSetting('antispam_moderation_ttl', $defaultModerationTTL, 'integer', 'Antispam Moderation TTL (days)', true, false);
             $moderationTTL = $defaultModerationTTL;
         }
 
@@ -259,7 +259,7 @@ class Antispam
         if (86400 < ($defaultDateLastPurge - $dateLastPurge)) {
             // update dateLastPurge
             if (!$init) {
-                App::core()->blog()->settings()->get('antispam')->put('antispam_date_last_purge', $defaultDateLastPurge, null, null, true, false);
+                App::core()->blog()->settings()->getGroup('antispam')->putSetting('antispam_date_last_purge', $defaultDateLastPurge, null, null, true, false);
             }
             $date = Clock::database(date: ($defaultDateLastPurge - $moderationTTL * 86400));
             self::delAllSpam($date);
@@ -296,8 +296,8 @@ class Antispam
     public function commentsActionsPage(Action $ap): void
     {
         $ip_filter_active = true;
-        if (null !== App::core()->blog()->settings()->get('antispam')->get('antispam_filters')) {
-            $filters_opt = App::core()->blog()->settings()->get('antispam')->get('antispam_filters');
+        if (null !== App::core()->blog()->settings()->getGroup('antispam')->getSetting('antispam_filters')) {
+            $filters_opt = App::core()->blog()->settings()->getGroup('antispam')->getSetting('antispam_filters');
             if (is_array($filters_opt)) {
                 $ip_filter_active = isset($filters_opt['FilterIp']) && is_array($filters_opt['FilterIp']) && 1 == $filters_opt['FilterIp'][0];
             }

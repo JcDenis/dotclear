@@ -223,7 +223,7 @@ class Category extends AbstractPage
         '<p><label class="required" for="cat_title"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Name:') . '</label> ' .
         Form::field('cat_title', 40, 255, [
             'default'    => Html::escapeHTML($this->cat_title),
-            'extra_html' => 'required placeholder="' . __('Name') . '" lang="' . App::core()->blog()->settings()->get('system')->get('lang') . '" spellcheck="true"',
+            'extra_html' => 'required placeholder="' . __('Name') . '" lang="' . App::core()->blog()->settings()->getGroup('system')->getSetting('lang') . '" spellcheck="true"',
         ]) .
             '</p>';
         if (null === $this->cat_id) {
@@ -253,7 +253,7 @@ class Category extends AbstractPage
             8,
             [
                 'default'    => Html::escapeHTML($this->cat_desc),
-                'extra_html' => 'lang="' . App::core()->blog()->settings()->get('system')->get('lang') . '" spellcheck="true"',
+                'extra_html' => 'lang="' . App::core()->blog()->settings()->getGroup('system')->getSetting('lang') . '" spellcheck="true"',
             ]
         ) .
         '</p>' .

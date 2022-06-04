@@ -410,8 +410,8 @@ class RestMethods
         $cursor->setField('post_format', !empty($post['post_format']) ? $post['post_format'] : 'xhtml');
         $cursor->setField('post_lang', !empty($post['post_lang']) ? $post['post_lang'] : '');
         $cursor->setField('post_status', !empty($post['post_status']) ? (int) $post['post_status'] : 0);
-        $cursor->setField('post_open_comment', (int) App::core()->blog()->settings()->get('system')->get('allow_comments'));
-        $cursor->setField('post_open_tb', (int) App::core()->blog()->settings()->get('system')->get('allow_trackbacks'));
+        $cursor->setField('post_open_comment', (int) App::core()->blog()->settings()->getGroup('system')->getSetting('allow_comments'));
+        $cursor->setField('post_open_tb', (int) App::core()->blog()->settings()->getGroup('system')->getSetting('allow_trackbacks'));
 
         $return_id = App::core()->blog()->posts()->createPost(cursor: $cursor);
 
@@ -866,7 +866,7 @@ class RestMethods
         } elseif ('plugin-new' == $list) {
             $store = new Repository(
                 App::core()->plugins(),
-                App::core()->blog()->settings()->get('system')->get('store_plugin_url')
+                App::core()->blog()->settings()->getGroup('system')->getSetting('store_plugin_url')
             );
             $store->check();
 

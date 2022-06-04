@@ -22,7 +22,7 @@ class Prepend extends ModulePrepend
 {
     public function loadModule(): void
     {
-        if (!App::core()->blog()->settings()->get('LegacyEditor')->get('active')) {
+        if (!App::core()->blog()->settings()->getGroup('LegacyEditor')->getSetting('active')) {
             return;
         }
 
@@ -36,7 +36,7 @@ class Prepend extends ModulePrepend
 
     public function installModule(): ?bool
     {
-        App::core()->blog()->settings()->get('LegacyEditor')->put('active', true, 'boolean', 'LegacyEditor plugin activated ?', false, true);
+        App::core()->blog()->settings()->getGroup('LegacyEditor')->putSetting('active', true, 'boolean', 'LegacyEditor plugin activated ?', false, true);
 
         return true;
     }

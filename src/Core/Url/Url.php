@@ -121,7 +121,7 @@ class Url
      */
     protected function getHomeType(): string
     {
-        return App::core()->blog()->settings()->get('system')->get('static_home') ? 'static' : 'default';
+        return App::core()->blog()->settings()->getGroup('system')->getSetting('static_home') ? 'static' : 'default';
     }
 
     /**
@@ -268,7 +268,7 @@ class Url
     protected function serveDocument(string $tpl, string $content_type = 'text/html', bool $http_cache = true, bool $http_etag = true): void
     {
         if (null === App::core()->context()->get('nb_entry_per_page')) {
-            App::core()->context()->set('nb_entry_per_page', App::core()->blog()->settings()->get('system')->get('nb_post_per_page'));
+            App::core()->context()->set('nb_entry_per_page', App::core()->blog()->settings()->getGroup('system')->getSetting('nb_post_per_page'));
         }
         if (null === App::core()->context()->get('nb_entry_first_page')) {
             App::core()->context()->set('nb_entry_first_page', App::core()->context()->get('nb_entry_per_page'));
@@ -547,8 +547,8 @@ class Url
             }
 
             if (GPC::get()->empty('q')) {
-                if (null !== App::core()->blog()->settings()->get('system')->get('nb_post_for_home')) {
-                    App::core()->context()->set('nb_entry_first_page', App::core()->blog()->settings()->get('system')->get('nb_post_for_home'));
+                if (null !== App::core()->blog()->settings()->getGroup('system')->getSetting('nb_post_for_home')) {
+                    App::core()->context()->set('nb_entry_first_page', App::core()->blog()->settings()->getGroup('system')->getSetting('nb_post_for_home'));
                 }
                 $this->serveDocument('home.html');
                 App::core()->blog()->posts()->publishScheduledPosts();
@@ -580,7 +580,7 @@ class Url
      */
     public function search(): void
     {
-        if (App::core()->blog()->settings()->get('system')->get('no_search')) {
+        if (App::core()->blog()->settings()->getGroup('system')->getSetting('no_search')) {
             // Search is disabled for this blog.
             $this->p404();
         } else {
@@ -794,7 +794,7 @@ class Url
                         if ('' != $buffer) {
                             $content = $buffer;
                         } else {
-                            if (App::core()->blog()->settings()->get('system')->get('wiki_comments')) {
+                            if (App::core()->blog()->settings()->getGroup('system')->getSetting('wiki_comments')) {
                                 App::core()->wiki()->initWikiComment();
                             } else {
                                 App::core()->wiki()->initWikiSimpleComment();
@@ -824,11 +824,11 @@ class Url
                         $cur->setField('comment_email', Html::clean($mail));
                         $cur->setField('comment_content', $content);
                         $cur->setField('post_id', App::core()->context()->get('posts')->fInt('post_id'));
-                        $cur->setField('comment_status', App::core()->blog()->settings()->get('system')->get('comments_pub') ? 1 : -1);
+                        $cur->setField('comment_status', App::core()->blog()->settings()->getGroup('system')->getSetting('comments_pub') ? 1 : -1);
                         $cur->setField('comment_ip', Http::realIP());
 
                         $redir = App::core()->context()->get('posts')->getURL();
-                        $redir .= 'query_string' == App::core()->blog()->settings()->get('system')->get('url_scan') ? '&' : '?';
+                        $redir .= 'query_string' == App::core()->blog()->settings()->getGroup('system')->getSetting('url_scan') ? '&' : '?';
 
                         try {
                             if (!Text::isEmail($cur->getField('comment_email'))) {
@@ -996,10 +996,10 @@ class Url
         $tpl = $type;
         if ($comments) {
             $tpl .= '-comments';
-            App::core()->context()->set('nb_comment_per_page', (int) App::core()->blog()->settings()->get('system')->get('nb_comment_per_feed'));
+            App::core()->context()->set('nb_comment_per_page', (int) App::core()->blog()->settings()->getGroup('system')->getSetting('nb_comment_per_feed'));
         } else {
-            App::core()->context()->set('nb_entry_per_page', (int) App::core()->blog()->settings()->get('system')->get('nb_post_per_feed'));
-            App::core()->context()->set('short_feed_items', (bool) App::core()->blog()->settings()->get('system')->get('short_feed_items'));
+            App::core()->context()->set('nb_entry_per_page', (int) App::core()->blog()->settings()->getGroup('system')->getSetting('nb_post_per_feed'));
+            App::core()->context()->set('short_feed_items', (bool) App::core()->blog()->settings()->getGroup('system')->getSetting('short_feed_items'));
         }
         $tpl .= '.xml';
 
@@ -1009,7 +1009,7 @@ class Url
 
         App::core()->context()->set('feed_subtitle', $subtitle);
 
-        header('X-Robots-Tag: ' . App::core()->context()->robotsPolicy(App::core()->blog()->settings()->get('system')->get('robots_policy'), ''));
+        header('X-Robots-Tag: ' . App::core()->context()->robotsPolicy(App::core()->blog()->settings()->getGroup('system')->getSetting('robots_policy'), ''));
         $this->serveDocument($tpl, $mime);
         if (!$comments && !$cat_url) {
             App::core()->blog()->posts()->publishScheduledPosts();
@@ -1075,7 +1075,7 @@ class Url
         "  <engineLink>https://dotclear.org/</engineLink>\n" .
         '  <homePageLink>' . Html::escapeHTML(App::core()->blog()->url) . "</homePageLink>\n";
 
-        if (App::core()->blog()->settings()->get('system')->get('enable_xmlrpc')) {
+        if (App::core()->blog()->settings()->getGroup('system')->getSetting('enable_xmlrpc')) {
             $u = sprintf(App::core()->config()->get('xmlrpc_url'), App::core()->blog()->url, App::core()->blog()->id);
 
             echo "  <apis>\n" .
@@ -1189,7 +1189,7 @@ class Url
     {
         // Additional headers
         $headers = new ArrayObject();
-        if (App::core()->blog()->settings()->get('system')->get('prevents_clickjacking')) {
+        if (App::core()->blog()->settings()->getGroup('system')->getSetting('prevents_clickjacking')) {
             if (App::core()->context()->exists('xframeoption')) {
                 $url    = parse_url(App::core()->context()->get('xframeoption'));
                 $header = sprintf(

@@ -358,7 +358,7 @@ class ModuleHelper
      */
     public function publicCssUrlHelper(string $folder): ?string
     {
-        $theme = App::core()->blog()->settings()->get('system')->get('theme');
+        $theme = App::core()->blog()->settings()->getGroup('system')->getSetting('theme');
         $url   = $this->cssURL($folder);
         $path  = $this->cssPath($folder);
 

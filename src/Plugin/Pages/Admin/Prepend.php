@@ -115,15 +115,15 @@ class Prepend extends ModulePrepend
         $param->set('no_content', true);
 
         if (0 == App::core()->blog()->posts()->countPosts(param: $param)
-            && null == App::core()->blog()->settings()->get('pages')->get('firstpage')
+            && null == App::core()->blog()->settings()->getGroup('pages')->getSetting('firstpage')
         ) {
-            App::core()->blog()->settings()->get('pages')->put('firstpage', true, 'boolean');
+            App::core()->blog()->settings()->getGroup('pages')->putSetting('firstpage', true, 'boolean');
 
             $cur = App::core()->con()->openCursor(App::core()->prefix() . 'post');
             $cur->setField('user_id', App::core()->user()->userID());
             $cur->setField('post_type', 'page');
             $cur->setField('post_format', 'xhtml');
-            $cur->setField('post_lang', App::core()->blog()->settings()->get('system')->get('lang'));
+            $cur->setField('post_lang', App::core()->blog()->settings()->getGroup('system')->getSetting('lang'));
             $cur->setField('post_title', __('My first page'));
             $cur->setField('post_content', '<p>' . __('This is your first page. When you\'re ready to blog, log in to edit or delete it.') . '</p>');
             $cur->setField('post_content_xhtml', $cur->getField('post_content'));
@@ -134,12 +134,12 @@ class Prepend extends ModulePrepend
             $cur->setField('post_open_tb', 0);
 
             // Magic tweak :)
-            $old_url_format = App::core()->blog()->settings()->get('system')->get('post_url_format');
-            App::core()->blog()->settings()->get('system')->set('post_url_format', '{t}');
+            $old_url_format = App::core()->blog()->settings()->getGroup('system')->getSetting('post_url_format');
+            App::core()->blog()->settings()->getGroup('system')->setSetting('post_url_format', '{t}');
 
             App::core()->blog()->posts()->createPost(cursor: $cur);
 
-            App::core()->blog()->settings()->get('system')->set('post_url_format', $old_url_format);
+            App::core()->blog()->settings()->getGroup('system')->setSetting('post_url_format', $old_url_format);
         }
 
         return true;

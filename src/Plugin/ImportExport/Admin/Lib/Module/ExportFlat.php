@@ -76,7 +76,7 @@ class ExportFlat extends Module
                 $exp->export(
                     'media',
                     'SELECT * FROM ' . App::core()->prefix() . "media WHERE media_path = '" .
-                    App::core()->con()->escape(App::core()->blog()->settings()->get('system')->get('public_path')) . "'"
+                    App::core()->con()->escape(App::core()->blog()->settings()->getGroup('system')->getSetting('public_path')) . "'"
                 );
                 $exp->export(
                     'post_media',

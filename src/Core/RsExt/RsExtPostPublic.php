@@ -33,14 +33,14 @@ class RsExtPostPublic extends RsExtPost
             Html::escapeHTML($this->rs->f('post_title')) . '</a></p>';
         }
 
-        return App::core()->blog()->settings()->get('system')->get('use_smilies') ?
+        return App::core()->blog()->settings()->getGroup('system')->getSetting('use_smilies') ?
             $this->smilies(parent::getContent($absolute_urls)) :
             parent::getContent($absolute_urls);
     }
 
     public function getExcerpt(bool $absolute_urls = false): string
     {
-        return App::core()->blog()->settings()->get('system')->get('use_smilies') ?
+        return App::core()->blog()->settings()->getGroup('system')->getSetting('use_smilies') ?
             $this->smilies(parent::getExcerpt($absolute_urls)) :
             parent::getExcerpt($absolute_urls);
     }

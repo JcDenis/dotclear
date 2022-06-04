@@ -302,10 +302,10 @@ class BlowupConfig
         }
 
         // erase old css file
-        $this->dropCss(App::core()->blog()->settings()->get('system')->get('theme'));
+        $this->dropCss(App::core()->blog()->settings()->getGroup('system')->getSetting('theme'));
 
         // create new css file into public Blowup-css subdirectory
-        $this->writeCss(App::core()->blog()->settings()->get('system')->get('theme'), $res);
+        $this->writeCss(App::core()->blog()->settings()->getGroup('system')->getSetting('theme'), $res);
 
         return $res;
     }

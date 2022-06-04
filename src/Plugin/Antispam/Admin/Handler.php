@@ -162,7 +162,7 @@ class Handler extends AbstractPage
         // Information
         $spam_count      = $this->a_antispam->countSpam();
         $published_count = $this->a_antispam->countPublishedComments();
-        $moderationTTL   = App::core()->blog()->settings()->get('antispam')->get('antispam_moderation_ttl');
+        $moderationTTL   = App::core()->blog()->settings()->getGroup('antispam')->getSetting('antispam_moderation_ttl');
 
         echo '<form action="' . App::core()->adminurl()->root() . '" method="post" class="fieldset">' .
         '<h3>' . __('Information') . '</h3>';

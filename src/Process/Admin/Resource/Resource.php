@@ -345,7 +345,7 @@ class Resource
         (
             !App::core()->production() ?
             $this->json('dotclear_jquery', [
-                'mute' => false === App::core()->blog()?->settings()->get('system')->get('jquery_migrate_mute'),
+                'mute' => false === App::core()->blog()?->settings()->getGroup('system')->getSetting('jquery_migrate_mute'),
             ]) .
             $this->load('jquery-mute.js') .
             $this->load('jquery/jquery-migrate.js') :

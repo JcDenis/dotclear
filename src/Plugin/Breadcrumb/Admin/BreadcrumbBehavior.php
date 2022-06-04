@@ -32,17 +32,17 @@ class BreadcrumbBehavior
     {
         echo '<div class="fieldset"><h4 id="breadcrumb_params">' . __('Breadcrumb') . '</h4>' .
         '<p><label class="classic">' .
-        Form::checkbox('breadcrumb_enabled', '1', $settings->get('breadcrumb')->get('breadcrumb_enabled')) .
+        Form::checkbox('breadcrumb_enabled', '1', $settings->getGroup('breadcrumb')->getSetting('breadcrumb_enabled')) .
         __('Enable breadcrumb for this blog') . '</label></p>' .
         '<p class="form-note">' . __('The {{tpl:Breadcrumb [separator=" &amp;rsaquo; "]}} tag should be present (or inserted if not) in the template.') . '</p>' .
-        Form::checkbox('breadcrumb_alone', '1', $settings->get('breadcrumb')->get('breadcrumb_alone')) .
+        Form::checkbox('breadcrumb_alone', '1', $settings->getGroup('breadcrumb')->getSetting('breadcrumb_alone')) .
         __('Do not encapsulate breadcrumb in a &lt;p id="breadcrumb"&gt;...&lt;/p&gt; tag.') . '</label></p>' .
             '</div>';
     }
 
     public function behaviorAdminBeforeBlogSettingsUpdate(Settings $settings): void
     {
-        $settings->get('breadcrumb')->put('breadcrumb_enabled', !GPC::post()->empty('breadcrumb_enabled'), 'boolean');
-        $settings->get('breadcrumb')->put('breadcrumb_alone', !GPC::post()->empty('breadcrumb_alone'), 'boolean');
+        $settings->getGroup('breadcrumb')->putSetting('breadcrumb_enabled', !GPC::post()->empty('breadcrumb_enabled'), 'boolean');
+        $settings->getGroup('breadcrumb')->putSetting('breadcrumb_alone', !GPC::post()->empty('breadcrumb_alone'), 'boolean');
     }
 }

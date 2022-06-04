@@ -27,7 +27,7 @@ class Prepend extends ModulePrepend
         // $this->addStandardFavorites('admin');
 
         // Settings
-        if (!App::core()->blog()->settings()->get('dcckeditor')->get('active')) {
+        if (!App::core()->blog()->settings()->getGroup('dcckeditor')->getSetting('active')) {
             // return;
         }
 
@@ -46,20 +46,20 @@ class Prepend extends ModulePrepend
 
     public function installModule(): ?bool
     {
-        $s = App::core()->blog()->settings()->get('dcckeditor');
+        $s = App::core()->blog()->settings()->getGroup('dcckeditor');
 
-        $s->put('active', true, 'boolean', 'CKEditor plugin activated?', false, true);
-        $s->put('alignment_buttons', true, 'boolean', 'Add alignment buttons?', false, true);
-        $s->put('list_buttons', true, 'boolean', 'Add list buttons?', false, true);
-        $s->put('textcolor_button', false, 'boolean', 'Add text color button?', false, true);
-        $s->put('background_textcolor_button', false, 'boolean', 'Add background text color button?', false, true);
-        $s->put('cancollapse_button', false, 'boolean', 'Add collapse button?', false, true);
-        $s->put('format_select', true, 'boolean', 'Add format selection?', false, true);
-        $s->put('format_tags', 'p;h1;h2;h3;h4;h5;h6;pre;address', 'string', 'Custom formats', false, true);
-        $s->put('table_button', false, 'boolean', 'Add table button?', false, true);
-        $s->put('clipboard_buttons', false, 'boolean', 'Add clipboard buttons?', false, true);
-        $s->put('action_buttons', true, 'boolean', 'Add undo/redo buttons?', false, true);
-        $s->put('disable_native_spellchecker', true, 'boolean', 'Disables the built-in spell checker if the browser provides one?', false, true);
+        $s->putSetting('active', true, 'boolean', 'CKEditor plugin activated?', false, true);
+        $s->putSetting('alignment_buttons', true, 'boolean', 'Add alignment buttons?', false, true);
+        $s->putSetting('list_buttons', true, 'boolean', 'Add list buttons?', false, true);
+        $s->putSetting('textcolor_button', false, 'boolean', 'Add text color button?', false, true);
+        $s->putSetting('background_textcolor_button', false, 'boolean', 'Add background text color button?', false, true);
+        $s->putSetting('cancollapse_button', false, 'boolean', 'Add collapse button?', false, true);
+        $s->putSetting('format_select', true, 'boolean', 'Add format selection?', false, true);
+        $s->putSetting('format_tags', 'p;h1;h2;h3;h4;h5;h6;pre;address', 'string', 'Custom formats', false, true);
+        $s->putSetting('table_button', false, 'boolean', 'Add table button?', false, true);
+        $s->putSetting('clipboard_buttons', false, 'boolean', 'Add clipboard buttons?', false, true);
+        $s->putSetting('action_buttons', true, 'boolean', 'Add undo/redo buttons?', false, true);
+        $s->putSetting('disable_native_spellchecker', true, 'boolean', 'Disables the built-in spell checker if the browser provides one?', false, true);
 
         return true;
     }

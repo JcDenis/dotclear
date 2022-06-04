@@ -45,6 +45,7 @@ class MediaItem extends AbstractPage
     private $item_file;
     private $item_dirs_combo;
     private $media_writable;
+    private $item_system;
 
     protected function getPermissions(): string|bool
     {
@@ -66,6 +67,7 @@ class MediaItem extends AbstractPage
             unset($post);
         }
 
+        $this->item_system                = App::core()->blog()->settings()->getGroup('system');
         $this->item_file                  = null;
         $this->item_popup                 = GPC::request()->int('popup');
         $this->item_select                = GPC::request()->int('select'); // 0 : none, 1 : single media, >1 : multiple medias
@@ -216,16 +218,16 @@ class MediaItem extends AbstractPage
                 if (!($s = array_search(GPC::post()->string('pref_src'), $this->item_file->media_thumb))) {
                     $s = 'o';
                 }
-                App::core()->blog()->settings()->get('system')->put('media_img_default_size', $s);
+                $this->item_system->putSetting('media_img_default_size', $s);
             }
             if (!GPC::post()->empty('pref_alignment')) {
-                App::core()->blog()->settings()->get('system')->put('media_img_default_alignment', GPC::post()->string('pref_alignment'));
+                $this->item_system->putSetting('media_img_default_alignment', GPC::post()->string('pref_alignment'));
             }
             if (!GPC::post()->empty('pref_insertion')) {
-                App::core()->blog()->settings()->get('system')->put('media_img_default_link', ('link' == GPC::post()->string('pref_insertion')));
+                $this->item_system->putSetting('media_img_default_link', ('link' == GPC::post()->string('pref_insertion')));
             }
             if (!GPC::post()->empty('pref_legend')) {
-                App::core()->blog()->settings()->get('system')->put('media_img_default_legend', GPC::post()->string('pref_legend'));
+                $this->item_system->putSetting('media_img_default_legend', GPC::post()->string('pref_legend'));
             }
 
             App::core()->notice()->addSuccessNotice(__('Default media insertion settings have been successfully updated.'));
@@ -343,9 +345,9 @@ class MediaItem extends AbstractPage
                 $media_type  = 'image';
                 $media_title = $this->getImageTitle(
                     $this->item_file,
-                    App::core()->blog()->settings()->get('system')->get('media_img_title_pattern'),
-                    App::core()->blog()->settings()->get('system')->get('media_img_use_dto_first'),
-                    App::core()->blog()->settings()->get('system')->get('media_img_no_date_alone')
+                    $this->item_system->getSetting('media_img_title_pattern'),
+                    $this->item_system->getSetting('media_img_use_dto_first'),
+                    $this->item_system->getSetting('media_img_no_date_alone')
                 );
                 if ($media_title == $this->item_file->basename || Files::tidyFileName($media_title) == $this->item_file->basename) {
                     $media_title = '';
@@ -404,9 +406,9 @@ class MediaItem extends AbstractPage
                 $media_type  = 'image';
                 $media_title = $this->getImageTitle(
                     $this->item_file,
-                    App::core()->blog()->settings()->get('system')->get('media_img_title_pattern'),
-                    App::core()->blog()->settings()->get('system')->get('media_img_use_dto_first'),
-                    App::core()->blog()->settings()->get('system')->get('media_img_no_date_alone')
+                    $this->item_system->getSetting('media_img_title_pattern'),
+                    $this->item_system->getSetting('media_img_use_dto_first'),
+                    $this->item_system->getSetting('media_img_no_date_alone')
                 );
                 if ($media_title == $this->item_file->basename || Files::tidyFileName($media_title) == $this->item_file->basename) {
                     $media_title = '';
@@ -519,9 +521,9 @@ class MediaItem extends AbstractPage
                 echo '<div class="two-boxes">' .
                 '<h3>' . __('Video size') . '</h3>' .
                 '<p><label for="video_w" class="classic">' . __('Width:') . '</label> ' .
-                Form::number('video_w', 0, 9999, App::core()->blog()->settings()->get('system')->get('media_video_width')) . '  ' .
+                Form::number('video_w', 0, 9999, $this->item_system->getSetting('media_video_width')) . '  ' .
                 '<label for="video_h" class="classic">' . __('Height:') . '</label> ' .
-                Form::number('video_h', 0, 9999, App::core()->blog()->settings()->get('system')->get('media_video_height')) .
+                Form::number('video_h', 0, 9999, $this->item_system->getSetting('media_video_height')) .
                     '</p>' .
                     '</div>';
 
@@ -924,10 +926,10 @@ class MediaItem extends AbstractPage
     protected function getImageDefinition($file)
     {
         $defaults = [
-            'size'      => (string) App::core()->blog()->settings()->get('system')->get('media_img_default_size') ?: 'm',
-            'alignment' => (string) App::core()->blog()->settings()->get('system')->get('media_img_default_alignment') ?: 'none',
-            'link'      => (bool) App::core()->blog()->settings()->get('system')->get('media_img_default_link'),
-            'legend'    => (string) App::core()->blog()->settings()->get('system')->get('media_img_default_legend') ?: 'legend',
+            'size'      => (string) $this->item_system->getSetting('media_img_default_size') ?: 'm',
+            'alignment' => (string) $this->item_system->getSetting('media_img_default_alignment') ?: 'none',
+            'link'      => (bool) $this->item_system->getSetting('media_img_default_link'),
+            'legend'    => (string) $this->item_system->getSetting('media_img_default_legend') ?: 'legend',
             'mediadef'  => false,
         ];
 

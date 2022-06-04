@@ -454,7 +454,7 @@ final class Comments
         }
 
         if (null === $cursor->getField('comment_status')) {
-            $cursor->setField('comment_status', (int) App::core()->blog()->settings()->get('system')->get('comments_pub'));
+            $cursor->setField('comment_status', (int) App::core()->blog()->settings()->getGroup('system')->getSetting('comments_pub'));
         }
 
         // Words list

@@ -68,7 +68,7 @@ class SimpleMenuWidgets
     // Template function
     public function simpleMenu(ArrayObject $attr): string
     {
-        if (!(bool) App::core()->blog()->settings()->get('system')->get('simpleMenu_active')) {
+        if (!(bool) App::core()->blog()->settings()->getGroup('system')->getSetting('simpleMenu_active')) {
             return '';
         }
 
@@ -92,7 +92,7 @@ class SimpleMenuWidgets
     {
         $descr_type = [0 => 'span', 1 => 'title', 2 => 'both', 3 => 'none'];
 
-        if (!App::core()->blog()->settings()->get('system')->get('simpleMenu_active')
+        if (!App::core()->blog()->settings()->getGroup('system')->getSetting('simpleMenu_active')
             || $widget->isOffline()
             || !$widget->checkHomeOnly(App::core()->url()->type)
         ) {
@@ -119,11 +119,11 @@ class SimpleMenuWidgets
     {
         $ret = '';
 
-        if (!(bool) App::core()->blog()->settings()->get('system')->get('simpleMenu_active')) {
+        if (!(bool) App::core()->blog()->settings()->getGroup('system')->getSetting('simpleMenu_active')) {
             return $ret;
         }
 
-        $menu = App::core()->blog()->settings()->get('system')->get('simpleMenu');
+        $menu = App::core()->blog()->settings()->getGroup('system')->getSetting('simpleMenu');
         if (is_array($menu)) {
             // Current relative URL
             $url     = $_SERVER['REQUEST_URI'];

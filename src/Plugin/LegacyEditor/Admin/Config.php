@@ -23,7 +23,7 @@ class Config extends ModuleConfig
 {
     public function setConfiguration($post): void
     {
-        App::core()->blog()->settings()->get('LegacyEditor')->put('active', !empty($post['LegacyEditor_active']), 'boolean');
+        App::core()->blog()->settings()->getGroup('LegacyEditor')->putSetting('active', !empty($post['LegacyEditor_active']), 'boolean');
 
         App::core()->notice()->addSuccessNotice(__('The configuration has been updated.'));
         $this->redirect();
@@ -35,7 +35,7 @@ class Config extends ModuleConfig
         '<h3>' . __('Plugin activation') . '</h3>' .
 
         '<p><label class="classic" for="LegacyEditor_active">' .
-        Form::checkbox('LegacyEditor_active', 1, (bool) App::core()->blog()->settings()->get('LegacyEditor')->get('active')) .
+        Form::checkbox('LegacyEditor_active', 1, (bool) App::core()->blog()->settings()->getGroup('LegacyEditor')->getSetting('active')) .
         __('Enable LegacyEditor plugin') . '</label></p>' .
 
         '</div>';

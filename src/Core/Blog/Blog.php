@@ -154,7 +154,7 @@ final class Blog
         $this->status = $record->isEmpty() ? null : (int) $record->f('blog_status');
 
         $this->public_url  = $record->isEmpty() ? null : $this->getURLFor('resources'); // ! to enhance;
-        $this->public_path = $record->isEmpty() ? false : Path::real(Path::fullFromRoot($this->settings()->get('system')->get('public_path'), App::core()->config()->get('base_dir')));
+        $this->public_path = $record->isEmpty() ? false : Path::real(Path::fullFromRoot($this->settings()->getGroup('system')->getSetting('public_path'), App::core()->config()->get('base_dir')));
 
         // --BEHAVIOR-- coreAfterConstructBlog, Blog
         App::core()->behavior()->call('coreAfterConstructBlog', blog: $this);
@@ -221,7 +221,7 @@ final class Blog
     public function settings(): Settings
     {
         if (!($this->settings instanceof Settings)) {
-            $this->settings = new Settings($this->id);
+            $this->settings = new Settings(blog: $this->id);
         }
 
         return $this->settings;
@@ -263,12 +263,12 @@ final class Blog
      */
     public function getJsJQuery(): string
     {
-        $version = $this->settings()->get('system')->get('jquery_version');
+        $version = $this->settings()->getGroup('system')->getSetting('jquery_version');
         if ('' == $version) {
             // Version not set, use default one
             $version = App::core()->config()->get('jquery_default');
         } else {
-            if (true !== $this->settings()->get('system')->get('jquery_allow_old_version')) {
+            if (true !== $this->settings()->getGroup('system')->getSetting('jquery_allow_old_version')) {
                 // Use the blog defined version only if more recent than default
                 if (version_compare($version, App::core()->config()->get('jquery_default'), '<')) {
                     $version = App::core()->config()->get('jquery_default');

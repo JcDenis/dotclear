@@ -41,21 +41,21 @@ class Prepend extends ModulePrepend
     public function installModule(): ?bool
     {
         $widgets  = new Widgets();
-        $settings = App::core()->blog()->settings();
-        if (null != $settings->get('widgets')->get('widgets_nav')) {
-            $settings->get('widgets')->put('widgets_nav', $widgets->load($settings->get('widgets')->get('widgets_nav'))->store());
+        $settings = App::core()->blog()->settings()->getGroup('widgets');
+        if (null != $settings->getSetting('widgets_nav')) {
+            $settings->putSetting('widgets_nav', $widgets->load($settings->getSetting('widgets_nav'))->store());
         } else {
-            $settings->get('widgets')->put('widgets_nav', '', 'string', 'Navigation widgets', false);
+            $settings->putSetting('widgets_nav', '', 'string', 'Navigation widgets', false);
         }
-        if (null != $settings->get('widgets')->get('widgets_extra')) {
-            $settings->get('widgets')->put('widgets_extra', $widgets->load($settings->get('widgets')->get('widgets_extra'))->store());
+        if (null != $settings->getSetting('widgets_extra')) {
+            $settings->putSetting('widgets_extra', $widgets->load($settings->getSetting('widgets_extra'))->store());
         } else {
-            $settings->get('widgets')->put('widgets_extra', '', 'string', 'Extra widgets', false);
+            $settings->putSetting('widgets_extra', '', 'string', 'Extra widgets', false);
         }
-        if (null != $settings->get('widgets')->get('widgets_custom')) {
-            $settings->get('widgets')->put('widgets_custom', $widgets->load($settings->get('widgets')->get('widgets_custom'))->store());
+        if (null != $settings->getSetting('widgets_custom')) {
+            $settings->putSetting('widgets_custom', $widgets->load($settings->getSetting('widgets_custom'))->store());
         } else {
-            $settings->get('widgets')->put('widgets_custom', '', 'string', 'Custom widgets', false);
+            $settings->putSetting('widgets_custom', '', 'string', 'Custom widgets', false);
         }
 
         return true;

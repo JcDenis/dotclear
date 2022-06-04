@@ -40,7 +40,7 @@ class RsExtComment extends RsExtend
     public function getDate(string $format = '', string $type = ''): string
     {
         if (empty($format)) {
-            $format = App::core()->blog()->settings()->get('system')->get('date_format');
+            $format = App::core()->blog()->settings()->getGroup('system')->getSetting('date_format');
         }
 
         return Clock::str(
@@ -62,7 +62,7 @@ class RsExtComment extends RsExtend
     public function getTime(string $format, string $type = ''): string
     {
         if (empty($format)) {
-            $format = App::core()->blog()->settings()->get('system')->get('time_format');
+            $format = App::core()->blog()->settings()->getGroup('system')->getSetting('time_format');
         }
 
         return Clock::str(
@@ -131,7 +131,7 @@ class RsExtComment extends RsExtend
     {
         $res = $this->rs->f('comment_content');
 
-        $res = App::core()->blog()->settings()->get('system')->get('comments_nofollow') ?
+        $res = App::core()->blog()->settings()->getGroup('system')->getSetting('comments_nofollow') ?
             preg_replace_callback('#<a(.*?href=".*?".*?)>#ms', [$this, 'noFollowURL'], $res) :
             preg_replace_callback('#<a(.*?href=".*?".*?)>#ms', [$this, 'UgcURL'], $res);
 
@@ -185,7 +185,7 @@ class RsExtComment extends RsExtend
         }
 
         $rel = 'ugc';
-        if (App::core()->blog()->settings()->get('system')->get('comments_nofollow')) {
+        if (App::core()->blog()->settings()->getGroup('system')->getSetting('comments_nofollow')) {
             $rel .= ' nofollow';
         }
 

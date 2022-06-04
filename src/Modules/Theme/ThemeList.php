@@ -53,7 +53,7 @@ class ThemeList extends PluginList
                 }
             }
 
-            $current = App::core()->blog()->settings()->get('system')->get('theme') == $id && $this->modules()->hasModule($id);
+            $current = App::core()->blog()->settings()->getGroup('system')->getSetting('theme') == $id && $this->modules()->hasModule($id);
             $distrib = $this->modules()->isDistributedModule($id) ? ' dc-box' : '';
             $line    = '<div class="box ' . ($current ? 'medium current-theme' : 'theme') . $distrib . '">';
 
@@ -235,7 +235,7 @@ class ThemeList extends PluginList
     {
         $submits = [];
 
-        if (App::core()->blog()->settings()->get('system')->get('theme') != $id) {
+        if (App::core()->blog()->settings()->getGroup('system')->getSetting('theme') != $id) {
             // Select theme to use on curent blog
             if (in_array('select', $actions)) {
                 $submits[] = '<input type="submit" name="select[' . Html::escapeHTML($id) . ']" value="' . __('Use this one') . '" />';
@@ -370,7 +370,7 @@ class ThemeList extends PluginList
                     throw new ModuleException(__('No such theme.'));
                 }
 
-                App::core()->blog()->settings()->get('system')->put('theme', $id);
+                App::core()->blog()->settings()->getGroup('system')->putSetting('theme', $id);
                 App::core()->blog()->triggerBlog();
 
                 App::core()->notice()->addSuccessNotice(sprintf(__('Theme %s has been successfully selected.'), Html::escapeHTML($this->modules()->getModule($id)->name())));

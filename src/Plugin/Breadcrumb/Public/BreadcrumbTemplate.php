@@ -49,7 +49,7 @@ class BreadcrumbTemplate
         $ret = '';
 
         // Check if breadcrumb enabled for the current blog
-        if (!App::core()->blog()->settings()->get('breadcrumb')->get('breadcrumb_enabled')) {
+        if (!App::core()->blog()->settings()->getGroup('breadcrumb')->getSetting('breadcrumb_enabled')) {
             return $ret;
         }
 
@@ -68,7 +68,7 @@ class BreadcrumbTemplate
                 break;
 
             case 'default':
-                if (App::core()->blog()->settings()->get('system')->get('static_home')) {
+                if (App::core()->blog()->settings()->getGroup('system')->getSetting('static_home')) {
                     // Static home and on (1st) blog page
                     $ret = '<a id="bc-home" href="' . App::core()->blog()->url . '">' . __('Home') . '</a>';
                     $ret .= $separator . __('Blog');
@@ -86,7 +86,7 @@ class BreadcrumbTemplate
             case 'default-page':
                 // Home or blog page`(page 2 to n)
                 $ret = '<a id="bc-home" href="' . App::core()->blog()->url . '">' . __('Home') . '</a>';
-                if (App::core()->blog()->settings()->get('system')->get('static_home')) {
+                if (App::core()->blog()->settings()->getGroup('system')->getSetting('static_home')) {
                     $ret .= $separator . '<a href="' . App::core()->blog()->getURLFor('posts') . '">' . __('Blog') . '</a>';
                 } else {
                     if (App::core()->context()->get('cur_lang')) {
@@ -151,7 +151,7 @@ class BreadcrumbTemplate
                 } else {
                     // Month archive
                     $ret .= $separator . '<a href="' . App::core()->blog()->getURLFor('archive') . '">' . __('Archives') . '</a>';
-                    $ret .= $separator . Clock::str(format: '%B %Y', date: App::core()->context()->get('archives')->f('dt'), to: App::core()->blog()->settings()->get('system')->get('blog_timezone'));
+                    $ret .= $separator . Clock::str(format: '%B %Y', date: App::core()->context()->get('archives')->f('dt'), to: App::core()->blog()->settings()->getGroup('system')->get('blog_timezone'));
                 }
 
                 break;
@@ -215,7 +215,7 @@ class BreadcrumbTemplate
         }
 
         // Encapsulate breadcrumb in <p>…</p>
-        if (!App::core()->blog()->settings()->get('breadcrumb')->get('breadcrumb_alone')) {
+        if (!App::core()->blog()->settings()->getGroup('breadcrumb')->getSetting('breadcrumb_alone')) {
             $ret = '<p id="breadcrumb">' . $ret . '</p>';
         }
 

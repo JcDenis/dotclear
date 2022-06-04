@@ -72,7 +72,7 @@ class DuctileBehavior
 
     public function ductileWebfontHelper()
     {
-        $s = App::core()->blog()->settings()->get('themes')->get(App::core()->blog()->settings()->get('system')->get('theme') . '_style');
+        $s = App::core()->blog()->settings()->getGroup('themes')->getSetting(App::core()->blog()->settings()->getGroup('system')->getSetting('theme') . '_style');
 
         if (null === $s) {
             return;
@@ -146,7 +146,7 @@ class DuctileBehavior
 
     public function ductileStyleHelper()
     {
-        $s = App::core()->blog()->settings()->get('themes')->get(App::core()->blog()->settings()->get('system')->get('theme') . '_style');
+        $s = App::core()->blog()->settings()->getGroup('themes')->getSetting(App::core()->blog()->settings()->getGroup('system')->getSetting('theme') . '_style');
 
         if (null === $s) {
             return;
@@ -326,7 +326,7 @@ class DuctileBehavior
         $default = false;
         $img_url = App::core()->blog()->url . 'resources/img/';
 
-        $s = App::core()->blog()->settings()->get('themes')->get(App::core()->blog()->settings()->get('system')->get('theme') . '_stickers');
+        $s = App::core()->blog()->settings()->getGroup('themes')->getSetting(App::core()->blog()->settings()->getGroup('system')->getSetting('theme') . '_stickers');
 
         if (null === $s) {
             $default = true;
