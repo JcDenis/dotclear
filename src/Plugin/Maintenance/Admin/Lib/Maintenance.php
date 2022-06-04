@@ -257,7 +257,7 @@ class Maintenance
         $cur->setField('log_table', 'maintenance');
         $cur->setField('user_id', App::core()->user()->userID());
 
-        App::core()->log()->addLog($cur);
+        App::core()->log()->createLog(cursor: $cur);
     }
 
     /**
