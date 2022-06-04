@@ -28,10 +28,10 @@ class Status
      * @param string $action The human readable translated action
      */
     public function __construct(
-        public readonly int $code, 
-        public readonly string $id, 
+        public readonly int $code,
+        public readonly string $id,
         public readonly string $icon,
-        public readonly string $state, 
+        public readonly string $state,
         public readonly string $action = ''
     ) {
     }

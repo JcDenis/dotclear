@@ -75,7 +75,7 @@ class Statuses
      *
      * Returns a status ID given to an code.
      *
-     * @param string $code    The status code
+     * @param int    $code    The status code
      * @param string $default The value returned if code not exists
      *
      * @return null|string The status ID
@@ -134,7 +134,7 @@ class Statuses
      *
      * Returns a status icon given to an code.
      *
-     * @param string $code    The status code
+     * @param int    $code    The status code
      * @param string $default The value returned if code not exists
      *
      * @return null|string The status icon URI

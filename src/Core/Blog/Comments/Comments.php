@@ -58,31 +58,31 @@ final class Comments
             $this->status = new Statuses(
                 'comments',
                 new Status(
-                    code: 1, 
-                    id: 'publish', 
+                    code: 1,
+                    id: 'publish',
                     icon: 'images/check-on.png',
-                    state: __('Published'), 
+                    state: __('Published'),
                     action: __('Publish')
                 ),
                 new Status(
-                    code: 0, 
-                    id: 'unpublish', 
+                    code: 0,
+                    id: 'unpublish',
                     icon: 'images/check-off.png',
-                    state: __('Unpublished'), 
+                    state: __('Unpublished'),
                     action: __('Unpublish')
                 ),
                 new Status(
-                    code: -1, 
-                    id: 'pending', 
+                    code: -1,
+                    id: 'pending',
                     icon: 'images/check-wrn.png',
-                    state: __('Pending'), 
+                    state: __('Pending'),
                     action: __('Mark as pending')
                 ),
                 new Status(
-                    code: -2, 
-                    id: 'junk', 
+                    code: -2,
+                    id: 'junk',
                     icon: 'images/junk.png',
-                    state: __('Junk'), 
+                    state: __('Junk'),
                     action: __('Mark as junk')
                 ),
             );

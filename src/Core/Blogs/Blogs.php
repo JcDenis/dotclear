@@ -54,24 +54,24 @@ final class Blogs
             $this->status = new Statuses(
                 'blogs',
                 new Status(
-                    code: 1, 
-                    id: 'online', 
+                    code: 1,
+                    id: 'online',
                     icon: 'images/check-on.png',
-                    state: __('online'), 
+                    state: __('online'),
                     action: __('Set online')
                 ),
                 new Status(
-                    code: 0, 
-                    id: 'offline', 
+                    code: 0,
+                    id: 'offline',
                     icon: 'images/check-off.png',
-                    state: __('offline'), 
+                    state: __('offline'),
                     action: __('Set offline')
                 ),
                 new Status(
-                    code: -1, 
-                    id: 'removed', 
+                    code: -1,
+                    id: 'removed',
                     icon: 'images/check-wrn.png',
-                    state: __('removed'), 
+                    state: __('removed'),
                     action: __('Set as removed')
                 ),
             );

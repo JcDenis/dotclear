@@ -127,9 +127,9 @@ class PostInventory extends Inventory
                 echo $this->postLine(isset($entries[$this->rs->fInt('post_id')]));
             }
 
-            $img = '<img alt="%1$s" title="%1$s" src="?df=%2$s" /> %1$s';
+            $img     = '<img alt="%1$s" title="%1$s" src="?df=%2$s" /> %1$s';
             $legends = [];
-            foreach(App::core()->blog()->posts()->status()->getCodes() as $code) {
+            foreach (App::core()->blog()->posts()->status()->getCodes() as $code) {
                 $legends[] = sprintf(
                     $img,
                     App::core()->blog()->posts()->status()->getState($code),
@@ -140,8 +140,7 @@ class PostInventory extends Inventory
             $legends[] = sprintf($img, __('Selected'), 'images/selected.png');
             $legends[] = sprintf($img, __('Attachments'), 'images/attach.png');
 
-            echo 
-            $blocks[1] .
+            echo $blocks[1] .
             '<p class="info">' . __('Legend: ') . implode(' - ', $legends) . '</p>' .
             $blocks[2] . $pager->getLinks();
         }

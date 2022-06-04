@@ -51,7 +51,7 @@ final class Categories
     }
 
     /**
-     * Check user permissions to manage categories
+     * Check user permissions to manage categories.
      *
      * @throws InsufficientPermissions
      */

@@ -57,31 +57,31 @@ final class Posts
             $this->status = new Statuses(
                 'posts',
                 new Status(
-                    code: 1, 
-                    id: 'publish', 
+                    code: 1,
+                    id: 'publish',
                     icon: 'images/check-on.png',
-                    state: __('published'), 
+                    state: __('published'),
                     action: __('Publish')
                 ),
                 new Status(
-                    code: 0, 
-                    id: 'unpublish', 
+                    code: 0,
+                    id: 'unpublish',
                     icon: 'images/check-off.png',
-                    state: __('unpublished'), 
+                    state: __('unpublished'),
                     action: __('Unpublish')
                 ),
                 new Status(
-                    code: -1, 
-                    id: 'schedule', 
+                    code: -1,
+                    id: 'schedule',
                     icon: 'images/scheduled.png',
-                    state: __('scheduled'), 
+                    state: __('scheduled'),
                     action: __('Schedule')
                 ),
                 new Status(
-                    code: -2, 
-                    id: 'pending', 
+                    code: -2,
+                    id: 'pending',
                     icon: 'images/check-wrn.png',
-                    state: __('pending'), 
+                    state: __('pending'),
                     action: __('Mark as pending')
                 ),
             );

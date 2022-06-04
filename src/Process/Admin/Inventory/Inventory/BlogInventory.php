@@ -88,7 +88,7 @@ class BlogInventory extends Inventory
             }
 
             $legends = [];
-            foreach(App::core()->blogs()->status()->getCodes() as $code) {
+            foreach (App::core()->blogs()->status()->getCodes() as $code) {
                 $legends[] = sprintf(
                     '<img alt="%1$s" title="%1$s" src="?df=%2$s" /> %1$s',
                     App::core()->blogs()->status()->getState($code),
@@ -96,9 +96,8 @@ class BlogInventory extends Inventory
                 );
             }
 
-            echo 
-            $blocks[1] . 
-            '<p class="info">' . __('Legend: ') . implode(' - ', $legends) . '</p>' . 
+            echo $blocks[1] .
+            '<p class="info">' . __('Legend: ') . implode(' - ', $legends) . '</p>' .
             $blocks[2] . $pager->getLinks();
         }
     }

@@ -186,9 +186,9 @@ class App
             $lines = [];
         }
 
-        array_unshift($lines, ['function' => 'Caught in', 'file' => $e->getFile(), 'line' => $e->getLine()]);
+        array_unshift($lines, ['class' => $e::class, 'function' => ' caught in', 'file' => $e->getFile(), 'line' => $e->getLine()]);
         if (null != ($previous = $e->getPrevious())) {
-            array_unshift($lines, ['function' => 'Thrown in', 'file' => $previous->getFile(), 'line' => $previous->getLine()]);
+            array_unshift($lines, ['class' => $previous::class, 'function' => ' thrown in', 'file' => $previous->getFile(), 'line' => $previous->getLine()]);
         }
 
         $traces = '';
