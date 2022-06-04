@@ -51,18 +51,15 @@ final class Categories
     }
 
     /**
-     * Get the category by its ID.
+     * Check user permissions to manage categories
      *
-     * @param int $id The category ID
-     *
-     * @return Record The category. (StaticRecord)
+     * @throws InsufficientPermissions
      */
-    public function getCategory(int $id): Record
+    private function checkUserPermissions(string $message): void
     {
-        $param = new Param();
-        $param->set('car_id', $id);
-
-        return $this->getCategories(param: $param);
+        if (!App::core()->user()->check('categories', App::core()->blog()->id)) {
+            throw new InsufficientPermissions($message);
+        }
     }
 
     /**
@@ -78,10 +75,14 @@ final class Categories
     {
         $params = new CategoriesParam($param);
 
+        // --BEHAVIOR-- coreBeforeGetCategories, Param
+        App::core()->behavior()->call('coreBeforeGetCategories', param: $params);
+
         // Find and use post_type only for posts count
         $c_params = clone $params;
         $params->unset('post_type');
         $counter = $this->getCategoriesPostsCount(param: $c_params);
+        unset($c_params);
 
         if (false === $params->without_empty()) {
             $without_empty = false;
@@ -283,7 +284,7 @@ final class Categories
     }
 
     /**
-     * Add a new category.
+     * Create a new category.
      *
      * Takes a cursor as input and returns the new category ID.
      *
@@ -294,48 +295,45 @@ final class Categories
      *
      * @return int The new category ID
      */
-    public function addCategory(Cursor $cursor, int $parent = 0): int
+    public function createCategory(Cursor $cursor, int $parent = 0): int
     {
-        if (!App::core()->user()->check('categories', App::core()->blog()->id)) {
-            throw new InsufficientPermissions(__('You are not allowed to add categories'));
-        }
+        $this->checkUserPermissions(message: __('You are not allowed to add categories'));
 
+        // Check for parent URL
         $url = [];
         if (0 != $parent) {
-            $rs = $this->getCategory(id: $parent);
-            if ($rs->isEmpty()) {
-                $url = [];
-            } else {
-                $url[] = $rs->f('cat_url');
+            $param = new Param();
+            $param->set('cat_id', $parent);
+
+            $record = $this->getCategories(param: $param);
+            if (!$record->isEmpty()) {
+                $url[] = $record->f('cat_url');
             }
         }
-
-        if ('' == $cursor->getField('cat_url')) {
-            $url[] = Text::tidyURL($cursor->getField('cat_title'), false);
-        } else {
-            $url[] = $cursor->getField('cat_url');
-        }
-
+        $url[] = $cursor->getField('cat_url') ?: Text::tidyURL($cursor->getField('cat_title'), false);
         $cursor->setField('cat_url', implode('/', $url));
 
         $this->getCategoryCursor(cursor: $cursor);
         $cursor->setField('blog_id', (string) App::core()->blog()->id);
 
-        // --BEHAVIOR-- coreBeforeCategoryCreate, Cursor
-        App::core()->behavior()->call('coreBeforeCategoryCreate', $cursor);
+        // --BEHAVIOR-- coreBeforeCreateCategory, Cursor
+        App::core()->behavior()->call('coreBeforeCreateCategory', cursor: $cursor);
 
         $id = $this->categoriestree()->addNode(cursor: $cursor, parent: $parent);
         if (false !== $id) {
             // Update category's cursor
-            $rs = $this->getCategory(id: $id);
-            if (!$rs->isEmpty()) {
-                $cursor->setField('cat_lft', $rs->f('cat_lft'));
-                $cursor->setField('cat_rgt', $rs->f('cat_rgt'));
+            $param = new Param();
+            $param->set('cat_id', $id);
+
+            $record = $this->getCategories(param: $param);
+            if (!$record->isEmpty()) {
+                $cursor->setField('cat_lft', $record->f('cat_lft'));
+                $cursor->setField('cat_rgt', $record->f('cat_rgt'));
             }
         }
 
-        // --BEHAVIOR-- coreAfterCategoryCreate, Cursor
-        App::core()->behavior()->call('coreAfterCategoryCreate', $cursor);
+        // --BEHAVIOR-- coreAfterCreateCategory, Cursor
+        App::core()->behavior()->call('coreAfterCreateCategory', cursor: $cursor);
 
         App::core()->blog()->triggerBlog();
 
@@ -350,18 +348,17 @@ final class Categories
      *
      * @throws InsufficientPermissions
      */
-    public function updCategory(int $id, Cursor $cursor): void
+    public function updateCategory(int $id, Cursor $cursor): void
     {
-        if (!App::core()->user()->check('categories', App::core()->blog()->id)) {
-            throw new InsufficientPermissions(__('You are not allowed to update categories'));
-        }
+        $this->checkUserPermissions(message: __('You are not allowed to update categories'));
 
+        // Check for parent URL
         if ('' == $cursor->getField('cat_url')) {
-            $url = [];
-            $rs  = $this->categoriestree()->getParents(id: $id);
-            while ($rs->fetch()) {
-                if ($rs->index() == $rs->count() - 1) {
-                    $url[] = $rs->f('cat_url');
+            $url    = [];
+            $record = $this->categoriestree()->getParents(id: $id);
+            while ($record->fetch()) {
+                if ($record->index() == $record->count() - 1) {
+                    $url[] = $record->f('cat_url');
                 }
             }
 
@@ -369,18 +366,18 @@ final class Categories
             $cursor->setField('cat_url', implode('/', $url));
         }
 
-        $this->getCategoryCursor(cursor: $cursor, id: $id);
+        $this->getCategoryCursor(cursor: $cursor);
 
-        // --BEHAVIOR-- coreBeforeCategoryUpdate, Cursor
-        App::core()->behavior()->call('coreBeforeCategoryUpdate', $cursor);
+        // --BEHAVIOR-- coreBeforeUpdateCategory, Cursor, int
+        App::core()->behavior()->call('coreBeforeUpdateCategory', cursor: $cursor, id: $id);
 
         $cursor->update(
             'WHERE cat_id = ' . (int) $id . ' ' .
             "AND blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' "
         );
 
-        // --BEHAVIOR-- coreAfterCategoryUpdate,Cursor
-        App::core()->behavior()->call('coreAfterCategoryUpdate', $cursor);
+        // --BEHAVIOR-- coreAfterUpdateCategory,Cursor, int
+        App::core()->behavior()->call('coreAfterUpdateCategory', cursor: $cursor, id: $id);
 
         App::core()->blog()->triggerBlog();
     }
@@ -391,10 +388,17 @@ final class Categories
      * @param int $id    The category ID
      * @param int $left  The category ID before
      * @param int $right The category ID after
+     *
+     * @throws InsufficientPermissions
      */
-    public function updCategoryPosition(int $id, int $left, int $right): void
+    public function updateCategoryPosition(int $id, int $left, int $right): void
     {
-        $this->categoriestree()->updatePosition($id, $left, $right);
+        $this->checkUserPermissions(message: __('You are not allowed to update category position'));
+
+        // --BEHAVIOR-- coreBeforeUpdateCategoryPosition, int, int, int
+        App::core()->behavior()->call('coreBeforeUpdateCategoryPosition', id: $id, left: $left, right: $right);
+
+        $this->categoriestree()->updatePosition(id: $id, left: $left, right: $right);
         App::core()->blog()->triggerBlog();
     }
 
@@ -403,23 +407,37 @@ final class Categories
      *
      * @param int $id     The category ID
      * @param int $parent The parent category ID
+     *
+     * @throws InsufficientPermissions
      */
     public function setCategoryParent(int $id, int $parent): void
     {
-        $this->categoriestree()->setNodeParent($id, $parent);
+        $this->checkUserPermissions(message: __('You are not allowed to set category parent'));
+
+        // --BEHAVIOR-- coreBeforeSetCategoryParent, int, int, int
+        App::core()->behavior()->call('coreBeforeSetCategoryParent', id: $id, parent: $parent);
+
+        $this->categoriestree()->setNodeParent(node: $id, target: $parent);
         App::core()->blog()->triggerBlog();
     }
 
     /**
      * Sets the category position.
      *
-     * @param int    $id      The category ID
-     * @param int    $sibling The sibling category ID
-     * @param string $move    The move (before|after)
+     * @param int    $id       The category ID
+     * @param int    $sibling  The sibling category ID
+     * @param string $position The position (before|after)
+     *
+     * @throws InsufficientPermissions
      */
-    public function setCategoryPosition(int $id, int $sibling, string $move): void
+    public function setCategoryPosition(int $id, int $sibling, string $position): void
     {
-        $this->categoriestree()->setNodePosition($id, $sibling, $move);
+        $this->checkUserPermissions(message: __('You are not allowed to set category position'));
+
+        // --BEHAVIOR-- coreBeforeSetCategoryPosition, int, int, int
+        App::core()->behavior()->call('coreBeforeSetCategoryPosition', id: $id, sibling: $sibling, position: $position);
+
+        $this->categoriestree()->setNodePosition(node: $id, sibling: $sibling, position: $position);
         App::core()->blog()->triggerBlog();
     }
 
@@ -433,11 +451,12 @@ final class Categories
      * @throws InsufficientPermissions
      * @throws InvalidValueReference
      */
-    public function delCategory(int $id): void
+    public function deleteCategory(int $id): void
     {
-        if (!App::core()->user()->check('categories', App::core()->blog()->id)) {
-            throw new InsufficientPermissions(__('You are not allowed to delete categories'));
-        }
+        $this->checkUserPermissions(message: __('You are not allowed to delete categories'));
+
+        // --BEHAVIOR-- coreBeforeDeleteCategory, int
+        App::core()->behavior()->call('coreBeforeDeleteCategory', id: $id);
 
         $sql = new SelectStatement(__METHOD__);
         $sql->column($sql->count('post_id', 'nb_post'));
@@ -451,6 +470,10 @@ final class Categories
         }
 
         $this->categoriestree()->deleteNode(node: $id);
+
+        // --BEHAVIOR-- coreAfterDeleteCategory, int
+        App::core()->behavior()->call('coreAfterDeleteCategory', id: $id);
+
         App::core()->blog()->triggerBlog();
     }
 
@@ -461,9 +484,10 @@ final class Categories
      */
     public function resetCategoriesOrder(): void
     {
-        if (!App::core()->user()->check('categories', App::core()->blog()->id)) {
-            throw new InsufficientPermissions(__('You are not allowed to reset categories order'));
-        }
+        $this->checkUserPermissions(message: __('You are not allowed to reset categories order'));
+
+        // --BEHAVIOR-- coreBeforeResetCategoriesOrder
+        App::core()->behavior()->call('coreBeforeResetCategoriesOrder');
 
         $this->categoriestree()->resetOrder();
         App::core()->blog()->triggerBlog();
@@ -483,43 +507,37 @@ final class Categories
     private function checkCategory(string $title, string $url, ?int $id = null): string
     {
         $sql = new SelectStatement(__METHOD__);
-        $sql
-            ->column('cat_url')
-            ->from(App::core()->prefix() . 'category')
-            ->where('cat_url = ' . $sql->quote($url))
-            ->and('blog_id = ' . $sql->quote(App::core()->blog()->id))
-            ->order('cat_url DESC')
-        ;
+        $sql->column('cat_url');
+        $sql->from(App::core()->prefix() . 'category');
+        $sql->where('cat_url = ' . $sql->quote($url));
+        $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
+        $sql->order('cat_url DESC');
 
         if (null !== $id) {
             $sql->and('cat_id <> ' . $id);
         }
 
-        $rs = $sql->select();
-
-        if (!$rs->isEmpty()) {
+        $record = $sql->select();
+        if (!$record->isEmpty()) {
             $sql = new SelectStatement(__METHOD__);
-            $sql
-                ->column('cat_url')
-                ->from(App::core()->prefix() . 'category')
-                ->where('cat_url' . $sql->regexp($url))
-                ->and('blog_id = ' . $sql->quote(App::core()->blog()->id))
-                ->order('cat_url DESC')
-            ;
+            $sql->column('cat_url');
+            $sql->from(App::core()->prefix() . 'category');
+            $sql->where('cat_url' . $sql->regexp($url));
+            $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
+            $sql->order('cat_url DESC');
 
             if (null !== $id) {
                 $sql->and('cat_id <> ' . $id);
             }
 
-            $rs = $sql->select();
-
-            if ($rs->isEmpty()) {
+            $record = $sql->select();
+            if ($record->isEmpty()) {
                 return $url;
             }
 
             $a = [];
-            while ($rs->fetch()) {
-                $a[] = $rs->f('cat_url');
+            while ($record->fetch()) {
+                $a[] = $record->f('cat_url');
             }
 
             natsort($a);

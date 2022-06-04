@@ -11,12 +11,13 @@ namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\Categories
 use Dotclear\App;
-use Dotclear\Process\Admin\Page\AbstractPage;
+use Dotclear\Database\Param;
 use Dotclear\Database\Record;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
 
 /**
@@ -39,13 +40,16 @@ class Categories extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        // Remove a categories
+        // Remove a category
         if (!GPC::post()->empty('delete')) {
             $keys   = array_keys(GPC::post()->array('delete'));
             $cat_id = (int) $keys[0];
 
             // Check if category to delete exists
-            $category = App::core()->blog()->categories()->getCategory(id: $cat_id);
+            $param = new Param();
+            $param->set('cat_id', $cat_id);
+
+            $category = App::core()->blog()->categories()->getCategories(param: $param);
             if ($category->isEmpty()) {
                 App::core()->notice()->addErrorNotice(__('This category does not exist.'));
                 App::core()->adminurl()->redirect('admin.categories');
@@ -55,7 +59,7 @@ class Categories extends AbstractPage
 
             try {
                 // Delete category
-                App::core()->blog()->categories()->delCategory(id: $cat_id);
+                App::core()->blog()->categories()->deleteCategory(id: $cat_id);
                 App::core()->notice()->addSuccessNotice(sprintf(__('The category "%s" has been successfully deleted.'), Html::escapeHTML($name)));
                 App::core()->adminurl()->redirect('admin.categories');
             } catch (Exception $e) {
@@ -74,7 +78,10 @@ class Categories extends AbstractPage
                 $mov_cat = $mov_cat ?: null;
                 $name    = '';
                 if (null !== $mov_cat) {
-                    $category = App::core()->blog()->categories()->getCategory(id: $mov_cat);
+                    $param = new Param();
+                    $param->set('cat_id', $mov_cat);
+
+                    $category = App::core()->blog()->categories()->getCategories(param: $param);
                     if ($category->isEmpty()) {
                         throw new AdminException(__('Category where to move entries does not exist'));
                     }
@@ -83,7 +90,7 @@ class Categories extends AbstractPage
                 }
                 // Move posts
                 if ($mov_cat != $cat_id) {
-                    App::core()->blog()->posts()->changePostsCategory(old: $cat_id, new: $mov_cat);
+                    App::core()->blog()->posts()->changePostsCategory(from: $cat_id, to: $mov_cat);
                 }
                 App::core()->notice()->addSuccessNotice(sprintf(
                     __('The entries have been successfully moved to category "%s"'),
@@ -101,7 +108,7 @@ class Categories extends AbstractPage
 
             foreach ($categories as $category) {
                 if (!empty($category->item_id) && !empty($category->left) && !empty($category->right)) {
-                    App::core()->blog()->categories()->updCategoryPosition(
+                    App::core()->blog()->categories()->updateCategoryPosition(
                         id: (int) $category->item_id,
                         left: $category->left,
                         right: $category->right

@@ -279,57 +279,50 @@ class Post extends AbstractPage
         if (!GPC::post()->empty('save') && $this->can_edit_post && !$this->bad_dt) {
             // Create category
             if (!GPC::post()->empty('new_cat_title') && App::core()->user()->check('categories', App::core()->blog()->id)) {
-                $cur_cat = App::core()->con()->openCursor(App::core()->prefix() . 'category');
-                $cur_cat->setField('cat_title', GPC::post()->string('new_cat_title'));
-                $cur_cat->setField('cat_url', '');
+                $cursor = App::core()->con()->openCursor(App::core()->prefix() . 'category');
+                $cursor->setField('cat_title', GPC::post()->string('new_cat_title'));
+                $cursor->setField('cat_url', '');
 
-                // --BEHAVIOR-- adminBeforeCategoryCreate
-                App::core()->behavior()->call('adminBeforeCategoryCreate', $cur_cat);
-
-                $this->cat_id = App::core()->blog()->categories()->addCategory(
-                    cursor: $cur_cat,
+                $this->cat_id = App::core()->blog()->categories()->createCategory(
+                    cursor: $cursor,
                     parent: GPC::post()->int('new_cat_parent')
                 );
-
-                // --BEHAVIOR-- adminAfterCategoryCreate
-                App::core()->behavior()->call('adminAfterCategoryCreate', $cur_cat, $this->cat_id);
+                unset($cursor);
             }
 
-            $cur = App::core()->con()->openCursor(App::core()->prefix() . 'post');
+            $cursor = App::core()->con()->openCursor(App::core()->prefix() . 'post');
 
-            $cur->setField('cat_id', $this->cat_id ?: null);
-            $cur->setField('post_dt', $this->post_dt ? Clock::database($this->post_dt) : '');
-            $cur->setField('post_format', $this->post_format);
-            $cur->setField('post_password', $this->post_password);
-            $cur->setField('post_lang', $this->post_lang);
-            $cur->setField('post_title', $this->post_title);
-            $cur->setField('post_excerpt', $this->post_excerpt);
-            $cur->setField('post_excerpt_xhtml', $this->post_excerpt_xhtml);
-            $cur->setField('post_content', $this->post_content);
-            $cur->setField('post_content_xhtml', $this->post_content_xhtml);
-            $cur->setField('post_notes', $this->post_notes);
-            $cur->setField('post_status', $this->post_status);
-            $cur->setField('post_selected', (int) $this->post_selected);
-            $cur->setField('post_open_comment', (int) $this->post_open_comment);
-            $cur->setField('post_open_tb', (int) $this->post_open_tb);
+            $cursor->setField('cat_id', $this->cat_id ?: null);
+            $cursor->setField('post_dt', $this->post_dt ? Clock::database($this->post_dt) : '');
+            $cursor->setField('post_format', $this->post_format);
+            $cursor->setField('post_password', $this->post_password);
+            $cursor->setField('post_lang', $this->post_lang);
+            $cursor->setField('post_title', $this->post_title);
+            $cursor->setField('post_excerpt', $this->post_excerpt);
+            $cursor->setField('post_excerpt_xhtml', $this->post_excerpt_xhtml);
+            $cursor->setField('post_content', $this->post_content);
+            $cursor->setField('post_content_xhtml', $this->post_content_xhtml);
+            $cursor->setField('post_notes', $this->post_notes);
+            $cursor->setField('post_status', $this->post_status);
+            $cursor->setField('post_selected', (int) $this->post_selected);
+            $cursor->setField('post_open_comment', (int) $this->post_open_comment);
+            $cursor->setField('post_open_tb', (int) $this->post_open_tb);
 
             if (GPC::post()->isset('post_url')) {
-                $cur->setField('post_url', $this->post_url);
+                $cursor->setField('post_url', $this->post_url);
             }
 
             // Update post
             if ($this->post_id) {
                 try {
-                    // --BEHAVIOR-- adminBeforePostUpdate, Cursor, int
-                    App::core()->behavior()->call('adminBeforePostUpdate', $cur, $this->post_id);
+                    App::core()->blog()->posts()->updatePost(
+                        id: $this->post_id,
+                        cursor: $cursor
+                    );
 
-                    App::core()->blog()->posts()->updatePost(id: $this->post_id, cursor: $cur);
-
-                    // --BEHAVIOR-- adminAfterPostUpdate, Cursor, int
-                    App::core()->behavior()->call('adminAfterPostUpdate', $cur, $this->post_id);
                     App::core()->notice()->addSuccessNotice(sprintf(
                         __('The post "%s" has been successfully updated'),
-                        Html::escapeHTML(trim(Html::clean($cur->getField('post_title'))))
+                        Html::escapeHTML(trim(Html::clean($cursor->getField('post_title'))))
                     ));
                     App::core()->adminurl()->redirect(
                         'admin.post',
@@ -339,16 +332,10 @@ class Post extends AbstractPage
                     App::core()->error()->add($e->getMessage());
                 }
             } else {
-                $cur->setField('user_id', App::core()->user()->userID());
+                $cursor->setField('user_id', App::core()->user()->userID());
 
                 try {
-                    // --BEHAVIOR-- adminBeforePostCreate, Cursor
-                    App::core()->behavior()->call('adminBeforePostCreate', $cur);
-
-                    $return_id = App::core()->blog()->posts()->createPost(cursor: $cur);
-
-                    // --BEHAVIOR-- adminAfterPostCreate, Cursor, int
-                    App::core()->behavior()->call('adminAfterPostCreate', $cur, $return_id);
+                    $return_id = App::core()->blog()->posts()->createPost(cursor: $cursor);
 
                     App::core()->notice()->addSuccessNotice(__('Entry has been successfully created.'));
                     App::core()->adminurl()->redirect(

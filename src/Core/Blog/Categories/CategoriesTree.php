@@ -24,7 +24,7 @@ use Exception;
  *
  * @ingroup  Core Category
  */
-class CategoriesTree
+final class CategoriesTree
 {
     /**
      * Gets the category children.
@@ -194,11 +194,10 @@ class CategoriesTree
      * Delete a node.
      *
      * @param int  $node          The node
-     * @param bool $keep_children keep children
      *
      * @throws DatabaseException
      */
-    public function deleteNode(int $node, bool $keep_children = true): void
+    public function deleteNode(int $node): void
     {
         $rs = $this->getChildren(0, $node);
         if ($rs->isEmpty()) {
@@ -210,48 +209,29 @@ class CategoriesTree
         try {
             App::core()->con()->begin();
 
-            if ($keep_children) {
-                App::core()->con()->execute('DELETE FROM ' . App::core()->prefix() . 'category WHERE cat_id = ' . $node);
+            App::core()->con()->execute('DELETE FROM ' . App::core()->prefix() . 'category WHERE cat_id = ' . $node);
 
-                $sql = 
-                    'UPDATE ' . App::core()->prefix() . 'category SET ' .
-                    'cat_rgt = CASE ' .
-                    'WHEN cat_rgt BETWEEN ' . $node_left . ' AND ' . $node_right . ' ' .
-                    'THEN cat_rgt - 1 ' .
-                    'WHEN cat_rgt > ' . $node_right . ' ' .
-                    'THEN cat_rgt - 2 ' .
-                    'ELSE cat_rgt ' .
-                    'END, ' .
-                    'cat_lft = CASE ' .
-                    'WHEN cat_lft BETWEEN ' . $node_left . ' AND ' . $node_right . ' ' .
-                    'THEN cat_lft - 1 ' .
-                    'WHEN cat_lft > ' . $node_right . ' ' .
-                    'THEN cat_lft - 2 ' .
-                    'ELSE cat_lft ' .
-                    'END ' .
-                    'WHERE cat_rgt > ' . $node_left .
-                    $this->getCondition()
-                ;
+            $sql = 
+                'UPDATE ' . App::core()->prefix() . 'category SET ' .
+                'cat_rgt = CASE ' .
+                'WHEN cat_rgt BETWEEN ' . $node_left . ' AND ' . $node_right . ' ' .
+                'THEN cat_rgt - 1 ' .
+                'WHEN cat_rgt > ' . $node_right . ' ' .
+                'THEN cat_rgt - 2 ' .
+                'ELSE cat_rgt ' .
+                'END, ' .
+                'cat_lft = CASE ' .
+                'WHEN cat_lft BETWEEN ' . $node_left . ' AND ' . $node_right . ' ' .
+                'THEN cat_lft - 1 ' .
+                'WHEN cat_lft > ' . $node_right . ' ' .
+                'THEN cat_lft - 2 ' .
+                'ELSE cat_lft ' .
+                'END ' .
+                'WHERE cat_rgt > ' . $node_left .
+                $this->getCondition()
+            ;
 
-                App::core()->con()->execute($sql);
-            } else {
-                App::core()->con()->execute('DELETE FROM ' . App::core()->prefix() . 'category WHERE cat_lft BETWEEN ' . $node_left . ' AND ' . $node_right);
-
-                $node_delta = $node_right - $node_left + 1;
-                $sql        = 'UPDATE ' . App::core()->prefix() . 'category SET '
-                . 'cat_lft = CASE '
-                . 'WHEN cat_lft > ' . $node_left . ' '
-                . 'THEN cat_lft - (' . $node_delta . ') '
-                . 'ELSE cat_lft '
-                . 'END, '
-                . 'cat_rgt = CASE '
-                . 'WHEN cat_rgt > ' . $node_left . ' '
-                . 'THEN cat_rgt - (' . $node_delta . ') '
-                . 'ELSE cat_rgt '
-                . 'END '
-                . 'WHERE cat_rgt > ' . $node_right
-                . $this->getCondition();
-            }
+            App::core()->con()->execute($sql);
 
             App::core()->con()->commit();
         } catch (Exception $e) {
@@ -406,15 +386,15 @@ class CategoriesTree
     /**
      * Sets the node position.
      *
-     * @param int    $nodeA    The node a
-     * @param int    $nodeB    The node b
+     * @param int    $node    The node a
+     * @param int    $sibling    The node b
      * @param string $position The position
      *
      * @throws DatabaseException
      */
-    public function setNodePosition(int $nodeA, int $nodeB, string $position = 'after'): void
+    public function setNodePosition(int $node, int $sibling, string $position = 'after'): void
     {
-        $rs = $this->getChildren(0, $nodeA);
+        $rs = $this->getChildren(0, $node);
         if ($rs->isEmpty()) {
             throw new DatabaseException('Node does not exist.');
         }
@@ -422,7 +402,7 @@ class CategoriesTree
         $A_right = $rs->fInt('cat_rgt');
         $A_level = $rs->fInt('level');
 
-        $rs = $this->getChildren(0, $nodeB);
+        $rs = $this->getChildren(0, $sibling);
         if ($rs->isEmpty()) {
             throw new DatabaseException('Node does not exist.');
         }
@@ -434,9 +414,9 @@ class CategoriesTree
             throw new DatabaseException('Cannot change position');
         }
 
-        $rs      = $this->getParents(id: $nodeA);
+        $rs      = $this->getParents(id: $node);
         $parentA = $rs->isEmpty() ? 0 : $rs->fInt('cat_id');
-        $rs      = $this->getParents(id: $nodeB);
+        $rs      = $this->getParents(id: $sibling);
         $parentB = $rs->isEmpty() ? 0 : $rs->fInt('cat_id');
 
         if ($parentA != $parentB) {
@@ -513,7 +493,7 @@ class CategoriesTree
      *
      * @return string the condition
      */
-    protected function getCondition(string $start = 'AND', string $prefix = ''): string
+    private function getCondition(string $start = 'AND', string $prefix = ''): string
     {
         return ' ' . $start . ' ' . $prefix . "blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' ";
     }

@@ -1266,11 +1266,15 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             }
         }
 
-        $id = App::core()->blog()->categories()->addCategory(
+        $id = App::core()->blog()->categories()->createCategory(
             cursor: $cur,
             parent: !empty($struct['category_parent']) ? (int) $struct['category_parent'] : 0
         );
-        $rs = App::core()->blog()->categories()->getCategory(id: $id);
+
+        $param = new Param();
+        $param->set('cat_id', $id);
+
+        $rs = App::core()->blog()->categories()->getCategories(param: $param);
 
         return $rs->f('cat_url');
     }
@@ -1290,7 +1294,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $cat_id = $rs->fInt('cat_id');
         unset($rs);
 
-        App::core()->blog()->categories()->delCategory(id: $cat_id);
+        App::core()->blog()->categories()->deleteCategory(id: $cat_id);
 
         return true;
     }

@@ -914,26 +914,26 @@ final class Posts
      * Based on old category ID.
      * <b>$new_cat_id</b> can be null.
      *
-     * @param int      $old The old category ID
-     * @param null|int $new The new category ID
+     * @param int      $from The old category ID
+     * @param null|int $to   The new category ID
      *
      * @throws InsufficientPermissions
      */
-    public function changePostsCategory(int $old, ?int $new): void
+    public function changePostsCategory(int $from, ?int $to): void
     {
         if (!App::core()->user()->check('contentadmin,categories', App::core()->blog()->id)) {
             throw new InsufficientPermissions(__('You are not allowed to change entries category'));
         }
 
         // --BEHAVIOR-- coreBeforeChangePostsCategory, int, ?int
-        App::core()->behavior()->call('coreBeforeChangePostsCategory', old: $old, new: $new);
+        App::core()->behavior()->call('coreBeforeChangePostsCategory', from: $from, to: $to);
 
         $sql = new UpdateStatement(__METHOD__);
         $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
-        $sql->and('cat_id = ' . $old);
+        $sql->and('cat_id = ' . $from);
         $sql->from(App::core()->prefix() . 'post');
 
-        $sql->set('cat_id =' . (!$new ? 'NULL' : $new));
+        $sql->set('cat_id =' . (!$to ? 'NULL' : $to));
         $sql->set('post_upddt = ' . $sql->quote(Clock::database()));
 
         $sql->update();

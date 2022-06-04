@@ -12,6 +12,7 @@ namespace Dotclear\Plugin\Breadcrumb\Public;
 // Dotclear\Plugin\Breadcrumb\Public\BreadcrumbTemplate
 use ArrayObject;
 use Dotclear\App;
+use Dotclear\Database\Param;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\L10n;
 
@@ -123,7 +124,10 @@ class BreadcrumbTemplate
                         $ret .= $separator . '<a href="' . App::core()->blog()->getURLFor('category', $categories->f('cat_url')) . '">' . $categories->f('cat_title') . '</a>';
                     }
                     // Post's cat
-                    $categories = App::core()->blog()->categories()->getCategory(id: App::core()->context()->get('posts')->fInt('cat_id'));
+                    $param = new Param();
+                    $param->set('cat_id', App::core()->context()->get('posts')->fInt('cat_id'));
+
+                    $categories = App::core()->blog()->categories()->getCategories(param: $param);
                     $ret .= $separator . '<a href="' . App::core()->blog()->getURLFor('category', $categories->f('cat_url')) . '">' . $categories->f('cat_title') . '</a>';
                 }
                 $ret .= $separator . App::core()->context()->get('posts')->f('post_title');

@@ -390,41 +390,30 @@ class RestMethods
     {
         // Create category
         if (!empty($post['new_cat_title']) && App::core()->user()->check('categories', App::core()->blog()->id)) {
-            $cur_cat = App::core()->con()->openCursor(App::core()->prefix() . 'category');
-            $cur_cat->setField('cat_title', $post['new_cat_title']);
-            $cur_cat->setField('cat_url', '');
+            $cursor = App::core()->con()->openCursor(App::core()->prefix() . 'category');
+            $cursor->setField('cat_title', $post['new_cat_title']);
+            $cursor->setField('cat_url', '');
 
-            // --BEHAVIOR-- adminBeforeCategoryCreate, Cursor
-            App::core()->behavior()->call('adminBeforeCategoryCreate', $cur_cat);
-
-            $post['cat_id'] = App::core()->blog()->categories()->addCategory(
-                curosr: $cur_cat,
+            $post['cat_id'] = App::core()->blog()->categories()->createCategory(
+                cursor: $cursor,
                 parent: !empty($post['new_cat_parent']) ? (int) $post['new_cat_parent'] : 0
             );
-
-            // --BEHAVIOR-- adminAfterCategoryCreate
-            App::core()->behavior()->call('adminAfterCategoryCreate', $cur_cat, $post['cat_id']);
+            unset($cursor);
         }
 
-        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'post');
+        $cursor = App::core()->con()->openCursor(App::core()->prefix() . 'post');
 
-        $cur->setField('post_title', !empty($post['post_title']) ? $post['post_title'] : '');
-        $cur->setField('user_id', App::core()->user()->userID());
-        $cur->setField('post_content', !empty($post['post_content']) ? $post['post_content'] : '');
-        $cur->setField('cat_id', !empty($post['cat_id']) ? (int) $post['cat_id'] : null);
-        $cur->setField('post_format', !empty($post['post_format']) ? $post['post_format'] : 'xhtml');
-        $cur->setField('post_lang', !empty($post['post_lang']) ? $post['post_lang'] : '');
-        $cur->setField('post_status', !empty($post['post_status']) ? (int) $post['post_status'] : 0);
-        $cur->setField('post_open_comment', (int) App::core()->blog()->settings()->get('system')->get('allow_comments'));
-        $cur->setField('post_open_tb', (int) App::core()->blog()->settings()->get('system')->get('allow_trackbacks'));
+        $cursor->setField('post_title', !empty($post['post_title']) ? $post['post_title'] : '');
+        $cursor->setField('user_id', App::core()->user()->userID());
+        $cursor->setField('post_content', !empty($post['post_content']) ? $post['post_content'] : '');
+        $cursor->setField('cat_id', !empty($post['cat_id']) ? (int) $post['cat_id'] : null);
+        $cursor->setField('post_format', !empty($post['post_format']) ? $post['post_format'] : 'xhtml');
+        $cursor->setField('post_lang', !empty($post['post_lang']) ? $post['post_lang'] : '');
+        $cursor->setField('post_status', !empty($post['post_status']) ? (int) $post['post_status'] : 0);
+        $cursor->setField('post_open_comment', (int) App::core()->blog()->settings()->get('system')->get('allow_comments'));
+        $cursor->setField('post_open_tb', (int) App::core()->blog()->settings()->get('system')->get('allow_trackbacks'));
 
-        // --BEHAVIOR-- adminBeforePostCreate
-        App::core()->behavior()->call('adminBeforePostCreate', $cur);
-
-        $return_id = App::core()->blog()->posts()->createPost($cur);
-
-        // --BEHAVIOR-- adminAfterPostCreate
-        App::core()->behavior()->call('adminAfterPostCreate', $cur, $return_id);
+        $return_id = App::core()->blog()->posts()->createPost(cursor: $cursor);
 
         $rsp = new XmlTag('post');
         $rsp->insertAttr('id', $return_id);

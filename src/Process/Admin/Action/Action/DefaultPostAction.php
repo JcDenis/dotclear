@@ -146,9 +146,6 @@ abstract class DefaultPostAction extends Action
     {
         $ids = $this->getCleanedIDs(ap: $ap);
 
-        // --BEHAVIOR-- adminBeforePostsDelete, Integers
-        App::core()->behavior()->call('adminBeforePostsDelete', $ids);
-
         App::core()->blog()->posts()->deletePosts(ids: $ids);
         App::core()->notice()->addSuccessNotice(
             sprintf(
@@ -167,30 +164,28 @@ abstract class DefaultPostAction extends Action
     protected function doChangePostCategory(Action $ap, GPCGroup $from)
     {
         if ($from->isset('new_cat_id')) {
-            $ids      = $this->getCleanedIDs(ap: $ap);
-            $category = $from->int('new_cat_id');
+            $ids = $this->getCleanedIDs(ap: $ap);
+            $id  = $from->int('new_cat_id');
 
             // First create new category if required
-            if (!empty($category) && App::core()->user()->check('categories', App::core()->blog()->id)) {
+            if (!empty($id) && App::core()->user()->check('categories', App::core()->blog()->id)) {
                 // todo: check for duplicate category and throw clean Exception
                 $cursor = App::core()->con()->openCursor(App::core()->prefix() . 'category');
                 $cursor->setField('cat_title', $from->string('new_cat_title'));
                 $cursor->setField('cat_url', '');
 
-                // --BEHAVIOR-- adminBeforeCategoryCreate, Cursor, int
-                App::core()->behavior()->call('adminBeforeCategoryCreate', $cursor);
-
-                $category = App::core()->blog()->categories()->addCategory(
+                $id = App::core()->blog()->categories()->createCategory(
                     cursor: $cursor,
                     parent: $from->int('new_cat_parent')
                 );
-
-                // --BEHAVIOR-- adminAfterCategoryCreate, Cursor, int
-                App::core()->behavior()->call('adminAfterCategoryCreate', $cursor, $category);
             }
 
-            App::core()->blog()->posts()->updatePostsCategory(ids: $ids, category: $category);
-            $record = App::core()->blog()->categories()->getCategory(id: $category);
+            App::core()->blog()->posts()->updatePostsCategory(ids: $ids, category: $id);
+
+            $param = new Param();
+            $param->set('cat_id', $id);
+
+            $record = App::core()->blog()->categories()->getCategories(param: $param);
             App::core()->notice()->addSuccessNotice(
                 sprintf(
                     __(

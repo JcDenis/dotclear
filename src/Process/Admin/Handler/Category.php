@@ -42,29 +42,32 @@ class Category extends AbstractPage
     protected function getPagePrepend(): ?bool
     {
         // Getting existing category
-        $rs      = null;
+        $record  = null;
         $parents = null;
 
         if (!GPC::request()->empty('id')) {
             try {
-                $rs = App::core()->blog()->categories()->getCategory(id: GPC::request()->int('id'));
+                $param = new Param();
+                $param->set('cat_id', GPC::request()->int('id'));
+
+                $record = App::core()->blog()->categories()->getCategories(param: $param);
             } catch (Exception $e) {
                 App::core()->error()->add($e->getMessage());
             }
 
-            if (!App::core()->error()->flag() && !$rs->isEmpty()) {
-                $this->cat_id    = $rs->fInt('cat_id');
-                $this->cat_title = $rs->f('cat_title');
-                $this->cat_url   = $rs->f('cat_url');
-                $this->cat_desc  = $rs->f('cat_desc');
+            if (!App::core()->error()->flag() && !$record->isEmpty()) {
+                $this->cat_id    = $record->fInt('cat_id');
+                $this->cat_title = $record->f('cat_title');
+                $this->cat_url   = $record->f('cat_url');
+                $this->cat_desc  = $record->f('cat_desc');
             }
-            unset($rs);
+            unset($record);
 
             // Getting hierarchy information
             $parents          = App::core()->blog()->categories()->getCategoryParents(id: $this->cat_id);
-            $rs               = App::core()->blog()->categories()->getCategoryParent(id: $this->cat_id);
-            $this->cat_parent = $rs->isEmpty() ? 0 : $rs->fInt('cat_id');
-            unset($rs);
+            $record           = App::core()->blog()->categories()->getCategoryParent(id: $this->cat_id);
+            $this->cat_parent = $record->isEmpty() ? 0 : $record->fInt('cat_id');
+            unset($record);
 
             // Allowed parents list
             $param = new Param();
@@ -133,54 +136,39 @@ class Category extends AbstractPage
 
         // Create or update a category
         if (GPC::post()->isset('cat_title')) {
-            $cur = App::core()->con()->openCursor(App::core()->prefix() . 'category');
+            $cursor = App::core()->con()->openCursor(App::core()->prefix() . 'category');
 
-            $cur->setField('cat_title', $this->cat_title = GPC::post()->string('cat_title'));
+            $cursor->setField('cat_title', $this->cat_title = GPC::post()->string('cat_title'));
 
             if (GPC::post()->isset('cat_desc')) {
-                $cur->setField('cat_desc', $this->cat_desc = GPC::post()->string('cat_desc'));
+                $cursor->setField('cat_desc', $this->cat_desc = GPC::post()->string('cat_desc'));
             }
 
             if (GPC::post()->isset('cat_url')) {
-                $cur->setField('cat_url', $this->cat_url = GPC::post()->string('cat_url'));
+                $cursor->setField('cat_url', $this->cat_url = GPC::post()->string('cat_url'));
             } else {
-                $cur->setField('cat_url', $this->cat_url);
+                $cursor->setField('cat_url', $this->cat_url);
             }
 
             try {
                 // Update category
                 if (null !== $this->cat_id) {
-                    // --BEHAVIOR-- adminBeforeCategoryUpdate
-                    App::core()->behavior()->call('adminBeforeCategoryUpdate', $cur, $this->cat_id);
-
-                    App::core()->blog()->categories()->updCategory(
+                    App::core()->blog()->categories()->updateCategory(
                         id: GPC::post()->int('id'),
-                        cursor: $cur
+                        cursor: $cursor
                     );
-
-                    // --BEHAVIOR-- adminAfterCategoryUpdate
-                    App::core()->behavior()->call('adminAfterCategoryUpdate', $cur, $this->cat_id);
-
                     App::core()->notice()->addSuccessNotice(__('The category has been successfully updated.'));
-
                     App::core()->adminurl()->redirect('admin.category', ['id' => GPC::post()->string('id')]);
                 }
                 // Create category
                 else {
-                    // --BEHAVIOR-- adminBeforeCategoryCreate
-                    App::core()->behavior()->call('adminBeforeCategoryCreate', $cur);
-
-                    $id = App::core()->blog()->categories()->addCategory(
-                        cursor: $cur,
+                    App::core()->blog()->categories()->createCategory(
+                        cursor: $cursor,
                         parent: GPC::post()->int('new_cat_parent')
                     );
-
-                    // --BEHAVIOR-- adminAfterCategoryCreate
-                    App::core()->behavior()->call('adminAfterCategoryCreate', $cur, $id);
-
                     App::core()->notice()->addSuccessNotice(sprintf(
                         __('The category "%s" has been successfully created.'),
-                        Html::escapeHTML($cur->getField('cat_title'))
+                        Html::escapeHTML($this->cat_title)
                     ));
                     App::core()->adminurl()->redirect('admin.categories');
                 }
