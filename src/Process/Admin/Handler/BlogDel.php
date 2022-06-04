@@ -60,7 +60,7 @@ class BlogDel extends AbstractPage
                 App::core()->error()->add(__('Password verification failed'));
             } else {
                 try {
-                    App::core()->blogs()->delBlogs(ids: new Strings($this->blog_id));
+                    App::core()->blogs()->deleteBlogs(ids: new Strings($this->blog_id));
                     App::core()->notice()->addSuccessNotice(sprintf(__('Blog "%s" successfully deleted'), Html::escapeHTML($this->blog_name)));
 
                     App::core()->adminurl()->redirect('admin.blogs');

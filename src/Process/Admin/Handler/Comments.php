@@ -79,7 +79,7 @@ class Comments extends AbstractPage
     {
         if (!GPC::post()->empty('delete_all_spam')) {
             try {
-                App::core()->blog()->comments()->delJunkComments();
+                App::core()->blog()->comments()->deleteJunkComments();
                 $_SESSION['comments_del_spam'] = true;
                 App::core()->adminurl()->redirect('admin.comments');
             } catch (Exception $e) {

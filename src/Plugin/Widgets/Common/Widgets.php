@@ -70,14 +70,16 @@ class Widgets
     /**
      * Call additionnal callback function.
      *
-     * @param Widget $widget The widget
+     * @param null|Widget $widget The widget
      */
-    public function append(Widget $widget): void
+    public function append(?Widget $widget): void
     {
-        if (is_callable($widget->append_callback)) {
-            call_user_func($widget->append_callback, $widget);
+        if (null !== $widget) {
+            if (is_callable($widget->append_callback)) {
+                call_user_func($widget->append_callback, $widget);
+            }
+            $this->__widgets[] = $widget;
         }
-        $this->__widgets[] = $widget;
     }
 
     /**

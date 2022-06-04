@@ -175,7 +175,7 @@ class PagesUrl extends Url
                             // --BEHAVIOR-- publicBeforeCommentCreate
                             App::core()->behavior()->call('publicBeforeCommentCreate', $cur);
                             if ($cur->getField('post_id')) {
-                                $comment_id = App::core()->blog()->comments()->addComment(cursor: $cur);
+                                $comment_id = App::core()->blog()->comments()->createComment(cursor: $cur);
 
                                 // --BEHAVIOR-- publicAfterCommentCreate
                                 App::core()->behavior()->call('publicAfterCommentCreate', $cur, $comment_id);

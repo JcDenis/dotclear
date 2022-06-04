@@ -164,7 +164,7 @@ class ImportFeed extends Module
             $cur->setField('post_dt', Clock::str(format: '%Y-%m-%d %H:%M:%S', date: $item->TS));
 
             try {
-                $post_id = App::core()->blog()->addPost($cur);
+                $post_id = App::core()->blog()->createPost(cursor: $cur);
             } catch (Exception $e) {
                 App::core()->con()->rollback();
 

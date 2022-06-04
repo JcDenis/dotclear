@@ -165,11 +165,11 @@ final class Prepend extends Core
         parent::process();
 
         // Add Record extensions
-        $this->behavior()->add('coreBlogAfterGetPosts', function (Record $rs): void {
-            $rs->extend(new RsExtPostPublic());
+        $this->behavior()->add('coreAfterGetPosts', function (Record $record): void {
+            $record->extend(new RsExtPostPublic());
         });
-        $this->behavior()->add('coreBlogAfterGetComments', function (Record $rs): void {
-            $rs->extend(new RsExtCommentPublic());
+        $this->behavior()->add('coreAfterGetComments', function (Record $record): void {
+            $record->extend(new RsExtCommentPublic());
         });
 
         // Load blog

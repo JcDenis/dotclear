@@ -127,19 +127,23 @@ class PostInventory extends Inventory
                 echo $this->postLine(isset($entries[$this->rs->fInt('post_id')]));
             }
 
-            $fmt = fn ($title, $image) => sprintf('<img alt="%1$s" title="%1$s" src="?df=images/%2$s" /> %1$s', $title, $image);
+            $img = '<img alt="%1$s" title="%1$s" src="?df=%2$s" /> %1$s';
+            $legends = [];
+            foreach(App::core()->blog()->posts()->status()->getCodes() as $code) {
+                $legends[] = sprintf(
+                    $img,
+                    App::core()->blog()->posts()->status()->getState($code),
+                    App::core()->blog()->posts()->status()->getIcon($code),
+                );
+            }
+            $legends[] = sprintf($img, __('Protected'), 'images/locker.png');
+            $legends[] = sprintf($img, __('Selected'), 'images/selected.png');
+            $legends[] = sprintf($img, __('Attachments'), 'images/attach.png');
 
-            echo $blocks[1] .
-                '<p class="info">' . __('Legend: ') .
-                $fmt(__('Published'), 'check-on.png') . ' - ' .
-                $fmt(__('Unpublished'), 'check-off.png') . ' - ' .
-                $fmt(__('Scheduled'), 'scheduled.png') . ' - ' .
-                $fmt(__('Pending'), 'check-wrn.png') . ' - ' .
-                $fmt(__('Protected'), 'locker.png') . ' - ' .
-                $fmt(__('Selected'), 'selected.png') . ' - ' .
-                $fmt(__('Attachments'), 'attach.png') .
-                '</p>' .
-                $blocks[2] . $pager->getLinks();
+            echo 
+            $blocks[1] .
+            '<p class="info">' . __('Legend: ') . implode(' - ', $legends) . '</p>' .
+            $blocks[2] . $pager->getLinks();
         }
     }
 
@@ -168,51 +172,31 @@ class PostInventory extends Inventory
             $cat_title = __('(No cat)');
         }
 
-        $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" class="mark mark-%3$s" />';
-        $img_status = '';
-        $sts_class  = '';
+        $img = '<img alt="%1$s" title="%1$s" src="?df=%2$s" class="mark mark-%3$s" />';
 
-        switch ($this->rs->fInt('post_status')) {
-            case 1:
-                $img_status = sprintf($img, __('Published'), 'check-on.png', 'published');
-                $sts_class  = 'sts-online';
-
-                break;
-
-            case 0:
-                $img_status = sprintf($img, __('Unpublished'), 'check-off.png', 'unpublished');
-                $sts_class  = 'sts-offline';
-
-                break;
-
-            case -1:
-                $img_status = sprintf($img, __('Scheduled'), 'scheduled.png', 'scheduled');
-                $sts_class  = 'sts-scheduled';
-
-                break;
-
-            case -2:
-                $img_status = sprintf($img, __('Pending'), 'check-wrn.png', 'pending');
-                $sts_class  = 'sts-pending';
-
-                break;
-        }
+        $img_status = sprintf(
+            $img,
+            App::core()->blog()->posts()->status()->getState($this->rs->fInt('post_status')),
+            App::core()->blog()->posts()->status()->getIcon($this->rs->fInt('post_status')),
+            App::core()->blog()->posts()->status()->getId($this->rs->fInt('post_status')),
+        );
+        $sts_class = 'sts-' . App::core()->blog()->posts()->status()->getId($this->rs->fInt('post_status'));
 
         $protected = '';
         if ($this->rs->f('post_password')) {
-            $protected = sprintf($img, __('Protected'), 'locker.png', 'locked');
+            $protected = sprintf($img, __('Protected'), 'images/locker.png', 'locked');
         }
 
         $selected = '';
         if ($this->rs->f('post_selected')) {
-            $selected = sprintf($img, __('Selected'), 'selected.png', 'selected');
+            $selected = sprintf($img, __('Selected'), 'images/selected.png', 'selected');
         }
 
         $attach   = '';
         $nb_media = $this->rs->call('countMedia');
         if (0 < $nb_media) {
             $attach_str = 1 == $nb_media ? __('%d attachment') : __('%d attachments');
-            $attach     = sprintf($img, sprintf($attach_str, $nb_media), 'attach.png', 'attach');
+            $attach     = sprintf($img, sprintf($attach_str, $nb_media), 'images/attach.png', 'attach');
         }
 
         $res = '<tr class="line ' . (1 != $this->rs->f('post_status') ? 'offline ' : '') . $sts_class . '"' .

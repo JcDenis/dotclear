@@ -168,17 +168,11 @@ class BlogPref extends AbstractPage
                     }
                 }
 
-                // --BEHAVIOR-- adminBeforeBlogUpdate
-                App::core()->behavior()->call('adminBeforeBlogUpdate', $cur, $this->blog_id);
-
                 if (!preg_match('/^[a-z]{2}(-[a-z]{2})?$/', GPC::post()->string('lang'))) {
                     throw new AdminException(__('Invalid language code'));
                 }
 
-                App::core()->blogs()->updBlog(id: $this->blog_id, cursor: $cur);
-
-                // --BEHAVIOR-- adminAfterBlogUpdate
-                App::core()->behavior()->call('adminAfterBlogUpdate', $cur, $this->blog_id);
+                App::core()->blogs()->updateBlog(id: $this->blog_id, cursor: $cur);
 
                 if ($cur->getField('blog_id') != null && $cur->getField('blog_id') != $this->blog_id) {
                     if (App::core()->blog()->id == $this->blog_id) {

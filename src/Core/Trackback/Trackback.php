@@ -506,7 +506,7 @@ class Trackback
         // --BEHAVIOR-- publicBeforeTrackbackCreate
         App::core()->behavior()->call('publicBeforeTrackbackCreate', $cur);
         if ($cur->getField('post_id')) {
-            $comment_id = App::core()->blog()->comments()->addComment(cursor: $cur);
+            $comment_id = App::core()->blog()->comments()->createComment(cursor: $cur);
 
             // --BEHAVIOR-- publicAfterTrackbackCreate
             App::core()->behavior()->call('publicAfterTrackbackCreate', $cur, $comment_id);

@@ -10,6 +10,10 @@ declare(strict_types=1);
 namespace Dotclear\Helper;
 
 // Dotclear\Helper\Behavior
+use Dotclear\App;
+use Dotclear\Exception\InvalidMethodException;
+use Exception;
+use Error;
 
 /**
  * Stack by group of callable functions.
@@ -19,13 +23,13 @@ namespace Dotclear\Helper;
 class Behavior
 {
     /**
-     * @var array<string,array> $stack
-     *                          Registered behavoirs
+     * @var array<string,array> $behaviors
+     *                          Registered behaviors
      */
-    private $stack = [];
+    private $behaviors = [];
 
     /**
-     * Adds a new function to a stack group.
+     * Adds a new function to a behaviors group.
      *
      * $callback must be a valid and callable callback.
      *
@@ -34,35 +38,35 @@ class Behavior
      */
     public function add(string $group, callable $callback): void
     {
-        $this->stack[$group][] = $callback;
+        $this->behaviors[$group][] = $callback;
     }
 
     /**
-     * Determines if a group exists in stack.
+     * Determines if a group exists in behaviors.
      *
      * @param string $group The behavior
      *
-     * @return bool true if behavior exists, False otherwise
+     * @return bool True if behavior exists, False otherwise
      */
     public function has(string $group): bool
     {
-        return isset($this->stack[$group]);
+        return !empty($group) && isset($this->behaviors[$group]);
     }
 
     /**
-     * Gets the stack (or part of).
+     * Gets the behaviors of a given group.
      *
      * @param string $group The group
      *
-     * @return array the stack
+     * @return array<int,callable> The behaviors of a group
      */
     public function get(string $group): array
     {
-        return !empty($group) && isset($this->stack[$group]) ? $this->stack[$group] : [];
+        return $this->has($group) ? $this->behaviors[$group] : [];
     }
 
     /**
-     * Calls every function in stack for a given group
+     * Calls every function in behaviors for a given group
      * and returns concatened result of each function.
      *
      * Every parameters added after $group will be pass to calls.
@@ -70,56 +74,35 @@ class Behavior
      * @param string $group   The group
      * @param mixed  ...$args The arguments
      *
-     * @return null|string Behavior concatened result
+     * @return string Behavior concatened result
      */
-    public function call(string $group, mixed ...$args): ?string
+    public function call(string $group, mixed ...$args): string
     {
-        return $this->callArray($group, $args);
-    }
+        $result = '';
 
-    public function callArray(string $group, array $args): ?string
-    {
-        if (isset($this->stack[$group])) {
-            $res = '';
-            foreach ($this->stack[$group] as $callback) {
-                $this->trace($callback, $args);
-                $ret = call_user_func_array($callback, $args);
-                if (is_string($ret)) {
-                    $res .= $ret;
+        try {
+            foreach ($this->get($group) as $callback) {
+                $response = $callback(...$args);
+                if (is_string($response)) {
+                    $result .= $response;
                 }
             }
-
-            return $res;
+        } catch (Exception|Error $e) {
+            if (!App::core()->production()) {
+                throw new InvalidMethodException('Invalid callback on behavior "' . $group . '": ' . $e->getMessage() . $e->getPrevious()?->getMessage());
+            }
         }
 
-        return null;
+        return $result;
     }
 
     /**
      * Dump behaviors stack.
      *
-     * @return array Registred behaviors
+     * @return array<string,array> Registred behaviors
      */
-    public function dump()
+    public function dump(): array
     {
-        return $this->stack;
-    }
-
-    /**
-     * Trace call.
-     *
-     * For debug purpose, you can define a callable function.
-     *
-     * @param string $callback Called function
-     * @param array  $args     Called function arguments
-     */
-    private function trace($callback, $args): void
-    {
-        if (defined('DOTCLEAR_BEHAVIOR_TRACE') && is_callable(\DOTCLEAR_BEHAVIOR_TRACE)) {
-            try {
-                call_user_func(\DOTCLEAR_BEHAVIOR_TRACE, $callback, $args);
-            } catch (\Exception) {
-            }
-        }
+        return $this->behaviors;
     }
 }

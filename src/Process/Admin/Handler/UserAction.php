@@ -218,7 +218,7 @@ class UserAction extends AbstractPage
 
                 while ($rs->fetch()) {
                     $img_status = 1 == $rs->fInt('blog_status') ? 'check-on' : (0 == $rs->fInt('blog_status') ? 'check-off' : 'check-wrn');
-                    $txt_status = App::core()->blogs()->getBlogsStatusName(code: $rs->fInt('blog_status'), default: __('online'));
+                    $txt_status = App::core()->blogs()->status()->getState(code: $rs->fInt('blog_status'), default: __('online'));
                     $img_status = sprintf('<img src="?df=images/%1$s.png" alt="%2$s" title="%2$s" />', $img_status, $txt_status);
 
                     echo '<tr class="line">' .

@@ -551,7 +551,7 @@ class Url
                     App::core()->context()->set('nb_entry_first_page', App::core()->blog()->settings()->get('system')->get('nb_post_for_home'));
                 }
                 $this->serveDocument('home.html');
-                App::core()->blog()->posts()->publishScheduledEntries();
+                App::core()->blog()->posts()->publishScheduledPosts();
             } else {
                 $this->search();
             }
@@ -569,7 +569,7 @@ class Url
 
         if (GPC::get()->empty('q')) {
             $this->serveDocument('static.html');
-            App::core()->blog()->posts()->publishScheduledEntries();
+            App::core()->blog()->posts()->publishScheduledPosts();
         } else {
             $this->search();
         }
@@ -838,7 +838,7 @@ class Url
                             // --BEHAVIOR-- publicBeforeCommentCreate
                             App::core()->behavior()->call('publicBeforeCommentCreate', $cur);
                             if ($cur->getField('post_id')) {
-                                $comment_id = App::core()->blog()->comments()->addComment(cursor: $cur);
+                                $comment_id = App::core()->blog()->comments()->createComment(cursor: $cur);
 
                                 // --BEHAVIOR-- publicAfterCommentCreate
                                 App::core()->behavior()->call('publicAfterCommentCreate', $cur, $comment_id);
@@ -1012,7 +1012,7 @@ class Url
         header('X-Robots-Tag: ' . App::core()->context()->robotsPolicy(App::core()->blog()->settings()->get('system')->get('robots_policy'), ''));
         $this->serveDocument($tpl, $mime);
         if (!$comments && !$cat_url) {
-            App::core()->blog()->posts()->publishScheduledEntries();
+            App::core()->blog()->posts()->publishScheduledPosts();
         }
     }
 

@@ -12,6 +12,7 @@
 - [ ] check extends class vs public method, ex: dotclear()->url->getPageNumber()
 - [ ] use class for html form elements and static method for simple cases
 - [ ] remove maximum php magic methods and/or add equivalent methods
+- [ ] rework Record::extend method and calls
 - [ ] fix date on media_dt 
 - [ ] fix public context and template
 - [ ] use sql statement everywhere it is possible
@@ -24,25 +25,39 @@
 - [ ] check and use behavior on (de)activate modules (some modules should erase cache etc...)
 - [ ] rework Exceptions by type of exception, not by class hierarchy
 - [ ] avoid logic switch parameters
-- [ ] move GET, POST, REQUEST to mapper
+- [ ] enhance GPC class (protection)
+- [ ] fix Inventory display() method
+- [ ] used named arguments on behaviors to be more strict
 
 ### Idea
 
 - Merge Distrib into Install
 - Move build-tools features into Plugin BuildTools
 - Use array for permissions
-- Open posts,comments,blogs status
+- Open posts,comments,blogs status (create a status object)
 
 ### Rules
 Should be followed...one day...
-- No ArrayObject, use tiny custom class
-- No magic methods, use real methods
-- No chaining methods, recall class each time
-- No additionnal logic switch methods parameters, or only if it's the best way
-- No mixed type return, use multiple methods to split returned types or return object
-- Use method named arguments, even if there's only one argument
-- Use word(s) for variables names, not initials
+- Document all class, class properties, class methods.
+- Use UpperCamelCase for class names (and their folders)
 - Use final keyword on class every time it's possible
+- Use lowerCamelCase for methods names
+- Use action verb for first part of mehtods names (ie: setName, parsePlop)
+- Use single explicit word for named arguments.
+- Use method named arguments when you call it.
+- Use underscore_words for variables names
+- Use word(s) for variables names, not initials.
+- Use lowerCamelCase for behaviors names with :
+- Use lowercase process name as first word for behaviors (admin|public|core|...)
+- Use first upper case prefix Before|After as first word for behaviors names
+- Use first upper case action as second word of behaviors names
+- Use UpperCamelCase object of the behaviors as thier fourth (and so on) word
+- Use named arguments for behaviors calls
+- No magic methods. Use real methods.
+- No chaining methods. Recall class each time.
+- No additionnal logic switch methods parameters. Split into multiple methods.
+- No mixed type return. Split into multiple methods or use custom object
+- No ArrayObject. Use tiny custom class.
 
 ### Done
 

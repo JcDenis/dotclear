@@ -72,7 +72,7 @@ class Comment extends AbstractPage
                 // --BEHAVIOR-- adminBeforeCommentCreate
                 App::core()->behavior()->call('adminBeforeCommentCreate', $cur);
 
-                $this->comment_id = App::core()->blog()->comments()->addComment(cursor: $cur);
+                $this->comment_id = App::core()->blog()->comments()->createComment(cursor: $cur);
 
                 // --BEHAVIOR-- adminAfterCommentCreate
                 App::core()->behavior()->call('adminAfterCommentCreate', $cur, $this->comment_id);
@@ -147,7 +147,7 @@ class Comment extends AbstractPage
                     // --BEHAVIOR-- adminBeforeCommentUpdate
                     App::core()->behavior()->call('adminBeforeCommentUpdate', $cur, $this->comment_id);
 
-                    App::core()->blog()->comments()->updComment(id: $this->comment_id, cursor: $cur);
+                    App::core()->blog()->comments()->updateComment(id: $this->comment_id, cursor: $cur);
 
                     // --BEHAVIOR-- adminAfterCommentUpdate
                     App::core()->behavior()->call('adminAfterCommentUpdate', $cur, $this->comment_id);
@@ -164,7 +164,7 @@ class Comment extends AbstractPage
                     // --BEHAVIOR-- adminBeforeCommentDelete
                     App::core()->behavior()->call('adminBeforeCommentDelete', $this->comment_id);
 
-                    App::core()->blog()->comments()->delComments(ids: new Integers($this->comment_id));
+                    App::core()->blog()->comments()->deleteComments(ids: new Integers($this->comment_id));
 
                     App::core()->notice()->addSuccessNotice(__('Comment has been successfully deleted.'));
                     Http::redirect(App::core()->posttype()->getPostAdminURL($rs->f('post_type'), $rs->f('post_id')) . '&co=1');

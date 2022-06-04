@@ -25,6 +25,8 @@ use Dotclear\Exception\MissingOrEmptyValue;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Mapper\Strings;
+use Dotclear\Helper\Status;
+use Dotclear\Helper\Statuses;
 
 /**
  * Blogs handling methods.
@@ -34,74 +36,48 @@ use Dotclear\Helper\Mapper\Strings;
 final class Blogs
 {
     /**
-     * Get blog status codes.
-     *
-     * Return an array of unstranslated name /code pair.
-     *
-     * @return array<string,int> All blog status code
+     * @var Statuses $status
+     *               The blogs status instance
      */
-    public function getBlogsStatusCodes(): array
-    {
-        return [
-            'online'  => 1,
-            'offline' => 0,
-            'removed' => -1,
-        ];
-    }
+    private $status;
 
     /**
-     * Get a blogs status code.
+     * Get blogs status instance.
      *
-     * Returns a blogs status code given to a unstranslated name.
+     * Blogs status methods are accesible from App::core()->blogs()->status()
      *
-     * @param string $name    The blog status name
-     * @param int    $default The value returned if name not exists
-     *
-     * @return null|int The blog status name
+     * @return Statuses The blogs status instance
      */
-    public function getBlogsStatusCode(string $name, int $default = null): ?int
+    public function status(): Statuses
     {
-        return match ($name) {
-            'online'  => 1,
-            'offline' => 0,
-            'remove'  => -1,
-            default   => $default,
-        };
-    }
+        if (!($this->status instanceof Statuses)) {
+            $this->status = new Statuses(
+                'blogs',
+                new Status(
+                    code: 1, 
+                    id: 'online', 
+                    icon: 'images/check-on.png',
+                    state: __('online'), 
+                    action: __('Set online')
+                ),
+                new Status(
+                    code: 0, 
+                    id: 'offline', 
+                    icon: 'images/check-off.png',
+                    state: __('offline'), 
+                    action: __('Set offline')
+                ),
+                new Status(
+                    code: -1, 
+                    id: 'removed', 
+                    icon: 'images/check-wrn.png',
+                    state: __('removed'), 
+                    action: __('Set as removed')
+                ),
+            );
+        }
 
-    /**
-     * Get all blog status name.
-     *
-     * @return array<int,string> An array of available blog status codes and names
-     */
-    public function getBlogsStatusNames(): array
-    {
-        return [
-            1  => __('Online'),
-            0  => __('Offline'),
-            -1 => __('Removed'),
-        ];
-    }
-
-    /**
-     * Get a blogs status name.
-     *
-     * Returns a blogs status name given to a code. This is intended to be
-     * human-readable and will be translated, so never use it for tests.
-     *
-     * @param int    $code    The blog status code
-     * @param string $default The value returned if code not exists
-     *
-     * @return null|string The blog status name
-     */
-    public function getBlogsStatusName(int $code, string $default = null): ?string
-    {
-        return match ($code) {
-            1       => __('Online'),
-            0       => __('Offline'),
-            -1      => __('Removed'),
-            default => $default,
-        };
+        return $this->status;
     }
 
     /**
@@ -160,10 +136,10 @@ final class Blogs
 
         $record = $sql->select();
 
-        $res = [];
+        $result = [];
 
         while ($record->fetch()) {
-            $res[$record->f('user_id')] = [
+            $result[$record->f('user_id')] = [
                 'name'        => $record->f('user_name'),
                 'firstname'   => $record->f('user_firstname'),
                 'displayname' => $record->f('user_displayname'),
@@ -173,7 +149,7 @@ final class Blogs
             ];
         }
 
-        return $res;
+        return $result;
     }
 
     /**
@@ -191,8 +167,8 @@ final class Blogs
         $params = new BlogsParam($param);
         $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
 
-        // --BEHAVIOR-- coreBlogBeforeCountBlogs, Param, SelectStatement
-        App::core()->behavior()->call('coreBlogBeforeCountBlogs', $params, $query);
+        // --BEHAVIOR-- coreBeforeCountBlogs, Param, SelectStatement
+        App::core()->behavior()->call('coreBeforeCountBlogs', param: $params, sql: $query);
 
         $params->unset('order');
         $params->unset('limit');
@@ -201,8 +177,8 @@ final class Blogs
 
         $record = $this->queryBlogsTable(param: $params, sql: $query)->fInt();
 
-        // --BEHAVIOR-- coreBlogAfterCountBlogs, Record, Param, SelectStatement
-        App::core()->behavior()->call('coreBlogAfterCountBlogs', $record, $params, $query);
+        // --BEHAVIOR-- coreAfterCountBlogs, Record
+        App::core()->behavior()->call('coreAfterCountBlogs', record: $record);
 
         return $record;
     }
@@ -221,6 +197,9 @@ final class Blogs
     {
         $params = new BlogsParam($param);
         $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
+
+        // --BEHAVIOR-- coreBeforeGetBlogs, Param, SelectStatement
+        App::core()->behavior()->call('coreBeforeGetBlogs', param: $params, sql: $query);
 
         if (!empty($params->columns())) {
             $query->columns($params->columns());
@@ -242,7 +221,12 @@ final class Blogs
             $query->limit($params->limit());
         }
 
-        return $this->queryBlogsTable(param: $params, sql: $query);
+        $record = $this->queryBlogsTable(param: $params, sql: $query);
+
+        // --BEHAVIOR-- coreAfterGetBlogs, Record
+        App::core()->behavior()->call('coreAfterGetBlogs', record: $record);
+
+        return $record;
     }
 
     /**
@@ -305,11 +289,14 @@ final class Blogs
      *
      * @throws InsufficientPermissions
      */
-    public function addBlog(Cursor $cursor): void
+    public function createBlog(Cursor $cursor): void
     {
         if (!App::core()->user()->isSuperAdmin()) {
             throw new InsufficientPermissions(__('You are not an administrator'));
         }
+
+        // --BEHAVIOR-- coreBeforeCreateBlog, Cursor
+        App::core()->behavior()->call('coreBeforeCreateBlog', cursor: $cursor);
 
         $this->getBlogCursor(cursor: $cursor);
 
@@ -318,6 +305,9 @@ final class Blogs
         $cursor->setField('blog_uid', md5(uniqid()));
 
         $cursor->insert();
+
+        // --BEHAVIOR-- coreAfterCreateBlog, Cursor
+        App::core()->behavior()->call('coreAfterCreateBlog', cursor: $cursor);
     }
 
     /**
@@ -326,13 +316,19 @@ final class Blogs
      * @param string $id     The blog ID
      * @param Cursor $cursor The blog cursor
      */
-    public function updBlog(string $id, Cursor $cursor): void
+    public function updateBlog(string $id, Cursor $cursor): void
     {
+        // --BEHAVIOR-- coreBeforeUpdateBlog, int, Cursor
+        App::core()->behavior()->call('coreBeforeUpdateBlog', id: $id, cursor: $cursor);
+
         $this->getBlogCursor(cursor: $cursor);
 
         $cursor->setField('blog_upddt', Clock::database());
 
         $cursor->update("WHERE blog_id = '" . App::core()->con()->escape($id) . "'");
+
+        // --BEHAVIOR-- coreAfterUpdateBlog, int, Cursor
+        App::core()->behavior()->call('coreAfterUpdateBlog', id: $id, cursor: $cursor);
     }
 
     /**
@@ -345,15 +341,24 @@ final class Blogs
      */
     private function getBlogCursor(Cursor $cursor): void
     {
-        if (null !== $cursor->getField('blog_id') && !preg_match('/^[A-Za-z0-9._-]{2,}$/', (string) $cursor->getField('blog_id')) || !$cursor->getField('blog_id')) {
+        if (null !== $cursor->getField('blog_id')
+            && !preg_match('/^[A-Za-z0-9._-]{2,}$/', (string) $cursor->getField('blog_id'))
+            || !$cursor->getField('blog_id')
+        ) {
             throw new InvalidValueFormat(__('Blog ID must contain at least 2 characters using letters, numbers or symbols.'));
         }
 
-        if (null !== $cursor->getField('blog_name') && '' == $cursor->getField('blog_name') || !$cursor->getField('blog_name')) {
+        if (null !== $cursor->getField('blog_name')
+            && '' == $cursor->getField('blog_name')
+            || !$cursor->getField('blog_name')
+        ) {
             throw new MissingOrEmptyValue(__('No blog name'));
         }
 
-        if (null !== $cursor->getField('blog_url') && '' == $cursor->getField('blog_url') || !$cursor->getField('blog_url')) {
+        if (null !== $cursor->getField('blog_url')
+            && '' == $cursor->getField('blog_url')
+            || !$cursor->getField('blog_url')
+        ) {
             throw new MissingOrEmptyValue(__('No blog URL'));
         }
 
@@ -370,11 +375,14 @@ final class Blogs
      *
      * @throws InsufficientPermissions
      */
-    public function updBlogsStatus(Strings $ids, int $status): void
+    public function updateBlogsStatus(Strings $ids, int $status): void
     {
         if (!App::core()->user()->isSuperAdmin()) {
             throw new InsufficientPermissions(__('You are not an administrator'));
         }
+
+        // --BEHAVIOR-- coreBeforeUpdateBlogsStatus, Strings, int
+        App::core()->behavior()->call('coreBeforeUpdateBlogsStatus', ids: $ids, status: $status);
 
         $sql = new UpdateStatement(__METHOD__);
         $sql->from(App::core()->prefix() . 'blog');
@@ -396,7 +404,7 @@ final class Blogs
      *
      * @throws InsufficientPermissions
      */
-    public function delBlogs(Strings $ids): void
+    public function deleteBlogs(Strings $ids): void
     {
         if (!App::core()->user()->isSuperAdmin()) {
             throw new InsufficientPermissions(__('You are not an administrator'));
@@ -407,10 +415,15 @@ final class Blogs
             $ids->remove(App::core()->blog()->id);
         }
 
-        $sql = new DeleteStatement(__METHOD__);
-        $sql->from(App::core()->prefix() . 'blog');
-        $sql->where('blog_id' . $sql->in($ids->dump()));
-        $sql->delete();
+        if ($ids->count()) {
+            // --BEHAVIOR-- coreBeforeDeleteBlogs, Strings
+            App::core()->behavior()->call('coreBeforeDeleteBlogs', ids: $ids);
+
+            $sql = new DeleteStatement(__METHOD__);
+            $sql->from(App::core()->prefix() . 'blog');
+            $sql->where('blog_id' . $sql->in($ids->dump()));
+            $sql->delete();
+        }
     }
 
     /**

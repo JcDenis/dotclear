@@ -153,7 +153,7 @@ class Install
                 $cur->setField('blog_id', 'default');
                 $cur->setField('blog_url', Http::getHost() . $root_url . '/index.php?');
                 $cur->setField('blog_name', __('My first blog'));
-                App::core()->blogs()->addBlog(cursor: $cur);
+                App::core()->blogs()->createBlog(cursor: $cur);
 
                 // Create global blog settings
                 Distrib::setBlogDefaultSettings();
@@ -249,7 +249,7 @@ class Install
                 $cur->setField('post_status', 1);
                 $cur->setField('post_open_comment', 1);
                 $cur->setField('post_open_tb', 0);
-                $post_id = App::core()->blog()->posts()->addPost($cur);
+                $post_id = App::core()->blog()->posts()->createPost(cursor: $cur);
 
                 // Add a comment to it
                 $cur = App::core()->con()->openCursor(App::core()->prefix() . 'comment');
@@ -258,7 +258,7 @@ class Install
                 $cur->setField('comment_email', 'contact@dotclear.net');
                 $cur->setField('comment_site', 'https://dotclear.org/');
                 $cur->setField('comment_content', __("<p>This is a comment.</p>\n<p>To delete it, log in and view your blog's comments. Then you might remove or edit it.</p>"));
-                App::core()->blog()->comments()->addComment(cursor: $cur);
+                App::core()->blog()->comments()->createComment(cursor: $cur);
 
                 // Add dashboard module options
                 App::core()->user()->preference()->get('dashboard')->put('doclinks', true, 'boolean', '', null, true);

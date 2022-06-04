@@ -156,8 +156,8 @@ final class Blog
         $this->public_url  = $record->isEmpty() ? null : $this->getURLFor('resources'); // ! to enhance;
         $this->public_path = $record->isEmpty() ? false : Path::real(Path::fullFromRoot($this->settings()->get('system')->get('public_path'), App::core()->config()->get('base_dir')));
 
-        // --BEHAVIOR-- coreBlogConstruct, Blog, Record
-        App::core()->behavior()->call('coreBlogConstruct', $this, $record);
+        // --BEHAVIOR-- coreAfterConstructBlog, Blog
+        App::core()->behavior()->call('coreAfterConstructBlog', blog: $this);
     }
 
     /**
@@ -333,15 +333,14 @@ final class Blog
      */
     public function triggerBlog(): void
     {
-        $cursor = App::core()->con()->openCursor(App::core()->prefix() . 'blog');
-        $cursor->setField('blog_upddt', Clock::database());
-
         $sql = new UpdateStatement(__METHOD__);
+        $sql->from(App::core()->prefix() . 'blog');
+        $sql->set('blog_upddt = ' . $sql->quote(Clock::database()));
         $sql->where('blog_id = ' . $sql->quote($this->id));
-        $sql->update($cursor);
+        $sql->update();
 
-        // --BEHAVIOR-- coreBlogAfterTriggerBlog, Dotclear\Database\Cursor
-        App::core()->behavior()->call('coreBlogAfterTriggerBlog', $cursor);
+        // --BEHAVIOR-- coreAfterTriggerBlog
+        App::core()->behavior()->call('coreAfterTriggerBlog');
     }
 
     /**

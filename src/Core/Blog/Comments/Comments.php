@@ -27,6 +27,8 @@ use Dotclear\Exception\MissingOrEmptyValue;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Mapper\Integers;
+use Dotclear\Helper\Status;
+use Dotclear\Helper\Statuses;
 use Dotclear\Helper\Text;
 use Exception;
 
@@ -38,78 +40,55 @@ use Exception;
 final class Comments
 {
     /**
-     * Get comments status codes.
-     *
-     * Return an array of unstranslated name /code pair.
-     *
-     * @return array<string,int> All comments status code
+     * @var Statuses $status
+     *               The comments status instance
      */
-    public function getCommentsStatusCodes(): array
-    {
-        return [
-            'pusblish'  => 1,
-            'unpublish' => 0,
-            'pending'   => -1,
-            'junk'      => -2,
-        ];
-    }
+    private $status;
 
     /**
-     * Get a comments status code.
+     * Get comments statuses instance.
      *
-     * Returns a comments status code given to a unstranslated name.
+     * Comments status methods are accesible from App::core()->comments()->status()
      *
-     * @param string $name    The comment status name
-     * @param int    $default The value returned if name not exists
-     *
-     * @return null|int The comment status name
+     * @return Statuses The comments statuses instance
      */
-    public function getCommentsStatusCode(string $name, int $default = null): ?int
+    public function status(): Statuses
     {
-        return match ($name) {
-            'pusblish'  => 1,
-            'unpublish' => 0,
-            'pending'   => -1,
-            'junk'      => -2,
-            default     => $default,
-        };
-    }
+        if (!($this->status instanceof Statuses)) {
+            $this->status = new Statuses(
+                'comments',
+                new Status(
+                    code: 1, 
+                    id: 'publish', 
+                    icon: 'images/check-on.png',
+                    state: __('Published'), 
+                    action: __('Publish')
+                ),
+                new Status(
+                    code: 0, 
+                    id: 'unpublish', 
+                    icon: 'images/check-off.png',
+                    state: __('Unpublished'), 
+                    action: __('Unpublish')
+                ),
+                new Status(
+                    code: -1, 
+                    id: 'pending', 
+                    icon: 'images/check-wrn.png',
+                    state: __('Pending'), 
+                    action: __('Mark as pending')
+                ),
+                new Status(
+                    code: -2, 
+                    id: 'junk', 
+                    icon: 'images/junk.png',
+                    state: __('Junk'), 
+                    action: __('Mark as junk')
+                ),
+            );
+        }
 
-    /**
-     * Get all comments status name.
-     *
-     * @return array<int,string> An array of available comments status codes and names
-     */
-    public function getCommentsStatusNames(): array
-    {
-        return [
-            1  => __('Published'),
-            0  => __('Unpublished'),
-            -1 => __('Pending'),
-            -2 => __('Junk'),
-        ];
-    }
-
-    /**
-     * Get a comments status name.
-     *
-     * Returns a comments status name given to a code. This is intended to be
-     * human-readable and will be translated, so never use it for tests.
-     *
-     * @param int    $code    The comment status code
-     * @param string $default The value returned if code not exists
-     *
-     * @return null|string The comment status name
-     */
-    public function getCommentsStatusName(int $code, string $default = null): ?string
-    {
-        return match ($code) {
-            1       => __('Published'),
-            0       => __('Unpublished'),
-            -1      => __('Pending'),
-            -2      => __('Junk'),
-            default => $default,
-        };
+        return $this->status;
     }
 
     /**
@@ -127,8 +106,8 @@ final class Comments
         $params = new CommentsParam($param);
         $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
 
-        // --BEHAVIOR-- coreBlogBeforeCountComments, Param, SelectStatement
-        App::core()->behavior()->call('coreBlogBeforeCountComments', $params, $query);
+        // --BEHAVIOR-- coreBeforeCountComments, Param, SelectStatement
+        App::core()->behavior()->call('coreBeforeCountComments', param: $params, sql: $query);
 
         $params->unset('order');
         $params->unset('limit');
@@ -137,8 +116,8 @@ final class Comments
 
         $record = $this->queryCommentsTable(param: $params, sql: $query);
 
-        // --BEHAVIOR-- coreBlogAfterCountComments, Record, Param, SelectStatement
-        App::core()->behavior()->call('coreBlogAfterCountComments', $record, $params, $query);
+        // --BEHAVIOR-- coreAfterCountComments, Record
+        App::core()->behavior()->call('coreAfterCountComments', record: $record);
 
         return $record->fInt();
     }
@@ -158,8 +137,8 @@ final class Comments
         $params = new CommentsParam($param);
         $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
 
-        // --BEHAVIOR-- coreBlogBeforeGetComments, Param, SelectStatement
-        App::core()->behavior()->call('coreBlogBeforeGetComments', $params, $query);
+        // --BEHAVIOR-- coreBeforeGetComments, Param, SelectStatement
+        App::core()->behavior()->call('coreBeforeGetComments', param: $params, sql: $query);
 
         if (true !== $params->no_content()) {
             $query->column('comment_content');
@@ -199,8 +178,8 @@ final class Comments
 
         $record = $this->queryCommentsTable(param: $params, sql: $query);
 
-        // --BEHAVIOR-- coreBlogAfterGetComments, Record, Param, SelectStatement
-        App::core()->behavior()->call('coreBlogAfterGetComments', $record, $params, $query);
+        // --BEHAVIOR-- coreAfterGetComments, Record
+        App::core()->behavior()->call('coreAfterGetComments', record: $record);
 
         return $record;
     }
@@ -312,9 +291,9 @@ final class Comments
 
             if (!empty($words)) {
                 $param->set('words', $words);
-                if (App::core()->behavior()->has('coreCommentSearch')) {
-                    // --BEHAVIOR coreCommentSearch, Param, SelectStatement
-                    App::core()->behavior()->call('coreCommentSearch', $param, $sql);
+                if (App::core()->behavior()->has('coreBeforeSearchComments')) {
+                    // --BEHAVIOR coreBeforeSearchComments, Param, SelectStatement
+                    App::core()->behavior()->call('coreBeforeSearchComments', param: $param, sql: $sql);
                 }
 
                 $w = [];
@@ -347,7 +326,7 @@ final class Comments
      *
      * @return int The comment id
      */
-    public function addComment(Cursor $cursor): int
+    public function createComment(Cursor $cursor): int
     {
         App::core()->con()->writeLock(App::core()->prefix() . 'comment');
 
@@ -368,8 +347,8 @@ final class Comments
                 $cursor->setField('comment_ip', Http::realIP());
             }
 
-            // --BEHAVIOR-- coreBeforeCommentCreate, Comments, Cursor
-            App::core()->behavior()->call('coreBeforeCommentCreate', $cursor);
+            // --BEHAVIOR-- coreBeforeCreateComment, Comments, Cursor
+            App::core()->behavior()->call('coreBeforeCreateComment', cursor: $cursor);
 
             $cursor->insert();
             App::core()->con()->unlock();
@@ -379,8 +358,8 @@ final class Comments
             throw $e;
         }
 
-        // --BEHAVIOR-- coreAfterCommentCreate, Comments, Cursor
-        App::core()->behavior()->call('coreAfterCommentCreate', $cursor);
+        // --BEHAVIOR-- coreAfterCreateComment, Comments, Cursor
+        App::core()->behavior()->call('coreAfterCreateComment', cursor: $cursor);
 
         App::core()->blog()->triggerComments(ids: new Integers($cursor->getField('comment_id')));
         if (-2 != $cursor->getField('comment_status')) {
@@ -399,7 +378,7 @@ final class Comments
      * @throws InsufficientPermissions
      * @throws InvalidValueReference
      */
-    public function updComment(int $id, Cursor $cursor): void
+    public function updateComment(int $id, Cursor $cursor): void
     {
         if (!App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)) {
             throw new InsufficientPermissions(__('You are not allowed to update comments'));
@@ -432,13 +411,13 @@ final class Comments
             $cursor->unsetField('comment_status');
         }
 
-        // --BEHAVIOR-- coreBeforeCommentUpdate, Cursor, Record
-        App::core()->behavior()->call('coreBeforeCommentUpdate', $cursor, $record);
+        // --BEHAVIOR-- coreBeforeUpdateComment, Cursor, int
+        App::core()->behavior()->call('coreBeforeUpdateComment', cursor: $cursor, id: $id);
 
         $cursor->update('WHERE comment_id = ' . $id . ' ');
 
-        // --BEHAVIOR-- coreAfterCommentUpdate, Cursor, Record
-        App::core()->behavior()->call('coreAfterCommentUpdate', $cursor, $record);
+        // --BEHAVIOR-- coreAfterUpdateComment, Cursor, int
+        App::core()->behavior()->call('coreAfterUpdateComment', cursor: $cursor, id: $id);
 
         App::core()->blog()->triggerComments(ids: new Integers($id));
         App::core()->blog()->triggerBlog();
@@ -492,7 +471,7 @@ final class Comments
      *
      * @throws InsufficientPermissions
      */
-    public function updCommentsStatus(Integers $ids, int $status): void
+    public function updateCommentsStatus(Integers $ids, int $status): void
     {
         if (!App::core()->user()->check('publish,contentadmin', App::core()->blog()->id)) {
             throw new InsufficientPermissions(__("You are not allowed to change this comment's status"));
@@ -519,7 +498,7 @@ final class Comments
      * @throws InsufficientPermissions
      * @throws InvalidValueReference
      */
-    public function delComments(Integers $ids): void
+    public function deleteComments(Integers $ids): void
     {
         if (!App::core()->user()->check('delete,contentadmin', App::core()->blog()->id)) {
             throw new InsufficientPermissions(__('You are not allowed to delete comments'));
@@ -542,6 +521,9 @@ final class Comments
             $posts->add($record->fInt('post_id'));
         }
 
+        // --BEHAVIOR-- coreBeforeDeleteComments, Integers
+        App::core()->behavior()->call('coreBeforeDeleteComments', ids: $ids);
+
         $sql = new DeleteStatement(__METHOD__);
         $sql->where('comment_id' . $sql->in($ids->dump()));
         $sql->from(App::core()->prefix() . 'comment');
@@ -559,7 +541,7 @@ final class Comments
      *
      * @throws InsufficientPermissions
      */
-    public function delJunkComments(): void
+    public function deleteJunkComments(): void
     {
         if (!App::core()->user()->check('delete,contentadmin', App::core()->blog()->id)) {
             throw new InsufficientPermissions(__('You are not allowed to delete comments'));

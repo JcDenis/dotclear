@@ -421,7 +421,7 @@ class RestMethods
         // --BEHAVIOR-- adminBeforePostCreate
         App::core()->behavior()->call('adminBeforePostCreate', $cur);
 
-        $return_id = App::core()->blog()->posts()->addPost($cur);
+        $return_id = App::core()->blog()->posts()->createPost($cur);
 
         // --BEHAVIOR-- adminAfterPostCreate
         App::core()->behavior()->call('adminAfterPostCreate', $cur, $return_id);
@@ -469,10 +469,16 @@ class RestMethods
         $excerpt_xhtml = '';
         $content       = $post['content'];
         $content_xhtml = '';
-        $format        = $post['format'];
-        $lang          = $post['lang'];
 
-        App::core()->blog()->posts()->setPostContent(0, $format, $lang, $excerpt, $excerpt_xhtml, $content, $content_xhtml);
+        App::core()->blog()->posts()->formatPostContent(
+            id: 0,
+            format: $post['format'],
+            lang: $post['lang'],
+            excerpt: $excerpt,
+            excerpt_xhtml: $excerpt_xhtml,
+            content: $content,
+            content_xhtml: $content_xhtml
+        );
 
         $rsp = new XmlTag('result');
 

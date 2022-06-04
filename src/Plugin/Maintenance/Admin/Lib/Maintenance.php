@@ -13,6 +13,7 @@ namespace Dotclear\Plugin\Maintenance\Admin\Lib;
 use Dotclear\App;
 use Dotclear\Database\Param;
 use Dotclear\Helper\Clock;
+use Dotclear\Helper\Mapper\Integers;
 
 /**
  * Main class to call everything related to maintenance.
@@ -240,14 +241,14 @@ class Maintenance
         $param->set('blog_id', '*');
         $rs = App::core()->log()->getLogs(param: $param);
 
-        $logs = [];
+        $logs = new Integers();
         while ($rs->fetch()) {
-            $logs[] = $rs->fInt('log_id');
+            $logs->add($rs->fInt('log_id'));
         }
 
         // Delete old logs
-        if (!empty($logs)) {
-            App::core()->log()->deleteLogs($logs);
+        if ($logs->count()) {
+            App::core()->log()->deleteLogs(ids: $logs);
         }
 
         // Add new log
@@ -270,14 +271,14 @@ class Maintenance
         $param->set('blog_id', '*');
         $rs = App::core()->log()->getLogs(param: $param);
 
-        $logs = [];
+        $logs = new Integers();
         while ($rs->fetch()) {
-            $logs[] = $rs->fInt('log_id');
+            $logs->add($rs->fInt('log_id'));
         }
 
         // Delete old logs
-        if (!empty($logs)) {
-            App::core()->log()->deleteLogs($logs);
+        if ($logs->count()) {
+            App::core()->log()->deleteLogs(ids: $logs);
         }
     }
 

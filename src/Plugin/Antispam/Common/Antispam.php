@@ -44,11 +44,11 @@ class Antispam
             App::core()->behavior()->add('publicBeforeTrackbackCreate', [$this, 'isSpam']);
             App::core()->behavior()->add('publicBeforeDocument', [$this, 'purgeOldSpam']);
         } elseif (App::core()->processed('Admin')) {
-            App::core()->behavior()->add('coreAfterCommentUpdate', [$this, 'trainFilters']);
+            App::core()->behavior()->add('coreAfterUpdateComment', [$this, 'trainFilters']);
             App::core()->behavior()->add('adminAfterCommentDesc', [$this, 'statusMessage']);
             App::core()->behavior()->add('adminDashboardHeaders', [$this, 'dashboardHeaders']);
             App::core()->behavior()->add('adminCommentsActionsPage', [$this, 'commentsActionsPage']);
-            App::core()->behavior()->add('coreBlogAfterGetComments', [$this, 'blogGetComments']);
+            App::core()->behavior()->add('coreAfterGetComments', [$this, 'blogGetComments']);
             App::core()->behavior()->add('adminCommentListHeader', [$this, 'commentListHeader']);
             App::core()->behavior()->add('adminCommentListValue', [$this, 'commentListValue']);
         }
@@ -266,9 +266,9 @@ class Antispam
         }
     }
 
-    public function blogGetComments(Record $rs): void
+    public function blogGetComments(Record $record): void
     {
-        $rs->extend(new RsExtComment());
+        $record->extend(new RsExtComment());
     }
 
     public function commentListHeader(Record $rs, ArrayObject $cols, bool $spam): void

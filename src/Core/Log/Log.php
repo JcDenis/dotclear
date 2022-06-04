@@ -19,6 +19,7 @@ use Dotclear\Database\Param;
 use Dotclear\Database\Record;
 use Dotclear\Exception\CoreException;
 use Dotclear\Helper\Clock;
+use Dotclear\Helper\Mapper\Integers;
 use Dotclear\Helper\Network\Http;
 use Exception;
 
@@ -115,10 +116,10 @@ final class Log
             $sql->sql($param->sql());
         }
 
-        $rs = $sql->select();
-        $rs->extend(new LogRecordExtend());
+        $record = $sql->select();
+        $record->extend(new LogRecordExtend());
 
-        return $rs;
+        return $record;
     }
 
     /**
@@ -126,11 +127,11 @@ final class Log
      *
      * Takes a cursor as input and returns the new log ID.
      *
-     * @param Cursor $cur The current
+     * @param Cursor $cursor The current
      *
      * @return int The log id
      */
-    public function addLog(Cursor $cur): int
+    public function addLog(Cursor $cursor): int
     {
         App::core()->con()->writeLock(App::core()->prefix() . 'log');
 
@@ -141,16 +142,16 @@ final class Log
             $sql->from(App::core()->prefix() . 'log');
             $id = $sql->select()->fInt();
 
-            $cur->setField('log_id', $id + 1);
-            $cur->setField('blog_id', (string) App::core()->blog()->id);
-            $cur->setField('log_dt', Clock::database());
+            $cursor->setField('log_id', $id + 1);
+            $cursor->setField('blog_id', (string) App::core()->blog()->id);
+            $cursor->setField('log_dt', Clock::database());
 
-            $this->cleanLogCursor($cur, $cur->getField('log_id'));
+            $this->cleanLogCursor($cursor);
 
-            // --BEHAVIOR-- coreBeforeLogCreate, Dotclear\Core\Log, Dotclear\Database\Cursor
-            App::core()->behavior()->call('coreBeforeLogCreate', $this, $cur);
+            // --BEHAVIOR-- coreBeforeCreateLog, Cursor
+            App::core()->behavior()->call('coreBeforeCreateLog', cursor: $cursor);
 
-            $cur->insert();
+            $cursor->insert();
             App::core()->con()->unlock();
         } catch (Exception $e) {
             App::core()->con()->unlock();
@@ -158,64 +159,51 @@ final class Log
             throw $e;
         }
 
-        // --BEHAVIOR-- coreAfterLogCreate, Dotclear\Core\Log, Dotclear\Database\Cursor
-        App::core()->behavior()->call('coreAfterLogCreate', $this, $cur);
+        // --BEHAVIOR-- coreAfterCreateLog, Cursor
+        App::core()->behavior()->call('coreAfterCreateLog', cursor: $cursor);
 
-        return $cur->getField('log_id');
+        return $cursor->getField('log_id');
     }
 
     /**
      * Get the log cursor.
      *
-     * @param Cursor   $cur    The current
-     * @param null|int $log_id The log identifier
+     * @param Cursor $cursor The current
      *
      * @throws CoreException
      */
-    private function cleanLogCursor(Cursor $cur, ?int $log_id = null)
+    private function cleanLogCursor(Cursor $cursor)
     {
-        if ('' === $cur->getField('log_msg')) {
+        if ('' === $cursor->getField('log_msg')) {
             throw new CoreException(__('No log message'));
         }
 
-        if (null === $cur->getField('log_table')) {
-            $cur->setField('log_table', 'none');
+        if (null === $cursor->getField('log_table')) {
+            $cursor->setField('log_table', 'none');
         }
 
-        if (null === $cur->getField('user_id')) {
-            $cur->setField('user_id', 'unknown');
+        if (null === $cursor->getField('user_id')) {
+            $cursor->setField('user_id', 'unknown');
         }
 
-        if ('' === $cur->getField('log_dt') || null === $cur->getField('log_dt')) {
-            $cur->setField('log_dt', Clock::database());
+        if ('' === $cursor->getField('log_dt') || null === $cursor->getField('log_dt')) {
+            $cursor->setField('log_dt', Clock::database());
         }
 
-        if (null === $cur->getField('log_ip')) {
-            $cur->setField('log_ip', Http::realIP());
+        if (null === $cursor->getField('log_ip')) {
+            $cursor->setField('log_ip', Http::realIP());
         }
-
-        $log_id = is_int($log_id) ? $log_id : (int) $cur->getField('log_id');
-    }
-
-    /**
-     * Delete a log.
-     *
-     * @param int $id The identifier
-     */
-    public function deleteLog(int $id): void
-    {
-        $this->deleteLogs([$id]);
     }
 
     /**
      * Delete given logs.
      *
-     * @param array $id The identifier
+     * @param Integers $ids The logs IDs
      */
-    public function deleteLogs(array $id): void
+    public function deleteLogs(Integers $ids): void
     {
         $sql = new DeleteStatement(__METHOD__);
-        $sql->where('log_id' . $sql->in($id));
+        $sql->where('log_id' . $sql->in($ids->dump()));
         $sql->from(App::core()->prefix() . 'log');
         $sql->run();
     }

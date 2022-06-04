@@ -26,12 +26,7 @@ abstract class DefaultCommentAction extends Action
     {
         if (App::core()->user()->check('publish,contentadmin', App::core()->blog()->id)) {
             $ap->addAction(
-                [__('Status') => [
-                    __('Publish')         => 'publish',
-                    __('Unpublish')       => 'unpublish',
-                    __('Mark as pending') => 'pending',
-                    __('Mark as junk')    => 'junk',
-                ]],
+                [__('Status') => App::core()->blog()->comments()->status()->getActions()],
                 [$this, 'doChangeCommentStatus']
             );
         }
@@ -52,9 +47,9 @@ abstract class DefaultCommentAction extends Action
             throw new MissingOrEmptyValue(__('No comment selected'));
         }
 
-        App::core()->blog()->comments()->updCommentsStatus(
+        App::core()->blog()->comments()->updateCommentsStatus(
             ids: $ids,
-            status: App::core()->blog()->comments()->getCommentsStatusCode(name: $ap->getAction(), default: 1)
+            status: App::core()->blog()->comments()->status()->getCode(id: $ap->getAction(), default: 1)
         );
 
         App::core()->notice()->addSuccessNotice(__('Selected comments have been successfully updated.'));
@@ -68,10 +63,7 @@ abstract class DefaultCommentAction extends Action
             throw new MissingOrEmptyValue(__('No comment selected'));
         }
 
-        // --BEHAVIOR-- adminBeforeCommentsDelete, Integers
-        App::core()->behavior()->call('adminBeforeCommentsDelete', $ids);
-
-        App::core()->blog()->comments()->delComments(ids: $ids);
+        App::core()->blog()->comments()->deleteComments(ids: $ids);
         App::core()->notice()->addSuccessNotice(__('Selected comments have been successfully deleted.'));
         $ap->redirect(false);
     }

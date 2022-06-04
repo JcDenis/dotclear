@@ -87,15 +87,19 @@ class BlogInventory extends Inventory
                 echo $this->blogLine(isset($blogs[$this->rs->f('blog_id')]));
             }
 
-            $fmt = fn ($title, $image) => sprintf('<img alt="%1$s" title="%1$s" src="?df=images/%2$s" /> %1$s', $title, $image);
+            $legends = [];
+            foreach(App::core()->blogs()->status()->getCodes() as $code) {
+                $legends[] = sprintf(
+                    '<img alt="%1$s" title="%1$s" src="?df=%2$s" /> %1$s',
+                    App::core()->blogs()->status()->getState($code),
+                    App::core()->blogs()->status()->getIcon($code),
+                );
+            }
 
-            echo $blocks[1] .
-                '<p class="info">' . __('Legend: ') .
-                $fmt(__('online'), 'check-on.png') . ' - ' .
-                $fmt(__('offline'), 'check-off.png') . ' - ' .
-                $fmt(__('removed'), 'check-wrn.png') .
-                '</p>' .
-                $blocks[2] . $pager->getLinks();
+            echo 
+            $blocks[1] . 
+            '<p class="info">' . __('Legend: ') . implode(' - ', $legends) . '</p>' . 
+            $blocks[2] . $pager->getLinks();
         }
     }
 
@@ -139,9 +143,9 @@ class BlogInventory extends Inventory
             '</td>',
             'status' => '<td class="nowrap status txt-center">' .
             sprintf(
-                '<img src="?df=images/%1$s.png" alt="%2$s" title="%2$s" />',
-                (1 == $this->rs->f('blog_status') ? 'check-on' : (0 == $this->rs->f('blog_status') ? 'check-off' : 'check-wrn')),
-                App::core()->blogs()->getBlogsStatusName(code: $this->rs->fInt('blog_status'), default: __('online'))
+                '<img src="?df=%1$s" alt="%2$s" title="%2$s" />',
+                App::core()->blogs()->status()->getIcon(code: $this->rs->fInt('blog_status')),
+                App::core()->blogs()->status()->getState(code: $this->rs->fInt('blog_status'))
             ) .
             '</td>',
         ];

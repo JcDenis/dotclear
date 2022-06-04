@@ -30,15 +30,15 @@ class Prepend extends ModulePrepend
         __('This page\'s comments feed');
 
         // Add post type to queries
-        App::core()->behavior()->add('coreBlogBeforeCountPosts', [$this, 'behaviorCoreBlogBeforeXxxPosts']);
-        App::core()->behavior()->add('coreBlogBeforeGetPosts', [$this, 'behaviorCoreBlogBeforeXxxPosts']);
+        App::core()->behavior()->add('coreBeforeCountPosts', [$this, 'behaviorCoreBeforeXxxPosts']);
+        App::core()->behavior()->add('coreBeforeGetPosts', [$this, 'behaviorCoreBeforeXxxPosts']);
 
         $this->addTemplatePath();
         new PagesUrl();
         new PagesWidgets();
     }
 
-    public function behaviorCoreBlogBeforeXxxPosts(Param $param): void
+    public function behaviorCoreBeforeXxxPosts(Param $param, $sql): void
     {
         if ('search' == App::core()->url()->type) {
             // Add page post type for searching (don't use default Param post_type() as it is 'post')

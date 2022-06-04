@@ -41,9 +41,9 @@ class SimpleMenuWidgets
         self::$widgets = $this;
     }
 
-    public function initWidgets(Widgets $w): void
+    public function initWidgets(Widgets $widgets): void
     {
-        $w
+        $widgets
             ->create('simplemenu', __('Simple menu'), [$this, 'simpleMenuWidget'], null, 'List of simple menu items')
             ->addTitle(__('Menu'))
             ->setting(

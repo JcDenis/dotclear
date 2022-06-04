@@ -33,12 +33,7 @@ abstract class DefaultPostAction extends Action
     {
         if (App::core()->user()->check('publish,contentadmin', App::core()->blog()->id)) {
             $ap->addAction(
-                [__('Status') => [
-                    __('Publish')         => 'publish',
-                    __('Unpublish')       => 'unpublish',
-                    __('Schedule')        => 'schedule',
-                    __('Mark as pending') => 'pending',
-                ]],
+                [__('Status') => App::core()->blog()->posts()->status()->getActions()],
                 [$this, 'doChangePostStatus']
             );
         }
@@ -81,7 +76,7 @@ abstract class DefaultPostAction extends Action
     {
         $ids = $this->getCleanedIDs(ap: $ap);
 
-        $status = App::core()->blog()->posts()->getPostsStatusCode(name: $ap->getAction(), default: 1);
+        $status = App::core()->blog()->posts()->status()->getCode(id: $ap->getAction(), default: 1);
 
         // Do not switch to scheduled already published entries
         if (-1 == $status) {
@@ -99,7 +94,7 @@ abstract class DefaultPostAction extends Action
         }
 
         // Set status of remaining entries
-        App::core()->blog()->posts()->updPostsStatus(ids: $ids, status: $status);
+        App::core()->blog()->posts()->updatePostsStatus(ids: $ids, status: $status);
         App::core()->notice()->addSuccessNotice(
             sprintf(
                 __(
@@ -108,7 +103,7 @@ abstract class DefaultPostAction extends Action
                     $ids->count()
                 ),
                 $ids->count(),
-                App::core()->blog()->posts()->getPostsStatusName($status)
+                App::core()->blog()->posts()->status()->getState(code: $status)
             )
         );
         $ap->redirect(true);
@@ -119,7 +114,7 @@ abstract class DefaultPostAction extends Action
         $ids = $this->getCleanedIDs(ap: $ap);
 
         $action = $ap->getAction();
-        App::core()->blog()->posts()->updPostsSelected(ids: $ids, selected: 'selected' == $action);
+        App::core()->blog()->posts()->updatePostsSelected(ids: $ids, selected: 'selected' == $action);
 
         if ('selected' == $action) {
             App::core()->notice()->addSuccessNotice(
@@ -154,7 +149,7 @@ abstract class DefaultPostAction extends Action
         // --BEHAVIOR-- adminBeforePostsDelete, Integers
         App::core()->behavior()->call('adminBeforePostsDelete', $ids);
 
-        App::core()->blog()->posts()->delPosts(ids: $ids);
+        App::core()->blog()->posts()->deletePosts(ids: $ids);
         App::core()->notice()->addSuccessNotice(
             sprintf(
                 __(
@@ -194,7 +189,7 @@ abstract class DefaultPostAction extends Action
                 App::core()->behavior()->call('adminAfterCategoryCreate', $cursor, $category);
             }
 
-            App::core()->blog()->posts()->updPostsCategory(ids: $ids, category: $category);
+            App::core()->blog()->posts()->updatePostsCategory(ids: $ids, category: $category);
             $record = App::core()->blog()->categories()->getCategory(id: $category);
             App::core()->notice()->addSuccessNotice(
                 sprintf(
@@ -254,7 +249,7 @@ abstract class DefaultPostAction extends Action
         if ($from->isset('new_auth_id')) {
             $ids = $this->getCleanedIDs(ap: $ap);
 
-            App::core()->blog()->posts()->updPostsAuthor(
+            App::core()->blog()->posts()->updatePostsAuthor(
                 ids: $ids,
                 author: $from->string('new_auth_id')
             );
@@ -317,7 +312,7 @@ abstract class DefaultPostAction extends Action
         if ($from->isset('new_lang')) {
             $ids = $this->getCleanedIDs(ap: $ap);
 
-            App::core()->blog()->posts()->updPostsLang(ids: $ids, lang: $from->string('new_lang'));
+            App::core()->blog()->posts()->updatePostsLang(ids: $ids, lang: $from->string('new_lang'));
 
             App::core()->notice()->addSuccessNotice(
                 sprintf(

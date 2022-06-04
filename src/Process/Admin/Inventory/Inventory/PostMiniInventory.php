@@ -77,35 +77,14 @@ class PostMiniInventory extends Inventory
      */
     private function postLine(): string
     {
-        $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
-        $img_status = '';
-        $sts_class  = '';
+        $img = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
 
-        switch ($this->rs->fInt('post_status')) {
-            case 1:
-                $img_status = sprintf($img, __('Published'), 'check-on.png');
-                $sts_class  = 'sts-online';
-
-                break;
-
-            case 0:
-                $img_status = sprintf($img, __('Unpublished'), 'check-off.png');
-                $sts_class  = 'sts-offline';
-
-                break;
-
-            case -1:
-                $img_status = sprintf($img, __('Scheduled'), 'scheduled.png');
-                $sts_class  = 'sts-scheduled';
-
-                break;
-
-            case -2:
-                $img_status = sprintf($img, __('Pending'), 'check-wrn.png');
-                $sts_class  = 'sts-pending';
-
-                break;
-        }
+        $img_status = sprintf(
+            $img,
+            App::core()->blog()->posts()->status()->getState($this->rs->fInt('post_status')),
+            App::core()->blog()->posts()->status()->getIcon($this->rs->fInt('post_status')),
+        );
+        $sts_class = 'sts-' . App::core()->blog()->posts()->status()->getId($this->rs->fInt('post_status'));
 
         $protected = '';
         if ($this->rs->f('post_password')) {

@@ -31,11 +31,7 @@ abstract class DefaultBlogAction extends Action
         }
 
         $ap->addAction(
-            [__('Status') => [
-                __('Set online')     => 'online',
-                __('Set offline')    => 'offline',
-                __('Set as removed') => 'remove',
-            ]],
+            [__('Status') => App::core()->blogs()->status()->getActions()],
             [$this, 'doChangeBlogStatus']
         );
         $ap->addAction(
@@ -52,12 +48,9 @@ abstract class DefaultBlogAction extends Action
             throw new MissingOrEmptyValue(__('No blog selected'));
         }
 
-        // --BEHAVIOR-- adminBeforeBlogsStatusUpdate, Strings
-        App::core()->behavior()->call('adminBeforeBlogsStatusUpdate', $ids);
-
-        App::core()->blogs()->updBlogsStatus(
+        App::core()->blogs()->updateBlogsStatus(
             ids: $ids,
-            status: App::core()->blogs()->getBlogsStatusCode(name: $ap->getAction(), default: 1)
+            status: App::core()->blogs()->status()->getCode(id: $ap->getAction(), default: 1)
         );
 
         App::core()->notice()->addSuccessNotice(__('Selected blogs have been successfully updated.'));
@@ -81,10 +74,7 @@ abstract class DefaultBlogAction extends Action
         }
 
         if ($ids->count()) {
-            // --BEHAVIOR-- adminBeforeBlogsDelete, Strings
-            App::core()->behavior()->call('adminBeforeBlogsDelete', $ids);
-
-            App::core()->blogs()->delBlogs(ids: $ids);
+            App::core()->blogs()->deleteBlogs(ids: $ids);
 
             App::core()->notice()->addSuccessNotice(
                 sprintf(

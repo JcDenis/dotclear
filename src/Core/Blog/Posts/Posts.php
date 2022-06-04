@@ -26,6 +26,8 @@ use Dotclear\Exception\InvalidValueReference;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Mapper\Integers;
+use Dotclear\Helper\Status;
+use Dotclear\Helper\Statuses;
 use Dotclear\Helper\Text;
 use Exception;
 
@@ -37,78 +39,55 @@ use Exception;
 final class Posts
 {
     /**
-     * Get posts status codes.
-     *
-     * Return an array of unstranslated name /code pair.
-     *
-     * @return array<string,int> All posts status code
+     * @var Statuses $status
+     *               The posts status instance
      */
-    public function getPostsStatusCodes(): array
-    {
-        return [
-            'publish'   => 1,
-            'unpublish' => 0,
-            'schedule'  => -1,
-            'pending'   => -2,
-        ];
-    }
+    private $status;
 
     /**
-     * Get a posts status code.
+     * Get posts statuses instance.
      *
-     * Returns a posts status code given to a unstranslated name.
+     * Posts status methods are accesible from App::core()->posts()->status()
      *
-     * @param string $name    The post status name
-     * @param int    $default The value returned if name not exists
-     *
-     * @return null|int The post status name
+     * @return Statuses The posts statuses instance
      */
-    public function getPostsStatusCode(string $name, int $default = null): ?int
+    public function status(): Statuses
     {
-        return match ($name) {
-            'publish'   => 1,
-            'unpublish' => 0,
-            'schedule'  => -1,
-            'pending'   => -2,
-            default     => $default,
-        };
-    }
+        if (!($this->status instanceof Statuses)) {
+            $this->status = new Statuses(
+                'posts',
+                new Status(
+                    code: 1, 
+                    id: 'publish', 
+                    icon: 'images/check-on.png',
+                    state: __('published'), 
+                    action: __('Publish')
+                ),
+                new Status(
+                    code: 0, 
+                    id: 'unpublish', 
+                    icon: 'images/check-off.png',
+                    state: __('unpublished'), 
+                    action: __('Unpublish')
+                ),
+                new Status(
+                    code: -1, 
+                    id: 'schedule', 
+                    icon: 'images/scheduled.png',
+                    state: __('scheduled'), 
+                    action: __('Schedule')
+                ),
+                new Status(
+                    code: -2, 
+                    id: 'pending', 
+                    icon: 'images/check-wrn.png',
+                    state: __('pending'), 
+                    action: __('Mark as pending')
+                ),
+            );
+        }
 
-    /**
-     * Get all posts status name.
-     *
-     * @return array<int,string> An array of available posts status codes and names
-     */
-    public function getPostsStatusNames(): array
-    {
-        return [
-            1  => __('Published'),
-            0  => __('Unpublished'),
-            -1 => __('Scheduled'),
-            -2 => __('Pending'),
-        ];
-    }
-
-    /**
-     * Get a posts status name.
-     *
-     * Returns a posts status name given to a code. This is intended to be
-     * human-readable and will be translated, so never use it for tests.
-     *
-     * @param int    $code    The post status code
-     * @param string $default The value returned if code not exists
-     *
-     * @return null|string The post status name
-     */
-    public function getPostsStatusName(int $code, string $default = null): ?string
-    {
-        return match ($code) {
-            1       => __('Published'),
-            0       => __('Unpublished'),
-            -1      => __('Scheduled'),
-            -2      => __('Pending'),
-            default => $default,
-        };
+        return $this->status;
     }
 
     /**
@@ -126,8 +105,8 @@ final class Posts
         $params = new PostsParam($param);
         $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
 
-        // --BEHAVIOR-- coreBlogBeforeCountPosts, Param, SelectStatement
-        App::core()->behavior()->call('coreBlogBeforeCountPosts', $params, $query);
+        // --BEHAVIOR-- coreBeforeCountPosts, Param, SelectStatement
+        App::core()->behavior()->call('coreBeforeCountPosts', param: $params, sql: $query);
 
         $params->unset('order');
         $params->unset('limit');
@@ -136,8 +115,8 @@ final class Posts
 
         $record = $this->queryPostsTable(param: $params, sql: $query);
 
-        // --BEHAVIOR-- coreBlogAfterCountPosts, Record, Param, SelectStatement
-        App::core()->behavior()->call('coreBlogAfterCountPosts', $record, $params, $query);
+        // --BEHAVIOR-- coreAfterCountPosts, Record
+        App::core()->behavior()->call('coreAfterCountPosts', record: $record);
 
         return $record->fInt();
     }
@@ -157,8 +136,8 @@ final class Posts
         $params = new PostsParam($param);
         $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
 
-        // --BEHAVIOR-- coreBlogBeforeGetPosts, Param, SelectStatement
-        App::core()->behavior()->call('coreBlogBeforeGetPosts', $params, $query);
+        // --BEHAVIOR-- coreBeforeGetPosts, Param, SelectStatement
+        App::core()->behavior()->call('coreBeforeGetPosts', param: $params, sql: $query);
 
         if (false === $params->no_content()) {
             $query->columns([
@@ -212,8 +191,8 @@ final class Posts
 
         $record = $this->queryPostsTable(param: $params, sql: $query);
 
-        // --BEHAVIOR-- coreBlogAfterGetPosts, Record, Param, SelectStatement
-        App::core()->behavior()->call('coreBlogAfterGetPosts', $record, $params, $query);
+        // --BEHAVIOR-- coreAfterGetPosts, Record
+        App::core()->behavior()->call('coreAfterGetPosts', record: $record);
 
         return $record;
     }
@@ -320,9 +299,9 @@ final class Posts
 
             if (!empty($words)) {
                 $param->set('words', $words);
-                if (App::core()->behavior()->has('corePostSearch')) {
-                    // --BEHAVIOR corePostSearch, Param, SelectStatement
-                    App::core()->behavior()->call('corePostSearch', $param, $sql);
+                if (App::core()->behavior()->has('coreBeforeSearchPosts')) {
+                    // --BEHAVIOR coreBeforeSearchPosts, Param, SelectStatement
+                    App::core()->behavior()->call('coreBeforeSearchPosts', param: $param, sql: $sql);
                 }
 
                 $w = [];
@@ -615,7 +594,7 @@ final class Posts
      *
      * @throws InsufficientPermissions
      */
-    public function addPost(Cursor $cursor): int
+    public function createPost(Cursor $cursor): int
     {
         if (!App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)) {
             throw new InsufficientPermissions(__('You are not allowed to create an entry'));
@@ -636,7 +615,6 @@ final class Posts
             $cursor->setField('post_upddt', Clock::database());
 
             // Post excerpt and content
-            $this->getPostContent(cursor: $cursor);
             $this->getPostCursor(cursor: $cursor);
 
             $cursor->setField('post_url', $this->getPostURL(
@@ -650,8 +628,8 @@ final class Posts
                 $cursor->setField('post_status', -2);
             }
 
-            // --BEHAVIOR-- coreBeforePostCreate, Cursor
-            App::core()->behavior()->call('coreBeforePostCreate', $cursor);
+            // --BEHAVIOR-- coreBeforeCreatePost, Cursor
+            App::core()->behavior()->call('coreBeforeCreatePost', cursor: $cursor);
 
             $cursor->insert();
             App::core()->con()->unlock();
@@ -661,12 +639,12 @@ final class Posts
             throw $e;
         }
 
-        // --BEHAVIOR-- coreAfterPostCreate, Cursor
-        App::core()->behavior()->call('coreAfterPostCreate', $cursor);
+        // --BEHAVIOR-- coreAfterCreatePost, Cursor
+        App::core()->behavior()->call('coreAfterCreatePost', cursor: $cursor);
 
         App::core()->blog()->triggerBlog();
 
-        $this->firstPublicationEntries(ids: new Integers($cursor->getField('post_id')));
+        $this->firstPublicationPosts(ids: new Integers($cursor->getField('post_id')));
 
         return $cursor->getField('post_id');
     }
@@ -680,7 +658,7 @@ final class Posts
      * @throws InsufficientPermissions
      * @throws MissingOrEmptyValue
      */
-    public function updPost(int $id, Cursor $cursor): void
+    public function updatePost(int $id, Cursor $cursor): void
     {
         if (!App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)) {
             throw new InsufficientPermissions(__('You are not allowed to update entries'));
@@ -693,7 +671,6 @@ final class Posts
         $cursor->setField('post_id', $id);
 
         // Post excerpt and content
-        $this->getPostContent(cursor: $cursor);
         $this->getPostCursor(cursor: $cursor);
 
         if (null !== $cursor->getField('post_url')) {
@@ -724,17 +701,17 @@ final class Posts
             }
         }
 
-        // --BEHAVIOR-- coreBeforePostUpdate, Cursor
-        App::core()->behavior()->call('coreBeforePostUpdate', $cursor);
+        // --BEHAVIOR-- coreBeforeUpdatePost, Cursor, int
+        App::core()->behavior()->call('coreBeforeUpdatePost', cursor: $cursor, id: $id);
 
         $cursor->update('WHERE post_id = ' . $id . ' ');
 
-        // --BEHAVIOR-- coreAfterPostUpdate, Cursor
-        App::core()->behavior()->call('coreAfterPostUpdate', $cursor);
+        // --BEHAVIOR-- coreAfterUpdatePost, Cursor, int
+        App::core()->behavior()->call('coreAfterUpdatePost', cursor: $cursor, id: $id);
 
         App::core()->blog()->triggerBlog();
 
-        $this->firstPublicationEntries(ids: new Integers($id));
+        $this->firstPublicationPosts(ids: new Integers($id));
     }
 
     /**
@@ -745,14 +722,14 @@ final class Posts
      *
      * @throws InsufficientPermissions
      */
-    public function updPostsStatus(Integers $ids, int $status): void
+    public function updatePostsStatus(Integers $ids, int $status): void
     {
         if (!App::core()->user()->check('publish,contentadmin', App::core()->blog()->id)) {
             throw new InsufficientPermissions(__('You are not allowed to change entries status'));
         }
 
-        // --BEHAVIOR-- coreBeforePostsStatusUpdate, Integers, int
-        App::core()->behavior()->call('coreBeforePostsStatusUpdate', $ids, $status);
+        // --BEHAVIOR-- coreBeforeUpdatePostsStatus, Integers, int
+        App::core()->behavior()->call('coreBeforeUpdatePostsStatus', ids: $ids, status: $status);
 
         if (!$ids->count()) {
             throw new MissingOrEmptyValue(__('No such entry ID'));
@@ -774,7 +751,7 @@ final class Posts
         $sql->update();
         App::core()->blog()->triggerBlog();
 
-        $this->firstPublicationEntries(ids: $ids);
+        $this->firstPublicationPosts(ids: $ids);
     }
 
     /**
@@ -786,14 +763,14 @@ final class Posts
      * @throws InsufficientPermissions
      * @throws MissingOrEmptyValue
      */
-    public function updPostsSelected(Integers $ids, bool $selected): void
+    public function updatePostsSelected(Integers $ids, bool $selected): void
     {
         if (!App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)) {
             throw new InsufficientPermissions(__('You are not allowed to change entries selected flag'));
         }
 
-        // --BEHAVIOR-- coreBeforePostsAuthorUpdate, Integers, bool
-        App::core()->behavior()->call('coreBeforePostsSelectedUpdate', $ids, $selected);
+        // --BEHAVIOR-- coreBeforeUpdatePostsAuthor, Integers, bool
+        App::core()->behavior()->call('coreBeforeUpdatePostsSelected', ids: $ids, selected: $selected);
 
         if (!$ids->count()) {
             throw new MissingOrEmptyValue(__('No such entry ID'));
@@ -826,14 +803,14 @@ final class Posts
      * @throws MissingOrEmptyValue
      * @throws InvalidValueReference
      */
-    public function updPostsAuthor(Integers $ids, string $author): void
+    public function updatePostsAuthor(Integers $ids, string $author): void
     {
         if (!App::core()->user()->check('admin', App::core()->blog()->id)) {
             throw new InsufficientPermissions(__('You are not allowed to change entries author'));
         }
 
-        // --BEHAVIOR-- coreBeforePostsAuthorUpdate, Integers, string
-        App::core()->behavior()->call('coreBeforePostsAuthorUpdate', $ids, $author);
+        // --BEHAVIOR-- coreBeforeUpdatePostsAuthor, Integers, string
+        App::core()->behavior()->call('coreBeforeUpdatePostsAuthor', ids: $ids, author: $author);
 
         if (!$ids->count()) {
             throw new MissingOrEmptyValue(__('No such entry ID'));
@@ -864,14 +841,14 @@ final class Posts
      * @throws InsufficientPermissions
      * @throws MissingOrEmptyValue
      */
-    public function updPostsLang(Integers $ids, string $lang): void
+    public function updatePostsLang(Integers $ids, string $lang): void
     {
         if (!App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)) {
             throw new InsufficientPermissions(__('You are not allowed to change entries lang'));
         }
 
-        // --BEHAVIOR-- coreBeforePostsLangUpdate, Integers, string
-        App::core()->behavior()->call('coreBeforePostsLangUpdate', $ids, $lang);
+        // --BEHAVIOR-- coreBeforeUpdatePostsLang, Integers, string
+        App::core()->behavior()->call('coreBeforeUpdatePostsLang', ids: $ids, lang: $lang);
 
         if (!$ids->count()) {
             throw new MissingOrEmptyValue(__('No such entry ID'));
@@ -901,14 +878,14 @@ final class Posts
      * @throws InsufficientPermissions
      * @throws MissingOrEmptyValue
      */
-    public function updPostsCategory(Integers $ids, int|null $category): void
+    public function updatePostsCategory(Integers $ids, int|null $category): void
     {
         if (!App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)) {
             throw new InsufficientPermissions(__('You are not allowed to change entries category'));
         }
 
-        // --BEHAVIOR-- coreBeforePostsCategoryUpdate, Integers, ?int
-        App::core()->behavior()->call('coreBeforePostsCategoryUpdate', $ids, $category);
+        // --BEHAVIOR-- coreBeforeUpdatePostsCategory, Integers, ?int
+        App::core()->behavior()->call('coreBeforeUpdatePostsCategory', ids: $ids, category: $category);
 
         if (!$ids->count()) {
             throw new MissingOrEmptyValue(__('No such entry ID'));
@@ -948,8 +925,8 @@ final class Posts
             throw new InsufficientPermissions(__('You are not allowed to change entries category'));
         }
 
-        // --BEHAVIOR-- coreBeforePostsCategoryChange, int, ?int
-        App::core()->behavior()->call('coreBeforePostsCategoryChange', $old, $new);
+        // --BEHAVIOR-- coreBeforeChangePostsCategory, int, ?int
+        App::core()->behavior()->call('coreBeforeChangePostsCategory', old: $old, new: $new);
 
         $sql = new UpdateStatement(__METHOD__);
         $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
@@ -971,7 +948,7 @@ final class Posts
      * @throws InsufficientPermissions
      * @throws MissingOrEmptyValue
      */
-    public function delPosts(Integers $ids): void
+    public function deletePosts(Integers $ids): void
     {
         if (!App::core()->user()->check('delete,contentadmin', App::core()->blog()->id)) {
             throw new InsufficientPermissions(__('You are not allowed to delete entries'));
@@ -981,8 +958,8 @@ final class Posts
             throw new MissingOrEmptyValue(__('No such entry ID'));
         }
 
-        // --BEHAVIOR-- coreBeforePostsDelete, Integers
-        App::core()->behavior()->call('coreBeforePostsDelete', $ids);
+        // --BEHAVIOR-- coreBeforeDeletePosts, Integers
+        App::core()->behavior()->call('coreBeforeDeletePosts', ids: $ids);
 
         $sql = new DeleteStatement(__METHOD__);
         $sql->from(App::core()->prefix() . 'post');
@@ -1001,7 +978,7 @@ final class Posts
     /**
      * Publishe all entries flaged as "scheduled".
      */
-    public function publishScheduledEntries(): void
+    public function publishScheduledPosts(): void
     {
         $sql = new SelectStatement(__METHOD__);
         $sql->columns(['post_id', 'post_dt']);
@@ -1021,8 +998,8 @@ final class Posts
             }
         }
         if ($posts->count()) {
-            // --BEHAVIOR-- coreBeforeScheduledEntriesPublish, Integers
-            App::core()->behavior()->call('coreBeforeScheduledEntriesPublish', $posts);
+            // --BEHAVIOR-- coreBeforePublishScheduledPosts, Integers
+            App::core()->behavior()->call('coreBeforePublishScheduledPosts', ids: $posts);
 
             $sql = new UpdateStatement(__METHOD__);
             $sql->from(App::core()->prefix() . 'post');
@@ -1033,10 +1010,10 @@ final class Posts
 
             App::core()->blog()->triggerBlog();
 
-            // --BEHAVIOR-- coreAfterScheduledEntriesPublish, Integers
-            App::core()->behavior()->call('coreAfterScheduledEntriesPublish', $posts);
+            // --BEHAVIOR-- coreAfterPublishScheduledPosts, Integers
+            App::core()->behavior()->call('coreAfterPublishScheduledPosts', ids: $posts);
 
-            $this->firstPublicationEntries(ids: $posts);
+            $this->firstPublicationPosts(ids: $posts);
         }
     }
 
@@ -1045,7 +1022,7 @@ final class Posts
      *
      * @param Integers $ids The posts IDs
      */
-    public function firstPublicationEntries(Integers $ids): void
+    public function firstPublicationPosts(Integers $ids): void
     {
         $param = new Param();
         $param->set('post_id', $ids->dump());
@@ -1067,8 +1044,8 @@ final class Posts
             $sql->and('post_id' . $sql->in($posts->dump()));
             $sql->update();
 
-            // --BEHAVIOR-- coreFirstPublicationEntries, Integers
-            App::core()->behavior()->call('coreFirstPublicationEntries', $posts);
+            // --BEHAVIOR-- coreAfterFirstPublicationPosts, Integers
+            App::core()->behavior()->call('coreAfterFirstPublicationPosts', ids: $posts);
         }
     }
 
@@ -1234,28 +1211,20 @@ final class Posts
         if ($cursor->isField('post_firstpub')) {
             $cursor->unsetField('post_firstpub');
         }
-    }
 
-    /**
-     * Get the post content.
-     *
-     * @param Cursor $cursor The post cursor
-     */
-    private function getPostContent(Cursor $cursor): void
-    {
         $post_excerpt       = $cursor->getField('post_excerpt');
         $post_excerpt_xhtml = $cursor->getField('post_excerpt_xhtml');
         $post_content       = $cursor->getField('post_content');
         $post_content_xhtml = $cursor->getField('post_content_xhtml');
 
-        $this->setPostContent(
-            $cursor->getField('post_id'),
-            $cursor->getField('post_format'),
-            $cursor->getField('post_lang'),
-            $post_excerpt,
-            $post_excerpt_xhtml,
-            $post_content,
-            $post_content_xhtml
+        $this->formatPostContent(
+            id: $cursor->getField('post_id'),
+            format: $cursor->getField('post_format'),
+            lang: $cursor->getField('post_lang'),
+            excerpt: $post_excerpt,
+            excerpt_xhtml: $post_excerpt_xhtml,
+            content: $post_content,
+            content_xhtml: $post_content_xhtml
         );
 
         $cursor->setField('post_excerpt', $post_excerpt);
@@ -1275,7 +1244,7 @@ final class Posts
      * @param string      $content       The content
      * @param string      $content_xhtml The content xhtml
      */
-    public function setPostContent(?int $id, string $format, string $lang, ?string &$excerpt, ?string &$excerpt_xhtml, string &$content, string &$content_xhtml): void
+    public function formatPostContent(?int $id, string $format, string $lang, ?string &$excerpt, ?string &$excerpt_xhtml, string &$content, string &$content_xhtml): void
     {
         if ('wiki' == $format) {
             App::core()->wiki()->initWikiPost();
@@ -1308,8 +1277,8 @@ final class Posts
             $content_xhtml = '';
         }
 
-        // --BEHAVIOR-- coreAfterPostContentFormat, array
-        App::core()->behavior()->call('coreAfterPostContentFormat', [
+        // --BEHAVIOR-- coreAfterFormatPostContent, array
+        App::core()->behavior()->call('coreAfterFormatPostContent', content: [
             'excerpt'       => &$excerpt,
             'content'       => &$content,
             'excerpt_xhtml' => &$excerpt_xhtml,

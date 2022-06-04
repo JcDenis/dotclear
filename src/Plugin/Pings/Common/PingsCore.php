@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Pings\Common;
 
 // Dotclear\Plugin\Pings\Common\PingsCore
-use ArrayObject;
 use Dotclear\App;
 
 /**
@@ -22,10 +21,10 @@ class PingsCore
 {
     public function __construct()
     {
-        App::core()->behavior()->add('coreFirstPublicationEntries', [$this, 'doPings']);
+        App::core()->behavior()->add('coreAfterFirstPublicationPosts', [$this, 'doPings']);
     }
 
-    public function doPings(ArrayObject $ids): void
+    public function doPings($ids): void
     {
         if (!App::core()->blog()->settings()->get('pings')->get('pings_active')) {
             return;

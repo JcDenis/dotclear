@@ -94,7 +94,6 @@ class Post extends AbstractPage
         $post_headlink      = '<link rel="%s" title="%s" href="' . App::core()->adminurl()->get('admin.post', ['id' => '%s'], '&amp;', true) . '" />';
         $post_link          = '<a href="' . App::core()->adminurl()->get('admin.post', ['id' => '%s'], '&amp;', true) . '" title="%s">%s</a>';
         $next_headlink      = $prev_headlink      = null;
-        $img_status_pattern = '<img class="img_select_option" alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
 
         // If user can't publish
         if (!$this->can_publish) {
@@ -255,21 +254,21 @@ class Post extends AbstractPage
                 $this->post_url = GPC::post()->string('post_url');
             }
 
-            App::core()->blog()->posts()->setPostContent(
-                $this->post_id,
-                $this->post_format,
-                $this->post_lang,
-                $this->post_excerpt,
-                $this->post_excerpt_xhtml,
-                $this->post_content,
-                $this->post_content_xhtml
+            App::core()->blog()->posts()->formatPostContent(
+                id: $this->post_id,
+                format: $this->post_format,
+                lang: $this->post_lang,
+                excerpt: $this->post_excerpt,
+                excerpt_xhtml: $this->post_excerpt_xhtml,
+                content: $this->post_content,
+                content_xhtml: $this->post_content_xhtml
             );
         }
 
         // Delete post
         if (!GPC::post()->empty('delete') && $this->can_delete) {
             try {
-                App::core()->blog()->posts()->delPosts(ids: new Integers($this->post_id));
+                App::core()->blog()->posts()->deletePosts(ids: new Integers($this->post_id));
                 App::core()->adminurl()->redirect('admin.posts');
             } catch (Exception $e) {
                 App::core()->error()->add($e->getMessage());
@@ -324,7 +323,7 @@ class Post extends AbstractPage
                     // --BEHAVIOR-- adminBeforePostUpdate, Cursor, int
                     App::core()->behavior()->call('adminBeforePostUpdate', $cur, $this->post_id);
 
-                    App::core()->blog()->posts()->updPost($this->post_id, $cur);
+                    App::core()->blog()->posts()->updatePost(id: $this->post_id, cursor: $cur);
 
                     // --BEHAVIOR-- adminAfterPostUpdate, Cursor, int
                     App::core()->behavior()->call('adminAfterPostUpdate', $cur, $this->post_id);
@@ -346,7 +345,7 @@ class Post extends AbstractPage
                     // --BEHAVIOR-- adminBeforePostCreate, Cursor
                     App::core()->behavior()->call('adminBeforePostCreate', $cur);
 
-                    $return_id = App::core()->blog()->posts()->addPost($cur);
+                    $return_id = App::core()->blog()->posts()->createPost(cursor: $cur);
 
                     // --BEHAVIOR-- adminAfterPostCreate, Cursor, int
                     App::core()->behavior()->call('adminAfterPostCreate', $cur, $return_id);
@@ -374,13 +373,11 @@ class Post extends AbstractPage
         }
 
         if ($this->post_id) {
-            $this->img_status = match ($this->post_status) {
-                1       => sprintf($img_status_pattern, __('Published'), 'check-on.png'),
-                0       => sprintf($img_status_pattern, __('Unpublished'), 'check-off.png'),
-                -1      => sprintf($img_status_pattern, __('Scheduled'), 'scheduled.png'),
-                -2      => sprintf($img_status_pattern, __('Pending'), 'check-wrn.png'),
-                default => '',
-            };
+            $this->img_status = sprintf(
+                '<img class="img_select_option" alt="%1$s" title="%1$s" src="?df=%2$s" />',
+                App::core()->blog()->posts()->status()->getState($this->post_status),
+                App::core()->blog()->posts()->status()->getIcon($this->post_status),
+            );
             $edit_entry_str  = __('&ldquo;%s&rdquo;');
             $page_title_edit = sprintf($edit_entry_str, Html::escapeHTML(trim(Html::clean($this->post_title)))) . ' ' . $this->img_status;
         } else {
@@ -957,36 +954,12 @@ class Post extends AbstractPage
 
         while ($rs->fetch()) {
             $comment_url = App::core()->adminurl()->get('admin.comment', ['id' => $rs->f('comment_id')]);
-
-            $img              = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
-            $this->img_status = '';
-            $sts_class        = '';
-
-            switch ($rs->fInt('comment_status')) {
-                case 1:
-                    $this->img_status = sprintf($img, __('Published'), 'check-on.png');
-                    $sts_class        = 'sts-online';
-
-                    break;
-
-                case 0:
-                    $this->img_status = sprintf($img, __('Unpublished'), 'check-off.png');
-                    $sts_class        = 'sts-offline';
-
-                    break;
-
-                case -1:
-                    $this->img_status = sprintf($img, __('Pending'), 'check-wrn.png');
-                    $sts_class        = 'sts-pending';
-
-                    break;
-
-                case -2:
-                    $this->img_status = sprintf($img, __('Junk'), 'junk.png');
-                    $sts_class        = 'sts-junk';
-
-                    break;
-            }
+            $img_status  = sprintf(
+                '<img alt="%1$s" title="%1$s" src="?df=%2$s" />',
+                App::core()->blog()->comments()->status()->getState($rs->fInt('comment_status')),
+                App::core()->blog()->comments()->status()->getIcon($rs->fInt('comment_status')),
+            );
+            $sts_class = 'sts-' . App::core()->blog()->comments()->status()->getId($rs->fInt('comment_status'));
 
             echo '<tr class="line ' . (1 != $rs->f('comment_status') ? ' offline ' : '') . $sts_class . '"' .
             ' id="c' . $rs->f('comment_id') . '">' .
@@ -1004,7 +977,7 @@ class Post extends AbstractPage
             '<td class="nowrap">' . clock::str(__('%Y-%m-%d %H:%M'), $rs->f('comment_dt'), to: App::core()->user()->getInfo('user_tz')) . '</td>' .
             ($this->can_view_ip ?
                 '<td class="nowrap"><a href="' . App::core()->adminurl()->get('admin.comments', ['ip' => $rs->f('comment_ip')]) . '">' . $rs->f('comment_ip') . '</a></td>' : '') .
-            '<td class="nowrap status">' . $this->img_status . '</td>' .
+            '<td class="nowrap status">' . $img_status . '</td>' .
             '<td class="nowrap status"><a href="' . $comment_url . '">' .
             '<img src="?df=images/edit-mini.png" alt="" title="' . __('Edit this comment') . '" /> ' . __('Edit') . '</a></td>' .
 

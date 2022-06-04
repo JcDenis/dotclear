@@ -68,10 +68,7 @@ class Blog extends AbstractPage
             $cur->setField('blog_desc', $this->blog_desc = GPC::post()->string('blog_desc'));
 
             try {
-                // --BEHAVIOR-- adminBeforeBlogCreate
-                App::core()->behavior()->call('adminBeforeBlogCreate', $cur, $this->blog_id);
-
-                App::core()->blogs()->addBlog(cursor: $cur);
+                App::core()->blogs()->createBlog(cursor: $cur);
 
                 // Default settings and override some
                 $blog_settings = new Settings($cur->getField('blog_id'));
@@ -83,9 +80,6 @@ class Blog extends AbstractPage
                 } else {
                     $blog_settings->get('system')->put('url_scan', 'path_info');
                 }
-
-                // --BEHAVIOR-- adminAfterBlogCreate
-                App::core()->behavior()->call('adminAfterBlogCreate', $cur, $this->blog_id, $blog_settings);
 
                 App::core()->notice()->addSuccessNotice(sprintf(__('Blog "%s" successfully created'), Html::escapeHTML($cur->getField('blog_name'))));
                 App::core()->adminurl()->redirect('admin.blog', ['id' => $cur->getField('blog_id'), 'edit_blog_mode' => 1]);

@@ -137,7 +137,7 @@ class Prepend extends ModulePrepend
             $old_url_format = App::core()->blog()->settings()->get('system')->get('post_url_format');
             App::core()->blog()->settings()->get('system')->set('post_url_format', '{t}');
 
-            App::core()->blog()->posts()->addPost($cur);
+            App::core()->blog()->posts()->createPost(cursor: $cur);
 
             App::core()->blog()->settings()->get('system')->set('post_url_format', $old_url_format);
         }

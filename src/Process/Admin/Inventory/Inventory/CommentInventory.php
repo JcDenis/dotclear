@@ -136,16 +136,19 @@ class CommentInventory extends Inventory
                 echo $this->commentLine(isset($comments[$this->rs->fInt('comment_id')]), $spam);
             }
 
-            $fmt = fn ($title, $image) => sprintf('<img alt="%1$s" title="%1$s" src="?df=images/%2$s" /> %1$s', $title, $image);
+            $legends = [];
+            foreach(App::core()->blog()->comments()->status()->getCodes() as $code) {
+                $legends[] = sprintf(
+                    '<img alt="%1$s" title="%1$s" src="?df=%2$s" /> %1$s',
+                    App::core()->blog()->comments()->status()->getState($code),
+                    App::core()->blog()->comments()->status()->getIcon($code),
+                );
+            }
 
-            echo $blocks[1] .
-                '<p class="info">' . __('Legend: ') .
-                $fmt(__('Published'), 'check-on.png') . ' - ' .
-                $fmt(__('Unpublished'), 'check-off.png') . ' - ' .
-                $fmt(__('Pending'), 'check-wrn.png') . ' - ' .
-                $fmt(__('Junk'), 'junk.png') .
-                '</p>' .
-                $blocks[2] . $pager->getLinks();
+            echo 
+            $blocks[1] . 
+            '<p class="info">' . __('Legend: ') . implode(' - ', $legends) . '</p>' . 
+            $blocks[2] . $pager->getLinks();
         }
     }
 
@@ -162,35 +165,12 @@ class CommentInventory extends Inventory
         $author_url  = App::core()->adminurl()->get('admin.comments', ['author' => $this->rs->f('comment_author')]);
         $post_url    = App::core()->posttype()->getPostAdminURL($this->rs->f('post_type'), $this->rs->f('post_id'));
         $comment_url = App::core()->adminurl()->get('admin.comment', ['id' => $this->rs->f('comment_id')]);
-        $img         = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
-        $img_status  = '';
-        $sts_class   = '';
-
-        switch ($this->rs->fInt('comment_status')) {
-            case 1:
-                $img_status = sprintf($img, __('Published'), 'check-on.png');
-                $sts_class  = 'sts-online';
-
-                break;
-
-            case 0:
-                $img_status = sprintf($img, __('Unpublished'), 'check-off.png');
-                $sts_class  = 'sts-offline';
-
-                break;
-
-            case -1:
-                $img_status = sprintf($img, __('Pending'), 'check-wrn.png');
-                $sts_class  = 'sts-pending';
-
-                break;
-
-            case -2:
-                $img_status = sprintf($img, __('Junk'), 'junk.png');
-                $sts_class  = 'sts-junk';
-
-                break;
-        }
+        $img_status  = sprintf(
+            '<img alt="%1$s" title="%1$s" src="?df=%2$s" />',
+            App::core()->blog()->comments()->status()->getState($this->rs->fInt('comment_status')),
+            App::core()->blog()->comments()->status()->getIcon($this->rs->fInt('comment_status')),
+        );
+        $sts_class = 'sts-' . App::core()->blog()->comments()->status()->getId($this->rs->fInt('comment_status'));
 
         $post_title = Html::escapeHTML(trim(Html::clean($this->rs->f('post_title'))));
         if (mb_strlen($post_title) > 70) {
