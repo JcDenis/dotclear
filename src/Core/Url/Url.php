@@ -811,8 +811,8 @@ final class Url
             $this->serveDocument('archive.html');
         } elseif (preg_match('|^/([0-9]{4})/([0-9]{2})$|', $args, $m)) {
             $param = new Param();
-            $param->set('year', $m[1]);
-            $param->set('month', $m[2]);
+            $param->set('year', (int) $m[1]);
+            $param->set('month', (int) $m[2]);
             $param->set('type', 'month');
 
             // --BEHAVIOR-- publicBeforeGetDatesOnArchive, Param
