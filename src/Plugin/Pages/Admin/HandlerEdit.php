@@ -180,19 +180,18 @@ class HandlerEdit extends AbstractPage
         }
 
         // Format content
-        if (!GPC::post()->count() && $this->can_edit_page) {
+        if (GPC::post()->count() && $this->can_edit_page) {
             $this->post_format  = GPC::post()->string('post_format');
             $this->post_excerpt = GPC::post()->string('post_excerpt');
             $this->post_content = GPC::post()->string('post_content');
             $this->post_title   = GPC::post()->string('post_title');
+            $this->post_dt = '';
 
             if (GPC::post()->isset('post_status')) {
                 $this->post_status = GPC::post()->int('post_status');
             }
 
-            if (GPC::post()->empty('post_dt')) {
-                $this->post_dt = '';
-            } else {
+            if (!GPC::post()->empty('post_dt')) {
                 try {
                     $this->post_dt = Clock::ts(date: GPC::post()->string('post_dt'), from: App::core()->timezone());
                 } catch (Exception $e) {
