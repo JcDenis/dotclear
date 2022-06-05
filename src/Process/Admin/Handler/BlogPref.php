@@ -906,7 +906,7 @@ class BlogPref extends AbstractPage
             // Sort users list on user_id key
             Lexical::lexicalKeySort($blog_users);
 
-            $post_type       = App::core()->posttype()->getPostTypes();
+            $post_types      = App::core()->posttype()->dump();
             $current_blog_id = App::core()->blog()->id;
             if (App::core()->blog()->id != $this->blog_id) {
                 App::core()->setBlog($this->blog_id);
@@ -933,11 +933,11 @@ class BlogPref extends AbstractPage
                     echo '<h5>' . __('Publications on this blog:') . '</h5>' .
                         '<ul>';
                     $param = new Param();
-                    foreach ($post_type as $type => $pt_info) {
-                        $param->set('post_type', $type);
+                    foreach ($post_types as $post_type) {
+                        $param->set('post_type', $post_type->type);
                         $param->set('user_id', $k);
 
-                        echo '<li>' . sprintf(__('%1$s: %2$s'), $pt_info['label'], App::core()->blog()->posts()->countPosts(param: $param)) . '</li>';
+                        echo '<li>' . sprintf(__('%1$s: %2$s'), $post_type->label, App::core()->blog()->posts()->countPosts(param: $param)) . '</li>';
                     }
                     echo '</ul>';
 

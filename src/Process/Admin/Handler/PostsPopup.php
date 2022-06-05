@@ -43,9 +43,9 @@ class PostsPopup extends AbstractPage
         $this->page      = !GPC::request()->empty('page') ? max(1, GPC::request()->int('page')) : 1;
         $this->type      = GPC::request()->string('type', null);
 
-        $post_types = App::core()->posttype()->getPostTypes();
-        foreach ($post_types as $k => $v) {
-            $this->type_combo[$v['label']] = (string) $k;
+        $post_types = App::core()->posttype()->dump();
+        foreach ($post_types as $post_type) {
+            $this->type_combo[$post_type->label] = $post_type->type;
         }
         if (!in_array($this->type, $this->type_combo)) {
             $this->type = null;

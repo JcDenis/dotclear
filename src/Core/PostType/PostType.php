@@ -19,81 +19,76 @@ namespace Dotclear\Core\PostType;
 final class PostType
 {
     /**
-     * @var array<string,array> $post_types
-     *                          Formaters container
+     * @var array<string,PostTypeDescriptor> $post_types
+     *                                       Posts types descriptors
      */
     private $post_types = [];
 
     /**
      * Get the post admin url.
      *
-     * @param string     $type    The type
-     * @param int|string $post_id The post identifier
+     * @param string     $type The type
+     * @param int|string $id   The post ID
      *
-     * @return string The post admin url
+     * @return string The post admin URL
      */
-    public function getPostAdminURL(string $type, string|int $post_id): string
+    public function getPostAdminURL(string $type, string|int $id): string
     {
-        if (!isset($this->post_types[$type])) {
-            $type = 'post';
-        }
-
-        return sprintf($this->post_types[$type]['admin_url'], $post_id);
+        return sprintf($this->post_types[$this->hasPostType($type) ? $type : 'post']->admin, $id);
     }
 
     /**
      * Get the post public url.
      *
-     * @param string $type     The type
-     * @param string $post_url The post url
+     * @param string $type The type
+     * @param string $url  The post URL
      *
-     * @return string The post public url
+     * @return string The post public URL
      */
-    public function getPostPublicURL(string $type, string $post_url): string
+    public function getPostPublicURL(string $type, string $url): string
     {
-        if (!isset($this->post_types[$type])) {
-            $type = 'post';
-        }
-
-        return sprintf($this->post_types[$type]['public_url'], $post_url);
+        return sprintf($this->post_types[$this->hasPostType($type) ? $type : 'post']->public, $url);
     }
 
     /**
      * Set the post type.
      *
-     * @param string $type       The type
-     * @param string $admin_url  The admin url
-     * @param string $public_url The public url
-     * @param string $label      The label
+     * @param PostTypeDescriptor $descriptor The post type descriptor
      */
-    public function setPostType(string $type, string $admin_url, string $public_url, string $label = ''): void
+    public function setPostType(PostTypeDescriptor $descriptor): void
     {
-        $this->post_types[$type] = [
-            'admin_url'  => $admin_url,
-            'public_url' => $public_url,
-            'label'      => ('' != $label ? $label : $type),
-        ];
+        $this->post_types[$descriptor->type] = $descriptor;
     }
 
     /**
      * Get the post types.
      *
-     * @return array<string,array> The post types
+     * @return array<int,string> The post types
      */
     public function getPostTypes(): array
     {
-        return $this->post_types;
+        return array_keys($this->post_types);
     }
 
     /**
      * Check if a post type exists.
      *
-     * @param string $post_type The post type
+     * @param string $type The post type
      *
      * @return bool True if it exists
      */
-    public function exists(string $post_type): bool
+    public function hasPostType(string $type): bool
     {
-        return array_key_exists($post_type, $this->post_types);
+        return array_key_exists($type, $this->post_types);
+    }
+
+    /**
+     * Dump posts types.
+     *
+     * @return array<string,PostTypeDescriptor> The posts types descriptors
+     */
+    public function dump()
+    {
+        return $this->post_types;
     }
 }

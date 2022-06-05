@@ -175,8 +175,8 @@ class RsExtPost extends RsExtend
     public function getURL(): string
     {
         return App::core()->blog()->url . App::core()->posttype()->getPostPublicURL(
-            $this->rs->f('post_type'),
-            Html::sanitizeURL($this->rs->f('post_url'))
+            type: $this->rs->f('post_type'),
+            url: Html::sanitizeURL($this->rs->f('post_url'))
         );
     }
 

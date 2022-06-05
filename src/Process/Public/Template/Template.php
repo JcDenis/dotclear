@@ -945,7 +945,7 @@ class Template extends BaseTemplate
      */
     public function BlogStaticEntryURL(ArrayObject $attr): string
     {
-        $p = "\$params['post_type'] = array_keys(App::core()->posttype()->getPostTypes());\n";
+        $p = "\$params['post_type'] = App::core()->posttype()->getPostTypes();\n";
         $p .= "\$params['post_url'] = " . sprintf($this->getFilters($attr), 'urldecode(App::core()->blog()->settings()->getGroup("system")->getSetting("static_home_url"))') . ";\n";
 
         return self::$ton . "\n" . $p . self::$toff;

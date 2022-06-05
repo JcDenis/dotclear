@@ -162,7 +162,7 @@ class CommentInventory extends Inventory
     private function commentLine(bool $checked = false, bool $spam = false): string
     {
         $author_url  = App::core()->adminurl()->get('admin.comments', ['author' => $this->rs->f('comment_author')]);
-        $post_url    = App::core()->posttype()->getPostAdminURL($this->rs->f('post_type'), $this->rs->f('post_id'));
+        $post_url    = App::core()->posttype()->getPostAdminURL(type: $this->rs->f('post_type'), id: $this->rs->f('post_id'));
         $comment_url = App::core()->adminurl()->get('admin.comment', ['id' => $this->rs->f('comment_id')]);
         $img_status  = sprintf(
             '<img alt="%1$s" title="%1$s" src="?df=%2$s" />',

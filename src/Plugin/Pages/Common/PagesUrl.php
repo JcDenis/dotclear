@@ -12,6 +12,7 @@ namespace Dotclear\Plugin\Pages\Common;
 // Dotclear\Plugin\Pages\Common\PagesUrl
 use ArrayObject;
 use Dotclear\App;
+use Dotclear\Core\PostType\PostTypeDescriptor;
 use Dotclear\Core\Url\UrlDescriptor;
 use Dotclear\Database\Param;
 use Dotclear\Exception\AdminException;
@@ -44,7 +45,12 @@ class PagesUrl
             callback: [$this, 'pagespreview']
         ));
 
-        App::core()->posttype()->setPostType('page', '?handler=admin.plugin.Page&id=%d', App::core()->url()->getURLFor('pages', '%s'), __('Pages'));
+        App::core()->posttype()->setPostType(new PostTypeDescriptor(
+            type: 'page',
+            admin: '?handler=admin.plugin.Page&id=%d',
+            public: App::core()->url()->getURLFor('pages', '%s'),
+            label: __('Pages')
+        ));
     }
 
     public function pages(string $args): void

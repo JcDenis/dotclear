@@ -20,6 +20,7 @@ use Dotclear\Core\Meta\Meta;
 use Dotclear\Core\Nonce\Nonce;
 use Dotclear\Core\Session\Session;
 use Dotclear\Core\PostType\PostType;
+use Dotclear\Core\PostType\PostTypeDescriptor;
 use Dotclear\Core\Url\Url;
 use Dotclear\Core\User\User;
 use Dotclear\Core\Users\Users;
@@ -788,7 +789,12 @@ class Core
         }
 
         // Register Core post types
-        $this->posttype()->setPostType('post', '?handler=admin.post&id=%d', $this->url()->getURLFor('post', '%s'), __('Posts'));
+        $this->posttype()->setPostType(new PostTypeDescriptor(
+            type: 'post',
+            admin: '?handler=admin.post&id=%d',
+            public: $this->url()->getURLFor('post', '%s'),
+            label: __('Posts')
+        ));
 
         // Register shutdown function
         register_shutdown_function([$this, 'shutdown']);

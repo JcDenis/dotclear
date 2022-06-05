@@ -108,7 +108,7 @@ class PostMiniInventory extends Inventory
 
         $cols = [
             'title' => '<td scope="row" class="maximal"><a href="' .
-            Html::escapeHTML(App::core()->posttype()->getPostAdminURL($this->rs->f('post_type'), $this->rs->f('post_id'))) . '" ' .
+            Html::escapeHTML(App::core()->posttype()->getPostAdminURL(type: $this->rs->f('post_type'), id: $this->rs->f('post_id'))) . '" ' .
             'title="' . Html::escapeHTML($this->rs->call('getURL')) . '">' .
             Html::escapeHTML(trim(Html::clean($this->rs->f('post_title')))) . '</a></td>',
             'date'   => '<td class="nowrap count">' . Clock::str(format: __('%Y-%m-%d %H:%M'), date: $this->rs->f('post_dt'), to: App::core()->timezone()) . '</td>',

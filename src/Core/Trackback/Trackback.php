@@ -589,12 +589,12 @@ class Trackback
         // Does the targeted URL look like a registered post type?
         $url_part   = $m[1];
         $p_type     = '';
-        $post_types = App::core()->posttype()->getPostTypes();
+        $post_types = App::core()->posttype()->dump();
         $post_url   = '';
-        foreach ($post_types as $k => $v) {
-            $reg = '!^' . preg_quote(str_replace('%s', '', $v['public_url'])) . '(.*)!';
+        foreach ($post_types as $post_type) {
+            $reg = '!^' . preg_quote(str_replace('%s', '', $post_type->public)) . '(.*)!';
             if (preg_match($reg, $url_part, $n)) {
-                $p_type   = $k;
+                $p_type   = $post_type->type;
                 $post_url = $n[1];
 
                 break;

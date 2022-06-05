@@ -81,7 +81,7 @@ class Comment extends AbstractPage
             } catch (Exception $e) {
                 App::core()->error()->add($e->getMessage());
             }
-            Http::redirect(App::core()->posttype()->getPostAdminURL($rs->f('post_type'), $rs->f('post_id')) . '&co=1');
+            Http::redirect(App::core()->posttype()->getPostAdminURL(type: $rs->f('post_type'), id: $rs->f('post_id')) . '&co=1');
         }
 
         $rs         = null;
@@ -167,7 +167,7 @@ class Comment extends AbstractPage
                     App::core()->blog()->comments()->deleteComments(ids: new Integers($this->comment_id));
 
                     App::core()->notice()->addSuccessNotice(__('Comment has been successfully deleted.'));
-                    Http::redirect(App::core()->posttype()->getPostAdminURL($rs->f('post_type'), $rs->f('post_id')) . '&co=1');
+                    Http::redirect(App::core()->posttype()->getPostAdminURL(type: $rs->f('post_type'), id: $rs->f('post_id')) . '&co=1');
                 } catch (Exception $e) {
                     App::core()->error()->add($e->getMessage());
                 }
@@ -198,7 +198,7 @@ class Comment extends AbstractPage
             )
             ->setPageBreadcrumb([
                 Html::escapeHTML(App::core()->blog()->name) => '',
-                Html::escapeHTML($post_title)               => Html::escapeHTML(App::core()->posttype()->getPostAdminURL($post_type, $post_id)) . ($this->comment_id ? '&amp;co=1#c' . $this->comment_id : ''),
+                Html::escapeHTML($post_title)               => Html::escapeHTML(App::core()->posttype()->getPostAdminURL(type: $post_type, id: $post_id)) . ($this->comment_id ? '&amp;co=1#c' . $this->comment_id : ''),
                 __('Edit comment')                          => '',
             ])
         ;

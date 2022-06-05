@@ -730,7 +730,7 @@ class MediaItem extends AbstractPage
                         default => '',
                     };
                     echo '<li>' . $img_status . ' ' . '<a href="' .
-                    Html::escapeHTML(App::core()->posttype()->getPostAdminURL($rs->f('post_type'), $rs->f('post_id'))) . '">' .
+                    Html::escapeHTML(App::core()->posttype()->getPostAdminURL(type: $rs->f('post_type'), id: $rs->f('post_id'))) . '">' .
                     Html::escapeHTML($rs->f('post_title')) . '</a>' .
                     ('post' != $rs->f('post_type') ? ' (' . Html::escapeHTML($rs->f('post_type')) . ')' : '') .
                     ' - ' . Clock::str(format: __('%Y-%m-%d %H:%M'), date: $rs->f('post_dt'), to: App::core()->timezone()) . '</li>';
