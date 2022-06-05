@@ -379,7 +379,7 @@ class Context
         }
 
         $nb_posts = $this->get('pagination');
-        $nb_pages = in_array(App::core()->url()->type, ['default', 'default-page']) ?
+        $nb_pages = in_array(App::core()->url()->getCurrentType(), ['default', 'default-page']) ?
             ceil(($nb_posts - (int) $this->get('nb_entry_first_page')) / (int) $this->get('nb_entry_per_page') + 1) :
             ceil($nb_posts                                             / (int) $this->get('nb_entry_per_page'));
 

@@ -11,7 +11,7 @@ namespace Dotclear\Plugin\Blogroll\Common;
 
 // Dotclear\Plugin\Blogroll\Common\BlogrollUrl
 use Dotclear\App;
-use Dotclear\Core\Url\Url;
+use Dotclear\Core\Url\UrlDescriptor;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Exception;
@@ -21,11 +21,16 @@ use Exception;
  *
  * @ingroup  Plugin Blogroll Url
  */
-class BlogrollUrl extends Url
+class BlogrollUrl
 {
     public function __construct()
     {
-        App::core()->url()->register('xbel', 'xbel', '^xbel(?:/?)$', [$this, 'xbel']);
+        App::core()->url()->registerHandler(new UrlDescriptor(
+            type: 'xbel',
+            url: 'xbel',
+            representation: '^xbel(?:/?)$',
+            callback: [$this, 'xbel']
+        ));
     }
 
     public function xbel($args)
@@ -46,7 +51,7 @@ class BlogrollUrl extends Url
             return;
         }
 
-        Http::cache(App::core()->url()->mod_files, App::core()->url()->mod_ts);
+        Http::cache(App::core()->url()->getModFiles(), App::core()->url()->getModTimestamps());
 
         header('Content-Type: text/xml; charset=UTF-8');
 

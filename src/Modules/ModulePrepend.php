@@ -85,7 +85,7 @@ class ModulePrepend
             return;
         }
 
-        App::core()->behavior()->add('publicBeforeDocument', function () {
+        App::core()->behavior()->add('publicBeforeGetDocument', function () {
             $tplset = App::core()->themes()->getModule((string) App::core()->blog()->settings()->getGroup('system')->getSetting('theme'))->templateset();
             App::core()->template()->setPath(
                 App::core()->template()->getPath(),

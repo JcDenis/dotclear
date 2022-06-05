@@ -40,7 +40,7 @@ class Prepend extends ModulePrepend
 
     public function behaviorCoreBeforeXxxPosts(Param $param, $sql): void
     {
-        if ('search' == App::core()->url()->type) {
+        if ('search' == App::core()->url()->getCurrentType()) {
             // Add page post type for searching (don't use default Param post_type() as it is 'post')
             if (null !== $param->get('post_type')) {
                 if (!is_array($param->get('post_type'))) {

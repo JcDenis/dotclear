@@ -12,7 +12,7 @@ namespace Dotclear\Plugin\Pages\Common;
 // Dotclear\Plugin\Pages\Common\PagesUrl
 use ArrayObject;
 use Dotclear\App;
-use Dotclear\Core\Url\Url;
+use Dotclear\Core\Url\UrlDescriptor;
 use Dotclear\Database\Param;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\GPC\GPC;
@@ -27,12 +27,22 @@ use Exception;
  *
  * @ingroup  Plugin Pages Url
  */
-class PagesUrl extends Url
+class PagesUrl
 {
     public function __construct()
     {
-        App::core()->url()->register('pages', 'pages', '^pages/(.+)$', [$this, 'pages']);
-        App::core()->url()->register('pagespreview', 'pagespreview', '^pagespreview/(.+)$', [$this, 'pagespreview']);
+        App::core()->url()->registerHandler(new UrlDescriptor(
+            type: 'pages',
+            url: 'pages',
+            representation: '^pages/(.+)$',
+            callback: [$this, 'pages']
+        ));
+        App::core()->url()->registerHandler(new UrlDescriptor(
+            type: 'pagespreview',
+            url: 'pagespreview',
+            representation: '^pagespreview/(.+)$',
+            callback: [$this, 'pagespreview']
+        ));
 
         App::core()->posttype()->setPostType('page', '?handler=admin.plugin.Page&id=%d', App::core()->url()->getURLFor('pages', '%s'), __('Pages'));
     }

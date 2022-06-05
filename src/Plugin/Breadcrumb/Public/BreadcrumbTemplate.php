@@ -60,7 +60,7 @@ class BreadcrumbTemplate
         // Get current page
         $page = App::core()->context()->page_number();
 
-        switch (App::core()->url()->type) {
+        switch (App::core()->url()->getCurrentType()) {
             case 'static':
                 // Static home
                 $ret = '<span id="bc-home">' . __('Home') . '</span>';
@@ -187,9 +187,9 @@ class BreadcrumbTemplate
                 // Search
                 $ret = '<a id="bc-home" href="' . App::core()->blog()->url . '">' . __('Home') . '</a>';
                 if (0 == $page) {
-                    $ret .= $separator . __('Search:') . ' ' . App::core()->url()->search_string;
+                    $ret .= $separator . __('Search:') . ' ' . App::core()->url()->getSearchString();
                 } else {
-                    $ret .= $separator . '<a href="' . App::core()->blog()->url . '?q=' . rawurlencode(App::core()->url()->search_string) . '">' . __('Search:') . ' ' . App::core()->url()->search_string . '</a>';
+                    $ret .= $separator . '<a href="' . App::core()->blog()->url . '?q=' . rawurlencode(App::core()->url()->getSearchString()) . '">' . __('Search:') . ' ' . App::core()->url()->getSearchString() . '</a>';
                     $ret .= $separator . sprintf(__('page %d'), $page);
                 }
 
@@ -206,7 +206,7 @@ class BreadcrumbTemplate
                 $ret = '<a id="bc-home" href="' . App::core()->blog()->url . '">' . __('Home') . '</a>';
                 // --BEHAVIOR-- publicBreadcrumb
                 // Should specific breadcrumb if any, will be added after home page url
-                $special = App::core()->behavior()->call('publicBreadcrumb', App::core()->url()->type, $separator);
+                $special = App::core()->behavior()->call('publicBreadcrumb', App::core()->url()->getCurrentType(), $separator);
                 if ($special) {
                     $ret .= $separator . $special;
                 }

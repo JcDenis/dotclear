@@ -59,7 +59,7 @@ class BlogrollWidgets
 
     public function linksWidget(Widget $widget): string
     {
-        if ($widget->isOffline() || !$widget->checkHomeOnly(App::core()->url()->type)) {
+        if ($widget->isOffline() || !$widget->checkHomeOnly()) {
             return '';
         }
 

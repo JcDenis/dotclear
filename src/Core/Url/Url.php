@@ -10,16 +10,18 @@ declare(strict_types=1);
 namespace Dotclear\Core\Url;
 
 // Dotclear\Core\Url\Url
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Core\Trackback\Trackback;
 use Dotclear\Core\Xmlrpc\Xmlrpc;
 use Dotclear\Database\Param;
-use Dotclear\Exception\CoreException;
+use Dotclear\Exception\InvalidValueReference;
+use Dotclear\Exception\MissingOrEmptyValue;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Mapper\Integers;
+use Dotclear\Helper\Mapper\Strings;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Text;
 use Dotclear\Modules\Modules;
@@ -30,66 +32,60 @@ use Exception;
  *
  * @ingroup  Core Public Url
  */
-class Url
+final class Url
 {
     /**
-     * @var array<string,array> $types
-     *                          URL registered types
+     * @var array<string,UrlDescriptor> $handlers
+     *                                  URL registered types
      */
-    protected $types = [];
+    private $handlers = [];
 
     /**
      * @var callable $default_handler
      *               Default URL handler callback
      */
-    protected $default_handler;
+    private $default_handler;
 
     /** @var array<int,callable> $error_handlers
      * Error URL handler
      */
-    protected $error_handlers = [];
+    private $error_handlers = [];
 
     /**
      * @var string $mode
      *             URL mode
      */
-    public $mode = 'path_info';
+    private $mode = 'path_info';
 
     /**
      * @var string $type
      *             URL handler current type
      */
-    public $type = 'default';
+    private $type = 'default';
 
     /**
      * @var array<int,string> $mod_files
      *                        List of script used files
      */
-    public $mod_files = [];
+    private $mod_files = [];
 
     /**
      * @var array<int,int> $mod_ts
      *                     List of timestamp
      */
-    public $mod_ts = [];
-
-    /**
-     * @var string $args
-     *             URL args
-     */
-    public $args;
+    private $mod_ts = [];
 
     /**
      * @var string $search_string
      *             Search string
      */
-    public $search_string;
+    private $search_string = '';
 
     /**
      * @var int $search_count
      *          Search count
      */
-    public $search_count;
+    private $search_count = 0;
 
     /**
      * Constructor.
@@ -98,30 +94,134 @@ class Url
      */
     public function __construct()
     {
-        $this->registerDefault([$this, 'home']);
-        $this->registerError([$this, 'default404']);
-        $this->register('lang', '', '^([a-zA-Z]{2}(?:-[a-z]{2})?(?:/page/[0-9]+)?)$', [$this, 'lang']);
-        $this->register('posts', 'posts', '^posts(/.+)?$', [$this, 'home']);
-        $this->register('post', 'post', '^post/(.+)$', [$this, 'post']);
-        $this->register('preview', 'preview', '^preview/(.+)$', [$this, 'preview']);
-        $this->register('category', 'category', '^category/(.+)$', [$this, 'category']);
-        $this->register('archive', 'archive', '^archive(/.+)?$', [$this, 'archive']);
-        $this->register('resources', 'resources', '^resources/(.+)?$', [$this, 'resources']);
-        $this->register('feed', 'feed', '^feed/(.+)$', [$this, 'feed']);
-        $this->register('trackback', 'trackback', '^trackback/(.+)$', [$this, 'trackback']);
-        $this->register('webmention', 'webmention', '^webmention(/.+)?$', [$this, 'webmention']);
-        $this->register('rsd', 'rsd', '^rsd$', [$this, 'rsd']);
-        $this->register('xmlrpc', 'xmlrpc', '^xmlrpc/(.+)$', [$this, 'xmlrpc']);
+        $this->registerDefault(callback: [$this, 'home']);
+        $this->registerError(callback: [$this, 'default404']);
+
+        $this->registerHandler(new UrlDescriptor(
+            type: 'lang',
+            url: '',
+            representation: '^([a-zA-Z]{2}(?:-[a-z]{2})?(?:/page/[0-9]+)?)$',
+            callback: [$this, 'lang']
+        ));
+        $this->registerHandler(new UrlDescriptor(
+            type: 'posts',
+            url: 'posts',
+            representation: '^posts(/.+)?$',
+            callback: [$this, 'home']
+        ));
+        $this->registerHandler(new UrlDescriptor(
+            type: 'post',
+            url: 'post',
+            representation: '^post/(.+)$',
+            callback: [$this, 'post']
+        ));
+        $this->registerHandler(new UrlDescriptor(
+            type: 'preview',
+            url: 'preview',
+            representation: '^preview/(.+)$',
+            callback: [$this, 'preview']
+        ));
+        $this->registerHandler(new UrlDescriptor(
+            type: 'category',
+            url: 'category',
+            representation: '^category/(.+)$',
+            callback: [$this, 'category']
+        ));
+        $this->registerHandler(new UrlDescriptor(
+            type: 'archive',
+            url: 'archive',
+            representation: '^archive(/.+)?$',
+            callback: [$this, 'archive']
+        ));
+        $this->registerHandler(new UrlDescriptor(
+            type: 'resources',
+            url: 'resources',
+            representation: '^resources/(.+)?$',
+            callback: [$this, 'resources']
+        ));
+        $this->registerHandler(new UrlDescriptor(
+            type: 'feed',
+            url: 'feed',
+            representation: '^feed/(.+)$',
+            callback: [$this, 'feed']
+        ));
+        $this->registerHandler(new UrlDescriptor(
+            type: 'trackback',
+            url: 'trackback',
+            representation: '^trackback/(.+)$',
+            callback: [$this, 'trackback']
+        ));
+        $this->registerHandler(new UrlDescriptor(
+            type: 'webmention',
+            url: 'webmention',
+            representation: '^webmention(/.+)?$',
+            callback: [$this, 'webmention']
+        ));
+        $this->registerHandler(new UrlDescriptor(
+            type: 'rsd',
+            url: 'rsd',
+            representation: '^rsd$',
+            callback: [$this, 'rsd']
+        ));
+        $this->registerHandler(new UrlDescriptor(
+            type: 'xmlrpc',
+            url: 'xmlrpc',
+            representation: '^xmlrpc/(.+)$',
+            callback: [$this, 'xmlrpc']
+        ));
     }
 
     /**
-     * Get home type.
+     * Set URL mode.
      *
-     * @return string Home type
+     * Should be path_info or query_string.
+     * Default is path_info.
+     *
+     * @param string $mode The URL mode
      */
-    protected function getHomeType(): string
+    public function setMode(string $mode): void
     {
-        return App::core()->blog()->settings()->getGroup('system')->getSetting('static_home') ? 'static' : 'default';
+        $this->mode = $mode;
+    }
+
+    /**
+     * Get script used files (for cache).
+     *
+     * @return array<int,string> List of script used files
+     */
+    public function getModFiles(): array
+    {
+        return $this->mod_files;
+    }
+
+    /**
+     * Add script used files (for cache).
+     *
+     * @param Strings $files The files paths
+     */
+    public function addModFiles(Strings $files)
+    {
+        $this->mod_files = array_merge($this->mod_files, $files->dump());
+    }
+
+    /**
+     * Get update times (for cache).
+     *
+     * @return array<int,int> The timestamps
+     */
+    public function getModTimestamps(): array
+    {
+        return $this->mod_ts;
+    }
+
+    /**
+     * Add update times (for cache).
+     *
+     * @param Integers $timestamps The timestamps
+     */
+    public function addModTimestamps(Integers $timestamps)
+    {
+        $this->mod_ts = array_merge($this->mod_ts, $timestamps->dump());
     }
 
     /**
@@ -137,6 +237,36 @@ class Url
     }
 
     /**
+     * Get home type.
+     *
+     * @return string Home type
+     */
+    private function getHomeType(): string
+    {
+        return App::core()->blog()->settings()->getGroup('system')->getSetting('static_home') ? 'static' : 'default';
+    }
+
+    /**
+     * Get search query string.
+     *
+     * @return string The search query string
+     */
+    public function getSearchString(): string
+    {
+        return $this->search_string;
+    }
+
+    /**
+     * Get search result count.
+     *
+     * @return int The search result count
+     */
+    public function getSearchCount(): int
+    {
+        return $this->search_count;
+    }
+
+    /**
      * Get URL for given type and optionnal value.
      *
      * @param string     $type  The type
@@ -146,7 +276,7 @@ class Url
      */
     public function getURLFor(string $type, string|int $value = ''): string
     {
-        $url = App::core()->behavior()->call('publicGetURLFor', $type, $value);
+        $url = App::core()->behavior()->call('publicBeforeGetURLFor', $type, $value);
         if (!$url) {
             $url = $this->getBase($type);
             if ('' !== $value) {
@@ -163,65 +293,78 @@ class Url
     /**
      * Register a URL.
      *
-     * @param string   $type           The type
-     * @param string   $url            The URL
-     * @param string   $representation The representation
-     * @param callable $handler        The URL handler callback
+     * @param UrlDescriptor $descriptor The URL handler definition instance
      */
-    public function register(string $type, string $url, string $representation, callable $handler): void
+    public function registerHandler(UrlDescriptor $descriptor): void
     {
-        /** @var ArrayObject<int, mixed> */
-        $args = new ArrayObject(func_get_args());
+        // --BEHAVIOR-- publicBeforeRegisterHandler, UrlDescriptor
+        App::core()->behavior()->call('publicBeforeRegisterHandler', descriptor: $descriptor);
 
-        App::core()->behavior()->call('publicRegisterURL', $args);
-
-        $this->types[$args[0]] = [
-            'url'            => $args[1],
-            'representation' => $args[2],
-            'handler'        => $args[3],
-        ];
+        $this->handlers[$descriptor->type] = $descriptor;
     }
 
     /**
      * Register default handler.
      *
-     * @param callable $handler The handler
+     * @param callable $callback The handler
      */
-    public function registerDefault(callable $handler): void
+    public function registerDefault(callable $callback): void
     {
-        $this->default_handler = $handler;
+        $this->default_handler = $callback;
     }
 
     /**
      * Register an error handler.
      *
-     * @param callable $handler The handler
+     * @param callable $callback The handler
      */
-    public function registerError(callable $handler): void
+    public function registerError(callable $callback): void
     {
-        array_unshift($this->error_handlers, $handler);
+        array_unshift($this->error_handlers, $callback);
     }
 
     /**
-     * Unregister a URL type.
+     * Unregister a URL handler.
      *
-     * @param string $type The type
+     * @param string $type The handler type
      */
-    public function unregister(string $type): void
+    public function unregisterHandler(string $type): void
     {
-        if (isset($this->types[$type])) {
-            unset($this->types[$type]);
+        if (isset($this->handlers[$type])) {
+            unset($this->handlers[$type]);
         }
     }
 
     /**
-     * Get registered tyeps.
+     * Get registered handlers.
      *
-     * @return array The types
+     * @return array<string,UrlDescriptor> The types
      */
-    public function getTypes(): array
+    public function getHandlers(): array
     {
-        return $this->types;
+        return $this->handlers;
+    }
+
+    /**
+     * Sort handlers.
+     */
+    private function sortHandlers(): void
+    {
+        $r = [];
+        foreach ($this->handlers as $handler) {
+            $r[$handler->type] = $handler->url;
+        }
+        array_multisort($r, SORT_DESC, $this->handlers);
+    }
+
+    /**
+     * Get current URL type.
+     *
+     * @return string The URL type
+     */
+    public function getCurrentType()
+    {
+        return $this->type;
     }
 
     /**
@@ -233,7 +376,7 @@ class Url
      */
     public function getBase(string $type): ?string
     {
-        return isset($this->types[$type]) ? $this->types[$type]['url'] : null;
+        return isset($this->handlers[$type]) ? $this->handlers[$type]->url : null;
     }
 
     /**
@@ -243,7 +386,7 @@ class Url
      *
      * @return false|int The page number or false
      */
-    protected function getPageNumber(?string &$args): int|false
+    public function getPageNumber(?string &$args): int|false
     {
         if (preg_match('#(^|/)page/([0-9]+)$#', $args, $m)) {
             $n = (int) $m[2];
@@ -265,7 +408,7 @@ class Url
      * @param bool   $http_cache   Use HTTP cache
      * @param bool   $http_etag    Use HTTP etag
      */
-    protected function serveDocument(string $tpl, string $content_type = 'text/html', bool $http_cache = true, bool $http_etag = true): void
+    public function serveDocument(string $tpl, string $content_type = 'text/html', bool $http_cache = true, bool $http_etag = true): void
     {
         if (null === App::core()->context()->get('nb_entry_per_page')) {
             App::core()->context()->set('nb_entry_per_page', App::core()->blog()->settings()->getGroup('system')->getSetting('nb_post_per_page'));
@@ -276,7 +419,7 @@ class Url
 
         $tpl_file = App::core()->template()->getFilePath($tpl);
         if (!$tpl_file) {
-            throw new CoreException('Unable to find template ');
+            throw new InvalidValueReference('Unable to find template ');
         }
 
         App::core()->context()->set('current_tpl', $tpl);
@@ -284,7 +427,8 @@ class Url
         App::core()->context()->set('http_cache', $http_cache);
         App::core()->context()->set('http_etag', $http_etag);
 
-        App::core()->behavior()->call('urlHandlerBeforeGetData', App::core()->context());
+        // --BEHAVIOR-- publicBeforeServeDocument, Context
+        App::core()->behavior()->call('publicBeforeServeDocument', context: App::core()->context());
 
         if (App::core()->context()->get('http_cache')) {
             $this->mod_files = array_merge($this->mod_files, [$tpl_file]);
@@ -295,21 +439,20 @@ class Url
 
         $this->additionalHeaders();
 
-        /** @var ArrayObject<string, mixed> */
-        $result                 = new ArrayObject();
-        $result['content']      = App::core()->template()->getData(App::core()->context()->get('current_tpl'));
-        $result['content_type'] = App::core()->context()->get('content_type');
-        $result['tpl']          = App::core()->context()->get('current_tpl');
-        $result['blogupddt']    = App::core()->blog()->upddt;
-        $result['headers']      = headers_list();
+        $param = new Param();
+        $param->set('content', App::core()->template()->getData(App::core()->context()->get('current_tpl')));
+        $param->set('content_type', App::core()->context()->get('content_type'));
+        $param->set('tpl', App::core()->context()->get('current_tpl'));
+        $param->set('blogupddt', App::core()->blog()->upddt);
+        $param->set('headers', headers_list());
 
-        // --BEHAVIOR-- urlHandlerServeDocument
-        App::core()->behavior()->call('urlHandlerServeDocument', $result);
+        // --BEHAVIOR-- publicAfterServeDocument, Param (not really after but hey)
+        App::core()->behavior()->call('publicAfterServeDocument', param: $param);
 
         if (App::core()->context()->get('http_cache') && App::core()->context()->get('http_etag')) {
-            Http::etag($result['content'], Http::getSelfURI());
+            Http::etag($param->get('content'), Http::getSelfURI());
         }
-        echo $result['content'];
+        echo $param->get('content');
     }
 
     /**
@@ -354,18 +497,21 @@ class Url
 
         $_SERVER['URL_REQUEST_PART'] = $part;
 
-        $this->getArgs($part, $type, $this->args);
+        $this->getArgs($part, $type, $args);
 
-        // --BEHAVIOR-- urlHandlerGetArgsDocument
-        App::core()->behavior()->call('urlHandlerGetArgsDocument', $this);
+        // --BEHAVIOR-- publicBeforeGetDocument
+        App::core()->behavior()->call('publicBeforeGetDocument');
 
         if (!$type) {
             $this->type = $this->getHomeType();
-            $this->callDefaultHandler($this->args);
+            $this->callDefaultHandler($args);
         } else {
             $this->type = $type;
-            $this->callHandler($type, $this->args);
+            $this->callHandler($type, $args);
         }
+
+        // --BEHAVIOR-- publicAfterGetDocument
+        App::core()->behavior()->call('publicAfterGetDocument');
     }
 
     /**
@@ -384,18 +530,17 @@ class Url
             return;
         }
 
-        $this->sortTypes();
+        $this->sortHandlers();
 
-        foreach ($this->types as $k => $v) {
-            $repr = $v['representation'];
-            if ($repr == $part) {
-                $type = $k;
+        foreach ($this->handlers as $handler) {
+            if ($part == $handler->representation) {
+                $type = $handler->type;
                 $args = null;
 
                 return;
             }
-            if (preg_match('#' . $repr . '#', (string) $part, $m)) {
-                $type = $k;
+            if (preg_match('#' . $handler->representation . '#', (string) $part, $m)) {
+                $type = $handler->type;
                 $args = $m[1] ?? null;
 
                 return;
@@ -411,24 +556,24 @@ class Url
      *
      * @param string      $type The type
      * @param null|string $args The arguments
+     *
+     * @throws InvalidValueReference
      */
     public function callHandler(string $type, ?string $args): void
     {
-        if (!isset($this->types[$type])) {
-            throw new CoreException('Unknown URL type');
+        if (!isset($this->handlers[$type])) {
+            throw new InvalidValueReference('Unknown URL type');
         }
 
-        $handler = $this->types[$type]['handler'];
-
         try {
-            call_user_func($handler, $args);
-        } catch (CoreException $e) {
+            call_user_func($this->handlers[$type]->callback, $args);
+        } catch (Exception $e) {
             foreach ($this->error_handlers as $err_handler) {
-                if (call_user_func($err_handler, $args, $type, $e) === true) {
+                if (true === call_user_func($err_handler, $args, $type, $e)) {
                     return;
                 }
             }
-            // propagate CoreException, as it has not been processed by handlers
+            // propagate Exception, as it has not been processed by handlers
             throw $e;
         }
     }
@@ -442,13 +587,13 @@ class Url
     {
         try {
             call_user_func($this->default_handler, $args);
-        } catch (CoreException $e) {
+        } catch (Exception $e) {
             foreach ($this->error_handlers as $err_handler) {
-                if (call_user_func($err_handler, $args, 'default', $e) === true) {
+                if (true === call_user_func($err_handler, $args, 'default', $e)) {
                     return;
                 }
             }
-            // propagate CoreException, as it has not been processed by handlers
+            // propagate Exception, as it has not been processed by handlers
             throw $e;
         }
     }
@@ -458,7 +603,7 @@ class Url
      *
      * @return array The arguments
      */
-    protected function parseQueryString(): array
+    private function parseQueryString(): array
     {
         if (!empty($_SERVER['QUERY_STRING'])) {
             $q = explode('&', $_SERVER['QUERY_STRING']);
@@ -477,23 +622,13 @@ class Url
     }
 
     /**
-     * Sort types.
-     */
-    protected function sortTypes(): void
-    {
-        $r = [];
-        foreach ($this->types as $k => $v) {
-            $r[$k] = $v['url'];
-        }
-        array_multisort($r, SORT_DESC, $this->types);
-    }
-
-    /**
      * Get page 404.
+     *
+     * @throws InvalidValueReference
      */
     public function p404(): void
     {
-        throw new CoreException('Page not found', 404);
+        throw new InvalidValueReference('Page not found', 404);
     }
 
     /**
@@ -511,14 +646,14 @@ class Url
 
         header('Content-Type: text/html; charset=UTF-8');
         Http::head(404, 'Not Found');
-        App::core()->url()->type = '404';
+        $this->type = '404';
         App::core()->context()->set('current_tpl', '404.html');
         App::core()->context()->set('content_type', 'text/html');
 
         echo App::core()->template()->getData(App::core()->context()->get('current_tpl'));
 
-        // --BEHAVIOR-- publicAfterDocument
-        App::core()->behavior()->call('publicAfterDocument');
+        // --BEHAVIOR-- publicAfterDocument (recall this behavior as we stop script here)
+        App::core()->behavior()->call('publicAfterGetDocument');
 
         exit;
     }
@@ -538,11 +673,11 @@ class Url
             // defaults to the home page, but is not a page number.
             $this->p404();
         } else {
-            App::core()->url()->type = 'default';
+            $this->type = 'default';
             if ($n) {
                 App::core()->context()->page_number($n);
                 if (1 < $n) {
-                    App::core()->url()->type = 'default-page';
+                    $this->type = 'default-page';
                 }
             }
 
@@ -565,7 +700,7 @@ class Url
      */
     public function static_home(?string $args): void
     {
-        App::core()->url()->type = 'static';
+        $this->type = 'static';
 
         if (GPC::get()->empty('q')) {
             $this->serveDocument('static.html');
@@ -584,17 +719,17 @@ class Url
             // Search is disabled for this blog.
             $this->p404();
         } else {
-            App::core()->url()->type = 'search';
+            $this->type = 'search';
 
-            App::core()->url()->search_string = Html::escapeHTML(rawurldecode(GPC::get()->string('q')));
-            if (App::core()->url()->search_string) {
+            $this->search_string = Html::escapeHTML(rawurldecode(GPC::get()->string('q')));
+            if ($this->search_string) {
                 $param = new Param();
-                $param->set('search', App::core()->url()->search_string);
+                $param->set('search', $this->search_string);
 
-                // --BEHAVIOR-- publicBeforeSearchCount, Param
-                App::core()->behavior()->call('publicBeforeSearchCount', $param);
+                // --BEHAVIOR-- publicBeforeCountPostsOnSearch, Param
+                App::core()->behavior()->call('publicBeforeCountPostsOnSearch', param: $param, args: '');
 
-                App::core()->url()->search_count = App::core()->blog()->posts()->countPosts(param: $param);
+                $this->search_count = App::core()->blog()->posts()->countPosts(param: $param);
             }
 
             $this->serveDocument('search.html');
@@ -612,8 +747,8 @@ class Url
         $param = new Param();
         $param->set('post_lang', $args);
 
-        // --BEHAVIOR-- publicLangBeforeGetLangs, Param, string
-        App::core()->behavior()->call('publicLangBeforeGetLangs', $param, $args);
+        // --BEHAVIOR-- publicBeforeGetLangsOnLang, Param
+        App::core()->behavior()->call('publicBeforeGetLangsOnLang', param: $param, args: $args);
 
         App::core()->context()->set('langs', App::core()->blog()->posts()->getLangs(param: $param));
 
@@ -647,7 +782,8 @@ class Url
             $param->set('post_type', 'post');
             $param->set('without_empty', false);
 
-            App::core()->behavior()->call('publicCategoryBeforeGetCategories', $param, $args);
+            // --BEHAVIOR-- publicBeforeGetCategoriesOnCategory, Param
+            App::core()->behavior()->call('publicBeforeGetCategoriesOnCategory', param: $param, args: $args);
 
             App::core()->context()->set('categories', App::core()->blog()->categories()->getCategories(param: $param));
 
@@ -679,8 +815,8 @@ class Url
             $param->set('month', $m[2]);
             $param->set('type', 'month');
 
-            // --BEHAVIOR-- publicArchiveBeforeGetDates, Param, string
-            App::core()->behavior()->call('publicArchiveBeforeGetDates', $param, $args);
+            // --BEHAVIOR-- publicBeforeGetDatesOnArchive, Param
+            App::core()->behavior()->call('publicBeforeGetDatesOnArchive', param: $param, args: $args);
 
             App::core()->context()->set('archives', App::core()->blog()->posts()->getDates(param: $param));
 
@@ -712,21 +848,20 @@ class Url
             $param = new Param();
             $param->set('post_url', $args);
 
-            // --BEHAVIOR-- publicPostBeforeGetPosts, Param, string
-            App::core()->behavior()->call('publicPostBeforeGetPosts', $param, $args);
+            // --BEHAVIOR-- publicBeforeGetPostsOnPost, Param, string
+            App::core()->behavior()->call('publicBeforeGetPostsOnPost', param: $param, args: $args);
 
             App::core()->context()->set('posts', App::core()->blog()->posts()->getPosts(param: $param));
 
-            /** @var ArrayObject<int, mixed> */
-            $cp               = new ArrayObject();
-            $cp['content']    = '';
-            $cp['rawcontent'] = '';
-            $cp['name']       = '';
-            $cp['mail']       = '';
-            $cp['site']       = '';
-            $cp['preview']    = false;
-            $cp['remember']   = false;
-            App::core()->context()->set('comment_preview', $cp);
+            $comment_preview = new Param();
+            $comment_preview->set('content', '');
+            $comment_preview->set('rawcontent', '');
+            $comment_preview->set('name', '');
+            $comment_preview->set('mail', '');
+            $comment_preview->set('site', '');
+            $comment_preview->set('preview', false);
+            $comment_preview->set('remember', false);
+            App::core()->context()->set('comment_preview', $comment_preview);
 
             App::core()->blog()->setWithoutPassword();
 
@@ -789,10 +924,10 @@ class Url
                     $preview = !GPC::post()->empty('preview');
 
                     if ('' != $content) {
-                        // --BEHAVIOR-- publicBeforeCommentTransform
-                        $buffer = App::core()->behavior()->call('publicBeforeCommentTransform', $content);
-                        if ('' != $buffer) {
-                            $content = $buffer;
+                        // --BEHAVIOR-- publicBeforeTransformComment
+                        $response = App::core()->behavior()->call('publicBeforeTransformComment', content: $content);
+                        if ('' != $response) {
+                            $content = $response;
                         } else {
                             if (App::core()->blog()->settings()->getGroup('system')->getSetting('wiki_comments')) {
                                 App::core()->wiki()->initWikiComment();
@@ -804,60 +939,56 @@ class Url
                         $content = Html::filter($content);
                     }
 
-                    $cp               = App::core()->context()->get('comment_preview');
-                    $cp['content']    = $content;
-                    $cp['rawcontent'] = GPC::post()->string('c_content');
-                    $cp['name']       = $name;
-                    $cp['mail']       = $mail;
-                    $cp['site']       = $site;
+                    $comment_preview = App::core()->context()->get('comment_preview');
+                    $comment_preview->set('content', $content);
+                    $comment_preview->set('rawcontent', GPC::post()->string('c_content'));
+                    $comment_preview->set('name', $name);
+                    $comment_preview->set('mail', $mail);
+                    $comment_preview->set('site', $site);
 
                     if ($preview) {
-                        // --BEHAVIOR-- publicBeforeCommentPreview
-                        App::core()->behavior()->call('publicBeforeCommentPreview', $cp);
+                        // --BEHAVIOR-- publicBeforePreviewComment, Param
+                        App::core()->behavior()->call('publicBeforePreviewComment', param: $comment_preview);
 
-                        $cp['preview'] = true;
+                        $comment_preview->set('preview', true);
                     } else {
                         // Post the comment
-                        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'comment');
-                        $cur->setField('comment_author', $name);
-                        $cur->setField('comment_site', Html::clean($site));
-                        $cur->setField('comment_email', Html::clean($mail));
-                        $cur->setField('comment_content', $content);
-                        $cur->setField('post_id', App::core()->context()->get('posts')->fInt('post_id'));
-                        $cur->setField('comment_status', App::core()->blog()->settings()->getGroup('system')->getSetting('comments_pub') ? 1 : -1);
-                        $cur->setField('comment_ip', Http::realIP());
+                        $cursor = App::core()->con()->openCursor(App::core()->prefix() . 'comment');
+                        $cursor->setField('comment_author', $name);
+                        $cursor->setField('comment_site', Html::clean($site));
+                        $cursor->setField('comment_email', Html::clean($mail));
+                        $cursor->setField('comment_content', $content);
+                        $cursor->setField('post_id', App::core()->context()->get('posts')->fInt('post_id'));
+                        $cursor->setField('comment_status', App::core()->blog()->settings()->getGroup('system')->getSetting('comments_pub') ? 1 : -1);
+                        $cursor->setField('comment_ip', Http::realIP());
 
                         $redir = App::core()->context()->get('posts')->getURL();
                         $redir .= 'query_string' == App::core()->blog()->settings()->getGroup('system')->getSetting('url_scan') ? '&' : '?';
 
                         try {
-                            if (!Text::isEmail($cur->getField('comment_email'))) {
-                                throw new CoreException(__('You must provide a valid email address.'));
+                            if (!Text::isEmail($cursor->getField('comment_email'))) {
+                                throw new MissingOrEmptyValue(__('You must provide a valid email address.'));
                             }
 
-                            // --BEHAVIOR-- publicBeforeCommentCreate
-                            App::core()->behavior()->call('publicBeforeCommentCreate', $cur);
-                            if ($cur->getField('post_id')) {
-                                $comment_id = App::core()->blog()->comments()->createComment(cursor: $cur);
-
-                                // --BEHAVIOR-- publicAfterCommentCreate
-                                App::core()->behavior()->call('publicAfterCommentCreate', $cur, $comment_id);
+                            if ($cursor->getField('post_id')) {
+                                App::core()->blog()->comments()->createComment(cursor: $cursor);
                             }
 
-                            if (1 == (int) $cur->getField('comment_status')) {
+                            if (1 == (int) $cursor->getField('comment_status')) {
                                 $redir_arg = 'pub=1';
                             } else {
                                 $redir_arg = 'pub=0';
                             }
 
-                            $redir_arg .= filter_var(App::core()->behavior()->call('publicBeforeCommentRedir', $cur), FILTER_SANITIZE_URL);
+                            // --BEHAVIOR-- publicBeforeRedirectComment, Cursor
+                            $redir_arg .= filter_var(App::core()->behavior()->call('publicBeforeRedirectComment', cursor: $cursor), FILTER_SANITIZE_URL);
 
                             header('Location: ' . $redir . $redir_arg);
                         } catch (Exception $e) {
                             App::core()->context()->set('form_error', $e->getMessage());
                         }
                     }
-                    App::core()->context()->set('comment_preview', $cp);
+                    App::core()->context()->set('comment_preview', $comment_preview);
                 }
 
                 // The entry
@@ -913,13 +1044,15 @@ class Url
         $mime = 'application/xml';
 
         if (preg_match('!^([a-z]{2}(-[a-z]{2})?)/(.*)$!', $args, $m)) {
-            $params = new ArrayObject(['lang' => $m[1]]);
+            $param = new Param();
+            $param->set('lang', $m[1]);
 
             $args = $m[3];
 
-            App::core()->behavior()->call('publicFeedBeforeGetLangs', $params, $args);
+            // --BEHAVIOR-- publicBeforeGetLangsOnFeed, Param, string
+            App::core()->behavior()->call('publicBeforeGetLangsOnFeed', param: $param, args: $args);
 
-            App::core()->context()->set('langs', App::core()->blog()->posts()->getLangs($params));
+            App::core()->context()->set('langs', App::core()->blog()->posts()->getLangs(param: $param));
 
             if (App::core()->context()->get('langs')->isEmpty()) {
                 // The specified language does not exist.
@@ -927,6 +1060,7 @@ class Url
 
                 return;
             }
+            $m[1] = $param->get('lang');
             App::core()->context()->set('cur_lang', $m[1]);
         }
 
@@ -961,7 +1095,8 @@ class Url
             $param->set('cat_url', $cat_url);
             $param->set('post_type', 'post');
 
-            App::core()->behavior()->call('publicFeedBeforeGetCategories', $param, $args);
+            // --BEHAVIOR-- publicBeforeGetCategoriesOnFeed, Param, string
+            App::core()->behavior()->call('publicBeforeGetCategoriesOnFeed', param: $param, args: $args);
 
             App::core()->context()->set('categories', App::core()->blog()->categories()->getCategories(param: $param));
 
@@ -978,8 +1113,8 @@ class Url
             $param->set('post_id', $post_id);
             $param->set('post_type', '');
 
-            // --BEHAVIOR-- publicFeedBeforeGetPosts, Param, string
-            App::core()->behavior()->call('publicFeedBeforeGetPosts', $param, $args);
+            // --BEHAVIOR-- publicBeforeGetPostsOnFeed, Param, string
+            App::core()->behavior()->call('publicBeforeGetPostsOnFeed', param: $param, args: $args);
 
             App::core()->context()->set('posts', App::core()->blog()->posts()->getPosts(param: $param));
 
@@ -1030,12 +1165,12 @@ class Url
             // Save locally post_id from args
             $post_id = (int) $args;
 
-            $args            = [];
-            $args['post_id'] = $post_id;
-            $args['type']    = 'trackback';
+            $param = new Param();
+            $param->set('post_id', $post_id);
+            $param->set('type', 'trackback');
 
-            // --BEHAVIOR-- publicBeforeReceiveTrackback
-            App::core()->behavior()->call('publicBeforeReceiveTrackback', $args);
+            // --BEHAVIOR-- publicBeforeReceiveTrackback, Param, string
+            App::core()->behavior()->call('publicBeforeReceiveTrackback', param: $param, args: $args);
 
             $trackback = new Trackback();
             $trackback->receiveTrackback($post_id);
@@ -1049,10 +1184,11 @@ class Url
      */
     public function webmention(?string $args): void
     {
-        $args = ['type' => 'webmention'];
+        $param = new Param();
+        $param->set('type', 'webmention');
 
-        // --BEHAVIOR-- publicBeforeReceiveTrackback
-        App::core()->behavior()->call('publicBeforeReceiveTrackback', $args);
+        // --BEHAVIOR-- publicBeforeReceiveTrackback, Param, string
+        App::core()->behavior()->call('publicBeforeReceiveTrackback', param: $param, args: $args);
 
         $trackback = new Trackback();
         $trackback->receiveWebmention();
@@ -1185,10 +1321,10 @@ class Url
     /**
      * Get additionnal headers.
      */
-    protected function additionalHeaders()
+    private function additionalHeaders()
     {
         // Additional headers
-        $headers = new ArrayObject();
+        $headers = new Strings();
         if (App::core()->blog()->settings()->getGroup('system')->getSetting('prevents_clickjacking')) {
             if (App::core()->context()->exists('xframeoption')) {
                 $url    = parse_url(App::core()->context()->get('xframeoption'));
@@ -1200,14 +1336,14 @@ class Url
                 // Prevents Clickjacking as far as possible
                 $header = 'X-Frame-Options: SAMEORIGIN'; // FF 3.6.9+ Chrome 4.1+ IE 8+ Safari 4+ Opera 10.5+
             }
-            $headers->append($header);
+            $headers->add($header);
         }
 
-        // --BEHAVIOR-- urlHandlerServeDocumentHeaders
-        App::core()->behavior()->call('urlHandlerServeDocumentHeaders', $headers);
+        // --BEHAVIOR-- publicBeforeSendAdditionalHeaders, Strings
+        App::core()->behavior()->call('publicBeforeSendAdditionalHeaders', headers: $headers);
 
         // Send additional headers if any
-        foreach ($headers as $header) {
+        foreach ($headers->dump() as $header) {
             header($header);
         }
     }

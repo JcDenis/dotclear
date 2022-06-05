@@ -154,22 +154,25 @@ class Widget
             __('Display on:'),
             self::ALL_PAGES,
             'combo',
-            [__('All pages') => self::ALL_PAGES, __('Home page only') => self::HOME_ONLY, __('Except on home page') => self::EXCEPT_HOME]
+            [
+                __('All pages')           => self::ALL_PAGES,
+                __('Home page only')      => self::HOME_ONLY,
+                __('Except on home page') => self::EXCEPT_HOME,
+            ]
         );
     }
 
     /**
      * Check if widget is home only.
      *
-     * @param string     $type         Current page type
-     * @param int|string $alt_not_home Not on home page
-     * @param int|string $alt_home     Only home page
+     * @param int $alt_not_home Not on home page
+     * @param int $alt_home     Only home page
      */
-    public function checkHomeOnly(string $type, string|int $alt_not_home = 1, string|int $alt_home = 0): bool
+    public function checkHomeOnly(int $alt_not_home = 1, int $alt_home = 0): bool
     {
         return !(
-            $this->get('homeonly')    == self::HOME_ONLY      && !App::core()->url()->isHome($type)      && $alt_not_home
-            || $this->get('homeonly') == self::EXCEPT_HOME    && (App::core()->url()->isHome($type) || $alt_home)
+            $this->get('homeonly')    == self::HOME_ONLY      && !App::core()->url()->isHome(App::core()->url()->getCurrentType())      && $alt_not_home
+            || $this->get('homeonly') == self::EXCEPT_HOME    && (App::core()->url()->isHome(App::core()->url()->getCurrentType()) || $alt_home)
         );
     }
 

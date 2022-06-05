@@ -71,7 +71,7 @@ class PagesWidgets
 
     public function pagesWidget(Widget $widget): string
     {
-        if ($widget->isOffline() || !$widget->checkHomeOnly(App::core()->url()->type)) {
+        if ($widget->isOffline() || !$widget->checkHomeOnly()) {
             return '';
         }
 
@@ -105,7 +105,7 @@ class PagesWidgets
 
         while ($rs->fetch()) {
             $class = '';
-            if ('pages' == App::core()->url()->type
+            if ('pages' == App::core()->url()->getCurrentType()
                 && App::core()->context()->get('posts') instanceof Record
                 && App::core()->context()->get('posts')->fInt('post_id') === $rs->fInt('post_id')
             ) {

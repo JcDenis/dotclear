@@ -20,6 +20,8 @@ use Dotclear\Helper\Clock;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\Lexical;
 use Dotclear\Helper\File\Path;
+use Dotclear\Helper\Mapper\Integers;
+use Dotclear\Helper\Mapper\Strings;
 use Dotclear\Modules\Modules;
 use Dotclear\Process\Public\Template\Template;
 use Dotclear\Process\Public\Context\Context;
@@ -259,18 +261,12 @@ final class Prepend extends Core
         }
 
         // Prepare the HTTP cache thing
-        $this->url()->mod_files = get_included_files();
-        $this->url()->mod_ts    = [Clock::ts(date: $this->blog()->upddt, from: $this->timezone(), to: 'UTC')];
-        $this->url()->mode      = (string) $this->blog()->settings()->getGroup('system')->getSetting('url_scan');
+        $this->url()->addModFiles(new Strings(get_included_files()));
+        $this->url()->addModTimestamps(new Integers([Clock::ts(date: $this->blog()->upddt, from: $this->timezone(), to: 'UTC')]));
+        $this->url()->setMode((string) $this->blog()->settings()->getGroup('system')->getSetting('url_scan'));
 
         try {
-            // --BEHAVIOR-- publicBeforeDocument
-            $this->behavior()->call('publicBeforeDocument');
-
             $this->url()->getDocument();
-
-            // --BEHAVIOR-- publicAfterDocument
-            $this->behavior()->call('publicAfterDocument');
         } catch (Exception $e) {
             App::stop(new Exception(
                 false == $this->production() ?

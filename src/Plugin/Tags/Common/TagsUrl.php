@@ -11,7 +11,7 @@ namespace Dotclear\Plugin\Tags\Common;
 
 // Dotclear\Plugin\Tags\Common\TagsUrl
 use Dotclear\App;
-use Dotclear\Core\Url\Url;
+use Dotclear\Core\Url\UrlDescriptor;
 use Dotclear\Database\Param;
 
 /**
@@ -19,13 +19,28 @@ use Dotclear\Database\Param;
  *
  * @ingroup  Plugin Tags Url
  */
-class TagsUrl extends Url
+class TagsUrl
 {
     public function __construct()
     {
-        App::core()->url()->register('tag', 'tag', '^tag/(.+)$', [$this, 'tag']);
-        App::core()->url()->register('tags', 'tags', '^tags$', [$this, 'tags']);
-        App::core()->url()->register('tag_feed', 'feed/tag', '^feed/tag/(.+)$', [$this, 'tagFeed']);
+        App::core()->url()->registerHandler(new UrlDescriptor(
+            type: 'tag',
+            url: 'tag',
+            representation: '^tag/(.+)$',
+            callback: [$this, 'tag']
+        ));
+        App::core()->url()->registerHandler(new UrlDescriptor(
+            type: 'tags',
+            url: 'tags',
+            representation: '^tags$',
+            callback: [$this, 'tags']
+        ));
+        App::core()->url()->registerHandler(new UrlDescriptor(
+            type: 'tag_feed',
+            url: 'feed/tag',
+            representation: '^feed/tag/(.+)$',
+            callback: [$this, 'tagFeed']
+        ));
     }
 
     public function tag(?string $args): void

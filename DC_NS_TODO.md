@@ -28,6 +28,7 @@
 - [ ] enhance GPC class (protection)
 - [ ] fix Inventory display() method
 - [ ] used named arguments on behaviors to be more strict
+- [ ] unset unused variables
 
 ### Idea
 
@@ -49,8 +50,8 @@ Should be followed...one day...
 - Use word(s) for variables names, not initials.
 - Use lowerCamelCase for behaviors names with :
 - Use lowercase process name as first word for behaviors (admin|public|core|...)
-- Use first upper case prefix Before|After as first word for behaviors names
-- Use first upper case action as second word of behaviors names
+- Use first upper case prefix Before|After as second word for behaviors names
+- Use first upper case action as third word of behaviors names
 - Use UpperCamelCase object of the behaviors as thier fourth (and so on) word
 - Use named arguments for behaviors calls
 - No magic methods. Use real methods.

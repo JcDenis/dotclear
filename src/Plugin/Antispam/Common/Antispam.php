@@ -42,7 +42,7 @@ class Antispam
         if (App::core()->processed('Public')) {
             App::core()->behavior()->add('publicBeforeCommentCreate', [$this, 'isSpam']);
             App::core()->behavior()->add('publicBeforeTrackbackCreate', [$this, 'isSpam']);
-            App::core()->behavior()->add('publicBeforeDocument', [$this, 'purgeOldSpam']);
+            App::core()->behavior()->add('publicBeforeGetDocument', [$this, 'purgeOldSpam']);
         } elseif (App::core()->processed('Admin')) {
             App::core()->behavior()->add('coreAfterUpdateComment', [$this, 'trainFilters']);
             App::core()->behavior()->add('adminAfterCommentDesc', [$this, 'statusMessage']);

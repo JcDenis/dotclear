@@ -51,7 +51,7 @@ class DuctileTemplate
         if (null !== $s) {
             $s = @unserialize($s);
             if (is_array($s)) {
-                switch (App::core()->url()->type) {
+                switch (App::core()->url()->getCurrentType()) {
                     case 'default':
                     case 'default-page':
                         if (isset($s['default'])) {
@@ -64,9 +64,9 @@ class DuctileTemplate
                         break;
 
                     default:
-                        if (isset($s[App::core()->url()->type])) {
+                        if (isset($s[App::core()->url()->getCurrentType()])) {
                             // Nb de billets par page défini par la config du thème
-                            $nb_first = $nb_other = (int) $s[App::core()->url()->type];
+                            $nb_first = $nb_other = (int) $s[App::core()->url()->getCurrentType()];
                         }
 
                         break;
@@ -156,8 +156,8 @@ class DuctileTemplate
         if (null !== $s) {
             $s = @unserialize($s);
             if (is_array($s)) {
-                if (isset($s[App::core()->url()->type])) {
-                    return $s[App::core()->url()->type];
+                if (isset($s[App::core()->url()->getCurrentType()])) {
+                    return $s[App::core()->url()->getCurrentType()];
                 }
             }
         }

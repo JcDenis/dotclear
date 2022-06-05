@@ -94,7 +94,7 @@ class SimpleMenuWidgets
 
         if (!App::core()->blog()->settings()->getGroup('system')->getSetting('simpleMenu_active')
             || $widget->isOffline()
-            || !$widget->checkHomeOnly(App::core()->url()->type)
+            || !$widget->checkHomeOnly()
         ) {
             return '';
         }

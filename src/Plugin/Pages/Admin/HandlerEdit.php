@@ -185,7 +185,7 @@ class HandlerEdit extends AbstractPage
             $this->post_excerpt = GPC::post()->string('post_excerpt');
             $this->post_content = GPC::post()->string('post_content');
             $this->post_title   = GPC::post()->string('post_title');
-            $this->post_dt = '';
+            $this->post_dt      = '';
 
             if (GPC::post()->isset('post_status')) {
                 $this->post_status = GPC::post()->int('post_status');

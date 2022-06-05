@@ -71,12 +71,12 @@ class WidgetsStack
     {
         if (App::core()->blog()->settings()->getGroup('system')->getSetting('no_search')
             || $widget->isOffline()
-            || !$widget->checkHomeOnly(App::core()->url()->type)
+            || !$widget->checkHomeOnly()
         ) {
             return '';
         }
 
-        $value = App::core()->url()->search_string ? Html::escapeHTML(App::core()->url()->search_string) : '';
+        $value = App::core()->url()->getSearchString() ? Html::escapeHTML(App::core()->url()->getSearchString()) : '';
 
         return $widget->renderDiv(
             $widget->get('content_only'),
@@ -99,14 +99,14 @@ class WidgetsStack
      */
     public function navigation(Widget $widget): string
     {
-        if ($widget->isOffline() || !$widget->checkHomeOnly(App::core()->url()->type)) {
+        if ($widget->isOffline() || !$widget->checkHomeOnly()) {
             return '';
         }
 
         $res = $widget->renderTitle() .
             '<nav role="navigation"><ul>';
 
-        if (!App::core()->url()->isHome(App::core()->url()->type)) {
+        if (!App::core()->url()->isHome(App::core()->url()->getCurrentType())) {
             // Not on home page (standard or static), add home link
             $res .= '<li class="topnav-home">' .
             '<a href="' . App::core()->blog()->url . '">' . __('Home') . '</a></li>';
@@ -139,7 +139,7 @@ class WidgetsStack
      */
     public function categories(Widget $widget): string
     {
-        if ($widget->isOffline() || !$widget->checkHomeOnly(App::core()->url()->type)) {
+        if ($widget->isOffline() || !$widget->checkHomeOnly()) {
             return '';
         }
 
@@ -157,8 +157,8 @@ class WidgetsStack
         $ref_level = $level = $rs->fInt('level') - 1;
         while ($rs->fetch()) {
             $class = '';
-            if (('category' == App::core()->url()->type && App::core()->context()->get('categories') instanceof Record && App::core()->context()->get('categories')->fInt('cat_id') === $rs->fInt('cat_id'))
-                || ('post' == App::core()->url()->type && App::core()->context()->get('posts') instanceof Record && App::core()->context()->get('posts')->fInt('cat_id') === $rs->fInt('cat_id'))) {
+            if (('category' == App::core()->url()->getCurrentType() && App::core()->context()->get('categories') instanceof Record && App::core()->context()->get('categories')->fInt('cat_id') === $rs->fInt('cat_id'))
+                || ('post' == App::core()->url()->getCurrentType() && App::core()->context()->get('posts') instanceof Record && App::core()->context()->get('posts')->fInt('cat_id') === $rs->fInt('cat_id'))) {
                 $class = ' class="category-current"';
             }
 
@@ -193,7 +193,7 @@ class WidgetsStack
      */
     public function bestof(Widget $widget): string
     {
-        if ($widget->isOffline() || !$widget->checkHomeOnly(App::core()->url()->type)) {
+        if ($widget->isOffline() || !$widget->checkHomeOnly()) {
             return '';
         }
 
@@ -213,7 +213,7 @@ class WidgetsStack
 
         while ($rs->fetch()) {
             $class = '';
-            if ('post' == App::core()->url()->type && App::core()->context()->get('posts') instanceof Record && App::core()->context()->get('posts')->fInt('post_id') === $rs->fInt('post_id')) {
+            if ('post' == App::core()->url()->getCurrentType() && App::core()->context()->get('posts') instanceof Record && App::core()->context()->get('posts')->fInt('post_id') === $rs->fInt('post_id')) {
                 $class = ' class="post-current"';
             }
             $res .= ' <li' . $class . '><a href="' . $rs->getURL() . '">' . Html::escapeHTML($rs->f('post_title')) . '</a></li> ';
@@ -231,7 +231,7 @@ class WidgetsStack
      */
     public function langs(Widget $widget): string
     {
-        if ($widget->isOffline() || !$widget->checkHomeOnly(App::core()->url()->type)) {
+        if ($widget->isOffline() || !$widget->checkHomeOnly()) {
             return '';
         }
 
@@ -272,7 +272,7 @@ class WidgetsStack
      */
     public function subscribe(Widget $widget): string
     {
-        if ($widget->isOffline() || !$widget->checkHomeOnly(App::core()->url()->type)) {
+        if ($widget->isOffline() || !$widget->checkHomeOnly()) {
             return '';
         }
 
@@ -312,7 +312,7 @@ class WidgetsStack
      */
     public function feed(Widget $widget): string
     {
-        if (!$widget->get('url') || $widget->isOffline() || !$widget->checkHomeOnly(App::core()->url()->type)) {
+        if (!$widget->get('url') || $widget->isOffline() || !$widget->checkHomeOnly()) {
             return '';
         }
 
@@ -363,7 +363,7 @@ class WidgetsStack
      */
     public function text(Widget $widget): string
     {
-        if ($widget->isOffline() || !$widget->checkHomeOnly(App::core()->url()->type)) {
+        if ($widget->isOffline() || !$widget->checkHomeOnly()) {
             return '';
         }
 
@@ -382,7 +382,7 @@ class WidgetsStack
      */
     public function lastposts(Widget $widget): string
     {
-        if ($widget->isOffline() || !$widget->checkHomeOnly(App::core()->url()->type)) {
+        if ($widget->isOffline() || !$widget->checkHomeOnly()) {
             return '';
         }
 
@@ -417,7 +417,7 @@ class WidgetsStack
 
         while ($rs->fetch()) {
             $class = '';
-            if ('psot' == App::core()->url()->type && App::core()->context()->get('posts') instanceof Record && App::core()->context()->get('posts')->fInt('post_id') === $rs->fInt('post_id')) {
+            if ('post' == App::core()->url()->getCurrentType() && App::core()->context()->get('posts') instanceof Record && App::core()->context()->get('posts')->fInt('post_id') === $rs->fInt('post_id')) {
                 $class = ' class="post-current"';
             }
             $res .= '<li' . $class . '><a href="' . $rs->getURL() . '">' .
@@ -436,7 +436,7 @@ class WidgetsStack
      */
     public function lastcomments(Widget $widget): string
     {
-        if ($widget->isOffline() || !$widget->checkHomeOnly(App::core()->url()->type)) {
+        if ($widget->isOffline() || !$widget->checkHomeOnly()) {
             return '';
         }
 

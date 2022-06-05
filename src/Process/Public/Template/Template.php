@@ -1246,7 +1246,7 @@ class Template extends BaseTemplate
             } else {
                 // nb of entries per page not specified -> use ctx settings
                 $p .= "\$nb_entry_first_page=App::core()->context()->get('nb_entry_first_page'); \$nb_entry_per_page = App::core()->context()->get('nb_entry_per_page');\n";
-                $p .= "if ((App::core()->url()->type == 'default') || (App::core()->url()->type == 'default-page')) {\n";
+                $p .= "if (in_array(App::core()->url()->getCurrentType(), ['default', 'default-page'])) {\n";
                 $p .= "    \$param->set('limit', (\$_page_number == 1 ? \$nb_entry_first_page : \$nb_entry_per_page));\n";
                 $p .= "} else {\n";
                 $p .= "    \$param->set('limit', \$nb_entry_per_page);\n";
@@ -1255,7 +1255,7 @@ class Template extends BaseTemplate
             // Set offset (aka index of first entry)
             if (!isset($attr['ignore_pagination']) || '0' == $attr['ignore_pagination']) {
                 // standard pagination, set offset
-                $p .= "if ((App::core()->url()->type == 'default') || (App::core()->url()->type == 'default-page')) {\n";
+                $p .= "if (in_array(App::core()->url()->getCurrentType(), ['default', 'default-page'])) {\n";
                 $p .= "    \$param->set('limit', [(\$_page_number == 1 ? 0 : (\$_page_number - 2) * \$nb_entry_per_page + \$nb_entry_first_page),\$param->get('limit')]);\n";
                 $p .= "} else {\n";
                 $p .= "    \$param->set('limit', [(\$_page_number - 1) * \$nb_entry_per_page,\$param->get('limit')]);\n";
@@ -1317,8 +1317,8 @@ class Template extends BaseTemplate
                 "\$param->set('post_lang', App::core()->context()->get('langs')->f('post_lang')); " .
                 "}\n";
 
-            $p .= 'if (App::core()->url()->search_string) { ' .
-                "\$param->set('search', App::core()->url()->search_string); " .
+            $p .= 'if (App::core()->url()->getSearchString()) { ' .
+                "\$param->set('search', App::core()->url()->getSearchString()); " .
                 "}\n";
         }
 
@@ -2680,7 +2680,7 @@ class Template extends BaseTemplate
     public function IfCommentPreviewOptional(ArrayObject $attr, string $content): string
     {
         return
-            self::$ton . 'if (App::core()->blog()->settings()->getGroup("system")->getSetting("comment_preview_optional") || (App::core()->context()->get("comment_preview") !== null && App::core()->context()->get("comment_preview")["preview"])) :' . self::$toff .
+            self::$ton . 'if (App::core()->blog()->settings()->getGroup("system")->getSetting("comment_preview_optional") || App::core()->context()->get("comment_preview")?->get("preview")) :' . self::$toff .
             $content .
             self::$ton . 'endif;' . self::$toff;
     }
@@ -2691,7 +2691,7 @@ class Template extends BaseTemplate
     public function IfCommentPreview(ArrayObject $attr, string $content): string
     {
         return
-            self::$ton . 'if (App::core()->context()->get("comment_preview") !== null && App::core()->context()->get("comment_preview")["preview"]) :' . self::$toff .
+            self::$ton . 'if (App::core()->context()->get("comment_preview")?->get("preview")) :' . self::$toff .
             $content .
             self::$ton . 'endif;' . self::$toff;
     }
@@ -2701,7 +2701,7 @@ class Template extends BaseTemplate
      */
     public function CommentPreviewName(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("comment_preview")["name"]') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("comment_preview")->get("name")') . ';' . self::$toff;
     }
 
     /*dtd
@@ -2709,7 +2709,7 @@ class Template extends BaseTemplate
      */
     public function CommentPreviewEmail(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("comment_preview")["mail"]') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("comment_preview")->get("mail")') . ';' . self::$toff;
     }
 
     /*dtd
@@ -2717,7 +2717,7 @@ class Template extends BaseTemplate
      */
     public function CommentPreviewSite(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("comment_preview")["site"]') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("comment_preview")->get("site")') . ';' . self::$toff;
     }
 
     /*dtd
@@ -2729,9 +2729,9 @@ class Template extends BaseTemplate
     public function CommentPreviewContent(ArrayObject $attr): string
     {
         if (!empty($attr['raw'])) {
-            $co = 'App::core()->context()->get("comment_preview")["rawcontent"]';
+            $co = 'App::core()->context()->get("comment_preview")->get("rawcontent")';
         } else {
-            $co = 'App::core()->context()->get("comment_preview")["content"]';
+            $co = 'App::core()->context()->get("comment_preview")->get("content")';
         }
 
         return self::$ton . 'echo ' . sprintf($this->getFilters($attr), $co) . ';' . self::$toff;
@@ -2742,7 +2742,7 @@ class Template extends BaseTemplate
      */
     public function CommentPreviewCheckRemember(ArrayObject $attr): string
     {
-        return self::$ton . "if (App::core()->context()->get('comment_preview')['remember']) { echo ' checked=\"checked\"'; }" . self::$toff;
+        return self::$ton . "if (App::core()->context()->get('comment_preview')->get('remember')) { echo ' checked=\"checked\"'; }" . self::$toff;
     }
 
     // Trackbacks -------------------------------------
@@ -3093,7 +3093,7 @@ class Template extends BaseTemplate
                 $sign                 = '!';
                 $attr['current_mode'] = substr($attr['current_mode'], 1);
             }
-            $if[] = 'App::core()->url()->type ' . $sign . "= '" . addslashes($attr['current_mode']) . "'";
+            $if[] = 'App::core()->url()->getCurrentType() ' . $sign . "= '" . addslashes($attr['current_mode']) . "'";
         }
 
         if (isset($attr['has_tpl'])) {
@@ -3139,7 +3139,7 @@ class Template extends BaseTemplate
         }
 
         if (isset($attr['search_count']) && preg_match('/^((=|!|&gt;|&lt;)=|(&gt;|&lt;))\s*[0-9]+$/', trim($attr['search_count']))) {
-            $if[] = '(App::core()->url()->search_string && App::core()->url()->search_count ' . Html::decodeEntities($attr['search_count']) . ')';
+            $if[] = '(App::core()->url()->getSearchString() && App::core()->url()->getSearchCount() ' . Html::decodeEntities($attr['search_count']) . ')';
         }
 
         if (isset($attr['jquery_needed'])) {
@@ -3214,7 +3214,7 @@ class Template extends BaseTemplate
     {
         $s = $attr['string'] ?? '%1$s';
 
-        return self::$ton . 'if (App::core()->url()->search_string) { echo sprintf(__(\'' . $s . '\'),' . sprintf($this->getFilters($attr), 'App::core()->url()->search_string') . ',App::core()->url()->search_count);}' . self::$toff;
+        return self::$ton . 'if (App::core()->url()->getSearchString()) { echo sprintf(__(\'' . $s . '\'),' . sprintf($this->getFilters($attr), 'App::core()->url()->getSearchString()') . ',App::core()->url()->getSearchCount());}' . self::$toff;
     }
 
     public function SysSelfURI(ArrayObject $attr): string

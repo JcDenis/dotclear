@@ -73,7 +73,7 @@ class TagsWidgets
 
     public function tagsWidget(Widget $widget): string
     {
-        if ($widget->isOffline() || !$widget->checkHomeOnly(App::core()->url()->type)) {
+        if ($widget->isOffline() || !$widget->checkHomeOnly()) {
             return '';
         }
 
@@ -116,12 +116,12 @@ class TagsWidgets
 
         $res = '<ul>';
 
-        if ('post' == App::core()->url()->type && App::core()->context()->get('posts') instanceof Record) {
+        if ('post' == App::core()->url()->getCurrentType() && App::core()->context()->get('posts') instanceof Record) {
             App::core()->context()->set('meta', App::core()->meta()->getMetaRecordset((string) App::core()->context()->get('posts')->f('post_meta'), 'tag'));
         }
         while ($rs->fetch()) {
             $class = '';
-            if ('post' == App::core()->url()->type && App::core()->context()->get('posts') instanceof Record) {
+            if ('post' == App::core()->url()->getCurrentType() && App::core()->context()->get('posts') instanceof Record) {
                 while (App::core()->context()->get('meta')->fetch()) {
                     if (App::core()->context()->get('meta')->f('meta_id') == $rs->f('meta_id')) {
                         $class = ' class="tag-current"';
