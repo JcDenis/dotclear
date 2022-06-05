@@ -16,7 +16,7 @@ namespace Dotclear\Core\PostType;
  *
  * @ingroup  Core Post
  */
-class PostType
+final class PostType
 {
     /**
      * @var array<string,array> $post_types

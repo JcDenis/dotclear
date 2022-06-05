@@ -666,7 +666,7 @@ class User
      *
      * @see Core::createUser
      *
-     * @param Cursor $cur User cursor
+     * @param Cursor $cursor User cursor
      */
     public function afterCreateUser(Cursor $cursor): void
     {
@@ -677,8 +677,8 @@ class User
      *
      * @see Core::updateUser
      *
-     * @param string $id  User ID
-     * @param cursor $cur User cursor
+     * @param string $id     User ID
+     * @param cursor $cursor User cursor
      */
     public function afterUpdateUser(string $id, Cursor $cursor): void
     {

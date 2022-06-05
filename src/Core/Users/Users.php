@@ -306,7 +306,7 @@ final class Users
     /**
      * Delete users.
      *
-     * @param string $ids The users IDs
+     * @param Strings $ids The users IDs
      *
      * @throws InsufficientPermissions
      * @throws MissingOrEmptyValue

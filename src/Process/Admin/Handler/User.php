@@ -375,8 +375,6 @@ class User extends AbstractPage
         // --BEHAVIOR-- adminUserForm, UserContainer
         App::core()->behavior()->call('adminUserForm', user: $this->user);
 
-        unset($param, $record);
-
         echo '</div>' .
             '</div>';
 

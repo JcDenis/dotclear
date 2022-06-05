@@ -17,7 +17,7 @@ use Dotclear\App;
  *
  * @ingroup  Core Text
  */
-class Formater
+final class Formater
 {
     /**
      * @var array<string,mixed> $formaters
