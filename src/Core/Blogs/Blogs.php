@@ -175,12 +175,12 @@ final class Blogs
 
         $query->column($query->count('B.blog_id'));
 
-        $record = $this->queryBlogsTable(param: $params, sql: $query)->fInt();
+        $record = $this->queryBlogsTable(param: $params, sql: $query);
 
         // --BEHAVIOR-- coreAfterCountBlogs, Record
         App::core()->behavior()->call('coreAfterCountBlogs', record: $record);
 
-        return $record;
+        return $record->fInt();
     }
 
     /**

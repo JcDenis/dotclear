@@ -56,12 +56,12 @@ final class Log
 
         $query->column($query->count('log_id'));
 
-        $record = $this->queryLogTable(param: $params, sql: $query)->fInt();
+        $record = $this->queryLogTable(param: $params, sql: $query);
 
         // --BEHAVIOR-- coreAfterCountLogs, Record
         App::core()->behavior()->call('coreAfterCountLogs', record: $record);
 
-        return $record;
+        return $record->fInt();
     }
 
     /**
