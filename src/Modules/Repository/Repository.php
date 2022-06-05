@@ -102,7 +102,7 @@ class Repository
             */
             // main repository
             if (isset($raw_datas[$id])) {
-                if ($this->compare($raw_datas[$id]['version'], $module->version(), '>')) {
+                if (App::core()->version()->compareVersions(current: $raw_datas[$id]['version'], required: $module->version(), operator: '>')) {
                     $updates[$id]                    = $raw_datas[$id];
                     $updates[$id]['current_version'] = $module->version();
                     $updates[$id]['repository']      = '';
@@ -114,12 +114,13 @@ class Repository
                 try {
                     if (false !== ($dcs_parser = RepositoryReader::quickParse($module->repository(), App::core()->config()->get('cache_dir'), $force))) {
                         $dcs_raw_datas = $dcs_parser->getModules();
-                        if (isset($dcs_raw_datas[$id]) && $this->compare($dcs_raw_datas[$id]['version'], $module->version(), '>')) {
-                            if (!isset($updates[$id]) || $this->compare($dcs_raw_datas[$id]['version'], $raw_datas[$id]['version']['version'], '>')) {
-                                $updates[$id]                    = $dcs_raw_datas[$id];
-                                $updates[$id]['current_version'] = $module->version();
-                                $updates[$id]['repository']      = $module->repository();
-                            }
+                        if (isset($dcs_raw_datas[$id])
+                            && App::core()->version()->compareVersions(current: $dcs_raw_datas[$id]['version'], required: $module->version(), operator: '>')
+                            && (!isset($updates[$id]) || App::core()->version()->compareVersions(current: $dcs_raw_datas[$id]['version'], required: $raw_datas[$id]['version']['version'], operator: '>'))
+                        ) {
+                            $updates[$id]                    = $dcs_raw_datas[$id];
+                            $updates[$id]['current_version'] = $module->version();
+                            $updates[$id]['repository']      = $module->repository();
                         }
                     }
                 } catch (Exception $e) {
@@ -325,24 +326,6 @@ class Repository
         }
 
         return empty($arr) ? false : $arr;
-    }
-
-    /**
-     * Compare version.
-     *
-     * @param string $v1 Version
-     * @param string $v2 Version
-     * @param string $op Comparison operator
-     *
-     * @return bool True is comparison is true, dude!
-     */
-    private function compare(string $v1, string $v2, string $op): bool
-    {
-        return version_compare(
-            preg_replace('!-r(\d+)$!', '-p$1', $v1),
-            preg_replace('!-r(\d+)$!', '-p$1', $v2),
-            $op
-        );
     }
 
     /**

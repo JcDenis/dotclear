@@ -775,7 +775,7 @@ class Modules
             if ($define && false === $define->error()->flag()) {
                 $cur_module = $this->getModule($define->id());
                 if ('' != $cur_module->root()
-                    && (!App::core()->production() || App::core()->version()->compare($define->version(), $cur_module->version(), '>', true))
+                    && (!App::core()->production() || App::core()->version()->compareVersions(current: $define->version(), required: $cur_module->version(), operator: '>'))
                 ) {
                     // Delete old module
                     if (!Files::deltree($destination)) {
@@ -841,7 +841,7 @@ class Modules
         }
 
         // Check module version in db
-        if (version_compare(App::core()->version()->get($id), $this->modules_enabled[$id]->version(), '>=')) {
+        if (version_compare(App::core()->version()->getVersion(module: $id), $this->modules_enabled[$id]->version(), '>=')) {
             return false;
         }
 
@@ -850,7 +850,7 @@ class Modules
             $i = $this->modules_prepend[$id]->installModule();
 
             // Update module version in db
-            App::core()->version()->set($id, $this->modules_enabled[$id]->version());
+            App::core()->version()->setVersion(module: $id, version: $this->modules_enabled[$id]->version());
 
             return $i ? true : false;
         } catch (Exception $e) {

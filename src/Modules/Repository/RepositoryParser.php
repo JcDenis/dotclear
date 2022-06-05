@@ -104,8 +104,8 @@ class RepositoryParser
 
             // First filter right now. If level is DEVELOPMENT, all modules are parse
             if (!App::core()->production()
-                || App::core()->version()->compare(App::core()->config()->get('core_version'), $item['requires']['core'], '>=', false)
-                && App::core()->version()->compare(App::core()->config()->get('core_version_break'), $item['requires']['core'], '<=', false)
+                || App::core()->version()->compareMajorVersions(current: App::core()->config()->get('core_version'), required: $item['requires']['core'], operator: '>=')
+                && App::core()->version()->compareMajorVersoins(current: App::core()->config()->get('core_version_break'), required: $item['requires']['core'], operator: '<=')
             ) {
                 $this->items[$item['id']] = $item;
             }

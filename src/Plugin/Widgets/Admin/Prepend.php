@@ -40,6 +40,7 @@ class Prepend extends ModulePrepend
 
     public function installModule(): ?bool
     {
+        new WidgetsStack();
         $widgets  = new Widgets();
         $settings = App::core()->blog()->settings()->getGroup('widgets');
         if (null != $settings->getSetting('widgets_nav')) {

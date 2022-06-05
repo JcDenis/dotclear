@@ -105,7 +105,7 @@ class Prepend extends ModulePrepend
 
     public function installModule(): ?bool
     {
-        if (App::core()->version()->exists('pages')) {
+        if (App::core()->version()->hasVersion(module: 'pages')) {
             return null;
         }
 

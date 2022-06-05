@@ -12,8 +12,8 @@ namespace Dotclear\Core\Version;
 // Dotclear\Core\Version\Version
 use Dotclear\App;
 use Dotclear\Database\Statement\InsertStatement;
-use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\DeleteStatement;
+use Dotclear\Database\Statement\SelectStatement;
 
 /**
  * Version handling class.
@@ -23,13 +23,13 @@ use Dotclear\Database\Statement\DeleteStatement;
  *
  * @ingroup  Core Version
  */
-class Version
+final class Version
 {
     /**
-     * @var array<string,string> $stack
-     *                           The versions stack
+     * @var array<string,string> $modules
+     *                           The modules versions
      */
-    protected $stack;
+    private $modules = [];
 
     /**
      * Get the version of a module.
@@ -38,22 +38,21 @@ class Version
      *
      * @return string The version
      */
-    public function get(string $module = 'core'): string
+    public function getVersion(string $module = 'core'): string
     {
         // Fetch versions if needed
-        if (!is_array($this->stack)) {
-            $rs = SelectStatement::init(__METHOD__)
-                ->columns(['module', 'version'])
-                ->from(App::core()->prefix() . 'version')
-                ->select()
-            ;
+        if (empty($this->modules)) {
+            $sql = new SelectStatement(__METHOD__);
+            $sql->columns(['module', 'version']);
+            $sql->from(App::core()->prefix() . 'version');
 
-            while ($rs->fetch()) {
-                $this->stack[$rs->f('module')] = $rs->f('version');
+            $record = $sql->select();
+            while ($record->fetch()) {
+                $this->modules[$record->f('module')] = $record->f('version');
             }
         }
 
-        return isset($this->stack[$module]) ? (string) $this->stack[$module] : '';
+        return isset($this->modules[$module]) ? (string) $this->modules[$module] : '';
     }
 
     /**
@@ -62,26 +61,25 @@ class Version
      * @param string $module  The module
      * @param string $version The version
      */
-    public function set(string $module, string $version): void
+    public function setVersion(string $module, string $version): void
     {
-        if (null !== $this->get($module)) {
-            $this->delete($module);
+        if ('' != $this->getVersion(module: $module)) {
+            $this->deleteVersion(module: $module);
         }
 
         $sql = new InsertStatement(__METHOD__);
-        $sql->from(App::core()->prefix() . 'version')
-            ->columns([
-                'module',
-                'version',
-            ])
-            ->line([[
-                $sql->quote($module),
-                $sql->quote($version),
-            ]])
-            ->insert()
-        ;
+        $sql->from(App::core()->prefix() . 'version');
+        $sql->columns([
+            'module',
+            'version',
+        ]);
+        $sql->line([[
+            $sql->quote($module),
+            $sql->quote($version),
+        ]]);
+        $sql->insert();
 
-        $this->stack[$module] = $version;
+        $this->modules[$module] = $version;
     }
 
     /**
@@ -89,17 +87,14 @@ class Version
      *
      * @param string $module The module
      */
-    public function delete(string $module): void
+    public function deleteVersion(string $module): void
     {
         $sql = new DeleteStatement(__METHOD__);
-        $sql->from(App::core()->prefix() . 'version')
-            ->where('module = ' . $sql->quote($module))
-            ->delete()
-        ;
+        $sql->from(App::core()->prefix() . 'version');
+        $sql->where('module = ' . $sql->quote($module));
+        $sql->delete();
 
-        if (is_array($this->stack)) {
-            unset($this->stack[$module]);
-        }
+        unset($this->modules[$module]);
     }
 
     /**
@@ -109,31 +104,44 @@ class Version
      *
      * @return bool True if it exists and not empty
      */
-    public function exists(string $module): bool
+    public function hasVersion(string $module): bool
     {
-        return '' != $this->get($module);
+        return '' != $this->getVersion(module: $module);
     }
 
     /**
-     * Compare two versions with option of using only main numbers.
+     * Compare two versions.
      *
-     * @param string $current_version  Current version
-     * @param string $required_version Required version
-     * @param string $operator         Comparison operand
-     * @param bool   $strict           Use full version
+     * @param string $current  Current version
+     * @param string $required Required version
+     * @param string $operator Comparison operand
      *
      * @return bool True if comparison success
      */
-    public function compare(string $current_version, string $required_version, string $operator = '>=', bool $strict = true): bool
+    public function compareVersions(string $current, string $required, string $operator = '>='): bool
     {
-        if ($strict) {
-            $current_version  = preg_replace('!-r(\d+)$!', '-p$1', $current_version);
-            $required_version = preg_replace('!-r(\d+)$!', '-p$1', $required_version);
-        } else {
-            $current_version  = preg_replace('/^([0-9\.]+)(.*?)$/', '$1', $current_version);
-            $required_version = preg_replace('/^([0-9\.]+)(.*?)$/', '$1', $required_version);
-        }
+        return (bool) version_compare(
+            preg_replace('!-r(\d+)$!', '-p$1', $current),
+            preg_replace('!-r(\d+)$!', '-p$1', $required),
+            $operator
+        );
+    }
 
-        return (bool) version_compare($current_version, $required_version, $operator);
+    /**
+     * Compare two versions using only main numbers.
+     *
+     * @param string $current  Current version
+     * @param string $required Required version
+     * @param string $operator Comparison operand
+     *
+     * @return bool True if comparison success
+     */
+    public function compareMajorVersions(string $current, string $required, string $operator = '>='): bool
+    {
+        return (bool) version_compare(
+            preg_replace('/^([0-9\.]+)(.*?)$/', '$1', $current),
+            preg_replace('/^([0-9\.]+)(.*?)$/', '$1', $required),
+            $operator
+        );
     }
 }

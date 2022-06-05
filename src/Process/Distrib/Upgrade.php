@@ -24,11 +24,11 @@ class Upgrade
 {
     public function doUpgrade(): int
     {
-        if (!App::core()->version()->exists('core')) {
+        if (!App::core()->version()->hasVersion(module: 'core')) {
             return -1;
         }
 
-        if (version_compare(App::core()->version()->get('core'), App::core()->config()->get('core_version'), '<') == 1 || !App::core()->production()) {
+        if (version_compare(App::core()->version()->getVersion(module: 'core'), App::core()->config()->get('core_version'), '<') == 1 || !App::core()->production()) {
             try {
                 if (App::core()->con()->driver() == 'sqlite') {
                     return -1; // Need to find a way to upgrade sqlite database
@@ -43,7 +43,7 @@ class Upgrade
 
                 /* Some other upgrades
                 ------------------------------------ */
-                $cleanup_sessions = $this->growUp(App::core()->version()->get('core'));
+                $cleanup_sessions = $this->growUp(App::core()->version()->getVersion(module: 'core'));
 
                 // Drop content from session table if changes or if needed
                 if (0 != $changes || $cleanup_sessions) {
@@ -78,7 +78,7 @@ class Upgrade
 
         // no growup for now :)
 
-        App::core()->version()->set('core', App::core()->config()->get('core_version'));
+        App::core()->version()->setVersion(module: 'core', version: App::core()->config()->get('core_version'));
         Distrib::setBlogDefaultSettings();
 
         return $cleanup_sessions;
