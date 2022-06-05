@@ -16,6 +16,7 @@ use Dotclear\Exception\AdminException;
 use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Mapper\Strings;
 use Dotclear\Helper\Network\Http;
 use Exception;
 
@@ -40,7 +41,7 @@ class UserAction extends AbstractPage
     {
         $this->users = [];
         foreach (GPC::post()->array('users') as $user) {
-            if (App::core()->users()->userExists(id: $user)) {
+            if (App::core()->users()->hasUser(id: $user)) {
                 $this->users[] = $user;
             }
         }
@@ -76,16 +77,16 @@ class UserAction extends AbstractPage
 
             // Delete users
             if ('deleteuser' == $this->user_action && !empty($this->users)) {
-                foreach ($this->users as $user) {
+                $ids = new Strings($this->users);
+
+                if ($ids->exists(App::core()->user()->userID())) {
+                    App::core()->notice()->addWarningNotice(__('You cannot delete yourself.'));
+                    $ids->remove(App::core()->user()->userID());
+                }
+
+                if ($ids->count()) {
                     try {
-                        if (App::core()->user()->userID() == $user) {
-                            throw new AdminException(__('You cannot delete yourself.'));
-                        }
-
-                        // --BEHAVIOR-- adminBeforeUserDelete
-                        App::core()->behavior()->call('adminBeforeUserDelete', $user);
-
-                        App::core()->users()->delUser(id: $user);
+                        App::core()->users()->deleteUsers(ids: $ids);
                     } catch (Exception $e) {
                         App::core()->error()->add($e->getMessage());
                     }
@@ -105,17 +106,17 @@ class UserAction extends AbstractPage
 
                     foreach ($this->users as $user) {
                         foreach ($this->blogs as $blog) {
-                            $set_perms = [];
+                            $permissions = new Strings();
 
                             if (!empty(GPC::post()->array('perm')[$blog])) {
                                 foreach (GPC::post()->array('perm')[$blog] as $perm_id => $v) {
                                     if ($v) {
-                                        $set_perms[$perm_id] = true;
+                                        $permissions->add($perm_id);
                                     }
                                 }
                             }
 
-                            App::core()->users()->setUserBlogPermissions(id: $user, blog: $blog, permissions: $set_perms, delete: true);
+                            App::core()->users()->setUserBlogPermissions(id: $user, blog: $blog, permissions: $permissions);
                         }
                     }
                 } catch (Exception $e) {

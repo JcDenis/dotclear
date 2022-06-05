@@ -13,6 +13,7 @@ namespace Dotclear\Process\Admin\Handler;
 use ArrayObject;
 use Dotclear\App;
 use Dotclear\Core\User\UserContainer;
+use Dotclear\Database\Param;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\GPC\GPC;
@@ -82,7 +83,11 @@ class UserPref extends AbstractPage
     {
         $page_title = __('My preferences');
 
-        $this->user = new UserContainer(App::core()->users()->getUser(id: App::core()->user()->userID()));
+        $param = new Param();
+        $param->set('user_id', App::core()->user()->userID());
+
+        $this->user = new UserContainer(App::core()->users()->getUsers(param: $param));
+        unset($param);
 
         if (empty($this->user->getOption('editor'))) {
             $this->user->setOption('editor', []);
@@ -210,11 +215,8 @@ class UserPref extends AbstractPage
                     $cur->setField('user_pwd', GPC::post()->string('new_pwd'));
                 }
 
-                // --BEHAVIOR-- adminBeforeUserUpdate
-                App::core()->behavior()->call('adminBeforeUserProfileUpdate', $cur, App::core()->user()->userID());
-
-                // Udate user
-                App::core()->users()->updUser(id: App::core()->user()->userID(), cursor: $cur);
+                // Update user
+                App::core()->users()->updateUser(id: App::core()->user()->userID(), cursor: $cur);
 
                 // Update profile
                 // Sanitize list of secondary mails and urls if any
@@ -227,9 +229,6 @@ class UserPref extends AbstractPage
                 }
                 App::core()->user()->preference()->get('profile')->put('mails', $mails, 'string');
                 App::core()->user()->preference()->get('profile')->put('urls', $urls, 'string');
-
-                // --BEHAVIOR-- adminAfterUserUpdate
-                App::core()->behavior()->call('adminAfterUserProfileUpdate', $cur, App::core()->user()->userID());
 
                 App::core()->notice()->addSuccessNotice(__('Personal information has been successfully updated.'));
 
@@ -329,7 +328,7 @@ class UserPref extends AbstractPage
                 App::core()->user()->preference()->get('interface')->put('rte_flags', $rf, 'array');
 
                 // Update user
-                App::core()->users()->updUser(id: App::core()->user()->userID(), cursor: $cur);
+                App::core()->users()->updateUser(id: App::core()->user()->userID(), cursor: $cur);
 
                 // --BEHAVIOR-- adminAfterUserOptionsUpdate
                 App::core()->behavior()->call('adminAfterUserOptionsUpdate', $cur, App::core()->user()->userID());
@@ -776,8 +775,8 @@ class UserPref extends AbstractPage
 
         echo '<h4 class="pretty-title">' . __('Other options') . '</h4>';
 
-        // --BEHAVIOR-- adminPreferencesForm
-        App::core()->behavior()->call('adminPreferencesForm');
+        // --BEHAVIOR-- adminPreferencesForm, UserContainer
+        App::core()->behavior()->call('adminPreferencesForm', user: $this->user);
 
         echo '<p class="clear vertical-separator">' .
         App::core()->adminurl()->getHiddenFormFields('admin.user.pref', [], true) .

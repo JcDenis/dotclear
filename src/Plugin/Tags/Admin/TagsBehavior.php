@@ -12,6 +12,7 @@ namespace Dotclear\Plugin\Tags\Admin;
 // Dotclear\Plugin\Tags\Admin\TagsBehavior
 use ArrayObject;
 use Dotclear\App;
+use Dotclear\Core\User\UserContainer;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Param;
 use Dotclear\Database\Record;
@@ -330,25 +331,15 @@ class TagsBehavior
         App::core()->resource()->load('style.css', 'Plugin', 'Tags');
     }
 
-    public function adminUserForm(?Record $args = null): void
+    public function adminUserForm(UserContainer $user): void
     {
-        if (null === $args) {
-            $opts = App::core()->user()->getOptions();
-        } elseif ($args instanceof Record) {
-            $opts = $args->call('options');
-        } else {
-            $opts = [];
-        }
-
         $combo                 = [];
         $combo[__('Short')]    = 'more';
         $combo[__('Extended')] = 'all';
 
-        $value = array_key_exists('tag_list_format', $opts) ? $opts['tag_list_format'] : 'more';
-
         echo '<div class="fieldset"><h5 id="tags_prefs">' . __('Tags') . '</h5>' .
         '<p><label for="user_tag_list_format" class="classic">' . __('Tags list format:') . '</label> ' .
-        Form::combo('user_tag_list_format', $combo, $value) .
+        Form::combo('user_tag_list_format', $combo, $user->getOption('tag_list_format') ?? 'more') .
             '</p></div>';
     }
 

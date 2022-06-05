@@ -816,9 +816,15 @@ final class Posts
             throw new MissingOrEmptyValue(__('No such entry ID'));
         }
 
-        if (!$author || App::core()->users()->getUser(id: $author)->isEmpty()) {
+        $param = new Param();
+        $param->set('user_id', $author);
+
+        $record = App::core()->users()->getUsers(param: $param);
+
+        if (!$author || $record->isEmpty()) {
             throw new InvalidValueReference(__('This user does not exist'));
         }
+        unset($param, $record);
 
         $sql = new UpdateStatement(__METHOD__);
         $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));

@@ -834,7 +834,7 @@ class FlatImport extends FlatBackup
                     $this->cur_user->setField('user_id', (string) $user_id);
                     $this->cur_user->setField('user_pwd', md5(uniqid()));
 
-                    App::core()->users()->addUser(cursor: $this->cur_user);
+                    App::core()->users()->createUser(cursor: $this->cur_user);
 
                     $this->users[$user_id] = true;
                 }

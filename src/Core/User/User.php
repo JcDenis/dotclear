@@ -662,36 +662,36 @@ class User
     // @{
 
     /**
-     * Called after core->addUser.
+     * Called after core->createUser.
      *
-     * @see Core::addUser
+     * @see Core::createUser
      *
      * @param Cursor $cur User cursor
      */
-    public function afterAddUser(Cursor $cur): void
+    public function afterCreateUser(Cursor $cursor): void
     {
     }
 
     /**
-     * Called after core->updUser.
+     * Called after core->upadeUser.
      *
-     * @see Core::updUser
+     * @see Core::updateUser
      *
      * @param string $id  User ID
      * @param cursor $cur User cursor
      */
-    public function afterUpdUser(string $id, Cursor $cur): void
+    public function afterUpdateUser(string $id, Cursor $cursor): void
     {
     }
 
     /**
-     * Called after core->delUser.
+     * Called after core->deleteUser.
      *
-     * @see Core::delUser
+     * @see Core::deleteUser
      *
      * @param string $id User ID
      */
-    public function afterDelUser(string $id): void
+    public function afterDeleteUser(string $id): void
     {
     }
     // @}

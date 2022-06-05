@@ -21,8 +21,11 @@ use Dotclear\Database\Statement\InsertStatement;
 use Dotclear\Database\Statement\JoinStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
-use Dotclear\Exception\CoreException;
+use Dotclear\Exception\InsufficientPermissions;
+use Dotclear\Exception\InvalidValueFormat;
+use Dotclear\Exception\MissingOrEmptyValue;
 use Dotclear\Helper\Clock;
+use Dotclear\Helper\Mapper\Strings;
 
 /**
  * Users handling methods.
@@ -31,23 +34,6 @@ use Dotclear\Helper\Clock;
  */
 final class Users
 {
-    /**
-     * Get a user by its ID.
-     *
-     * @todo protect empty urser_id query
-     *
-     * @param string $id The user ID
-     *
-     * @return Record the user
-     */
-    public function getUser(string $id): Record
-    {
-        $param = new Param();
-        $param->set('user_id', $id);
-
-        return $this->getUsers(param: $param);
-    }
-
     /**
      * Retrieve Users count.
      *
@@ -63,12 +49,20 @@ final class Users
         $params = new UsersParam($param);
         $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
 
+        // --BEHAVIOR-- coreBeforeCountUsers, Param, SelectStatement
+        App::core()->behavior()->call('coreBeforeCountUsers', param: $params, sql: $query);
+
         $params->unset('order');
         $params->unset('limit');
 
         $query->column($query->count('U.user_id'));
 
-        return $this->queryUsersTable(param: $params, sql: $query)->fInt();
+        $record = $this->queryUsersTable(param: $params, sql: $query);
+
+        // --BEHAVIOR-- coreAfterCountUsers, Record
+        App::core()->behavior()->call('coreAfterCountUsers', record: $record);
+
+        return $record->fInt();
     }
 
     /**
@@ -85,6 +79,9 @@ final class Users
     {
         $params = new UsersParam($param);
         $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
+
+        // --BEHAVIOR-- coreBeforeGetUsers, Param, SelectStatement
+        App::core()->behavior()->call('coreBeforeGetUsers', param: $params, sql: $query);
 
         if (!empty($params->columns())) {
             $query->columns($params->columns());
@@ -151,7 +148,12 @@ final class Users
             $query->limit($params->limit());
         }
 
-        return $this->queryUsersTable(param: $params, sql: $query);
+        $record = $this->queryUsersTable(param: $params, sql: $query);
+
+        // --BEHAVIOR-- coreAfterGetUsers, Record
+        App::core()->behavior()->call('coreAfterGetUsers', record: $record);
+
+        return $record;
     }
 
     /**
@@ -201,24 +203,29 @@ final class Users
     }
 
     /**
-     * Add a new user. Takes a cursor as input and returns the new user ID.
+     * Create a new user.
+     *
+     * Takes a cursor as input and returns the new user ID.
      *
      * @param Cursor $cursor The user cursor
      *
-     * @throws CoreException
+     * @throws InsufficientPermissions
+     * @throws MissingOrEmptyValue
+     *
+     * @return string The user ID
      */
-    public function addUser(Cursor $cursor): string
+    public function createUser(Cursor $cursor): string
     {
         if (!App::core()->user()->isSuperAdmin()) {
-            throw new CoreException(__('You are not an administrator'));
+            throw new InsufficientPermissions(__('You are not an administrator'));
         }
 
         if ('' == $cursor->getField('user_id')) {
-            throw new CoreException(__('No user ID given'));
+            throw new MissingOrEmptyValue(__('No user ID given'));
         }
 
         if ('' == $cursor->getField('user_pwd')) {
-            throw new CoreException(__('No password given'));
+            throw new MissingOrEmptyValue(__('No password given'));
         }
 
         $this->getUserCursor(cursor: $cursor);
@@ -227,9 +234,15 @@ final class Users
             $cursor->setField('user_creadt', Clock::database());
         }
 
+        // --BEHAVIOR-- coreBeforeCreateUser, Cursor
+        App::core()->behavior()->call('coreBeforeCreateUser', cursor: $cursor);
+
         $cursor->insert();
 
-        App::core()->user()->afterAddUser($cursor);
+        App::core()->user()->afterCreateUser(cursor: $cursor);
+
+        // --BEHAVIOR-- coreAfterCreateUser, Cursor
+        App::core()->behavior()->call('coreAfterCreateUser', cursor: $cursor);
 
         return $cursor->getField('user_id');
     }
@@ -240,22 +253,36 @@ final class Users
      * @param string $id     The user ID
      * @param Cursor $cursor The cursor
      *
-     * @throws CoreException
+     * @throws InsufficientPermissions
+     * @throws MissingOrEmptyValue
+     *
+     * @return string The user ID
      */
-    public function updUser(string $id, Cursor $cursor): string
+    public function updateUser(string $id, Cursor $cursor): string
     {
         $this->getUserCursor(cursor: $cursor);
 
         if ((null !== $cursor->getField('user_id') || App::core()->user()->userID() != $id) && !App::core()->user()->isSuperAdmin()) {
-            throw new CoreException(__('You are not an administrator'));
+            throw new InsufficientPermissions(__('You are not an administrator'));
         }
+
+        if (empty($id)) {
+            throw new MissingOrEmptyValue(__('No user ID given'));
+        }
+
+        // --BEHAVIOR-- coreBeforeUpdateUser, Cursor, int
+        App::core()->behavior()->call('coreBeforeUpdateUser', cursor: $cursor, id: $id);
 
         $sql = new UpdateStatement(__METHOD__);
         $sql->where('user_id = ' . $sql->quote($id));
         $sql->update($cursor);
 
-        App::core()->user()->afterUpdUser($id, $cursor);
+        App::core()->user()->afterUpdateUser(id: $id, cursor: $cursor);
 
+        // --BEHAVIOR-- coreAfterUpdateUser, Cursor, int
+        App::core()->behavior()->call('coreAfterUpdateUser', cursor: $cursor, id: $id);
+
+        // If the user ID is changed
         if (null !== $cursor->getField('user_id')) {
             $id = $cursor->getField('user_id');
         }
@@ -277,33 +304,41 @@ final class Users
     }
 
     /**
-     * Delete a user.
+     * Delete users.
      *
-     * @param string $id The user ID
+     * @param string $ids The users IDs
      *
-     * @throws CoreException
+     * @throws InsufficientPermissions
+     * @throws MissingOrEmptyValue
      */
-    public function delUser(string $id): void
+    public function deleteUsers(Strings $ids): void
     {
         if (!App::core()->user()->isSuperAdmin()) {
-            throw new CoreException(__('You are not an administrator'));
+            throw new InsufficientPermissions(__('You are not an administrator'));
         }
 
-        if (App::core()->user()->userID() == $id) {
-            return;
+        if (!$ids->count()) {
+            throw new MissingOrEmptyValue(__('No user ID given'));
         }
 
-        $record = $this->getUser(id: $id);
-        if (0 < $record->f('nb_post')) {
-            return;
+        // Do not delete current user
+        if ($ids->exists(App::core()->user()->userID())) {
+            $ids->remove(App::core()->user()->userID());
         }
 
-        $sql = new DeleteStatement(__METHOD__);
-        $sql->where('user_id = ' . $sql->quote($id));
-        $sql->from(App::core()->prefix() . 'user');
-        $sql->delete();
+        if ($ids->count()) {
+            // --BEHAVIOR-- coreBeforeDeleteUsers, Strings
+            App::core()->behavior()->call('coreBeforeDeleteUsers', ids: $ids);
 
-        App::core()->user()->afterDelUser($id);
+            $sql = new DeleteStatement(__METHOD__);
+            $sql->from(App::core()->prefix() . 'user');
+            $sql->where('user_id' . $sql->in($ids->dump()));
+            $sql->delete();
+
+            foreach ($ids->dump() as $id) {
+                App::core()->user()->afterDeleteUser(id: $id);
+            }
+        }
     }
 
     /**
@@ -313,7 +348,7 @@ final class Users
      *
      * @return bool true if user exists, False otherwise
      */
-    public function userExists(string $id): bool
+    public function hasUser(string $id): bool
     {
         $sql = new SelectStatement(__METHOD__);
         $sql->column('user_id');
@@ -371,60 +406,39 @@ final class Users
     }
 
     /**
-     * Set user permissions.
+     * Set the user blog permissions.
      *
-     * The <var>$perms</var> array looks like:
-     * - [blog_id] => '|perm1|perm2|'
-     * - ...
+     * @param string  $id          The user ID
+     * @param string  $blog        The blog ID
+     * @param Strings $permissions The permissions
      *
-     * @param string $id          The user ID
-     * @param array  $permissions The permissions
-     *
-     * @throws CoreException
+     * @throws InsufficientPermissions
+     * @throws MissingOrEmptyValue
      */
-    public function setUserPermissions(string $id, array $permissions): void
+    public function setUserBlogPermissions(string $id, string $blog, Strings $permissions): void
     {
         if (!App::core()->user()->isSuperAdmin()) {
-            throw new CoreException(__('You are not an administrator'));
+            throw new InsufficientPermissions(__('You are not an administrator'));
         }
 
+        if (empty($id)) {
+            throw new MissingOrEmptyValue(__('No user ID given'));
+        }
+
+        if (empty($blog)) {
+            throw new MissingOrEmptyValue(__('No blog ID given'));
+        }
+
+        // --BEHAVIOR-- coreBeforeDeleteUsers, string, string, Strings
+        App::core()->behavior()->call('coreBeforeSetUserBlogPermissions', id: $id, blog: $blog, permissions: $permissions);
+
         $sql = new DeleteStatement(__METHOD__);
-        $sql->where('user_id = ' . $sql->quote($id));
+        $sql->where('blog_id = ' . $sql->quote($blog));
+        $sql->and('user_id = ' . $sql->quote($id));
         $sql->from(App::core()->prefix() . 'permissions');
         $sql->delete();
 
-        foreach ($permissions as $blog => $p) {
-            $this->setUserBlogPermissions(id: $id, blog: $blog, permissions: $p, delete: false);
-        }
-    }
-
-    /**
-     * Set the user blog permissions.
-     *
-     * @param string $id          The user ID
-     * @param string $blog        The blog ID
-     * @param array  $permissions The permissions
-     * @param bool   $delete      Delete permissions first
-     *
-     * @throws CoreException
-     */
-    public function setUserBlogPermissions(string $id, string $blog, array $permissions, bool $delete = true): void
-    {
-        if (!App::core()->user()->isSuperAdmin()) {
-            throw new CoreException(__('You are not an administrator'));
-        }
-
-        $no_perm = empty($permissions);
-
-        if ($delete || $no_perm) {
-            $sql = new DeleteStatement(__METHOD__);
-            $sql->where('blog_id = ' . $sql->quote($blog));
-            $sql->and('user_id = ' . $sql->quote($id));
-            $sql->from(App::core()->prefix() . 'permissions');
-            $sql->delete();
-        }
-
-        if (!$no_perm) {
+        if ($permissions->count()) {
             $sql = new InsertStatement(__METHOD__);
             $sql->columns([
                 'user_id',
@@ -434,7 +448,7 @@ final class Users
             $sql->line([[
                 $sql->quote($id),
                 $sql->quote($blog),
-                $sql->quote('|' . implode('|', array_keys($permissions)) . '|'),
+                $sql->quote('|' . implode('|', $permissions->dump()) . '|'),
             ]]);
             $sql->from(App::core()->prefix() . 'permissions');
             $sql->insert();
@@ -463,13 +477,13 @@ final class Users
      *
      * @param Cursor $cursor The user cursor
      *
-     * @throws CoreException
+     * @throws InvalidValueFormat
      */
     private function getUserCursor(Cursor $cursor): void
     {
         if ($cursor->isField('user_id')
             && !preg_match('/^[A-Za-z0-9@._-]{2,}$/', $cursor->getField('user_id'))) {
-            throw new CoreException(__('User ID must contain at least 2 characters using letters, numbers or symbols.'));
+            throw new InvalidValueFormat(__('User ID must contain at least 2 characters using letters, numbers or symbols.'));
         }
 
         if (null !== $cursor->getField('user_url') && '' != $cursor->getField('user_url')) {
@@ -480,13 +494,13 @@ final class Users
 
         if ($cursor->isField('user_pwd')) {
             if (6 > strlen($cursor->getField('user_pwd'))) {
-                throw new CoreException(__('Password must contain at least 6 characters.'));
+                throw new InvalidValueFormat(__('Password must contain at least 6 characters.'));
             }
             $cursor->setField('user_pwd', App::core()->user()->crypt($cursor->getField('user_pwd')));
         }
 
         if (null !== $cursor->getField('user_lang') && !preg_match('/^[a-z]{2}(-[a-z]{2})?$/', $cursor->getField('user_lang'))) {
-            throw new CoreException(__('Invalid user language code'));
+            throw new InvalidValueFormat(__('Invalid user language code'));
         }
 
         if (null === $cursor->getField('user_upddt')) {

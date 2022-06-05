@@ -65,9 +65,14 @@ class User extends AbstractPage
         // Get user if we have an ID
         if (!GPC::request()->empty('id')) {
             try {
-                $rs = App::core()->users()->getUser(id: GPC::request()->string('id'));
+                $param = new Param();
+                $param->set('user_id', GPC::request()->string('id'));
 
-                $this->user->parseFromRecord($rs);
+                $record = App::core()->users()->getUsers(param: $param);
+
+                $this->user->parseFromRecord($record);
+
+                unset($param, $record);
 
                 $user_prefs               = new Preference($this->user->getProperty('user_id'), 'profile');
                 $this->user_profile_mails = $user_prefs->get('profile')->get('mails');
@@ -124,10 +129,7 @@ class User extends AbstractPage
 
                 // Udate user
                 if (!GPC::request()->empty('id')) {
-                    // --BEHAVIOR-- adminBeforeUserUpdate
-                    App::core()->behavior()->call('adminBeforeUserUpdate', $cur, $this->user->getProperty('user_id'));
-
-                    $new_id = App::core()->users()->updUser(id: $this->user->getProperty('user_id'), cursor: $cur);
+                    $new_id = App::core()->users()->updateUser(id: $this->user->getProperty('user_id'), cursor: $cur);
 
                     // Update profile
                     // Sanitize list of secondary mails and urls if any
@@ -141,9 +143,6 @@ class User extends AbstractPage
                     $user_prefs = new Preference($this->user->getProperty('user_id'), 'profile');
                     $user_prefs->get('profile')->put('mails', $mails, 'string');
                     $user_prefs->get('profile')->put('urls', $urls, 'string');
-
-                    // --BEHAVIOR-- adminAfterUserUpdate
-                    App::core()->behavior()->call('adminAfterUserUpdate', $cur, $new_id);
 
                     if ($this->user->getProperty('user_id') == App::core()->user()->userID() && $this->user->getProperty('user_id') != $new_id) {
                         App::core()->session()->destroy();
@@ -160,10 +159,7 @@ class User extends AbstractPage
                         throw new AdminException(sprintf(__('User "%s" already exists.'), Html::escapeHTML($cur->getField('user_id'))));
                     }
 
-                    // --BEHAVIOR-- adminBeforeUserCreate
-                    App::core()->behavior()->call('adminBeforeUserCreate', $cur);
-
-                    $new_id = App::core()->users()->addUser(cursor: $cur);
+                    $new_id = App::core()->users()->createUser(cursor: $cur);
 
                     // Update profile
                     // Sanitize list of secondary mails and urls if any
@@ -177,9 +173,6 @@ class User extends AbstractPage
                     $user_prefs = new Preference($new_id, 'profile');
                     $user_prefs->get('profile')->put('mails', $mails, 'string');
                     $user_prefs->get('profile')->put('urls', $urls, 'string');
-
-                    // --BEHAVIOR-- adminAfterUserCreate
-                    App::core()->behavior()->call('adminAfterUserCreate', $cur, $new_id);
 
                     App::core()->notice()->addSuccessNotice(__('User has been successfully created.'));
                     App::core()->notice()->addWarningNotice(__('User has no permission, he will not be able to login yet. See below to add some.'));
@@ -379,8 +372,10 @@ class User extends AbstractPage
         Form::number('user_edit_size', 10, 999, (string) $this->user->getOption('edit_size')) .
             '</p>';
 
-        // --BEHAVIOR-- adminUserForm
-        App::core()->behavior()->call('adminUserForm', $this->user->getProperty('user_id') ? App::core()->users()->getUser(id: $this->user->getProperty('user_id')) : null);
+        // --BEHAVIOR-- adminUserForm, UserContainer
+        App::core()->behavior()->call('adminUserForm', user: $this->user);
+
+        unset($param, $record);
 
         echo '</div>' .
             '</div>';

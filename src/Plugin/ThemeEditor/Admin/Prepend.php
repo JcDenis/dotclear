@@ -60,7 +60,7 @@ class Prepend extends ModulePrepend
         }
     }
 
-    public function behaviorAdminPreferencesForm(): void
+    public function behaviorAdminPreferencesForm($user): void
     {
         // Add fieldset for plugin options
         $current_theme = (string) App::core()->user()->preference()->get('interface')->get('colorsyntax_theme') ?: 'default';

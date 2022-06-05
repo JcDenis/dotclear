@@ -267,7 +267,7 @@ class Auth extends AbstractPage
             $cur = App::core()->con()->openCursor(App::core()->prefix() . 'user');
             $cur->setField('user_change_pwd', 0);
             $cur->setField('user_pwd', GPC::post()->string('new_pwd'));
-            App::core()->users()->updUser(id: App::core()->user()->userID(), cursor: $cur);
+            App::core()->users()->updateUser(id: App::core()->user()->userID(), cursor: $cur);
 
             App::core()->session()->start();
             $_SESSION['sess_user_id']     = $this->auth_id;
