@@ -54,6 +54,7 @@ Should be followed...one day...
 - Use first upper case action as third word of behaviors names
 - Use UpperCamelCase object of the behaviors as thier fourth (and so on) word
 - Use named arguments for behaviors calls
+- Use custom descriptor object instead of multidimensional array.
 - No magic methods. Use real methods.
 - No chaining methods. Recall class each time.
 - No additionnal logic switch methods parameters. Split into multiple methods.

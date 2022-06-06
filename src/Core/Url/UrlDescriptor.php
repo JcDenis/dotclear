@@ -22,17 +22,18 @@ final class UrlDescriptor
     /**
      * Constructor.
      *
-     * @param string   $type           The type
-     * @param string   $url            The URL
-     * @param string   $representation The representation
-     * @param callable $callback       The URL handler callback
+     * @param string   $type     The type
+     * @param string   $url      The URL
+     * @param string   $scheme   The scheme
+     * @param callable $callback The URL handler callback
      */
     public function __construct(
         public readonly string $type,
         public readonly string $url,
-        public readonly string $representation,
+        public readonly string $scheme,
         public readonly mixed $callback,
     ) {
+        // Check in constructor as we can't assign callable to readonly method arguments
         if (!is_callable($callback)) {
             throw new InvalidValueType(__('Url handler callback must be callable.'));
         }

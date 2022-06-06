@@ -100,73 +100,73 @@ final class Url
         $this->registerHandler(new UrlDescriptor(
             type: 'lang',
             url: '',
-            representation: '^([a-zA-Z]{2}(?:-[a-z]{2})?(?:/page/[0-9]+)?)$',
+            scheme: '^([a-zA-Z]{2}(?:-[a-z]{2})?(?:/page/[0-9]+)?)$',
             callback: [$this, 'lang']
         ));
         $this->registerHandler(new UrlDescriptor(
             type: 'posts',
             url: 'posts',
-            representation: '^posts(/.+)?$',
+            scheme: '^posts(/.+)?$',
             callback: [$this, 'home']
         ));
         $this->registerHandler(new UrlDescriptor(
             type: 'post',
             url: 'post',
-            representation: '^post/(.+)$',
+            scheme: '^post/(.+)$',
             callback: [$this, 'post']
         ));
         $this->registerHandler(new UrlDescriptor(
             type: 'preview',
             url: 'preview',
-            representation: '^preview/(.+)$',
+            scheme: '^preview/(.+)$',
             callback: [$this, 'preview']
         ));
         $this->registerHandler(new UrlDescriptor(
             type: 'category',
             url: 'category',
-            representation: '^category/(.+)$',
+            scheme: '^category/(.+)$',
             callback: [$this, 'category']
         ));
         $this->registerHandler(new UrlDescriptor(
             type: 'archive',
             url: 'archive',
-            representation: '^archive(/.+)?$',
+            scheme: '^archive(/.+)?$',
             callback: [$this, 'archive']
         ));
         $this->registerHandler(new UrlDescriptor(
             type: 'resources',
             url: 'resources',
-            representation: '^resources/(.+)?$',
+            scheme: '^resources/(.+)?$',
             callback: [$this, 'resources']
         ));
         $this->registerHandler(new UrlDescriptor(
             type: 'feed',
             url: 'feed',
-            representation: '^feed/(.+)$',
+            scheme: '^feed/(.+)$',
             callback: [$this, 'feed']
         ));
         $this->registerHandler(new UrlDescriptor(
             type: 'trackback',
             url: 'trackback',
-            representation: '^trackback/(.+)$',
+            scheme: '^trackback/(.+)$',
             callback: [$this, 'trackback']
         ));
         $this->registerHandler(new UrlDescriptor(
             type: 'webmention',
             url: 'webmention',
-            representation: '^webmention(/.+)?$',
+            scheme: '^webmention(/.+)?$',
             callback: [$this, 'webmention']
         ));
         $this->registerHandler(new UrlDescriptor(
             type: 'rsd',
             url: 'rsd',
-            representation: '^rsd$',
+            scheme: '^rsd$',
             callback: [$this, 'rsd']
         ));
         $this->registerHandler(new UrlDescriptor(
             type: 'xmlrpc',
             url: 'xmlrpc',
-            representation: '^xmlrpc/(.+)$',
+            scheme: '^xmlrpc/(.+)$',
             callback: [$this, 'xmlrpc']
         ));
     }
@@ -533,13 +533,13 @@ final class Url
         $this->sortHandlers();
 
         foreach ($this->handlers as $handler) {
-            if ($part == $handler->representation) {
+            if ($part == $handler->scheme) {
                 $type = $handler->type;
                 $args = null;
 
                 return;
             }
-            if (preg_match('#' . $handler->representation . '#', (string) $part, $m)) {
+            if (preg_match('#' . $handler->scheme . '#', (string) $part, $m)) {
                 $type = $handler->type;
                 $args = $m[1] ?? null;
 

@@ -28,7 +28,7 @@ class BlogrollUrl
         App::core()->url()->registerHandler(new UrlDescriptor(
             type: 'xbel',
             url: 'xbel',
-            representation: '^xbel(?:/?)$',
+            scheme: '^xbel(?:/?)$',
             callback: [$this, 'xbel']
         ));
     }

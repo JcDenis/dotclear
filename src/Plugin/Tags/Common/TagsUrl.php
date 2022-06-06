@@ -26,19 +26,19 @@ class TagsUrl
         App::core()->url()->registerHandler(new UrlDescriptor(
             type: 'tag',
             url: 'tag',
-            representation: '^tag/(.+)$',
+            scheme: '^tag/(.+)$',
             callback: [$this, 'tag']
         ));
         App::core()->url()->registerHandler(new UrlDescriptor(
             type: 'tags',
             url: 'tags',
-            representation: '^tags$',
+            scheme: '^tags$',
             callback: [$this, 'tags']
         ));
         App::core()->url()->registerHandler(new UrlDescriptor(
             type: 'tag_feed',
             url: 'feed/tag',
-            representation: '^feed/tag/(.+)$',
+            scheme: '^feed/tag/(.+)$',
             callback: [$this, 'tagFeed']
         ));
     }

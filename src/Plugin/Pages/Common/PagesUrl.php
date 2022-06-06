@@ -35,13 +35,13 @@ class PagesUrl
         App::core()->url()->registerHandler(new UrlDescriptor(
             type: 'pages',
             url: 'pages',
-            representation: '^pages/(.+)$',
+            scheme: '^pages/(.+)$',
             callback: [$this, 'pages']
         ));
         App::core()->url()->registerHandler(new UrlDescriptor(
             type: 'pagespreview',
             url: 'pagespreview',
-            representation: '^pagespreview/(.+)$',
+            scheme: '^pagespreview/(.+)$',
             callback: [$this, 'pagespreview']
         ));
 

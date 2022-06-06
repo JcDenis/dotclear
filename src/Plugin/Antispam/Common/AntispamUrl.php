@@ -30,13 +30,13 @@ class AntispamUrl
         App::core()->url()->registerHandler(new UrlDescriptor(
             type: 'spamfeed',
             url: 'spamfeed',
-            representation: '^spamfeed/(.+)$',
+            scheme: '^spamfeed/(.+)$',
             callback: [$this, 'spamFeed']
         ));
         App::core()->url()->registerHandler(new UrlDescriptor(
             type: 'hamfeed',
             url: 'hamfeed',
-            representation: '^hamfeed/(.+)$',
+            scheme: '^hamfeed/(.+)$',
             callback: [$this, 'hamFeed']
         ));
     }
