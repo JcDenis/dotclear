@@ -12,7 +12,6 @@ namespace Dotclear\Core\Xmlrpc;
 // Dotclear\Core\Xmlrpc\Xmlrpc
 use ArrayObject;
 use Dotclear\App;
-use Dotclear\Core\User\UserContainer;
 use Dotclear\Core\Trackback\Trackback;
 use Dotclear\Database\Param;
 use Dotclear\Exception\CoreException;
@@ -1203,14 +1202,14 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $this->setUser($user, $pwd);
         $this->setBlog();
 
-        $rs  = App::core()->blogs()->getBlogPermissions(id: App::core()->blog()->id);
-        $res = [];
+        $users  = App::core()->permissions()->getBlogPermissions(id: App::core()->blog()->id);
+        $res    = [];
 
-        foreach ($rs as $k => $v) {
+        foreach ($users as $user) {
             $res[] = [
-                'user_id'      => $k,
-                'user_login'   => $k,
-                'display_name' => UserContainer::getUserCN($k, $v['name'], $v['firstname'], $v['displayname']),
+                'user_id'      => $user->id,
+                'user_login'   => $user->id,
+                'display_name' => $user->getUserCN(),
             ];
         }
 

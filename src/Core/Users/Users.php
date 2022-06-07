@@ -17,7 +17,6 @@ use Dotclear\Database\Cursor;
 use Dotclear\Database\Param;
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
-use Dotclear\Database\Statement\InsertStatement;
 use Dotclear\Database\Statement\JoinStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
@@ -358,101 +357,6 @@ final class Users
         $record = $sql->select();
 
         return !$record->isEmpty();
-    }
-
-    /**
-     * Return all user permissions as an array which looks like:.
-     *
-     * - [blog_id]
-     * - [name] => Blog name
-     * - [url] => Blog URL
-     * - [p]
-     * - [permission] => true
-     * - ...
-     *
-     * @param string $id The user ID
-     *
-     * @return array the user permissions
-     */
-    public function getUserPermissions(string $id): array
-    {
-        $join = new JoinStatement(__METHOD__);
-        $join->type('INNER');
-        $join->from(App::core()->prefix() . 'blog B');
-        $join->on('P.blog_id = B.blog_id');
-
-        $sql = new SelectStatement(__METHOD__);
-        $sql->columns([
-            'B.blog_id',
-            'blog_name',
-            'blog_url',
-            'permissions',
-        ]);
-        $sql->from(App::core()->prefix() . 'permissions P');
-        $sql->join($join->statement());
-        $sql->where('user_id = ' . $sql->quote($id));
-
-        $res    = [];
-        $record = $sql->select();
-        while ($record->fetch()) {
-            $res[$record->f('blog_id')] = [
-                'name' => $record->f('blog_name'),
-                'url'  => $record->f('blog_url'),
-                'p'    => App::core()->user()->parsePermissions($record->f('permissions')),
-            ];
-        }
-
-        return $res;
-    }
-
-    /**
-     * Set the user blog permissions.
-     *
-     * @param string  $id          The user ID
-     * @param string  $blog        The blog ID
-     * @param Strings $permissions The permissions
-     *
-     * @throws InsufficientPermissions
-     * @throws MissingOrEmptyValue
-     */
-    public function setUserBlogPermissions(string $id, string $blog, Strings $permissions): void
-    {
-        if (!App::core()->user()->isSuperAdmin()) {
-            throw new InsufficientPermissions(__('You are not an administrator'));
-        }
-
-        if (empty($id)) {
-            throw new MissingOrEmptyValue(__('No user ID given'));
-        }
-
-        if (empty($blog)) {
-            throw new MissingOrEmptyValue(__('No blog ID given'));
-        }
-
-        // --BEHAVIOR-- coreBeforeDeleteUsers, string, string, Strings
-        App::core()->behavior()->call('coreBeforeSetUserBlogPermissions', id: $id, blog: $blog, permissions: $permissions);
-
-        $sql = new DeleteStatement(__METHOD__);
-        $sql->where('blog_id = ' . $sql->quote($blog));
-        $sql->and('user_id = ' . $sql->quote($id));
-        $sql->from(App::core()->prefix() . 'permissions');
-        $sql->delete();
-
-        if ($permissions->count()) {
-            $sql = new InsertStatement(__METHOD__);
-            $sql->columns([
-                'user_id',
-                'blog_id',
-                'permissions',
-            ]);
-            $sql->line([[
-                $sql->quote($id),
-                $sql->quote($blog),
-                $sql->quote('|' . implode('|', $permissions->dump()) . '|'),
-            ]]);
-            $sql->from(App::core()->prefix() . 'permissions');
-            $sql->insert();
-        }
     }
 
     /**

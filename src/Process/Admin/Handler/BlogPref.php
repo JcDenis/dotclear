@@ -11,7 +11,6 @@ namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\BlogPref
 use Dotclear\App;
-use Dotclear\Core\User\UserContainer;
 use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Database\Param;
 use Dotclear\Exception\AdminException;
@@ -888,8 +887,7 @@ class BlogPref extends AbstractPage
         //
         // Users on the blog (with permissions)
 
-        $blog_users = App::core()->blogs()->getBlogPermissions(id: $this->blog_id, super: App::core()->user()->isSuperAdmin());
-        $perm_types = App::core()->user()->getPermissionsTypes();
+        $blog_users = App::core()->permissions()->getBlogPermissions(id: $this->blog_id, super: App::core()->user()->isSuperAdmin());
 
         echo '<div class="multi-part" id="users" title="' . __('Users') . '">' .
         '<h3 class="out-of-screen-if-js">' . __('Users on this blog') . '</h3>';
@@ -897,11 +895,9 @@ class BlogPref extends AbstractPage
         if (empty($blog_users)) {
             echo '<p>' . __('No users') . '</p>';
         } else {
-            if (App::core()->user()->isSuperAdmin()) {
-                $user_url_p = '<a href="' . App::core()->adminurl()->get('admin.user', ['id' => '%1$s'], '&amp;', true) . '">%1$s</a>';
-            } else {
-                $user_url_p = '%1$s';
-            }
+            $user_url_p = App::core()->user()->isSuperAdmin() ?
+                '<a href="' . App::core()->adminurl()->get('admin.user', ['id' => '%1$s'], '&amp;', true) . '">%1$s</a>' :
+                '%1$s';
 
             // Sort users list on user_id key
             Lexical::lexicalKeySort($blog_users);
@@ -909,24 +905,20 @@ class BlogPref extends AbstractPage
             $post_types      = App::core()->posttype()->dump();
             $current_blog_id = App::core()->blog()->id;
             if (App::core()->blog()->id != $this->blog_id) {
+                // Need to change blog to count user posts
                 App::core()->setBlog($this->blog_id);
             }
 
             echo '<div>';
-            foreach ($blog_users as $k => $v) {
-                if (count($v['p']) > 0) {
-                    echo '<div class="user-perm' . ($v['super'] ? ' user_super' : '') . '">' .
-                    '<h4>' . sprintf($user_url_p, Html::escapeHTML($k)) .
-                    ' (' . Html::escapeHTML(UserContainer::getUserCN(
-                        $k,
-                        $v['name'],
-                        $v['firstname'],
-                        $v['displayname']
-                    )) . ')</h4>';
+            foreach ($blog_users as $user) {
+                if (0 < $user->perm->count() || $user->super) {
+                    echo '<div class="user-perm' . ($user->super ? ' user_super' : '') . '">' .
+                    '<h4>' . sprintf($user_url_p, Html::escapeHTML($user->id)) .
+                    ' (' . Html::escapeHTML($user->getUserCN()) . ')</h4>';
 
                     if (App::core()->user()->isSuperAdmin()) {
                         echo '<p>' . __('Email:') . ' ' .
-                            ('' != $v['email'] ? '<a href="mailto:' . $v['email'] . '">' . $v['email'] . '</a>' : __('(none)')) .
+                            ('' != $user->email ? '<a href="mailto:' . $user->email . '">' . $user->email . '</a>' : __('(none)')) .
                             '</p>';
                     }
 
@@ -935,7 +927,7 @@ class BlogPref extends AbstractPage
                     $param = new Param();
                     foreach ($post_types as $post_type) {
                         $param->set('post_type', $post_type->type);
-                        $param->set('user_id', $k);
+                        $param->set('user_id', $user->id);
 
                         echo '<li>' . sprintf(__('%1$s: %2$s'), $post_type->label, App::core()->blog()->posts()->countPosts(param: $param)) . '</li>';
                     }
@@ -943,18 +935,14 @@ class BlogPref extends AbstractPage
 
                     echo '<h5>' . __('Permissions:') . '</h5>' .
                         '<ul>';
-                    if ($v['super']) {
+                    if ($user->super) {
                         echo '<li class="user_super">' . __('Super administrator') . '<br />' .
                         '<span class="form-note">' . __('All rights on all blogs.') . '</span></li>';
                     } else {
-                        foreach ($v['p'] as $p => $V) {
-                            if (isset($perm_types[$p])) {
-                                echo '<li ' . ('admin' == $p ? 'class="user_admin"' : '') . '>' . __($perm_types[$p]);
-                            } else {
-                                echo '<li>' . sprintf(__('[%s] (unreferenced permission)'), $p);
-                            }
+                        foreach ($user->perm->dump() as $type) {
+                            echo '<li ' . ('admin' == $type ? 'class="user_admin"' : '') . '>' . App::core()->permissions()->getPermType($type)->label;
 
-                            if ('admin' == $p) {
+                            if ('admin' == $type) {
                                 echo '<br /><span class="form-note">' . __('All rights on this blog.') . '</span>';
                             }
                             echo '</li>';
@@ -962,13 +950,13 @@ class BlogPref extends AbstractPage
                     }
                     echo '</ul>';
 
-                    if (!$v['super'] && App::core()->user()->isSuperAdmin()) {
+                    if (!$user->super && App::core()->user()->isSuperAdmin()) {
                         echo '<form action="' . App::core()->adminurl()->root() . '" method="post">' .
                         '<p class="change-user-perm"><input type="submit" class="reset" value="' . __('Change permissions') . '" />' .
                         App::core()->adminurl()->getHiddenFormFields('admin.user.actions', [
-                            'redir'   => App::core()->adminurl()->get('admin.blog.pref', ['id' => $k], '&'),
+                            'redir'   => App::core()->adminurl()->get('admin.blog.pref', ['id' => $user->id], '&'),
                             'action'  => 'perms',
-                            'users[]' => $k,
+                            'users[]' => $user->id,
                             'blogs[]' => $this->blog_id,
                         ], true) . '</p>' .
                             '</form>';

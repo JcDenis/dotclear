@@ -347,7 +347,7 @@ final class Prepend extends Core
                 App::stop(new Exception(__('Precondition Failed.'), 412));
             }
 
-            if (!GPC::request()->empty('switchblog') && false !== $this->user()->getPermissions(GPC::request()->string('switchblog'))) {
+            if (!GPC::request()->empty('switchblog') && $this->user()->getPermissions(GPC::request()->string('switchblog'))->count()) {
                 $_SESSION['sess_blog_id'] = GPC::request()->string('switchblog');
                 if (isset($_SESSION['media_manager_dir'])) {
                     unset($_SESSION['media_manager_dir']);
@@ -372,7 +372,7 @@ final class Prepend extends Core
 
             // Check blog to use and log out if no result
             if (isset($_SESSION['sess_blog_id'])) {
-                if (false === $this->user()->getPermissions($_SESSION['sess_blog_id'])) {
+                if (!$this->user()->getPermissions($_SESSION['sess_blog_id'])->count()) {
                     unset($_SESSION['sess_blog_id']);
                 }
             } else {

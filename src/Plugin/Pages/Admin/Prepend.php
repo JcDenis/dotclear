@@ -12,6 +12,7 @@ namespace Dotclear\Plugin\Pages\Admin;
 // Dotclear\Plugin\Pages\Admin\Prepend
 use ArrayObject;
 use Dotclear\App;
+use Dotclear\Core\Permissions\PermissionDescriptor;
 use Dotclear\Database\Param;
 use Dotclear\Helper\GPC\GPC;
 use Dotclear\Modules\ModulePrepend;
@@ -29,7 +30,10 @@ class Prepend extends ModulePrepend
     public function loadModule(): void
     {
         // Add pages permissions
-        App::core()->user()->setPermissionType('pages', __('manage pages'));
+        App::core()->permissions()->addPermType(new PermissionDescriptor(
+            type: 'pages',
+            label: __('manage pages')
+        ));
 
         // Add admin url (only page detail, the other one was auto created by Module)
         App::core()->adminurl()->register(

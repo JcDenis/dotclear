@@ -223,7 +223,7 @@ class Antispam
             return false;
         }
 
-        $permissions = App::core()->blogs()->getBlogPermissions(id: App::core()->blog()->id);
+        $permissions = App::core()->permissions()->getBlogPermissions(id: App::core()->blog()->id);
 
         if (empty($permissions[$rs->f('user_id')])) {
             return false;

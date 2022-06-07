@@ -415,24 +415,21 @@ class User extends AbstractPage
             ], true) . '</p>' .
                 '</form>';
 
-            $permissions = App::core()->users()->getUserPermissions(id: $this->user->getProperty('user_id'));
-            $perm_types  = App::core()->user()->getPermissionsTypes();
+            $user_permissions = App::core()->permissions()->getUserPermissions(id: $this->user->getProperty('user_id'));
 
-            if (count($permissions) == 0) {
+            if (empty($user_permissions)) {
                 echo '<p>' . __('No permissions so far.') . '</p>';
             } else {
-                foreach ($permissions as $k => $v) {
-                    if (count($v['p']) > 0) {
+                foreach ($user_permissions as $blog_permissions) {
+                    if (0 < $blog_permissions->perm->count()) {
                         echo '<form action="' . App::core()->adminurl()->root() . '" method="post" class="perm-block">' .
                         '<p class="blog-perm">' . __('Blog:') . ' <a href="' .
-                        App::core()->adminurl()->get('admin.blog', ['id' => Html::escapeHTML($k)]) . '">' .
-                        Html::escapeHTML($v['name']) . '</a> (' . Html::escapeHTML($k) . ')</p>';
+                        App::core()->adminurl()->get('admin.blog', ['id' => Html::escapeHTML($blog_permissions->id)]) . '">' .
+                        Html::escapeHTML($blog_permissions->name) . '</a> (' . Html::escapeHTML($blog_permissions->id) . ')</p>';
 
                         echo '<ul class="ul-perm">';
-                        foreach ($v['p'] as $p => $V) {
-                            if (isset($perm_types[$p])) {
-                                echo '<li>' . __($perm_types[$p]) . '</li>';
-                            }
+                        foreach ($blog_permissions->perm->dump() as $type) {
+                            echo '<li>' . App::core()->permissions()->getPermType($type)->label . '</li>';
                         }
                         echo '</ul>' .
                         '<p class="add-perm"><input type="submit" class="reset" value="' . __('Change permissions') . '" />' .
@@ -440,7 +437,7 @@ class User extends AbstractPage
                             'redir'   => App::core()->adminurl()->get('admin.user', ['id' => $this->user->getProperty('user_id')]),
                             'action'  => 'perms',
                             'users[]' => $this->user->getProperty('user_id'),
-                            'blogs[]' => $k,
+                            'blogs[]' => $blog_permissions->id,
                         ], true) . '</p>' .
                             '</form>';
                     }

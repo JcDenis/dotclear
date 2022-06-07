@@ -19,6 +19,7 @@ use Dotclear\Database\Cursor;
 use Dotclear\Exception\CoreException;
 use Dotclear\Helper\Crypt;
 use Dotclear\Helper\GPC\GPC;
+use Dotclear\Helper\Mapper\Strings;
 use Dotclear\Helper\Network\Http;
 use Exception;
 
@@ -66,16 +67,10 @@ class User
     protected $allow_pass_change = true;
 
     /**
-     * @var array<string,array> $blogs
-     *                          List of blogs on which the user has permissions
+     * @var array<string,Strings> $blogs
+     *                            List of blogs on which the user has permissions
      */
     protected $blogs = [];
-
-    /**
-     * @var array<string,string> $perm_types
-     *                           Permission types
-     */
-    protected $perm_types = [];
 
     /**
      * @var int $blog_count
@@ -89,17 +84,6 @@ class User
     public function __construct()
     {
         $this->user = new UserContainer();
-
-        $this->perm_types = [
-            'admin'        => __('administrator'),
-            'contentadmin' => __('manage all entries and comments'),
-            'usage'        => __('manage their own entries and comments'),
-            'publish'      => __('publish entries and comments'),
-            'delete'       => __('delete entries and comments'),
-            'categories'   => __('manage categories'),
-            'media_admin'  => __('manage all media items'),
-            'media'        => __('manage their own media items'),
-        ];
     }
 
     // / @name Credentials and user permissions
@@ -314,18 +298,16 @@ class User
             return true;
         }
 
-        $p = array_map('trim', explode(',', $permissions));
-        $b = $this->getPermissions($blog_id);
+        $required_permissions = array_map('trim', explode(',', $permissions));
+        $blog_permissions     = $this->getPermissions($blog_id);
 
-        if (false != $b) {
-            if (isset($b['admin'])) {
+        if ($blog_permissions->exists('admin')) {
+            return true;
+        }
+
+        foreach ($required_permissions as $permission) {
+            if (!empty($permission) && $blog_permissions->exists($permission)) {
                 return true;
-            }
-
-            foreach ($p as $v) {
-                if (!empty($v) && isset($b[$v])) {
-                    return true;
-                }
             }
         }
 
@@ -377,49 +359,48 @@ class User
     // / @name User information and options
     // @{
     /**
-     * Return user permissions for a blog as an array which looks like:.
+     * Get user permissions for a blog.
      *
-     *  - [blog_id]
-     *    - [permission] => true
-     *    - ...
+     * @param string $blog_id The blog ID
      *
-     * @param string $blog_id Blog ID
+     * @return Strings The user blog permissions
      */
-    public function getPermissions(string $blog_id): array|false
+    public function getPermissions(string $blog_id): Strings
     {
         if (isset($this->blogs[$blog_id])) {
             return $this->blogs[$blog_id];
         }
 
+        $this->blogs[$blog_id] = new Strings();
+
+        // If user is super admin, check if blog exists and set him as admin
         if ($this->user->getProperty('user_super')) {
             $sql = new SelectStatement(__METHOD__);
-            $rs  = $sql
-                ->column('blog_id')
-                ->from(App::core()->prefix() . $this->blog_table)
-                ->where('blog_id = ' . $sql->quote($blog_id))
-                ->select()
-            ;
+            $sql->column('blog_id');
+            $sql->from(App::core()->prefix() . $this->blog_table);
+            $sql->where('blog_id = ' . $sql->quote($blog_id));
 
-            $this->blogs[$blog_id] = $rs->isEmpty() ? false : ['admin' => true];
-
-            return $this->blogs[$blog_id];
-        }
-
-        $sql = new SelectStatement(__METHOD__);
-        $rs  = $sql
-            ->column('permissions')
-            ->from(App::core()->prefix() . $this->perm_table)
-            ->where('user_id = ' . $sql->quote($this->user->getProperty('user_id')))
-            ->and('blog_id = ' . $sql->quote($blog_id))
-            ->and($sql->orGroup([
+            $record = $sql->select();
+            if (!$record->isEmpty()) {
+                $this->blogs[$blog_id] = new Strings(['admin']);
+            }
+        } else {
+            $sql = new SelectStatement(__METHOD__);
+            $sql->column('permissions');
+            $sql->from(App::core()->prefix() . $this->perm_table);
+            $sql->where('user_id = ' . $sql->quote($this->user->getProperty('user_id')));
+            $sql->and('blog_id = ' . $sql->quote($blog_id));
+            $sql->and($sql->orGroup([
                 $sql->like('permissions', '%|usage|%'),
                 $sql->like('permissions', '%|admin|%'),
                 $sql->like('permissions', '%|contentadmin|%'),
-            ]))
-            ->select()
-        ;
+            ]));
 
-        $this->blogs[$blog_id] = $rs->isEmpty() ? false : $this->parsePermissions($rs->f('permissions'));
+            $record = $sql->select();
+            if (!$record->isEmpty()) {
+                $this->blogs[$blog_id] = App::core()->permissions()->parsePermissions($record->f('permissions'));
+            }
+        }
 
         return $this->blogs[$blog_id];
     }
@@ -445,42 +426,38 @@ class User
      */
     public function findUserBlog(?string $blog_id = null): string|false
     {
-        if ($blog_id && false !== $this->getPermissions($blog_id)) {
+        if ($blog_id && $this->getPermissions($blog_id)->count()) {
             return $blog_id;
         }
 
         $sql = new SelectStatement(__METHOD__);
 
         if ($this->user->getProperty('user_super')) {
-            $sql
-                ->column('blog_id')
-                ->from(App::core()->prefix() . $this->blog_table)
-                ->order('blog_id ASC')
-                ->limit(1)
-            ;
+            $sql->column('blog_id');
+            $sql->from(App::core()->prefix() . $this->blog_table);
+            $sql->order('blog_id ASC');
+            $sql->limit(1);
         } else {
-            $sql
-                ->column('P.blog_id')
-                ->from([
-                    App::core()->prefix() . $this->perm_table . ' P',
-                    App::core()->prefix() . $this->blog_table . ' B',
-                ])
-                ->where('user_id = ' . $sql->quote($this->user->getProperty('user_id')))
-                ->and('P.blog_id = B.blog_id')
-                ->and($sql->orGroup([
-                    $sql->like('permissions', '%|usage|%'),
-                    $sql->like('permissions', '%|admin|%'),
-                    $sql->like('permissions', '%|contentadmin|%'),
-                ]))
-                ->and('blog_status >= 0')
-                ->order('P.blog_id ASC')
-                ->limit(1)
-            ;
+            $sql->column('P.blog_id');
+            $sql->from([
+                App::core()->prefix() . $this->perm_table . ' P',
+                App::core()->prefix() . $this->blog_table . ' B',
+            ]);
+            $sql->where('user_id = ' . $sql->quote($this->user->getProperty('user_id')));
+            $sql->and('P.blog_id = B.blog_id');
+            $sql->and($sql->orGroup([
+                $sql->like('permissions', '%|usage|%'),
+                $sql->like('permissions', '%|admin|%'),
+                $sql->like('permissions', '%|contentadmin|%'),
+            ]));
+            $sql->and('blog_status >= 0');
+            $sql->order('P.blog_id ASC');
+            $sql->limit(1);
         }
 
-        $rs = $sql->select();
+        $record = $sql->select();
 
-        return $rs->isEmpty() ? false : $rs->f('blog_id');
+        return $record->isEmpty() ? false : $record->f('blog_id');
     }
 
     /**
@@ -531,47 +508,6 @@ class User
     public function getOptions(): array
     {
         return $this->user->getOptions();
-    }
-    // @}
-
-    // / @name Permissions
-    // @{
-    /**
-     * Return an array with permissions parsed from the string <var>$level</var>.
-     *
-     * @param null|string $level Permissions string
-     */
-    public function parsePermissions(?string $level): array
-    {
-        $level = (string) $level;
-        $level = preg_replace('/^\|/', '', $level);
-        $level = preg_replace('/\|$/', '', $level);
-
-        $res = [];
-        foreach (explode('|', $level) as $v) {
-            $res[$v] = true;
-        }
-
-        return $res;
-    }
-
-    /**
-     * Return <var>perm_types</var> property content.
-     */
-    public function getPermissionsTypes(): array
-    {
-        return $this->perm_types;
-    }
-
-    /**
-     * Add a new permission type.
-     *
-     * @param string $name  Permission name
-     * @param string $title Permission title
-     */
-    public function setPermissionType(string $name, string $title): void
-    {
-        $this->perm_types[$name] = $title;
     }
     // @}
 

@@ -19,6 +19,8 @@ use Dotclear\Core\Media\Media;
 use Dotclear\Core\Meta\Meta;
 use Dotclear\Core\Nonce\Nonce;
 use Dotclear\Core\Session\Session;
+use Dotclear\Core\Permissions\PermissionDescriptor;
+use Dotclear\Core\Permissions\Permissions;
 use Dotclear\Core\PostType\PostType;
 use Dotclear\Core\PostType\PostTypeDescriptor;
 use Dotclear\Core\Url\Url;
@@ -125,6 +127,12 @@ class Core
      *            Nonce instance
      */
     private $nonce;
+
+    /**
+     * @var Permissions $permissions
+     *                  Permissions instance
+     */
+    private $permissions;
 
     /**
      * @var PostType $posttype
@@ -501,11 +509,61 @@ class Core
     }
 
     /**
+     * Get permissions instance.
+     *
+     * Permissions methods are accesible from App::core()->permissions()
+     *
+     * @return Permissions The permission types instance
+     */
+    final public function permissions(): Permissions
+    {
+        if (!($this->permissions instanceof Permissions)) {
+            $this->permissions = new Permissions(
+                'core',
+                new PermissionDescriptor(
+                    type: 'admin',
+                    label: __('administrator')
+                ),
+                new PermissionDescriptor(
+                    type: 'contentadmin',
+                    label: __('manage all entries and comments')
+                ),
+                new PermissionDescriptor(
+                    type: 'usage',
+                    label: __('manage their own entries and comments')
+                ),
+                new PermissionDescriptor(
+                    type: 'publish',
+                    label: __('publish entries and comments')
+                ),
+                new PermissionDescriptor(
+                    type: 'delete',
+                    label: __('delete entries and comments')
+                ),
+                new PermissionDescriptor(
+                    type: 'categories',
+                    label: __('manage categories')
+                ),
+                new PermissionDescriptor(
+                    type: 'media_admin',
+                    label: __('manage all media items')
+                ),
+                new PermissionDescriptor(
+                    type: 'media',
+                    label: __('manage their own media items')
+                ),
+            );
+        }
+
+        return $this->permissions;
+    }
+
+    /**
      * Get posttype instance.
      *
      * PostType methods are accesible from App::core()->posttype()
      *
-     * @return PostType The post type instance
+     * @return PostType The post types instance
      */
     final public function posttype(): PostType
     {

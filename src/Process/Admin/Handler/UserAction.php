@@ -116,7 +116,7 @@ class UserAction extends AbstractPage
                                 }
                             }
 
-                            App::core()->users()->setUserBlogPermissions(id: $user, blog: $blog, permissions: $permissions);
+                            App::core()->permissions()->setUserBlogPermissions(id: $user, blog: $blog, permissions: $permissions);
                         }
                     }
                 } catch (Exception $e) {
@@ -253,7 +253,7 @@ class UserAction extends AbstractPage
         } elseif (!empty($this->blogs) && !empty($this->users) && 'perms' == $this->user_action) {
             $user_perm = $user_list = [];
             if (count($this->users) == 1) {
-                $user_perm = App::core()->users()->getUserPermissions(id: $this->users[0]);
+                $user_perm = App::core()->permissions()->getUserPermissions(id: $this->users[0]);
             }
 
             foreach ($this->users as $u) {
@@ -269,36 +269,36 @@ class UserAction extends AbstractPage
             foreach ($this->blogs as $b) {
                 echo '<h3>' . ('Blog:') . ' <a href="' . App::core()->adminurl()->get('admin.blog', ['id' => Html::escapeHTML($b)]) . '">' . Html::escapeHTML($b) . '</a>' .
                 Form::hidden(['blogs[]'], $b) . '</h3>';
-                $unknown_perms = $user_perm;
-                foreach (App::core()->user()->getPermissionsTypes() as $perm_id => $perm) {
+
+                foreach (App::core()->permissions()->getPermTypes() as $perm) {
                     $checked = false;
 
                     if (count($this->users) == 1) {
-                        $checked = isset($user_perm[$b]['p'][$perm_id]) && $user_perm[$b]['p'][$perm_id];
-                    }
-                    if (isset($unknown_perms[$b]['p'][$perm_id])) {
-                        unset($unknown_perms[$b]['p'][$perm_id]);
+                        $checked = isset($user_perm[$b]) && $user_perm[$b]->perm->exists($perm->type);
                     }
 
-                    echo '<p><label for="perm' . Html::escapeHTML($b) . Html::escapeHTML($perm_id) . '" class="classic">' .
+                    echo '<p><label for="perm' . Html::escapeHTML($b) . Html::escapeHTML($perm->type) . '" class="classic">' .
                     Form::checkbox(
-                        ['perm[' . Html::escapeHTML($b) . '][' . Html::escapeHTML($perm_id) . ']', 'perm' . Html::escapeHTML($b) . Html::escapeHTML($perm_id)],
+                        ['perm[' . Html::escapeHTML($b) . '][' . Html::escapeHTML($perm->type) . ']', 'perm' . Html::escapeHTML($b) . Html::escapeHTML($perm->type)],
                         1,
                         $checked
                     ) . ' ' .
-                    __($perm) . '</label></p>';
+                    $perm->label . '</label></p>';
                 }
-                if (isset($unknown_perms[$b])) {
-                    foreach ($unknown_perms[$b]['p'] as $perm_id => $v) {
-                        $checked = isset($user_perm[$b]['p'][$perm_id]) && $user_perm[$b]['p'][$perm_id];
-                        echo '<p><label for="perm' . Html::escapeHTML($b) . Html::escapeHTML($perm_id) . '" class="classic">' .
+                if (isset($user_perm[$b])) {
+                    foreach ($user_perm[$b]->perm->dump() as $type) {
+                        if (App::core()->permissions()->isPermType($type)) {
+                            continue;
+                        }
+
+                        echo '<p><label for="perm' . Html::escapeHTML($b) . Html::escapeHTML($type) . '" class="classic">' .
                         Form::checkbox(
-                            ['perm[' . Html::escapeHTML($b) . '][' . Html::escapeHTML($perm_id) . ']',
-                                'perm' . Html::escapeHTML($b) . Html::escapeHTML($perm_id), ],
+                            ['perm[' . Html::escapeHTML($b) . '][' . Html::escapeHTML($type) . ']',
+                                'perm' . Html::escapeHTML($b) . Html::escapeHTML($type), ],
                             1,
-                            $checked
+                            true
                         ) . ' ' .
-                        sprintf(__('[%s] (unreferenced permission)'), $perm_id) . '</label></p>';
+                        sprintf(__('[%s] (unreferenced permission)'), $type) . '</label></p>';
                     }
                 }
             }
