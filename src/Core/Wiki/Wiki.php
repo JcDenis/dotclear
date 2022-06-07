@@ -19,7 +19,7 @@ use Dotclear\Helper\Html\Html;
  *
  * @ingroup  Core Text
  */
-class Wiki
+final class Wiki
 {
     /**
      * @var Wiki2xhtml $wiki2xhtml

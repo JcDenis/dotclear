@@ -40,7 +40,7 @@ class Statuses
         }
 
         // --BEHAVIOR-- coreAfterConstructStatuses, string, Statuses
-        App::core()->behavior()->call('coreAfterConstructStatuses', id: $this->id, stack: $this);
+        App::core()->behavior()->call('coreAfterConstructStatuses', id: $this->id, statuses: $this);
     }
 
     /**

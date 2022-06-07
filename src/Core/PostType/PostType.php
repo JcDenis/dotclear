@@ -87,7 +87,7 @@ final class PostType
      *
      * @return array<string,PostTypeDescriptor> The posts types descriptors
      */
-    public function dump()
+    public function dump(): array
     {
         return $this->post_types;
     }

@@ -18,7 +18,7 @@ use Dotclear\Helper\Html\Form;
  *
  * @ingroup  Core
  */
-class Nonce
+final class Nonce
 {
     /**
      * Gets the nonce.

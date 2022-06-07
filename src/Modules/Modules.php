@@ -20,6 +20,7 @@ use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Modules\Repository\Repository;
+use Error;
 use Exception;
 
 /**
@@ -356,7 +357,12 @@ class Modules
 
         // Load modules stuff
         foreach ($this->modules_enabled as $id => $define) {
-            $this->loadModule($define);
+            try {
+                $this->loadModule($define);
+            } catch (Exception|Error $e) {
+                // Do not break dotclear with a corrupt module
+                // App::core()->error()->add(sprintf(__('Failed to load module "%s": %s'), $define->id(), $e->getMessage()));
+            }
         }
     }
 
