@@ -1005,8 +1005,10 @@ class PluginList
 
         // Delete
         if (App::core()->user()->isSuperAdmin() && !GPC::post()->empty('delete')) {
-            if (count(GPC::post()->array('delete'))) {
+            if (is_array(GPC::post()->get('delete'))) {
                 $modules = array_keys(GPC::post()->array('delete'));
+            } elseif (count(GPC::post()->array('modules'))) {
+                $modules = array_values(GPC::post()->array('modules'));
             }
 
             $list = $this->modules()->getDisabledModules();
@@ -1055,8 +1057,10 @@ class PluginList
 
         // Install //! waiting for store modules to be from ModuleDefine
         } elseif (App::core()->user()->isSuperAdmin() && !GPC::post()->empty('install')) {
-            if (count(GPC::post()->array('install'))) {
+            if (is_array(GPC::post()->get('install'))) {
                 $modules = array_keys(GPC::post()->array('install'));
+            } elseif (count(GPC::post()->array('modules'))) {
+                $modules = array_values(GPC::post()->array('modules'));
             }
 
             $list = $this->modules()->store()->get();
@@ -1091,8 +1095,10 @@ class PluginList
 
         // Activate
         } elseif (App::core()->user()->isSuperAdmin() && !GPC::post()->empty('activate')) {
-            if (count(GPC::post()->array('activate'))) {
+            if (is_array(GPC::post()->get('activate'))) {
                 $modules = array_keys(GPC::post()->array('activate'));
+            } elseif (count(GPC::post()->array('modules'))) {
+                $modules = array_values(GPC::post()->array('modules'));
             }
 
             $list = $this->modules()->getDisabledModules();
@@ -1124,8 +1130,10 @@ class PluginList
 
         // Deactivate
         } elseif (App::core()->user()->isSuperAdmin() && !GPC::post()->empty('deactivate')) {
-            if (count(GPC::post()->array('deactivate'))) {
+            if (is_array(GPC::post()->get('deactivate'))) {
                 $modules = array_keys(GPC::post()->array('deactivate'));
+            } elseif (count(GPC::post()->array('modules'))) {
+                $modules = array_values(GPC::post()->array('modules'));
             }
 
             $list = $this->modules()->getModules();
@@ -1168,8 +1176,10 @@ class PluginList
 
         // Update //! waiting for store modules to be from ModuleDefine
         } elseif (App::core()->user()->isSuperAdmin() && !GPC::post()->empty('update')) {
-            if (count(GPC::post()->array('update'))) {
+            if (is_array(GPC::post()->get('update'))) {
                 $modules = array_keys(GPC::post()->array('update'));
+            } elseif (count(GPC::post()->array('modules'))) {
+                $modules = array_values(GPC::post()->array('modules'));
             }
 
             $list = $this->modules()->store()->get(true);
