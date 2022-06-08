@@ -15,6 +15,7 @@ use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Database\AbstractConnection;
 use Dotclear\Database\Structure;
 use Dotclear\Helper\File\Path;
+use Dotclear\Helper\Mapper\Strings;
 use Exception;
 
 /**
@@ -313,44 +314,44 @@ class Distrib
         }
     }
 
-    public static function checkRequirements(AbstractConnection $con, ArrayObject $err): bool
+    public static function checkRequirements(AbstractConnection $con, Strings $err): bool
     {
         if (version_compare(phpversion(), '8.1', '<')) {
-            $err[] = sprintf(__('PHP version is %s (%s or earlier needed).'), phpversion(), '8.1');
+            $err->add(sprintf(__('PHP version is %s (%s or earlier needed).'), phpversion(), '8.1'));
         }
 
         if (!function_exists('mb_detect_encoding')) {
-            $err[] = __('Multibyte string module (mbstring) is not available.');
+            $err->add(__('Multibyte string module (mbstring) is not available.'));
         }
 
         if (!function_exists('iconv')) {
-            $err[] = __('Iconv module is not available.');
+            $err->add(__('Iconv module is not available.'));
         }
 
         if (!function_exists('ob_start')) {
-            $err[] = __('Output control functions are not available.');
+            $err->add(__('Output control functions are not available.'));
         }
 
         if (!function_exists('simplexml_load_string')) {
-            $err[] = __('SimpleXML module is not available.');
+            $err->add(__('SimpleXML module is not available.'));
         }
 
         if (!function_exists('dom_import_simplexml')) {
-            $err[] = __('DOM XML module is not available.');
+            $err->add(__('DOM XML module is not available.'));
         }
 
         $pcre_str = base64_decode('w6nDqMOgw6o=');
         if (!@preg_match('/' . $pcre_str . '/u', $pcre_str)) {
-            $err[] = __('PCRE engine does not support UTF-8 strings.');
+            $err->add(__('PCRE engine does not support UTF-8 strings.'));
         }
 
         if (!function_exists('spl_classes')) {
-            $err[] = __('SPL module is not available.');
+            $err->add(__('SPL module is not available.'));
         }
 
         if ($con->syntax() == 'mysql') {
             if (version_compare($con->version(), '4.1', '<')) {
-                $err[] = sprintf(__('MySQL version is %s (4.1 or earlier needed).'), $con->version());
+                $err->add(sprintf(__('MySQL version is %s (4.1 or earlier needed).'), $con->version()));
             } else {
                 $rs     = $con->select('SHOW ENGINES');
                 $innodb = false;
@@ -363,16 +364,16 @@ class Distrib
                 }
 
                 if (!$innodb) {
-                    $err[] = __('MySQL InnoDB engine is not available.');
+                    $err->add(__('MySQL InnoDB engine is not available.'));
                 }
             }
         } elseif ($con->driver() == 'pgsql') {
             if (version_compare($con->version(), '8.0', '<')) {
-                $err[] = sprintf(__('PostgreSQL version is %s (8.0 or earlier needed).'), $con->version());
+                $err->add(sprintf(__('PostgreSQL version is %s (8.0 or earlier needed).'), $con->version()));
             }
         }
 
-        return count($err) == 0;
+        return $err->count() == 0;
     }
 
     /**

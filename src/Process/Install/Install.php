@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Process\Install;
 
 // Dotclear\Process\Install\Install
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Core\User\UserContainer;
 use Dotclear\Core\Blog\Settings\Settings;
@@ -24,6 +23,7 @@ use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\L10n;
+use Dotclear\Helper\Mapper\Strings;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Text;
 use Dotclear\Process\Distrib\Distrib;
@@ -72,10 +72,10 @@ class Install
         }
 
         // Check system capabilites
-        $_e = new ArrayObject();
+        $_e = new Strings();
         if (!Distrib::checkRequirements(App::core()->con(), $_e)) {
             $can_install = false;
-            $err         = '<p>' . __('Dotclear cannot be installed.') . '</p><ul><li>' . implode('</li><li>', $_e->getArrayCopy()) . '</li></ul>';
+            $err         = '<p>' . __('Dotclear cannot be installed.') . '</p><ul><li>' . implode('</li><li>', $_e->dump()) . '</li></ul>';
         }
 
         // Get information and perform install

@@ -23,6 +23,7 @@ use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\GPC\GPC;
+use Dotclear\Helper\Mapper\Strings;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Process\Distrib\Distrib;
 
@@ -89,11 +90,11 @@ class Wizard
                 }
 
                 // Checks system capabilites
-                $_e = new ArrayObject();
+                $_e = new Strings();
                 if (!Distrib::checkRequirements($con, $_e)) {
                     $can_install = false;
 
-                    throw new InstallException('<p>' . __('Dotclear cannot be installed.') . '</p><ul><li>' . implode('</li><li>', $_e->getArrayCopy()) . '</li></ul>');
+                    throw new InstallException('<p>' . __('Dotclear cannot be installed.') . '</p><ul><li>' . implode('</li><li>', $_e->dump()) . '</li></ul>');
                 }
 
                 // Check if dotclear is already installed
