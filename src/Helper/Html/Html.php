@@ -10,8 +10,8 @@ declare(strict_types=1);
 namespace Dotclear\Helper\Html;
 
 // Dotclear\Helper\Html\Html
-use ArrayObject;
 use Dotclear\App;
+use Dotclear\Helper\Mapper\Strings;
 
 /**
  * Basic html tool.
@@ -205,16 +205,13 @@ class Html
             return $str;
         }
 
-        $options = new ArrayObject([
-            'keep_aria' => false,
-            'keep_data' => false,
-            'keep_js'   => false,
-        ]);
+        // Options can be keep_aria, keep_data, keep_js, to enable it use $options->add('keep_aria');
+        $options = new Strings();
 
-        // --BEHAVIOR-- HTMLfilter, \ArrayObject
-        App::core()->behavior()->call('HTMLfilter', $options);
+        // --BEHAVIOR-- coreBeforeHtmlFilter, Strings
+        App::core()->behavior()->call('coreBeforeHtmlFilter', options: $options);
 
-        $filter = new HtmlFilter($options['keep_aria'], $options['keep_data'], $options['keep_js']);
+        $filter = new HtmlFilter($options->exists('keep_aria'), $options->exists('keep_data'), $options->exists('keep_js'));
 
         return trim($filter->apply($str));
     }
