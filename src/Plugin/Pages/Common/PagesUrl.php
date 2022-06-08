@@ -18,7 +18,6 @@ use Dotclear\Database\Param;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Helper\Html\HtmlFilter;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Text;
 use Exception;
@@ -153,7 +152,7 @@ class PagesUrl
                             }
                             $content = App::core()->wiki()->wikiTransform($content);
                         }
-                        $content = new HtmlFilter($content);
+                        $content = Html::filter($content);
                     }
 
                     $cp = App::core()->context()->get('comment_preview')
