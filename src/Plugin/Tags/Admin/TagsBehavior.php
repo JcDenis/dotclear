@@ -22,6 +22,7 @@ use Dotclear\Helper\GPC\GPCGroup;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Action\Action;
+use Dotclear\Process\Admin\Action\ActionDescriptor;
 
 /**
  * Admin behaviors for plugin Tags.
@@ -126,16 +127,18 @@ class TagsBehavior
 
     public function adminPostsActionsPage(Action $ap)
     {
-        $ap->addAction(
-            [__('Tags') => [__('Add tags') => 'tags']],
-            [$this, 'adminAddTags']
-        );
+        $ap->addAction(new ActionDescriptor(
+            group: __('Tags'),
+            actions: [__('Add tags') => 'tags'],
+            callback: [$this, 'adminAddTags'],
+        ));
 
         if (App::core()->user()->check('delete,contentadmin', App::core()->blog()->id)) {
-            $ap->addAction(
-                [__('Tags') => [__('Remove tags') => 'tags_remove']],
-                [$this, 'adminRemoveTags']
-            );
+            $ap->addAction(new ActionDescriptor(
+                group: __('Tags'),
+                actions: [__('Remove tags') => 'tags_remove'],
+                callback: [$this, 'adminRemoveTags'],
+            ));
         }
     }
 

@@ -10,13 +10,12 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Action;
 
 // Dotclear\Process\Admin\Action\Action
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Database\Record;
+use Dotclear\Exception\InvalidValueType;
 use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\GPC\GPCGroup;
 use Dotclear\Helper\Html\Form;
-use Dotclear\Helper\Html\FormSelectOption;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
@@ -29,16 +28,16 @@ use Exception;
 abstract class Action extends AbstractPage
 {
     /**
-     * @var array<string,mixed> $combo
+     * @var array<string,mixed> $action_combo
      *                          Action combo box
      */
-    protected $combo = [];
+    private $action_combo = [];
 
     /**
-     * @var ArrayObject $actions
-     *                  List of defined actions (callbacks)
+     * @var array<string,callable> $actions
+     *                             List of defined actions callbacks
      */
-    protected $actions;
+    private $action_callbacks = [];
 
     /**
      * @var array<int,array|string> $entries
@@ -116,15 +115,15 @@ abstract class Action extends AbstractPage
     {
         parent::__construct();
 
-        $this->actions         = new ArrayObject();
-        $this->combo           = [];
-        $this->redirect_fields = [];
-        $this->caction         = '';
-        $this->cb_title        = __('Title');
-        $this->entries         = [];
-        $this->from            = GPC::post();
-        $this->field_entries   = 'entries';
-        $this->caller_title    = __('Entries');
+        $this->action_combo     = [];
+        $this->action_callbacks = [];
+        $this->redirect_fields  = [];
+        $this->caction          = '';
+        $this->cb_title         = __('Title');
+        $this->entries          = [];
+        $this->from             = GPC::post();
+        $this->field_entries    = 'entries';
+        $this->caller_title     = __('Entries');
         if (isset($this->redir_args['_ANCHOR'])) {
             $this->redir_anchor = '#' . $this->redir_args['_ANCHOR'];
             unset($this->redir_args['_ANCHOR']);
@@ -150,40 +149,39 @@ abstract class Action extends AbstractPage
     }
 
     /**
-     * Zdds an action.
+     * Add actions.
      *
-     * @param array    $actions  the actions names as if it was a standalone combo array.
-     *                           It will be merged with other actions.
-     *                           Can be bound to multiple values, if the same callback is to be called
-     * @param callable $callback the callback for the action
-     *
-     * @return Action the actions page itself, enabling to chain addAction()
+     * @param ActionDescriptor $descriptor The actions descriptor
      */
-    public function addAction(array $actions, callable $callback): Action
+    public function addAction(ActionDescriptor $descriptor): void
     {
-        foreach ($actions as $k => $a) {
-            // Check each case of combo definition
-            // Store form values in $values
-            if (is_array($a)) {
-                $values = array_values($a);
-                if (!isset($this->combo[$k])) {
-                    $this->combo[$k] = [];
-                }
-                $this->combo[$k] = array_merge($this->combo[$k], $a);
-            } elseif ($a instanceof formSelectOption) {
-                $values          = [$a->value];
-                $this->combo[$k] = $a->value;
-            } else {
-                $values          = [$a];
-                $this->combo[$k] = $a;
+        // Check if action is callable
+        if (!is_callable($descriptor->callback)) {
+            if (!App::core()->production()) {
+                throw new InvalidValueType(__('Action callback must be callable.'));
             }
-            // Associate each potential value to the callback
-            foreach ($values as $v) {
-                $this->actions[$v] = $callback;
+
+            return;
+        }
+
+        // add actions combo
+        if (!$descriptor->hidden) {
+            if (empty($descriptor->group)) {
+                foreach ($descriptor->actions as $name => $id) {
+                    $this->action_combo[$name] = $id;
+                }
+            } else {
+                $this->action_combo[$descriptor->group] = array_merge(
+                    $this->action_combo[$descriptor->group] ?? [],
+                    $descriptor->actions
+                );
             }
         }
 
-        return $this;
+        // add actions callback
+        foreach ($descriptor->actions as $name => $id) {
+            $this->action_callbacks[$id] = $descriptor->callback;
+        }
     }
 
     /**
@@ -193,7 +191,7 @@ abstract class Action extends AbstractPage
      */
     public function getCombo(): array
     {
-        return $this->combo;
+        return $this->action_combo;
     }
 
     /**
@@ -359,10 +357,10 @@ abstract class Action extends AbstractPage
 
             try {
                 $performed = false;
-                foreach ($this->actions as $k => $v) {
-                    if ($this->from->string('action') == $k) {
+                foreach ($this->action_callbacks as $id => $callback) {
+                    if ($this->from->string('action') == $id) {
                         $performed = true;
-                        call_user_func($v, $this, $this->from);
+                        call_user_func($callback, $this, $this->from);
                     }
                 }
                 if ($performed) {

@@ -21,6 +21,7 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\Mapper\Integers;
 use Dotclear\Process\Admin\Action\Action;
+use Dotclear\Process\Admin\Action\ActionDescriptor;
 
 /**
  * Admin handler for default action on selected entries.
@@ -32,43 +33,43 @@ abstract class DefaultPostAction extends Action
     protected function loadPostAction(Action $ap): void
     {
         if (App::core()->user()->check('publish,contentadmin', App::core()->blog()->id)) {
-            $ap->addAction(
-                [__('Status') => App::core()->blog()->posts()->status()->getActions()],
-                [$this, 'doChangePostStatus']
-            );
+            $this->addAction(new ActionDescriptor(
+                group: __('Status'),
+                actions: App::core()->blog()->posts()->status()->getActions(),
+                callback: [$this, 'doChangePostStatus'],
+            ));
         }
-        $ap->addAction(
-            [__('Mark') => [
+        $this->addAction(new ActionDescriptor(
+            group: __('Mark'),
+            actions: [
                 __('Mark as selected')   => 'selected',
                 __('Mark as unselected') => 'unselected',
-            ]],
-            [$this, 'doUpdateSelectedPost']
-        );
-        $ap->addAction(
-            [__('Change') => [
-                __('Change category') => 'category',
-            ]],
-            [$this, 'doChangePostCategory']
-        );
-        $ap->addAction(
-            [__('Change') => [
-                __('Change language') => 'lang',
-            ]],
-            [$this, 'doChangePostLang']
-        );
+            ],
+            callback: [$this, 'doUpdateSelectedPost'],
+        ));
+        $this->addAction(new ActionDescriptor(
+            group: __('Change'),
+            actions: [__('Change category') => 'category'],
+            callback: [$this, 'doChangePostCategory'],
+        ));
+        $this->addAction(new ActionDescriptor(
+            group: __('Change'),
+            actions: [__('Change language') => 'lang'],
+            callback: [$this, 'doChangePostLang'],
+        ));
         if (App::core()->user()->check('admin', App::core()->blog()->id)) {
-            $ap->addAction(
-                [__('Change') => [
-                    __('Change author') => 'author', ]],
-                [$this, 'doChangePostAuthor']
-            );
+            $this->addAction(new ActionDescriptor(
+                group: __('Change'),
+                actions: [__('Change author') => 'author'],
+                callback: [$this, 'doChangePostAuthor'],
+            ));
         }
         if (App::core()->user()->check('delete,contentadmin', App::core()->blog()->id)) {
-            $ap->addAction(
-                [__('Delete') => [
-                    __('Delete') => 'delete', ]],
-                [$this, 'doDeletePost']
-            );
+            $this->addAction(new ActionDescriptor(
+                group: __('Delete'),
+                actions: [__('Delete') => 'delete'],
+                callback: [$this, 'doDeletePost'],
+            ));
         }
     }
 
@@ -76,11 +77,11 @@ abstract class DefaultPostAction extends Action
     {
         $ids = $this->getCleanedIDs(ap: $ap);
 
-        $status = App::core()->blog()->posts()->status()->getCode(id: $ap->getAction(), default: 1);
+        $status = App::core()->blog()->posts()->status()->getCode(id: $this->getAction(), default: 1);
 
         // Do not switch to scheduled already published entries
         if (-1 == $status) {
-            $rs = $ap->getRS();
+            $rs = $this->getRS();
             if ($rs->rows()) {
                 while ($rs->fetch()) {
                     if (1 === $rs->fInt('post_status')) {
@@ -106,14 +107,14 @@ abstract class DefaultPostAction extends Action
                 App::core()->blog()->posts()->status()->getState(code: $status)
             )
         );
-        $ap->redirect(true);
+        $this->redirect(true);
     }
 
     protected function doUpdateSelectedPost(Action $ap): void
     {
         $ids = $this->getCleanedIDs(ap: $ap);
 
-        $action = $ap->getAction();
+        $action = $this->getAction();
         App::core()->blog()->posts()->updatePostsSelected(ids: $ids, selected: 'selected' == $action);
 
         if ('selected' == $action) {
@@ -139,7 +140,7 @@ abstract class DefaultPostAction extends Action
                 )
             );
         }
-        $ap->redirect(true);
+        $this->redirect(true);
     }
 
     protected function doDeletePost(Action $ap)
@@ -158,7 +159,7 @@ abstract class DefaultPostAction extends Action
             )
         );
 
-        $ap->redirect(false);
+        $this->redirect(false);
     }
 
     protected function doChangePostCategory(Action $ap, GPCGroup $from)
@@ -198,27 +199,27 @@ abstract class DefaultPostAction extends Action
                 )
             );
 
-            $ap->redirect(true);
+            $this->redirect(true);
         } else {
             $categories_combo = App::core()->combo()->getCategoriesCombo(
                 App::core()->blog()->categories()->getCategories()
             );
 
-            $ap->setPageBreadcrumb([
-                Html::escapeHTML(App::core()->blog()->name) => '',
-                $ap->getCallerTitle()                       => $ap->getRedirection(true),
-                __('Change category for this selection')    => '',
+            $this->setPageBreadcrumb([
+                Html::escapeHTML(App::core()->blog()->name)   => '',
+                $this->getCallerTitle()                       => $this->getRedirection(true),
+                __('Change category for this selection')      => '',
             ]);
 
-            $ap->setPageContent(
-                '<form action="' . $ap->getURI() . '" method="post">' .
-                $ap->getCheckboxes() .
+            $this->setPageContent(
+                '<form action="' . $this->getURI() . '" method="post">' .
+                $this->getCheckboxes() .
                 '<p><label for="new_cat_id" class="classic">' . __('Category:') . '</label> ' .
                 Form::combo(['new_cat_id'], $categories_combo)
             );
 
             if (App::core()->user()->check('categories', App::core()->blog()->id)) {
-                $ap->setPageContent(
+                $this->setPageContent(
                     '</p><div>' .
                     '<p id="new_cat">' . __('Create a new category for the post(s)') . '</p>' .
                     '<p><label for="new_cat_title">' . __('Title:') . '</label> ' .
@@ -229,9 +230,9 @@ abstract class DefaultPostAction extends Action
                 );
             }
 
-            $ap->setPageContent(
+            $this->setPageContent(
                 App::core()->nonce()->form() .
-                $ap->getHiddenFields() .
+                $this->getHiddenFields() .
                 Form::hidden(['action'], 'category') .
                 '<input type="submit" value="' . __('Save') . '" /></p>' .
                 '</form>'
@@ -261,7 +262,7 @@ abstract class DefaultPostAction extends Action
                 )
             );
 
-            $ap->redirect(true);
+            $this->redirect(true);
         } else {
             $usersList = [];
             if (App::core()->user()->check('admin', App::core()->blog()->id)) {
@@ -279,22 +280,22 @@ abstract class DefaultPostAction extends Action
                 }
             }
 
-            $ap->setPageBreadcrumb([
+            $this->setPageBreadcrumb([
                 Html::escapeHTML(App::core()->blog()->name) => '',
-                $ap->getCallerTitle()                       => $ap->getRedirection(true),
+                $this->getCallerTitle()                     => $this->getRedirection(true),
                 __('Change author for this selection')      => '',
             ]);
-            $ap->setPageHead(
+            $this->setPageHead(
                 App::core()->resource()->load('jquery/jquery.autocomplete.js') .
                 App::core()->resource()->json('users_list', $usersList)
             );
-            $ap->setPageContent(
-                '<form action="' . $ap->getURI() . '" method="post">' .
-                $ap->getCheckboxes() .
+            $this->setPageContent(
+                '<form action="' . $this->getURI() . '" method="post">' .
+                $this->getCheckboxes() .
                 '<p><label for="new_auth_id" class="classic">' . __('New author (author ID):') . '</label> ' .
                 Form::field('new_auth_id', 20, 255) .
 
-                App::core()->nonce()->form() . $ap->getHiddenFields() .
+                App::core()->nonce()->form() . $this->getHiddenFields() .
                 Form::hidden(['action'], 'author') .
                 '<input type="submit" value="' . __('Save') . '" /></p>' .
                 '</form>'
@@ -320,7 +321,7 @@ abstract class DefaultPostAction extends Action
                     Html::escapeHTML(L10n::getLanguageName($from->string('new_lang')))
                 )
             );
-            $ap->redirect(true);
+            $this->redirect(true);
         } else {
             $param = new Param();
             $param->set('order', 'asc');
@@ -337,19 +338,19 @@ abstract class DefaultPostAction extends Action
             }
             unset($all_langs, $rs);
 
-            $ap->setPageBreadcrumb([
-                Html::escapeHTML(App::core()->blog()->name) => '',
-                $ap->getCallerTitle()                       => $ap->getRedirection(true),
-                __('Change language for this selection')    => '',
+            $this->setPageBreadcrumb([
+                Html::escapeHTML(App::core()->blog()->name)   => '',
+                $this->getCallerTitle()                       => $this->getRedirection(true),
+                __('Change language for this selection')      => '',
             ]);
 
-            $ap->setPageContent(
-                '<form action="' . $ap->getURI() . '" method="post">' .
-                $ap->getCheckboxes() .
+            $this->setPageContent(
+                '<form action="' . $this->getURI() . '" method="post">' .
+                $this->getCheckboxes() .
                 '<p><label for="new_lang" class="classic">' . __('Entry language:') . '</label> ' .
                 Form::combo('new_lang', $lang_combo) .
 
-                App::core()->nonce()->form() . $ap->getHiddenFields() .
+                App::core()->nonce()->form() . $this->getHiddenFields() .
                 Form::hidden(['action'], 'lang') .
                 '<input type="submit" value="' . __('Save') . '" /></p>' .
                 '</form>'
@@ -366,7 +367,7 @@ abstract class DefaultPostAction extends Action
      */
     private function getCleanedIDs(Action $ap): Integers
     {
-        $ids = new Integers($ap->getIDs());
+        $ids = new Integers($this->getIDs());
         if (!$ids->count()) {
             throw new MissingOrEmptyValue(__('No entry selected'));
         }

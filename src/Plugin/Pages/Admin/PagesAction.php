@@ -17,6 +17,7 @@ use Dotclear\Helper\Clock;
 use Dotclear\Helper\GPC\GPCGroup;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Action\Action;
+use Dotclear\Process\Admin\Action\ActionDescriptor;
 use Dotclear\Process\Admin\Action\Action\PostAction;
 use Exception;
 
@@ -55,32 +56,37 @@ class PagesAction extends PostAction
     public function loadDefaults(): void
     {
         if (App::core()->user()->check('publish,contentadmin', App::core()->blog()->id)) {
-            $this->addAction(
-                [__('Status') => [
+            $this->addAction(new ActionDescriptor(
+                group: __('Status'),
+                actions: [
                     __('Publish')         => 'publish',
                     __('Unpublish')       => 'unpublish',
                     __('Schedule')        => 'schedule',
                     __('Mark as pending') => 'pending',
-                ]],
-                [$this, 'doChangePostStatus']
-            );
+                ],
+                callback: [$this, 'doChangePostStatus'],
+            ));
         }
         if (App::core()->user()->check('admin', App::core()->blog()->id)) {
-            $this->addAction(
-                [__('Change') => [
-                    __('Change author') => 'author', ]],
-                [$this, 'doChangePostAuthor']
-            );
+            $this->addAction(new ActionDescriptor(
+                group: __('Change'),
+                actions: [__('Change author') => 'author'],
+                callback: [$this, 'doChangePostAuthor'],
+            ));
         }
         if (App::core()->user()->check('delete,contentadmin', App::core()->blog()->id)) {
-            $this->addAction(
-                [__('Delete') => [
-                    __('Delete') => 'delete', ]],
-                [$this, 'doDeletePost']
-            );
+            $this->addAction(new ActionDescriptor(
+                group: __('Delete'),
+                actions: [__('Delete') => 'delete'],
+                callback: [$this, 'doDeletePost'],
+            ));
         }
 
-        $this->actions['reorder'] = [$this, 'doReorderPages'];
+        $this->addAction(new ActionDescriptor(
+            hidden: true,
+            actions: ['reorder' => 'reorder'],
+            callback: [$this, 'doReorderPages'],
+        ));
 
         App::core()->behavior()->call('adminPagesActionsPage', $this);
     }
@@ -100,7 +106,7 @@ class PagesAction extends PostAction
         return parent::getPagePrepend();
     }
 
-    public function doReorderPages(Action $ap, GPCGroup $from): void
+    protected function doReorderPages(Action $ap, GPCGroup $from): void
     {
         foreach ($from->array('order') as $post_id => $value) {
             if (!App::core()->user()->check('publish,contentadmin', App::core()->blog()->id)) {

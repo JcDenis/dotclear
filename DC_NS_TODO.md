@@ -29,13 +29,12 @@
 - [ ] fix Inventory display() method
 - [ ] used named arguments on behaviors to be more strict
 - [ ] unset unused variables
+- [ ] enabled choice of response format for REST server. (JSON vs XML)
 
 ### Idea
 
 - Merge Distrib into Install
 - Move build-tools features into Plugin BuildTools
-- Use array for permissions
-- Open posts,comments,blogs status (create a status object)
 
 ### Rules
 Should be followed...one day...
@@ -82,3 +81,8 @@ Should be followed...one day...
 - Use singleton dotclear() instance accessible from every where
 - Use doxygen for code documentation (not complete)
 - ...
+
+### WIP
+
+- New (posts,comments,blogs) Status handling
+- New Permissions handling

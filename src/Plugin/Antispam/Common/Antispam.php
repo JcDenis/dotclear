@@ -23,6 +23,7 @@ use Dotclear\Helper\Clock;
 use Dotclear\Plugin\Antispam\Common\Filter\FilterIp;
 use Dotclear\Plugin\Antispam\Common\Filter\FilterIpv6;
 use Dotclear\Process\Admin\Action\Action;
+use Dotclear\Process\Admin\Action\ActionDescriptor;
 
 /**
  * Antispam main class.
@@ -309,10 +310,11 @@ class Antispam
                 $blocklist_actions[__('Blocklist IP (global)')] = 'blocklist_global';
             }
 
-            $ap->addAction(
-                [__('IP address') => $blocklist_actions],
-                [$this, 'doBlocklistIP']
-            );
+            $ap->addAction(new ActionDescriptor(
+                group: __('IP address'),
+                actions: $blocklist_actions,
+                callback: [$this, 'doBlocklistIP'],
+            ));
         }
     }
 

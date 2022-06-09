@@ -14,6 +14,7 @@ use Dotclear\App;
 use Dotclear\Exception\MissingOrEmptyValue;
 use Dotclear\Helper\Mapper\Integers;
 use Dotclear\Process\Admin\Action\Action;
+use Dotclear\Process\Admin\Action\ActionDescriptor;
 
 /**
  * Admin handler for default action on selected comments.
@@ -25,18 +26,19 @@ abstract class DefaultCommentAction extends Action
     protected function loadCommentAction(Action $ap): void
     {
         if (App::core()->user()->check('publish,contentadmin', App::core()->blog()->id)) {
-            $ap->addAction(
-                [__('Status') => App::core()->blog()->comments()->status()->getActions()],
-                [$this, 'doChangeCommentStatus']
-            );
+            $ap->addAction(new ActionDescriptor(
+                group: __('Status'),
+                actions: App::core()->blog()->comments()->status()->getActions(),
+                callback: [$this, 'doChangeCommentStatus'],
+            ));
         }
 
         if (App::core()->user()->check('delete,contentadmin', App::core()->blog()->id)) {
-            $ap->addAction(
-                [__('Delete') => [
-                    __('Delete') => 'delete', ]],
-                [$this, 'doDeleteComment']
-            );
+            $ap->addAction(new ActionDescriptor(
+                group: __('Delete'),
+                actions: [__('Delete') => 'delete'],
+                callback: [$this, 'doDeleteComment'],
+            ));
         }
     }
 

@@ -14,6 +14,7 @@ use Dotclear\App;
 use Dotclear\Exception\InsufficientPermissions;
 use Dotclear\Exception\MissingOrEmptyValue;
 use Dotclear\Process\Admin\Action\Action;
+use Dotclear\Process\Admin\Action\ActionDescriptor;
 use Dotclear\Helper\GPC\GPCGroup;
 use Dotclear\Helper\Mapper\Strings;
 
@@ -30,15 +31,16 @@ abstract class DefaultBlogAction extends Action
             return;
         }
 
-        $ap->addAction(
-            [__('Status') => App::core()->blogs()->status()->getActions()],
-            [$this, 'doChangeBlogStatus']
-        );
-        $ap->addAction(
-            [__('Delete') => [
-                __('Delete') => 'delete', ]],
-            [$this, 'doDeleteBlog']
-        );
+        $ap->addAction(new ActionDescriptor(
+            group: __('Status'),
+            actions: App::core()->blogs()->status()->getActions(),
+            callback: [$this, 'doChangeBlogStatus'],
+        ));
+        $ap->addAction(new ActionDescriptor(
+            group: __('Delete'),
+            actions: [__('Delete') => 'delete'],
+            callback: [$this, 'doDeleteBlog'],
+        ));
     }
 
     protected function doChangeBlogStatus(Action $ap): void
