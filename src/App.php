@@ -19,15 +19,15 @@ use Exception;
  *
  * @ingroup Process Core
  */
-class App
+final class App
 {
     /**
      * Run process.
      *
      * @param string      $process The process (admin,install,public...)
-     * @param null|string $blog_id The blog id for public process
+     * @param string $blog_id The blog id for public process
      */
-    final public static function run(string $process, ?string $blog_id = null): void
+    public static function run(string $process, string $blog_id = null): void
     {
         // Third party autoload (PSR-4 compliant)
         $file = implode(DIRECTORY_SEPARATOR, [__DIR__, '..', 'vendor', 'autoload.php']);
@@ -40,23 +40,24 @@ class App
         $autoload = new \Dotclear\Helper\Autoload(prepend: true);
         $autoload->addNamespace('Dotclear', __DIR__);
 
-        // Find process (Admin|Public|Install|...)
-        $class = 'Dotclear\\Process\\' . ucfirst(strtolower($process)) . '\\Prepend';
-        if (!is_subclass_of($class, 'Dotclear\\Core\\Core')) {
-            self::stop(new Exception('Something went wrong while trying to start process.', 605));
-        }
-
-        // Execute Process
         try {
+            // Find process (Admin|Public|Install|...)
+            $class = 'Dotclear\\Process\\' . ucfirst(strtolower($process)) . '\\Prepend';
+            if (!is_subclass_of($class, 'Dotclear\\Core\\Core')) {
+                throw new Exception('Something went wrong while trying to start process.', 500);
+            }
+
+            // Execute Process
             ob_start();
             $class::singleton($blog_id);
             ob_end_flush();
+
         } catch (Exception|Error $e) {
             ob_end_clean();
 
             // Try to display unexpected Exceptions as much cleaned as we can
             if (false === self::core()?->production()) {
-                self::stop(new Exception($e->getMessage(), $e->getCode(), $e));
+                self::stop(new Exception($e->getMessage(), $e->getCode(), $e), false);
             } else {
                 $msg = '<p>We apologize for this temporary unavailability.<br />Thank you for your understanding.</p>';
                 // If we crash before L10n loaded, there's a big issue and reason must be displayed.
@@ -72,7 +73,7 @@ class App
      *
      * @return null|object Singleton core instance
      */
-    final public static function core(): ?object
+    public static function core(): ?object
     {
         if (class_exists('Dotclear\\Core\\Core')) {
             return \Dotclear\Core\Core::singleton();
@@ -84,9 +85,10 @@ class App
     /**
      * Stop process and display errors.
      *
-     * @param Error|Exception $e The Exception
+     * @param Error|Exception $e          The Exception
+     * @param bool            $production The production mode
      */
-    final public static function stop(Exception|Error $e): void
+    public static function stop(Exception|Error $e, $production = true): void
     {
         @ob_clean();
 
@@ -102,7 +104,7 @@ class App
         } else {
             $title   = self::code($e->getCode());
             $trans   = function_exists('__') ? __($title) : $title;
-            $trace   = false === self::core()?->production() ? self::trace($e) : '';
+            $trace   = $production ? '' : self::trace($e);
             $message = str_replace("\n", '<br />', $e->getMessage() . $trace);
 
             header('Content-Type: text/html; charset=utf-8');
@@ -192,14 +194,14 @@ class App
         }
 
         $traces = '';
-        $span   = '<span class="%s">%s</span>';
+        $span   = '<span class="%s">%s%s</span>';
         foreach ($lines as $i => $line) {
             $traces .=
                 '<li>' .
-                (!empty($line['class']) ? sprintf($span, 'tc', $line['class']) . '::' : '') .
-                (!empty($line['function']) ? sprintf($span, 'tf', $line['function']) . ' ' : '') .
-                (!empty($line['file']) ? sprintf($span, 'tp', $line['file']) . ':' : '') .
-                (!empty($line['line']) ? sprintf($span, 'tl', $line['line']) : '') .
+                (!empty($line['class']) ? sprintf($span, 'tc', $line['class'], '::') : '') .
+                (!empty($line['function']) ? sprintf($span, 'tf', $line['function'], ' ') : '') .
+                (!empty($line['file']) ? sprintf($span, 'tp', $line['file'], ':') : '') .
+                (!empty($line['line']) ? sprintf($span, 'tl', $line['line'], '') : '') .
                 '</li>';
         }
 
@@ -216,18 +218,10 @@ class App
     private static function code(int $code): string
     {
         return match ($code) {
-            605     => 'No process found',
-            610     => 'No config file',
-            611     => 'Bad configuration',
-            620     => 'Database issue',
-            625     => 'User permission issue',
-            628     => 'File handler not found',
-            630     => 'Blog is not defined',
-            640     => 'Template files creation',
-            650     => 'No default theme',
-            660     => 'Template processing error',
-            670     => 'Blog is offline',
-            default => 'Site temporarily unavailable',
+            401     => 'Unauthorized',
+            412     => 'Precondition failed',
+            500     => 'Invalid configuration.',
+            default => 'Site temporarily unavailable', // 503
         };
     }
 }

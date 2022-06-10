@@ -16,6 +16,7 @@ use Dotclear\Core\Core;
 use Dotclear\Core\RsExt\RsExtPostPublic;
 use Dotclear\Core\RsExt\RsExtCommentPublic;
 use Dotclear\Database\Record;
+use Dotclear\Exception\InvalidConfiguration;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\Lexical;
@@ -117,11 +118,11 @@ final class Prepend extends Core
             try {
                 $this->template = new Template($this->config()->get('cache_dir'), 'App::core()->template()');
             } catch (Exception $e) {
-                App::stop(new Exception(
+                throw new InvalidConfiguration(
                     false === $this->production() ? $e->getMessage() : __('Unable to create template'),
-                    640,
+                    500,
                     $e
-                ));
+                );
             }
         }
 
@@ -178,13 +179,13 @@ final class Prepend extends Core
         $this->setBlog($blog_id ?: '');
 
         if (null == $this->blog()->id) {
-            App::stop(new Exception(__('Did you change your Blog ID?'), 630));
+            throw new InvalidConfiguration(__('Did you change your Blog ID?'));
         }
 
         if (!$this->blog()->status) {
             $this->unsetBlog();
 
-            App::stop(new Exception(__('This blog is offline. Please try again later.'), 670));
+            throw new InvalidConfiguration(__('This blog is offline. Please try again later.'), 503);
         }
 
         // Cope with static home page option
@@ -211,11 +212,11 @@ final class Prepend extends Core
             $this->plugins();
             $this->themes();
         } catch (Exception $e) {
-            App::stop(new Exception(
+            throw new InvalidConfiguration(
                 false == $this->production() ? $e->getMessage() : __('Something went wrong while loading modules.'),
-                640,
+                500,
                 $e
-            ));
+            );
         }
 
         // Load current theme definition
@@ -223,14 +224,13 @@ final class Prepend extends Core
 
         // If theme doesn't exist, stop everything
         if (!count($path)) {
-            App::stop(new Exception(
+            throw new InvalidConfiguration(
                 false == $this->production() ?
                     __('This either means you removed your default theme or set a wrong theme ' .
                         'path in your blog configuration. Please check theme_path value in ' .
                         'about:config module or reinstall default theme. (Berlin)') :
-                    __('Something went wrong while loading theme file for your blog.'),
-                650
-            ));
+                    __('Something went wrong while loading theme file for your blog.')
+            );
         }
 
         // If theme has parent load their locales
@@ -268,13 +268,13 @@ final class Prepend extends Core
         try {
             $this->url()->getDocument();
         } catch (Exception $e) {
-            App::stop(new Exception(
+            throw new InvalidConfiguration(
                 false == $this->production() ?
                     sprintf(__('The following error was encountered while trying to load template file: %s'), $e->getMessage()) :
                     __('Something went wrong while loading template file for your blog.'),
-                660,
+                500,
                 $e
-            ));
+            );
         }
     }
 }

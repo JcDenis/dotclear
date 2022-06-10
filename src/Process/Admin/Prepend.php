@@ -13,6 +13,7 @@ namespace Dotclear\Process\Admin;
 use DateTimeZone;
 use Dotclear\App;
 use Dotclear\Core\Core;
+use Dotclear\Exception\InvalidConfiguration;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\Lexical;
@@ -306,16 +307,16 @@ final class Prepend extends Core
         if (defined('DOTCLEAR_AUTH_SESS_ID') && defined('DOTCLEAR_AUTH_SESS_UID')) {
             // We have session information in constants
             if (!$this->user()->checkSession(\DOTCLEAR_AUTH_SESS_UID)) {
-                App::stop(new Exception(__('Invalid session data.'), 625));
+                throw new InsufficientPermissions(__('Invalid session data.'), 401);
             }
 
             // Check nonce from POST requests
             if (GPC::post()->count() && !$this->nonce()->check(GPC::post()->string('xd_check'))) {
-                App::stop(new Exception(__('Precondition Failed.'), 625));
+                throw new InsufficientPermissions(__('Precondition Failed.'), 412);
             }
 
             if (empty($_SESSION['sess_blog_id'])) {
-                App::stop(new Exception(__('Permission denied.'), 625));
+                throw new InsufficientPermissions(__('Permission denied.'), 401);
             }
 
             // Loading locales
@@ -323,7 +324,7 @@ final class Prepend extends Core
 
             $this->setBlog($_SESSION['sess_blog_id']);
             if (!$this->blog()->id) {
-                App::stop(new Exception(__('Permission denied.'), 625));
+                throw new InsufficientPermissions(__('Permission denied.'), 401);
             }
         } elseif ($this->user()->sessionExists()) {
             // If we have a session we launch it now
@@ -339,12 +340,12 @@ final class Prepend extends Core
                     exit;
                 }
             } catch (Exception $e) {
-                App::stop(new Exception(__('There seems to be no Session table in your database. Is Dotclear completly installed?'), 620, $e));
+                throw new InvalidConfiguration(__('There seems to be no Session table in your database. Is Dotclear completly installed?'), 500, $e);
             }
 
             // Check nonce from POST requests
             if (GPC::post()->count() && !$this->nonce()->check(GPC::post()->string('xd_check'))) {
-                App::stop(new Exception(__('Precondition Failed.'), 412));
+                throw new InsufficientPermissions(__('Precondition Failed.'), 412);
             }
 
             if (!GPC::request()->empty('switchblog') && $this->user()->getPermissions(GPC::request()->string('switchblog'))->count()) {
@@ -412,7 +413,7 @@ final class Prepend extends Core
                 $this->plugins();
                 $this->themes();
             } catch (Exception $e) {
-                // App::stop(new Exception($this->production() ? __('Unable to load modules.') : $e->getMessage(), 640, $e));
+                // throw new Exception($this->production() ? __('Unable to load modules.') : $e->getMessage(), 640, $e);
             }
 
             // Finalize menu and favorites
@@ -421,7 +422,7 @@ final class Prepend extends Core
 
             // Stop if no themes path found
             if (!$this->themes()->getPaths()) {
-                App::stop(new Exception(__('There seems to be no valid Theme directory set in configuration file.'), 611));
+                throw new InvalidConfiguration(__('There seems to be no valid Theme directory set in configuration file.'));
             }
 
             // Add default top menus
@@ -519,25 +520,17 @@ final class Prepend extends Core
             $page = new $class($handler);
 
             // Process page
-            try {
-                ob_start();
-                $page->pageProcess();
-                ob_end_flush();
-            } catch (Exception $e) {
-                ob_end_clean();
-
-                App::stop(new Exception(
-                    $this->production() ? __('Failed to load page') : sprintf(__('Failed to load page: %s '), $e->getMessage()),
-                    601,
-                    $e
-                ));
-            }
+            ob_start();
+            $page->pageProcess();
+            ob_end_flush();
         } catch (Exception $e) {
-            App::stop(new Exception(
-                !$this->production() ? $e->getMessage() : '',
-                628,
+            ob_end_clean();
+
+            throw new Exception(
+                $this->production() ? __('Failed to load page') : sprintf(__('Failed to load page: %s '), $e->getMessage()),
+                601,
                 $e
-            ));
+            );
         }
     }
 }
