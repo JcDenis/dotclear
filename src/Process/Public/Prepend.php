@@ -11,7 +11,6 @@ namespace Dotclear\Process\Public;
 
 // Dotclear\Process\Public\Prepend
 use DateTimeZone;
-use Dotclear\App;
 use Dotclear\Core\Core;
 use Dotclear\Core\RsExt\RsExtPostPublic;
 use Dotclear\Core\RsExt\RsExtCommentPublic;

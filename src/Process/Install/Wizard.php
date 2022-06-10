@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Process\Install;
 
 // Dotclear\Process\Install\Wizard
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Database\AbstractConnection;
 use Dotclear\Database\AbstractSchema;

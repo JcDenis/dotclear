@@ -24,7 +24,7 @@ final class App
     /**
      * Run process.
      *
-     * @param string      $process The process (admin,install,public...)
+     * @param string $process The process (admin,install,public...)
      * @param string $blog_id The blog id for public process
      */
     public static function run(string $process, string $blog_id = null): void
@@ -51,7 +51,6 @@ final class App
             ob_start();
             $class::singleton($blog_id);
             ob_end_flush();
-
         } catch (Exception|Error $e) {
             ob_end_clean();
 

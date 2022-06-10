@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Process\Distrib;
 
 // Dotclear\process\Distrib\Distrib
-use ArrayObject;
 use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Database\AbstractConnection;
 use Dotclear\Database\Structure;
