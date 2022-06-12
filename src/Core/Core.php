@@ -519,41 +519,7 @@ class Core
     final public function permissions(): Permissions
     {
         if (!($this->permissions instanceof Permissions)) {
-            $this->permissions = new Permissions(
-                'core',
-                new PermissionDescriptor(
-                    type: 'admin',
-                    label: __('administrator')
-                ),
-                new PermissionDescriptor(
-                    type: 'contentadmin',
-                    label: __('manage all entries and comments')
-                ),
-                new PermissionDescriptor(
-                    type: 'usage',
-                    label: __('manage their own entries and comments')
-                ),
-                new PermissionDescriptor(
-                    type: 'publish',
-                    label: __('publish entries and comments')
-                ),
-                new PermissionDescriptor(
-                    type: 'delete',
-                    label: __('delete entries and comments')
-                ),
-                new PermissionDescriptor(
-                    type: 'categories',
-                    label: __('manage categories')
-                ),
-                new PermissionDescriptor(
-                    type: 'media_admin',
-                    label: __('manage all media items')
-                ),
-                new PermissionDescriptor(
-                    type: 'media',
-                    label: __('manage their own media items')
-                ),
-            );
+            $this->permissions = new Permissions();
         }
 
         return $this->permissions;
@@ -734,20 +700,14 @@ class Core
             }
         }
 
-        // No configuration ? start installalation process
+        // No configuration ?
         if (!is_file($this->config_path)) {
             // Stop core process here in installalation process
             if ('Install' == $this->process) {
                 return;
             }
-            // Redirect to installation process
-            Http::redirect(preg_replace(
-                ['%admin/.*?$%', '%index.php.*?$%', '%/$%'],
-                '',
-                filter_var($_SERVER['REQUEST_URI'], FILTER_SANITIZE_FULL_SPECIAL_CHARS)
-            ) . '/admin/install/index.php');
 
-            exit;
+            throw new Exception('Application is not installed.');
         }
 
         // In non production environment, display all errors

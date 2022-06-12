@@ -47,15 +47,43 @@ final class Permissions
 
     /**
      * Constructor.
-     *
-     * @param string               $id            The permission instance ID
-     * @param PermissionDescriptor ...$descriptor The permission(s) descriptor(s) instance(s)
+     * 
+     * Add default permissions
      */
-    public function __construct(public readonly string $id, PermissionDescriptor ...$descriptor)
+    public function __construct()
     {
-        foreach ($descriptor as $d) {
-            $this->addPermType(descriptor: $d);
-        }
+        $this->addPermType(new PermissionDescriptor(
+            type: 'admin',
+            label: __('administrator')
+        ));
+        $this->addPermType(new PermissionDescriptor(
+            type: 'contentadmin',
+            label: __('manage all entries and comments')
+        ));
+        $this->addPermType(new PermissionDescriptor(
+            type: 'usage',
+            label: __('manage their own entries and comments')
+        ));
+        $this->addPermType(new PermissionDescriptor(
+            type: 'publish',
+            label: __('publish entries and comments')
+        ));
+        $this->addPermType(new PermissionDescriptor(
+            type: 'delete',
+            label: __('delete entries and comments')
+        ));
+        $this->addPermType(new PermissionDescriptor(
+            type: 'categories',
+            label: __('manage categories')
+        ));
+        $this->addPermType(new PermissionDescriptor(
+            type: 'media_admin',
+            label: __('manage all media items')
+        ));
+        $this->addPermType(new PermissionDescriptor(
+            type: 'media',
+            label: __('manage their own media items')
+        )); 
     }
 
     /**
