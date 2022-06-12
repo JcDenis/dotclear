@@ -12,6 +12,7 @@ namespace Dotclear\Process\Admin;
 // Dotclear\Process\Admin\Prepend
 use DateTimeZone;
 use Dotclear\Core\Core;
+use Dotclear\Exception\InsufficientPermissions;
 use Dotclear\Exception\InvalidConfiguration;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\L10n;

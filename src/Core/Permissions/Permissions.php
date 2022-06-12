@@ -47,7 +47,7 @@ final class Permissions
 
     /**
      * Constructor.
-     * 
+     *
      * Add default permissions
      */
     public function __construct()
@@ -83,7 +83,7 @@ final class Permissions
         $this->addPermType(new PermissionDescriptor(
             type: 'media',
             label: __('manage their own media items')
-        )); 
+        ));
     }
 
     /**

@@ -19,7 +19,6 @@ use Dotclear\Core\Media\Media;
 use Dotclear\Core\Meta\Meta;
 use Dotclear\Core\Nonce\Nonce;
 use Dotclear\Core\Session\Session;
-use Dotclear\Core\Permissions\PermissionDescriptor;
 use Dotclear\Core\Permissions\Permissions;
 use Dotclear\Core\PostType\PostType;
 use Dotclear\Core\PostType\PostTypeDescriptor;

@@ -39,11 +39,14 @@
 ### Rules
 Should be followed...one day...
 - Document all class, class properties, class methods.
+- Code only required functions, for required use case
+- Use one file per class (PSR requirement)
 - Use UpperCamelCase for class names (and their folders)
 - Use final keyword on class every time it's possible
 - Use lowerCamelCase for methods names
 - Use action verb for first part of mehtods names (ie: setName, parsePlop)
 - Use single explicit word for named arguments.
+- Use private statement for methods as much as possible
 - Use method named arguments when you call it.
 - Use underscore_words for variables names
 - Use word(s) for variables names, not initials.
