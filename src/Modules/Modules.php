@@ -91,7 +91,6 @@ class Modules
      * Constructor.
      *
      * @param string $type    The modules type (Plugin, Theme, ...)
-     * @param string $lang    The language to cope with (can be empty)
      * @param bool   $no_load Only create Modules instance without loading them
      * @param string $name    The modules manager name
      * @param string $group   The modules manager menu group
@@ -99,7 +98,6 @@ class Modules
      */
     public function __construct(
         private string $type = 'Plugin',
-        private string $lang = '',
         private bool $no_load = false,
         private string $name = '',
         private string $group = '',
@@ -379,16 +377,6 @@ class Modules
     }
 
     /**
-     * Get language code to cope with.
-     *
-     * @return null|string The language code
-     */
-    public function getlang(): ?string
-    {
-        return $this->lang;
-    }
-
-    /**
      * Get modules root directory paths.
      *
      * If a module directory is set for current blog,
@@ -559,8 +547,8 @@ class Modules
         }
 
         // Load module main l10n
-        $this->loadModuleL10N($define->id(), $this->getLang(), 'main');
-        $this->loadModuleL10N($define->id(), $this->getLang(), strtolower(App::core()->processed()));
+        $this->loadModuleL10N($define->id(), L10n::lang(), 'main');
+        $this->loadModuleL10N($define->id(), L10n::lang(), strtolower(App::core()->processed()));
 
         // If module has an Admin Page, create an admin url
         if (App::core()->processed('Admin')) {

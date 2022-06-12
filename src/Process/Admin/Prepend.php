@@ -254,7 +254,7 @@ final class Prepend extends Core
     public function plugins(): Modules
     {
         if (!($this->plugins instanceof Modules)) {
-            $this->plugins = new Modules(admin: true, lang: $this->lang());
+            $this->plugins = new Modules(admin: true);
             $this->adminLoadModulesResources($this->plugins);
         }
 
@@ -272,7 +272,6 @@ final class Prepend extends Core
             $this->themes = new Modules(
                 admin: true,
                 type: 'Theme',
-                lang: $this->lang(),
                 name: __('Blog appearance'),
                 group: 'Blog'
             );
@@ -401,7 +400,7 @@ final class Prepend extends Core
         // User session exists
         if (!empty($this->user()->userID()) && $this->blog() !== null) {
             // Set user lang
-            $this->lang($this->user()->getInfo('user_lang'));
+            L10n::lang($this->user()->getInfo('user_lang'));
 
             // Load resources
             $this->help()->file(Path::implode($this->config()->get('l10n_dir'), 'en', 'resources.php'));
@@ -445,17 +444,17 @@ final class Prepend extends Core
      */
     private function adminLoadLocales(): void
     {
-        $this->lang($this->user()->getInfo('user_lang'));
+        L10n::lang($this->user()->getInfo('user_lang'));
 
-        if (L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang(), 'date')) === false && 'en' != $this->lang()) {
+        if (L10n::set(Path::implode($this->config()->get('l10n_dir'), L10n::lang(), 'date')) === false && 'en' != L10n::lang()) {
             L10n::set(Path::implode($this->config()->get('l10n_dir'), 'en', 'date'));
         }
-        L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang(), 'main'));
-        L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang(), 'public'));
-        L10n::set(Path::implode($this->config()->get('l10n_dir'), $this->lang(), 'plugins'));
+        L10n::set(Path::implode($this->config()->get('l10n_dir'), L10n::lang(), 'main'));
+        L10n::set(Path::implode($this->config()->get('l10n_dir'), L10n::lang(), 'public'));
+        L10n::set(Path::implode($this->config()->get('l10n_dir'), L10n::lang(), 'plugins'));
 
         // Set lexical lang
-        Lexical::setLexicalLang('admin', $this->lang());
+        Lexical::setLexicalLang('admin', L10n::lang());
     }
 
     /**
@@ -465,15 +464,15 @@ final class Prepend extends Core
      */
     private function adminLoadResources(string $dir): void
     {
-        if (($f = L10n::getFilePath($dir, 'resources.php', $this->lang()))) {
+        if (($f = L10n::getFilePath($dir, 'resources.php', L10n::lang()))) {
             $this->help()->file($f);
         }
         unset($f);
 
-        $hfiles = Files::scandir(Path::implode($dir, $this->lang(), 'help'), true, false);
+        $hfiles = Files::scandir(Path::implode($dir, L10n::lang(), 'help'), true, false);
         foreach ($hfiles as $hfile) {
             if (preg_match('/^(.*)\.html$/', $hfile, $m)) {
-                $this->help()->context($m[1], Path::implode($dir, $this->lang(), 'help', $hfile));
+                $this->help()->context($m[1], Path::implode($dir, L10n::lang(), 'help', $hfile));
             }
         }
         unset($hfiles);

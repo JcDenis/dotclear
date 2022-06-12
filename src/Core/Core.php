@@ -100,12 +100,6 @@ class Core
     private $formater;
 
     /**
-     * @var string $lang
-     *             Current lang
-     */
-    private $lang = 'en';
-
-    /**
      * @var Log $log
      *          Log instance
      */
@@ -724,7 +718,7 @@ class Core
         // Find a default appropriate language (used by Exceptions)
         foreach (Http::getAcceptLanguages() as $lang) {
             if ('en' == $lang || false !== L10n::set(Path::implode($this->config()->get('l10n_dir'), $lang, 'main'))) {
-                $this->lang($lang);
+                L10n::lang($lang);
 
                 break;
             }
@@ -823,22 +817,6 @@ class Core
     final public function processed(?string $process = null): string|bool
     {
         return null === $process ? $this->process : strtolower($this->process) == strtolower($process);
-    }
-
-    /**
-     * Get or set current lang.
-     *
-     * @param string $lang Lang to switch on
-     *
-     * @return string The lang
-     */
-    final public function lang(string $lang = null): string
-    {
-        if (null !== $lang) {
-            $this->lang = L10n::lang($lang);
-        }
-
-        return $this->lang;
     }
 
     /**

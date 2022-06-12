@@ -333,7 +333,7 @@ abstract class AbstractPage
 
         echo App::core()->resource()->preload('default.css') . App::core()->resource()->load('default.css');
 
-        if ('rtl' == L10n::getLanguageTextDirection(App::core()->lang())) {
+        if ('rtl' == L10n::getLanguageTextDirection(L10n::lang())) {
             echo App::core()->resource()->load('default-rtl.css');
         }
 
@@ -440,7 +440,7 @@ abstract class AbstractPage
 
         echo App::core()->resource()->preload('default.css') . App::core()->resource()->load('default.css');
 
-        if (L10n::getLanguageTextDirection(App::core()->lang()) == 'rtl') {
+        if (L10n::getLanguageTextDirection(L10n::lang()) == 'rtl') {
             echo App::core()->resource()->load('default-rtl.css');
         }
 

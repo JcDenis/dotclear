@@ -130,7 +130,7 @@ class LegacyEditorBehavior
         ];
 
         // Tricky code to avoid xgettext bug on indented end heredoc identifier (see https://savannah.gnu.org/bugs/?62158)
-        $rtl = 'rtl' == L10n::getLanguageTextDirection(App::core()->lang()) ? 'direction: rtl;' : '';
+        $rtl = 'rtl' == L10n::getLanguageTextDirection(L10n::lang()) ? 'direction: rtl;' : '';
         $css = <<<EOT
             body {
                 color: #000;

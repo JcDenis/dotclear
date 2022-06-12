@@ -13,6 +13,7 @@ namespace Dotclear\Process\Admin\Handler;
 use Dotclear\App;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Clock;
+use Dotclear\Helper\L10n;
 use Dotclear\Helper\Mail;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -356,12 +357,12 @@ class Auth extends AbstractPage
 
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo App::core()->lang(); ?>">
+<html lang="<?php echo L10n::lang(); ?>">
 <head>
   <meta charset="UTF-8" />
   <meta http-equiv="Content-Script-Type" content="text/javascript" />
   <meta http-equiv="Content-Style-Type" content="text/css" />
-  <meta http-equiv="Content-Language" content="<?php echo App::core()->lang(); ?>" />
+  <meta http-equiv="Content-Language" content="<?php echo L10n::lang(); ?>" />
   <meta name="ROBOTS" content="NOARCHIVE,NOINDEX,NOFOLLOW" />
   <meta name="GOOGLEBOT" content="NOSNIPPET" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />

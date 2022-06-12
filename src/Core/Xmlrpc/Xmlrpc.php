@@ -19,6 +19,7 @@ use Dotclear\Helper\Clock;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\L10n;
 use Dotclear\Helper\Network\Xmlrpc\IntrospectionServer as XmlrpcIntrospectionServer;
 use Dotclear\Helper\Network\Xmlrpc\Date as XmlrpcDate;
 use Dotclear\Helper\Text;
@@ -455,7 +456,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
 
         if (App::core()->plugins()) {
             foreach (App::core()->plugins()->getModules() as $module) {
-                App::core()->plugins()->loadModuleL10N($module->id(), (string) App::core()->lang(), 'xmlrpc');
+                App::core()->plugins()->loadModuleL10N($module->id(), L10n::lang(), 'xmlrpc');
             }
         }
 

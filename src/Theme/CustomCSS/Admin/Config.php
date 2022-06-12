@@ -56,7 +56,7 @@ class Config extends ModuleConfig
 
     private function customcssConf()
     {
-        L10n::set(Path::implode(__DIR__, '..', 'locales', App::core()->lang(), 'main'));
+        L10n::set(Path::implode(__DIR__, '..', 'locales', L10n::lang(), 'main'));
         $this->customcss_file = Path::real(App::core()->blog()->public_path, false) . '/custom_style.css';
 
         if (!is_file($this->customcss_file) && !is_writable(dirname($this->customcss_file))) {
