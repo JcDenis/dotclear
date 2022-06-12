@@ -32,7 +32,7 @@ use Exception;
  */
 class BlogPref extends AbstractPage
 {
-    private $blog_id     = true;
+    private $blog_id     = '';
     private $blog_status = 0;
     private $blog_name   = '';
     private $blog_desc   = '';
