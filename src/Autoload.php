@@ -52,13 +52,13 @@ class Autoload
      * @var int $loads_count
      *          Keep track of loads count
      */
-    private static $loads_count = 0;
+    private $loads_count = 0;
 
     /**
      * @var int $request_count
      *          Keep track of request count
      */
-    private static $request_count = 0;
+    private $request_count = 0;
 
     /**
      * Register loader with SPL autoloader stack.
@@ -76,84 +76,15 @@ class Autoload
             $this->root_base_dir = $this->normalizeBaseDir($root_base_dir);
         }
 
-        // @phpstan-ignore-next-line (Failed to see array as callable but works great)
         spl_autoload_register([$this, 'loadClass'], true, $prepend);
-    }
-
-    /**
-     * Get root prefix.
-     *
-     * @return string Root prefix
-     */
-    public function getRootPrefix(): string
-    {
-        return $this->root_prefix;
-    }
-
-    /**
-     * Get root base directory.
-     *
-     * @return string Root base directory
-     */
-    public function getRootBaseDir(): string
-    {
-        return $this->root_base_dir;
-    }
-
-    /**
-     * Normalize namespace prefix.
-     *
-     * @param string $prefix Ns prefix
-     *
-     * @return string Prefix with only right namesapce separator
-     */
-    public function normalizePrefix(string $prefix): string
-    {
-        return ucfirst(trim($prefix, self::NS_SEP)) . self::NS_SEP;
-    }
-
-    /**
-     * Normalize base directory.
-     *
-     * @param string $base_dir Dir prefix
-     *
-     * @return string Base dir with right directory separator
-     */
-    public function normalizeBaseDir(string $base_dir): string
-    {
-        return rtrim($base_dir, self::DIR_SEP) . self::DIR_SEP;
-    }
-
-    /**
-     * Clean up a string into namespace part.
-     *
-     * @param string $str string to clean
-     *
-     * @return null|string Cleaned string or null if empty
-     */
-    public function qualifyNamespace(string $str): ?string
-    {
-        $str = preg_replace(
-            [
-                '/[^a-zA-Z0-9_' . preg_quote(self::NS_SEP) . ']/',
-                '/[' . preg_quote(self::NS_SEP) . ']{2,}/',
-            ],
-            [
-                '',
-                self::NS_SEP,
-            ],
-            $str
-        );
-
-        return empty($str) ? null : $this->normalizePrefix($str);
     }
 
     /**
      * Adds a base directory for a namespace prefix.
      *
-     * @param string $prefix   the namespace prefix
-     * @param string $base_dir a base directory for class files in the namespace
-     * @param bool   $prepend  if true, prepend the base directory to the stack
+     * @param string $prefix   The namespace prefix
+     * @param string $base_dir A base directory for class files in the namespace
+     * @param bool   $prepend  If true, prepend the base directory to the stack
      *                         instead of appending it; this causes it to be searched first rather
      *                         than last
      */
@@ -174,98 +105,13 @@ class Autoload
     }
 
     /**
-     * Get list of registered namespace.
-     *
-     * @return array List of namesapce prefix / base dir
-     */
-    public function getNamespaces(): array
-    {
-        return $this->prefixes;
-    }
-
-    /**
-     * Loads the class file for a given class name.
-     *
-     * @param string $class the fully-qualified class name
-     *
-     * @return null|string the mapped file name on success, or null on failure
-     */
-    public function loadClass(string $class): ?string
-    {
-        ++self::$request_count;
-        $prefix = $class;
-
-        while (false !== $pos = strrpos($prefix, self::NS_SEP)) {
-            $prefix         = substr($class, 0, $pos + 1);
-            $relative_class = substr($class, $pos    + 1);
-
-            $mapped_file = $this->loadMappedFile($prefix, $relative_class);
-            if ($mapped_file) {
-                return $mapped_file;
-            }
-
-            $prefix = rtrim($prefix, self::NS_SEP);
-        }
-
-        return null;
-    }
-
-    /**
-     * Load the mapped file for a namespace prefix and relative class.
-     *
-     * @param string $prefix         the namespace prefix
-     * @param string $relative_class the relative class name
-     *
-     * @return null|string null if no mapped file can be loaded, or the
-     *                     name of the mapped file that was loaded
-     */
-    private function loadMappedFile(string $prefix, string $relative_class): ?string
-    {
-        if (false === isset($this->prefixes[$prefix])) {
-            return null;
-        }
-
-        foreach ($this->prefixes[$prefix] as $base_dir) {
-            $file = $base_dir
-                  . str_replace(self::NS_SEP, self::DIR_SEP, $relative_class)
-                  . '.php';
-
-            if ($this->requireFile($file)) {
-                return $file;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * If a file exists, require it from the file system.
-     *
-     * @param string $file the file to require
-     *
-     * @return bool true if the file exists, false if not
-     */
-    private function requireFile(string $file): bool
-    {
-        if (is_file($file)) {
-            ++self::$loads_count;
-
-            require $file;
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
      * Get number of loads on this autoloader.
      *
      * @return int Number of loads
      */
     public function getLoadsCount(): int
     {
-        return self::$loads_count;
+        return $this->loads_count;
     }
 
     /**
@@ -275,6 +121,97 @@ class Autoload
      */
     public function getRequestsCount(): int
     {
-        return self::$request_count;
+        return $this->request_count;
+    }
+
+    /**
+     * Loads the class file for a given class name.
+     *
+     * @param string $class the fully-qualified class name
+     */
+    private function loadClass(string $class): void
+    {
+        ++$this->request_count;
+        $prefix = $class;
+
+        while (false !== $pos = strrpos($prefix, self::NS_SEP)) {
+            $prefix         = substr($class, 0, $pos + 1);
+            $relative_class = substr($class, $pos    + 1);
+
+            if ($this->loadMappedFile($prefix, $relative_class)) {
+                return;
+            }
+
+            $prefix = rtrim($prefix, self::NS_SEP);
+        }
+    }
+
+    /**
+     * Normalize namespace prefix.
+     *
+     * @param string $prefix Ns prefix
+     *
+     * @return string Prefix with only right namesapce separator
+     */
+    private function normalizePrefix(string $prefix): string
+    {
+        return ucfirst(trim($prefix, self::NS_SEP)) . self::NS_SEP;
+    }
+
+    /**
+     * Normalize base directory.
+     *
+     * @param string $base_dir Dir prefix
+     *
+     * @return string Base dir with right directory separator
+     */
+    private function normalizeBaseDir(string $base_dir): string
+    {
+        return rtrim($base_dir, self::DIR_SEP) . self::DIR_SEP;
+    }
+
+    /**
+     * Load the mapped file for a namespace prefix and relative class.
+     *
+     * @param string $prefix         the namespace prefix
+     * @param string $relative_class the relative class name
+     *
+     * @return bool True if the file is loaded
+     */
+    private function loadMappedFile(string $prefix, string $relative_class): bool
+    {
+        if (isset($this->prefixes[$prefix])) {
+            foreach ($this->prefixes[$prefix] as $base_dir) {
+                $file = $base_dir
+                      . str_replace(self::NS_SEP, self::DIR_SEP, $relative_class)
+                      . '.php';
+
+                if ($this->requireFile($file)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * If a file exists, require it from the file system.
+     *
+     * @param string $file The file to require
+     *
+     * @return bool True if the file exists, false if not
+     */
+    private function requireFile(string $file): bool
+    {
+        if (is_file($file)) {
+            ++$this->loads_count;
+
+            require $file;
+
+            return true;
+        }
+
+        return false;
     }
 }
