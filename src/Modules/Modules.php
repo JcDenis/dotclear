@@ -333,7 +333,7 @@ class Modules
 
                 // Add module namespace
                 if ($enabled) {
-                    App::core()->autoload()->addNamespace('Dotclear\\' . $this->getType() . '\\' . $this->current_id, $dir);
+                    App::autoload()->addNamespace('Dotclear\\' . $this->getType() . '\\' . $this->current_id, $dir);
                 // Save module in disabled list
                 } elseif (null !== $this->current_define) {
                     $this->modules_disabled[$this->current_id] = $this->current_define;

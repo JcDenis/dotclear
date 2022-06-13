@@ -21,6 +21,7 @@ use Exception;
  */
 final class App
 {
+    private static $autoload;
     private static $class;
 
     /**
@@ -43,9 +44,7 @@ final class App
             }
 
             // Dotclear autoload (used first)
-            require_once implode(DIRECTORY_SEPARATOR, [__DIR__, 'Helper', 'Autoload.php']);
-            $autoload = new \Dotclear\Helper\Autoload(prepend: true);
-            $autoload->addNamespace('Dotclear', __DIR__);
+            self::autoload()->addNamespace('Dotclear', __DIR__);
 
             // Find process (Admin|Public|Install|...)
             $class = 'Dotclear\\Process\\' . ucfirst(strtolower($process)) . '\\Prepend';
@@ -73,15 +72,30 @@ final class App
     }
 
     /**
-     * Call singleton core.
+     * Call core (child process).
      *
      * App:core() is callable from everywhere in code.
      *
-     * @return null|object Singleton core instance
+     * @return null|object The core child instance
      */
     public static function core(): ?object
     {
         return self::$class;
+    }
+
+    /**
+     * Call Dotclear autoloader.
+     *
+     * @return Autoload $autoload The autoload instance
+     */
+    public static function autoload(): Autoload
+    {
+        if (!self::$autoload) {
+            require_once __DIR__ . DIRECTORY_SEPARATOR . 'Autoload.php';
+            self::$autoload = new Autoload(prepend: true);
+        }
+
+        return self::$autoload;
     }
 
     /**

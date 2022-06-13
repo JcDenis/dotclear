@@ -32,7 +32,6 @@ use Dotclear\Exception\InvalidConfiguration;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
-use Dotclear\Helper\Autoload;
 use Dotclear\Helper\Behavior;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\Configuration;
@@ -55,12 +54,6 @@ class Core
 {
     use ErrorTrait;
     use MagicTrait;
-
-    /**
-     * @var Autoload $autoload
-     *               Autoload instance
-     */
-    private $autoload;
 
     /**
      * @var Behavior $behavior
@@ -232,24 +225,6 @@ class Core
 
     // / @name Core others instances methods
     // @{
-    /**
-     * Get autoload instance.
-     *
-     * Instanciate a core autoloader for custom
-     * third party (plugins/themes) specifics needs
-     *
-     * Autoload methods are accesible App::core()->autoload()
-     *
-     * @return Autoload The autoload instance
-     */
-    final public function autoload(): Autoload
-    {
-        if (!($this->autoload instanceof Autoload)) {
-            $this->autoload = new Autoload(prepend: true);
-        }
-
-        return $this->autoload;
-    }
 
     /**
      * Get behavior instance.

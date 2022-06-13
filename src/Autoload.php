@@ -7,9 +7,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Helper;
+namespace Dotclear;
 
-// Dotclear\Helper\Autoload
+// Dotclear\Autoload
 
 /**
  * Helper to autoload class using php namespace.

@@ -671,7 +671,7 @@ abstract class AbstractPage
              */
         }
         $res .= '<p>Core elapsed time: ' . Statistic::time() . ' | Core consumed memory: ' . Statistic::memory() . '</p>';
-        $res .= '<p>Dotclear autoloader provided files : ' . App::core()->autoload()->getLoadsCount() . ' (' . App::core()->autoload()->getRequestsCount() . ' requests)</p>';
+        $res .= '<p>Dotclear autoloader provided files : ' . App::autoload()->getLoadsCount() . ' (' . App::autoload()->getRequestsCount() . ' requests)</p>';
 
         $res .= '<p>Global vars: ' . $global_vars . '</p>' .
             '</div></div>';
