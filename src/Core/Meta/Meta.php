@@ -179,7 +179,7 @@ final class Meta
 
         $meta = [];
         while ($rs->fetch()) {
-            $meta[$rs->f('meta_type')][] = $rs->f('meta_id');
+            $meta[$rs->field('meta_type')][] = $rs->field('meta_id');
         }
 
         $sql = new UpdateStatement();
@@ -363,7 +363,7 @@ final class Meta
 
         $query->column($query->count($query->unique('M.meta_id')));
 
-        return $this->queryMetadataTable(param: $params, sql: $query)->fInt();
+        return $this->queryMetadataTable(param: $params, sql: $query)->integer();
     }
 
     /**
@@ -471,12 +471,12 @@ final class Meta
 
         $max = [];
         while ($rs_static->fetch()) {
-            $type = $rs_static->f('meta_type');
+            $type = $rs_static->field('meta_type');
             if (!isset($max[$type])) {
-                $max[$type] = $rs_static->fInt('count');
+                $max[$type] = $rs_static->integer('count');
             } else {
-                if ($rs_static->fInt('count') > $max[$type]) {
-                    $max[$type] = $rs_static->fInt('count');
+                if ($rs_static->integer('count') > $max[$type]) {
+                    $max[$type] = $rs_static->integer('count');
                 }
             }
         }
@@ -484,10 +484,10 @@ final class Meta
         $rs_static->moveStart();
         // @phpstan-ignore-next-line (Failed to understand moveStart to index 0)
         while ($rs_static->fetch()) {
-            $rs_static->set('meta_id_lower', Lexical::removeDiacritics(mb_strtolower($rs_static->f('meta_id'))));
+            $rs_static->set('meta_id_lower', Lexical::removeDiacritics(mb_strtolower($rs_static->field('meta_id'))));
 
-            $count   = $rs_static->fInt('count');
-            $percent = $rs_static->fInt('count') * 100 / $max[$rs_static->f('meta_type')];
+            $count   = $rs_static->integer('count');
+            $percent = $rs_static->integer('count') * 100 / $max[$rs_static->field('meta_type')];
 
             $rs_static->set('percent', (string) round($percent));
             $rs_static->set('roundpercent', (string) (round($percent / 10) * 10));
@@ -605,7 +605,7 @@ final class Meta
         $rs = $sql->select();
 
         while ($rs->fetch()) {
-            $to_update[] = $rs->fInt('post_id');
+            $to_update[] = $rs->integer('post_id');
         }
 
         if (empty($to_update)) {
@@ -617,9 +617,9 @@ final class Meta
         $rs = $sqlNew->select();
 
         while ($rs->fetch()) {
-            if (in_array($rs->fInt('post_id'), $to_update)) {
-                $to_remove[] = $rs->fInt('post_id');
-                unset($to_update[array_search($rs->fInt('post_id'), $to_update)]);
+            if (in_array($rs->integer('post_id'), $to_update)) {
+                $to_remove[] = $rs->integer('post_id');
+                unset($to_update[array_search($rs->integer('post_id'), $to_update)]);
             }
         }
 
@@ -700,7 +700,7 @@ final class Meta
 
         $ids = [];
         while ($rs->fetch()) {
-            $ids[] = $rs->fInt('post_id');
+            $ids[] = $rs->integer('post_id');
         }
 
         $sql = new DeleteStatement();

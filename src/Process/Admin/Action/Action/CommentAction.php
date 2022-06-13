@@ -99,9 +99,9 @@ class CommentAction extends DefaultCommentAction
 
         $record = App::core()->blog()->comments()->getComments(param: $param);
         while ($record->fetch()) {
-            $this->entries[$record->fInt('comment_id')] = [
-                'title'  => $record->f('post_title'),
-                'author' => $record->f('comment_author'),
+            $this->entries[$record->integer('comment_id')] = [
+                'title'  => $record->field('post_title'),
+                'author' => $record->field('comment_author'),
             ];
         }
         $this->rs = $record;

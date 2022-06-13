@@ -69,7 +69,7 @@ class PagesInventory extends Inventory
 
             $count = 0;
             while ($this->rs->fetch()) {
-                echo $this->postLine($count, isset($entries[$this->rs->fInt('post_id')]));
+                echo $this->postLine($count, isset($entries[$this->rs->integer('post_id')]));
                 ++$count;
             }
 
@@ -96,19 +96,19 @@ class PagesInventory extends Inventory
 
         $img_status = sprintf(
             $img,
-            App::core()->blog()->posts()->status()->getState($this->rs->fInt('post_status')),
-            App::core()->blog()->posts()->status()->getIcon($this->rs->fInt('post_status')),
-            App::core()->blog()->posts()->status()->getId($this->rs->fInt('post_status')),
+            App::core()->blog()->posts()->status()->getState($this->rs->integer('post_status')),
+            App::core()->blog()->posts()->status()->getIcon($this->rs->integer('post_status')),
+            App::core()->blog()->posts()->status()->getId($this->rs->integer('post_status')),
         );
-        $sts_class = 'sts-' . App::core()->blog()->posts()->status()->getId($this->rs->fInt('post_status'));
+        $sts_class = 'sts-' . App::core()->blog()->posts()->status()->getId($this->rs->integer('post_status'));
 
         $protected = '';
-        if ($this->rs->f('post_password')) {
+        if ($this->rs->field('post_password')) {
             $protected = sprintf($img, __('Protected'), 'images/locker.png', 'locked');
         }
 
         $selected = '';
-        if ($this->rs->f('post_selected')) {
+        if ($this->rs->field('post_selected')) {
             $selected = sprintf($img, __('Hidden'), 'images/hidden.png', 'hidden');
         }
 
@@ -119,22 +119,22 @@ class PagesInventory extends Inventory
             $attach     = sprintf($img, sprintf($attach_str, $nb_media), 'images/attach.png', 'attach');
         }
 
-        $res = '<tr class="line ' . (1 != $this->rs->fInt('post_status') ? 'offline ' : '') . $sts_class . '"' .
-        ' id="p' . $this->rs->f('post_id') . '">';
+        $res = '<tr class="line ' . (1 != $this->rs->integer('post_status') ? 'offline ' : '') . $sts_class . '"' .
+        ' id="p' . $this->rs->field('post_id') . '">';
 
         $cols = [
             'position' => '<td class="nowrap handle minimal">' .
-            Form::number(['order[' . $this->rs->f('post_id') . ']'], [
+            Form::number(['order[' . $this->rs->field('post_id') . ']'], [
                 'min'        => 1,
                 'default'    => $count + 1,
                 'class'      => 'position',
-                'extra_html' => 'title="' . sprintf(__('position of %s'), Html::escapeHTML($this->rs->f('post_title'))) . '"',
+                'extra_html' => 'title="' . sprintf(__('position of %s'), Html::escapeHTML($this->rs->field('post_title'))) . '"',
             ]) .
             '</td>',
             'check' => '<td class="nowrap">' .
             Form::checkbox(
                 ['entries[]'],
-                $this->rs->fInt('post_id'),
+                $this->rs->integer('post_id'),
                 [
                     'checked'    => $checked,
                     'disabled'   => !$this->rs->call('isEditable'),
@@ -142,12 +142,12 @@ class PagesInventory extends Inventory
                 ]
             ) . '</td>',
             'title' => '<td class="maximal" scope="row"><a href="' .
-            Html::escapeHTML(App::core()->posttype()->getPostAdminURL(type: $this->rs->f('post_type'), id: $this->rs->f('post_id'))) . '">' .
-            Html::escapeHTML($this->rs->f('post_title')) . '</a></td>',
-            'date'       => '<td class="nowrap">' . Clock::str(format: __('%Y-%m-%d %H:%M'), date: $this->rs->f('post_dt'), to: App::core()->timezone()) . '</td>',
-            'author'     => '<td class="nowrap">' . $this->rs->f('user_id') . '</td>',
-            'comments'   => '<td class="nowrap count">' . $this->rs->f('nb_comment') . '</td>',
-            'trackbacks' => '<td class="nowrap count">' . $this->rs->f('nb_trackback') . '</td>',
+            Html::escapeHTML(App::core()->posttype()->getPostAdminURL(type: $this->rs->field('post_type'), id: $this->rs->field('post_id'))) . '">' .
+            Html::escapeHTML($this->rs->field('post_title')) . '</a></td>',
+            'date'       => '<td class="nowrap">' . Clock::str(format: __('%Y-%m-%d %H:%M'), date: $this->rs->field('post_dt'), to: App::core()->timezone()) . '</td>',
+            'author'     => '<td class="nowrap">' . $this->rs->field('user_id') . '</td>',
+            'comments'   => '<td class="nowrap count">' . $this->rs->field('nb_comment') . '</td>',
+            'trackbacks' => '<td class="nowrap count">' . $this->rs->field('nb_trackback') . '</td>',
             'status'     => '<td class="nowrap status">' . $img_status . ' ' . $selected . ' ' . $protected . ' ' . $attach . '</td>',
         ];
 

@@ -95,12 +95,12 @@ class Antispam
     {
         $status = null;
         // From ham to spam
-        if (-2 != $rs->fInt('comment_status') && -2 == $cur->getField('comment_status')) {
+        if (-2 != $rs->integer('comment_status') && -2 == $cur->getField('comment_status')) {
             $status = 'spam';
         }
 
         // From spam to ham
-        if (-2 == $rs->f('comment_status') && 1 == $cur->getField('comment_status')) {
+        if (-2 == $rs->field('comment_status') && 1 == $cur->getField('comment_status')) {
             $status = 'ham';
         }
 
@@ -115,7 +115,7 @@ class Antispam
 
     public function statusMessage(Record $rs): string
     {
-        if ($rs->exists('comment_status') && -2 == $rs->fInt('comment_status')) {
+        if ($rs->exists('comment_status') && -2 == $rs->integer('comment_status')) {
             $filter_name = $rs->call('spamFilter') ?: null;
 
             $this->initFilters();
@@ -169,7 +169,7 @@ class Antispam
         $record = $sql->select();
         $ids = new Integers();
         while ($record->fetch()) {
-            $ids->add($record->fInt('comment_id'));
+            $ids->add($record->integer('comment_id'));
         }
 
         if (!$ids->count()) {
@@ -214,17 +214,17 @@ class Antispam
             return false;
         }
 
-        if (hash(App::core()->config()->get('crypt_algo'), App::core()->user()->cryptLegacy($record->f('user_pwd'))) != $pwd) {
+        if (hash(App::core()->config()->get('crypt_algo'), App::core()->user()->cryptLegacy($record->field('user_pwd'))) != $pwd) {
             return false;
         }
 
         $permissions = App::core()->permissions()->getBlogPermissions(id: App::core()->blog()->id);
 
-        if (empty($permissions[$record->f('user_id')])) {
+        if (empty($permissions[$record->field('user_id')])) {
             return false;
         }
 
-        return $record->f('user_id');
+        return $record->field('user_id');
     }
 
     public function purgeOldSpam(): void
@@ -328,12 +328,12 @@ class Antispam
         $ip_filter_v6 = new FilterIpv6();
 
         while ($rs->fetch()) {
-            if (false !== filter_var($rs->f('comment_ip'), FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+            if (false !== filter_var($rs->field('comment_ip'), FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
                 // IP is an IPv6
-                $ip_filter_v6->addIP('blackv6', $rs->f('comment_ip'), $global);
+                $ip_filter_v6->addIP('blackv6', $rs->field('comment_ip'), $global);
             } else {
                 // Assume that IP is IPv4
-                $ip_filter_v4->addIP('black', $rs->f('comment_ip'), $global);
+                $ip_filter_v4->addIP('black', $rs->field('comment_ip'), $global);
             }
         }
 

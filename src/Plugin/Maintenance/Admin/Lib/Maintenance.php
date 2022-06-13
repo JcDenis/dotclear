@@ -243,7 +243,7 @@ class Maintenance
 
         $logs = new Integers();
         while ($rs->fetch()) {
-            $logs->add($rs->fInt('log_id'));
+            $logs->add($rs->integer('log_id'));
         }
 
         // Delete old logs
@@ -273,7 +273,7 @@ class Maintenance
 
         $logs = new Integers();
         while ($rs->fetch()) {
-            $logs->add($rs->fInt('log_id'));
+            $logs->add($rs->integer('log_id'));
         }
 
         // Delete old logs
@@ -304,9 +304,9 @@ class Maintenance
 
             $this->logs = [];
             while ($rs->fetch()) {
-                $this->logs[$rs->f('log_msg')] = [
-                    'ts'   => Clock::ts(date: $rs->f('log_dt')),
-                    'blog' => $rs->f('blog_id') == App::core()->blog()->id,
+                $this->logs[$rs->field('log_msg')] = [
+                    'ts'   => Clock::ts(date: $rs->field('log_dt')),
+                    'blog' => $rs->field('blog_id') == App::core()->blog()->id,
                 ];
             }
         }

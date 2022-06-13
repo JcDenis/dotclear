@@ -113,23 +113,23 @@ class Post extends AbstractPage
                 App::core()->error()->add(__('This entry does not exist.'));
                 $this->can_view_page = false;
             } else {
-                $this->post_id            = $rs->fInt('post_id');
-                $this->cat_id             = $rs->fInt('cat_id');
-                $this->post_dt            = $rs->f('post_dt');
-                $this->post_format        = $rs->f('post_format');
-                $this->post_password      = $rs->f('post_password');
-                $this->post_url           = $rs->f('post_url');
-                $this->post_lang          = $rs->f('post_lang');
-                $this->post_title         = $rs->f('post_title');
-                $this->post_excerpt       = $rs->f('post_excerpt');
-                $this->post_excerpt_xhtml = $rs->f('post_excerpt_xhtml');
-                $this->post_content       = $rs->f('post_content');
-                $this->post_content_xhtml = $rs->f('post_content_xhtml');
-                $this->post_notes         = $rs->f('post_notes');
-                $this->post_status        = $rs->f('post_status');
-                $this->post_selected      = (bool) $rs->fInt('post_selected');
-                $this->post_open_comment  = (bool) $rs->fInt('post_open_comment');
-                $this->post_open_tb       = (bool) $rs->fInt('post_open_tb');
+                $this->post_id            = $rs->integer('post_id');
+                $this->cat_id             = $rs->integer('cat_id');
+                $this->post_dt            = $rs->field('post_dt');
+                $this->post_format        = $rs->field('post_format');
+                $this->post_password      = $rs->field('post_password');
+                $this->post_url           = $rs->field('post_url');
+                $this->post_lang          = $rs->field('post_lang');
+                $this->post_title         = $rs->field('post_title');
+                $this->post_excerpt       = $rs->field('post_excerpt');
+                $this->post_excerpt_xhtml = $rs->field('post_excerpt_xhtml');
+                $this->post_content       = $rs->field('post_content');
+                $this->post_content_xhtml = $rs->field('post_content_xhtml');
+                $this->post_notes         = $rs->field('post_notes');
+                $this->post_status        = $rs->field('post_status');
+                $this->post_selected      = (bool) $rs->integer('post_selected');
+                $this->post_open_comment  = (bool) $rs->integer('post_open_comment');
+                $this->post_open_tb       = (bool) $rs->integer('post_open_tb');
 
                 $this->can_edit_post = $rs->isEditable();
                 $this->can_delete    = $rs->isDeletable();
@@ -140,30 +140,30 @@ class Post extends AbstractPage
                 if (null !== $next_rs) {
                     $this->next_link = sprintf(
                         $post_link,
-                        $next_rs->f('post_id'),
-                        Html::escapeHTML(trim(Html::clean($next_rs->f('post_title')))),
+                        $next_rs->field('post_id'),
+                        Html::escapeHTML(trim(Html::clean($next_rs->field('post_title')))),
                         __('Next entry') . '&nbsp;&#187;'
                     );
                     $next_headlink = sprintf(
                         $post_headlink,
                         'next',
-                        Html::escapeHTML(trim(Html::clean($next_rs->f('post_title')))),
-                        $next_rs->f('post_id')
+                        Html::escapeHTML(trim(Html::clean($next_rs->field('post_title')))),
+                        $next_rs->field('post_id')
                     );
                 }
 
                 if (null !== $prev_rs) {
                     $this->prev_link = sprintf(
                         $post_link,
-                        $prev_rs->f('post_id'),
-                        Html::escapeHTML(trim(Html::clean($prev_rs->f('post_title')))),
+                        $prev_rs->field('post_id'),
+                        Html::escapeHTML(trim(Html::clean($prev_rs->field('post_title')))),
                         '&#171;&nbsp;' . __('Previous entry')
                     );
                     $prev_headlink = sprintf(
                         $post_headlink,
                         'previous',
-                        Html::escapeHTML(trim(Html::clean($prev_rs->f('post_title')))),
-                        $prev_rs->f('post_id')
+                        Html::escapeHTML(trim(Html::clean($prev_rs->field('post_title')))),
+                        $prev_rs->field('post_id')
                     );
                 }
 
@@ -679,7 +679,7 @@ class Post extends AbstractPage
             if ($this->post_id) {
                 $preview_url = App::core()->blog()->getURLFor('preview', App::core()->user()->userID() . '/' .
                     Http::browserUID(App::core()->config()->get('master_key') . App::core()->user()->userID() . App::core()->user()->cryptLegacy(App::core()->user()->userID())) .
-                    '/' . $this->post->f('post_url'));
+                    '/' . $this->post->field('post_url'));
                 $preview_url .= (parse_url($preview_url, PHP_URL_QUERY) ? '&' : '?') . 'rand=' . md5((string) rand());
 
                 $blank_preview = App::core()->user()->preference()->get('interface')->get('blank_preview');
@@ -861,7 +861,7 @@ class Post extends AbstractPage
 
             /* Add trackbacks
             -------------------------------------------------------- */
-            if ($this->can_edit_post && $this->post->f('post_status')) {
+            if ($this->can_edit_post && $this->post->field('post_status')) {
                 echo '<div class="fieldset clear">';
 
                 echo '<h3>' . __('Ping blogs') . '</h3>' .
@@ -940,30 +940,30 @@ class Post extends AbstractPage
         }
 
         while ($rs->fetch()) {
-            $comment_url = App::core()->adminurl()->get('admin.comment', ['id' => $rs->f('comment_id')]);
+            $comment_url = App::core()->adminurl()->get('admin.comment', ['id' => $rs->field('comment_id')]);
             $img_status  = sprintf(
                 '<img alt="%1$s" title="%1$s" src="?df=%2$s" />',
-                App::core()->blog()->comments()->status()->getState($rs->fInt('comment_status')),
-                App::core()->blog()->comments()->status()->getIcon($rs->fInt('comment_status')),
+                App::core()->blog()->comments()->status()->getState($rs->integer('comment_status')),
+                App::core()->blog()->comments()->status()->getIcon($rs->integer('comment_status')),
             );
-            $sts_class = 'sts-' . App::core()->blog()->comments()->status()->getId($rs->fInt('comment_status'));
+            $sts_class = 'sts-' . App::core()->blog()->comments()->status()->getId($rs->integer('comment_status'));
 
-            echo '<tr class="line ' . (1 != $rs->f('comment_status') ? ' offline ' : '') . $sts_class . '"' .
-            ' id="c' . $rs->f('comment_id') . '">' .
+            echo '<tr class="line ' . (1 != $rs->field('comment_status') ? ' offline ' : '') . $sts_class . '"' .
+            ' id="c' . $rs->field('comment_id') . '">' .
 
             '<td class="nowrap">' .
             ($has_action ? Form::checkbox(
                 ['comments[]'],
-                $rs->f('comment_id'),
+                $rs->field('comment_id'),
                 [
-                    'checked'    => isset($comments[$rs->fInt('comment_id')]),
+                    'checked'    => isset($comments[$rs->integer('comment_id')]),
                     'extra_html' => 'title="' . ($tb ? __('select this trackback') : __('select this comment') . '"'),
                 ]
             ) : '') . '</td>' .
-            '<td class="maximal">' . Html::escapeHTML($rs->f('comment_author')) . '</td>' .
-            '<td class="nowrap">' . clock::str(__('%Y-%m-%d %H:%M'), $rs->f('comment_dt'), to: App::core()->user()->getInfo('user_tz')) . '</td>' .
+            '<td class="maximal">' . Html::escapeHTML($rs->field('comment_author')) . '</td>' .
+            '<td class="nowrap">' . clock::str(__('%Y-%m-%d %H:%M'), $rs->field('comment_dt'), to: App::core()->user()->getInfo('user_tz')) . '</td>' .
             ($this->can_view_ip ?
-                '<td class="nowrap"><a href="' . App::core()->adminurl()->get('admin.comments', ['ip' => $rs->f('comment_ip')]) . '">' . $rs->f('comment_ip') . '</a></td>' : '') .
+                '<td class="nowrap"><a href="' . App::core()->adminurl()->get('admin.comments', ['ip' => $rs->field('comment_ip')]) . '">' . $rs->field('comment_ip') . '</a></td>' : '') .
             '<td class="nowrap status">' . $img_status . '</td>' .
             '<td class="nowrap status"><a href="' . $comment_url . '">' .
             '<img src="?df=images/edit-mini.png" alt="" title="' . __('Edit this comment') . '" /> ' . __('Edit') . '</a></td>' .

@@ -869,8 +869,8 @@ final class Url
                 // The specified entry does not exist.
                 $this->p404();
             } else {
-                $post_id       = App::core()->context()->get('posts')->f('post_id');
-                $post_password = App::core()->context()->get('posts')->f('post_password');
+                $post_id       = App::core()->context()->get('posts')->field('post_id');
+                $post_password = App::core()->context()->get('posts')->field('post_password');
 
                 // Password protected entry
                 if ('' != $post_password && !App::core()->context()->get('preview')) {
@@ -958,7 +958,7 @@ final class Url
                         $cursor->setField('comment_site', Html::clean($site));
                         $cursor->setField('comment_email', Html::clean($mail));
                         $cursor->setField('comment_content', $content);
-                        $cursor->setField('post_id', App::core()->context()->get('posts')->fInt('post_id'));
+                        $cursor->setField('post_id', App::core()->context()->get('posts')->integer('post_id'));
                         $cursor->setField('comment_status', App::core()->blog()->settings()->getGroup('system')->getSetting('comments_pub') ? 1 : -1);
                         $cursor->setField('comment_ip', Http::realIP());
 
@@ -1107,7 +1107,7 @@ final class Url
                 return;
             }
 
-            $subtitle = ' - ' . App::core()->context()->get('categories')->f('cat_title');
+            $subtitle = ' - ' . App::core()->context()->get('categories')->field('cat_title');
         } elseif ($post_id) {
             $param = new Param();
             $param->set('post_id', $post_id);
@@ -1125,7 +1125,7 @@ final class Url
                 return;
             }
 
-            $subtitle = ' - ' . App::core()->context()->get('posts')->f('post_title');
+            $subtitle = ' - ' . App::core()->context()->get('posts')->field('post_title');
         }
 
         $tpl = $type;

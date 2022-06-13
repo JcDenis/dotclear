@@ -355,7 +355,7 @@ class Distrib
                 $rs     = $con->select('SHOW ENGINES');
                 $innodb = false;
                 while ($rs->fetch()) {
-                    if (strtolower($rs->f(0)) == 'innodb' && strtolower($rs->f(1)) != 'disabled' && strtolower($rs->f(1)) != 'no') {
+                    if (strtolower($rs->field(0)) == 'innodb' && strtolower($rs->field(1)) != 'disabled' && strtolower($rs->field(1)) != 'no') {
                         $innodb = true;
 
                         break;

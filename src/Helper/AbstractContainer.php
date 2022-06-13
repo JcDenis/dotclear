@@ -65,7 +65,7 @@ abstract class AbstractContainer
         if (null != $rs && !$rs->isEmpty()) {
             foreach ($this->getDefaultProperties() as $key => $value) {
                 if ($rs->exists($key)) {
-                    $this->current[$key] = $rs->f($key);
+                    $this->current[$key] = $rs->field($key);
                 }
             }
         }

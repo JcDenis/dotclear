@@ -29,7 +29,7 @@ class RsExtDate extends RsExtend
     public function ts(): int
     {
         return Clock::ts(
-            date: $this->rs->f('dt'),
+            date: $this->rs->field('dt'),
             to: App::core()->timezone()
         );
     }
@@ -135,7 +135,7 @@ class RsExtDate extends RsExtend
     {
         return Clock::str(
             format: $format ?: App::core()->blog()->settings()->getGroup('system')->getSetting('date_format'),
-            date: $this->rs->f('dt'),
+            date: $this->rs->field('dt'),
             to: App::core()->timezone()
         );
     }

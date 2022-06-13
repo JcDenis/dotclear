@@ -117,22 +117,22 @@ class TagsWidgets
         $res = '<ul>';
 
         if ('post' == App::core()->url()->getCurrentType() && App::core()->context()->get('posts') instanceof Record) {
-            App::core()->context()->set('meta', App::core()->meta()->getMetaRecordset((string) App::core()->context()->get('posts')->f('post_meta'), 'tag'));
+            App::core()->context()->set('meta', App::core()->meta()->getMetaRecordset((string) App::core()->context()->get('posts')->field('post_meta'), 'tag'));
         }
         while ($rs->fetch()) {
             $class = '';
             if ('post' == App::core()->url()->getCurrentType() && App::core()->context()->get('posts') instanceof Record) {
                 while (App::core()->context()->get('meta')->fetch()) {
-                    if (App::core()->context()->get('meta')->f('meta_id') == $rs->f('meta_id')) {
+                    if (App::core()->context()->get('meta')->field('meta_id') == $rs->field('meta_id')) {
                         $class = ' class="tag-current"';
 
                         break;
                     }
                 }
             }
-            $res .= '<li' . $class . '><a href="' . App::core()->blog()->getURLFor('tag', rawurlencode($rs->f('meta_id'))) . '" ' .
-            'class="tag' . $rs->f('roundpercent') . '">' .
-            $rs->f('meta_id') . '</a> </li>';
+            $res .= '<li' . $class . '><a href="' . App::core()->blog()->getURLFor('tag', rawurlencode($rs->field('meta_id'))) . '" ' .
+            'class="tag' . $rs->field('roundpercent') . '">' .
+            $rs->field('meta_id') . '</a> </li>';
         }
 
         $res .= '</ul>';

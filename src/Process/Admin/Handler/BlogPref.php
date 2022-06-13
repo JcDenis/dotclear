@@ -76,12 +76,12 @@ class BlogPref extends AbstractPage
                     throw new AdminException(__('No such blog.'));
                 }
 
-                $this->blog_id       = $record->f('blog_id');
-                $this->blog_status   = $record->fInt('blog_status');
-                $this->blog_name     = $record->f('blog_name');
-                $this->blog_desc     = $record->f('blog_desc');
+                $this->blog_id       = $record->field('blog_id');
+                $this->blog_status   = $record->integer('blog_status');
+                $this->blog_name     = $record->field('blog_name');
+                $this->blog_desc     = $record->field('blog_desc');
                 $this->blog_settings = new Settings(blog: $this->blog_id);
-                $this->blog_url      = $record->f('blog_url');
+                $this->blog_url      = $record->field('blog_url');
             } catch (Exception $e) {
                 App::core()->error()->add($e->getMessage());
             }

@@ -111,12 +111,12 @@ class Workspace
             }
         }
         while ($record->fetch()) {
-            if ($record->f('pref_ws') != $this->ws) {
+            if ($record->field('pref_ws') != $this->ws) {
                 break;
             }
-            $id    = trim($record->f('pref_id'));
-            $value = $record->f('pref_value');
-            $type  = $record->f('pref_type');
+            $id    = trim($record->field('pref_id'));
+            $value = $record->field('pref_value');
+            $type  = $record->field('pref_type');
 
             if ('array' == $type) {
                 $value = @json_decode($value, true);
@@ -130,14 +130,14 @@ class Workspace
 
             settype($value, $type);
 
-            $array = $record->f('user_id') ? 'local' : 'global';
+            $array = $record->field('user_id') ? 'local' : 'global';
 
             $this->{$array . '_prefs'}[$id] = [
                 'ws'     => $this->ws,
                 'value'  => $value,
                 'type'   => $type,
-                'label'  => (string) $record->f('pref_label'),
-                'global' => $record->f('user_id') == '',
+                'label'  => (string) $record->field('pref_label'),
+                'global' => $record->field('user_id') == '',
             ];
         }
 

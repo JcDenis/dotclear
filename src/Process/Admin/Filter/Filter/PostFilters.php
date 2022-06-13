@@ -119,9 +119,9 @@ class PostFilters extends Filters
         ];
         while ($categories->fetch()) {
             $combo[
-                str_repeat('&nbsp;', ($categories->fInt('level') - 1) * 4) .
-                Html::escapeHTML($categories->f('cat_title')) . ' (' . $categories->f('nb_post') . ')'
-            ] = (string) $categories->f('cat_id');
+                str_repeat('&nbsp;', ($categories->integer('level') - 1) * 4) .
+                Html::escapeHTML($categories->field('cat_title')) . ' (' . $categories->field('nb_post') . ')'
+            ] = (string) $categories->field('cat_id');
         }
 
         return new Filter(

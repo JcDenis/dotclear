@@ -60,7 +60,7 @@ class Handler extends AbstractPage
         $this->sm_categories_combo = App::core()->combo()->getCategoriesCombo($rs, false, true);
         $rs->moveStart();
         while ($rs->fetch()) {
-            $categories_label[$rs->f('cat_url')] = Html::escapeHTML($rs->f('cat_title'));
+            $categories_label[$rs->field('cat_url')] = Html::escapeHTML($rs->field('cat_title'));
         }
 
         // Liste des langues utilisées
@@ -100,7 +100,7 @@ class Handler extends AbstractPage
 
             $rs = App::core()->blog()->posts()->getPosts(param: $param);
             while ($rs->fetch()) {
-                $this->sm_pages_combo[$rs->f('post_title')] = $rs->getURL();
+                $this->sm_pages_combo[$rs->field('post_title')] = $rs->getURL();
             }
             unset($rs);
         } catch (\Exception) {
@@ -114,7 +114,7 @@ class Handler extends AbstractPage
             $rs                                  = App::core()->meta()->getMetadata(param: $param);
             $this->sm_tags_combo[__('All tags')] = '-';
             while ($rs->fetch()) {
-                $this->sm_tags_combo[$rs->f('meta_id')] = $rs->f('meta_id');
+                $this->sm_tags_combo[$rs->field('meta_id')] = $rs->field('meta_id');
             }
             unset($rs);
         } catch (\Exception) {

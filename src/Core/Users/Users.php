@@ -61,7 +61,7 @@ final class Users
         // --BEHAVIOR-- coreAfterCountUsers, Record
         App::core()->behavior()->call('coreAfterCountUsers', record: $record);
 
-        return $record->fInt();
+        return $record->integer();
     }
 
     /**
@@ -294,7 +294,7 @@ final class Users
 
         $record = $sql->select();
         while ($record->fetch()) {
-            $blog = new Blog($record->f('blog_id'));
+            $blog = new Blog($record->field('blog_id'));
             $blog->triggerBlog();
             unset($blog);
         }

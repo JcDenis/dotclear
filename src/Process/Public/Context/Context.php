@@ -361,9 +361,9 @@ class Context
                 $v .= ' ?not';
             }
             if ($this->exists('categories') && preg_match('/#self/', $v)) {
-                $v = preg_replace('/#self/', $this->get('categories')->f('cat_url'), $v);
+                $v = preg_replace('/#self/', $this->get('categories')->field('cat_url'), $v);
             } elseif ($this->exists('posts') && preg_match('/#self/', $v)) {
-                $v = preg_replace('/#self/', $this->get('posts')->f('cat_url'), $v);
+                $v = preg_replace('/#self/', $this->get('posts')->field('cat_url'), $v);
             }
         }
         $param->set('cat_url', $url);
@@ -630,7 +630,7 @@ class Context
 
             // We first look in post content
             if (!$cat_only && $this->get('posts')) {
-                $subject = ($content_only ? '' : $this->get('posts')->f('post_excerpt_xhtml')) . $this->get('posts')->f('post_content_xhtml');
+                $subject = ($content_only ? '' : $this->get('posts')->field('post_excerpt_xhtml')) . $this->get('posts')->field('post_content_xhtml');
                 if (0 < preg_match_all($pattern, $subject, $m)) {
                     foreach ($m[1] as $i => $img) {
                         if (false !== ($src = $this->ContentFirstImageLookup($p_root, $img, $size))) {
@@ -647,8 +647,8 @@ class Context
             }
 
             // No src, look in category description if available
-            if (!$src && $with_category && $this->get('posts')->f('cat_desc')) {
-                if (0 < preg_match_all($pattern, $this->get('posts')->f('cat_desc'), $m)) {
+            if (!$src && $with_category && $this->get('posts')->field('cat_desc')) {
+                if (0 < preg_match_all($pattern, $this->get('posts')->field('cat_desc'), $m)) {
                     foreach ($m[1] as $i => $img) {
                         if (false !== ($src = $this->ContentFirstImageLookup($p_root, $img, $size))) {
                             $dirname = str_replace('\\', '/', dirname($img));

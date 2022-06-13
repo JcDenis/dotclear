@@ -56,17 +56,17 @@ class Category extends AbstractPage
             }
 
             if (!App::core()->error()->flag() && !$record->isEmpty()) {
-                $this->cat_id    = $record->fInt('cat_id');
-                $this->cat_title = $record->f('cat_title');
-                $this->cat_url   = $record->f('cat_url');
-                $this->cat_desc  = $record->f('cat_desc');
+                $this->cat_id    = $record->integer('cat_id');
+                $this->cat_title = $record->field('cat_title');
+                $this->cat_url   = $record->field('cat_url');
+                $this->cat_desc  = $record->field('cat_desc');
             }
             unset($record);
 
             // Getting hierarchy information
             $parents          = App::core()->blog()->categories()->getCategoryParents(id: $this->cat_id);
             $record           = App::core()->blog()->categories()->getCategoryParent(id: $this->cat_id);
-            $this->cat_parent = $record->isEmpty() ? 0 : $record->fInt('cat_id');
+            $this->cat_parent = $record->isEmpty() ? 0 : $record->integer('cat_id');
             unset($record);
 
             // Allowed parents list
@@ -78,15 +78,15 @@ class Category extends AbstractPage
 
             $p = [];
             while ($children->fetch()) {
-                $p[$children->fInt('cat_id')] = 1;
+                $p[$children->integer('cat_id')] = 1;
             }
 
             $rs = App::core()->blog()->categories()->getCategories();
             while ($rs->fetch()) {
-                if (!isset($p[$rs->fInt('cat_id')])) {
+                if (!isset($p[$rs->integer('cat_id')])) {
                     $this->cat_allowed_parents[] = new FormSelectOption(
-                        str_repeat('&nbsp;&nbsp;', $rs->fInt('level') - 1) . ($rs->fInt('level') - 1 == 0 ? '' : '&bull; ') . Html::escapeHTML($rs->f('cat_title')),
-                        $rs->fInt('cat_id')
+                        str_repeat('&nbsp;&nbsp;', $rs->integer('level') - 1) . ($rs->integer('level') - 1 == 0 ? '' : '&bull; ') . Html::escapeHTML($rs->field('cat_title')),
+                        $rs->integer('cat_id')
                     );
                 }
             }
@@ -96,7 +96,7 @@ class Category extends AbstractPage
             $rs = App::core()->blog()->categories()->getCategoryFirstChildren(id: $this->cat_parent);
             while ($rs->fetch()) {
                 if ($rs->fint('cat_id') != $this->cat_id) {
-                    $this->cat_siblings[Html::escapeHTML($rs->f('cat_title'))] = $rs->fInt('cat_id');
+                    $this->cat_siblings[Html::escapeHTML($rs->field('cat_title'))] = $rs->integer('cat_id');
                 }
             }
             unset($rs);
@@ -186,7 +186,7 @@ class Category extends AbstractPage
         ];
         if (null !== $this->cat_id) {
             while ($parents->fetch()) {
-                $elements[Html::escapeHTML($parents->f('cat_title'))] = App::core()->adminurl()->get('admin.category', ['id' => $parents->f('cat_id')]);
+                $elements[Html::escapeHTML($parents->field('cat_title'))] = App::core()->adminurl()->get('admin.category', ['id' => $parents->field('cat_id')]);
             }
         }
         $elements[$title] = '';
@@ -232,8 +232,8 @@ class Category extends AbstractPage
             '<select id="new_cat_parent" name="new_cat_parent" >' .
             '<option value="0">' . __('(none)') . '</option>';
             while ($rs->fetch()) {
-                echo '<option value="' . $rs->f('cat_id') . '" ' . ($rs->fInt('cat_id')                                  == GPC::post()->int('new_cat_parent') ? 'selected="selected"' : '') . '>' .
-                str_repeat('&nbsp;&nbsp;', $rs->fInt('level') - 1) . (0                                                  == $rs->fInt('level') - 1 ? '' : '&bull; ') . Html::escapeHTML($rs->f('cat_title')) . '</option>';
+                echo '<option value="' . $rs->field('cat_id') . '" ' . ($rs->integer('cat_id')                                  == GPC::post()->int('new_cat_parent') ? 'selected="selected"' : '') . '>' .
+                str_repeat('&nbsp;&nbsp;', $rs->integer('level') - 1) . (0                                                  == $rs->integer('level') - 1 ? '' : '&bull; ') . Html::escapeHTML($rs->field('cat_title')) . '</option>';
             }
             echo '</select></label></p>';
             unset($rs);

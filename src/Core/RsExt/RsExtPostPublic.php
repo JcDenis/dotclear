@@ -30,7 +30,7 @@ class RsExtPostPublic extends RsExtPost
 
             return '<p>' . $c . '... ' .
             '<a href="' . $this->getURL() . '"><em>' . __('Read') . '</em> ' .
-            Html::escapeHTML($this->rs->f('post_title')) . '</a></p>';
+            Html::escapeHTML($this->rs->field('post_title')) . '</a></p>';
         }
 
         return App::core()->blog()->settings()->getGroup('system')->getSetting('use_smilies') ?

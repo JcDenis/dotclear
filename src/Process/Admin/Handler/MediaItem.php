@@ -722,7 +722,7 @@ class MediaItem extends AbstractPage
                 echo '<ul>';
                 while ($rs->fetch()) {
                     $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
-                    $img_status = match ($rs->fInt('post_status')) {
+                    $img_status = match ($rs->integer('post_status')) {
                         1       => sprintf($img, __('published'), 'check-on.png'),
                         0       => sprintf($img, __('unpublished'), 'check-off.png'),
                         -1      => sprintf($img, __('scheduled'), 'scheduled.png'),
@@ -730,10 +730,10 @@ class MediaItem extends AbstractPage
                         default => '',
                     };
                     echo '<li>' . $img_status . ' ' . '<a href="' .
-                    Html::escapeHTML(App::core()->posttype()->getPostAdminURL(type: $rs->f('post_type'), id: $rs->f('post_id'))) . '">' .
-                    Html::escapeHTML($rs->f('post_title')) . '</a>' .
-                    ('post' != $rs->f('post_type') ? ' (' . Html::escapeHTML($rs->f('post_type')) . ')' : '') .
-                    ' - ' . Clock::str(format: __('%Y-%m-%d %H:%M'), date: $rs->f('post_dt'), to: App::core()->timezone()) . '</li>';
+                    Html::escapeHTML(App::core()->posttype()->getPostAdminURL(type: $rs->field('post_type'), id: $rs->field('post_id'))) . '">' .
+                    Html::escapeHTML($rs->field('post_title')) . '</a>' .
+                    ('post' != $rs->field('post_type') ? ' (' . Html::escapeHTML($rs->field('post_type')) . ')' : '') .
+                    ' - ' . Clock::str(format: __('%Y-%m-%d %H:%M'), date: $rs->field('post_dt'), to: App::core()->timezone()) . '</li>';
                 }
                 echo '</ul>';
             }

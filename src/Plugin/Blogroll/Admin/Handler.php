@@ -235,8 +235,8 @@ class Handler extends AbstractPage
             <tbody id="links-list">';
 
             while ($rs->fetch()) {
-                echo '<tr class="line" id="l_' . $rs->f('link_id') . '">' .
-                '<td class="handle minimal">' . Form::number(['order[' . $rs->f('link_id') . ']'], [
+                echo '<tr class="line" id="l_' . $rs->field('link_id') . '">' .
+                '<td class="handle minimal">' . Form::number(['order[' . $rs->field('link_id') . ']'], [
                     'min'        => 1,
                     'max'        => $rs->count(),
                     'default'    => (string) ($rs->index() + 1),
@@ -246,21 +246,21 @@ class Handler extends AbstractPage
                 '</td>' .
                 '<td class="minimal">' . Form::checkbox(
                     ['remove[]'],
-                    $rs->f('link_id'),
+                    $rs->field('link_id'),
                     [
                         'extra_html' => 'title="' . __('select this link') . '"',
                     ]
                 ) . '</td>';
 
-                if ($rs->fInt('is_cat')) {
-                    echo '<td colspan="5"><strong><a href="' . App::core()->adminurl()->get('admin.plugin.Blogroll', ['edit' => 1, 'id' => $rs->f('link_id')]) . '">' .
-                    Html::escapeHTML($rs->f('link_desc')) . '</a></strong></td>';
+                if ($rs->integer('is_cat')) {
+                    echo '<td colspan="5"><strong><a href="' . App::core()->adminurl()->get('admin.plugin.Blogroll', ['edit' => 1, 'id' => $rs->field('link_id')]) . '">' .
+                    Html::escapeHTML($rs->field('link_desc')) . '</a></strong></td>';
                 } else {
-                    echo '<td><a href="' . App::core()->adminurl()->get('admin.plugin.Blogroll', ['edit' => 1, 'id' => $rs->f('link_id')]) . '">' .
-                    Html::escapeHTML($rs->f('link_title')) . '</a></td>' .
-                    '<td>' . Html::escapeHTML($rs->f('link_desc')) . '</td>' .
-                    '<td>' . Html::escapeHTML($rs->f('link_href')) . '</td>' .
-                    '<td>' . Html::escapeHTML($rs->f('link_lang')) . '</td>';
+                    echo '<td><a href="' . App::core()->adminurl()->get('admin.plugin.Blogroll', ['edit' => 1, 'id' => $rs->field('link_id')]) . '">' .
+                    Html::escapeHTML($rs->field('link_title')) . '</a></td>' .
+                    '<td>' . Html::escapeHTML($rs->field('link_desc')) . '</td>' .
+                    '<td>' . Html::escapeHTML($rs->field('link_href')) . '</td>' .
+                    '<td>' . Html::escapeHTML($rs->field('link_lang')) . '</td>';
                 }
 
                 echo '</tr>';

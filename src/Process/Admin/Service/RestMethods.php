@@ -277,44 +277,44 @@ class RestMethods
         }
 
         $rsp = new XmlTag('post');
-        $rsp->insertAttr('id', $rs->f('post_id'));
+        $rsp->insertAttr('id', $rs->field('post_id'));
 
         $rsp->insertNode([
-            'blog_id'            => $rs->f('blog_id'),
-            'user_id'            => $rs->f('user_id'),
-            'cat_id'             => $rs->f('cat_id'),
-            'post_dt'            => $rs->f('post_dt'),
-            'post_creadt'        => $rs->f('post_creadt'),
-            'post_upddt'         => $rs->f('post_upddt'),
-            'post_format'        => $rs->f('post_format'),
-            'post_url'           => $rs->f('post_url'),
-            'post_lang'          => $rs->f('post_lang'),
-            'post_title'         => $rs->f('post_title'),
-            'post_excerpt'       => $rs->f('post_excerpt'),
-            'post_excerpt_xhtml' => $rs->f('post_excerpt_xhtml'),
-            'post_content'       => $rs->f('post_content'),
-            'post_content_xhtml' => $rs->f('post_content_xhtml'),
-            'post_notes'         => $rs->f('post_notes'),
-            'post_status'        => $rs->f('post_status'),
-            'post_selected'      => $rs->f('post_selected'),
-            'post_open_comment'  => $rs->f('post_open_comment'),
-            'post_open_tb'       => $rs->f('post_open_tb'),
-            'nb_comment'         => $rs->f('nb_comment'),
-            'nb_trackback'       => $rs->f('nb_trackback'),
-            'user_name'          => $rs->f('user_name'),
-            'user_firstname'     => $rs->f('user_firstname'),
-            'user_displayname'   => $rs->f('user_displayname'),
-            'user_email'         => $rs->f('user_email'),
-            'user_url'           => $rs->f('user_url'),
-            'cat_title'          => $rs->f('cat_title'),
-            'cat_url'            => $rs->f('cat_url'),
+            'blog_id'            => $rs->field('blog_id'),
+            'user_id'            => $rs->field('user_id'),
+            'cat_id'             => $rs->field('cat_id'),
+            'post_dt'            => $rs->field('post_dt'),
+            'post_creadt'        => $rs->field('post_creadt'),
+            'post_upddt'         => $rs->field('post_upddt'),
+            'post_format'        => $rs->field('post_format'),
+            'post_url'           => $rs->field('post_url'),
+            'post_lang'          => $rs->field('post_lang'),
+            'post_title'         => $rs->field('post_title'),
+            'post_excerpt'       => $rs->field('post_excerpt'),
+            'post_excerpt_xhtml' => $rs->field('post_excerpt_xhtml'),
+            'post_content'       => $rs->field('post_content'),
+            'post_content_xhtml' => $rs->field('post_content_xhtml'),
+            'post_notes'         => $rs->field('post_notes'),
+            'post_status'        => $rs->field('post_status'),
+            'post_selected'      => $rs->field('post_selected'),
+            'post_open_comment'  => $rs->field('post_open_comment'),
+            'post_open_tb'       => $rs->field('post_open_tb'),
+            'nb_comment'         => $rs->field('nb_comment'),
+            'nb_trackback'       => $rs->field('nb_trackback'),
+            'user_name'          => $rs->field('user_name'),
+            'user_firstname'     => $rs->field('user_firstname'),
+            'user_displayname'   => $rs->field('user_displayname'),
+            'user_email'         => $rs->field('user_email'),
+            'user_url'           => $rs->field('user_url'),
+            'cat_title'          => $rs->field('cat_title'),
+            'cat_url'            => $rs->field('cat_url'),
 
             'post_display_content' => $rs->getContent(true),
             'post_display_excerpt' => $rs->getExcerpt(true),
         ]);
 
         $metaTag = new XmlTag('meta');
-        if (false !== ($meta = unserialize((string) $rs->f('post_meta')))) {
+        if (false !== ($meta = unserialize((string) $rs->field('post_meta')))) {
             foreach ($meta as $K => $V) {
                 foreach ($V as $v) {
                     $metaTag->insertNode([$K => $v]);
@@ -348,29 +348,29 @@ class RestMethods
         }
 
         $rsp = new XmlTag('post');
-        $rsp->insertAttr('id', $rs->f('comment_id'));
+        $rsp->insertAttr('id', $rs->field('comment_id'));
 
         $rsp->insertNode([
-            'comment_dt'        => $rs->f('comment_dt'),
-            'comment_upddt'     => $rs->f('comment_upddt'),
-            'comment_author'    => $rs->f('comment_author'),
-            'comment_site'      => $rs->f('comment_site'),
-            'comment_content'   => $rs->f('comment_content'),
-            'comment_trackback' => $rs->f('comment_trackback'),
-            'comment_status'    => $rs->f('comment_status'),
-            'post_title'        => $rs->f('post_title'),
-            'post_url'          => $rs->f('post_url'),
-            'post_id'           => $rs->f('post_id'),
-            'post_dt'           => $rs->f('post_dt'),
-            'user_id'           => $rs->f('user_id'),
+            'comment_dt'        => $rs->field('comment_dt'),
+            'comment_upddt'     => $rs->field('comment_upddt'),
+            'comment_author'    => $rs->field('comment_author'),
+            'comment_site'      => $rs->field('comment_site'),
+            'comment_content'   => $rs->field('comment_content'),
+            'comment_trackback' => $rs->field('comment_trackback'),
+            'comment_status'    => $rs->field('comment_status'),
+            'post_title'        => $rs->field('post_title'),
+            'post_url'          => $rs->field('post_url'),
+            'post_id'           => $rs->field('post_id'),
+            'post_dt'           => $rs->field('post_dt'),
+            'user_id'           => $rs->field('user_id'),
 
             'comment_display_content' => $rs->getContent(true),
         ]);
 
         if (App::core()->user()->userID()) {
             $rsp->insertNode([
-                'comment_ip'    => $rs->f('comment_ip'),
-                'comment_email' => $rs->f('comment_email'),
+                'comment_ip'    => $rs->field('comment_ip'),
+                'comment_email' => $rs->field('comment_email'),
             ]);
             // !            $rsp->insertNode(['comment_spam_disp' => dcAntispam::statusMessage($rs)]);
         }
@@ -422,7 +422,7 @@ class RestMethods
         $param->set('post_id', $return_id);
         $post = App::core()->blog()->posts()->getPosts(param: $param);
 
-        $rsp->insertAttr('post_status', $post->f('post_status'));
+        $rsp->insertAttr('post_status', $post->field('post_status'));
         $rsp->insertAttr('post_url', $post->getURL());
 
         return $rsp;
@@ -581,12 +581,12 @@ class RestMethods
 
         while ($rs->fetch()) {
             $metaTag = new XmlTag('meta');
-            $metaTag->insertAttr('type', $rs->f('meta_type'));
-            $metaTag->insertAttr('uri', rawurlencode($rs->f('meta_id')));
-            $metaTag->insertAttr('count', $rs->f('count'));
-            $metaTag->insertAttr('percent', $rs->f('percent'));
-            $metaTag->insertAttr('roundpercent', $rs->f('roundpercent'));
-            $metaTag->CDATA($rs->f('meta_id'));
+            $metaTag->insertAttr('type', $rs->field('meta_type'));
+            $metaTag->insertAttr('uri', rawurlencode($rs->field('meta_id')));
+            $metaTag->insertAttr('count', $rs->field('count'));
+            $metaTag->insertAttr('percent', $rs->field('percent'));
+            $metaTag->insertAttr('roundpercent', $rs->field('roundpercent'));
+            $metaTag->CDATA($rs->field('meta_id'));
 
             $rsp->insertNode($metaTag);
         }
@@ -624,7 +624,7 @@ class RestMethods
         $post_meta = App::core()->meta()->getMetadata(param: $param);
         $pm        = [];
         while ($post_meta->fetch()) {
-            $pm[] = $post_meta->f('meta_id');
+            $pm[] = $post_meta->field('meta_id');
         }
 
         foreach (App::core()->meta()->splitMetaValues($post['meta']) as $m) {
@@ -712,14 +712,14 @@ class RestMethods
         $rsp = new XmlTag();
 
         while ($rs->fetch()) {
-            if (0 === stripos($rs->f('meta_id'), $q)) {
+            if (0 === stripos($rs->field('meta_id'), $q)) {
                 $metaTag = new XmlTag('meta');
-                $metaTag->insertAttr('type', $rs->f('meta_type'));
-                $metaTag->insertAttr('uri', rawurlencode($rs->f('meta_id')));
-                $metaTag->insertAttr('count', $rs->f('count'));
-                $metaTag->insertAttr('percent', $rs->f('percent'));
-                $metaTag->insertAttr('roundpercent', $rs->f('roundpercent'));
-                $metaTag->CDATA($rs->f('meta_id'));
+                $metaTag->insertAttr('type', $rs->field('meta_type'));
+                $metaTag->insertAttr('uri', rawurlencode($rs->field('meta_id')));
+                $metaTag->insertAttr('count', $rs->field('count'));
+                $metaTag->insertAttr('percent', $rs->field('percent'));
+                $metaTag->insertAttr('roundpercent', $rs->field('roundpercent'));
+                $metaTag->CDATA($rs->field('meta_id'));
 
                 $rsp->insertNode($metaTag);
             }

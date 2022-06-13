@@ -154,29 +154,29 @@ class WidgetsStack
 
         $res = $widget->renderTitle();
 
-        $ref_level = $level = $rs->fInt('level') - 1;
+        $ref_level = $level = $rs->integer('level') - 1;
         while ($rs->fetch()) {
             $class = '';
-            if (('category' == App::core()->url()->getCurrentType() && App::core()->context()->get('categories') instanceof Record && App::core()->context()->get('categories')->fInt('cat_id') === $rs->fInt('cat_id'))
-                || ('post' == App::core()->url()->getCurrentType() && App::core()->context()->get('posts') instanceof Record && App::core()->context()->get('posts')->fInt('cat_id') === $rs->fInt('cat_id'))) {
+            if (('category' == App::core()->url()->getCurrentType() && App::core()->context()->get('categories') instanceof Record && App::core()->context()->get('categories')->integer('cat_id') === $rs->integer('cat_id'))
+                || ('post' == App::core()->url()->getCurrentType() && App::core()->context()->get('posts') instanceof Record && App::core()->context()->get('posts')->integer('cat_id') === $rs->integer('cat_id'))) {
                 $class = ' class="category-current"';
             }
 
-            if ($rs->fInt('level') > $level) {
-                $res .= str_repeat('<ul><li' . $class . '>', $rs->fInt('level') - $level);
-            } elseif ($rs->fInt('level') < $level) {
-                $res .= str_repeat('</li></ul>', -($rs->fInt('level') - $level));
+            if ($rs->integer('level') > $level) {
+                $res .= str_repeat('<ul><li' . $class . '>', $rs->integer('level') - $level);
+            } elseif ($rs->integer('level') < $level) {
+                $res .= str_repeat('</li></ul>', -($rs->integer('level') - $level));
             }
 
-            if ($rs->fInt('level') <= $level) {
+            if ($rs->integer('level') <= $level) {
                 $res .= '</li><li' . $class . '>';
             }
 
-            $res .= '<a href="' . App::core()->blog()->getURLFor('category', $rs->f('cat_url')) . '">' .
-            Html::escapeHTML($rs->f('cat_title')) . '</a>' .
-                ($widget->get('postcount') ? ' <span>(' . ($widget->get('subcatscount') ? $rs->f('nb_total') : $rs->f('nb_post')) . ')</span>' : '');
+            $res .= '<a href="' . App::core()->blog()->getURLFor('category', $rs->field('cat_url')) . '">' .
+            Html::escapeHTML($rs->field('cat_title')) . '</a>' .
+                ($widget->get('postcount') ? ' <span>(' . ($widget->get('subcatscount') ? $rs->field('nb_total') : $rs->field('nb_post')) . ')</span>' : '');
 
-            $level = $rs->fInt('level');
+            $level = $rs->integer('level');
         }
 
         if ($ref_level - $level < 0) {
@@ -213,10 +213,10 @@ class WidgetsStack
 
         while ($rs->fetch()) {
             $class = '';
-            if ('post' == App::core()->url()->getCurrentType() && App::core()->context()->get('posts') instanceof Record && App::core()->context()->get('posts')->fInt('post_id') === $rs->fInt('post_id')) {
+            if ('post' == App::core()->url()->getCurrentType() && App::core()->context()->get('posts') instanceof Record && App::core()->context()->get('posts')->integer('post_id') === $rs->integer('post_id')) {
                 $class = ' class="post-current"';
             }
-            $res .= ' <li' . $class . '><a href="' . $rs->getURL() . '">' . Html::escapeHTML($rs->f('post_title')) . '</a></li> ';
+            $res .= ' <li' . $class . '><a href="' . $rs->getURL() . '">' . Html::escapeHTML($rs->field('post_title')) . '</a></li> ';
         }
 
         $res .= '</ul>';
@@ -246,15 +246,15 @@ class WidgetsStack
             '<ul>';
 
         while ($rs->fetch()) {
-            $l = (App::core()->context()->get('cur_lang') == $rs->f('post_lang')) ? '<strong>%s</strong>' : '%s';
+            $l = (App::core()->context()->get('cur_lang') == $rs->field('post_lang')) ? '<strong>%s</strong>' : '%s';
 
-            $lang_name = $langs[$rs->f('post_lang')] ?? $rs->f('post_lang');
+            $lang_name = $langs[$rs->field('post_lang')] ?? $rs->field('post_lang');
 
             $res .= ' <li>' .
             sprintf(
                 $l,
-                '<a href="' . App::core()->blog()->getURLFor('lang', $rs->f('post_lang')) . '" ' .
-                'class="lang-' . $rs->f('post_lang') . '">' .
+                '<a href="' . App::core()->blog()->getURLFor('lang', $rs->field('post_lang')) . '" ' .
+                'class="lang-' . $rs->field('post_lang') . '">' .
                 $lang_name . '</a>'
             ) .
                 ' </li>';
@@ -417,11 +417,11 @@ class WidgetsStack
 
         while ($rs->fetch()) {
             $class = '';
-            if ('post' == App::core()->url()->getCurrentType() && App::core()->context()->get('posts') instanceof Record && App::core()->context()->get('posts')->fInt('post_id') === $rs->fInt('post_id')) {
+            if ('post' == App::core()->url()->getCurrentType() && App::core()->context()->get('posts') instanceof Record && App::core()->context()->get('posts')->integer('post_id') === $rs->integer('post_id')) {
                 $class = ' class="post-current"';
             }
             $res .= '<li' . $class . '><a href="' . $rs->getURL() . '">' .
-            Html::escapeHTML($rs->f('post_title')) . '</a></li>';
+            Html::escapeHTML($rs->field('post_title')) . '</a></li>';
         }
 
         $res .= '</ul>';
@@ -453,10 +453,10 @@ class WidgetsStack
 
         while ($rs->fetch()) {
             $res .= '<li class="' .
-            ((bool) $rs->fInt('comment_trackback') ? 'last-tb' : 'last-comment') .
-            '"><a href="' . $rs->getPostURL() . '#c' . $rs->f('comment_id') . '">' .
-            Html::escapeHTML($rs->f('post_title')) . ' - ' .
-            Html::escapeHTML($rs->f('comment_author')) .
+            ((bool) $rs->integer('comment_trackback') ? 'last-tb' : 'last-comment') .
+            '"><a href="' . $rs->getPostURL() . '#c' . $rs->field('comment_id') . '">' .
+            Html::escapeHTML($rs->field('post_title')) . ' - ' .
+            Html::escapeHTML($rs->field('comment_author')) .
                 '</a></li>';
         }
 
@@ -562,7 +562,7 @@ class WidgetsStack
         $rs         = App::core()->blog()->categories()->getCategories(param: $param);
         $categories = ['' => '', __('Uncategorized') => 'null'];
         while ($rs->fetch()) {
-            $categories[str_repeat('&nbsp;&nbsp;', $rs->fInt('level') - 1) . (0 == $rs->fInt('level') - 1 ? '' : '&bull; ') . Html::escapeHTML($rs->f('cat_title'))] = $rs->f('cat_id');
+            $categories[str_repeat('&nbsp;&nbsp;', $rs->integer('level') - 1) . (0 == $rs->integer('level') - 1 ? '' : '&bull; ') . Html::escapeHTML($rs->field('cat_title'))] = $rs->field('cat_id');
         }
         $widget = $__widgets->create('lastposts', __('Last entries'), [$this, 'lastposts'], null, __('List of last entries published'));
         $widget

@@ -79,7 +79,7 @@ class PostAction extends DefaultPostAction
 
         $record = App::core()->blog()->posts()->getPosts(param: $param);
         while ($record->fetch()) {
-            $this->entries[$record->fInt('post_id')] = $record->f('post_title');
+            $this->entries[$record->integer('post_id')] = $record->field('post_title');
         }
         $this->rs = $record;
     }

@@ -224,15 +224,15 @@ final class Wiki
         $res = ['url' => $rs->getURL()];
 
         if ($url != $content) {
-            $res['title'] = Html::escapeHTML($rs->f('post_title'));
+            $res['title'] = Html::escapeHTML($rs->field('post_title'));
         }
 
         if ('' == $content || $url == $content) {
-            $res['content'] = Html::escapeHTML($rs->f('post_title'));
+            $res['content'] = Html::escapeHTML($rs->field('post_title'));
         }
 
-        if ($rs->f('post_lang')) {
-            $res['lang'] = $rs->f('post_lang');
+        if ($rs->field('post_lang')) {
+            $res['lang'] = $rs->field('post_lang');
         }
 
         return $res;

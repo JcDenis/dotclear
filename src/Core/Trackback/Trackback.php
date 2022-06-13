@@ -242,7 +242,7 @@ class Trackback
             }
 
             $url = trim(Html::clean($url));
-            if ($this->pingAlreadyDone($rs->fInt('post_id'), $url)) {
+            if ($this->pingAlreadyDone($rs->integer('post_id'), $url)) {
                 $err = true;
                 $msg = 'The trackback has already been registered';
             }
@@ -320,7 +320,7 @@ class Trackback
         try {
             $posts = $this->getTargetPost($to_url);
 
-            if ($this->pingAlreadyDone($posts->fInt('post_id'), $from_url)) {
+            if ($this->pingAlreadyDone($posts->integer('post_id'), $from_url)) {
                 throw new CoreException(__('Don\'t repeat yourself, please.'), 48);
             }
 
@@ -360,7 +360,7 @@ class Trackback
                 $excerpt = '(&#8230;)';
             }
 
-            $this->addBacklink($posts->fInt('post_id'), $from_url, $blog_name, $title, $excerpt, $comment);
+            $this->addBacklink($posts->integer('post_id'), $from_url, $blog_name, $title, $excerpt, $comment);
         } catch (\Exception) {
             throw new CoreException(__('Sorry, an internal problem has occured.'), 0);
         }
@@ -392,7 +392,7 @@ class Trackback
             self::checkURLs($from_url, $to_url);
 
             // Try to find post
-            $post_id = $this->getTargetPost($to_url)->fInt('post_id');
+            $post_id = $this->getTargetPost($to_url)->integer('post_id');
 
             // Check if it's an updated mention
             if ($this->pingAlreadyDone($post_id, $from_url)) {

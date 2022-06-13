@@ -265,24 +265,24 @@ class Media extends Manager
     protected function fileRecord(Record $rs): ?Item
     {
         if (!$rs->isEmpty()
-            && !$this->isFileExclude($this->root . '/' . $rs->f('media_file'))
-            && is_file($this->root . '/' . $rs->f('media_file'))
+            && !$this->isFileExclude($this->root . '/' . $rs->field('media_file'))
+            && is_file($this->root . '/' . $rs->field('media_file'))
         ) {
-            $f = new Item($this->root . '/' . $rs->f('media_file'), $this->root, $this->root_url);
+            $f = new Item($this->root . '/' . $rs->field('media_file'), $this->root, $this->root_url);
 
             if ($this->type && $f->type_prefix != $this->type) {
                 return null;
             }
 
-            $meta = @simplexml_load_string((string) $rs->f('media_meta'));
+            $meta = @simplexml_load_string((string) $rs->field('media_meta'));
 
             $f->editable    = true;
-            $f->media_id    = $rs->f('media_id');
-            $f->media_title = $rs->f('media_title');
+            $f->media_id    = $rs->field('media_id');
+            $f->media_title = $rs->field('media_title');
             $f->media_meta  = $meta instanceof SimpleXMLElement ? $meta : simplexml_load_string('<meta></meta>');
-            $f->media_user  = $rs->f('user_id');
-            $f->media_priv  = (bool) $rs->f('media_private');
-            $f->media_dt    = Clock::ts(date: $rs->f('media_dt'));
+            $f->media_user  = $rs->field('user_id');
+            $f->media_priv  = (bool) $rs->field('media_private');
+            $f->media_dt    = Clock::ts(date: $rs->field('media_dt'));
             $f->media_dtstr = Clock::str(format: '%Y-%m-%d %H:%M', date: $f->media_dt, to: App::core()->timezone());
 
             $f->media_image = false;
@@ -502,7 +502,7 @@ class Media extends Manager
         $privates = [];
         while ($rsp->fetch()) {
             // File in subdirectory, forget about it!
-            if ('.' != dirname($rsp->f('media_file')) && dirname($rsp->f('media_file')) != $this->relpwd) {
+            if ('.' != dirname($rsp->field('media_file')) && dirname($rsp->field('media_file')) != $this->relpwd) {
                 continue;
             }
             if ($f = $this->fileRecord($rsp)) {
@@ -528,14 +528,14 @@ class Media extends Manager
 
         while ($record->fetch()) {
             // File in subdirectory, forget about it!
-            if ('.' != dirname($record->f('media_file')) && dirname($record->f('media_file')) != $this->relpwd) {
+            if ('.' != dirname($record->field('media_file')) && dirname($record->field('media_file')) != $this->relpwd) {
                 continue;
             }
 
-            if ($this->inFiles($record->f('media_file'))) {
+            if ($this->inFiles($record->field('media_file'))) {
                 $f = $this->fileRecord($record);
                 if (null !== $f) {
-                    if (isset($f_reg[$record->f('media_file')])) {
+                    if (isset($f_reg[$record->field('media_file')])) {
                         // That media is duplicated in the database,
                         // time to do a bit of house cleaning.
                         $sql = new DeleteStatement();
@@ -544,7 +544,7 @@ class Media extends Manager
                         $sql->delete();
                     } else {
                         $f_res[]                     = $this->fileRecord($record);
-                        $f_reg[$record->f('media_file')] = 1;
+                        $f_reg[$record->field('media_file')] = 1;
                     }
                 }
             } elseif (!empty($p_dir['files']) && '' == $this->relpwd) {
@@ -555,9 +555,9 @@ class Media extends Manager
                 $sql = new DeleteStatement();
                 $sql->from(App::core()->prefix() . 'media');
                 $sql->where('media_path = ' . $sql->quote($this->path, true));
-                $sql->and('media_file = ' . $sql->quote($record->f('media_file'), true));
+                $sql->and('media_file = ' . $sql->quote($record->field('media_file'), true));
                 $sql->delete();
-                $this->callFileHandler(Files::getMimeType($record->f('media_file')), 'remove', $this->pwd . '/' . $record->f('media_file'));
+                $this->callFileHandler(Files::getMimeType($record->field('media_file')), 'remove', $this->pwd . '/' . $record->field('media_file'));
             }
         }
 
@@ -779,8 +779,8 @@ class Media extends Manager
 
         $ids = new Integers();
         while ($record->fetch()) {
-            if (!is_file($this->root . '/' . $record->f('media_file'))) {
-                $ids->add($record->fInt('media_id'));
+            if (!is_file($this->root . '/' . $record->field('media_file'))) {
+                $ids->add($record->integer('media_id'));
             }
         }
         if ($ids->count()) {
@@ -849,7 +849,7 @@ class Media extends Manager
                 $sql->from(App::core()->prefix() . 'media');
                 $sql->column($sql->max('media_id'));
 
-                $media_id = $sql->select()->fInt() + 1;
+                $media_id = $sql->select()->integer() + 1;
 
                 $cur->setField('media_id', $media_id);
                 $cur->setField('user_id', (string) App::core()->user()->userID());
@@ -876,7 +876,7 @@ class Media extends Manager
                 throw $e;
             }
         } else {
-            $media_id = $record->fInt('media_id');
+            $media_id = $record->integer('media_id');
 
             $cur->setField('media_upddt', Clock::database());
 
@@ -1061,8 +1061,8 @@ class Media extends Manager
 
         $record = $sql->select();
         while ($record->fetch()) {
-            if (is_dir($this->root . '/' . $record->f('media_dir'))) {
-                $dir[] = ('.' == $record->f('media_dir') ? '' : $record->f('media_dir'));
+            if (is_dir($this->root . '/' . $record->field('media_dir'))) {
+                $dir[] = ('.' == $record->field('media_dir') ? '' : $record->field('media_dir'));
             }
         }
 

@@ -51,7 +51,7 @@ class FilterWords extends Spamfilter
         $rs = $this->getRules();
 
         while ($rs->fetch()) {
-            $word = $rs->f('rule_content');
+            $word = $rs->field('rule_content');
 
             if ('/' == substr($word, 0, 1) && '/' == substr($word, -1, 1)) {
                 $reg = substr(substr($word, 1), 0, -1);
@@ -138,23 +138,23 @@ class FilterWords extends Spamfilter
 
                 $p_style = '';
 
-                if (!$rs->f('blog_id')) {
+                if (!$rs->field('blog_id')) {
                     $disabled_word = !App::core()->user()->isSuperAdmin();
                     $p_style .= ' global';
                 }
 
-                $item = '<p class="' . $p_style . '"><label class="classic" for="word-' . $rs->f('rule_id') . '">' .
+                $item = '<p class="' . $p_style . '"><label class="classic" for="word-' . $rs->field('rule_id') . '">' .
                 Form::checkbox(
-                    ['swd[]', 'word-' . $rs->f('rule_id')],
-                    $rs->f('rule_id'),
+                    ['swd[]', 'word-' . $rs->field('rule_id')],
+                    $rs->field('rule_id'),
                     [
                         'disabled' => $disabled_word,
                     ]
                 ) . ' ' .
-                Html::escapeHTML($rs->f('rule_content')) .
+                Html::escapeHTML($rs->field('rule_content')) .
                     '</label></p>';
 
-                if ($rs->f('blog_id')) {
+                if ($rs->field('blog_id')) {
                     // local list
                     if ('' == $res_local) {
                         $res_local = '<h4>' . __('Local words (used only for this blog)') . '</h4>';
@@ -238,7 +238,7 @@ class FilterWords extends Spamfilter
                 'blog_id = NULL' :
                 'blog_id = ' . $sql->quote(App::core()->blog()->id)
             );
-            $sql->where('rule_id = ' . $record->fInt('rule_id'));
+            $sql->where('rule_id = ' . $record->integer('rule_id'));
             $sql->from(App::core()->prefix() . 'spamrule');
 
             $sql->update();
@@ -247,7 +247,7 @@ class FilterWords extends Spamfilter
             $sql->column($sql->max('rule_id'));
             $sql->from(App::core()->prefix() . 'spamrule');
 
-            $id = $sql->select()->fInt() + 1;
+            $id = $sql->select()->integer() + 1;
 
             $sql = new InsertStatement();
             $sql->columns([

@@ -145,23 +145,23 @@ class FilterIpv6 extends Spamfilter
             while ($rs->fetch()) {
                 $disabled_ip = false;
                 $p_style     = '';
-                if (!$rs->f('blog_id')) {
+                if (!$rs->field('blog_id')) {
                     $disabled_ip = !App::core()->user()->isSuperAdmin();
                     $p_style .= ' global';
                 }
 
-                $item = '<p class="' . $p_style . '"><label class="classic" for="' . $type . '-ip-' . $rs->f('rule_id') . '">' .
+                $item = '<p class="' . $p_style . '"><label class="classic" for="' . $type . '-ip-' . $rs->field('rule_id') . '">' .
                 Form::checkbox(
-                    ['delip[]', $type . '-ip-' . $rs->f('rule_id')],
-                    $rs->f('rule_id'),
+                    ['delip[]', $type . '-ip-' . $rs->field('rule_id')],
+                    $rs->field('rule_id'),
                     [
                         'disabled' => $disabled_ip,
                     ]
                 ) . ' ' .
-                Html::escapeHTML($rs->f('rule_content')) .
+                Html::escapeHTML($rs->field('rule_content')) .
                     '</label></p>';
 
-                if ($rs->f('blog_id')) {
+                if ($rs->field('blog_id')) {
                     // local list
                     if ('' == $res_local) {
                         $res_local = '<h4>' . __('Local IPs (used only for this blog)') . '</h4>';
@@ -201,7 +201,7 @@ class FilterIpv6 extends Spamfilter
             $sql = new SelectStatement();
             $sql->columns($sql->max('rule_id'));
             $sql->from(App::core()->prefix() . 'spamrule');
-            $id = $sql->select()->fInt() + 1;
+            $id = $sql->select()->integer() + 1;
 
             $sql = new InsertStatement();
             $sql->columns([
@@ -222,7 +222,7 @@ class FilterIpv6 extends Spamfilter
             $sql = new UpdateStatement();
             $sql->set('rule_type = ' . $sql->quote($type));
             $sql->set('rule_content = ' . $sql->quote($pattern));
-            $sql->where('rule_id = ' . $old->fInt('rule_id'));
+            $sql->where('rule_id = ' . $old->integer('rule_id'));
             $sql->from(App::core()->prefix() . 'spamrule');
             $sql->update();
         }
@@ -286,7 +286,7 @@ class FilterIpv6 extends Spamfilter
         $record = $sql->select();
 
         while ($record->fetch()) {
-            $pattern = $record->f('rule_content');
+            $pattern = $record->field('rule_content');
             if ($this->inrange($cip, $pattern)) {
                 return $pattern;
             }

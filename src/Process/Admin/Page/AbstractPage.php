@@ -229,7 +229,7 @@ abstract class AbstractPage
             $rs_blogs = App::core()->blogs()->getBlogs(param: $param);
             $blogs    = [];
             while ($rs_blogs->fetch()) {
-                $blogs[Html::escapeHTML($rs_blogs->f('blog_name') . ' - ' . $rs_blogs->f('blog_url'))] = $rs_blogs->f('blog_id');
+                $blogs[Html::escapeHTML($rs_blogs->field('blog_name') . ' - ' . $rs_blogs->field('blog_url'))] = $rs_blogs->field('blog_id');
             }
             $blog_box = '<p><label for="switchblog" class="classic">' . __('Blogs:') . '</label> ' .
             App::core()->nonce()->form() . Form::combo('switchblog', $blogs, App::core()->blog()->id) .

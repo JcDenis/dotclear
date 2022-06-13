@@ -74,7 +74,7 @@ class MaintenanceTaskSynchpostsmeta extends MaintenanceTask
 
         // Get number of posts
         $sql->column($sql->count('post_id'));
-        $count = $sql->select()->fInt();
+        $count = $sql->select()->integer();
 
         // Get posts ids to update
         if (null !== $start && null !== $limit) {
@@ -90,16 +90,16 @@ class MaintenanceTaskSynchpostsmeta extends MaintenanceTask
                 'meta_id',
                 'meta_type',
             ], true);
-            $sql_mid->where('post_id = ' . $record->fInt('post_id'), true);
+            $sql_mid->where('post_id = ' . $record->integer('post_id'), true);
             $record_meta = $sql_mid->select();
 
             $meta = [];
             while ($record_meta->fetch()) {
-                $meta[$record_meta->f('meta_type')][] = $record_meta->f('meta_id');
+                $meta[$record_meta->field('meta_type')][] = $record_meta->field('meta_id');
             }
 
             $sql_upd->set('post_meta = ' . $sql->quote(serialize($meta)), true);
-            $sql_upd->where('post_id = ' . $record->fInt('post_id'), true);
+            $sql_upd->where('post_id = ' . $record->integer('post_id'), true);
             $sql_upd->update();
         }
         App::core()->blog()->triggerBlog();

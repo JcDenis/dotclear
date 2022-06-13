@@ -98,38 +98,38 @@ final class Categories
         $level = 0;
         $cols  = $record->columns();
         while ($record->fetch()) {
-            $nb_post = $counter[$record->fInt('cat_id')] ?? 0;
+            $nb_post = $counter[$record->integer('cat_id')] ?? 0;
 
-            if ($record->fInt('level') > $level) {
+            if ($record->integer('level') > $level) {
                 $nb_total                      = $nb_post;
-                $stack[$record->fInt('level')] = $nb_post;
-            } elseif ($record->fInt('level') == $level) {
+                $stack[$record->integer('level')] = $nb_post;
+            } elseif ($record->integer('level') == $level) {
                 $nb_total                       = $nb_post;
-                $stack[$record->fInt('level')] += $nb_post;
+                $stack[$record->integer('level')] += $nb_post;
             } else {
-                $nb_total = $stack[$record->fInt('level') + 1] + $nb_post;
-                if (isset($stack[$record->fInt('level')])) {
-                    $stack[$record->fInt('level')] += $nb_total;
+                $nb_total = $stack[$record->integer('level') + 1] + $nb_post;
+                if (isset($stack[$record->integer('level')])) {
+                    $stack[$record->integer('level')] += $nb_total;
                 } else {
-                    $stack[$record->fInt('level')] = $nb_total;
+                    $stack[$record->integer('level')] = $nb_total;
                 }
-                unset($stack[$record->fInt('level') + 1]);
+                unset($stack[$record->integer('level') + 1]);
             }
 
             if (0 == $nb_total && $without_empty) {
                 continue;
             }
 
-            $level = $record->fInt('level');
+            $level = $record->integer('level');
 
             $t = [];
             foreach ($cols as $c) {
-                $t[$c] = $record->f($c);
+                $t[$c] = $record->field($c);
             }
             $t['nb_post']  = $nb_post;
             $t['nb_total'] = $nb_total;
 
-            if (0 == $params->level() || 0 < $params->level() && $record->fInt('level') == $params->level()) {
+            if (0 == $params->level() || 0 < $params->level() && $record->integer('level') == $params->level()) {
                 array_unshift($data, $t);
             }
         }
@@ -227,13 +227,13 @@ final class Categories
         $cat = $this->getCategories(param: $param);
         if ($cat->fetch()) {
             $param->unset('cat_url');
-            $param->set('start', $cat->fInt('cat_id'));
+            $param->set('start', $cat->integer('cat_id'));
 
             // cat_id found, get cat tree list
             $cats = $this->getCategories(param: $param);
             while ($cats->fetch()) {
                 // check if post category is one of the cat or sub-cats
-                if ($cats->f('cat_url') === $url) {
+                if ($cats->field('cat_url') === $url) {
                     return true;
                 }
             }
@@ -277,7 +277,7 @@ final class Categories
         $counters = [];
         $record   = $sql->select();
         while ($record->fetch()) {
-            $counters[$record->fInt('cat_id')] = $record->fInt('nb_post');
+            $counters[$record->integer('cat_id')] = $record->integer('nb_post');
         }
 
         return $counters;
@@ -307,7 +307,7 @@ final class Categories
 
             $record = $this->getCategories(param: $param);
             if (!$record->isEmpty()) {
-                $url[] = $record->f('cat_url');
+                $url[] = $record->field('cat_url');
             }
         }
         $url[] = $cursor->getField('cat_url') ?: Text::tidyURL($cursor->getField('cat_title'), false);
@@ -327,8 +327,8 @@ final class Categories
 
             $record = $this->getCategories(param: $param);
             if (!$record->isEmpty()) {
-                $cursor->setField('cat_lft', $record->f('cat_lft'));
-                $cursor->setField('cat_rgt', $record->f('cat_rgt'));
+                $cursor->setField('cat_lft', $record->field('cat_lft'));
+                $cursor->setField('cat_rgt', $record->field('cat_rgt'));
             }
         }
 
@@ -358,7 +358,7 @@ final class Categories
             $record = $this->categoriestree()->getParents(id: $id);
             while ($record->fetch()) {
                 if ($record->index() == $record->count() - 1) {
-                    $url[] = $record->f('cat_url');
+                    $url[] = $record->field('cat_url');
                 }
             }
 
@@ -465,7 +465,7 @@ final class Categories
         $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
 
         $record = $sql->select();
-        if (0 < $record->f('nb_post')) {
+        if (0 < $record->field('nb_post')) {
             throw new InvalidValueReference(__('This category is not empty.'));
         }
 
@@ -537,7 +537,7 @@ final class Categories
 
             $a = [];
             while ($record->fetch()) {
-                $a[] = $record->f('cat_url');
+                $a[] = $record->field('cat_url');
             }
 
             natsort($a);

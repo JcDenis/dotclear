@@ -45,7 +45,7 @@ class RsExtComment extends RsExtend
 
         return Clock::str(
             format: $format,
-            date: ('upddt' == $type ? $this->rs->f('comment_upddt') : $this->rs->f('comment_dt')),
+            date: ('upddt' == $type ? $this->rs->field('comment_upddt') : $this->rs->field('comment_dt')),
             to: App::core()->timezone()
         );
     }
@@ -67,7 +67,7 @@ class RsExtComment extends RsExtend
 
         return Clock::str(
             format: $format,
-            date: ('upddt' == $type ? $this->rs->f('comment_updt') : $this->rs->f('comment_dt')),
+            date: ('upddt' == $type ? $this->rs->field('comment_updt') : $this->rs->field('comment_dt')),
             to: App::core()->timezone()
         );
     }
@@ -82,7 +82,7 @@ class RsExtComment extends RsExtend
     public function getTS(string $type = ''): int
     {
         return Clock::ts(
-            date: ('upddt' == $type ? $this->rs->f('comment_upddt') : $this->rs->f('comment_dt')),
+            date: ('upddt' == $type ? $this->rs->field('comment_upddt') : $this->rs->field('comment_dt')),
             to: App::core()->timezone()
         );
     }
@@ -129,7 +129,7 @@ class RsExtComment extends RsExtend
      */
     public function getContent(bool $absolute_urls = false): string
     {
-        $res = $this->rs->f('comment_content');
+        $res = $this->rs->field('comment_content');
 
         $res = App::core()->blog()->settings()->getGroup('system')->getSetting('comments_nofollow') ?
             preg_replace_callback('#<a(.*?href=".*?".*?)>#ms', [$this, 'noFollowURL'], $res) :
@@ -155,7 +155,7 @@ class RsExtComment extends RsExtend
      */
     public function getAuthorURL(): string
     {
-        return trim((string) $this->rs->f('comment_site'));
+        return trim((string) $this->rs->field('comment_site'));
     }
 
     /**
@@ -166,8 +166,8 @@ class RsExtComment extends RsExtend
     public function getPostURL(): string
     {
         return App::core()->blog()->url . App::core()->posttype()->getPostPublicURL(
-            type: $this->rs->f('post_type'),
-            url: Html::sanitizeURL($this->rs->f('post_url'))
+            type: $this->rs->field('post_type'),
+            url: Html::sanitizeURL($this->rs->field('post_url'))
         );
     }
 
@@ -189,7 +189,7 @@ class RsExtComment extends RsExtend
             $rel .= ' nofollow';
         }
 
-        return sprintf($res, Html::escapeHTML($this->rs->f('comment_author')), Html::escapeHTML($url), $rel);
+        return sprintf($res, Html::escapeHTML($this->rs->field('comment_author')), Html::escapeHTML($url), $rel);
     }
 
     /**
@@ -202,7 +202,7 @@ class RsExtComment extends RsExtend
      */
     public function getEmail(bool $encoded = true): string
     {
-        return $encoded ? strtr($this->rs->f('comment_email'), ['@' => '%40', '.' => '%2e']) : $this->rs->f('comment_email');
+        return $encoded ? strtr($this->rs->field('comment_email'), ['@' => '%40', '.' => '%2e']) : $this->rs->field('comment_email');
     }
 
     /**
@@ -212,7 +212,7 @@ class RsExtComment extends RsExtend
      */
     public function getTrackbackTitle(): string
     {
-        return 1 == $this->rs->f('comment_trackback') && preg_match('|<p><strong>(.*?)</strong></p>|msU', $this->rs->f('comment_content'), $match) ?
+        return 1 == $this->rs->field('comment_trackback') && preg_match('|<p><strong>(.*?)</strong></p>|msU', $this->rs->field('comment_content'), $match) ?
             Html::decodeEntities($match[1]) : '';
     }
 
@@ -223,8 +223,8 @@ class RsExtComment extends RsExtend
      */
     public function getTrackbackContent(): string
     {
-        return 1 == $this->rs->f('comment_trackback') ?
-            preg_replace('|<p><strong>.*?</strong></p>|msU', '', $this->rs->f('comment_content')) : '';
+        return 1 == $this->rs->field('comment_trackback') ?
+            preg_replace('|<p><strong>.*?</strong></p>|msU', '', $this->rs->field('comment_content')) : '';
     }
 
     /**
@@ -234,7 +234,7 @@ class RsExtComment extends RsExtend
      */
     public function getFeedID(): string
     {
-        return 'urn:md5:' . md5(App::core()->blog()->uid . $this->rs->f('comment_id'));
+        return 'urn:md5:' . md5(App::core()->blog()->uid . $this->rs->field('comment_id'));
     }
 
     /**
@@ -244,7 +244,7 @@ class RsExtComment extends RsExtend
      */
     public function isMe(): bool
     {
-        $user_prefs         = new Preference($this->rs->f('user_id'), 'profile');
+        $user_prefs         = new Preference($this->rs->field('user_id'), 'profile');
         $user_profile_mails = $user_prefs->get('profile')->get('mails') ?
             array_map('trim', explode(',', $user_prefs->get('profile')->get('mails'))) :
             [];
@@ -253,8 +253,8 @@ class RsExtComment extends RsExtend
             [];
 
         return
-            ($this->rs->f('comment_email') && $this->rs->f('comment_site'))
-                                           && ($this->rs->f('comment_email') == $this->rs->f('user_email')  || in_array($this->rs->f('comment_email'), $user_profile_mails))
-                                           && ($this->rs->f('comment_site')  == $this->rs->f('user_url')    || in_array($this->rs->f('comment_site'), $user_profile_urls));
+            ($this->rs->field('comment_email') && $this->rs->field('comment_site'))
+                                           && ($this->rs->field('comment_email') == $this->rs->field('user_email')  || in_array($this->rs->field('comment_email'), $user_profile_mails))
+                                           && ($this->rs->field('comment_site')  == $this->rs->field('user_url')    || in_array($this->rs->field('comment_site'), $user_profile_urls));
     }
 }

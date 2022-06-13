@@ -81,7 +81,7 @@ class Comment extends AbstractPage
             } catch (Exception $e) {
                 App::core()->error()->add($e->getMessage());
             }
-            Http::redirect(App::core()->posttype()->getPostAdminURL(type: $rs->f('post_type'), id: $rs->f('post_id')) . '&co=1');
+            Http::redirect(App::core()->posttype()->getPostAdminURL(type: $rs->field('post_type'), id: $rs->field('post_id')) . '&co=1');
         }
 
         $rs         = null;
@@ -95,17 +95,17 @@ class Comment extends AbstractPage
                 $param->set('comment_id', GPC::request()->int('id'));
                 $rs = App::core()->blog()->comments()->getComments(param: $param);
                 if (!$rs->isEmpty()) {
-                    $this->comment_id      = $rs->fInt('comment_id');
-                    $post_id               = $rs->fInt('post_id');
-                    $post_type             = $rs->f('post_type');
-                    $post_title            = $rs->f('post_title');
-                    $this->comment_dt      = $rs->f('comment_dt');
-                    $this->comment_author  = $rs->f('comment_author');
-                    $this->comment_email   = $rs->f('comment_email');
-                    $this->comment_site    = $rs->f('comment_site');
-                    $this->comment_content = $rs->f('comment_content');
-                    $this->comment_ip      = $rs->f('comment_ip');
-                    $this->comment_status  = $rs->fInt('comment_status');
+                    $this->comment_id      = $rs->integer('comment_id');
+                    $post_id               = $rs->integer('post_id');
+                    $post_type             = $rs->field('post_type');
+                    $post_title            = $rs->field('post_title');
+                    $this->comment_dt      = $rs->field('comment_dt');
+                    $this->comment_author  = $rs->field('comment_author');
+                    $this->comment_email   = $rs->field('comment_email');
+                    $this->comment_site    = $rs->field('comment_site');
+                    $this->comment_content = $rs->field('comment_content');
+                    $this->comment_ip      = $rs->field('comment_ip');
+                    $this->comment_status  = $rs->integer('comment_status');
                 }
             } catch (Exception $e) {
                 App::core()->error()->add($e->getMessage());
@@ -120,7 +120,7 @@ class Comment extends AbstractPage
         if (!App::core()->error()->flag() && isset($rs)) {
             $this->commnet_can_edit = $this->commnet_can_delete = $this->commnet_can_publish = App::core()->user()->check('contentadmin', App::core()->blog()->id);
 
-            if (!App::core()->user()->check('contentadmin', App::core()->blog()->id) && App::core()->user()->userID() == $rs->f('user_id')) {
+            if (!App::core()->user()->check('contentadmin', App::core()->blog()->id) && App::core()->user()->userID() == $rs->field('user_id')) {
                 $this->commnet_can_edit = true;
                 if (App::core()->user()->check('delete', App::core()->blog()->id)) {
                     $this->commnet_can_delete = true;
@@ -167,7 +167,7 @@ class Comment extends AbstractPage
                     App::core()->blog()->comments()->deleteComments(ids: new Integers($this->comment_id));
 
                     App::core()->notice()->addSuccessNotice(__('Comment has been successfully deleted.'));
-                    Http::redirect(App::core()->posttype()->getPostAdminURL(type: $rs->f('post_type'), id: $rs->f('post_id')) . '&co=1');
+                    Http::redirect(App::core()->posttype()->getPostAdminURL(type: $rs->field('post_type'), id: $rs->field('post_id')) . '&co=1');
                 } catch (Exception $e) {
                     App::core()->error()->add($e->getMessage());
                 }

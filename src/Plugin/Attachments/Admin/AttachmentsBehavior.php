@@ -57,7 +57,7 @@ class AttachmentsBehavior
     public function behaviorAdminPostFormItems(ArrayObject $main, ArrayObject $sidebar, ?Record $post): void
     {
         if (null !== $post && App::core()->media()) {
-            $post_media = App::core()->media()->getPostMedia($post->fInt('post_id'), null, 'attachment');
+            $post_media = App::core()->media()->getPostMedia($post->integer('post_id'), null, 'attachment');
             $nb_media   = count($post_media);
             $title      = !$nb_media ? __('Attachments') : sprintf(__('Attachments (%d)'), $nb_media);
             $item       = '<h5 class="clear s-attachments">' . $title . '</h5>';
@@ -78,7 +78,7 @@ class AttachmentsBehavior
 
                 '<li class="media-action"><a class="attachment-remove" id="attachment-' . $f->media_id . '" ' .
                 'href="' . App::core()->adminurl()->get('admin.post.media', [
-                    'post_id'   => $post->f('post_id'),
+                    'post_id'   => $post->field('post_id'),
                     'media_id'  => $f->media_id,
                     'link_type' => 'attachment',
                     'remove'    => '1',
@@ -94,7 +94,7 @@ class AttachmentsBehavior
             if (empty($post_media)) {
                 $item .= '<p class="form-note s-attachments">' . __('No attachment.') . '</p>';
             }
-            $item .= '<p class="s-attachments"><a class="button" href="' . App::core()->adminurl()->get('admin.media', ['post_id' => $post->f('post_id'), 'link_type' => 'attachment']) . '">' .
+            $item .= '<p class="s-attachments"><a class="button" href="' . App::core()->adminurl()->get('admin.media', ['post_id' => $post->field('post_id'), 'link_type' => 'attachment']) . '">' .
             __('Add files to this entry') . '</a></p>';
             $sidebar['metas-box']['items']['attachments'] = $item;
         }
@@ -106,7 +106,7 @@ class AttachmentsBehavior
             echo '<form action="' . App::core()->adminurl()->root() . '" id="attachment-remove-hide" method="post">' .
             '<div>' .
             App::core()->adminurl()->getHiddenFormFields('admin.post.media', [
-                'post_id'   => $post->f('post_id'),
+                'post_id'   => $post->field('post_id'),
                 'media_id'  => '',
                 'link_type' => 'attachement',
                 'remove'    => 1,

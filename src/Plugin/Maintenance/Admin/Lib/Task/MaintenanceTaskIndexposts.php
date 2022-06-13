@@ -76,7 +76,7 @@ class MaintenanceTaskIndexposts extends MaintenanceTask
         $sql->column($sql->count('post_id'));
         $sql->from(App::core()->prefix() . 'post');
         
-        $count = $sql->select()->fInt();
+        $count = $sql->select()->integer();
 
         if (null !== $start && null !== $limit) {
             $sql->limit([$start, $limit]);
@@ -99,12 +99,12 @@ class MaintenanceTaskIndexposts extends MaintenanceTask
 
         while ($record->fetch()) {
             $words =
-                $record->f('post_title') . ' ' .
-                $record->f('post_excerpt_xhtml') . ' ' .
-                $record->f('post_content_xhtml');
+                $record->field('post_title') . ' ' .
+                $record->field('post_excerpt_xhtml') . ' ' .
+                $record->field('post_content_xhtml');
 
             $sql->set('post_words = ' . $sql->quote(implode(' ', Text::splitWords($words))), true);
-            $sql->where('post_id = ' . $record->fInt('post_id'), true);
+            $sql->where('post_id = ' . $record->integer('post_id'), true);
 
             $sql->update();
         }

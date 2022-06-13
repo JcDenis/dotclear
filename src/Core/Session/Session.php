@@ -216,7 +216,7 @@ class Session
 
         $record = $sql->select();
 
-        return $record->isEmpty() ? '' : $record->f('ses_value');
+        return $record->isEmpty() ? '' : $record->field('ses_value');
     }
 
     public function _write(string $ses_id, string $data): bool

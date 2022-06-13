@@ -118,7 +118,7 @@ final class Posts
         // --BEHAVIOR-- coreAfterCountPosts, Record
         App::core()->behavior()->call('coreAfterCountPosts', record: $record);
 
-        return $record->fInt();
+        return $record->integer();
     }
 
     /**
@@ -391,18 +391,18 @@ final class Posts
         $param->set('limit', 1);
 
         // limit to the same post type
-        $param->set('post_type', $record->f('post_type'));
+        $param->set('post_type', $record->field('post_type'));
 
         // next or previous post by date or if same date by id
         $param->push('sql', 'AND ( ' .
-            "(post_dt = '" . App::core()->con()->escape($record->f('post_dt')) . "' AND P.post_id " . $param->get('sign') . ' ' . $record->fInt('post_id') . ') ' .
-            'OR post_dt ' . $param->get('sign') . " '" . App::core()->con()->escape($record->f('post_dt')) . "' " .
+            "(post_dt = '" . App::core()->con()->escape($record->field('post_dt')) . "' AND P.post_id " . $param->get('sign') . ' ' . $record->integer('post_id') . ') ' .
+            'OR post_dt ' . $param->get('sign') . " '" . App::core()->con()->escape($record->field('post_dt')) . "' " .
         ') ');
 
         // limit to the same category
         if ($param->get('restrict_to_category')) {
-            if ($record->f('cat_id')) {
-                $param->set('cat_id', [$record->f('cat_id')]);
+            if ($record->field('cat_id')) {
+                $param->set('cat_id', [$record->field('cat_id')]);
             } else {
                 $param->push('sql', 'AND P.cat_id IS NULL ');
             }
@@ -410,8 +410,8 @@ final class Posts
 
         // limit to the same language
         if ($param->get('restrict_to_lang')) {
-            if ($record->f('post_lang')) {
-                $param->set('post_lang', $record->f('post_lang'));
+            if ($record->field('post_lang')) {
+                $param->set('post_lang', $record->field('post_lang'));
             } else {
                 $param->push('sql', 'AND post_lang IS NULL ');
             }
@@ -609,7 +609,7 @@ final class Posts
             $sql->from(App::core()->prefix() . 'post');
             $record = $sql->select();
 
-            $cursor->setField('post_id', $record->fInt() + 1);
+            $cursor->setField('post_id', $record->integer() + 1);
             $cursor->setField('blog_id', (string) App::core()->blog()->id);
             $cursor->setField('post_creadt', Clock::database());
             $cursor->setField('post_upddt', Clock::database());
@@ -999,8 +999,8 @@ final class Posts
 
         $posts = new Integers();
         while ($record->fetch()) {
-            if (Clock::ts() >= Clock::ts(date: $record->f('post_dt'))) {
-                $posts->add($record->fInt('post_id'));
+            if (Clock::ts() >= Clock::ts(date: $record->field('post_dt'))) {
+                $posts->add($record->integer('post_id'));
             }
         }
         if ($posts->count()) {
@@ -1039,7 +1039,7 @@ final class Posts
 
         $posts = new Integers();
         while ($record->fetch()) {
-            $posts->add($record->fInt('post_id'));
+            $posts->add($record->integer('post_id'));
         }
 
         if ($posts->count()) {
@@ -1141,7 +1141,7 @@ final class Posts
 
             $record = $sql->select();
             while ($record->fetch()) {
-                $queries[$record->f($field)] = '(C.cat_lft BETWEEN ' . $record->fInt('cat_lft') . ' AND ' . $record->fInt('cat_rgt') . ')';
+                $queries[$record->field($field)] = '(C.cat_lft BETWEEN ' . $record->integer('cat_lft') . ' AND ' . $record->integer('cat_rgt') . ')';
             }
         }
 
@@ -1363,7 +1363,7 @@ final class Posts
             $record = $sql->select();
             $a      = [];
             while ($record->fetch()) {
-                $a[] = $record->f('post_url');
+                $a[] = $record->field('post_url');
             }
 
             natsort($a);

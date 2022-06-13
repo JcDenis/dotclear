@@ -48,7 +48,7 @@ final class Version
 
             $record = $sql->select();
             while ($record->fetch()) {
-                $this->modules[$record->f('module')] = $record->f('version');
+                $this->modules[$record->field('module')] = $record->field('version');
             }
         }
 

@@ -108,7 +108,7 @@ final class Blogs
         // --BEHAVIOR-- coreAfterCountBlogs, Record
         App::core()->behavior()->call('coreAfterCountBlogs', record: $record);
 
-        return $record->fInt();
+        return $record->integer();
     }
 
     /**
@@ -391,6 +391,6 @@ final class Blogs
             $sql->and('post_type = ' . $sql->quote($type));
         }
 
-        return $sql->select()->fInt();
+        return $sql->select()->integer();
     }
 }

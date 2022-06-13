@@ -67,7 +67,7 @@ final class Settings
         }
 
         do {
-            $id = trim($record->f('setting_ns'));
+            $id = trim($record->field('setting_ns'));
             if (!$record->isStart()) {
                 // we have to go up 1 step, since groups construction performs
                 // a fetch() at very first time

@@ -117,23 +117,23 @@ class HandlerEdit extends AbstractPage
                 App::core()->error()->add(__('This page does not exist.'));
                 $this->can_view_page = false;
             } else {
-                $this->post_id            = $this->post->fInt('post_id');
-                $this->post_dt            = $this->post->f('post_dt');
-                $this->post_format        = $this->post->f('post_format');
-                $this->post_password      = $this->post->f('post_password');
-                $this->post_url           = $this->post->f('post_url');
-                $this->post_lang          = $this->post->f('post_lang');
-                $this->post_title         = $this->post->f('post_title');
-                $this->post_excerpt       = $this->post->f('post_excerpt');
-                $this->post_excerpt_xhtml = $this->post->f('post_excerpt_xhtml');
-                $this->post_content       = $this->post->f('post_content');
-                $this->post_content_xhtml = $this->post->f('post_content_xhtml');
-                $this->post_notes         = $this->post->f('post_notes');
-                $this->post_status        = $this->post->f('post_status');
-                $this->post_position      = (int) $this->post->fInt('post_position');
-                $this->post_open_comment  = (bool) $this->post->fInt('post_open_comment');
-                $this->post_open_tb       = (bool) $this->post->fInt('post_open_tb');
-                $this->post_selected      = (bool) $this->post->fInt('post_selected');
+                $this->post_id            = $this->post->integer('post_id');
+                $this->post_dt            = $this->post->field('post_dt');
+                $this->post_format        = $this->post->field('post_format');
+                $this->post_password      = $this->post->field('post_password');
+                $this->post_url           = $this->post->field('post_url');
+                $this->post_lang          = $this->post->field('post_lang');
+                $this->post_title         = $this->post->field('post_title');
+                $this->post_excerpt       = $this->post->field('post_excerpt');
+                $this->post_excerpt_xhtml = $this->post->field('post_excerpt_xhtml');
+                $this->post_content       = $this->post->field('post_content');
+                $this->post_content_xhtml = $this->post->field('post_content_xhtml');
+                $this->post_notes         = $this->post->field('post_notes');
+                $this->post_status        = $this->post->field('post_status');
+                $this->post_position      = (int) $this->post->integer('post_position');
+                $this->post_open_comment  = (bool) $this->post->integer('post_open_comment');
+                $this->post_open_tb       = (bool) $this->post->integer('post_open_tb');
+                $this->post_selected      = (bool) $this->post->integer('post_selected');
 
                 $this->can_edit_page = $this->post->call('isEditable');
                 $this->can_delete    = $this->post->call('isDeletable');
@@ -144,30 +144,30 @@ class HandlerEdit extends AbstractPage
                 if (null !== $next_rs) {
                     $this->next_link = sprintf(
                         $post_link,
-                        $next_rs->fInt('post_id'),
-                        Html::escapeHTML(trim(Html::clean($next_rs->f('post_title')))),
+                        $next_rs->integer('post_id'),
+                        Html::escapeHTML(trim(Html::clean($next_rs->field('post_title')))),
                         __('Next page') . '&nbsp;&#187;'
                     );
                     $next_headlink = sprintf(
                         $post_headlink,
                         'next',
-                        Html::escapeHTML(trim(Html::clean($next_rs->f('post_title')))),
-                        $next_rs->fInt('post_id')
+                        Html::escapeHTML(trim(Html::clean($next_rs->field('post_title')))),
+                        $next_rs->integer('post_id')
                     );
                 }
 
                 if (null !== $prev_rs) {
                     $this->prev_link = sprintf(
                         $post_link,
-                        $prev_rs->fInt('post_id'),
-                        Html::escapeHTML(trim(Html::clean($prev_rs->f('post_title')))),
+                        $prev_rs->integer('post_id'),
+                        Html::escapeHTML(trim(Html::clean($prev_rs->field('post_title')))),
                         '&#171;&nbsp;' . __('Previous page')
                     );
                     $prev_headlink = sprintf(
                         $post_headlink,
                         'previous',
-                        Html::escapeHTML(trim(Html::clean($prev_rs->f('post_title')))),
-                        $prev_rs->fInt('post_id')
+                        Html::escapeHTML(trim(Html::clean($prev_rs->field('post_title')))),
+                        $prev_rs->integer('post_id')
                     );
                 }
 
@@ -421,7 +421,7 @@ class HandlerEdit extends AbstractPage
             App::core()->notice()->message(__('Don\'t forget to validate your XHTML conversion by saving your post.'));
         }
 
-        if ($this->post_id && 1 == $this->post->fInt('post_status')) {
+        if ($this->post_id && 1 == $this->post->integer('post_status')) {
             echo '<p><a class="onblog_link outgoing" href="' . $this->post->getURL() . '" title="' . Html::escapeHTML(trim(Html::clean($this->post_title))) . '">' . __('Go to this page on the site') . ' <img src="?df=images/outgoing-link.svg" alt="" /></a></p>';
         }
         if ($this->post_id) {
@@ -604,7 +604,7 @@ class HandlerEdit extends AbstractPage
                     'pagespreview',
                     App::core()->user()->userID() . '/' .
                     Http::browserUID(App::core()->config()->get('master_key') . App::core()->user()->userID() . App::core()->user()->cryptLegacy(App::core()->user()->userID())) .
-                    '/' . $this->post->f('post_url')
+                    '/' . $this->post->field('post_url')
                 );
 
                 // Prevent browser caching on preview
@@ -809,30 +809,30 @@ class HandlerEdit extends AbstractPage
         }
 
         while ($rs->fetch()) {
-            $comment_url = App::core()->adminurl()->get('admin.comment', ['id' => $rs->f('comment_id')]);
+            $comment_url = App::core()->adminurl()->get('admin.comment', ['id' => $rs->field('comment_id')]);
             $img_status  = sprintf(
                 '<img alt="%1$s" title="%1$s" src="?df=%2$s" />',
-                App::core()->blog()->comments()->status()->getState($rs->fInt('comment_status')),
-                App::core()->blog()->comments()->status()->getIcon($rs->fInt('comment_status')),
+                App::core()->blog()->comments()->status()->getState($rs->integer('comment_status')),
+                App::core()->blog()->comments()->status()->getIcon($rs->integer('comment_status')),
             );
-            $sts_class = 'sts-' . App::core()->blog()->comments()->status()->getId($rs->fInt('comment_status'));
+            $sts_class = 'sts-' . App::core()->blog()->comments()->status()->getId($rs->integer('comment_status'));
 
-            echo '<tr class="line ' . (1 != $rs->fInt('comment_status') ? ' offline ' : '') . $sts_class . '"' .
-            ' id="c' . $rs->f('comment_id') . '">' .
+            echo '<tr class="line ' . (1 != $rs->integer('comment_status') ? ' offline ' : '') . $sts_class . '"' .
+            ' id="c' . $rs->field('comment_id') . '">' .
 
             '<td class="nowrap">' .
             ($has_action ? Form::checkbox(
                 ['comments[]'],
-                $rs->f('comment_id'),
+                $rs->field('comment_id'),
                 [
-                    'checked'    => isset($comments[$rs->f('comment_id')]),
+                    'checked'    => isset($comments[$rs->field('comment_id')]),
                     'extra_html' => 'title="' . __('select this comment') . '"',
                 ]
             ) : '') . '</td>' .
-            '<td class="maximal">' . Html::escapeHTML($rs->f('comment_author')) . '</td>' .
-            '<td class="nowrap">' . Clock::str(format: __('%Y-%m-%d %H:%M'), date: $rs->f('comment_dt'), to: App::core()->timezone()) . '</td>' .
+            '<td class="maximal">' . Html::escapeHTML($rs->field('comment_author')) . '</td>' .
+            '<td class="nowrap">' . Clock::str(format: __('%Y-%m-%d %H:%M'), date: $rs->field('comment_dt'), to: App::core()->timezone()) . '</td>' .
             ($this->can_view_ip ?
-                '<td class="nowrap"><a href="' . App::core()->adminurl()->get('admin.comments', ['ip' => $rs->f('comment_ip')]) . '">' . $rs->f('comment_ip') . '</a></td>' : '') .
+                '<td class="nowrap"><a href="' . App::core()->adminurl()->get('admin.comments', ['ip' => $rs->field('comment_ip')]) . '">' . $rs->field('comment_ip') . '</a></td>' : '') .
             '<td class="nowrap status">' . $img_status . '</td>' .
             '<td class="nowrap status"><a href="' . $comment_url . '">' .
             '<img src="?df=images/edit-mini.png" alt="" title="' . __('Edit this comment') . '" /> ' . __('Edit') . '</a></td>' .

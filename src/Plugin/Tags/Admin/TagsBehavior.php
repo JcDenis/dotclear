@@ -107,7 +107,7 @@ class TagsBehavior
         if (!GPC::post()->empty('post_tags')) {
             $value = GPC::post()->string('post_tags');
         } else {
-            $value = $post ? App::core()->meta()->getMetaStr((string) $post->f('post_meta'), 'tag') : '';
+            $value = $post ? App::core()->meta()->getMetaStr((string) $post->field('post_meta'), 'tag') : '';
         }
         $sidebar['metas-box']['items']['post_tags'] = '<h5><label class="s-tags" for="post_tags">' . __('Tags') . '</label></h5>' .
         '<div class="p s-tags" id="tags-edit">' . Form::textarea('post_tags', 20, 3, (string) $value, 'maximal') . '</div>';
@@ -151,15 +151,15 @@ class TagsBehavior
                 // Get tags for post
                 $param = new Param();
                 $param->set('meta_type', 'tag');
-                $param->set('post_id', $posts->fInt('post_id'));
+                $param->set('post_id', $posts->integer('post_id'));
                 $post_meta = App::core()->meta()->getMetadata(param: $param);
                 $pm        = [];
                 while ($post_meta->fetch()) {
-                    $pm[] = $post_meta->f('meta_id');
+                    $pm[] = $post_meta->field('meta_id');
                 }
                 foreach ($tags as $t) {
                     if (!in_array($t, $pm)) {
-                        App::core()->meta()->setPostMeta($posts->fInt('post_id'), 'tag', $t);
+                        App::core()->meta()->setPostMeta($posts->integer('post_id'), 'tag', $t);
                     }
                 }
             }
@@ -231,7 +231,7 @@ class TagsBehavior
             $posts = $ap->getRS();
             while ($posts->fetch()) {
                 foreach ($from->array('meta_id') as $v) {
-                    App::core()->meta()->delPostMeta($posts->fInt('post_id'), 'tag', $v);
+                    App::core()->meta()->delPostMeta($posts->integer('post_id'), 'tag', $v);
                 }
             }
             App::core()->notice()->addSuccessNotice(

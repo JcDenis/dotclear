@@ -107,12 +107,12 @@ class PagesWidgets
             $class = '';
             if ('pages' == App::core()->url()->getCurrentType()
                 && App::core()->context()->get('posts') instanceof Record
-                && App::core()->context()->get('posts')->fInt('post_id') === $rs->fInt('post_id')
+                && App::core()->context()->get('posts')->integer('post_id') === $rs->integer('post_id')
             ) {
                 $class = ' class="page-current"';
             }
             $res .= '<li' . $class . '><a href="' . $rs->getURL() . '">' .
-            Html::escapeHTML($rs->f('post_title')) . '</a></li>';
+            Html::escapeHTML($rs->field('post_title')) . '</a></li>';
         }
 
         $res .= '</ul>';

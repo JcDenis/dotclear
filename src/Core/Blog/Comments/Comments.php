@@ -119,7 +119,7 @@ final class Comments
         // --BEHAVIOR-- coreAfterCountComments, Record
         App::core()->behavior()->call('coreAfterCountComments', record: $record);
 
-        return $record->fInt();
+        return $record->integer();
     }
 
     /**
@@ -335,7 +335,7 @@ final class Comments
             $sql = new SelectStatement();
             $sql->column($sql->max('comment_id'));
             $sql->from(App::core()->prefix() . 'comment');
-            $id = $sql->select()->fInt();
+            $id = $sql->select()->integer();
 
             $cursor->setField('comment_id', $id + 1);
             $cursor->setField('comment_upddt', Clock::database());
@@ -398,7 +398,7 @@ final class Comments
 
         // If user is only usage, we need to check the post's owner
         if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
-            if ($record->f('user_id') != App::core()->user()->userID()) {
+            if ($record->field('user_id') != App::core()->user()->userID()) {
                 throw new InsufficientPermissions(__('You are not allowed to update this comment'));
             }
         }
@@ -518,7 +518,7 @@ final class Comments
         $posts  = new Integers();
         $record = $sql->select();
         while ($record->fetch()) {
-            $posts->add($record->fInt('post_id'));
+            $posts->add($record->integer('post_id'));
         }
 
         // --BEHAVIOR-- coreBeforeDeleteComments, Integers

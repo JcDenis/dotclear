@@ -95,7 +95,7 @@ class FlatExport
         $l    = [];
         $cols = $rs->columns();
         foreach ($cols as $i => &$c) {
-            $s     = $rs->f($c);
+            $s     = $rs->field($c);
             $s     = preg_replace($this->line_reg, $this->line_rep, (string) $s);
             $s     = '"' . $s . '"';
             $l[$i] = $s;

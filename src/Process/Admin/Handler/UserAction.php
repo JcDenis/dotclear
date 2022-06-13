@@ -218,25 +218,25 @@ class UserAction extends AbstractPage
                     '</tr>';
 
                 while ($rs->fetch()) {
-                    $img_status = 1 == $rs->fInt('blog_status') ? 'check-on' : (0 == $rs->fInt('blog_status') ? 'check-off' : 'check-wrn');
-                    $txt_status = App::core()->blogs()->status()->getState(code: $rs->fInt('blog_status'), default: __('online'));
+                    $img_status = 1 == $rs->integer('blog_status') ? 'check-on' : (0 == $rs->integer('blog_status') ? 'check-off' : 'check-wrn');
+                    $txt_status = App::core()->blogs()->status()->getState(code: $rs->integer('blog_status'), default: __('online'));
                     $img_status = sprintf('<img src="?df=images/%1$s.png" alt="%2$s" title="%2$s" />', $img_status, $txt_status);
 
                     echo '<tr class="line">' .
                     '<td class="nowrap">' .
                     Form::checkbox(
                         ['blogs[]'],
-                        $rs->f('blog_id'),
+                        $rs->field('blog_id'),
                         [
-                            'extra_html' => 'title="' . __('select') . ' ' . $rs->f('blog_id') . '"',
+                            'extra_html' => 'title="' . __('select') . ' ' . $rs->field('blog_id') . '"',
                         ]
                     ) .
                     '</td>' .
-                    '<td class="nowrap">' . $rs->f('blog_id') . '</td>' .
-                    '<td class="maximal">' . Html::escapeHTML($rs->f('blog_name')) . '</td>' .
-                    '<td class="nowrap"><a class="outgoing" href="' . Html::escapeHTML($rs->f('blog_url')) . '">' . Html::escapeHTML($rs->f('blog_url')) .
+                    '<td class="nowrap">' . $rs->field('blog_id') . '</td>' .
+                    '<td class="maximal">' . Html::escapeHTML($rs->field('blog_name')) . '</td>' .
+                    '<td class="nowrap"><a class="outgoing" href="' . Html::escapeHTML($rs->field('blog_url')) . '">' . Html::escapeHTML($rs->field('blog_url')) .
                     ' <img src="?df=images/outgoing-link.svg" alt="" /></a></td>' .
-                    '<td class="nowrap">' . App::core()->blogs()->countBlogPosts(id: $rs->f('blog_id')) . '</td>' .
+                    '<td class="nowrap">' . App::core()->blogs()->countBlogPosts(id: $rs->field('blog_id')) . '</td>' .
                         '<td class="status">' . $img_status . '</td>' .
                         '</tr>';
                 }

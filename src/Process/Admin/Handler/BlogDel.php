@@ -46,8 +46,8 @@ class BlogDel extends AbstractPage
                 if ($record->isEmpty()) {
                     App::core()->error()->add(__('No such blog ID'));
                 } else {
-                    $this->blog_id   = $record->f('blog_id');
-                    $this->blog_name = $record->f('blog_name');
+                    $this->blog_id   = $record->field('blog_id');
+                    $this->blog_name = $record->field('blog_name');
                 }
             } catch (Exception $e) {
                 App::core()->error()->add($e->getMessage());

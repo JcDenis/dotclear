@@ -258,21 +258,21 @@ class FlatImport extends FlatBackup
             "WHERE blog_id = '" . App::core()->con()->escape($this->blog_id) . "' "
         );
 
-        $this->stack['cat_id']     = App::core()->con()->select('SELECT MAX(cat_id) FROM ' . App::core()->prefix() . 'category')->fInt()    + 1;
-        $this->stack['link_id']    = App::core()->con()->select('SELECT MAX(link_id) FROM ' . App::core()->prefix() . 'link')->fInt()       + 1;
-        $this->stack['post_id']    = App::core()->con()->select('SELECT MAX(post_id) FROM ' . App::core()->prefix() . 'post')->fInt()       + 1;
-        $this->stack['media_id']   = App::core()->con()->select('SELECT MAX(media_id) FROM ' . App::core()->prefix() . 'media')->fInt()     + 1;
-        $this->stack['comment_id'] = App::core()->con()->select('SELECT MAX(comment_id) FROM ' . App::core()->prefix() . 'comment')->fInt() + 1;
-        $this->stack['log_id']     = App::core()->con()->select('SELECT MAX(log_id) FROM ' . App::core()->prefix() . 'log')->fInt()         + 1;
+        $this->stack['cat_id']     = App::core()->con()->select('SELECT MAX(cat_id) FROM ' . App::core()->prefix() . 'category')->integer()    + 1;
+        $this->stack['link_id']    = App::core()->con()->select('SELECT MAX(link_id) FROM ' . App::core()->prefix() . 'link')->integer()       + 1;
+        $this->stack['post_id']    = App::core()->con()->select('SELECT MAX(post_id) FROM ' . App::core()->prefix() . 'post')->integer()       + 1;
+        $this->stack['media_id']   = App::core()->con()->select('SELECT MAX(media_id) FROM ' . App::core()->prefix() . 'media')->integer()     + 1;
+        $this->stack['comment_id'] = App::core()->con()->select('SELECT MAX(comment_id) FROM ' . App::core()->prefix() . 'comment')->integer() + 1;
+        $this->stack['log_id']     = App::core()->con()->select('SELECT MAX(log_id) FROM ' . App::core()->prefix() . 'log')->integer()         + 1;
 
         $rs = App::core()->con()->select(
             'SELECT MAX(cat_rgt) AS cat_rgt FROM ' . App::core()->prefix() . 'category ' .
             "WHERE blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "'"
         );
 
-        if (0 < (int) $rs->fInt('cat_rgt')) {
+        if (0 < (int) $rs->integer('cat_rgt')) {
             $this->has_categories                            = true;
-            $this->lft_categories[App::core()->blog()->id]   = (int) $rs->fInt('cat_rgt') + 1;
+            $this->lft_categories[App::core()->blog()->id]   = (int) $rs->integer('cat_rgt') + 1;
         }
 
         App::core()->con()->begin();
@@ -404,15 +404,15 @@ class FlatImport extends FlatBackup
     {
         $this->cur_blog->clean();
 
-        $this->cur_blog->setField('blog_id', (string) $blog->f('blog_id'));
-        $this->cur_blog->setField('blog_uid', (string) $blog->f('blog_uid'));
-        $this->cur_blog->setField('blog_creadt', (string) $blog->f('blog_creadt'));
-        $this->cur_blog->setField('blog_upddt', (string) $blog->f('blog_upddt'));
-        $this->cur_blog->setField('blog_url', (string) $blog->f('blog_url'));
-        $this->cur_blog->setField('blog_name', (string) $blog->f('blog_name'));
-        $this->cur_blog->setField('blog_desc', (string) $blog->f('blog_desc'));
+        $this->cur_blog->setField('blog_id', (string) $blog->field('blog_id'));
+        $this->cur_blog->setField('blog_uid', (string) $blog->field('blog_uid'));
+        $this->cur_blog->setField('blog_creadt', (string) $blog->field('blog_creadt'));
+        $this->cur_blog->setField('blog_upddt', (string) $blog->field('blog_upddt'));
+        $this->cur_blog->setField('blog_url', (string) $blog->field('blog_url'));
+        $this->cur_blog->setField('blog_name', (string) $blog->field('blog_name'));
+        $this->cur_blog->setField('blog_desc', (string) $blog->field('blog_desc'));
 
-        $this->cur_blog->setField('blog_status', ($blog->exists('blog_status') ? (int) $blog->f('blog_status') : 1));
+        $this->cur_blog->setField('blog_status', ($blog->exists('blog_status') ? (int) $blog->field('blog_status') : 1));
 
         $this->cur_blog->insert();
     }
@@ -421,21 +421,21 @@ class FlatImport extends FlatBackup
     {
         $this->cur_category->clean();
 
-        $this->cur_category->setField('cat_id', (string) $category->f('cat_id'));
-        $this->cur_category->setField('blog_id', (string) $category->f('blog_id'));
-        $this->cur_category->setField('cat_title', (string) $category->f('cat_title'));
-        $this->cur_category->setField('cat_url', (string) $category->f('cat_url'));
-        $this->cur_category->setField('cat_desc', (string) $category->f('cat_desc'));
+        $this->cur_category->setField('cat_id', (string) $category->field('cat_id'));
+        $this->cur_category->setField('blog_id', (string) $category->field('blog_id'));
+        $this->cur_category->setField('cat_title', (string) $category->field('cat_title'));
+        $this->cur_category->setField('cat_url', (string) $category->field('cat_url'));
+        $this->cur_category->setField('cat_desc', (string) $category->field('cat_desc'));
 
         if (!$this->has_categories && $category->exists('cat_lft') && $category->exists('cat_rgt')) {
-            $this->cur_category->setField('cat_lft', (int) $category->f('cat_lft'));
-            $this->cur_category->setField('cat_rgt', (int) $category->f('cat_rgt'));
+            $this->cur_category->setField('cat_lft', (int) $category->field('cat_lft'));
+            $this->cur_category->setField('cat_rgt', (int) $category->field('cat_rgt'));
         } else {
-            if (!isset($this->lft_categories[$category->f('blog_id')])) {
-                $this->lft_categories[$category->f('blog_id')] = 2;
+            if (!isset($this->lft_categories[$category->field('blog_id')])) {
+                $this->lft_categories[$category->field('blog_id')] = 2;
             }
-            $this->cur_category->setField('cat_lft', $this->lft_categories[$category->f('blog_id')]++);
-            $this->cur_category->setField('cat_rgt', $this->lft_categories[$category->f('blog_id')]++);
+            $this->cur_category->setField('cat_lft', $this->lft_categories[$category->field('blog_id')]++);
+            $this->cur_category->setField('cat_rgt', $this->lft_categories[$category->field('blog_id')]++);
         }
 
         $this->cur_category->insert();
@@ -445,14 +445,14 @@ class FlatImport extends FlatBackup
     {
         $this->cur_link->clean();
 
-        $this->cur_link->setField('link_id', (int) $link->f('link_id'));
-        $this->cur_link->setField('blog_id', (string) $link->f('blog_id'));
-        $this->cur_link->setField('link_href', (string) $link->f('link_href'));
-        $this->cur_link->setField('link_title', (string) $link->f('link_title'));
-        $this->cur_link->setField('link_desc', (string) $link->f('link_desc'));
-        $this->cur_link->setField('link_lang', (string) $link->f('link_lang'));
-        $this->cur_link->setField('link_xfn', (string) $link->f('link_xfn'));
-        $this->cur_link->setField('link_position', (int) $link->f('link_position'));
+        $this->cur_link->setField('link_id', (int) $link->field('link_id'));
+        $this->cur_link->setField('blog_id', (string) $link->field('blog_id'));
+        $this->cur_link->setField('link_href', (string) $link->field('link_href'));
+        $this->cur_link->setField('link_title', (string) $link->field('link_title'));
+        $this->cur_link->setField('link_desc', (string) $link->field('link_desc'));
+        $this->cur_link->setField('link_lang', (string) $link->field('link_lang'));
+        $this->cur_link->setField('link_xfn', (string) $link->field('link_xfn'));
+        $this->cur_link->setField('link_position', (int) $link->field('link_position'));
 
         $this->cur_link->insert();
     }
@@ -461,74 +461,74 @@ class FlatImport extends FlatBackup
     {
         $this->cur_setting->clean();
 
-        $this->cur_setting->setField('setting_id', (string) $setting->f('setting_id'));
-        $this->cur_setting->setField('blog_id', !$setting->f('blog_id') ? null : (string) $setting->f('blog_id'));
-        $this->cur_setting->setField('setting_ns', (string) $setting->f('setting_ns'));
-        $this->cur_setting->setField('setting_value', (string) $setting->f('setting_value'));
-        $this->cur_setting->setField('setting_type', (string) $setting->f('setting_type'));
-        $this->cur_setting->setField('setting_label', (string) $setting->f('setting_label'));
+        $this->cur_setting->setField('setting_id', (string) $setting->field('setting_id'));
+        $this->cur_setting->setField('blog_id', !$setting->field('blog_id') ? null : (string) $setting->field('blog_id'));
+        $this->cur_setting->setField('setting_ns', (string) $setting->field('setting_ns'));
+        $this->cur_setting->setField('setting_value', (string) $setting->field('setting_value'));
+        $this->cur_setting->setField('setting_type', (string) $setting->field('setting_type'));
+        $this->cur_setting->setField('setting_label', (string) $setting->field('setting_label'));
 
         $this->cur_setting->insert();
     }
 
     private function insertPref(FlatBackupItem $pref): void
     {
-        if ($this->prefExists($pref->f('pref_ws'), $pref->f('pref_id'), $pref->f('user_id'))) {
+        if ($this->prefExists($pref->field('pref_ws'), $pref->field('pref_id'), $pref->field('user_id'))) {
             return;
         }
 
         $this->cur_pref->clean();
 
-        $this->cur_pref->setField('pref_id', (string) $pref->f('pref_id'));
-        $this->cur_pref->setField('user_id', !$pref->f('user_id') ? null : (string) $pref->f('user_id'));
-        $this->cur_pref->setField('pref_ws', (string) $pref->f('pref_ws'));
-        $this->cur_pref->setField('pref_value', (string) $pref->f('pref_value'));
-        $this->cur_pref->setField('pref_type', (string) $pref->f('pref_type'));
-        $this->cur_pref->setField('pref_label', (string) $pref->f('pref_label'));
+        $this->cur_pref->setField('pref_id', (string) $pref->field('pref_id'));
+        $this->cur_pref->setField('user_id', !$pref->field('user_id') ? null : (string) $pref->field('user_id'));
+        $this->cur_pref->setField('pref_ws', (string) $pref->field('pref_ws'));
+        $this->cur_pref->setField('pref_value', (string) $pref->field('pref_value'));
+        $this->cur_pref->setField('pref_type', (string) $pref->field('pref_type'));
+        $this->cur_pref->setField('pref_label', (string) $pref->field('pref_label'));
 
         $this->cur_pref->insert();
     }
 
     private function insertUser(FlatBackupItem $user): void
     {
-        if ($this->userExists($user->f('user_id'))) {
+        if ($this->userExists($user->field('user_id'))) {
             return;
         }
 
         $this->cur_user->clean();
 
-        $this->cur_user->setField('user_id', (string) $user->f('user_id'));
-        $this->cur_user->setField('user_super', (int) $user->f('user_super'));
-        $this->cur_user->setField('user_pwd', (string) $user->f('user_pwd'));
-        $this->cur_user->setField('user_recover_key', (string) $user->f('user_recover_key'));
-        $this->cur_user->setField('user_name', (string) $user->f('user_name'));
-        $this->cur_user->setField('user_firstname', (string) $user->f('user_firstname'));
-        $this->cur_user->setField('user_displayname', (string) $user->f('user_displayname'));
-        $this->cur_user->setField('user_email', (string) $user->f('user_email'));
-        $this->cur_user->setField('user_url', (string) $user->f('user_url'));
-        $this->cur_user->setField('user_default_blog', !$user->f('user_default_blog') ? null : (string) $user->f('user_default_blog'));
-        $this->cur_user->setField('user_lang', (string) $user->f('user_lang'));
-        $this->cur_user->setField('user_tz', (string) $user->f('user_tz'));
-        $this->cur_user->setField('user_post_status', (int) $user->f('user_post_status'));
-        $this->cur_user->setField('user_creadt', (string) $user->f('user_creadt'));
-        $this->cur_user->setField('user_upddt', (string) $user->f('user_upddt'));
+        $this->cur_user->setField('user_id', (string) $user->field('user_id'));
+        $this->cur_user->setField('user_super', (int) $user->field('user_super'));
+        $this->cur_user->setField('user_pwd', (string) $user->field('user_pwd'));
+        $this->cur_user->setField('user_recover_key', (string) $user->field('user_recover_key'));
+        $this->cur_user->setField('user_name', (string) $user->field('user_name'));
+        $this->cur_user->setField('user_firstname', (string) $user->field('user_firstname'));
+        $this->cur_user->setField('user_displayname', (string) $user->field('user_displayname'));
+        $this->cur_user->setField('user_email', (string) $user->field('user_email'));
+        $this->cur_user->setField('user_url', (string) $user->field('user_url'));
+        $this->cur_user->setField('user_default_blog', !$user->field('user_default_blog') ? null : (string) $user->field('user_default_blog'));
+        $this->cur_user->setField('user_lang', (string) $user->field('user_lang'));
+        $this->cur_user->setField('user_tz', (string) $user->field('user_tz'));
+        $this->cur_user->setField('user_post_status', (int) $user->field('user_post_status'));
+        $this->cur_user->setField('user_creadt', (string) $user->field('user_creadt'));
+        $this->cur_user->setField('user_upddt', (string) $user->field('user_upddt'));
 
-        $this->cur_user->setField('user_desc', $user->exists('user_desc') ? (string) $user->f('user_desc') : null);
-        $this->cur_user->setField('user_options', $user->exists('user_options') ? (string) $user->f('user_options') : null);
-        $this->cur_user->setField('user_status', $user->exists('user_status') ? (int) $user->f('user_status') : 1);
+        $this->cur_user->setField('user_desc', $user->exists('user_desc') ? (string) $user->field('user_desc') : null);
+        $this->cur_user->setField('user_options', $user->exists('user_options') ? (string) $user->field('user_options') : null);
+        $this->cur_user->setField('user_status', $user->exists('user_status') ? (int) $user->field('user_status') : 1);
 
         $this->cur_user->insert();
 
-        $this->users[$user->f('user_id')] = true;
+        $this->users[$user->field('user_id')] = true;
     }
 
     private function insertPermissions(FlatBackupItem $permissions): void
     {
         $this->cur_permissions->clean();
 
-        $this->cur_permissions->setField('user_id', (string) $permissions->f('user_id'));
-        $this->cur_permissions->setField('blog_id', (string) $permissions->f('blog_id'));
-        $this->cur_permissions->setField('permissions', (string) $permissions->f('permissions'));
+        $this->cur_permissions->setField('user_id', (string) $permissions->field('user_id'));
+        $this->cur_permissions->setField('blog_id', (string) $permissions->field('blog_id'));
+        $this->cur_permissions->setField('permissions', (string) $permissions->field('permissions'));
 
         $this->cur_permissions->insert();
     }
@@ -537,41 +537,41 @@ class FlatImport extends FlatBackup
     {
         $this->cur_post->clean();
 
-        $cat_id = (int) $post->f('cat_id');
+        $cat_id = (int) $post->field('cat_id');
         if (!$cat_id) {
             $cat_id = null;
         }
 
-        $post_password = $post->f('post_password') ? (string) $post->f('post_password') : null;
+        $post_password = $post->field('post_password') ? (string) $post->field('post_password') : null;
 
-        $this->cur_post->setField('post_id', (int) $post->f('post_id'));
-        $this->cur_post->setField('blog_id', (string) $post->f('blog_id'));
-        $this->cur_post->setField('user_id', (string) $this->getUserId($post->f('user_id')));
+        $this->cur_post->setField('post_id', (int) $post->field('post_id'));
+        $this->cur_post->setField('blog_id', (string) $post->field('blog_id'));
+        $this->cur_post->setField('user_id', (string) $this->getUserId($post->field('user_id')));
         $this->cur_post->setField('cat_id', $cat_id);
-        $this->cur_post->setField('post_dt', (string) $post->f('post_dt'));
-        $this->cur_post->setField('post_creadt', (string) $post->f('post_creadt'));
-        $this->cur_post->setField('post_upddt', (string) $post->f('post_upddt'));
+        $this->cur_post->setField('post_dt', (string) $post->field('post_dt'));
+        $this->cur_post->setField('post_creadt', (string) $post->field('post_creadt'));
+        $this->cur_post->setField('post_upddt', (string) $post->field('post_upddt'));
         $this->cur_post->setField('post_password', $post_password);
-        $this->cur_post->setField('post_type', (string) $post->f('post_type'));
-        $this->cur_post->setField('post_format', (string) $post->f('post_format'));
-        $this->cur_post->setField('post_url', (string) $post->f('post_url'));
-        $this->cur_post->setField('post_lang', (string) $post->f('post_lang'));
-        $this->cur_post->setField('post_title', (string) $post->f('post_title'));
-        $this->cur_post->setField('post_excerpt', (string) $post->f('post_excerpt'));
-        $this->cur_post->setField('post_excerpt_xhtml', (string) $post->f('post_excerpt_xhtml'));
-        $this->cur_post->setField('post_content', (string) $post->f('post_content'));
-        $this->cur_post->setField('post_content_xhtml', (string) $post->f('post_content_xhtml'));
-        $this->cur_post->setField('post_notes', (string) $post->f('post_notes'));
-        $this->cur_post->setField('post_words', (string) $post->f('post_words'));
-        $this->cur_post->setField('post_meta', (string) $post->f('post_meta'));
-        $this->cur_post->setField('post_status', (int) $post->f('post_status'));
-        $this->cur_post->setField('post_selected', (int) $post->f('post_selected'));
-        $this->cur_post->setField('post_open_comment', (int) $post->f('post_open_comment'));
-        $this->cur_post->setField('post_open_tb', (int) $post->f('post_open_tb'));
-        $this->cur_post->setField('nb_comment', (int) $post->f('nb_comment'));
-        $this->cur_post->setField('nb_trackback', (int) $post->f('nb_trackback'));
-        $this->cur_post->setField('post_position', (int) $post->f('post_position'));
-        $this->cur_post->setField('post_firstpub', (int) $post->f('post_firstpub'));
+        $this->cur_post->setField('post_type', (string) $post->field('post_type'));
+        $this->cur_post->setField('post_format', (string) $post->field('post_format'));
+        $this->cur_post->setField('post_url', (string) $post->field('post_url'));
+        $this->cur_post->setField('post_lang', (string) $post->field('post_lang'));
+        $this->cur_post->setField('post_title', (string) $post->field('post_title'));
+        $this->cur_post->setField('post_excerpt', (string) $post->field('post_excerpt'));
+        $this->cur_post->setField('post_excerpt_xhtml', (string) $post->field('post_excerpt_xhtml'));
+        $this->cur_post->setField('post_content', (string) $post->field('post_content'));
+        $this->cur_post->setField('post_content_xhtml', (string) $post->field('post_content_xhtml'));
+        $this->cur_post->setField('post_notes', (string) $post->field('post_notes'));
+        $this->cur_post->setField('post_words', (string) $post->field('post_words'));
+        $this->cur_post->setField('post_meta', (string) $post->field('post_meta'));
+        $this->cur_post->setField('post_status', (int) $post->field('post_status'));
+        $this->cur_post->setField('post_selected', (int) $post->field('post_selected'));
+        $this->cur_post->setField('post_open_comment', (int) $post->field('post_open_comment'));
+        $this->cur_post->setField('post_open_tb', (int) $post->field('post_open_tb'));
+        $this->cur_post->setField('nb_comment', (int) $post->field('nb_comment'));
+        $this->cur_post->setField('nb_trackback', (int) $post->field('nb_trackback'));
+        $this->cur_post->setField('post_position', (int) $post->field('post_position'));
+        $this->cur_post->setField('post_firstpub', (int) $post->field('post_firstpub'));
 
         $this->cur_post->insert();
     }
@@ -580,9 +580,9 @@ class FlatImport extends FlatBackup
     {
         $this->cur_meta->clean();
 
-        $this->cur_meta->setField('meta_id', (string) $meta->f('meta_id'));
-        $this->cur_meta->setField('meta_type', (string) $meta->f('meta_type'));
-        $this->cur_meta->setField('post_id', (int) $meta->f('post_id'));
+        $this->cur_meta->setField('meta_id', (string) $meta->field('meta_id'));
+        $this->cur_meta->setField('meta_type', (string) $meta->field('meta_type'));
+        $this->cur_meta->setField('post_id', (int) $meta->field('post_id'));
 
         $this->cur_meta->insert();
     }
@@ -591,18 +591,18 @@ class FlatImport extends FlatBackup
     {
         $this->cur_media->clean();
 
-        $this->cur_media->setField('media_id', (int) $media->f('media_id'));
-        $this->cur_media->setField('user_id', (string) $media->f('user_id'));
-        $this->cur_media->setField('media_path', (string) $media->f('media_path'));
-        $this->cur_media->setField('media_title', (string) $media->f('media_title'));
-        $this->cur_media->setField('media_file', (string) $media->f('media_file'));
-        $this->cur_media->setField('media_meta', (string) $media->f('media_meta'));
-        $this->cur_media->setField('media_dt', (string) $media->f('media_dt'));
-        $this->cur_media->setField('media_creadt', (string) $media->f('media_creadt'));
-        $this->cur_media->setField('media_upddt', (string) $media->f('media_upddt'));
-        $this->cur_media->setField('media_private', (int) $media->f('media_private'));
+        $this->cur_media->setField('media_id', (int) $media->field('media_id'));
+        $this->cur_media->setField('user_id', (string) $media->field('user_id'));
+        $this->cur_media->setField('media_path', (string) $media->field('media_path'));
+        $this->cur_media->setField('media_title', (string) $media->field('media_title'));
+        $this->cur_media->setField('media_file', (string) $media->field('media_file'));
+        $this->cur_media->setField('media_meta', (string) $media->field('media_meta'));
+        $this->cur_media->setField('media_dt', (string) $media->field('media_dt'));
+        $this->cur_media->setField('media_creadt', (string) $media->field('media_creadt'));
+        $this->cur_media->setField('media_upddt', (string) $media->field('media_upddt'));
+        $this->cur_media->setField('media_private', (int) $media->field('media_private'));
 
-        $this->cur_media->setField('media_dir', ($media->exists('media_dir') ? (string) $media->f('media_dir') : dirname($media->f('media_file'))));
+        $this->cur_media->setField('media_dir', ($media->exists('media_dir') ? (string) $media->field('media_dir') : dirname($media->field('media_file'))));
 
         if (!$this->mediaExists()) {
             $this->cur_media->insert();
@@ -613,8 +613,8 @@ class FlatImport extends FlatBackup
     {
         $this->cur_post_media->clean();
 
-        $this->cur_post_media->setField('media_id', (int) $post_media->f('media_id'));
-        $this->cur_post_media->setField('post_id', (int) $post_media->f('post_id'));
+        $this->cur_post_media->setField('media_id', (int) $post_media->field('media_id'));
+        $this->cur_post_media->setField('post_id', (int) $post_media->field('post_id'));
 
         $this->cur_post_media->insert();
     }
@@ -623,12 +623,12 @@ class FlatImport extends FlatBackup
     {
         $this->cur_log->clean();
 
-        $this->cur_log->setField('og_id', (int) $log->f('log_id'));
-        $this->cur_log->setField('user_id', (string) $log->f('user_id'));
-        $this->cur_log->setField('log_table', (string) $log->f('log_table'));
-        $this->cur_log->setField('log_dt', (string) $log->f('log_dt'));
-        $this->cur_log->setField('log_ip', (string) $log->f('log_ip'));
-        $this->cur_log->setField('log_msg', (string) $log->f('log_msg'));
+        $this->cur_log->setField('og_id', (int) $log->field('log_id'));
+        $this->cur_log->setField('user_id', (string) $log->field('user_id'));
+        $this->cur_log->setField('log_table', (string) $log->field('log_table'));
+        $this->cur_log->setField('log_dt', (string) $log->field('log_dt'));
+        $this->cur_log->setField('log_ip', (string) $log->field('log_ip'));
+        $this->cur_log->setField('log_msg', (string) $log->field('log_msg'));
 
         $this->cur_log->insert();
     }
@@ -637,9 +637,9 @@ class FlatImport extends FlatBackup
     {
         $this->cur_ping->clean();
 
-        $this->cur_ping->setField('post_id', (int) $ping->f('post_id'));
-        $this->cur_ping->setField('ping_url', (string) $ping->f('ping_url'));
-        $this->cur_ping->setField('ping_dt', (string) $ping->f('ping_dt'));
+        $this->cur_ping->setField('post_id', (int) $ping->field('post_id'));
+        $this->cur_ping->setField('ping_url', (string) $ping->field('ping_url'));
+        $this->cur_ping->setField('ping_dt', (string) $ping->field('ping_dt'));
 
         $this->cur_ping->insert();
     }
@@ -648,21 +648,21 @@ class FlatImport extends FlatBackup
     {
         $this->cur_comment->clean();
 
-        $this->cur_comment->setField('comment_id', (int) $comment->f('comment_id'));
-        $this->cur_comment->setField('post_id', (int) $comment->f('post_id'));
-        $this->cur_comment->setField('comment_dt', (string) $comment->f('comment_dt'));
-        $this->cur_comment->setField('comment_upddt', (string) $comment->f('comment_upddt'));
-        $this->cur_comment->setField('comment_author', (string) $comment->f('comment_author'));
-        $this->cur_comment->setField('comment_email', (string) $comment->f('comment_email'));
-        $this->cur_comment->setField('comment_site', (string) $comment->f('comment_site'));
-        $this->cur_comment->setField('comment_content', (string) $comment->f('comment_content'));
-        $this->cur_comment->setField('comment_words', (string) $comment->f('comment_words'));
-        $this->cur_comment->setField('comment_ip', (string) $comment->f('comment_ip'));
-        $this->cur_comment->setField('comment_status', (int) $comment->f('comment_status'));
-        $this->cur_comment->setField('comment_spam_status', (string) $comment->f('comment_spam_status'));
-        $this->cur_comment->setField('comment_trackback', (int) $comment->f('comment_trackback'));
+        $this->cur_comment->setField('comment_id', (int) $comment->field('comment_id'));
+        $this->cur_comment->setField('post_id', (int) $comment->field('post_id'));
+        $this->cur_comment->setField('comment_dt', (string) $comment->field('comment_dt'));
+        $this->cur_comment->setField('comment_upddt', (string) $comment->field('comment_upddt'));
+        $this->cur_comment->setField('comment_author', (string) $comment->field('comment_author'));
+        $this->cur_comment->setField('comment_email', (string) $comment->field('comment_email'));
+        $this->cur_comment->setField('comment_site', (string) $comment->field('comment_site'));
+        $this->cur_comment->setField('comment_content', (string) $comment->field('comment_content'));
+        $this->cur_comment->setField('comment_words', (string) $comment->field('comment_words'));
+        $this->cur_comment->setField('comment_ip', (string) $comment->field('comment_ip'));
+        $this->cur_comment->setField('comment_status', (int) $comment->field('comment_status'));
+        $this->cur_comment->setField('comment_spam_status', (string) $comment->field('comment_spam_status'));
+        $this->cur_comment->setField('comment_trackback', (int) $comment->field('comment_trackback'));
 
-        $this->cur_comment->setField('comment_spam_filter', ($comment->exists('comment_spam_filter') ? (string) $comment->f('comment_spam_filter') : null));
+        $this->cur_comment->setField('comment_spam_filter', ($comment->exists('comment_spam_filter') ? (string) $comment->field('comment_spam_filter') : null));
 
         $this->cur_comment->insert();
     }
@@ -671,10 +671,10 @@ class FlatImport extends FlatBackup
     {
         $this->cur_spamrule->clean();
 
-        $this->cur_spamrule->setField('rule_id', (int) $spamrule->f('rule_id'));
-        $this->cur_spamrule->setField('blog_id', (!$spamrule->f('blog_id') ? null : (string) $spamrule->f('blog_id')));
-        $this->cur_spamrule->setField('rule_type', (string) $spamrule->f('rule_type'));
-        $this->cur_spamrule->setField('rule_content', (string) $spamrule->f('rule_content'));
+        $this->cur_spamrule->setField('rule_id', (int) $spamrule->field('rule_id'));
+        $this->cur_spamrule->setField('blog_id', (!$spamrule->field('blog_id') ? null : (string) $spamrule->field('blog_id')));
+        $this->cur_spamrule->setField('rule_type', (string) $spamrule->field('rule_type'));
+        $this->cur_spamrule->setField('rule_content', (string) $spamrule->field('rule_content'));
 
         $this->cur_spamrule->insert();
     }
@@ -683,9 +683,9 @@ class FlatImport extends FlatBackup
     {
         $this->cur_category->clean();
 
-        $m = $this->searchCategory($this->categories, $category->f('cat_url'));
+        $m = $this->searchCategory($this->categories, $category->field('cat_url'));
 
-        $old_id = $category->f('cat_id');
+        $old_id = $category->field('cat_id');
         if (false !== $m) {
             $cat_id = $m;
         } else {
@@ -711,21 +711,21 @@ class FlatImport extends FlatBackup
 
     private function insertPostSingle(FlatBackupItem $post): void
     {
-        if (!$post->f('cat_id') || isset($this->old_ids['category'][(int) $post->f('cat_id')])) {
+        if (!$post->field('cat_id') || isset($this->old_ids['category'][(int) $post->field('cat_id')])) {
             $post_id                                          = $this->stack['post_id'];
-            $this->old_ids['post'][(int) $post->f('post_id')] = $post_id;
+            $this->old_ids['post'][(int) $post->field('post_id')] = $post_id;
 
-            $cat_id = $post->f('cat_id') ? $this->old_ids['category'][(int) $post->f('cat_id')] : null;
+            $cat_id = $post->field('cat_id') ? $this->old_ids['category'][(int) $post->field('cat_id')] : null;
 
             $post->set('post_id', $post_id);
             $post->set('cat_id', $cat_id);
             $post->set('blog_id', $this->blog_id);
 
             $post->set('post_url', App::core()->blog()->posts()->getPostURL(
-                url: (string) $post->f('post_url'),
-                date: (string) $post->f('post_dt'),
-                title: (string) $post->f('post_title'),
-                id: (int) $post->f('post_id')
+                url: (string) $post->field('post_url'),
+                date: (string) $post->field('post_dt'),
+                title: (string) $post->field('post_title'),
+                id: (int) $post->field('post_id')
             ));
 
             $this->insertPost($post);
@@ -737,8 +737,8 @@ class FlatImport extends FlatBackup
 
     private function insertMetaSingle(FlatBackupItem $meta): void
     {
-        if (isset($this->old_ids['post'][(int) $meta->f('post_id')])) {
-            $meta->set('post_id', $this->old_ids['post'][(int) $meta->f('post_id')]);
+        if (isset($this->old_ids['post'][(int) $meta->field('post_id')])) {
+            $meta->set('post_id', $this->old_ids['post'][(int) $meta->field('post_id')]);
             $this->insertMeta($meta);
         } else {
             $this->throwIdError($meta->__name, $meta->__line, 'post');
@@ -748,11 +748,11 @@ class FlatImport extends FlatBackup
     private function insertMediaSingle(FlatBackupItem $media): void
     {
         $media_id = $this->stack['media_id'];
-        $old_id   = $media->f('media_id');
+        $old_id   = $media->field('media_id');
 
         $media->set('media_id', $media_id);
         $media->set('media_path', App::core()->blog()->settings()->getGroup('system')->getSetting('public_path'));
-        $media->set('user_id', $this->getUserId($media->f('user_id')));
+        $media->set('user_id', $this->getUserId($media->field('user_id')));
 
         $this->insertMedia($media);
         ++$this->stack['media_id'];
@@ -761,12 +761,12 @@ class FlatImport extends FlatBackup
 
     private function insertPostMediaSingle(FlatBackupItem $post_media): void
     {
-        if (isset($this->old_ids['media'][(int) $post_media->f('media_id')], $this->old_ids['post'][(int) $post_media->f('post_id')])) {
-            $post_media->set('media_id', $this->old_ids['media'][(int) $post_media->f('media_id')]);
-            $post_media->set('post_id', $this->old_ids['post'][(int) $post_media->f('post_id')]);
+        if (isset($this->old_ids['media'][(int) $post_media->field('media_id')], $this->old_ids['post'][(int) $post_media->field('post_id')])) {
+            $post_media->set('media_id', $this->old_ids['media'][(int) $post_media->field('media_id')]);
+            $post_media->set('post_id', $this->old_ids['post'][(int) $post_media->field('post_id')]);
 
             $this->insertPostMedia($post_media);
-        } elseif (!isset($this->old_ids['media'][(int) $post_media->f('media_id')])) {
+        } elseif (!isset($this->old_ids['media'][(int) $post_media->field('media_id')])) {
             $this->throwIdError($post_media->__name, $post_media->__line, 'media');
         } else {
             $this->throwIdError($post_media->__name, $post_media->__line, 'post');
@@ -775,8 +775,8 @@ class FlatImport extends FlatBackup
 
     private function insertPingSingle(FlatBackupItem $ping): void
     {
-        if (isset($this->old_ids['post'][(int) $ping->f('post_id')])) {
-            $ping->set('post_id', $this->old_ids['post'][(int) $ping->f('post_id')]);
+        if (isset($this->old_ids['post'][(int) $ping->field('post_id')])) {
+            $ping->set('post_id', $this->old_ids['post'][(int) $ping->field('post_id')]);
 
             $this->insertPing($ping);
         } else {
@@ -786,11 +786,11 @@ class FlatImport extends FlatBackup
 
     private function insertCommentSingle(FlatBackupItem $comment): void
     {
-        if (isset($this->old_ids['post'][(int) $comment->f('post_id')])) {
+        if (isset($this->old_ids['post'][(int) $comment->field('post_id')])) {
             $comment_id = $this->stack['comment_id'];
 
             $comment->set('comment_id', $comment_id);
-            $comment->set('post_id', $this->old_ids['post'][(int) $comment->f('post_id')]);
+            $comment->set('post_id', $this->old_ids['post'][(int) $comment->field('post_id')]);
 
             $this->insertComment($comment);
             ++$this->stack['comment_id'];
@@ -812,8 +812,8 @@ class FlatImport extends FlatBackup
     public function searchCategory(Record $rs, string $url): int|false
     {
         while ($rs->fetch()) {
-            if ($rs->f('cat_url') == $url) {
-                return $rs->fInt('cat_id');
+            if ($rs->field('cat_url') == $url) {
+                return $rs->integer('cat_id');
             }
         }
 
@@ -922,22 +922,22 @@ class FlatImport extends FlatBackup
 
             case 'post':
                 $line->substitute('post_titre', 'post_title');
-                $line->set('post_title', html::decodeEntities($line->f('post_title')));
-                $line->set('post_url', Clock::format(format: 'Y/m/d/', date: $line->f('post_dt')) . $line->f('post_id') . '-' . $line->f('post_titre_url'));
-                $line->set('post_url', substr($line->f('post_url'), 0, 255));
-                $line->set('post_format', ('' == $line->f('post_content_wiki') ? 'xhtml' : 'wiki'));
-                $line->set('post_content_xhtml', $line->f('post_content'));
-                $line->set('post_excerpt_xhtml', $line->f('post_chapo'));
+                $line->set('post_title', html::decodeEntities($line->field('post_title')));
+                $line->set('post_url', Clock::format(format: 'Y/m/d/', date: $line->field('post_dt')) . $line->field('post_id') . '-' . $line->field('post_titre_url'));
+                $line->set('post_url', substr($line->field('post_url'), 0, 255));
+                $line->set('post_format', ('' == $line->field('post_content_wiki') ? 'xhtml' : 'wiki'));
+                $line->set('post_content_xhtml', $line->field('post_content'));
+                $line->set('post_excerpt_xhtml', $line->field('post_chapo'));
 
-                if ('wiki' == $line->f('post_format')) {
-                    $line->set('post_content', $line->f('post_content_wiki'));
-                    $line->set('post_excerpt', $line->f('post_chapo_wiki'));
+                if ('wiki' == $line->field('post_format')) {
+                    $line->set('post_content', $line->field('post_content_wiki'));
+                    $line->set('post_excerpt', $line->field('post_chapo_wiki'));
                 } else {
-                    $line->set('post_content', $line->f('post_content'));
-                    $line->set('post_excerpt', $line->f('post_chapo'));
+                    $line->set('post_content', $line->field('post_content'));
+                    $line->set('post_excerpt', $line->field('post_chapo'));
                 }
 
-                $line->set('post_status', (int) $line->f('post_pub'));
+                $line->set('post_status', (int) $line->field('post_pub'));
                 $line->set('post_type', 'post');
                 $line->set('blog_id', 'default');
 
@@ -956,10 +956,10 @@ class FlatImport extends FlatBackup
 
             case 'comment':
                 $line->substitute('comment_auteur', 'comment_author');
-                if ('' != $line->f('comment_site') && !preg_match('!^http(s)?://.*$!', $line->f('comment_site'), $m)) {
-                    $line->set('comment_site', 'http://' . $line->f('comment_site'));
+                if ('' != $line->field('comment_site') && !preg_match('!^http(s)?://.*$!', $line->field('comment_site'), $m)) {
+                    $line->set('comment_site', 'http://' . $line->field('comment_site'));
                 }
-                $line->set('comment_status', (int) $line->f('comment_pub'));
+                $line->set('comment_status', (int) $line->field('comment_pub'));
                 $line->drop('comment_pub');
 
                 break;

@@ -92,21 +92,21 @@ class AntispamUrl
 
         while ($rs->fetch() && ($nbitems < $maxitems)) {
             ++$nbitems;
-            $uri    = App::core()->config()->get('admin_url') != '' ? App::core()->config()->get('admin_url') . '?handler=admin.comment&id=' . $rs->f('comment_id') : 'about:blank';
-            $author = $rs->f('comment_author');
-            $title  = $rs->f('post_title') . ' - ' . $author;
+            $uri    = App::core()->config()->get('admin_url') != '' ? App::core()->config()->get('admin_url') . '?handler=admin.comment&id=' . $rs->field('comment_id') : 'about:blank';
+            $author = $rs->field('comment_author');
+            $title  = $rs->field('post_title') . ' - ' . $author;
             if ('spam' == $type) {
-                $title .= '(' . $rs->f('comment_spam_filter') . ')';
+                $title .= '(' . $rs->field('comment_spam_filter') . ')';
             }
             $id = $rs->call('getFeedID');
 
-            $content = '<p>IP: ' . $rs->f('comment_ip');
+            $content = '<p>IP: ' . $rs->field('comment_ip');
 
-            if (trim($rs->f('comment_site'))) {
-                $content .= '<br />URL: <a href="' . $rs->f('comment_site') . '">' . $rs->f('comment_site') . '</a>';
+            if (trim($rs->field('comment_site'))) {
+                $content .= '<br />URL: <a href="' . $rs->field('comment_site') . '">' . $rs->field('comment_site') . '</a>';
             }
             $content .= "</p><hr />\n";
-            $content .= $rs->f('comment_content');
+            $content .= $rs->field('comment_content');
 
             echo '<item>' . "\n" .
             '  <title>' . html::escapeHTML($title) . '</title>' . "\n" .

@@ -95,12 +95,12 @@ class Spamfilters
                 continue;
             }
 
-            $type    = $rs->f('comment_trackback') ? 'trackback' : 'comment';
-            $author  = $rs->f('comment_author');
-            $email   = $rs->f('comment_email');
-            $site    = $rs->f('comment_site');
-            $ip      = $rs->f('comment_ip');
-            $content = $rs->f('comment_content');
+            $type    = $rs->field('comment_trackback') ? 'trackback' : 'comment';
+            $author  = $rs->field('comment_author');
+            $email   = $rs->field('comment_email');
+            $site    = $rs->field('comment_site');
+            $ip      = $rs->field('comment_ip');
+            $content = $rs->field('comment_content');
 
             $f->trainFilter($status, $filter_name, $type, $author, $email, $site, $ip, $content, $rs);
         }
@@ -115,7 +115,7 @@ class Spamfilters
         }
         $status = $rs->call('spamStatus') ?: null;
 
-        return $f->getStatusMessage($status, $rs->fInt('comment_id'));
+        return $f->getStatusMessage($status, $rs->integer('comment_id'));
     }
 
     public function saveFilterOpts(array $opts, bool $global = false): void

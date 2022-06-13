@@ -221,14 +221,14 @@ final class Permissions
 
         $record = $sql->select();
         while ($record->fetch()) {
-            $this->blogs[$id][$record->f('user_id')] = new UserPermissionsDescriptor(
-                id: $record->f('user_id'),
-                name: $record->f('user_name'),
-                firstname: $record->f('user_firstname'),
-                displayname: $record->f('user_displayname'),
-                email: $record->f('user_email'),
-                super: (bool) $record->fInt('user_super'),
-                perm: $this->parsePermissions($record->f('permissions')),
+            $this->blogs[$id][$record->field('user_id')] = new UserPermissionsDescriptor(
+                id: $record->field('user_id'),
+                name: $record->field('user_name'),
+                firstname: $record->field('user_firstname'),
+                displayname: $record->field('user_displayname'),
+                email: $record->field('user_email'),
+                super: (bool) $record->integer('user_super'),
+                perm: $this->parsePermissions($record->field('permissions')),
             );
         }
 
@@ -272,11 +272,11 @@ final class Permissions
 
         $record = $sql->select();
         while ($record->fetch()) {
-            $this->users[$id][$record->f('blog_id')] = new BlogPermissionsDescriptor(
-                id: $record->f('blog_id'),
-                name: $record->f('blog_name'),
-                url: $record->f('blog_url'),
-                perm: $this->parsePermissions($record->f('permissions')),
+            $this->users[$id][$record->field('blog_id')] = new BlogPermissionsDescriptor(
+                id: $record->field('blog_id'),
+                name: $record->field('blog_name'),
+                url: $record->field('blog_url'),
+                perm: $this->parsePermissions($record->field('permissions')),
             );
         }
 

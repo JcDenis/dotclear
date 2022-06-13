@@ -81,18 +81,18 @@ class PostMiniInventory extends Inventory
 
         $img_status = sprintf(
             $img,
-            App::core()->blog()->posts()->status()->getState($this->rs->fInt('post_status')),
-            App::core()->blog()->posts()->status()->getIcon($this->rs->fInt('post_status')),
+            App::core()->blog()->posts()->status()->getState($this->rs->integer('post_status')),
+            App::core()->blog()->posts()->status()->getIcon($this->rs->integer('post_status')),
         );
-        $sts_class = 'sts-' . App::core()->blog()->posts()->status()->getId($this->rs->fInt('post_status'));
+        $sts_class = 'sts-' . App::core()->blog()->posts()->status()->getId($this->rs->integer('post_status'));
 
         $protected = '';
-        if ($this->rs->f('post_password')) {
+        if ($this->rs->field('post_password')) {
             $protected = sprintf($img, __('Protected'), 'locker.png');
         }
 
         $selected = '';
-        if ($this->rs->f('post_selected')) {
+        if ($this->rs->field('post_selected')) {
             $selected = sprintf($img, __('Selected'), 'selected.png');
         }
 
@@ -103,16 +103,16 @@ class PostMiniInventory extends Inventory
             $attach     = sprintf($img, sprintf($attach_str, $nb_media), 'attach.png');
         }
 
-        $res = '<tr class="line ' . (1 != $this->rs->fInt('post_status') ? 'offline ' : '') . $sts_class . '"' .
-        ' id="p' . $this->rs->f('post_id') . '">';
+        $res = '<tr class="line ' . (1 != $this->rs->integer('post_status') ? 'offline ' : '') . $sts_class . '"' .
+        ' id="p' . $this->rs->field('post_id') . '">';
 
         $cols = [
             'title' => '<td scope="row" class="maximal"><a href="' .
-            Html::escapeHTML(App::core()->posttype()->getPostAdminURL(type: $this->rs->f('post_type'), id: $this->rs->f('post_id'))) . '" ' .
+            Html::escapeHTML(App::core()->posttype()->getPostAdminURL(type: $this->rs->field('post_type'), id: $this->rs->field('post_id'))) . '" ' .
             'title="' . Html::escapeHTML($this->rs->call('getURL')) . '">' .
-            Html::escapeHTML(trim(Html::clean($this->rs->f('post_title')))) . '</a></td>',
-            'date'   => '<td class="nowrap count">' . Clock::str(format: __('%Y-%m-%d %H:%M'), date: $this->rs->f('post_dt'), to: App::core()->timezone()) . '</td>',
-            'author' => '<td class="nowrap">' . Html::escapeHTML($this->rs->f('user_id')) . '</td>',
+            Html::escapeHTML(trim(Html::clean($this->rs->field('post_title')))) . '</a></td>',
+            'date'   => '<td class="nowrap count">' . Clock::str(format: __('%Y-%m-%d %H:%M'), date: $this->rs->field('post_dt'), to: App::core()->timezone()) . '</td>',
+            'author' => '<td class="nowrap">' . Html::escapeHTML($this->rs->field('user_id')) . '</td>',
             'status' => '<td class="nowrap status">' . $img_status . ' ' . $selected . ' ' . $protected . ' ' . $attach . '</td>',
         ];
 

@@ -98,14 +98,14 @@ class UserInventory extends Inventory
         $img_status = '';
 
         $user_blog_permissions = App::core()->permissions()->getUserBlogPermissions(
-            id: $this->rs->f('user_id'),
+            id: $this->rs->field('user_id'),
             blog: App::core()->blog()->id
         );
 
         if ($user_blog_permissions->exists('admin')) {
             $img_status = sprintf($img, __('admin'), 'admin.png');
         }
-        if ($this->rs->fInt('user_super')) {
+        if ($this->rs->integer('user_super')) {
             $img_status = sprintf($img, __('superadmin'), 'superadmin.png');
         }
 
@@ -113,16 +113,16 @@ class UserInventory extends Inventory
 
         $cols = [
             'check' => '<td class="nowrap">' . Form::hidden(['nb_post[]'], $this->rs->fint('nb_post')) .
-            Form::checkbox(['users[]'], $this->rs->f('user_id')) . '</td>',
+            Form::checkbox(['users[]'], $this->rs->field('user_id')) . '</td>',
             'username' => '<td class="maximal" scope="row"><a href="' .
-            App::core()->adminurl()->get('admin.user', ['id' => $this->rs->f('user_id')]) . '">' .
-            $this->rs->f('user_id') . '</a>&nbsp;' . $img_status . '</td>',
-            'first_name'   => '<td class="nowrap">' . Html::escapeHTML($this->rs->f('user_firstname')) . '</td>',
-            'last_name'    => '<td class="nowrap">' . Html::escapeHTML($this->rs->f('user_name')) . '</td>',
-            'display_name' => '<td class="nowrap">' . Html::escapeHTML($this->rs->f('user_displayname')) . '</td>',
+            App::core()->adminurl()->get('admin.user', ['id' => $this->rs->field('user_id')]) . '">' .
+            $this->rs->field('user_id') . '</a>&nbsp;' . $img_status . '</td>',
+            'first_name'   => '<td class="nowrap">' . Html::escapeHTML($this->rs->field('user_firstname')) . '</td>',
+            'last_name'    => '<td class="nowrap">' . Html::escapeHTML($this->rs->field('user_name')) . '</td>',
+            'display_name' => '<td class="nowrap">' . Html::escapeHTML($this->rs->field('user_displayname')) . '</td>',
             'entries'      => '<td class="nowrap count"><a href="' .
-            App::core()->adminurl()->get('admin.posts', ['user_id' => $this->rs->f('user_id')]) . '">' .
-            $this->rs->f('nb_post') . '</a></td>',
+            App::core()->adminurl()->get('admin.posts', ['user_id' => $this->rs->field('user_id')]) . '">' .
+            $this->rs->field('nb_post') . '</a></td>',
         ];
 
         $cols = new ArrayObject($cols);

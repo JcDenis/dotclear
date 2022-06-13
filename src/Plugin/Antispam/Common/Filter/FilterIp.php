@@ -143,22 +143,22 @@ class FilterIp extends Spamfilter
             $res_global = '';
             $res_local  = '';
             while ($rs->fetch()) {
-                $bits    = explode(':', $rs->f('rule_content'));
+                $bits    = explode(':', $rs->field('rule_content'));
                 $pattern = $bits[0];
                 $ip      = $bits[1];
                 $bitmask = $bits[2];
 
                 $disabled_ip = false;
                 $p_style     = '';
-                if (!$rs->f('blog_id')) {
+                if (!$rs->field('blog_id')) {
                     $disabled_ip = !App::core()->user()->isSuperAdmin();
                     $p_style .= ' global';
                 }
 
-                $item = '<p class="' . $p_style . '"><label class="classic" for="' . $type . '-ip-' . $rs->f('rule_id') . '">' .
+                $item = '<p class="' . $p_style . '"><label class="classic" for="' . $type . '-ip-' . $rs->field('rule_id') . '">' .
                 form::checkbox(
-                    ['delip[]', $type . '-ip-' . $rs->f('rule_id')],
-                    $rs->f('rule_id'),
+                    ['delip[]', $type . '-ip-' . $rs->field('rule_id')],
+                    $rs->field('rule_id'),
                     [
                         'disabled' => $disabled_ip,
                     ]
@@ -166,7 +166,7 @@ class FilterIp extends Spamfilter
                 html::escapeHTML($pattern) .
                     '</label></p>';
 
-                if ($rs->f('blog_id')) {
+                if ($rs->field('blog_id')) {
                     // local list
                     if ('' == $res_local) {
                         $res_local = '<h4>' . __('Local IPs (used only for this blog)') . '</h4>';
@@ -238,7 +238,7 @@ class FilterIp extends Spamfilter
             $sql = new SelectStatement();
             $sql->columns($sql->max('rule_id'));
             $sql->from(App::core()->prefix() . 'spamrule');
-            $id = $sql->select()->fInt() + 1;
+            $id = $sql->select()->integer() + 1;
 
             $sql = new InsertStatement();
             $sql->columns([
@@ -259,7 +259,7 @@ class FilterIp extends Spamfilter
             $sql = new UpdateStatement();
             $sql->set('rule_type = ' . $sql->quote($type));
             $sql->set('rule_content = ' . $sql->quote($content));
-            $sql->where('rule_id = ' . $old->fInt('rule_id'));
+            $sql->where('rule_id = ' . $old->integer('rule_id'));
             $sql->from(App::core()->prefix() . 'spamrule');
             $sql->update();
         }
@@ -320,7 +320,7 @@ class FilterIp extends Spamfilter
         $record = $sql->select();
 
         while ($record->fetch()) {
-            [$pattern, $ip, $mask] = explode(':', $record->f('rule_content'));
+            [$pattern, $ip, $mask] = explode(':', $record->field('rule_content'));
             if ((ip2long($cip) & (int) $mask) == ((int) $ip & (int) $mask)) {
                 return $pattern;
             }

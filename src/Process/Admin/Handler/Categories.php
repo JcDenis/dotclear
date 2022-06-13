@@ -54,7 +54,7 @@ class Categories extends AbstractPage
                 App::core()->notice()->addErrorNotice(__('This category does not exist.'));
                 App::core()->adminurl()->redirect('admin.categories');
             }
-            $name = $category->f('cat_title');
+            $name = $category->field('cat_title');
             unset($category);
 
             try {
@@ -85,7 +85,7 @@ class Categories extends AbstractPage
                     if ($category->isEmpty()) {
                         throw new AdminException(__('Category where to move entries does not exist'));
                     }
-                    $name = $category->f('cat_title');
+                    $name = $category->field('cat_title');
                     unset($category);
                 }
                 // Move posts
@@ -181,38 +181,38 @@ class Categories extends AbstractPage
             echo '<form action="' . App::core()->adminurl()->root() . '" method="post" id="form-categories">' .
                 '<div id="categories">';
 
-            $ref_level = $level = $this->categories->fInt('level') - 1;
+            $ref_level = $level = $this->categories->integer('level') - 1;
             while ($this->categories->fetch()) {
-                $attr = 'id="cat_' . $this->categories->f('cat_id') . '" class="cat-line clearfix"';
+                $attr = 'id="cat_' . $this->categories->field('cat_id') . '" class="cat-line clearfix"';
 
-                if ($this->categories->fInt('level') > $level) {
-                    echo str_repeat('<ul><li ' . $attr . '>', $this->categories->fInt('level') - $level);
-                } elseif ($this->categories->fInt('level') < $level) {
-                    echo str_repeat('</li></ul>', -($this->categories->fInt('level') - $level));
+                if ($this->categories->integer('level') > $level) {
+                    echo str_repeat('<ul><li ' . $attr . '>', $this->categories->integer('level') - $level);
+                } elseif ($this->categories->integer('level') < $level) {
+                    echo str_repeat('</li></ul>', -($this->categories->integer('level') - $level));
                 }
 
-                if ($this->categories->fInt('level') <= $level) {
+                if ($this->categories->integer('level') <= $level) {
                     echo '</li><li ' . $attr . '>';
                 }
 
-                echo '<p class="cat-title"><label class="classic" for="cat_' . $this->categories->f('cat_id') . '"><a href="' .
-                App::core()->adminurl()->get('admin.category', ['id' => $this->categories->f('cat_id')]) . '">' . Html::escapeHTML($this->categories->f('cat_title')) .
+                echo '<p class="cat-title"><label class="classic" for="cat_' . $this->categories->field('cat_id') . '"><a href="' .
+                App::core()->adminurl()->get('admin.category', ['id' => $this->categories->field('cat_id')]) . '">' . Html::escapeHTML($this->categories->field('cat_title')) .
                 '</a></label> </p>' .
-                '<p class="cat-nb-posts">(<a href="' . App::core()->adminurl()->get('admin.posts', ['cat_id' => $this->categories->f('cat_id')]) . '">' .
-                sprintf((1 < $this->categories->fInt('nb_post') ? __('%d entries') : __('%d entry')), $this->categories->fInt('nb_post')) . '</a>' .
-                ', ' . __('total:') . ' ' . $this->categories->f('nb_total') . ')</p>' .
-                '<p class="cat-url">' . __('URL:') . ' <code>' . Html::escapeHTML($this->categories->f('cat_url')) . '</code></p>';
+                '<p class="cat-nb-posts">(<a href="' . App::core()->adminurl()->get('admin.posts', ['cat_id' => $this->categories->field('cat_id')]) . '">' .
+                sprintf((1 < $this->categories->integer('nb_post') ? __('%d entries') : __('%d entry')), $this->categories->integer('nb_post')) . '</a>' .
+                ', ' . __('total:') . ' ' . $this->categories->field('nb_total') . ')</p>' .
+                '<p class="cat-url">' . __('URL:') . ' <code>' . Html::escapeHTML($this->categories->field('cat_url')) . '</code></p>';
 
                 echo '<p class="cat-buttons">';
-                if (0 < $this->categories->fInt('nb_total')) {
-                    $fn_cat_id = $this->categories->f('cat_id');
+                if (0 < $this->categories->integer('nb_total')) {
+                    $fn_cat_id = $this->categories->field('cat_id');
                     // remove current category
-                    echo '<label for="mov_cat_' . $this->categories->f('cat_id') . '">' . __('Move entries to') . '</label> ' .
-                    Form::combo(['mov_cat[' . $this->categories->f('cat_id') . ']', 'mov_cat_' . $this->categories->f('cat_id')], array_filter(
+                    echo '<label for="mov_cat_' . $this->categories->field('cat_id') . '">' . __('Move entries to') . '</label> ' .
+                    Form::combo(['mov_cat[' . $this->categories->field('cat_id') . ']', 'mov_cat_' . $this->categories->field('cat_id')], array_filter(
                         $categories_combo,
                         fn ($cat) => $cat->value != ($fn_cat_id ?? '0')
                     ), '', '') .
-                    ' <input type="submit" class="reset" name="mov[' . $this->categories->f('cat_id') . ']" value="' . __('OK') . '"/>';
+                    ' <input type="submit" class="reset" name="mov[' . $this->categories->field('cat_id') . ']" value="' . __('OK') . '"/>';
 
                     $attr_disabled = ' disabled="disabled"';
                     $input_class   = 'disabled ';
@@ -220,10 +220,10 @@ class Categories extends AbstractPage
                     $attr_disabled = '';
                     $input_class   = '';
                 }
-                echo ' <input type="submit"' . $attr_disabled . ' class="' . $input_class . 'delete" name="delete[' . $this->categories->f('cat_id') . ']" value="' . __('Delete category') . '"/>' .
+                echo ' <input type="submit"' . $attr_disabled . ' class="' . $input_class . 'delete" name="delete[' . $this->categories->field('cat_id') . ']" value="' . __('Delete category') . '"/>' .
                     '</p>';
 
-                $level = $this->categories->fInt('level');
+                $level = $this->categories->integer('level');
             }
 
             if (0 > $ref_level - $level) {

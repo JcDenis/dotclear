@@ -101,14 +101,14 @@ class BreadcrumbTemplate
             case 'category':
                 // Category
                 $ret        = '<a id="bc-home" href="' . App::core()->blog()->url . '">' . __('Home') . '</a>';
-                $categories = App::core()->blog()->categories()->getCategoryParents(id: App::core()->context()->get('categories')->fInt('cat_id'));
+                $categories = App::core()->blog()->categories()->getCategoryParents(id: App::core()->context()->get('categories')->integer('cat_id'));
                 while ($categories->fetch()) {
-                    $ret .= $separator . '<a href="' . App::core()->blog()->getURLFor('category', $categories->f('cat_url')) . '">' . $categories->f('cat_title') . '</a>';
+                    $ret .= $separator . '<a href="' . App::core()->blog()->getURLFor('category', $categories->field('cat_url')) . '">' . $categories->field('cat_title') . '</a>';
                 }
                 if (0 == $page) {
-                    $ret .= $separator . App::core()->context()->get('categories')->f('cat_title');
+                    $ret .= $separator . App::core()->context()->get('categories')->field('cat_title');
                 } else {
-                    $ret .= $separator . '<a href="' . App::core()->blog()->getURLFor('category', App::core()->context()->get('categories')->f('cat_url')) . '">' . App::core()->context()->get('categories')->f('cat_title') . '</a>';
+                    $ret .= $separator . '<a href="' . App::core()->blog()->getURLFor('category', App::core()->context()->get('categories')->field('cat_url')) . '">' . App::core()->context()->get('categories')->field('cat_title') . '</a>';
                     $ret .= $separator . sprintf(__('page %d'), $page);
                 }
 
@@ -117,20 +117,20 @@ class BreadcrumbTemplate
             case 'post':
                 // Post
                 $ret = '<a id="bc-home" href="' . App::core()->blog()->url . '">' . __('Home') . '</a>';
-                if (App::core()->context()->get('posts')->fInt('cat_id')) {
+                if (App::core()->context()->get('posts')->integer('cat_id')) {
                     // Parents cats of post's cat
-                    $categories = App::core()->blog()->categories()->getCategoryParents(id: App::core()->context()->get('posts')->fInt('cat_id'));
+                    $categories = App::core()->blog()->categories()->getCategoryParents(id: App::core()->context()->get('posts')->integer('cat_id'));
                     while ($categories->fetch()) {
-                        $ret .= $separator . '<a href="' . App::core()->blog()->getURLFor('category', $categories->f('cat_url')) . '">' . $categories->f('cat_title') . '</a>';
+                        $ret .= $separator . '<a href="' . App::core()->blog()->getURLFor('category', $categories->field('cat_url')) . '">' . $categories->field('cat_title') . '</a>';
                     }
                     // Post's cat
                     $param = new Param();
-                    $param->set('cat_id', App::core()->context()->get('posts')->fInt('cat_id'));
+                    $param->set('cat_id', App::core()->context()->get('posts')->integer('cat_id'));
 
                     $categories = App::core()->blog()->categories()->getCategories(param: $param);
-                    $ret .= $separator . '<a href="' . App::core()->blog()->getURLFor('category', $categories->f('cat_url')) . '">' . $categories->f('cat_title') . '</a>';
+                    $ret .= $separator . '<a href="' . App::core()->blog()->getURLFor('category', $categories->field('cat_url')) . '">' . $categories->field('cat_title') . '</a>';
                 }
-                $ret .= $separator . App::core()->context()->get('posts')->f('post_title');
+                $ret .= $separator . App::core()->context()->get('posts')->field('post_title');
 
                 break;
 
@@ -151,7 +151,7 @@ class BreadcrumbTemplate
                 } else {
                     // Month archive
                     $ret .= $separator . '<a href="' . App::core()->blog()->getURLFor('archive') . '">' . __('Archives') . '</a>';
-                    $ret .= $separator . Clock::str(format: '%B %Y', date: App::core()->context()->get('archives')->f('dt'), to: App::core()->blog()->settings()->getGroup('system')->get('blog_timezone'));
+                    $ret .= $separator . Clock::str(format: '%B %Y', date: App::core()->context()->get('archives')->field('dt'), to: App::core()->blog()->settings()->getGroup('system')->get('blog_timezone'));
                 }
 
                 break;
@@ -159,7 +159,7 @@ class BreadcrumbTemplate
             case 'pages':
                 // Page
                 $ret = '<a id="bc-home" href="' . App::core()->blog()->url . '">' . __('Home') . '</a>';
-                $ret .= $separator . App::core()->context()->get('posts')->f('post_title');
+                $ret .= $separator . App::core()->context()->get('posts')->field('post_title');
 
                 break;
 
@@ -175,9 +175,9 @@ class BreadcrumbTemplate
                 $ret = '<a id="bc-home" href="' . App::core()->blog()->url . '">' . __('Home') . '</a>';
                 $ret .= $separator . '<a href="' . App::core()->blog()->getURLFor('tags') . '">' . __('All tags') . '</a>';
                 if (0 == $page) {
-                    $ret .= $separator . App::core()->context()->get('meta')->f('meta_id');
+                    $ret .= $separator . App::core()->context()->get('meta')->field('meta_id');
                 } else {
-                    $ret .= $separator . '<a href="' . App::core()->blog()->getURLFor('tag', rawurlencode(App::core()->context()->get('meta')->f('meta_id'))) . '">' . App::core()->context()->get('meta')->f('meta_id') . '</a>';
+                    $ret .= $separator . '<a href="' . App::core()->blog()->getURLFor('tag', rawurlencode(App::core()->context()->get('meta')->field('meta_id'))) . '">' . App::core()->context()->get('meta')->field('meta_id') . '</a>';
                     $ret .= $separator . sprintf(__('page %d'), $page);
                 }
 

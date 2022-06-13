@@ -47,7 +47,7 @@ class RsExtPost extends RsExtend
 
         // If user is usage and owner of the entrie
         if (App::core()->user()->check('usage', App::core()->blog()->id)
-            && $this->rs->f('user_id') == App::core()->user()->userID()) {
+            && $this->rs->field('user_id') == App::core()->user()->userID()) {
             return true;
         }
 
@@ -73,7 +73,7 @@ class RsExtPost extends RsExtend
 
         // If user has delete rights and is owner of the entrie
         if (App::core()->user()->check('delete', App::core()->blog()->id)
-            && $this->rs->f('user_id') == App::core()->user()->userID()) {
+            && $this->rs->field('user_id') == App::core()->user()->userID()) {
             return true;
         }
 
@@ -89,9 +89,9 @@ class RsExtPost extends RsExtend
             return true;
         }
 
-        $cdate = Clock::format(format: 'Ymd', date: $this->rs->f('post_dt'), to: App::core()->timezone());
+        $cdate = Clock::format(format: 'Ymd', date: $this->rs->field('post_dt'), to: App::core()->timezone());
         $this->rs->movePrev();
-        $ndate = Clock::format(format: 'Ymd', date: $this->rs->f('post_dt'), to: App::core()->timezone());
+        $ndate = Clock::format(format: 'Ymd', date: $this->rs->field('post_dt'), to: App::core()->timezone());
         $this->rs->moveNext();
 
         return $ndate != $cdate;
@@ -106,9 +106,9 @@ class RsExtPost extends RsExtend
             return true;
         }
 
-        $cdate = Clock::format(format: 'Ymd', date: $this->rs->f('post_dt'), to: App::core()->timezone());
+        $cdate = Clock::format(format: 'Ymd', date: $this->rs->field('post_dt'), to: App::core()->timezone());
         $this->rs->moveNext();
-        $ndate = Clock::format(format: 'Ymd', date: $this->rs->f('post_dt'), to: App::core()->timezone());
+        $ndate = Clock::format(format: 'Ymd', date: $this->rs->field('post_dt'), to: App::core()->timezone());
         $this->rs->movePrev();
 
         return $ndate != $cdate;
@@ -121,7 +121,7 @@ class RsExtPost extends RsExtend
     {
         return
             App::core()->blog()->settings()->getGroup('system')->getSetting('allow_comments')
-            && $this->rs->f('post_open_comment')
+            && $this->rs->field('post_open_comment')
             && (
                 0 == App::core()->blog()->settings()->getGroup('system')->getSetting('comments_ttl')
                 || Clock::ts(to: App::core()->timezone()) - (App::core()->blog()->settings()->getGroup('system')->getSetting('comments_ttl') * 86400) < $this->getTS()
@@ -135,7 +135,7 @@ class RsExtPost extends RsExtend
     {
         return
             App::core()->blog()->settings()->getGroup('system')->getSetting('allow_trackbacks')
-            && $this->rs->f('post_open_tb')
+            && $this->rs->field('post_open_tb')
             && (
                 0 == App::core()->blog()->settings()->getGroup('system')->getSetting('trackbacks_ttl')
                 || Clock::ts(to: App::core()->timezone()) - (App::core()->blog()->settings()->getGroup('system')->getSetting('trackbacks_ttl') * 86400) < $this->getTS()
@@ -147,7 +147,7 @@ class RsExtPost extends RsExtend
      */
     public function hasComments(): bool
     {
-        return 0 < $this->rs->f('nb_comment');
+        return 0 < $this->rs->field('nb_comment');
     }
 
     /**
@@ -155,7 +155,7 @@ class RsExtPost extends RsExtend
      */
     public function hasTrackbacks(): bool
     {
-        return 0 < $this->rs->f('nb_trackback');
+        return 0 < $this->rs->field('nb_trackback');
     }
 
     /**
@@ -175,8 +175,8 @@ class RsExtPost extends RsExtend
     public function getURL(): string
     {
         return App::core()->blog()->url . App::core()->posttype()->getPostPublicURL(
-            type: $this->rs->f('post_type'),
-            url: Html::sanitizeURL($this->rs->f('post_url'))
+            type: $this->rs->field('post_type'),
+            url: Html::sanitizeURL($this->rs->field('post_url'))
         );
     }
 
@@ -187,7 +187,7 @@ class RsExtPost extends RsExtend
      */
     public function getCategoryURL(): string
     {
-        return App::core()->blog()->getURLFor('category', Html::sanitizeURL($this->rs->f('cat_url')));
+        return App::core()->blog()->getURLFor('category', Html::sanitizeURL($this->rs->field('cat_url')));
     }
 
     /**
@@ -195,7 +195,7 @@ class RsExtPost extends RsExtend
      */
     public function isExtended(): bool
     {
-        return '' != $this->rs->f('post_excerpt_xhtml');
+        return '' != $this->rs->field('post_excerpt_xhtml');
     }
 
     /**
@@ -208,9 +208,9 @@ class RsExtPost extends RsExtend
     public function getTS(string $type = ''): int
     {
         $date = match ($type) {
-            'upddt'  => $this->rs->f('post_upddt'),
-            'creadt' => $this->rs->f('post_creadt'),
-            default  => $this->rs->f('post_dt'),
+            'upddt'  => $this->rs->field('post_upddt'),
+            'creadt' => $this->rs->field('post_creadt'),
+            default  => $this->rs->field('post_dt'),
         };
 
         return CLock::ts(
@@ -298,10 +298,10 @@ class RsExtPost extends RsExtend
     public function getAuthorCN(): string
     {
         return UserContainer::getUserCN(
-            $this->rs->f('user_id'),
-            $this->rs->f('user_name'),
-            $this->rs->f('user_firstname'),
-            $this->rs->f('user_displayname')
+            $this->rs->field('user_id'),
+            $this->rs->field('user_name'),
+            $this->rs->field('user_firstname'),
+            $this->rs->field('user_displayname')
         );
     }
 
@@ -311,7 +311,7 @@ class RsExtPost extends RsExtend
     public function getAuthorLink(): string
     {
         $res = '%1$s';
-        $url = $this->rs->f('user_url');
+        $url = $this->rs->field('user_url');
         if ($url) {
             $res = '<a href="%2$s">%1$s</a>';
         }
@@ -329,7 +329,7 @@ class RsExtPost extends RsExtend
      */
     public function getAuthorEmail(bool $encoded = true): string
     {
-        return $encoded ? strtr($this->rs->f('user_email'), ['@' => '%40', '.' => '%2e']) : $this->rs->f('user_email');
+        return $encoded ? strtr($this->rs->field('user_email'), ['@' => '%40', '.' => '%2e']) : $this->rs->field('user_email');
     }
 
     /**
@@ -339,7 +339,7 @@ class RsExtPost extends RsExtend
      */
     public function getFeedID(): string
     {
-        return 'urn:md5:' . md5(App::core()->blog()->uid . $this->rs->f('post_id'));
+        return 'urn:md5:' . md5(App::core()->blog()->uid . $this->rs->field('post_id'));
     }
 
     /**
@@ -358,7 +358,7 @@ class RsExtPost extends RsExtend
         "<rdf:Description\n" .
         '  rdf:about="' . $this->getURL() . '"' . "\n" .
         '  dc:identifier="' . $this->getURL() . '"' . "\n" .
-        '  dc:title="' . htmlspecialchars($this->rs->f('post_title'), ENT_COMPAT, 'UTF-8') . '"' . "\n" .
+        '  dc:title="' . htmlspecialchars($this->rs->field('post_title'), ENT_COMPAT, 'UTF-8') . '"' . "\n" .
         '  trackback:ping="' . $this->getTrackbackLink() . '" />' . "\n" .
             "</rdf:RDF>\n" .
             ('xml' == $format ? '<!]]><!--' : '') .
@@ -372,7 +372,7 @@ class RsExtPost extends RsExtend
      */
     public function getTrackbackLink(): string
     {
-        return App::core()->blog()->getURLFor('trackback', $this->rs->f('post_id'));
+        return App::core()->blog()->getURLFor('trackback', $this->rs->field('post_id'));
     }
 
     /**
@@ -386,8 +386,8 @@ class RsExtPost extends RsExtend
     public function getContent(bool $absolute_urls = false): string
     {
         return $absolute_urls ?
-            Html::absoluteURLs($this->rs->f('post_content_xhtml'), $this->getURL()) :
-            $this->rs->f('post_content_xhtml');
+            Html::absoluteURLs($this->rs->field('post_content_xhtml'), $this->getURL()) :
+            $this->rs->field('post_content_xhtml');
     }
 
     /**
@@ -401,8 +401,8 @@ class RsExtPost extends RsExtend
     public function getExcerpt(bool $absolute_urls = false): string
     {
         return $absolute_urls ?
-            Html::absoluteURLs($this->rs->f('post_excerpt_xhtml'), $this->getURL()) :
-            $this->rs->f('post_excerpt_xhtml');
+            Html::absoluteURLs($this->rs->field('post_excerpt_xhtml'), $this->getURL()) :
+            $this->rs->field('post_excerpt_xhtml');
     }
 
     /**
@@ -419,12 +419,12 @@ class RsExtPost extends RsExtend
         }
         $strReq = 'SELECT count(media_id) ' .
             'FROM ' . App::core()->prefix() . 'post_media ' .
-            'WHERE post_id = ' . (int) $this->rs->f('post_id') . ' ';
+            'WHERE post_id = ' . (int) $this->rs->field('post_id') . ' ';
         if (null != $link_type) {
             $strReq .= "AND link_type = '" . App::core()->con()->escape($link_type) . "'";
         }
 
-        $res                                 = App::core()->con()->select($strReq)->fInt();
+        $res                                 = App::core()->con()->select($strReq)->integer();
         $this->_nb_media[$this->rs->index()] = $res;
 
         return $res;
@@ -439,6 +439,6 @@ class RsExtPost extends RsExtend
      */
     public function underCat(string $cat_url): bool
     {
-        return App::core()->blog()->categories()->isInCatSubtree(url: $this->rs->f('cat_url'), parent: $cat_url);
+        return App::core()->blog()->categories()->isInCatSubtree(url: $this->rs->field('cat_url'), parent: $cat_url);
     }
 }

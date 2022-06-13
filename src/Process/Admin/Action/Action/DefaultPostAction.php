@@ -84,8 +84,8 @@ abstract class DefaultPostAction extends Action
             $rs = $this->getRS();
             if ($rs->rows()) {
                 while ($rs->fetch()) {
-                    if (1 === $rs->fInt('post_status')) {
-                        $ids->remove($rs->fInt('post_id'));
+                    if (1 === $rs->integer('post_status')) {
+                        $ids->remove($rs->integer('post_id'));
                     }
                 }
             }
@@ -195,7 +195,7 @@ abstract class DefaultPostAction extends Action
                         $ids->count()
                     ),
                     $ids->count(),
-                    Html::escapeHTML($record->f('cat_title'))
+                    Html::escapeHTML($record->field('cat_title'))
                 )
             );
 
@@ -276,7 +276,7 @@ abstract class DefaultPostAction extends Action
                 $rsStatic = $rsStatic->toExtStatic();
                 $rsStatic->lexicalSort('user_id');
                 while ($rsStatic->fetch()) {
-                    $usersList[] = $rsStatic->f('user_id');
+                    $usersList[] = $rsStatic->field('user_id');
                 }
             }
 
@@ -329,11 +329,11 @@ abstract class DefaultPostAction extends Action
             $all_langs  = L10n::getISOcodes(false, true);
             $lang_combo = ['' => '', __('Most used') => [], __('Available') => L10n::getISOcodes(true, true)];
             while ($rs->fetch()) {
-                if (isset($all_langs[$rs->f('post_lang')])) {
-                    $lang_combo[__('Most used')][$all_langs[$rs->f('post_lang')]] = $rs->f('post_lang');
-                    unset($lang_combo[__('Available')][$all_langs[$rs->f('post_lang')]]);
+                if (isset($all_langs[$rs->field('post_lang')])) {
+                    $lang_combo[__('Most used')][$all_langs[$rs->field('post_lang')]] = $rs->field('post_lang');
+                    unset($lang_combo[__('Available')][$all_langs[$rs->field('post_lang')]]);
                 } else {
-                    $lang_combo[__('Most used')][$rs->f('post_lang')] = $rs->f('post_lang');
+                    $lang_combo[__('Most used')][$rs->field('post_lang')] = $rs->field('post_lang');
                 }
             }
             unset($all_langs, $rs);

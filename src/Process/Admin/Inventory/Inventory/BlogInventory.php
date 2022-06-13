@@ -84,7 +84,7 @@ class BlogInventory extends Inventory
             echo $pager->getLinks() . $blocks[0];
 
             while ($this->rs->fetch()) {
-                echo $this->blogLine(isset($blogs[$this->rs->f('blog_id')]));
+                echo $this->blogLine(isset($blogs[$this->rs->field('blog_id')]));
             }
 
             $legends = [];
@@ -111,12 +111,12 @@ class BlogInventory extends Inventory
      */
     private function blogLine(bool $checked = false): string
     {
-        $blog_id = Html::escapeHTML($this->rs->f('blog_id'));
+        $blog_id = Html::escapeHTML($this->rs->field('blog_id'));
 
         $cols = [
             'check' => (App::core()->user()->isSuperAdmin() ?
                 '<td class="nowrap">' .
-                Form::checkbox(['blogs[]'], $this->rs->f('blog_id'), $checked) .
+                Form::checkbox(['blogs[]'], $this->rs->field('blog_id'), $checked) .
                 '</td>' : ''),
             'blog' => '<td class="nowrap">' .
             (App::core()->user()->isSuperAdmin() ?
@@ -126,25 +126,25 @@ class BlogInventory extends Inventory
                 $blog_id . ' ') .
             '</td>',
             'name' => '<td class="maximal">' .
-            '<a href="' . App::core()->adminurl()->get('admin.home', ['switchblog' => $this->rs->f('blog_id')]) . '" ' .
-            'title="' . sprintf(__('Switch to blog %s'), $this->rs->f('blog_id')) . '">' .
-            Html::escapeHTML($this->rs->f('blog_name')) . '</a>' .
+            '<a href="' . App::core()->adminurl()->get('admin.home', ['switchblog' => $this->rs->field('blog_id')]) . '" ' .
+            'title="' . sprintf(__('Switch to blog %s'), $this->rs->field('blog_id')) . '">' .
+            Html::escapeHTML($this->rs->field('blog_name')) . '</a>' .
             '</td>',
             'url' => '<td class="nowrap">' .
             '<a class="outgoing" href="' .
-            Html::escapeHTML($this->rs->f('blog_url')) . '">' . Html::escapeHTML($this->rs->f('blog_url')) .
+            Html::escapeHTML($this->rs->field('blog_url')) . '">' . Html::escapeHTML($this->rs->field('blog_url')) .
             ' <img src="?df=images/outgoing-link.svg" alt="" /></a></td>',
             'posts' => '<td class="nowrap count">' .
-            App::core()->blogs()->countBlogPosts(id: $this->rs->f('blog_id')) .
+            App::core()->blogs()->countBlogPosts(id: $this->rs->field('blog_id')) .
             '</td>',
             'upddt' => '<td class="nowrap count">' .
-            Clock::str(format: __('%Y-%m-%d %H:%M'), date: $this->rs->f('blog_upddt'), to: App::core()->timezone()) .
+            Clock::str(format: __('%Y-%m-%d %H:%M'), date: $this->rs->field('blog_upddt'), to: App::core()->timezone()) .
             '</td>',
             'status' => '<td class="nowrap status txt-center">' .
             sprintf(
                 '<img src="?df=%1$s" alt="%2$s" title="%2$s" />',
-                App::core()->blogs()->status()->getIcon(code: $this->rs->fInt('blog_status')),
-                App::core()->blogs()->status()->getState(code: $this->rs->fInt('blog_status'))
+                App::core()->blogs()->status()->getIcon(code: $this->rs->integer('blog_status')),
+                App::core()->blogs()->status()->getState(code: $this->rs->integer('blog_status'))
             ) .
             '</td>',
         ];

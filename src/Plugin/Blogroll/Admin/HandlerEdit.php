@@ -55,17 +55,17 @@ class HandlerEdit extends AbstractPage
         try {
             $rs              = $this->br_blogroll->getLink($this->br_id);
             $this->br_has_rs = !$rs->isEmpty();
-            $this->br_is_cat = (bool) $rs->fInt('is_cat');
+            $this->br_is_cat = (bool) $rs->integer('is_cat');
         } catch (Exception $e) {
             App::core()->error()->add($e->getMessage());
         }
 
         if (!App::core()->error()->flag() && $this->br_has_rs) {
-            $this->br_link_title = $rs->f('link_title');
-            $this->br_link_href  = $rs->f('link_href');
-            $this->br_link_desc  = $rs->f('link_desc');
-            $this->br_link_lang  = $rs->f('link_lang');
-            $this->br_link_xfn   = $rs->f('link_xfn');
+            $this->br_link_title = $rs->field('link_title');
+            $this->br_link_href  = $rs->field('link_href');
+            $this->br_link_desc  = $rs->field('link_desc');
+            $this->br_link_lang  = $rs->field('link_lang');
+            $this->br_link_xfn   = $rs->field('link_xfn');
         } else {
             App::core()->error()->add(__('No such link or title'));
         }

@@ -53,7 +53,7 @@ class Schema extends AbstractSchema
 
         $res = [];
         while ($rs->fetch()) {
-            $res[] = $rs->f(0);
+            $res[] = $rs->field(0);
         }
 
         return $res;
@@ -70,11 +70,11 @@ class Schema extends AbstractSchema
 
         $res = [];
         while ($rs->fetch()) {
-            $field   = trim($rs->f('column_name'));
-            $type    = trim($rs->f('udt_name'));
-            $null    = strtolower($rs->f('is_nullable')) == 'yes';
-            $default = $rs->f('column_default');
-            $len     = (int) $rs->f('character_maximum_length');
+            $field   = trim($rs->field('column_name'));
+            $type    = trim($rs->field('udt_name'));
+            $null    = strtolower($rs->field('is_nullable')) == 'yes';
+            $default = $rs->field('column_default');
+            $len     = (int) $rs->field('character_maximum_length');
 
             if (!$len) {
                 $len = null;
@@ -122,15 +122,15 @@ class Schema extends AbstractSchema
         $res = [];
         while ($rs->fetch()) {
             $k = [
-                'name'    => $rs->f('idxname'),
-                'primary' => (bool) $rs->f('indisprimary'),
-                'unique'  => (bool) $rs->f('indisunique'),
+                'name'    => $rs->field('idxname'),
+                'primary' => (bool) $rs->field('indisprimary'),
+                'unique'  => (bool) $rs->field('indisunique'),
                 'cols'    => [],
             ];
 
-            for ($i = 1; (int) $rs->f('indnatts') >= $i; ++$i) {
-                $cols        = $this->con->select('SELECT pg_get_indexdef(' . $rs->f('oid') . '::oid, ' . $i . ', true);');
-                $k['cols'][] = $cols->f(0);
+            for ($i = 1; (int) $rs->field('indnatts') >= $i; ++$i) {
+                $cols        = $this->con->select('SELECT pg_get_indexdef(' . $rs->field('oid') . '::oid, ' . $i . ', true);');
+                $k['cols'][] = $cols->field(0);
             }
 
             $res[] = $k;
@@ -162,14 +162,14 @@ class Schema extends AbstractSchema
         $res = [];
         while ($rs->fetch()) {
             $k = [
-                'name' => $rs->f('idxname'),
-                'type' => $rs->f('amname'),
+                'name' => $rs->field('idxname'),
+                'type' => $rs->field('amname'),
                 'cols' => [],
             ];
 
-            for ($i = 1; (int) $rs->f('indnatts') >= $i; ++$i) {
-                $cols        = $this->con->select('SELECT pg_get_indexdef(' . $rs->f('oid') . '::oid, ' . $i . ', true);');
-                $k['cols'][] = $cols->f(0);
+            for ($i = 1; (int) $rs->field('indnatts') >= $i; ++$i) {
+                $cols        = $this->con->select('SELECT pg_get_indexdef(' . $rs->field('oid') . '::oid, ' . $i . ', true);');
+                $k['cols'][] = $cols->field(0);
             }
 
             $res[] = $k;
@@ -201,22 +201,22 @@ class Schema extends AbstractSchema
 
         $res = [];
         while ($rs->fetch()) {
-            $conkey  = preg_replace('/[^\d]/', '', $rs->f('conkey'));
-            $confkey = preg_replace('/[^\d]/', '', $rs->f('confkey'));
+            $conkey  = preg_replace('/[^\d]/', '', $rs->field('conkey'));
+            $confkey = preg_replace('/[^\d]/', '', $rs->field('confkey'));
 
             $k = [
-                'name'    => $rs->f('conname'),
+                'name'    => $rs->field('conname'),
                 'c_cols'  => [],
-                'p_table' => $rs->f('reftab'),
+                'p_table' => $rs->field('reftab'),
                 'p_cols'  => [],
-                'update'  => $this->ref_actions_map[$rs->f('confupdtype')],
-                'delete'  => $this->ref_actions_map[$rs->f('confdeltype')],
+                'update'  => $this->ref_actions_map[$rs->field('confupdtype')],
+                'delete'  => $this->ref_actions_map[$rs->field('confdeltype')],
             ];
 
-            $cols = $this->con->select(sprintf($cols_sql, $rs->f('conrelid'), $conkey, $rs->f('confrelid'), $confkey));
+            $cols = $this->con->select(sprintf($cols_sql, $rs->field('conrelid'), $conkey, $rs->field('confrelid'), $confkey));
             while ($cols->fetch()) {
-                $k['c_cols'][] = $cols->f('conattname');
-                $k['p_cols'][] = $cols->f('confattname');
+                $k['c_cols'][] = $cols->field('conattname');
+                $k['p_cols'][] = $cols->field('confattname');
             }
 
             $res[] = $k;

@@ -36,7 +36,7 @@ class RsExtUser extends RsExtend
      */
     public function options(): array
     {
-        $options = @unserialize($this->rs->f('user_options'));
+        $options = @unserialize($this->rs->field('user_options'));
 
         return is_array($options) ? $options : [];
     }

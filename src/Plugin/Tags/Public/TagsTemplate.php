@@ -119,7 +119,7 @@ class TagsTemplate
         }
 
         $res = self::$ton . "\n" .
-            "App::core()->context()->set('meta', App::core()->meta()->getMetaRecordset((string) App::core()->context()->get('posts')->f('post_meta'),'" . $type . "')); " .
+            "App::core()->context()->set('meta', App::core()->meta()->getMetaRecordset((string) App::core()->context()->get('posts')->field('post_meta'),'" . $type . "')); " .
             "App::core()->context()->get('meta')->sort('" . $sortby . "','" . $order . "'); " .
             self::$toff;
 
@@ -136,7 +136,7 @@ class TagsTemplate
 
         if (isset($attr['has_entries'])) {
             $sign = (bool) $attr['has_entries'] ? '' : '!';
-            $if[] = $sign . 'App::core()->context()->get("meta")->fInt("count")';
+            $if[] = $sign . 'App::core()->context()->get("meta")->integer("count")';
         }
 
         if (!empty($if)) {
@@ -148,28 +148,28 @@ class TagsTemplate
 
     public function TagID(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf(App::core()->template()->getFilters($attr), 'App::core()->context()->get("meta")->f("meta_id")') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf(App::core()->template()->getFilters($attr), 'App::core()->context()->get("meta")->field("meta_id")') . ';' . self::$toff;
     }
 
     public function TagCount(ArrayObject $attr): string
     {
-        return self::$ton . 'echo App::core()->context()->get("meta")->fInt("count");' . self::$toff;
+        return self::$ton . 'echo App::core()->context()->get("meta")->integer("count");' . self::$toff;
     }
 
     public function TagPercent(ArrayObject $attr): string
     {
-        return self::$ton . 'echo App::core()->context()->get("meta")->f("percent");' . self::$toff;
+        return self::$ton . 'echo App::core()->context()->get("meta")->field("percent");' . self::$toff;
     }
 
     public function TagRoundPercent(ArrayObject $attr): string
     {
-        return self::$ton . 'echo App::core()->context()->get("meta")->f("roundpercent");' . self::$toff;
+        return self::$ton . 'echo App::core()->context()->get("meta")->field("roundpercent");' . self::$toff;
     }
 
     public function TagURL(ArrayObject $attr): string
     {
         return self::$ton . 'echo ' . sprintf(App::core()->template()->getFilters($attr), 'App::core()->blog()->getURLFor("tag",' .
-            'rawurlencode(App::core()->context()->get("meta")->f("meta_id")))') . ';' . self::$toff;
+            'rawurlencode(App::core()->context()->get("meta")->field("meta_id")))') . ';' . self::$toff;
     }
 
     public function TagCloudURL(ArrayObject $attr): string
@@ -186,6 +186,6 @@ class TagsTemplate
         }
 
         return self::$ton . 'echo ' . sprintf(App::core()->template()->getFilters($attr), 'App::core()->blog()->getURLFor("tag_feed",' .
-            'rawurlencode(App::core()->context()->get("meta")->f("meta_id"))."/' . $type . '")') . ';' . self::$toff;
+            'rawurlencode(App::core()->context()->get("meta")->field("meta_id"))."/' . $type . '")') . ';' . self::$toff;
     }
 }

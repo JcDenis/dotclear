@@ -518,7 +518,7 @@ class Template extends BaseTemplate
 
         if (empty($attr['no_context']) && !isset($attr['category'])) {
             $p .= 'if (App::core()->context()->exists("categories")) { ' .
-                "\$param->set('cat_id', App::core()->context()->get('categories')->fInt('cat_id')); " .
+                "\$param->set('cat_id', App::core()->context()->get('categories')->integer('cat_id')); " .
                 "}\n";
         }
 
@@ -613,7 +613,7 @@ class Template extends BaseTemplate
         $f = $this->getFilters($attr);
 
         return $this->displayCounter(
-            sprintf($f, 'App::core()->context()->get("archives")->fInt("nb_post")'),
+            sprintf($f, 'App::core()->context()->get("archives")->integer("nb_post")'),
             [
                 'none' => 'no archive',
                 'one'  => 'one archive',
@@ -648,7 +648,7 @@ class Template extends BaseTemplate
             $p .= "\$param->set('post_lang', '" . addslashes($attr['post_lang']) . "');\n";
         }
 
-        $p .= "\$param->set('next', App::core()->context()->get('archives')->f('dt'));";
+        $p .= "\$param->set('next', App::core()->context()->get('archives')->field('dt'));";
 
         $res = self::$ton . "\n";
         $res .= $p;
@@ -690,7 +690,7 @@ class Template extends BaseTemplate
             $p .= "\$param->set('post_lang', '" . addslashes($attr['post_lang']) . "');\n";
         }
 
-        $p .= "\$param->set('previous', App::core()->context()->get('archives')->f('dt'));";
+        $p .= "\$param->set('previous', App::core()->context()->get('archives')->field('dt'));";
 
         $res = self::$ton . "\n";
         $res .= App::core()->behavior()->call(
@@ -1052,15 +1052,15 @@ class Template extends BaseTemplate
             if (substr($url, 0, 1) == '!') {
                 $url = substr($url, 1);
                 if (isset($args['sub'])) {
-                    $if[] = '(!App::core()->blog()->categories()->isInCatSubtree(url: App::core()->context()->get("categories")->f("cat_url"), "parent: ' . $url . '"))';
+                    $if[] = '(!App::core()->blog()->categories()->isInCatSubtree(url: App::core()->context()->get("categories")->field("cat_url"), "parent: ' . $url . '"))';
                 } else {
-                    $if[] = '(App::core()->context()->get("categories")->f("cat_url") != "' . $url . '")';
+                    $if[] = '(App::core()->context()->get("categories")->field("cat_url") != "' . $url . '")';
                 }
             } else {
                 if (isset($args['sub'])) {
-                    $if[] = '(App::core()->blog()->categories()->isInCatSubtree(url: App::core()->context()->get("categories")->f("cat_url"), "parent: ' . $url . '"))';
+                    $if[] = '(App::core()->blog()->categories()->isInCatSubtree(url: App::core()->context()->get("categories")->field("cat_url"), "parent: ' . $url . '"))';
                 } else {
-                    $if[] = '(App::core()->context()->get("categories")->f("cat_url") == "' . $url . '")';
+                    $if[] = '(App::core()->context()->get("categories")->field("cat_url") == "' . $url . '")';
                 }
             }
         }
@@ -1075,15 +1075,15 @@ class Template extends BaseTemplate
                     if (substr($url, 0, 1) == '!') {
                         $url = substr($url, 1);
                         if (isset($args['sub'])) {
-                            $if[] = '(!App::core()->blog()->categories()->isInCatSubtree(url: App::core()->context()->get("categories")->f("cat_url"), "parent: ' . $url . '"))';
+                            $if[] = '(!App::core()->blog()->categories()->isInCatSubtree(url: App::core()->context()->get("categories")->field("cat_url"), "parent: ' . $url . '"))';
                         } else {
-                            $if[] = '(App::core()->context()->get("categories")->f("cat_url") != "' . $url . '")';
+                            $if[] = '(App::core()->context()->get("categories")->field("cat_url") != "' . $url . '")';
                         }
                     } else {
                         if (isset($args['sub'])) {
-                            $if[] = '(App::core()->blog()->categories()->isInCatSubtree(url: App::core()->context()->get("categories")->f("cat_url"), "parent: ' . $url . '"))';
+                            $if[] = '(App::core()->blog()->categories()->isInCatSubtree(url: App::core()->context()->get("categories")->field("cat_url"), "parent: ' . $url . '"))';
                         } else {
-                            $if[] = '(App::core()->context()->get("categories")->f("cat_url") == "' . $url . '")';
+                            $if[] = '(App::core()->context()->get("categories")->field("cat_url") == "' . $url . '")';
                         }
                     }
                 }
@@ -1092,12 +1092,12 @@ class Template extends BaseTemplate
 
         if (isset($attr['has_entries'])) {
             $sign = (bool) $attr['has_entries'] ? '>' : '==';
-            $if[] = 'App::core()->context()->get("categories")->fInt("nb_post") ' . $sign . ' 0';
+            $if[] = 'App::core()->context()->get("categories")->integer("nb_post") ' . $sign . ' 0';
         }
 
         if (isset($attr['has_description'])) {
             $sign = (bool) $attr['has_description'] ? '!=' : '==';
-            $if[] = 'App::core()->context()->get("categories")->f("cat_desc") ' . $sign . ' ""';
+            $if[] = 'App::core()->context()->get("categories")->field("cat_desc") ' . $sign . ' ""';
         }
 
         App::core()->behavior()->call('tplIfConditions', 'CategoryIf', $attr, $content, $if);
@@ -1116,7 +1116,7 @@ class Template extends BaseTemplate
     {
         return
             self::$ton . "\n" .
-            'App::core()->context()->set("categories", App::core()->blog()->categories()->getCategoryFirstChildren(id: App::core()->context()->get("categories")->fInt("cat_id")));' . "\n" .
+            'App::core()->context()->set("categories", App::core()->blog()->categories()->getCategoryFirstChildren(id: App::core()->context()->get("categories")->integer("cat_id")));' . "\n" .
             'while (App::core()->context()->get("categories")->fetch()) :' . self::$toff . $content . self::$ton . 'endwhile; App::core()->context()->set("categories", null);' . self::$toff;
     }
 
@@ -1127,7 +1127,7 @@ class Template extends BaseTemplate
     {
         return
             self::$ton . "\n" .
-            'App::core()->context()->set("categories", App::core()->blog()->categories()->getCategoryParents(id: App::core()->context()->get("categories")->fInt("cat_id")));' . "\n" .
+            'App::core()->context()->set("categories", App::core()->blog()->categories()->getCategoryParents(id: App::core()->context()->get("categories")->integer("cat_id")));' . "\n" .
             'while (App::core()->context()->get("categories")->fetch()) :' . self::$toff . $content . self::$ton . 'endwhile; App::core()->context()->set("categories", null);' . self::$toff;
     }
 
@@ -1146,7 +1146,7 @@ class Template extends BaseTemplate
         }
 
         return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->blog()->getURLFor("feed","category/".' .
-            'App::core()->context()->get("categories")->f("cat_url")."/' . $type . '")') . ';' . self::$toff;
+            'App::core()->context()->get("categories")->field("cat_url")."/' . $type . '")') . ';' . self::$toff;
     }
 
     /*dtd
@@ -1154,7 +1154,7 @@ class Template extends BaseTemplate
      */
     public function CategoryID(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("categories")->fInt("cat_id")') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("categories")->integer("cat_id")') . ';' . self::$toff;
     }
 
     /*dtd
@@ -1163,7 +1163,7 @@ class Template extends BaseTemplate
     public function CategoryURL(ArrayObject $attr): string
     {
         return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->blog()->getURLFor("category",' .
-            'App::core()->context()->get("categories")->f("cat_url"))') . ';' . self::$toff;
+            'App::core()->context()->get("categories")->field("cat_url"))') . ';' . self::$toff;
     }
 
     /*dtd
@@ -1171,7 +1171,7 @@ class Template extends BaseTemplate
      */
     public function CategoryShortURL(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("categories")->f("cat_url")') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("categories")->field("cat_url")') . ';' . self::$toff;
     }
 
     /*dtd
@@ -1179,7 +1179,7 @@ class Template extends BaseTemplate
      */
     public function CategoryDescription(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("categories")->f("cat_desc")') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("categories")->field("cat_desc")') . ';' . self::$toff;
     }
 
     /*dtd
@@ -1187,7 +1187,7 @@ class Template extends BaseTemplate
      */
     public function CategoryTitle($attr)
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("categories")->f("cat_title")') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("categories")->field("cat_title")') . ';' . self::$toff;
     }
 
     /*dtd
@@ -1196,7 +1196,7 @@ class Template extends BaseTemplate
     public function CategoryEntriesCount(ArrayObject $attr): string
     {
         return $this->displayCounter(
-            sprintf($this->getFilters($attr), 'App::core()->context()->get("categories")->fInt("nb_post")'),
+            sprintf($this->getFilters($attr), 'App::core()->context()->get("categories")->integer("nb_post")'),
             [
                 'none' => 'No post',
                 'one'  => 'One post',
@@ -1295,13 +1295,13 @@ class Template extends BaseTemplate
         if (empty($attr['no_context'])) {
             if (!isset($attr['author'])) {
                 $p .= 'if (App::core()->context()->exists("users")) { ' .
-                    "\$param->set('user_id', App::core()->context()->get('users')->f('user_id')); " .
+                    "\$param->set('user_id', App::core()->context()->get('users')->field('user_id')); " .
                     "}\n";
             }
 
             if (!isset($attr['category']) && (!isset($attr['no_category']) || !$attr['no_category'])) {
                 $p .= 'if (App::core()->context()->exists("categories")) { ' .
-                    "\$param->set('cat_id', App::core()->context()->get('categories')->fInt('cat_id').(App::core()->blog()->settings()->getGroup('system')->getSetting('inc_subcats')?' ?sub':''));" .
+                    "\$param->set('cat_id', App::core()->context()->get('categories')->integer('cat_id').(App::core()->blog()->settings()->getGroup('system')->getSetting('inc_subcats')?' ?sub':''));" .
                     "}\n";
             }
 
@@ -1314,7 +1314,7 @@ class Template extends BaseTemplate
             $p .= "}\n";
 
             $p .= 'if (App::core()->context()->exists("langs")) { ' .
-                "\$param->set('post_lang', App::core()->context()->get('langs')->f('post_lang')); " .
+                "\$param->set('post_lang', App::core()->context()->get('langs')->field('post_lang')); " .
                 "}\n";
 
             $p .= 'if (App::core()->url()->getSearchString()) { ' .
@@ -1411,16 +1411,16 @@ class Template extends BaseTemplate
         if (isset($attr['type'])) {
             $type = trim($attr['type']);
             $type = !empty($type) ? $type : 'post';
-            $if[] = 'App::core()->context()->get("posts")->f("post_type") == "' . addslashes($type) . '"';
+            $if[] = 'App::core()->context()->get("posts")->field("post_type") == "' . addslashes($type) . '"';
         }
 
         if (isset($attr['url'])) {
             $url = trim($attr['url']);
             if (substr($url, 0, 1) == '!') {
                 $url  = substr($url, 1);
-                $if[] = 'App::core()->context()->get("posts")->f("post_url") != "' . addslashes($url) . '"';
+                $if[] = 'App::core()->context()->get("posts")->field("post_url") != "' . addslashes($url) . '"';
             } else {
-                $if[] = 'App::core()->context()->get("posts")->f("post_url") == "' . addslashes($url) . '"';
+                $if[] = 'App::core()->context()->get("posts")->field("post_url") == "' . addslashes($url) . '"';
             }
         }
 
@@ -1434,13 +1434,13 @@ class Template extends BaseTemplate
                 if (isset($args['sub'])) {
                     $if[] = '(!App::core()->context()->get("posts")->underCat("' . $category . '"))';
                 } else {
-                    $if[] = '(App::core()->context()->get("posts")->f("cat_url") != "' . $category . '")';
+                    $if[] = '(App::core()->context()->get("posts")->field("cat_url") != "' . $category . '")';
                 }
             } else {
                 if (isset($args['sub'])) {
                     $if[] = '(App::core()->context()->get("posts")->underCat("' . $category . '"))';
                 } else {
-                    $if[] = '(App::core()->context()->get("posts")->f("cat_url") == "' . $category . '")';
+                    $if[] = '(App::core()->context()->get("posts")->field("cat_url") == "' . $category . '")';
                 }
             }
         }
@@ -1457,13 +1457,13 @@ class Template extends BaseTemplate
                         if (isset($args['sub'])) {
                             $if[] = '(!App::core()->context()->get("posts")->underCat("' . $category . '"))';
                         } else {
-                            $if[] = '(App::core()->context()->get("posts")->f("cat_url") != "' . $category . '")';
+                            $if[] = '(App::core()->context()->get("posts")->field("cat_url") != "' . $category . '")';
                         }
                     } else {
                         if (isset($args['sub'])) {
                             $if[] = '(App::core()->context()->get("posts")->underCat("' . $category . '"))';
                         } else {
-                            $if[] = '(App::core()->context()->get("posts")->f("cat_url") == "' . $category . '")';
+                            $if[] = '(App::core()->context()->get("posts")->field("cat_url") == "' . $category . '")';
                         }
                     }
                 }
@@ -1487,12 +1487,12 @@ class Template extends BaseTemplate
 
         if (isset($attr['selected'])) {
             $sign = (bool) $attr['selected'] ? '' : '!';
-            $if[] = $sign . '(bool)App::core()->context()->get("posts")->fInt("post_selected")';
+            $if[] = $sign . '(bool)App::core()->context()->get("posts")->integer("post_selected")';
         }
 
         if (isset($attr['has_category'])) {
             $sign = (bool) $attr['has_category'] ? '' : '!';
-            $if[] = $sign . 'App::core()->context()->get("posts")->fInt("cat_id")';
+            $if[] = $sign . 'App::core()->context()->get("posts")->integer("cat_id")';
         }
 
         if (isset($attr['comments_active'])) {
@@ -1540,9 +1540,9 @@ class Template extends BaseTemplate
             $author = trim($attr['author']);
             if (substr($author, 0, 1) == '!') {
                 $author = substr($author, 1);
-                $if[]   = 'App::core()->context()->get("posts")->f("user_id") != "' . $author . '"';
+                $if[]   = 'App::core()->context()->get("posts")->field("user_id") != "' . $author . '"';
             } else {
-                $if[] = 'App::core()->context()->get("posts")->f("user_id") == "' . $author . '"';
+                $if[] = 'App::core()->context()->get("posts")->field("user_id") == "' . $author . '"';
             }
         }
 
@@ -1603,7 +1603,7 @@ class Template extends BaseTemplate
         $ret = Html::escapeHTML($ret);
 
         return
-        self::$ton . 'if (App::core()->context()->get("posts")->fInt("post_selected")) { ' .
+        self::$ton . 'if (App::core()->context()->get("posts")->integer("post_selected")) { ' .
         "echo '" . addslashes($ret) . "'; }" . self::$toff;
     }
 
@@ -1720,7 +1720,7 @@ class Template extends BaseTemplate
      */
     public function EntryAuthorDisplayName(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("posts")->f("user_displayname")') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("posts")->field("user_displayname")') . ';' . self::$toff;
     }
 
     /*dtd
@@ -1728,7 +1728,7 @@ class Template extends BaseTemplate
      */
     public function EntryAuthorID(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("posts")->f("user_id")') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("posts")->field("user_id")') . ';' . self::$toff;
     }
 
     /*dtd
@@ -1769,7 +1769,7 @@ class Template extends BaseTemplate
      */
     public function EntryAuthorURL(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("posts")->f("user_url")') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("posts")->field("user_url")') . ';' . self::$toff;
     }
 
     /*dtd
@@ -1777,7 +1777,7 @@ class Template extends BaseTemplate
      */
     public function EntryBasename(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("posts")->f("post_url")') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("posts")->field("post_url")') . ';' . self::$toff;
     }
 
     /*dtd
@@ -1785,7 +1785,7 @@ class Template extends BaseTemplate
      */
     public function EntryCategory(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("posts")->f("cat_title")') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("posts")->field("cat_title")') . ';' . self::$toff;
     }
 
     /*dtd
@@ -1793,7 +1793,7 @@ class Template extends BaseTemplate
      */
     public function EntryCategoryDescription(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("posts")->f("cat_desc")') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("posts")->field("cat_desc")') . ';' . self::$toff;
     }
 
     /*dtd
@@ -1803,7 +1803,7 @@ class Template extends BaseTemplate
     {
         return
             self::$ton . "\n" .
-            'App::core()->context()->set("categories", App::core()->blog()->categories()->getCategoryParents(App::core()->context()->get("posts")->fInt("cat_id")));' . "\n" .
+            'App::core()->context()->set("categories", App::core()->blog()->categories()->getCategoryParents(App::core()->context()->get("posts")->integer("cat_id")));' . "\n" .
             'while (App::core()->context()->get("categories")->fetch()) :' . self::$toff . $content . self::$ton . 'endwhile; App::core()->context()->set("categories", null);' . self::$toff;
     }
 
@@ -1828,7 +1828,7 @@ class Template extends BaseTemplate
      */
     public function EntryCategoryShortURL(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("posts")->f("cat_url")') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("posts")->field("cat_url")') . ';' . self::$toff;
     }
 
     /*dtd
@@ -1868,7 +1868,7 @@ class Template extends BaseTemplate
      */
     public function EntryID(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("posts")->fInt("post_id")') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("posts")->integer("post_id")') . ';' . self::$toff;
     }
 
     /*dtd
@@ -1879,8 +1879,8 @@ class Template extends BaseTemplate
         $f = $this->getFilters($attr);
 
         return
-        self::$ton . 'if (App::core()->context()->get("posts")->f("post_lang")) { ' .
-        'echo ' . sprintf($f, 'App::core()->context()->get("posts")->f("post_lang")') . '; ' .
+        self::$ton . 'if (App::core()->context()->get("posts")->field("post_lang")) { ' .
+        'echo ' . sprintf($f, 'App::core()->context()->get("posts")->field("post_lang")') . '; ' .
         '} else {' .
         'echo ' . sprintf($f, 'App::core()->blog()->settings()->getGroup("system")->getSetting("lang")') . '; ' .
             '}' . self::$toff;
@@ -1937,7 +1937,7 @@ class Template extends BaseTemplate
      */
     public function EntryTitle(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("posts")->f("post_title")') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("posts")->field("post_title")') . ';' . self::$toff;
     }
 
     /*dtd
@@ -2037,9 +2037,9 @@ class Template extends BaseTemplate
     public function EntryCommentCount(ArrayObject $attr): string
     {
         if (empty($attr['count_all'])) {
-            $operation = 'App::core()->context()->get("posts")->fInt("nb_comment")';
+            $operation = 'App::core()->context()->get("posts")->integer("nb_comment")';
         } else {
-            $operation = '(App::core()->context()->get("posts")->fInt("nb_comment") + App::core()->context()->get("posts")->fInt("nb_trackback"))';
+            $operation = '(App::core()->context()->get("posts")->integer("nb_comment") + App::core()->context()->get("posts")->integer("nb_trackback"))';
         }
 
         return $this->displayCounter(
@@ -2065,7 +2065,7 @@ class Template extends BaseTemplate
     public function EntryPingCount(ArrayObject $attr): string
     {
         return $this->displayCounter(
-            'App::core()->context()->get("posts")->fInt("nb_trackback")',
+            'App::core()->context()->get("posts")->integer("nb_trackback")',
             [
                 'none' => 'no trackbacks',
                 'one'  => 'one trackback',
@@ -2160,7 +2160,7 @@ class Template extends BaseTemplate
      */
     public function LanguageCode(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("langs")->f("post_lang")') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("langs")->field("post_lang")') . ';' . self::$toff;
     }
 
     /*dtd
@@ -2169,7 +2169,7 @@ class Template extends BaseTemplate
     public function LanguageIfCurrent(ArrayObject $attr, string $content): string
     {
         return
-            self::$ton . 'if (App::core()->context()->cur_lang == App::core()->context()->get("langs")->f("post_lang")) :' . self::$toff .
+            self::$ton . 'if (App::core()->context()->cur_lang == App::core()->context()->get("langs")->field("post_lang")) :' . self::$toff .
             $content .
             self::$ton . 'endif;' . self::$toff;
     }
@@ -2180,7 +2180,7 @@ class Template extends BaseTemplate
     public function LanguageURL(ArrayObject $attr): string
     {
         return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->blog()->getURLFor("lang",' .
-            'App::core()->context()->get("langs")->f("post_lang"))') . ';' . self::$toff;
+            'App::core()->context()->get("langs")->field("post_lang"))') . ';' . self::$toff;
     }
 
     /*dtd
@@ -2330,15 +2330,15 @@ class Template extends BaseTemplate
 
         if (empty($attr['no_context'])) {
             $p .= 'if (App::core()->context()->get("posts") !== null) { ' .
-                "\$param->set('post_id', App::core()->context()->get('posts')->fInt('post_id')); " .
+                "\$param->set('post_id', App::core()->context()->get('posts')->integer('post_id')); " .
                 "App::core()->blog()->setWithPassword();\n" .
                 "}\n";
             $p .= 'if (App::core()->context()->exists("categories")) { ' .
-                "\$param->set('cat_id', App::core()->context()->get('categories')->fInt('cat_id')); " .
+                "\$param->set('cat_id', App::core()->context()->get('categories')->integer('cat_id')); " .
                 "}\n";
 
             $p .= 'if (App::core()->context()->exists("langs")) { ' .
-                "\$param->push('sql', \"AND post_lang = '\".App::core()->con()->escape(App::core()->context()->get('langs')->f('post_lang')).\"' \"); " .
+                "\$param->push('sql', \"AND post_lang = '\".App::core()->con()->escape(App::core()->context()->get('langs')->field('post_lang')).\"' \"); " .
                 "}\n";
         }
 
@@ -2384,7 +2384,7 @@ class Template extends BaseTemplate
      */
     public function CommentAuthor(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("comments")->f("comment_author")') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("comments")->field("comment_author")') . ';' . self::$toff;
     }
 
     /*dtd
@@ -2392,7 +2392,7 @@ class Template extends BaseTemplate
      */
     public function CommentAuthorDomain(ArrayObject $attr): string
     {
-        return self::$ton . 'echo preg_replace("#^http(?:s?)://(.+?)/.*$#msu",\'$1\',App::core()->context()->get("comments")->f("comment_site"));' . self::$toff;
+        return self::$ton . 'echo preg_replace("#^http(?:s?)://(.+?)/.*$#msu",\'$1\',App::core()->context()->get("comments")->field("comment_site"));' . self::$toff;
     }
 
     /*dtd
@@ -2408,7 +2408,7 @@ class Template extends BaseTemplate
      */
     public function CommentAuthorMailMD5(ArrayObject $attr): string
     {
-        return self::$ton . 'echo md5(App::core()->context()->get("comments")->f("comment_email")) ;' . self::$toff;
+        return self::$ton . 'echo md5(App::core()->context()->get("comments")->field("comment_email")) ;' . self::$toff;
     }
 
     /*dtd
@@ -2522,7 +2522,7 @@ class Template extends BaseTemplate
      */
     public function CommentID(ArrayObject $attr): string
     {
-        return self::$ton . 'echo App::core()->context()->get("comments")->fInt("comment_id");' . self::$toff;
+        return self::$ton . 'echo App::core()->context()->get("comments")->integer("comment_id");' . self::$toff;
     }
 
     /*dtd
@@ -2539,7 +2539,7 @@ class Template extends BaseTemplate
 
         if (isset($attr['is_ping'])) {
             $sign = (bool) $attr['is_ping'] ? '' : '!';
-            $if[] = $sign . 'App::core()->context()->get("comments")->fInt("comment_trackback")';
+            $if[] = $sign . 'App::core()->context()->get("comments")->integer("comment_trackback")';
         }
 
         App::core()->behavior()->call('tplIfConditions', 'CommentIf', $attr, $content, $if);
@@ -2608,7 +2608,7 @@ class Template extends BaseTemplate
      */
     public function CommentIP(ArrayObject $attr): string
     {
-        return self::$ton . 'echo App::core()->context()->get("comments")->f("comment_ip");' . self::$toff;
+        return self::$ton . 'echo App::core()->context()->get("comments")->field("comment_ip");' . self::$toff;
     }
 
     /*dtd
@@ -2655,7 +2655,7 @@ class Template extends BaseTemplate
     public function IfCommentAuthorEmail(ArrayObject $attr, string $content): string
     {
         return
-            self::$ton . 'if (App::core()->context()->get("comments")->f("comment_email")) :' . self::$toff .
+            self::$ton . 'if (App::core()->context()->get("comments")->field("comment_email")) :' . self::$toff .
             $content .
             self::$ton . 'endif;' . self::$toff;
     }
@@ -2751,7 +2751,7 @@ class Template extends BaseTemplate
      */
     public function PingBlogName(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("pings")->f("comment_author")') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("pings")->field("comment_author")') . ';' . self::$toff;
     }
 
     /*dtd
@@ -2817,7 +2817,7 @@ class Template extends BaseTemplate
      */
     public function PingEntryTitle(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("pings")->f("post_title")') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("pings")->field("post_title")') . ';' . self::$toff;
     }
 
     /*dtd
@@ -2833,7 +2833,7 @@ class Template extends BaseTemplate
      */
     public function PingID(ArrayObject $attr): string
     {
-        return self::$ton . 'echo App::core()->context()->get("pings")->fInt("comment_id");' . self::$toff;
+        return self::$ton . 'echo App::core()->context()->get("pings")->integer("comment_id");' . self::$toff;
     }
 
     /*dtd
@@ -2877,7 +2877,7 @@ class Template extends BaseTemplate
      */
     public function PingIP(ArrayObject $attr): string
     {
-        return self::$ton . 'echo App::core()->context()->get("pings")->f("comment_ip");' . self::$toff;
+        return self::$ton . 'echo App::core()->context()->get("pings")->field("comment_ip");' . self::$toff;
     }
 
     /*dtd
@@ -2920,7 +2920,7 @@ class Template extends BaseTemplate
     {
         $p = 'if (!isset($param)) { $param = new Param(); }' . "\n" .
             'if (App::core()->context()->get("posts") !== null) { ' .
-            "\$param->set('post_id', App::core()->context()->get('posts')->fInt('post_id')); " .
+            "\$param->set('post_id', App::core()->context()->get('posts')->integer('post_id')); " .
             "App::core()->blog()->setWithPassword();\n" .
             "}\n";
 
@@ -2939,11 +2939,11 @@ class Template extends BaseTemplate
 
         if (empty($attr['no_context'])) {
             $p .= 'if (App::core()->context()->exists("categories")) { ' .
-                "\$param->set('cat_id', App::core()->context()->get('categories')->fInt('cat_id')); " .
+                "\$param->set('cat_id', App::core()->context()->get('categories')->integer('cat_id')); " .
                 "}\n";
 
             $p .= 'if (App::core()->context()->exists("langs")) { ' .
-                "\$param->push('sql', \"AND post_lang = '\".App::core()->con()->escape(App::core()->context()->get('langs')->f('post_lang')).\"' \"); " .
+                "\$param->push('sql', \"AND post_lang = '\".App::core()->con()->escape(App::core()->context()->get('langs')->field('post_lang')).\"' \"); " .
                 "}\n";
         }
 

@@ -58,8 +58,8 @@ class MediaFilters extends Filters
                 $post_id = null;
             } else {
                 // keep track of post_title_ and post_type without using filters
-                $this->post_title = $post->f('post_title');
-                $this->post_type  = $post->f('post_type');
+                $this->post_title = $post->field('post_title');
+                $this->post_type  = $post->field('post_type');
             }
         }
 

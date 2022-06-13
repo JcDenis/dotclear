@@ -112,7 +112,7 @@ class Schema extends AbstractSchema
 
         $res = [];
         while ($rs->fetch()) {
-            $res[] = $rs->f(0);
+            $res[] = $rs->field(0);
         }
 
         return $res;
@@ -125,10 +125,10 @@ class Schema extends AbstractSchema
 
         $res = [];
         while ($rs->fetch()) {
-            $field   = trim($rs->f('Field'));
-            $type    = trim($rs->f('Type'));
-            $null    = strtolower($rs->f('Null')) == 'yes';
-            $default = $rs->f('Default');
+            $field   = trim($rs->field('Field'));
+            $type    = trim($rs->field('Type'));
+            $null    = strtolower($rs->field('Null')) == 'yes';
+            $default = $rs->field('Default');
 
             $len = null;
             if (preg_match('/^(.+?)\(([\d,]+)\)$/si', $type, $m)) {
@@ -162,10 +162,10 @@ class Schema extends AbstractSchema
         $t   = [];
         $res = [];
         while ($rs->fetch()) {
-            $key_name = $rs->f('Key_name');
-            $unique   = $rs->f('Non_unique') == 0;
-            $seq      = $rs->f('Seq_in_index');
-            $col_name = $rs->f('Column_name');
+            $key_name = $rs->field('Key_name');
+            $unique   = $rs->field('Non_unique') == 0;
+            $seq      = $rs->field('Seq_in_index');
+            $col_name = $rs->field('Column_name');
 
             if ('PRIMARY' == $key_name || $unique) {
                 $t[$key_name]['cols'][$seq] = $col_name;
@@ -195,11 +195,11 @@ class Schema extends AbstractSchema
         $t   = [];
         $res = [];
         while ($rs->fetch()) {
-            $key_name = $rs->f('Key_name');
-            $unique   = $rs->f('Non_unique') == 0;
-            $seq      = $rs->f('Seq_in_index');
-            $col_name = $rs->f('Column_name');
-            $type     = $rs->f('Index_type');
+            $key_name = $rs->field('Key_name');
+            $unique   = $rs->field('Non_unique') == 0;
+            $seq      = $rs->field('Seq_in_index');
+            $col_name = $rs->field('Column_name');
+            $type     = $rs->field('Index_type');
 
             if ('PRIMARY' != $key_name && !$unique) {
                 $t[$key_name]['cols'][$seq] = $col_name;
@@ -225,7 +225,7 @@ class Schema extends AbstractSchema
         $sql = 'SHOW CREATE TABLE ' . $this->con->escapeSystem($table);
         $rs  = $this->con->select($sql);
 
-        $s = $rs->f(1);
+        $s = $rs->field(1);
 
         $res = [];
 

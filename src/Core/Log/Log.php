@@ -61,7 +61,7 @@ final class Log
         // --BEHAVIOR-- coreAfterCountLogs, Record
         App::core()->behavior()->call('coreAfterCountLogs', record: $record);
 
-        return $record->fInt();
+        return $record->integer();
     }
 
     /**
@@ -157,7 +157,7 @@ final class Log
             $sql = new SelectStatement();
             $sql->column($sql->max('log_id'));
             $sql->from(App::core()->prefix() . 'log');
-            $id = $sql->select()->fInt();
+            $id = $sql->select()->integer();
 
             $cursor->setField('log_id', $id + 1);
             $cursor->setField('blog_id', (string) App::core()->blog()->id);

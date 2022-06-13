@@ -98,7 +98,7 @@ class Blogroll
         $sql = new SelectStatement();
         $sql->from(App::core()->prefix() . 'link');
         $sql->column($sql->max('link_id'));
-        $id = $sql->select()->fInt() + 1;
+        $id = $sql->select()->integer() + 1;
 
         $sql = new InsertStatement();
         $sql->columns([
@@ -176,7 +176,7 @@ class Blogroll
         $sql = new SelectStatement();
         $sql->from(App::core()->prefix() . 'link');
         $sql->column($sql->max('link_id'));
-        $id = $sql->select()->fInt() + 1;
+        $id = $sql->select()->integer() + 1;
 
         $sql = new InsertStatement();
         $sql->columns([
@@ -228,10 +228,10 @@ class Blogroll
     {
         $cat_title = null;
         while ($record->fetch()) {
-            $record->set('is_cat', !$record->f('link_title') && !$record->f('link_href'));
+            $record->set('is_cat', !$record->field('link_title') && !$record->field('link_href'));
 
-            if ($record->f('is_cat')) {
-                $cat_title = $record->f('link_desc');
+            if ($record->field('is_cat')) {
+                $cat_title = $record->field('link_desc');
                 $record->set('cat_title', null);
             } else {
                 $record->set('cat_title', $cat_title);

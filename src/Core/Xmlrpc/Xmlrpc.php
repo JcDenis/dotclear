@@ -488,7 +488,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
 
         $rs = App::core()->blog()->categories()->getCategories(param: $param);
 
-        return $rs->isEmpty() ? null : $rs->fInt('cat_id');
+        return $rs->isEmpty() ? null : $rs->integer('cat_id');
     }
 
     /* Generic methods
@@ -631,7 +631,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $cur->setField('post_open_tb', (int) (1      == $open_tb));
         $cur->setField('post_status', (int) $publish);
         $cur->setField('post_format', 'xhtml');
-        $cur->setField('post_url', $post->f('post_url'));
+        $cur->setField('post_url', $post->field('post_url'));
 
         if ($dateCreated) {
             if ($dateCreated instanceof xmlrpcDate) {
@@ -692,28 +692,28 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $res = new ArrayObject();
 
         $res['dateCreated'] = new xmlrpcDate($post->getTS());
-        $res['userid']      = $post->f('user_id');
-        $res['postid']      = $post->f('post_id');
+        $res['userid']      = $post->field('user_id');
+        $res['postid']      = $post->field('post_id');
 
-        if ($post->f('cat_id')) {
-            $res['categories'] = [$post->f('cat_url')];
+        if ($post->field('cat_id')) {
+            $res['categories'] = [$post->field('cat_url')];
         }
 
         if ('blogger' == $type) {
-            $res['content'] = $post->f('post_content_xhtml');
+            $res['content'] = $post->field('post_content_xhtml');
         }
 
         if ('mt' == $type || 'mw' == $type) {
-            $res['title'] = $post->f('post_title');
+            $res['title'] = $post->field('post_title');
         }
 
         if ('mw' == $type) {
-            $res['description']       = $post->f('post_content_xhtml');
+            $res['description']       = $post->field('post_content_xhtml');
             $res['link']              = $res['permaLink']              = $post->getURL();
-            $res['mt_excerpt']        = $post->f('post_excerpt_xhtml');
+            $res['mt_excerpt']        = $post->field('post_excerpt_xhtml');
             $res['mt_text_more']      = '';
-            $res['mt_allow_comments'] = (int) $post->f('post_open_comment');
-            $res['mt_allow_pings']    = (int) $post->f('post_open_tb');
+            $res['mt_allow_comments'] = (int) $post->field('post_open_comment');
+            $res['mt_allow_pings']    = (int) $post->field('post_open_tb');
             $res['mt_convert_breaks'] = '';
             $res['mt_keywords']       = '';
         }
@@ -755,28 +755,28 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             $tres = [];
 
             $tres['dateCreated'] = new xmlrpcDate($posts->getTS());
-            $tres['userid']      = $posts->f('ser_id');
-            $tres['postid']      = $posts->fInt('post_id');
+            $tres['userid']      = $posts->field('ser_id');
+            $tres['postid']      = $posts->integer('post_id');
 
-            if ($posts->f('cat_id')) {
-                $tres['categories'] = [$posts->f('cat_url')];
+            if ($posts->field('cat_id')) {
+                $tres['categories'] = [$posts->field('cat_url')];
             }
 
             if ('blogger' == $type) {
-                $tres['content'] = $posts->f('post_content_xhtml');
+                $tres['content'] = $posts->field('post_content_xhtml');
             }
 
             if ('mt' == $type || 'mw' == $type) {
-                $tres['title'] = $posts->f('post_title');
+                $tres['title'] = $posts->field('post_title');
             }
 
             if ('mw' == $type) {
-                $tres['description']       = $posts->f('post_content_xhtml');
+                $tres['description']       = $posts->field('post_content_xhtml');
                 $tres['link']              = $tres['permaLink']              = $posts->getURL();
-                $tres['mt_excerpt']        = $posts->f('post_excerpt_xhtml');
+                $tres['mt_excerpt']        = $posts->field('post_excerpt_xhtml');
                 $tres['mt_text_more']      = '';
-                $tres['mt_allow_comments'] = (int) $posts->f('post_open_comment');
-                $tres['mt_allow_pings']    = (int) $posts->f('post_open_tb');
+                $tres['mt_allow_comments'] = (int) $posts->field('post_open_comment');
+                $tres['mt_allow_pings']    = (int) $posts->field('post_open_tb');
                 $tres['mt_convert_breaks'] = '';
                 $tres['mt_keywords']       = '';
             }
@@ -824,12 +824,12 @@ class Xmlrpc extends XmlrpcIntrospectionServer
 
         $res = [];
 
-        $l      = $rs->fInt('level');
-        $stack  = ['', $rs->f('cat_url')];
+        $l      = $rs->integer('level');
+        $stack  = ['', $rs->field('cat_url')];
         $parent = '';
 
         while ($rs->fetch()) {
-            $d = $rs->fInt('level') - $l;
+            $d = $rs->integer('level') - $l;
             if (0 == $d) {
                 array_pop($stack);
                 $parent = end($stack);
@@ -844,16 +844,16 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             }
 
             $res[] = [
-                'categoryId'   => $rs->f('cat_url'),
+                'categoryId'   => $rs->field('cat_url'),
                 'parentId'     => $parent,
-                'description'  => $rs->f('cat_title'),
-                'categoryName' => $rs->f('cat_url'),
-                'htmlUrl'      => App::core()->blog()->getURLFor('category', $rs->f('cat_url')),
-                'rssUrl'       => App::core()->blog()->getURLFor('feed', 'category/' . $rs->f('cat_url') . '/rss2'),
+                'description'  => $rs->field('cat_title'),
+                'categoryName' => $rs->field('cat_url'),
+                'htmlUrl'      => App::core()->blog()->getURLFor('category', $rs->field('cat_url')),
+                'rssUrl'       => App::core()->blog()->getURLFor('feed', 'category/' . $rs->field('cat_url') . '/rss2'),
             ];
 
-            $stack[] = $rs->f('cat_url');
-            $l       = $rs->fInt('level');
+            $stack[] = $rs->field('cat_url');
+            $l       = $rs->integer('level');
         }
 
         return $res;
@@ -867,8 +867,8 @@ class Xmlrpc extends XmlrpcIntrospectionServer
 
         return [
             [
-                'categoryName' => $post->f('cat_url'),
-                'categoryId'   => (string) $post->f('cat_url'),
+                'categoryName' => $post->field('cat_url'),
+                'categoryId'   => (string) $post->field('cat_url'),
                 'isPrimary'    => true,
             ],
         ];
@@ -1128,25 +1128,25 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         while ($posts->fetch()) {
             $tres = [
                 'dateCreated'            => new xmlrpcDate($posts->getTS()),
-                'userid'                 => $posts->f('user_id'),
-                'page_id'                => $posts->fInt('post_id'),
-                'page_status'            => $this->translateWpStatus($posts->fInt('post_status')),
-                'description'            => $posts->f('post_content_xhtml'),
-                'title'                  => $posts->f('post_title'),
+                'userid'                 => $posts->field('user_id'),
+                'page_id'                => $posts->integer('post_id'),
+                'page_status'            => $this->translateWpStatus($posts->integer('post_status')),
+                'description'            => $posts->field('post_content_xhtml'),
+                'title'                  => $posts->field('post_title'),
                 'link'                   => $posts->getURL(),
                 'permaLink'              => $posts->getURL(),
                 'categories'             => [],
-                'excerpt'                => $posts->f('post_excerpt_xhtml'),
+                'excerpt'                => $posts->field('post_excerpt_xhtml'),
                 'text_more'              => '',
-                'mt_allow_comments'      => (int) $posts->f('post_open_comment'),
-                'mt_allow_pings'         => (int) $posts->f('post_open_tb'),
-                'wp_slug'                => $posts->f('post_url'),
-                'wp_password'            => $posts->f('post_password'),
+                'mt_allow_comments'      => (int) $posts->field('post_open_comment'),
+                'mt_allow_pings'         => (int) $posts->field('post_open_tb'),
+                'wp_slug'                => $posts->field('post_url'),
+                'wp_password'            => $posts->field('post_password'),
                 'wp_author'              => $posts->getAuthorCN(),
                 'wp_page_parent_id'      => 0,
                 'wp_page_parent_title'   => '',
-                'wp_page_order'          => $posts->f('post_position'),
-                'wp_author_id'           => $posts->f('user_id'),
+                'wp_page_order'          => $posts->field('post_position'),
+                'wp_author_id'           => $posts->field('user_id'),
                 'wp_author_display_name' => $posts->getAuthorCN(),
                 'date_created_gmt'       => new xmlrpcDate(Clock::iso8601(date: $posts->getTS(), from: App::core()->timezone(), to: 'UTC')),
                 'custom_fields'          => [],
@@ -1232,12 +1232,12 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $res = [];
         while ($tags->fetch()) {
             $res[] = [
-                'tag_id'   => $tags->f('meta_id'),
-                'name'     => $tags->f('meta_id'),
-                'count'    => $tags->f('count'),
-                'slug'     => $tags->f('meta_id'),
-                'html_url' => sprintf(App::core()->blog()->getURLFor('tag', '%s'), $tags->f('meta_id')),
-                'rss_url'  => sprintf(App::core()->blog()->getURLFor('tag_feed', '%s'), $tags->f('meta_id')),
+                'tag_id'   => $tags->field('meta_id'),
+                'name'     => $tags->field('meta_id'),
+                'count'    => $tags->field('count'),
+                'slug'     => $tags->field('meta_id'),
+                'html_url' => sprintf(App::core()->blog()->getURLFor('tag', '%s'), $tags->field('meta_id')),
+                'rss_url'  => sprintf(App::core()->blog()->getURLFor('tag_feed', '%s'), $tags->field('meta_id')),
             ];
         }
 
@@ -1276,7 +1276,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
 
         $rs = App::core()->blog()->categories()->getCategories(param: $param);
 
-        return $rs->f('cat_url');
+        return $rs->field('cat_url');
     }
 
     private function deleteCategory($user, $pwd, $cat_id)
@@ -1291,7 +1291,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         if ($rs->isEmpty()) {
             throw new CoreException(__('This category does not exist.'));
         }
-        $cat_id = $rs->fInt('cat_id');
+        $cat_id = $rs->integer('cat_id');
         unset($rs);
 
         App::core()->blog()->categories()->deleteCategory(id: $cat_id);
@@ -1315,8 +1315,8 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $res = [];
         while ($rs->fetch()) {
             $res[] = [
-                'category_id'   => $rs->f('cat_url'),
-                'category_name' => $rs->f('cat_url'),
+                'category_id'   => $rs->field('cat_url'),
+                'category_name' => $rs->field('cat_url'),
             ];
         }
 
@@ -1340,9 +1340,9 @@ class Xmlrpc extends XmlrpcIntrospectionServer
 
         while ($rs->fetch()) {
             ++$res['total'];
-            if ($rs->fInt('comment_status') == 1) {
+            if ($rs->integer('comment_status') == 1) {
                 ++$res['approved'];
-            } elseif ($rs->fInt('comment_status') == -2) {
+            } elseif ($rs->integer('comment_status') == -2) {
                 ++$res['spam'];
             } else {
                 ++$res['awaiting_moderation'];
@@ -1380,18 +1380,18 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         while ($rs->fetch()) {
             $res[] = [
                 'date_created_gmt' => new xmlrpcDate($rs->getTS()),
-                'user_id'          => $rs->f('user_id'),
-                'comment_id'       => $rs->f('comment_id'),
+                'user_id'          => $rs->field('user_id'),
+                'comment_id'       => $rs->field('comment_id'),
                 'parent'           => 0,
-                'status'           => $this->translateWpCommentstatus($rs->fInt('comment_status')),
-                'content'          => $rs->f('comment_content'),
-                'link'             => $rs->getPostURL() . '#c' . $rs->f('comment_id'),
-                'post_id'          => $rs->fInt('post_id'),
-                'post_title'       => $rs->f('post_title'),
-                'author'           => $rs->f('comment_author'),
-                'author_url'       => $rs->f('comment_site'),
-                'author_email'     => $rs->f('comment_email'),
-                'author_ip'        => $rs->f('comment_ip'),
+                'status'           => $this->translateWpCommentstatus($rs->integer('comment_status')),
+                'content'          => $rs->field('comment_content'),
+                'link'             => $rs->getPostURL() . '#c' . $rs->field('comment_id'),
+                'post_id'          => $rs->integer('post_id'),
+                'post_title'       => $rs->field('post_title'),
+                'author'           => $rs->field('comment_author'),
+                'author_url'       => $rs->field('comment_site'),
+                'author_email'     => $rs->field('comment_email'),
+                'author_ip'        => $rs->field('comment_ip'),
             ];
         }
 

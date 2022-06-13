@@ -28,7 +28,7 @@ class RsExtBlog extends RsExtend
     public function getTS(): int
     {
         return Clock::ts(
-            date: $this->rs->f('blog_upddt'),
+            date: $this->rs->field('blog_upddt'),
             to: App::core()->timezone()
         );
     }
@@ -77,7 +77,7 @@ class RsExtBlog extends RsExtend
     {
         return Clock::str(
             format: ($format ?: App::core()->blog()->settings()->getGroup('system')->getSetting('date_format')),
-            date: $this->rs->f('blog_upddt'),
+            date: $this->rs->field('blog_upddt'),
             to: App::core()->timezone()
         );
     }
@@ -94,7 +94,7 @@ class RsExtBlog extends RsExtend
     {
         return Clock::str(
             format: ($format ?: App::core()->blog()->settings()->getGroup('system')->getSetting('time_format')),
-            date: $this->rs->f('blog_upddt'),
+            date: $this->rs->field('blog_upddt'),
             to: App::core()->timezone()
         );
     }

@@ -120,7 +120,7 @@ class TagsUrl
                 // The specified tag does not exist.
                 App::core()->url()->p404();
             } else {
-                App::core()->context()->set('feed_subtitle', ' - ' . __('Tag') . ' - ' . App::core()->context()->get('meta')->f('meta_id'));
+                App::core()->context()->set('feed_subtitle', ' - ' . __('Tag') . ' - ' . App::core()->context()->get('meta')->field('meta_id'));
 
                 if ('atom' == $type) {
                     $mime = 'application/atom+xml';

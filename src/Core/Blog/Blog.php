@@ -144,14 +144,14 @@ final class Blog
         $record = App::core()->blogs()->getBlogs(param: $param);
 
         $this->id     = $record->isEmpty() ? null : $id;
-        $this->uid    = $record->isEmpty() ? null : $record->f('blog_uid');
-        $this->name   = $record->isEmpty() ? null : $record->f('blog_name');
-        $this->desc   = $record->isEmpty() ? null : $record->f('blog_desc');
-        $this->url    = $record->isEmpty() ? null : $record->f('blog_url');
+        $this->uid    = $record->isEmpty() ? null : $record->field('blog_uid');
+        $this->name   = $record->isEmpty() ? null : $record->field('blog_name');
+        $this->desc   = $record->isEmpty() ? null : $record->field('blog_desc');
+        $this->url    = $record->isEmpty() ? null : $record->field('blog_url');
         $this->host   = $record->isEmpty() ? null : Http::getHostFromURL($this->url);
-        $this->creadt = $record->isEmpty() ? null : Clock::ts(date: $record->f('blog_creadt'));
-        $this->upddt  = $record->isEmpty() ? null : Clock::ts(date: $record->f('blog_upddt'));
-        $this->status = $record->isEmpty() ? null : (int) $record->f('blog_status');
+        $this->creadt = $record->isEmpty() ? null : Clock::ts(date: $record->field('blog_creadt'));
+        $this->upddt  = $record->isEmpty() ? null : Clock::ts(date: $record->field('blog_upddt'));
+        $this->status = $record->isEmpty() ? null : (int) $record->field('blog_status');
 
         $this->public_url  = $record->isEmpty() ? null : $this->getURLFor('resources'); // ! to enhance;
         $this->public_path = $record->isEmpty() ? false : Path::real(Path::fullFromRoot($this->settings()->getGroup('system')->getSetting('public_path'), App::core()->config()->get('base_dir')));
@@ -364,7 +364,7 @@ final class Blog
             $posts  = new Integers();
             $record = $sql->select();
             while ($record->fetch()) {
-                $posts->add($record->fInt('post_id'));
+                $posts->add($record->integer('post_id'));
             }
         }
 
@@ -387,7 +387,7 @@ final class Blog
         $nb     = [];
         $record = $sql->select();
         while ($record->fetch()) {
-            $nb[$record->fInt('post_id')][$record->fInt('comment_trackback') ? 'trackback' : 'comment'] = $record->f('nb_comment');
+            $nb[$record->integer('post_id')][$record->integer('comment_trackback') ? 'trackback' : 'comment'] = $record->field('nb_comment');
         }
 
         // Update number of comments on affected posts

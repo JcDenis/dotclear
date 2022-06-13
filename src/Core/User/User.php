@@ -125,17 +125,17 @@ class User
         $record->extend(new RsExtUser());
 
         if ('' != $pwd) {
-            $user_pwd = $record->f('user_pwd');
+            $user_pwd = $record->field('user_pwd');
             $rehash   = false;
-            if (password_verify($pwd, $record->f('user_pwd'))) {
+            if (password_verify($pwd, $record->field('user_pwd'))) {
                 // User password ok
-                if (password_needs_rehash($record->f('user_pwd'), PASSWORD_DEFAULT)) {
+                if (password_needs_rehash($record->field('user_pwd'), PASSWORD_DEFAULT)) {
                     $user_pwd = $this->crypt($pwd);
                     $rehash   = true;
                 }
             } else {
                 // Check if pwd still stored in old fashion way
-                $ret = password_get_info($record->f('user_pwd'));
+                $ret = password_get_info($record->field('user_pwd'));
                 if (is_array($ret) && isset($ret['algo']) && 0 == $ret['algo']) {
                     // hash not done with password_hash() function, check by old fashion way
                     if (Crypt::hmac(App::core()->config()->get('master_key'), $pwd, App::core()->config()->get('crypt_algo')) == $user_pwd) {
@@ -160,12 +160,12 @@ class User
                 $sql = new UpdateStatement();
                 $sql->set('user_pwd = ' . $sql->quote($user_pwd));
                 $sql->from(App::core()->prefix() . $this->user_table);
-                $sql->where('user_id = ' . $sql->quote($record->f('user_id')));
+                $sql->where('user_id = ' . $sql->quote($record->field('user_id')));
                 $sql->update();
             }
         } elseif ('' != $user_key) {
             // Avoid time attacks by measuring server response time during comparison
-            if (!hash_equals(Http::browserUID(App::core()->config()->get('master_key') . $record->f('user_id') . $this->cryptLegacy($record->f('user_id'))), $user_key)) {
+            if (!hash_equals(Http::browserUID(App::core()->config()->get('master_key') . $record->field('user_id') . $this->cryptLegacy($record->field('user_id'))), $user_key)) {
                 return false;
             }
         }
@@ -394,7 +394,7 @@ class User
 
             $record = $sql->select();
             if (!$record->isEmpty()) {
-                $this->blogs[$blog_id] = App::core()->permissions()->parsePermissions($record->f('permissions'));
+                $this->blogs[$blog_id] = App::core()->permissions()->parsePermissions($record->field('permissions'));
             }
         }
 
@@ -453,7 +453,7 @@ class User
 
         $record = $sql->select();
 
-        return $record->isEmpty() ? false : $record->f('blog_id');
+        return $record->isEmpty() ? false : $record->field('blog_id');
     }
 
     /**
@@ -572,7 +572,7 @@ class User
         $sql->where('user_recover_key = ' . $sql->quote($recover_key));
         $sql->update();
 
-        return ['user_email' => $record->f('user_email'), 'user_id' => $record->f('user_id'), 'new_pass' => $new_pass];
+        return ['user_email' => $record->field('user_email'), 'user_id' => $record->field('user_id'), 'new_pass' => $new_pass];
     }
     // @}
 

@@ -86,8 +86,8 @@ class PagesUrl
                 // The specified page does not exist.
                 App::core()->url()->p404();
             } else {
-                $post_id       = App::core()->context()->get('posts')->fInt('post_id');
-                $post_password = App::core()->context()->get('posts')->f('post_password');
+                $post_id       = App::core()->context()->get('posts')->integer('post_id');
+                $post_password = App::core()->context()->get('posts')->field('post_password');
 
                 // Password protected entry
                 if ('' != $post_password && !App::core()->context()->get('preview')) {
@@ -175,7 +175,7 @@ class PagesUrl
                         $cur->setField('comment_site', Html::clean($site));
                         $cur->setField('comment_email', Html::clean($mail));
                         $cur->setField('comment_content', $content);
-                        $cur->setField('post_id', App::core()->context()->get('posts')->fInt('post_id'));
+                        $cur->setField('post_id', App::core()->context()->get('posts')->integer('post_id'));
                         $cur->setField('comment_status', App::core()->blog()->settings()->getGroup('system')->getSetting('comments_pub') ? 1 : -1);
                         $cur->setField('comment_ip', Http::realIP());
 

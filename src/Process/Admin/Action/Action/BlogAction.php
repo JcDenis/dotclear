@@ -92,9 +92,9 @@ class BlogAction extends DefaultBlogAction
 
         $record = App::core()->blogs()->getBlogs(param: $param);
         while ($record->fetch()) {
-            $this->entries[$record->f('blog_id')] = [
-                'blog' => $record->f('blog_id'),
-                'name' => $record->f('blog_name'),
+            $this->entries[$record->field('blog_id')] = [
+                'blog' => $record->field('blog_id'),
+                'name' => $record->field('blog_name'),
             ];
         }
         $this->rs = $record;

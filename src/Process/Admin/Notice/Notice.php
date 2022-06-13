@@ -68,7 +68,7 @@ final class Notice
 
         $query->column($query->count('notice_id'));
 
-        return $this->queryNoticeTable(param: $params, sql: $query)->fInt(0);
+        return $this->queryNoticeTable(param: $params, sql: $query)->integer(0);
     }
 
     /**
@@ -152,7 +152,7 @@ final class Notice
             $sql = new SelectStatement();
             $sql->column($sql->max('notice_id'));
             $sql->from(App::core()->prefix() . 'notice');
-            $id = $sql->select()->fInt();
+            $id = $sql->select()->integer();
 
             $cursor->setField('notice_id', $id + 1);
             $cursor->setField('ses_id', (string) session_id());
@@ -254,20 +254,20 @@ final class Notice
             if (0 < $counter) {
                 $lines = $this->getNotices(param: $param);
                 while ($lines->fetch()) {
-                    if (isset($this->N_TYPES[$lines->f('notice_type')])) {
-                        $class = $this->N_TYPES[$lines->f('notice_type')];
+                    if (isset($this->N_TYPES[$lines->field('notice_type')])) {
+                        $class = $this->N_TYPES[$lines->field('notice_type')];
                     } else {
-                        $class = $lines->f('notice_type');
+                        $class = $lines->field('notice_type');
                     }
                     $notification = [
-                        'type'   => $lines->f('notice_type'),
+                        'type'   => $lines->field('notice_type'),
                         'class'  => $class,
-                        'ts'     => $lines->f('notice_ts'),
-                        'text'   => $lines->f('notice_msg'),
-                        'format' => $lines->f('notice_format'),
+                        'ts'     => $lines->field('notice_ts'),
+                        'text'   => $lines->field('notice_msg'),
+                        'format' => $lines->field('notice_format'),
                     ];
-                    if (null !== $lines->f('notice_options')) {
-                        $notifications = array_merge($notification, @json_decode($lines->f('notice_options'), true));
+                    if (null !== $lines->field('notice_options')) {
+                        $notifications = array_merge($notification, @json_decode($lines->field('notice_options'), true));
                     }
                     // --BEHAVIOR-- adminPageNotification, array
                     $notice = App::core()->behavior()->call('adminPageNotification', $notification);

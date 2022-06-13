@@ -28,10 +28,10 @@ class LogRecordExtend extends RsExtend
     public function getUserCN()
     {
         $user = UserContainer::getUserCN(
-            $this->rs->f('user_id'),
-            $this->rs->f('user_name'),
-            $this->rs->f('user_firstname'),
-            $this->rs->f('user_displayname')
+            $this->rs->field('user_id'),
+            $this->rs->field('user_name'),
+            $this->rs->field('user_firstname'),
+            $this->rs->field('user_displayname')
         );
 
         if ('unknown' === $user) {

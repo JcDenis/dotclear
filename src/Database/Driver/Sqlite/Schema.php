@@ -113,7 +113,7 @@ class Schema extends AbstractSchema
 
         $res = [];
         while ($rs->fetch()) {
-            $res[] = $rs->f('tbl_name');
+            $res[] = $rs->field('tbl_name');
         }
 
         return $res;
@@ -126,10 +126,10 @@ class Schema extends AbstractSchema
 
         $res = [];
         while ($rs->fetch()) {
-            $field   = trim($rs->f('name'));
-            $type    = trim($rs->f('type'));
-            $null    = trim($rs->f('notnull')) == 0;
-            $default = trim($rs->f('dflt_value'));
+            $field   = trim($rs->field('name'));
+            $type    = trim($rs->field('type'));
+            $null    = trim($rs->field('notnull')) == 0;
+            $default = trim($rs->field('dflt_value'));
 
             $len = null;
             if (preg_match('/^(.+?)\(([\d,]+)\)$/si', $type, $m)) {
@@ -162,7 +162,7 @@ class Schema extends AbstractSchema
         }
 
         // Get primary keys
-        $n = preg_match_all('/^\s*CONSTRAINT\s+([^,]+?)\s+PRIMARY\s+KEY\s+\((.+?)\)/msi', $rs->f('sql'), $match);
+        $n = preg_match_all('/^\s*CONSTRAINT\s+([^,]+?)\s+PRIMARY\s+KEY\s+\((.+?)\)/msi', $rs->field('sql'), $match);
         if (0 < $n) {
             foreach ($match[1] as $i => $name) {
                 $cols  = preg_split('/\s*,\s*/', $match[2][$i]);
@@ -176,7 +176,7 @@ class Schema extends AbstractSchema
         }
 
         // Get unique keys
-        $n = preg_match_all('/^\s*CONSTRAINT\s+([^,]+?)\s+UNIQUE\s+\((.+?)\)/msi', $rs->f('sql'), $match);
+        $n = preg_match_all('/^\s*CONSTRAINT\s+([^,]+?)\s+UNIQUE\s+\((.+?)\)/msi', $rs->field('sql'), $match);
         if (0 < $n) {
             foreach ($match[1] as $i => $name) {
                 $cols  = preg_split('/\s*,\s*/', $match[2][$i]);
@@ -199,18 +199,18 @@ class Schema extends AbstractSchema
 
         $res = [];
         while ($rs->fetch()) {
-            if (preg_match('/^sqlite_/', $rs->f('name'))) {
+            if (preg_match('/^sqlite_/', $rs->field('name'))) {
                 continue;
             }
 
-            $idx  = $this->con->select('PRAGMA index_info(' . $this->con->escapeSystem($rs->f('name')) . ')');
+            $idx  = $this->con->select('PRAGMA index_info(' . $this->con->escapeSystem($rs->field('name')) . ')');
             $cols = [];
             while ($idx->fetch()) {
-                $cols[] = $idx->f('name');
+                $cols[] = $idx->field('name');
             }
 
             $res[] = [
-                'name' => $rs->f('name'),
+                'name' => $rs->field('name'),
                 'type' => 'btree',
                 'cols' => $cols,
             ];
@@ -234,7 +234,7 @@ class Schema extends AbstractSchema
 
         while ($bir->fetch()) {
             // Find child column and parent table and column
-            if (!preg_match('/FROM\s+(.+?)\s+WHERE\s+(.+?)\s+=\s+NEW\.(.+?)\s*?\) IS\s+NULL/msi', $bir->f('sql'), $m)) {
+            if (!preg_match('/FROM\s+(.+?)\s+WHERE\s+(.+?)\s+=\s+NEW\.(.+?)\s*?\) IS\s+NULL/msi', $bir->field('sql'), $m)) {
                 continue;
             }
 
@@ -246,19 +246,19 @@ class Schema extends AbstractSchema
             $on_update = 'restrict';
             $aur       = $this->con->select(sprintf($sql, $this->con->escape($p_table), 'aur'));
             while ($aur->fetch()) {
-                if (!preg_match('/AFTER\s+UPDATE/msi', $aur->f('sql'))) {
+                if (!preg_match('/AFTER\s+UPDATE/msi', $aur->field('sql'))) {
                     continue;
                 }
 
                 if (preg_match('/UPDATE\s+' . $table . '\s+SET\s+' . $c_col . '\s*=\s*NEW.' . $p_col .
-                    '\s+WHERE\s+' . $c_col . '\s*=\s*OLD\.' . $p_col . '/msi', $aur->f('sql'))) {
+                    '\s+WHERE\s+' . $c_col . '\s*=\s*OLD\.' . $p_col . '/msi', $aur->field('sql'))) {
                     $on_update = 'cascade';
 
                     break;
                 }
 
                 if (preg_match('/UPDATE\s+' . $table . '\s+SET\s+' . $c_col . '\s*=\s*NULL' .
-                    '\s+WHERE\s+' . $c_col . '\s*=\s*OLD\.' . $p_col . '/msi', $aur->f('sql'))) {
+                    '\s+WHERE\s+' . $c_col . '\s*=\s*OLD\.' . $p_col . '/msi', $aur->field('sql'))) {
                     $on_update = 'set null';
 
                     break;
@@ -269,18 +269,18 @@ class Schema extends AbstractSchema
             $on_delete = 'restrict';
             $bdr       = $this->con->select(sprintf($sql, $this->con->escape($p_table), 'bdr'));
             while ($bdr->fetch()) {
-                if (!preg_match('/BEFORE\s+DELETE/msi', $bdr->f('sql'))) {
+                if (!preg_match('/BEFORE\s+DELETE/msi', $bdr->field('sql'))) {
                     continue;
                 }
 
-                if (preg_match('/DELETE\s+FROM\s+' . $table . '\s+WHERE\s+' . $c_col . '\s*=\s*OLD\.' . $p_col . '/msi', $bdr->f('sql'))) {
+                if (preg_match('/DELETE\s+FROM\s+' . $table . '\s+WHERE\s+' . $c_col . '\s*=\s*OLD\.' . $p_col . '/msi', $bdr->field('sql'))) {
                     $on_delete = 'cascade';
 
                     break;
                 }
 
                 if (preg_match('/UPDATE\s+' . $table . '\s+SET\s+' . $c_col . '\s*=\s*NULL' .
-                    '\s+WHERE\s+' . $c_col . '\s*=\s*OLD\.' . $p_col . '/msi', $bdr->f('sql'))) {
+                    '\s+WHERE\s+' . $c_col . '\s*=\s*OLD\.' . $p_col . '/msi', $bdr->field('sql'))) {
                     $on_update = 'set null';
 
                     break;
@@ -288,7 +288,7 @@ class Schema extends AbstractSchema
             }
 
             $res[] = [
-                'name'    => substr($bir->f('name'), 4),
+                'name'    => substr($bir->field('name'), 4),
                 'c_cols'  => [$c_col],
                 'p_table' => $p_table,
                 'p_cols'  => [$p_col],

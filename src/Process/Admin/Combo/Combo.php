@@ -48,10 +48,10 @@ class Combo
         }
         while ($categories->fetch()) {
             $categories_combo[] = new FormSelectOption(
-                str_repeat('&nbsp;', ($categories->fInt('level') - 1) * 4) .
-                Html::escapeHTML($categories->f('cat_title')) . ' (' . $categories->f('nb_post') . ')',
-                ($use_url ? $categories->f('cat_url') : $categories->f('cat_id')),
-                ($categories->fInt('level') - 1 ? 'sub-option' . ($categories->fInt('level') - 1) : '')
+                str_repeat('&nbsp;', ($categories->integer('level') - 1) * 4) .
+                Html::escapeHTML($categories->field('cat_title')) . ' (' . $categories->field('nb_post') . ')',
+                ($use_url ? $categories->field('cat_url') : $categories->field('cat_id')),
+                ($categories->integer('level') - 1 ? 'sub-option' . ($categories->integer('level') - 1) : '')
             );
         }
 
@@ -80,17 +80,17 @@ class Combo
         $users_combo = [];
         while ($users->fetch()) {
             $user_cn = UserContainer::getUserCN(
-                $users->f('user_id'),
-                $users->f('user_name'),
-                $users->f('user_firstname'),
-                $users->f('user_displayname')
+                $users->field('user_id'),
+                $users->field('user_name'),
+                $users->field('user_firstname'),
+                $users->field('user_displayname')
             );
 
-            if ($users->f('user_id') != $user_cn) {
-                $user_cn .= ' (' . $users->f('user_id') . ')';
+            if ($users->field('user_id') != $user_cn) {
+                $user_cn .= ' (' . $users->field('user_id') . ')';
             }
 
-            $users_combo[$user_cn] = $users->f('user_id');
+            $users_combo[$user_cn] = $users->field('user_id');
         }
 
         return $users_combo;
@@ -133,18 +133,18 @@ class Combo
         if ($with_available) {
             $langs_combo = ['' => '', __('Most used') => [], __('Available') => L10n::getISOcodes(true, true)];
             while ($langs->fetch()) {
-                if (isset($all_langs[$langs->f('post_lang')])) {
-                    $langs_combo[__('Most used')][$all_langs[$langs->f('post_lang')]] = $langs->f('post_lang');
-                    unset($langs_combo[__('Available')][$all_langs[$langs->f('post_lang')]]);
+                if (isset($all_langs[$langs->field('post_lang')])) {
+                    $langs_combo[__('Most used')][$all_langs[$langs->field('post_lang')]] = $langs->field('post_lang');
+                    unset($langs_combo[__('Available')][$all_langs[$langs->field('post_lang')]]);
                 } else {
-                    $langs_combo[__('Most used')][$langs->f('post_lang')] = $langs->f('post_lang');
+                    $langs_combo[__('Most used')][$langs->field('post_lang')] = $langs->field('post_lang');
                 }
             }
         } else {
             $langs_combo = [];
             while ($langs->fetch()) {
-                $lang_name               = $all_langs[$langs->f('post_lang')] ?? $langs->f('post_lang');
-                $langs_combo[$lang_name] = $langs->f('post_lang');
+                $lang_name               = $all_langs[$langs->field('post_lang')] ?? $langs->field('post_lang');
+                $langs_combo[$lang_name] = $langs->field('post_lang');
             }
         }
         unset($all_langs);

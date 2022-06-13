@@ -92,12 +92,12 @@ final class SettingsGroup
             }
         }
         while ($record->fetch()) {
-            if ($record->f('setting_ns') != $this->group) {
+            if ($record->field('setting_ns') != $this->group) {
                 break;
             }
-            $id    = trim($record->f('setting_id'));
-            $value = $record->f('setting_value');
-            $type  = $record->f('setting_type');
+            $id    = trim($record->field('setting_id'));
+            $value = $record->field('setting_value');
+            $type  = $record->field('setting_type');
 
             if ('array' == $type) {
                 $value = @json_decode($value, true);
@@ -109,15 +109,15 @@ final class SettingsGroup
 
             settype($value, $type);
 
-            $array = $record->f('blog_id') ? 'local' : 'global';
+            $array = $record->field('blog_id') ? 'local' : 'global';
 
             $this->{$array . '_settings'}[$id] = new Setting(
                 group: $this->group,
                 id: $id,
                 value: $value,
                 type: $type,
-                label: (string) $record->f('setting_label'),
-                global: $record->f('blog_id') == '',
+                label: (string) $record->field('setting_label'),
+                global: $record->field('blog_id') == '',
             );
         }
 

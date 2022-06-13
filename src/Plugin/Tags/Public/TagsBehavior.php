@@ -39,12 +39,12 @@ class TagsBehavior
         }
         if (empty($attr['no_context']) && in_array($tag, ['Entries', 'Comments'])) {
             return
-                '<?php if (App::core()->context()->exists("meta") && App::core()->context()->get("meta")->rows() && App::core()->context()->get("meta")->f("meta_type") == "tag") { ' .
+                '<?php if (App::core()->context()->exists("meta") && App::core()->context()->get("meta")->rows() && App::core()->context()->get("meta")->field("meta_type") == "tag") { ' .
                 'if (!isset($param)) { $param = new Param(); }' . "\n" .
                 "\$param->push('from', App::core()->prefix().'meta META');\n" .
                 "\$param->push('sql', 'AND META.post_id = P.post_id ');\n" .
                 "\$param->push('sql', \"AND META.meta_type = 'tag' \");\n" .
-                "\$param->push('sql', \"AND META.meta_id = '\".App::core()->con()->escape(App::core()->context()->get('meta')->f('meta_id')).\"' \");\n" .
+                "\$param->push('sql', \"AND META.meta_id = '\".App::core()->con()->escape(App::core()->context()->get('meta')->field('meta_id')).\"' \");\n" .
                 "} ?>\n";
         }
 

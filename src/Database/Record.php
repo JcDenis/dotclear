@@ -114,14 +114,6 @@ class Record implements Iterator, Countable
     }
 
     /**
-     * @see     self::field()
-     */
-    public function f(string|int $field): mixed
-    {
-        return $this->field($field);
-    }
-
-    /**
      * Get field.
      *
      * Retrieve field value by its name or column position.
@@ -446,7 +438,7 @@ class Record implements Iterator, Countable
      *
      * @param int|string $n The field
      */
-    public function fInt(string|int $n = 0): int
+    public function integer(string|int $n = 0): int
     {
         return $this->count() == 0 ? 0 : (int) $this->field($n);
     }

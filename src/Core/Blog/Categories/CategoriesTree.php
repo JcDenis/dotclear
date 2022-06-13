@@ -130,14 +130,14 @@ final class CategoriesTree
 
         try {
             $rs = App::core()->con()->select('SELECT MAX(cat_id) as n_id FROM ' . App::core()->prefix() . 'category');
-            $id = $rs->fInt('n_id');
+            $id = $rs->integer('n_id');
 
             $rs = App::core()->con()->select(
                 'SELECT MAX(cat_rgt) as n_r ' .
                 'FROM ' . App::core()->prefix() . 'category' .
                 $this->getCondition('WHERE')
             );
-            $last = $rs->fInt('n_r') == 0 ? 1 : $rs->fInt('n_r');
+            $last = $rs->integer('n_r') == 0 ? 1 : $rs->integer('n_r');
 
             $cursor->setField('cat_id', $id      + 1);
             $cursor->setField('cat_lft', $last  + 1);
@@ -203,8 +203,8 @@ final class CategoriesTree
         if ($rs->isEmpty()) {
             throw new DatabaseException('Node does not exist.');
         }
-        $node_left  = $rs->fInt('cat_lft');
-        $node_right = $rs->fInt('cat_rgt');
+        $node_left  = $rs->integer('cat_lft');
+        $node_right = $rs->integer('cat_rgt');
 
         try {
             App::core()->con()->begin();
@@ -262,7 +262,7 @@ final class CategoriesTree
                     'UPDATE ' . App::core()->prefix() . 'category SET '
                     . 'cat_lft = ' . ($lft++) . ', '
                     . 'cat_rgt = ' . ($lft++) . ' '
-                    . 'WHERE cat_id = ' . $rs->fInt('cat_id') . ' '
+                    . 'WHERE cat_id = ' . $rs->integer('cat_id') . ' '
                     . $this->getCondition()
                 );
             }
@@ -292,9 +292,9 @@ final class CategoriesTree
         if ($rs->isEmpty()) {
             throw new DatabaseException('Node does not exist.');
         }
-        $node_left  = $rs->fInt('cat_lft');
-        $node_right = $rs->fInt('cat_rgt');
-        $node_level = $rs->fInt('level');
+        $node_left  = $rs->integer('cat_lft');
+        $node_right = $rs->integer('cat_rgt');
+        $node_level = $rs->integer('level');
 
         if (0 < $target) {
             $rs = $this->getChildren(0, $target);
@@ -305,9 +305,9 @@ final class CategoriesTree
                 $this->getCondition('WHERE')
             );
         }
-        $target_left  = $rs->fInt('cat_lft');
-        $target_right = $rs->fInt('cat_rgt');
-        $target_level = $rs->fInt('level');
+        $target_left  = $rs->integer('cat_lft');
+        $target_right = $rs->integer('cat_rgt');
+        $target_level = $rs->integer('level');
 
         if ($node_left == $target_left
             || ($target_left >= $node_left && $target_left <= $node_right)
@@ -398,26 +398,26 @@ final class CategoriesTree
         if ($rs->isEmpty()) {
             throw new DatabaseException('Node does not exist.');
         }
-        $A_left  = $rs->fInt('cat_lft');
-        $A_right = $rs->fInt('cat_rgt');
-        $A_level = $rs->fInt('level');
+        $A_left  = $rs->integer('cat_lft');
+        $A_right = $rs->integer('cat_rgt');
+        $A_level = $rs->integer('level');
 
         $rs = $this->getChildren(0, $sibling);
         if ($rs->isEmpty()) {
             throw new DatabaseException('Node does not exist.');
         }
-        $B_left  = $rs->fInt('cat_lft');
-        $B_right = $rs->fInt('cat_rgt');
-        $B_level = $rs->fInt('level');
+        $B_left  = $rs->integer('cat_lft');
+        $B_right = $rs->integer('cat_rgt');
+        $B_level = $rs->integer('level');
 
         if ($A_level != $B_level) {
             throw new DatabaseException('Cannot change position');
         }
 
         $rs      = $this->getParents(id: $node);
-        $parentA = $rs->isEmpty() ? 0 : $rs->fInt('cat_id');
+        $parentA = $rs->isEmpty() ? 0 : $rs->integer('cat_id');
         $rs      = $this->getParents(id: $sibling);
-        $parentB = $rs->isEmpty() ? 0 : $rs->fInt('cat_id');
+        $parentB = $rs->isEmpty() ? 0 : $rs->integer('cat_id');
 
         if ($parentA != $parentB) {
             throw new DatabaseException('Cannot change position');

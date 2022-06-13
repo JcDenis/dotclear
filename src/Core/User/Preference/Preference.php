@@ -98,7 +98,7 @@ class Preference
         }
 
         do {
-            $ws = trim($record->f('pref_ws'));
+            $ws = trim($record->field('pref_ws'));
             if (!$record->isStart()) {
                 // we have to go up 1 step, since workspaces construction performs a fetch()
                 // at very first time

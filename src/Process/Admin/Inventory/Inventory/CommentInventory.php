@@ -133,7 +133,7 @@ class CommentInventory extends Inventory
             echo $pager->getLinks() . $blocks[0];
 
             while ($this->rs->fetch()) {
-                echo $this->commentLine(isset($comments[$this->rs->fInt('comment_id')]), $spam);
+                echo $this->commentLine(isset($comments[$this->rs->integer('comment_id')]), $spam);
             }
 
             $legends = [];
@@ -161,50 +161,50 @@ class CommentInventory extends Inventory
      */
     private function commentLine(bool $checked = false, bool $spam = false): string
     {
-        $author_url  = App::core()->adminurl()->get('admin.comments', ['author' => $this->rs->f('comment_author')]);
-        $post_url    = App::core()->posttype()->getPostAdminURL(type: $this->rs->f('post_type'), id: $this->rs->f('post_id'));
-        $comment_url = App::core()->adminurl()->get('admin.comment', ['id' => $this->rs->f('comment_id')]);
+        $author_url  = App::core()->adminurl()->get('admin.comments', ['author' => $this->rs->field('comment_author')]);
+        $post_url    = App::core()->posttype()->getPostAdminURL(type: $this->rs->field('post_type'), id: $this->rs->field('post_id'));
+        $comment_url = App::core()->adminurl()->get('admin.comment', ['id' => $this->rs->field('comment_id')]);
         $img_status  = sprintf(
             '<img alt="%1$s" title="%1$s" src="?df=%2$s" />',
-            App::core()->blog()->comments()->status()->getState($this->rs->fInt('comment_status')),
-            App::core()->blog()->comments()->status()->getIcon($this->rs->fInt('comment_status')),
+            App::core()->blog()->comments()->status()->getState($this->rs->integer('comment_status')),
+            App::core()->blog()->comments()->status()->getIcon($this->rs->integer('comment_status')),
         );
-        $sts_class = 'sts-' . App::core()->blog()->comments()->status()->getId($this->rs->fInt('comment_status'));
+        $sts_class = 'sts-' . App::core()->blog()->comments()->status()->getId($this->rs->integer('comment_status'));
 
-        $post_title = Html::escapeHTML(trim(Html::clean($this->rs->f('post_title'))));
+        $post_title = Html::escapeHTML(trim(Html::clean($this->rs->field('post_title'))));
         if (mb_strlen($post_title) > 70) {
             $post_title = mb_strcut($post_title, 0, 67) . '...';
         }
         $comment_title = sprintf(
             __('Edit the %1$s from %2$s'),
-            $this->rs->fInt('comment_trackback') ? __('trackback') : __('comment'),
-            Html::escapeHTML($this->rs->f('comment_author'))
+            $this->rs->integer('comment_trackback') ? __('trackback') : __('comment'),
+            Html::escapeHTML($this->rs->field('comment_author'))
         );
 
-        $res = '<tr class="line ' . (1 != $this->rs->fInt('comment_status') ? 'offline ' : '') . $sts_class . '"' .
-        ' id="c' . $this->rs->f('comment_id') . '">';
+        $res = '<tr class="line ' . (1 != $this->rs->integer('comment_status') ? 'offline ' : '') . $sts_class . '"' .
+        ' id="c' . $this->rs->field('comment_id') . '">';
 
         $cols = [
             'check' => '<td class="nowrap">' .
-            Form::checkbox(['comments[]'], $this->rs->f('comment_id'), $checked) .
+            Form::checkbox(['comments[]'], $this->rs->field('comment_id'), $checked) .
             '</td>',
             'type' => '<td class="nowrap" abbr="' . __('Type and author') . '" scope="row">' .
             '<a href="' . $comment_url . '" title="' . $comment_title . '">' .
             '<img src="?df=images/edit-mini.png" alt="' . __('Edit') . '"/> ' .
-            ($this->rs->fInt('comment_trackback') ? __('trackback') : __('comment')) . ' ' . '</a></td>',
+            ($this->rs->integer('comment_trackback') ? __('trackback') : __('comment')) . ' ' . '</a></td>',
             'author' => '<td class="nowrap maximal"><a href="' . $author_url . '">' .
-            Html::escapeHTML($this->rs->f('comment_author')) . '</a></td>',
-            'date'   => '<td class="nowrap count">' . Clock::str(format: __('%Y-%m-%d %H:%M'), date: $this->rs->f('comment_dt'), to: App::core()->timezone()) . '</td>',
+            Html::escapeHTML($this->rs->field('comment_author')) . '</a></td>',
+            'date'   => '<td class="nowrap count">' . Clock::str(format: __('%Y-%m-%d %H:%M'), date: $this->rs->field('comment_dt'), to: App::core()->timezone()) . '</td>',
             'status' => '<td class="nowrap status txt-center">' . $img_status . '</td>',
         ];
 
         if ($spam) {
             $cols['ip'] = '<td class="nowrap"><a href="' .
-            App::core()->adminurl()->get('admin.comments', ['ip' => $this->rs->f('comment_ip')]) . '">' .
-            $this->rs->f('comment_ip') . '</a></td>';
+            App::core()->adminurl()->get('admin.comments', ['ip' => $this->rs->field('comment_ip')]) . '">' .
+            $this->rs->field('comment_ip') . '</a></td>';
         }
         $cols['entry'] = '<td class="nowrap discrete"><a href="' . Html::escapeHTML($post_url) . '">' . $post_title . '</a>' .
-            ('post' != $this->rs->f('post_type') ? ' (' . Html::escapeHTML($this->rs->f('post_type')) . ')' : '') . '</td>';
+            ('post' != $this->rs->field('post_type') ? ' (' . Html::escapeHTML($this->rs->field('post_type')) . ')' : '') . '</td>';
 
         $cols = new ArrayObject($cols);
         App::core()->behavior()->call('adminCommentListValue', $this->rs, $cols, $spam);
