@@ -23,33 +23,14 @@ class UpdateStatement extends SqlStatement
     protected $set = [];
 
     /**
-     * Class constructor.
-     *
-     * @param mixed $ctx optional context
-     */
-    public function __construct($ctx = null)
-    {
-        parent::__construct($ctx);
-    }
-
-    public static function init(string $ctx = null): UpdateStatement
-    {
-        return new self($ctx);
-    }
-
-    /**
      * from() alias.
      *
      * @param mixed $c     the reference clause(s)
      * @param bool  $reset reset previous reference first
-     *
-     * @return self instance, enabling to chain calls
      */
-    public function reference($c, bool $reset = false): UpdateStatement
+    public function reference($c, bool $reset = false): void
     {
         $this->from($c, $reset);
-
-        return $this;
     }
 
     /**
@@ -57,12 +38,10 @@ class UpdateStatement extends SqlStatement
      *
      * @param mixed $c     the reference clause(s)
      * @param bool  $reset reset previous reference first
-     *
-     * @return self instance, enabling to chain calls
      */
-    public function ref($c, bool $reset = false): UpdateStatement
+    public function ref($c, bool $reset = false): void
     {
-        return $this->reference($c, $reset);
+        $this->reference($c, $reset);
     }
 
     /**
@@ -70,10 +49,8 @@ class UpdateStatement extends SqlStatement
      *
      * @param mixed $c     the udpate values(s)
      * @param bool  $reset reset previous update value(s) first
-     *
-     * @return self instance, enabling to chain calls
      */
-    public function set($c, bool $reset = false): UpdateStatement
+    public function set($c, bool $reset = false): void
     {
         if ($reset) {
             $this->set = [];
@@ -83,8 +60,6 @@ class UpdateStatement extends SqlStatement
         } else {
             array_push($this->set, $c);
         }
-
-        return $this;
     }
 
     /**
@@ -92,12 +67,10 @@ class UpdateStatement extends SqlStatement
      *
      * @param mixed $c     the update value(s)
      * @param bool  $reset reset previous update value(s) first
-     *
-     * @return self instance, enabling to chain calls
      */
-    public function sets($c, bool $reset = false): UpdateStatement
+    public function sets($c, bool $reset = false): void
     {
-        return $this->set($c, $reset);
+        $this->set($c, $reset);
     }
 
     /**

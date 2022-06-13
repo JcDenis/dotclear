@@ -46,7 +46,7 @@ final class Log
     public function countLogs(?Param $param = null, ?SelectStatement $sql = null): int
     {
         $params = new LogParam($param);
-        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $query  = $sql ? clone $sql : new SelectStatement();
 
         // --BEHAVIOR-- coreBeforeCountLogs, Param, SelectStatement
         App::core()->behavior()->call('coreBeforeCountLogs', param: $params, sql: $query);
@@ -77,7 +77,7 @@ final class Log
     public function getLogs(?Param $param = null, ?SelectStatement $sql = null): Record
     {
         $params = new LogParam($param);
-        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $query  = $sql ? clone $sql : new SelectStatement();
 
         // --BEHAVIOR-- coreBeforeGetLogs, Param, SelectStatement
         App::core()->behavior()->call('coreBeforeGetLogs', param: $params, sql: $query);
@@ -154,7 +154,7 @@ final class Log
 
         try {
             // Get ID
-            $sql = new SelectStatement(__METHOD__);
+            $sql = new SelectStatement();
             $sql->column($sql->max('log_id'));
             $sql->from(App::core()->prefix() . 'log');
             $id = $sql->select()->fInt();
@@ -222,7 +222,7 @@ final class Log
         // --BEHAVIOR-- coreBeforeDeleteLogs, Integers
         App::core()->behavior()->call('coreBeforeDeleteLogs', ids: $ids);
 
-        $sql = new DeleteStatement(__METHOD__);
+        $sql = new DeleteStatement();
         $sql->where('log_id' . $sql->in($ids->dump()));
         $sql->from(App::core()->prefix() . 'log');
         $sql->run();
@@ -236,7 +236,7 @@ final class Log
         // --BEHAVIOR-- coreBeforeEmptyLogTable
         App::core()->behavior()->call('coreBeforeEmptyLogTable');
 
-        $sql = new TruncateStatement(__METHOD__);
+        $sql = new TruncateStatement();
         $sql->from(App::core()->prefix() . 'log');
         $sql->run();
     }

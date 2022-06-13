@@ -93,7 +93,7 @@ final class Blogs
     public function countBlogs(?Param $param = null, ?SelectStatement $sql = null): int
     {
         $params = new BlogsParam($param);
-        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $query  = $sql ? clone $sql : new SelectStatement();
 
         // --BEHAVIOR-- coreBeforeCountBlogs, Param, SelectStatement
         App::core()->behavior()->call('coreBeforeCountBlogs', param: $params, sql: $query);
@@ -124,7 +124,7 @@ final class Blogs
     public function getBlogs(?Param $param = null, ?SelectStatement $sql = null): Record
     {
         $params = new BlogsParam($param);
-        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $query  = $sql ? clone $sql : new SelectStatement();
 
         // --BEHAVIOR-- coreBeforeGetBlogs, Param, SelectStatement
         App::core()->behavior()->call('coreBeforeGetBlogs', param: $params, sql: $query);
@@ -171,7 +171,7 @@ final class Blogs
         $sql->where('NULL IS NULL');
 
         if (App::core()->user()->userID() && !App::core()->user()->isSuperAdmin()) {
-            $join = new JoinStatement(__METHOD__);
+            $join = new JoinStatement();
             $join->type('INNER');
             $join->from(App::core()->prefix() . 'permissions PE');
             $join->on('B.blog_id = PE.blog_id');
@@ -312,7 +312,7 @@ final class Blogs
         // --BEHAVIOR-- coreBeforeUpdateBlogsStatus, Strings, int
         App::core()->behavior()->call('coreBeforeUpdateBlogsStatus', ids: $ids, status: $status);
 
-        $sql = new UpdateStatement(__METHOD__);
+        $sql = new UpdateStatement();
         $sql->from(App::core()->prefix() . 'blog');
         $sql->set('blog_status = ' . $status);
         // $sql->set('blog_upddt = ' . $sql->quote(Clock::database()));
@@ -347,7 +347,7 @@ final class Blogs
             // --BEHAVIOR-- coreBeforeDeleteBlogs, Strings
             App::core()->behavior()->call('coreBeforeDeleteBlogs', ids: $ids);
 
-            $sql = new DeleteStatement(__METHOD__);
+            $sql = new DeleteStatement();
             $sql->from(App::core()->prefix() . 'blog');
             $sql->where('blog_id' . $sql->in($ids->dump()));
             $sql->delete();
@@ -363,7 +363,7 @@ final class Blogs
      */
     public function blogExists(string $id): bool
     {
-        $sql = new SelectStatement(__METHOD__);
+        $sql = new SelectStatement();
         $sql->column('blog_id');
         $sql->from(App::core()->prefix() . 'blog');
         $sql->where('blog_id = ' . $sql->quote($id));
@@ -382,7 +382,7 @@ final class Blogs
      */
     public function countBlogPosts(string $id, ?string $type = null): int
     {
-        $sql = new SelectStatement(__METHOD__);
+        $sql = new SelectStatement();
         $sql->column($sql->count('post_id'));
         $sql->from(App::core()->prefix() . 'post');
         $sql->where('blog_id = ' . $sql->quote($id));

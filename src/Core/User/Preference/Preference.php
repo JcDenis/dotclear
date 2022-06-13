@@ -63,51 +63,49 @@ class Preference
      */
     private function loadPrefs($workspace = null): void
     {
-        $sql = new SelectStatement(__METHOD__);
-        $sql
-            ->columns([
-                'user_id',
-                'pref_id',
-                'pref_value',
-                'pref_type',
-                'pref_label',
-                'pref_ws',
-            ])
-            ->from(App::core()->prefix() . 'pref')
-            ->where($sql->orGroup([
-                'user_id = ' . $sql->quote($this->user_id),
-                'user_id IS NULL',
-            ]))
-            ->order([
-                'pref_ws ASC',
-                'pref_id ASC',
-            ])
-        ;
+        $sql = new SelectStatement();
+        $sql->columns([
+            'user_id',
+            'pref_id',
+            'pref_value',
+            'pref_type',
+            'pref_label',
+            'pref_ws',
+        ]);
+        $sql->from(App::core()->prefix() . 'pref');
+        $sql->where($sql->orGroup([
+            'user_id = ' . $sql->quote($this->user_id),
+            'user_id IS NULL',
+        ]));
+        $sql->order([
+            'pref_ws ASC',
+            'pref_id ASC',
+        ]);
 
         if (null !== $workspace) {
             $sql->and('pref_ws = ' . $sql->quote($workspace));
         }
 
         try {
-            $rs = $sql->select();
+            $record = $sql->select();
         } catch (Exception $e) {
             throw $e;
         }
 
         // Prevent empty tables (install phase, for instance)
-        if ($rs->isEmpty()) {
+        if ($record->isEmpty()) {
             return;
         }
 
         do {
-            $ws = trim($rs->f('pref_ws'));
-            if (!$rs->isStart()) {
+            $ws = trim($record->f('pref_ws'));
+            if (!$record->isStart()) {
                 // we have to go up 1 step, since workspaces construction performs a fetch()
                 // at very first time
-                $rs->movePrev();
+                $record->movePrev();
             }
-            $this->workspaces[$ws] = new Workspace($this->user_id, $ws, $rs);
-        } while (!$rs->isStart());
+            $this->workspaces[$ws] = new Workspace($this->user_id, $ws, $record);
+        } while (!$record->isStart());
     }
 
     /**
@@ -147,13 +145,11 @@ class Preference
         unset($this->workspaces[$oldWs]);
 
         // Rename the workspace in the database
-        $sql = new UpdateStatement(__METHOD__);
-        $sql
-            ->set('pref_ws = ' . $sql->quote($newWs))
-            ->from(App::core()->prefix() . 'pref')
-            ->where('pref_ws = ' . $sql->quote($oldWs))
-            ->update()
-        ;
+        $sql = new UpdateStatement();
+        $sql->set('pref_ws = ' . $sql->quote($newWs));
+        $sql->from(App::core()->prefix() . 'pref');
+        $sql->where('pref_ws = ' . $sql->quote($oldWs));
+        $sql->update();
 
         return true;
     }
@@ -173,12 +169,10 @@ class Preference
         unset($this->workspaces[$ws]);
 
         // Delete all preferences from the workspace in the database
-        $sql = new DeleteStatement(__METHOD__);
-        $sql
-            ->from(App::core()->prefix() . 'pref')
-            ->where('pref_ws = ' . $sql->quote($ws))
-            ->delete()
-        ;
+        $sql = new DeleteStatement();
+        $sql->from(App::core()->prefix() . 'pref');
+        $sql->where('pref_ws = ' . $sql->quote($ws));
+        $sql->delete();
 
         return true;
     }

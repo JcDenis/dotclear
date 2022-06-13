@@ -46,41 +46,39 @@ class MaintenanceTaskCountcomments extends MaintenanceTask
     public function countAllComments(): void
     {
         // Comments
-        $sql = new SelectStatement(__METHOD__);
-        $sel = $sql
-            ->column($sql->count('C.comment_id'))
-            ->from(App::core()->prefix() . 'comment C')
-            ->where([
-                'C.post_id = P.post_id',
-                'C.comment_trackback <> 1',
-                'C.comment_status = 1',
-            ])
-            ->statement()
-        ;
+        $sql = new SelectStatement();
+        $sql->column($sql->count('C.comment_id'));
+        $sql->from(App::core()->prefix() . 'comment C');
+        $sql->where([
+            'C.post_id = P.post_id',
+            'C.comment_trackback <> 1',
+            'C.comment_status = 1',
+        ]);
 
-        $sql = UpdateStatement::init(__METHOD__)
-            ->set('nb_comment = (' . $sel . ')')
-            ->from(App::core()->prefix() . 'post P')
-            ->update()
-        ;
+        $statement = $sql->statement();
+
+        $sql = new UpdateStatement();
+        $sql->set('nb_comment = (' . $statement . ')');
+        $sql->from(App::core()->prefix() . 'post P');
+
+        $sql->update();
 
         // Trackback
-        $sql = new SelectStatement(__METHOD__);
-        $sel = $sql
-            ->column($sql->count('C.comment_id'))
-            ->from(App::core()->prefix() . 'comment C')
-            ->where([
-                'C.post_id = P.post_id',
-                'C.comment_trackback = 1',
-                'C.comment_status = 1',
-            ])
-            ->statement()
-        ;
+        $sql = new SelectStatement();
+        $sql->column($sql->count('C.comment_id'));
+        $sql->from(App::core()->prefix() . 'comment C');
+        $sql->where([
+            'C.post_id = P.post_id',
+            'C.comment_trackback = 1',
+            'C.comment_status = 1',
+        ]);
 
-        $sql = UpdateStatement::init(__METHOD__)
-            ->set('nb_trackback = (' . $sel . ')')
-            ->from(App::core()->prefix() . 'post P')
-            ->update()
-        ;
+        $statement = $sql->statement();
+
+        $sql = new UpdateStatement();
+        $sql->set('nb_trackback = (' . $statement . ')');
+        $sql->from(App::core()->prefix() . 'post P');
+
+        $sql->update();
     }
 }

@@ -148,7 +148,7 @@ final class Meta
 
         // If user can only publish, we need to check the post's owner
         if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
-            $sql = new SelectStatement(__METHOD__);
+            $sql = new SelectStatement();
             $sql->from(App::core()->prefix() . 'post');
             $sql->column('post_id');
             $sql->where('post_id = ' . $post_id);
@@ -168,7 +168,7 @@ final class Meta
      */
     private function updatePostMeta(int $post_id): void
     {
-        $sql = new SelectStatement(__METHOD__);
+        $sql = new SelectStatement();
         $sql->from(App::core()->prefix() . 'meta');
         $sql->columns([
             'meta_id',
@@ -182,7 +182,7 @@ final class Meta
             $meta[$rs->f('meta_type')][] = $rs->f('meta_id');
         }
 
-        $sql = new UpdateStatement(__METHOD__);
+        $sql = new UpdateStatement();
         $sql->set('post_meta = ' . $sql->quote(serialize($meta)));
         $sql->from(App::core()->prefix() . 'post');
         $sql->where('post_id = ' . $post_id);
@@ -204,7 +204,7 @@ final class Meta
     public function countPostsByMeta(?Param $param = null, ?SelectStatement $sql = null): int
     {
         $params = new MetaParam($param);
-        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $query  = $sql ? clone $sql : new SelectStatement();
 
         $params->unset('order');
         $params->unset('limit');
@@ -229,7 +229,7 @@ final class Meta
     public function getPostsByMeta(?Param $param = null, ?SelectStatement $sql = null): ?Record
     {
         $params = new MetaParam($param);
-        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $query  = $sql ? clone $sql : new SelectStatement();
 
         if ($this->queryPostsByMeta(param: $params, sql: $query)) {
             return App::core()->blog()->posts()->getPosts(param: $params, sql: $query);
@@ -282,7 +282,7 @@ final class Meta
     public function countCommentsByMeta(?Param $param = null, ?SelectStatement $sql = null): int
     {
         $params = new MetaParam($param);
-        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $query  = $sql ? clone $sql : new SelectStatement();
 
         $params->unset('order');
         $params->unset('limit');
@@ -307,7 +307,7 @@ final class Meta
     public function getCommentsByMeta(?Param $param = null, ?SelectStatement $sql = null): ?Record
     {
         $params = new MetaParam($param);
-        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $query  = $sql ? clone $sql : new SelectStatement();
 
         if ($this->queryCommentsByMeta(param: $params, sql: $query)) {
             return App::core()->blog()->posts()->getComments(param: $params, sql: $query);
@@ -356,7 +356,7 @@ final class Meta
     public function countMetadata(?Param $param = null, ?SelectStatement $sql = null): int
     {
         $params = new MetaParam($param);
-        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $query  = $sql ? clone $sql : new SelectStatement();
 
         $params->unset('order');
         $params->unset('limit');
@@ -379,7 +379,7 @@ final class Meta
     public function getMetadata(?Param $param = null, ?SelectStatement $sql = null): Record
     {
         $params = new MetaParam($param);
-        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $query  = $sql ? clone $sql : new SelectStatement();
 
         $query->columns([
             'M.meta_id',
@@ -412,7 +412,7 @@ final class Meta
      */
     private function queryMetadataTable(MetaParam $param, SelectStatement $sql): Record
     {
-        $join = new JoinStatement(__METHOD__);
+        $join = new JoinStatement();
         $join->type('LEFT');
         $join->from(App::core()->prefix() . 'post P');
         $join->on('M.post_id = P.post_id');
@@ -512,7 +512,7 @@ final class Meta
             return;
         }
 
-        $sql = new InsertStatement(__METHOD__);
+        $sql = new InsertStatement();
         $sql->from(App::core()->prefix() . 'meta');
         $sql->columns([
             'post_id',
@@ -540,7 +540,7 @@ final class Meta
     {
         $this->checkPermissionsOnPost($post_id);
 
-        $sql = new DeleteStatement(__METHOD__);
+        $sql = new DeleteStatement();
         $sql->from(App::core()->prefix() . 'meta');
         $sql->where('post_id = ' . $post_id);
 
@@ -575,7 +575,7 @@ final class Meta
             return true;
         }
 
-        $sql = new SelectStatement(__METHOD__);
+        $sql = new SelectStatement();
         $sql->from([
             App::core()->prefix() . 'meta M',
             App::core()->prefix() . 'post P',
@@ -625,7 +625,7 @@ final class Meta
 
         // Delete duplicate meta
         if (!empty($to_remove)) {
-            $sqlDel = new DeleteStatement(__METHOD__);
+            $sqlDel = new DeleteStatement();
             $sqlDel->from(App::core()->prefix() . 'meta');
             $sqlDel->where('post_id' . $sqlDel->in($to_remove));
             $sqlDel->and('meta_id = ' . $sqlDel->quote($meta_id));
@@ -643,7 +643,7 @@ final class Meta
 
         // Update meta
         if (!empty($to_update)) {
-            $sqlUpd = new UpdateStatement(__METHOD__);
+            $sqlUpd = new UpdateStatement();
             $sqlUpd->from(App::core()->prefix() . 'meta');
             $sqlUpd->set('meta_id = ' . $sqlUpd->quote($new_meta_id));
             $sqlUpd->where('post_id' . $sqlUpd->in($to_update));
@@ -674,7 +674,7 @@ final class Meta
      */
     public function delMeta(string $meta_id, ?string $type = null, ?string $post_type = null): array
     {
-        $sql = new SelectStatement(__METHOD__);
+        $sql = new SelectStatement();
         $sql->column('M.post_id');
         $sql->from([
             App::core()->prefix() . 'meta M',
@@ -703,7 +703,7 @@ final class Meta
             $ids[] = $rs->fInt('post_id');
         }
 
-        $sql = new DeleteStatement(__METHOD__);
+        $sql = new DeleteStatement();
         $sql->from(App::core()->prefix() . 'meta');
         $sql->where('post_id' . $sql->in($ids, 'int'));
         $sql->and('meta_id = ' . $sql->quote($meta_id));

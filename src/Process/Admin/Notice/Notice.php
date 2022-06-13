@@ -61,7 +61,7 @@ final class Notice
     public function countNotices(?Param $param = null, ?SelectStatement $sql = null): int
     {
         $params = new NoticeParam($param);
-        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $query  = $sql ? clone $sql : new SelectStatement();
 
         $params->unset('order');
         $params->unset('limit');
@@ -84,7 +84,7 @@ final class Notice
     public function getNotices(?Param $param = null, ?SelectStatement $sql = null): Record
     {
         $params = new NoticeParam($param);
-        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $query  = $sql ? clone $sql : new SelectStatement();
 
         $query->columns([
             'notice_id',
@@ -149,7 +149,7 @@ final class Notice
 
         try {
             // Get ID
-            $sql = new SelectStatement(__METHOD__);
+            $sql = new SelectStatement();
             $sql->column($sql->max('notice_id'));
             $sql->from(App::core()->prefix() . 'notice');
             $id = $sql->select()->fInt();
@@ -193,7 +193,7 @@ final class Notice
      */
     public function deleteNotices(Integers $ids): void
     {
-        $sql = new DeleteStatement(__METHOD__);
+        $sql = new DeleteStatement();
         $sql->from(App::core()->prefix() . 'notice');
         $sql->where('notice_id' . $sql->in($ids->dump()));
         $sql->delete();
@@ -204,7 +204,7 @@ final class Notice
      */
     public function deleteSessionNotices(): void
     {
-        $sql = new DeleteStatement(__METHOD__);
+        $sql = new DeleteStatement();
         $sql->from(App::core()->prefix() . 'notice');
         $sql->where('ses_id = ' . $sql->quote((string) session_id()));
         $sql->delete();

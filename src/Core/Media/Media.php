@@ -25,6 +25,7 @@ use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Zip\Unzip;
 use Dotclear\Helper\Html\XmlTag;
+use Dotclear\Helper\Mapper\Integers;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\Text;
 use SimpleXMLElement;
@@ -451,24 +452,22 @@ class Media extends Manager
 
         $media_dir = $this->relpwd ?: '.';
 
-        $sql = new SelectStatement(__METHOD__);
-        $sql
-            ->columns([
-                'media_file',
-                'media_id',
-                'media_path',
-                'media_title',
-                'media_meta',
-                'media_dt',
-                'media_creadt',
-                'media_upddt',
-                'media_private',
-                'user_id',
-            ])
-            ->from(App::core()->prefix() . 'media')
-            ->where('media_path = ' . $sql->quote($this->path))
-            ->and('media_dir = ' . $sql->quote($media_dir, true))
-        ;
+        $sql = new SelectStatement();
+        $sql->columns([
+            'media_file',
+            'media_id',
+            'media_path',
+            'media_title',
+            'media_meta',
+            'media_dt',
+            'media_creadt',
+            'media_upddt',
+            'media_private',
+            'user_id',
+        ]);
+        $sql->from(App::core()->prefix() . 'media');
+        $sql->where('media_path = ' . $sql->quote($this->path));
+        $sql->and('media_dir = ' . $sql->quote($media_dir, true));
 
         if (!App::core()->user()->check('media_admin', App::core()->blog()->id)) {
             $list = ['media_private <> 1'];
@@ -478,28 +477,26 @@ class Media extends Manager
             $sql->and($sql->orGroup($list));
         }
 
-        $rs = $sql->select();
+        $record = $sql->select();
 
         // Get list of private files in dir
-        $sql = new SelectStatement(__METHOD__);
-        $sql
-            ->columns([
-                'media_file',
-                'media_id',
-                'media_path',
-                'media_title',
-                'media_meta',
-                'media_dt',
-                'media_creadt',
-                'media_upddt',
-                'media_private',
-                'user_id',
-            ])
-            ->from(App::core()->prefix() . 'media')
-            ->where('media_path = ' . $sql->quote($this->path))
-            ->and('media_dir = ' . $sql->quote($media_dir, true))
-            ->and('media_private = 1')
-        ;
+        $sql = new SelectStatement();
+        $sql->columns([
+            'media_file',
+            'media_id',
+            'media_path',
+            'media_title',
+            'media_meta',
+            'media_dt',
+            'media_creadt',
+            'media_upddt',
+            'media_private',
+            'user_id',
+        ]);
+        $sql->from(App::core()->prefix() . 'media');
+        $sql->where('media_path = ' . $sql->quote($this->path));
+        $sql->and('media_dir = ' . $sql->quote($media_dir, true));
+        $sql->and('media_private = 1');
 
         $rsp      = $sql->select();
         $privates = [];
@@ -529,28 +526,25 @@ class Media extends Manager
 
         $f_reg = [];
 
-        while ($rs->fetch()) {
+        while ($record->fetch()) {
             // File in subdirectory, forget about it!
-            if ('.' != dirname($rs->f('media_file')) && dirname($rs->f('media_file')) != $this->relpwd) {
+            if ('.' != dirname($record->f('media_file')) && dirname($record->f('media_file')) != $this->relpwd) {
                 continue;
             }
 
-            if ($this->inFiles($rs->f('media_file'))) {
-                $f = $this->fileRecord($rs);
+            if ($this->inFiles($record->f('media_file'))) {
+                $f = $this->fileRecord($record);
                 if (null !== $f) {
-                    if (isset($f_reg[$rs->f('media_file')])) {
+                    if (isset($f_reg[$record->f('media_file')])) {
                         // That media is duplicated in the database,
                         // time to do a bit of house cleaning.
-                        $sql = new DeleteStatement(__METHOD__);
-                        $sql
-                            ->from(App::core()->prefix() . 'media')
-                            ->where('media_id = ' . $this->fileRecord($rs)->media_id)
-                        ;
-
+                        $sql = new DeleteStatement();
+                        $sql->from(App::core()->prefix() . 'media');
+                        $sql->where('media_id = ' . $this->fileRecord($record)->media_id);
                         $sql->delete();
                     } else {
-                        $f_res[]                     = $this->fileRecord($rs);
-                        $f_reg[$rs->f('media_file')] = 1;
+                        $f_res[]                     = $this->fileRecord($record);
+                        $f_reg[$record->f('media_file')] = 1;
                     }
                 }
             } elseif (!empty($p_dir['files']) && '' == $this->relpwd) {
@@ -558,15 +552,12 @@ class Media extends Manager
                 // Because we don't want to erase everything on
                 // dotclear upgrade, do it only if there are files
                 // in directory and directory is root
-                $sql = new DeleteStatement(__METHOD__);
-                $sql
-                    ->from(App::core()->prefix() . 'media')
-                    ->where('media_path = ' . $sql->quote($this->path, true))
-                    ->and('media_file = ' . $sql->quote($rs->f('media_file'), true))
-                ;
-
+                $sql = new DeleteStatement();
+                $sql->from(App::core()->prefix() . 'media');
+                $sql->where('media_path = ' . $sql->quote($this->path, true));
+                $sql->and('media_file = ' . $sql->quote($record->f('media_file'), true));
                 $sql->delete();
-                $this->callFileHandler(Files::getMimeType($rs->f('media_file')), 'remove', $this->pwd . '/' . $rs->f('media_file'));
+                $this->callFileHandler(Files::getMimeType($record->f('media_file')), 'remove', $this->pwd . '/' . $record->f('media_file'));
             }
         }
 
@@ -602,24 +593,22 @@ class Media extends Manager
      */
     public function getFile(int $id): ?Item
     {
-        $sql = new SelectStatement(__METHOD__);
-        $sql
-            ->from(App::core()->prefix() . 'media')
-            ->columns([
-                'media_id',
-                'media_path',
-                'media_title',
-                'media_file',
-                'media_meta',
-                'media_dt',
-                'media_creadt',
-                'media_upddt',
-                'media_private',
-                'user_id',
-            ])
-            ->where('media_path = ' . $sql->quote($this->path))
-            ->and('media_id = ' . (int) $id)
-        ;
+        $sql = new SelectStatement();
+        $sql->from(App::core()->prefix() . 'media');
+        $sql->columns([
+            'media_id',
+            'media_path',
+            'media_title',
+            'media_file',
+            'media_meta',
+            'media_dt',
+            'media_creadt',
+            'media_upddt',
+            'media_private',
+            'user_id',
+        ]);
+        $sql->where('media_path = ' . $sql->quote($this->path));
+        $sql->and('media_id = ' . (int) $id);
 
         if (!App::core()->user()->check('media_admin', App::core()->blog()->id)) {
             $list = ['media_private <> 1'];
@@ -629,9 +618,9 @@ class Media extends Manager
             $sql->and($sql->orGroup($list));
         }
 
-        $rs = $sql->select();
+        $record = $sql->select();
 
-        return $this->fileRecord($rs);
+        return $this->fileRecord($record);
     }
 
     /**
@@ -647,28 +636,26 @@ class Media extends Manager
             return false;
         }
 
-        $sql = new SelectStatement(__METHOD__);
-        $sql
-            ->from(App::core()->prefix() . 'media')
-            ->columns([
-                'media_file',
-                'media_id',
-                'media_path',
-                'media_title',
-                'media_meta',
-                'media_dt',
-                'media_creadt',
-                'media_upddt',
-                'media_private',
-                'user_id',
-            ])
-            ->where('media_path = ' . $sql->quote($this->path))
-            ->and($sql->orGroup([
-                $sql->like('media_title', '%' . $sql->escape($query) . '%'),
-                $sql->like('media_file', '%' . $sql->escape($query) . '%'),
-                $sql->like('media_meta', '%<Description>%' . $sql->escape($query) . '%</Description>%'),
-            ]))
-        ;
+        $sql = new SelectStatement();
+        $sql->from(App::core()->prefix() . 'media');
+        $sql->columns([
+            'media_file',
+            'media_id',
+            'media_path',
+            'media_title',
+            'media_meta',
+            'media_dt',
+            'media_creadt',
+            'media_upddt',
+            'media_private',
+            'user_id',
+        ]);
+        $sql->where('media_path = ' . $sql->quote($this->path));
+        $sql->and($sql->orGroup([
+            $sql->like('media_title', '%' . $sql->escape($query) . '%'),
+            $sql->like('media_file', '%' . $sql->escape($query) . '%'),
+            $sql->like('media_meta', '%<Description>%' . $sql->escape($query) . '%</Description>%'),
+        ]));
 
         if (!App::core()->user()->check('media_admin', App::core()->blog()->id)) {
             $list = ['media_private <> 1'];
@@ -678,12 +665,12 @@ class Media extends Manager
             $sql->and($sql->orGroup($list));
         }
 
-        $rs = $sql->select();
+        $record = $sql->select();
 
         $this->dir = ['dirs' => [], 'files' => []];
         $f_res     = [];
-        while ($rs->fetch()) {
-            $fr = $this->fileRecord($rs);
+        while ($record->fetch()) {
+            $fr = $this->fileRecord($record);
             if ($fr) {
                 $f_res[] = $fr;
             }
@@ -780,32 +767,26 @@ class Media extends Manager
     {
         $media_dir = $pwd ?: '.';
 
-        $sql = new SelectStatement(__METHOD__);
-        $sql
-            ->from(App::core()->prefix() . 'media')
-            ->columns([
-                'media_file',
-                'media_id',
-            ])
-            ->where('media_path = ' . $sql->quote($this->path))
-            ->and('media_dir = ' . $sql->quote($media_dir, true))
-        ;
+        $sql = new SelectStatement();
+        $sql->from(App::core()->prefix() . 'media');
+        $sql->columns([
+            'media_file',
+            'media_id',
+        ]);
+        $sql->where('media_path = ' . $sql->quote($this->path));
+        $sql->and('media_dir = ' . $sql->quote($media_dir, true));
+        $record = $sql->select();
 
-        $rs = $sql->select();
-
-        $del_ids = [];
-        while ($rs->fetch()) {
-            if (!is_file($this->root . '/' . $rs->f('media_file'))) {
-                $del_ids[] = $rs->fInt('media_id');
+        $ids = new Integers();
+        while ($record->fetch()) {
+            if (!is_file($this->root . '/' . $record->f('media_file'))) {
+                $ids->add($record->fInt('media_id'));
             }
         }
-        if (!empty($del_ids)) {
-            $sql = new DeleteStatement(__METHOD__);
-            $sql
-                ->from(App::core())
-                ->where('media_id' . $sql->in($del_ids))
-            ;
-
+        if ($ids->count()) {
+            $sql = new DeleteStatement();
+            $sql->from(App::core());
+            $sql->where('media_id' . $sql->in($ids->dump()));
             $sql->delete();
         }
     }
@@ -852,25 +833,21 @@ class Media extends Manager
 
         $cur = App::core()->con()->openCursor(App::core()->prefix() . 'media');
 
-        $sql = new SelectStatement(__METHOD__);
-        $sql
-            ->from(App::core()->prefix() . 'media')
-            ->column('media_id')
-            ->where('media_path = ' . $sql->quote($this->path, true))
-            ->and('media_file = ' . $sql->quote($media_file, true))
-        ;
+        $sql = new SelectStatement();
+        $sql->from(App::core()->prefix() . 'media');
+        $sql->column('media_id');
+        $sql->where('media_path = ' . $sql->quote($this->path, true));
+        $sql->and('media_file = ' . $sql->quote($media_file, true));
 
-        $rs = $sql->select();
+        $record = $sql->select();
 
-        if ($rs->isEmpty()) {
+        if ($record->isEmpty()) {
             App::core()->con()->writeLock(App::core()->prefix() . 'media');
 
             try {
-                $sql = new SelectStatement(__METHOD__);
-                $sql
-                    ->from(App::core()->prefix() . 'media')
-                    ->column($sql->max('media_id'))
-                ;
+                $sql = new SelectStatement();
+                $sql->from(App::core()->prefix() . 'media');
+                $sql->column($sql->max('media_id'));
 
                 $media_id = $sql->select()->fInt() + 1;
 
@@ -899,11 +876,11 @@ class Media extends Manager
                 throw $e;
             }
         } else {
-            $media_id = $rs->fInt('media_id');
+            $media_id = $record->fInt('media_id');
 
             $cur->setField('media_upddt', Clock::database());
 
-            $sql = new UpdateStatement(__METHOD__);
+            $sql = new UpdateStatement();
             $sql->where('media_id = ' . $media_id);
 
             $sql->update($cur);
@@ -973,7 +950,7 @@ class Media extends Manager
             $cur->setField('media_meta', $newFile->media_meta->asXML());
         }
 
-        $sql = new UpdateStatement(__METHOD__);
+        $sql = new UpdateStatement();
         $sql->where('media_id = ' . $id);
 
         $sql->update($cur);
@@ -1045,12 +1022,10 @@ class Media extends Manager
 
         $media_file = $this->relpwd ? Path::clean($this->relpwd . '/' . $f) : Path::clean($f);
 
-        $sql = new DeleteStatement(__METHOD__);
-        $sql
-            ->from(App::core()->prefix() . 'media')
-            ->where('media_path = ' . $sql->quote($this->path, true))
-            ->and('media_file = ' . $sql->quote($media_file))
-        ;
+        $sql = new DeleteStatement();
+        $sql->from(App::core()->prefix() . 'media');
+        $sql->where('media_path = ' . $sql->quote($this->path, true));
+        $sql->and('media_file = ' . $sql->quote($media_file));
 
         if (!App::core()->user()->check('media_admin', App::core()->blog()->id)) {
             $sql->and('user_id = ' . $sql->quote(App::core()->user()->userID(), true));
@@ -1079,17 +1054,15 @@ class Media extends Manager
         $dir       = [];
         $media_dir = $this->relpwd ?: '.';
 
-        $sql = new SelectStatement(__METHOD__);
-        $sql
-            ->from(App::core()->prefix() . 'media')
-            ->column('distinct media_dir')
-            ->where('media_path = ' . $sql->quote($this->path))
-        ;
+        $sql = new SelectStatement();
+        $sql->from(App::core()->prefix() . 'media');
+        $sql->column('distinct media_dir');
+        $sql->where('media_path = ' . $sql->quote($this->path));
 
-        $rs = $sql->select();
-        while ($rs->fetch()) {
-            if (is_dir($this->root . '/' . $rs->f('media_dir'))) {
-                $dir[] = ('.' == $rs->f('media_dir') ? '' : $rs->f('media_dir'));
+        $record = $sql->select();
+        while ($record->fetch()) {
+            if (is_dir($this->root . '/' . $record->f('media_dir'))) {
+                $dir[] = ('.' == $record->f('media_dir') ? '' : $record->f('media_dir'));
             }
         }
 
@@ -1348,7 +1321,7 @@ class Media extends Manager
         // --BEHAVIOR-- coreBeforeImageMetaCreate
         App::core()->behavior()->call('coreBeforeImageMetaCreate', $c);
 
-        $sql = new UpdateStatement(__METHOD__);
+        $sql = new UpdateStatement();
         $sql->where('media_id = ' . $id);
 
         $sql->update($c);

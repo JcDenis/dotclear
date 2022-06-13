@@ -251,12 +251,12 @@ final class Categories
      */
     private function getCategoriesPostsCount(CategoriesParam $param): array
     {
-        $join = new JoinStatement(__METHOD__);
+        $join = new JoinStatement();
         $join->from(App::core()->prefix() . 'post P');
         $join->on('C.cat_id = P.cat_id');
         $join->and('P.blog_id = ' . $join->quote(App::core()->blog()->id));
 
-        $sql = new SelectStatement(__METHOD__);
+        $sql = new SelectStatement();
         $sql->columns([
             'C.cat_id',
             $sql->count('P.post_id', 'nb_post'),
@@ -458,7 +458,7 @@ final class Categories
         // --BEHAVIOR-- coreBeforeDeleteCategory, int
         App::core()->behavior()->call('coreBeforeDeleteCategory', id: $id);
 
-        $sql = new SelectStatement(__METHOD__);
+        $sql = new SelectStatement();
         $sql->column($sql->count('post_id', 'nb_post'));
         $sql->from(App::core()->prefix() . 'post');
         $sql->where('cat_id = ' . $id);
@@ -506,7 +506,7 @@ final class Categories
      */
     private function checkCategory(string $title, string $url, ?int $id = null): string
     {
-        $sql = new SelectStatement(__METHOD__);
+        $sql = new SelectStatement();
         $sql->column('cat_url');
         $sql->from(App::core()->prefix() . 'category');
         $sql->where('cat_url = ' . $sql->quote($url));
@@ -519,7 +519,7 @@ final class Categories
 
         $record = $sql->select();
         if (!$record->isEmpty()) {
-            $sql = new SelectStatement(__METHOD__);
+            $sql = new SelectStatement();
             $sql->column('cat_url');
             $sql->from(App::core()->prefix() . 'category');
             $sql->where('cat_url' . $sql->regexp($url));

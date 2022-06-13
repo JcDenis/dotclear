@@ -72,43 +72,41 @@ class MaintenanceTaskIndexposts extends MaintenanceTask
      */
     public function indexAllPosts(?int $start = null, ?int $limit = null): ?int
     {
-        $sql   = new SelectStatement(__METHOD__);
-        $count = $sql
-            ->column($sql->count('post_id'))
-            ->from(App::core()->prefix() . 'post')
-            ->select()
-            ->fInt()
-        ;
+        $sql   = new SelectStatement();
+        $sql->column($sql->count('post_id'));
+        $sql->from(App::core()->prefix() . 'post');
+        
+        $count = $sql->select()->fInt();
 
         if (null !== $start && null !== $limit) {
             $sql->limit([$start, $limit]);
         }
 
-        $rs = $sql
-            ->columns([
+        $sql->columns(
+            [
                 'post_id',
                 'post_title',
                 'post_excerpt_xhtml',
                 'post_content_xhtml',
-            ], true) // Re-use statement
-            ->select()
-        ;
+            ],
+            true // Re-use statement
+        );
 
-        $sql = UpdateStatement::init(__METHOD__)
-            ->from(App::core()->prefix() . 'post')
-        ;
+        $record = $sql->select();
 
-        while ($rs->fetch()) {
+        $sql = new UpdateStatement();
+        $sql->from(App::core()->prefix() . 'post');
+
+        while ($record->fetch()) {
             $words =
-                $rs->f('post_title') . ' ' .
-                $rs->f('post_excerpt_xhtml') . ' ' .
-                $rs->f('post_content_xhtml');
+                $record->f('post_title') . ' ' .
+                $record->f('post_excerpt_xhtml') . ' ' .
+                $record->f('post_content_xhtml');
 
-            $sql
-                ->set('post_words = ' . $sql->quote(implode(' ', Text::splitWords($words))), true)
-                ->where('post_id = ' . $rs->fInt('post_id'), true)
-                ->update()
-            ;
+            $sql->set('post_words = ' . $sql->quote(implode(' ', Text::splitWords($words))), true);
+            $sql->where('post_id = ' . $record->fInt('post_id'), true);
+
+            $sql->update();
         }
 
         return $start + $limit > $count ? null : $start + $limit;

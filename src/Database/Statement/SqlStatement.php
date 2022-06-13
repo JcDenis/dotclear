@@ -26,27 +26,6 @@ class SqlStatement
     protected $sql     = [];
 
     /**
-     * Class constructor.
-     *
-     * @param null|string $ctx Optional context
-     */
-    public function __construct(protected string|null $ctx = null)
-    {
-    }
-
-    /**
-     * Staticaly contsruct statement.
-     *
-     * @param null|string $ctx Optional context
-     *
-     * @return self
-     */
-    public static function init(string $ctx = null): SqlStatement
-    {
-        return new self($ctx);
-    }
-
-    /**
      * Magic getter method.
      *
      * @param string $property The property
@@ -66,18 +45,14 @@ class SqlStatement
      *
      * @param string $property The property
      * @param mixed  $value    The value
-     *
-     * @return self
      */
-    public function __set(string $property, $value)
+    public function __set(string $property, $value): void
     {
         if (property_exists($this, $property)) {
             $this->{$property} = $value;
         } else {
             trigger_error('Unknown property ' . $property, E_USER_ERROR);
         }
-
-        return $this;
     }
 
     /**
@@ -99,7 +74,7 @@ class SqlStatement
      *
      * @param string $property The property
      */
-    public function __unset(string $property)
+    public function __unset(string $property): void
     {
         if (property_exists($this, $property)) {
             unset($this->{$property});
@@ -127,28 +102,12 @@ class SqlStatement
     }
 
     /**
-     * Adds context.
-     *
-     * @param mixed $c The context(s)
-     *
-     * @return static Enabling to chain calls
-     */
-    public function ctx($c): static
-    {
-        $this->ctx = $c;
-
-        return $this;
-    }
-
-    /**
      * Adds column(s).
      *
      * @param mixed $c     The column(s)
      * @param bool  $reset Reset previous column(s) first
-     *
-     * @return static Enabling to chain calls
      */
-    public function columns($c, bool $reset = false): static
+    public function columns($c, bool $reset = false): void
     {
         if ($reset) {
             $this->columns = [];
@@ -158,8 +117,6 @@ class SqlStatement
         } else {
             array_push($this->columns, $c);
         }
-
-        return $this;
     }
 
     /**
@@ -167,12 +124,10 @@ class SqlStatement
      *
      * @param mixed $c     The column(s)
      * @param bool  $reset Reset previous column(s) first
-     *
-     * @return static Enabling to chain calls
      */
-    public function fields($c, bool $reset = false): static
+    public function fields($c, bool $reset = false): void
     {
-        return $this->columns($c, $reset);
+        $this->columns($c, $reset);
     }
 
     /**
@@ -180,12 +135,10 @@ class SqlStatement
      *
      * @param mixed $c     The column(s)
      * @param bool  $reset Reset previous column(s) first
-     *
-     * @return static Enabling to chain calls
      */
-    public function column($c, bool $reset = false): static
+    public function column($c, bool $reset = false): void
     {
-        return $this->columns($c, $reset);
+        $this->columns($c, $reset);
     }
 
     /**
@@ -193,12 +146,10 @@ class SqlStatement
      *
      * @param mixed $c     The column(s)
      * @param bool  $reset Reset previous column(s) first
-     *
-     * @return static Enabling to chain calls
      */
-    public function field($c, bool $reset = false): static
+    public function field($c, bool $reset = false): void
     {
-        return $this->column($c, $reset);
+        $this->column($c, $reset);
     }
 
     /**
@@ -207,10 +158,8 @@ class SqlStatement
      * @param mixed $c     The from clause(s)
      * @param bool  $reset Reset previous from(s) first
      * @param bool  $first Put the from clause(s) at top of list
-     *
-     * @return static Enabling to chain calls
      */
-    public function from($c, bool $reset = false, bool $first = false): static
+    public function from($c, bool $reset = false, bool $first = false): void
     {
         $filter = fn ($v) => trim(ltrim((string) $v, ','));
         if ($reset) {
@@ -232,8 +181,6 @@ class SqlStatement
                 array_push($this->from, $c);
             }
         }
-
-        return $this;
     }
 
     /**
@@ -241,10 +188,8 @@ class SqlStatement
      *
      * @param mixed $c     The clause(s)
      * @param bool  $reset Reset previous where(s) first
-     *
-     * @return static Enabling to chain calls
      */
-    public function where($c, bool $reset = false): static
+    public function where($c, bool $reset = false): void
     {
         $filter = fn ($v) => preg_replace('/^\s*(AND|OR)\s*/i', '', $v);
         if ($reset) {
@@ -257,8 +202,6 @@ class SqlStatement
             $c = $filter($c);   // Cope with legacy code
             array_push($this->where, $c);
         }
-
-        return $this;
     }
 
     /**
@@ -266,12 +209,10 @@ class SqlStatement
      *
      * @param mixed $c     The clause(s)
      * @param bool  $reset Reset previous where(s) first
-     *
-     * @return static Enabling to chain calls
      */
-    public function on($c, bool $reset = false): static
+    public function on($c, bool $reset = false): void
     {
-        return $this->where($c, $reset);
+        $this->where($c, $reset);
     }
 
     /**
@@ -279,10 +220,8 @@ class SqlStatement
      *
      * @param mixed $c     The clause(s)
      * @param bool  $reset Reset previous condition(s) first
-     *
-     * @return static Enabling to chain calls
      */
-    public function cond($c, bool $reset = false): static
+    public function cond($c, bool $reset = false): void
     {
         if ($reset) {
             $this->cond = [];
@@ -292,8 +231,6 @@ class SqlStatement
         } else {
             array_push($this->cond, $c);
         }
-
-        return $this;
     }
 
     /**
@@ -301,12 +238,10 @@ class SqlStatement
      *
      * @param mixed $c     The clause(s)
      * @param bool  $reset Reset previous condition(s) first
-     *
-     * @return static Enabling to chain calls
      */
-    public function and($c, bool $reset = false): static
+    public function and($c, bool $reset = false): void
     {
-        return $this->cond(array_map(fn ($v) => 'AND ' . $v, is_array($c) ? $c : [$c]), $reset);
+        $this->cond(array_map(fn ($v) => 'AND ' . $v, is_array($c) ? $c : [$c]), $reset);
     }
 
     /**
@@ -326,12 +261,10 @@ class SqlStatement
      *
      * @param mixed $c     The clause(s)
      * @param bool  $reset Reset previous condition(s) first
-     *
-     * @return static Enabling to chain calls
      */
-    public function or($c, bool $reset = false): static
+    public function or($c, bool $reset = false): void
     {
-        return $this->cond(array_map(fn ($v) => 'OR ' . $v, is_array($c) ? $c : [$c]), $reset);
+        $this->cond(array_map(fn ($v) => 'OR ' . $v, is_array($c) ? $c : [$c]), $reset);
     }
 
     /**
@@ -351,10 +284,8 @@ class SqlStatement
      *
      * @param mixed $c     The clause(s)
      * @param bool  $reset Reset previous generic clause(s) first
-     *
-     * @return static Enabling to chain calls
      */
-    public function sql($c, bool $reset = false): static
+    public function sql($c, bool $reset = false): void
     {
         if ($reset) {
             $this->sql = [];
@@ -364,8 +295,6 @@ class SqlStatement
         } else {
             array_push($this->sql, $c);
         }
-
-        return $this;
     }
 
     // Helpers

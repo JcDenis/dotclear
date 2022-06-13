@@ -103,7 +103,7 @@ final class Posts
     public function countPosts(?Param $param = null, ?SelectStatement $sql = null): int
     {
         $params = new PostsParam($param);
-        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $query  = $sql ? clone $sql : new SelectStatement();
 
         // --BEHAVIOR-- coreBeforeCountPosts, Param, SelectStatement
         App::core()->behavior()->call('coreBeforeCountPosts', param: $params, sql: $query);
@@ -134,7 +134,7 @@ final class Posts
     public function getPosts(?Param $param = null, ?SelectStatement $sql = null): Record
     {
         $params = new PostsParam($param);
-        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $query  = $sql ? clone $sql : new SelectStatement();
 
         // --BEHAVIOR-- coreBeforeGetPosts, Param, SelectStatement
         App::core()->behavior()->call('coreBeforeGetPosts', param: $params, sql: $query);
@@ -207,12 +207,12 @@ final class Posts
      */
     private function queryPostsTable(PostsParam $param, SelectStatement $sql): Record
     {
-        $join_user = new JoinStatement(__METHOD__);
+        $join_user = new JoinStatement();
         $join_user->type('INNER');
         $join_user->from(App::core()->prefix() . 'user U');
         $join_user->on('U.user_id = P.user_id');
 
-        $join_cat = new JoinStatement(__METHOD__);
+        $join_cat = new JoinStatement();
         $join_cat->type('LEFT OUTER');
         $join_cat->from(App::core()->prefix() . 'category C');
         $join_cat->on('P.cat_id = C.cat_id');
@@ -316,7 +316,7 @@ final class Posts
         }
 
         if ($param->isset('media')) {
-            $sql_media = new SelectStatement(__METHOD__);
+            $sql_media = new SelectStatement();
             $sql_media->from(App::core()->prefix() . 'post_media M');
             $sql_media->column('M.post_id');
             $sql_media->where('M.post_id = P.post_id');
@@ -439,7 +439,7 @@ final class Posts
     {
         $params = new LangsParam($param);
 
-        $sql = new SelectStatement(__METHOD__);
+        $sql = new SelectStatement();
         $sql->columns([
             $sql->count('post_id', 'nb_post'),
             'post_lang',
@@ -477,7 +477,7 @@ final class Posts
     {
         $params = new DatesParam($param);
 
-        $sql = new SelectStatement(__METHOD__);
+        $sql = new SelectStatement();
 
         $dt_f  = '%Y-%m-%d';
         $dt_fc = '%Y%m%d';
@@ -493,7 +493,7 @@ final class Posts
         $dt_f  .= ' 00:00:00';
         $dt_fc .= '000000';
 
-        $join = new JoinStatement(__METHOD__);
+        $join = new JoinStatement();
         $join->type('LEFT');
         $join->from(App::core()->prefix() . 'category C');
         $join->on('P.cat_id = C.cat_id');
@@ -604,7 +604,7 @@ final class Posts
 
         try {
             // Get ID
-            $sql = new SelectStatement(__METHOD__);
+            $sql = new SelectStatement();
             $sql->column($sql->max('post_id'));
             $sql->from(App::core()->prefix() . 'post');
             $record = $sql->select();
@@ -690,7 +690,7 @@ final class Posts
 
         // If user is only "usage", we need to check the post's owner
         if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
-            $sql = new SelectStatement(__METHOD__);
+            $sql = new SelectStatement();
             $sql->from(App::core()->prefix() . 'post');
             $sql->where('post_id = ' . $id);
             $sql->and('user_id = ' . $sql->quote(App::core()->user()->userID()));
@@ -735,7 +735,7 @@ final class Posts
             throw new MissingOrEmptyValue(__('No such entry ID'));
         }
 
-        $sql = new UpdateStatement(__METHOD__);
+        $sql = new UpdateStatement();
         $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
         $sql->and('post_id' . $sql->in($ids->dump()));
         $sql->from(App::core()->prefix() . 'post');
@@ -776,7 +776,7 @@ final class Posts
             throw new MissingOrEmptyValue(__('No such entry ID'));
         }
 
-        $sql = new UpdateStatement(__METHOD__);
+        $sql = new UpdateStatement();
         $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
         $sql->and('post_id' . $sql->in($ids->dump()));
         $sql->from(App::core()->prefix() . 'post');
@@ -826,7 +826,7 @@ final class Posts
         }
         unset($param, $record);
 
-        $sql = new UpdateStatement(__METHOD__);
+        $sql = new UpdateStatement();
         $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
         $sql->and('post_id' . $sql->in($ids->dump()));
         $sql->from(App::core()->prefix() . 'post');
@@ -860,7 +860,7 @@ final class Posts
             throw new MissingOrEmptyValue(__('No such entry ID'));
         }
 
-        $sql = new UpdateStatement(__METHOD__);
+        $sql = new UpdateStatement();
         $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
         $sql->and('post_id' . $sql->in($ids->dump()));
         $sql->from(App::core()->prefix() . 'post');
@@ -897,7 +897,7 @@ final class Posts
             throw new MissingOrEmptyValue(__('No such entry ID'));
         }
 
-        $sql = new UpdateStatement(__METHOD__);
+        $sql = new UpdateStatement();
         $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
         $sql->and('post_id' . $sql->in($ids->dump()));
         $sql->from(App::core()->prefix() . 'post');
@@ -934,7 +934,7 @@ final class Posts
         // --BEHAVIOR-- coreBeforeChangePostsCategory, int, ?int
         App::core()->behavior()->call('coreBeforeChangePostsCategory', from: $from, to: $to);
 
-        $sql = new UpdateStatement(__METHOD__);
+        $sql = new UpdateStatement();
         $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
         $sql->and('cat_id = ' . $from);
         $sql->from(App::core()->prefix() . 'post');
@@ -967,7 +967,7 @@ final class Posts
         // --BEHAVIOR-- coreBeforeDeletePosts, Integers
         App::core()->behavior()->call('coreBeforeDeletePosts', ids: $ids);
 
-        $sql = new DeleteStatement(__METHOD__);
+        $sql = new DeleteStatement();
         $sql->from(App::core()->prefix() . 'post');
         $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
         $sql->and('post_id' . $sql->in($ids->dump()));
@@ -986,7 +986,7 @@ final class Posts
      */
     public function publishScheduledPosts(): void
     {
-        $sql = new SelectStatement(__METHOD__);
+        $sql = new SelectStatement();
         $sql->columns(['post_id', 'post_dt']);
         $sql->from(App::core()->prefix() . 'post');
         $sql->where('post_status = -1');
@@ -1007,7 +1007,7 @@ final class Posts
             // --BEHAVIOR-- coreBeforePublishScheduledPosts, Integers
             App::core()->behavior()->call('coreBeforePublishScheduledPosts', ids: $posts);
 
-            $sql = new UpdateStatement(__METHOD__);
+            $sql = new UpdateStatement();
             $sql->from(App::core()->prefix() . 'post');
             $sql->set('post_status = 1');
             $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
@@ -1043,7 +1043,7 @@ final class Posts
         }
 
         if ($posts->count()) {
-            $sql = new UpdateStatement(__METHOD__);
+            $sql = new UpdateStatement();
             $sql->from(App::core()->prefix() . 'post');
             $sql->set('post_firstpub = 1');
             $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
@@ -1062,7 +1062,7 @@ final class Posts
      */
     public function getPostsUsers(string $post_type = 'post'): Record
     {
-        $sql = new SelectStatement(__METHOD__);
+        $sql = new SelectStatement();
         $sql->columns([
             'P.user_id',
             'user_name',
@@ -1128,7 +1128,7 @@ final class Posts
         }
 
         if (!empty($sub)) {
-            $sql = new SelectStatement(__METHOD__);
+            $sql = new SelectStatement();
             $sql->columns([
                 'cat_id',
                 'cat_url',
@@ -1332,7 +1332,7 @@ final class Posts
         }
 
         // Let's check if URL is taken...
-        $sql = new SelectStatement(__METHOD__);
+        $sql = new SelectStatement();
         $sql->column('post_url');
         $sql->from(App::core()->prefix() . 'post');
         $sql->where('post_url = ' . $sql->quote($url));
@@ -1342,7 +1342,7 @@ final class Posts
 
         $record = $sql->select();
         if (!$record->isEmpty()) {
-            $sql = new SelectStatement(__METHOD__);
+            $sql = new SelectStatement();
 
             if (App::core()->con()->syntax() == 'mysql') {
                 $clause = "REGEXP '^" . App::core()->con()->escape(preg_quote($url)) . "[0-9]+$'";

@@ -19,38 +19,17 @@ use Dotclear\App;
  */
 class InsertStatement extends SqlStatement
 {
-    protected $lines;
-
-    /**
-     * Class constructor.
-     *
-     * @param mixed $ctx optional context
-     */
-    public function __construct($ctx = null)
-    {
-        $this->lines = [];
-
-        parent::__construct($ctx);
-    }
-
-    public static function init(string $ctx = null): InsertStatement
-    {
-        return new self($ctx);
-    }
+    protected $lines = [];
 
     /**
      * from() alias.
      *
      * @param mixed $c     the into clause(s)
      * @param bool  $reset reset previous into first
-     *
-     * @return self instance, enabling to chain calls
      */
-    public function into($c, bool $reset = false): InsertStatement
+    public function into($c, bool $reset = false): void
     {
         $this->from($c, $reset);
-
-        return $this;
     }
 
     /**
@@ -58,10 +37,8 @@ class InsertStatement extends SqlStatement
      *
      * @param mixed $c     the insert values(s)
      * @param bool  $reset reset previous insert value(s) first
-     *
-     * @return self instance, enabling to chain calls
      */
-    public function lines($c, bool $reset = false): InsertStatement
+    public function lines($c, bool $reset = false): void
     {
         if ($reset) {
             $this->lines = [];
@@ -71,8 +48,6 @@ class InsertStatement extends SqlStatement
         } else {
             array_push($this->lines, $c);
         }
-
-        return $this;
     }
 
     /**
@@ -80,12 +55,10 @@ class InsertStatement extends SqlStatement
      *
      * @param mixed $c     the insert value(s)
      * @param bool  $reset reset previous insert value(s) first
-     *
-     * @return self instance, enabling to chain calls
      */
-    public function line($c, bool $reset = false): InsertStatement
+    public function line($c, bool $reset = false): void
     {
-        return $this->lines($c, $reset);
+        $this->lines($c, $reset);
     }
 
     /**

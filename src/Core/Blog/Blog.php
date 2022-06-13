@@ -333,7 +333,7 @@ final class Blog
      */
     public function triggerBlog(): void
     {
-        $sql = new UpdateStatement(__METHOD__);
+        $sql = new UpdateStatement();
         $sql->from(App::core()->prefix() . 'blog');
         $sql->set('blog_upddt = ' . $sql->quote(Clock::database()));
         $sql->where('blog_id = ' . $sql->quote($this->id));
@@ -356,7 +356,7 @@ final class Blog
     {
         // Get posts affected by comments edition
         if (null === $posts || !$posts->count()) {
-            $sql = new SelectStatement(__METHOD__);
+            $sql = new SelectStatement();
             $sql->from(App::core()->prefix() . 'comment ');
             $sql->where('comment_id' . $sql->in($ids->dump()));
             $sql->group('post_id');
@@ -373,7 +373,7 @@ final class Blog
         }
 
         // Count number of comments if exists for affected posts
-        $sql = new SelectStatement(__METHOD__);
+        $sql = new SelectStatement();
         $sql->columns([
             'post_id',
             $sql->count('post_id', 'nb_comment'),
@@ -392,7 +392,7 @@ final class Blog
 
         // Update number of comments on affected posts
         foreach ($posts->dump() as $post_id) {
-            $sql = new UpdateStatement(__METHOD__);
+            $sql = new UpdateStatement();
             $sql->from(App::core()->prefix() . 'post');
             $sql->where('post_id = ' . $post_id);
 

@@ -235,100 +235,92 @@ class FilterIp extends Spamfilter
         $cur = App::core()->con()->openCursor(App::core()->prefix() . 'spamrule');
 
         if ($old->isEmpty()) {
-            $sql = new InsertStatement(__METHOD__);
-            $sql
-                ->columns([
-                    'rule_id',
-                    'rule_type',
-                    'rule_content',
-                    'blog_id',
-                ])
-                ->line([[
-                    SelectStatement::init(__METHOD__)
-                        ->columns($sql->max('rule_id'))
-                        ->from(App::core()->prefix() . 'spamrule')
-                        ->select()
-                        ->fInt() + 1,
-                    $sql->quote($type),
-                    $sql->quote($content),
-                    $global && App::core()->user()->isSuperAdmin() ? 'NULL' : $sql->quote(App::core()->blog()->id),
-                ]])
-                ->from(App::core()->prefix() . 'spamrule')
-                ->insert()
-            ;
+            $sql = new SelectStatement();
+            $sql->columns($sql->max('rule_id'));
+            $sql->from(App::core()->prefix() . 'spamrule');
+            $id = $sql->select()->fInt() + 1;
+
+            $sql = new InsertStatement();
+            $sql->columns([
+                'rule_id',
+                'rule_type',
+                'rule_content',
+                'blog_id',
+            ]);
+            $sql->line([[
+                $id,
+                $sql->quote($type),
+                $sql->quote($content),
+                $global && App::core()->user()->isSuperAdmin() ? 'NULL' : $sql->quote(App::core()->blog()->id),
+            ]]);
+            $sql->from(App::core()->prefix() . 'spamrule');
+            $sql->insert();
         } else {
-            $sql = new UpdateStatement(__METHOD__);
-            $sql
-                ->set('rule_type = ' . $sql->quote($type))
-                ->set('rule_content = ' . $sql->quote($content))
-                ->where('rule_id = ' . $old->fInt('rule_id'))
-                ->from(App::core()->prefix() . 'spamrule')
-                ->update()
-            ;
+            $sql = new UpdateStatement();
+            $sql->set('rule_type = ' . $sql->quote($type));
+            $sql->set('rule_content = ' . $sql->quote($content));
+            $sql->where('rule_id = ' . $old->fInt('rule_id'));
+            $sql->from(App::core()->prefix() . 'spamrule');
+            $sql->update();
         }
     }
 
     private function getRules(string $type = 'all'): Record
     {
-        $sql = new SelectStatement(__METHOD__);
+        $sql = new SelectStatement();
+        $sql->columns([
+            'rule_id',
+            'rule_type',
+            'blog_id',
+            'rule_content',
+        ]);
+        $sql->where('rule_type = ' . $sql->quote($type));
+        $sql->and($sql->orGroup([
+            'blog_id = ' . $sql->quote(App::core()->blog()->id),
+            'blog_id IS NULL',
+        ]));
+        $sql->order([
+            'blog_id ASC',
+            'rule_content ASC',
+        ]);
+        $sql->from(App::core()->prefix() . 'spamrule');
 
-        return $sql
-            ->columns([
-                'rule_id',
-                'rule_type',
-                'blog_id',
-                'rule_content',
-            ])
-            ->where('rule_type = ' . $sql->quote($type))
-            ->and($sql->orGroup([
-                'blog_id = ' . $sql->quote(App::core()->blog()->id),
-                'blog_id IS NULL',
-            ]))
-            ->order([
-                'blog_id ASC',
-                'rule_content ASC',
-            ])
-            ->from(App::core()->prefix() . 'spamrule')
-            ->select()
-        ;
+        return $sql->select();
     }
 
     private function getRuleCIDR(string $type, bool $global, $ip, $mask): Record
     {
-        $sql = new SelectStatement(__METHOD__);
-
-        return $sql
-            ->column('*')
-            ->where('rule_type = ' . $sql->quote($type))
-            ->and($sql->like('rule_content', '%:' . (int) $ip . ':' . (int) $mask))
-            ->and(
-                $global ?
-                'blog_id IS NULL' :
-                'blog_id = ' . $sql->quote(App::core()->blog()->id)
-            )
-            ->from(App::core()->prefix() . 'spamrule')
-            ->select()
-        ;
+        $sql = new SelectStatement();
+        $sql->column('*');
+        $sql->where('rule_type = ' . $sql->quote($type));
+        $sql->and($sql->like('rule_content', '%:' . (int) $ip . ':' . (int) $mask));
+        $sql->and(
+            $global ?
+            'blog_id IS NULL' :
+            'blog_id = ' . $sql->quote(App::core()->blog()->id)
+        );
+        $sql->from(App::core()->prefix() . 'spamrule');
+        
+        return $sql->select();
     }
 
     private function checkIP(string $cip, string $type): string|false
     {
-        $sql = new SelectStatement(__METHOD__);
-        $rs  = $sql
-            ->distinct()
-            ->column('rule_content')
-            ->where('rule_type = ' . $sql->quote($type))
-            ->and($sql->orGroup([
-                'blog_id = ' . $sql->quote(App::core()->blog()->id),
-                'blog_id IS NULL',
-            ]))
-            ->order('rule_content ASC')
-            ->from(App::core()->prefix() . 'spamrule')
-            ->select()
-        ;
+        $sql = new SelectStatement();
+        $sql->distinct();
+        $sql->column('rule_content');
+        $sql->where('rule_type = ' . $sql->quote($type));
+        $sql->and($sql->orGroup([
+            'blog_id = ' . $sql->quote(App::core()->blog()->id),
+            'blog_id IS NULL',
+        ]));
+        $sql->order('rule_content ASC');
+        $sql->from(App::core()->prefix() . 'spamrule');
+        
+        $record = $sql->select();
 
-        while ($rs->fetch()) {
-            [$pattern, $ip, $mask] = explode(':', $rs->f('rule_content'));
+        while ($record->fetch()) {
+            [$pattern, $ip, $mask] = explode(':', $record->f('rule_content'));
             if ((ip2long($cip) & (int) $mask) == ((int) $ip & (int) $mask)) {
                 return $pattern;
             }
@@ -339,7 +331,7 @@ class FilterIp extends Spamfilter
 
     private function removeRule(int|array $ids): void
     {
-        $sql = new DeleteStatement(__METHOD__);
+        $sql = new DeleteStatement();
 
         if (is_array($ids)) {
             foreach ($ids as $i => $v) {
@@ -354,9 +346,7 @@ class FilterIp extends Spamfilter
             $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
         }
 
-        $sql
-            ->from(App::core()->prefix() . 'spamrule')
-            ->delete()
-        ;
+        $sql->from(App::core()->prefix() . 'spamrule');
+        $sql->delete();
     }
 }

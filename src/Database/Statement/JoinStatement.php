@@ -19,35 +19,14 @@ use Dotclear\App;
  */
 class JoinStatement extends SqlStatement
 {
-    protected $type;
-
-    /**
-     * Class constructor.
-     *
-     * @param mixed $ctx optional context
-     */
-    public function __construct($ctx = null)
-    {
-        $this->type = null;
-
-        parent::__construct($ctx);
-    }
-
-    public static function init(string $ctx = null): JoinStatement
-    {
-        return new self($ctx);
-    }
+    protected $type = null;
 
     /**
      * Defines the type for join.
-     *
-     * @return self instance, enabling to chain calls
      */
-    public function type(string $type = ''): JoinStatement
+    public function type(string $type = ''): void
     {
         $this->type = $type;
-
-        return $this;
     }
 
     /**

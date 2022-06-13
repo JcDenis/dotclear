@@ -42,7 +42,7 @@ final class Version
     {
         // Fetch versions if needed
         if (empty($this->modules)) {
-            $sql = new SelectStatement(__METHOD__);
+            $sql = new SelectStatement();
             $sql->columns(['module', 'version']);
             $sql->from(App::core()->prefix() . 'version');
 
@@ -67,7 +67,7 @@ final class Version
             $this->deleteVersion(module: $module);
         }
 
-        $sql = new InsertStatement(__METHOD__);
+        $sql = new InsertStatement();
         $sql->from(App::core()->prefix() . 'version');
         $sql->columns([
             'module',
@@ -89,7 +89,7 @@ final class Version
      */
     public function deleteVersion(string $module): void
     {
-        $sql = new DeleteStatement(__METHOD__);
+        $sql = new DeleteStatement();
         $sql->from(App::core()->prefix() . 'version');
         $sql->where('module = ' . $sql->quote($module));
         $sql->delete();

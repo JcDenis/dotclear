@@ -72,36 +72,34 @@ class MaintenanceTaskIndexcomments extends MaintenanceTask
      */
     public function indexAllComments(?int $start = null, ?int $limit = null): ?int
     {
-        $sql   = new SelectStatement(__METHOD__);
-        $count = $sql
-            ->column($sql->count('comment_id'))
-            ->from(App::core()->prefix() . 'comment')
-            ->select()
-            ->fInt()
-        ;
+        $sql   = new SelectStatement();
+        $sql->column($sql->count('comment_id'));
+        $sql->from(App::core()->prefix() . 'comment');
+
+        $count = $sql->select()->fInt();
 
         if (null !== $start && null !== $limit) {
             $sql->limit([$start, $limit]);
         }
 
-        $rs = $sql
-            ->columns([
+        $sql->columns(
+            [
                 'comment_id',
                 'comment_content',
-            ], true) // Re-use statement
-            ->select()
-        ;
+            ],
+            true // Re-use statement
+        );
 
-        $sql = UpdateStatement::init(__METHOD__)
-            ->from(App::core()->prefix() . 'comment')
-        ;
+        $record = $sql->select();
 
-        while ($rs->fetch()) {
-            $sql
-                ->set('comment_words = ' . $sql->quote(implode(' ', Text::splitWords($rs->f('comment_content')))), true)
-                ->where('comment_id = ' . $rs->fInt('comment_id'), true)
-                ->update()
-            ;
+        $sql = new UpdateStatement();
+        $sql->from(App::core()->prefix() . 'comment');
+
+        while ($record->fetch()) {
+            $sql->set('comment_words = ' . $sql->quote(implode(' ', Text::splitWords($record->f('comment_content')))), true);
+            $sql->where('comment_id = ' . $record->fInt('comment_id'), true);
+
+            $sql->update();
         }
 
         return $start + $limit > $count ? null : $start + $limit;

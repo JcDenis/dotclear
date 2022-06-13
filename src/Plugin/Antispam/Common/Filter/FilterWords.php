@@ -192,89 +192,85 @@ class FilterWords extends Spamfilter
 
     private function getRules(string $type = 'all'): Record
     {
-        $sql = new SelectStatement(__METHOD__);
+        $sql = new SelectStatement();
+        $sql->columns([
+            'rule_id',
+            'blog_id',
+            'rule_content',
+        ]);
+        $sql->where('rule_type = ' . $sql->quote('word'));
+        $sql->and($sql->orGroup([
+            'blog_id = ' . $sql->quote(App::core()->blog()->id),
+            'blog_id IS NULL',
+        ]));
+        $sql->order([
+            'blog_id ASC',
+            'rule_content ASC',
+        ]);
+        $sql->from(App::core()->prefix() . 'spamrule');
 
-        return $sql
-            ->columns([
-                'rule_id',
-                'blog_id',
-                'rule_content',
-            ])
-            ->where('rule_type = ' . $sql->quote('word'))
-            ->and($sql->orGroup([
-                'blog_id = ' . $sql->quote(App::core()->blog()->id),
-                'blog_id IS NULL',
-            ]))
-            ->order([
-                'blog_id ASC',
-                'rule_content ASC',
-            ])
-            ->from(App::core()->prefix() . 'spamrule')
-            ->select()
-        ;
+        return $sql->select();
     }
 
     private function addRule(string $content, bool $general = false): void
     {
-        $sql = new SelectStatement(__METHOD__);
-        $sql
-            ->from(App::core()->prefix() . 'spamrule')
-            ->where('rule_type = ' . $sql->quote('word'))
-            ->and('rule_content = ' . $sql->quote($content))
-        ;
+        $sql = new SelectStatement();
+        $sql->from(App::core()->prefix() . 'spamrule');
+        $sql->where('rule_type = ' . $sql->quote('word'));
+        $sql->and('rule_content = ' . $sql->quote($content));
 
         if (!$general) {
             $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
         }
 
-        $rs = $sql->select();
+        $record = $sql->select();
 
-        if (!$rs->isEmpty() && !$general) {
+        if (!$record->isEmpty() && !$general) {
             throw new Exception(__('This word exists'));
         }
 
-        if (!$rs->isEmpty() && $general) {
-            $sql = new UpdateStatement(__METHOD__);
-            $sql
-                ->set('rule_type = ' . $sql->quote('word'))
-                ->set('rule_content = ' . $sql->quote($content))
-                ->set(
-                    true === $general && App::core()->user()->isSuperAdmin() ?
-                    'blog_id = NULL' :
-                    'blog_id = ' . $sql->quote(App::core()->blog()->id)
-                )
-                ->where('rule_id = ' . $rs->fInt('rule_id'))
-                ->from(App::core()->prefix() . 'spamrule')
-                ->update()
-            ;
+        if (!$record->isEmpty() && $general) {
+            $sql = new UpdateStatement();
+            $sql->set('rule_type = ' . $sql->quote('word'));
+            $sql->set('rule_content = ' . $sql->quote($content));
+            $sql->set(
+                true === $general && App::core()->user()->isSuperAdmin() ?
+                'blog_id = NULL' :
+                'blog_id = ' . $sql->quote(App::core()->blog()->id)
+            );
+            $sql->where('rule_id = ' . $record->fInt('rule_id'));
+            $sql->from(App::core()->prefix() . 'spamrule');
+
+            $sql->update();
         } else {
-            $sql = new InsertStatement(__METHOD__);
-            $sql
-                ->columns([
-                    'rule_type',
-                    'rule_content',
-                    'blog_id',
-                    'rule_id',
-                ])
-                ->line([[
-                    $sql->quote('word'),
-                    $sql->quote($content),
-                    $general && App::core()->user()->isSuperAdmin() ? 'NULL' : $sql->quote(App::core()->blog()->id),
-                    SelectStatement::init(__METHOD__)
-                        ->column($sql->max('rule_id'))
-                        ->from(App::core()->prefix() . 'spamrule')
-                        ->select()
-                        ->fInt() + 1,
-                ]])
-                ->from(App::core()->prefix() . 'spamrule')
-                ->insert()
-            ;
+            $sql = new SelectStatement();
+            $sql->column($sql->max('rule_id'));
+            $sql->from(App::core()->prefix() . 'spamrule');
+
+            $id = $sql->select()->fInt() + 1;
+
+            $sql = new InsertStatement();
+            $sql->columns([
+                'rule_type',
+                'rule_content',
+                'blog_id',
+                'rule_id',
+            ]);
+            $sql->line([[
+                $sql->quote('word'),
+                $sql->quote($content),
+                $general && App::core()->user()->isSuperAdmin() ? 'NULL' : $sql->quote(App::core()->blog()->id),
+                $id,
+            ]]);
+            $sql->from(App::core()->prefix() . 'spamrule');
+
+            $sql->insert();
         }
     }
 
     private function removeRule(int|array $ids): void
     {
-        $sql = new DeleteStatement(__METHOD__);
+        $sql = new DeleteStatement();
 
         if (is_array($ids)) {
             foreach ($ids as &$v) {
@@ -289,10 +285,9 @@ class FilterWords extends Spamfilter
             $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
         }
 
-        $sql
-            ->from(App::core()->prefix() . 'spamrule')
-            ->delete()
-        ;
+        $sql->from(App::core()->prefix() . 'spamrule');
+
+        $sql->delete();
     }
 
     public function defaultWordsList(): void

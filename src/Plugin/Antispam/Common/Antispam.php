@@ -20,6 +20,7 @@ use Dotclear\Database\Statement\JoinStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\Clock;
+use Dotclear\Helper\Mapper\Integers;
 use Dotclear\Plugin\Antispam\Common\Filter\FilterIp;
 use Dotclear\Plugin\Antispam\Common\Filter\FilterIpv6;
 use Dotclear\Process\Admin\Action\Action;
@@ -150,40 +151,35 @@ class Antispam
 
     public function delAllSpam(?string $beforeDate = null): void
     {
-        $sql = new SelectStatement(__METHOD__);
-        $sql
-            ->column('comment_id')
-            ->from(App::core()->prefix() . 'comment C')
-            ->join(
-                JoinStatement::init(__METHOD__)
-                    ->from(App::core()->prefix() . 'post P')
-                    ->on('P.post_id = C.post_id')
-                    ->statement()
-            )
-            ->where('blog_id = ' . $sql->quote(App::core()->blog()->id))
-            ->and('comment_status = -2')
-        ;
+        $join = new JoinStatement();
+        $join->from(App::core()->prefix() . 'post P');
+        $join->on('P.post_id = C.post_id');
+
+        $sql = new SelectStatement();
+        $sql->column('comment_id');
+        $sql->from(App::core()->prefix() . 'comment C');
+        $sql->join($join->statement());
+        $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
+        $sql->and('comment_status = -2');
 
         if ($beforeDate) {
             $sql->and('comment_dt < ' . $sql->quote($beforeDate));
         }
 
-        $rs = $sql->select();
-        $r  = [];
-        while ($rs->fetch()) {
-            $r[] = $rs->fInt('comment_id');
+        $record = $sql->select();
+        $ids = new Integers();
+        while ($record->fetch()) {
+            $ids->add($record->fInt('comment_id'));
         }
 
-        if (empty($r)) {
+        if (!$ids->count()) {
             return;
         }
 
-        $sql = new DeleteStatement(__METHOD__);
-        $sql
-            ->from(App::core()->prefix() . 'comment')
-            ->where('comment_id' . $sql->in($r))
-            ->delete()
-        ;
+        $sql = new DeleteStatement();
+        $sql->from(App::core()->prefix() . 'comment');
+        $sql->where('comment_id' . $sql->in($ids->dump()));
+        $sql->delete();
     }
 
     public function getUserCode(): string
@@ -205,32 +201,30 @@ class Antispam
             return false;
         }
 
-        $sql = new SelectStatement(__METHOD__);
-        $rs  = $sql
-            ->columns([
-                'user_id',
-                'user_pwd',
-            ])
-            ->where('user_id = ' . $sql->quote($user_id))
-            ->from(App::core()->prefix() . 'user')
-            ->select()
-        ;
+        $sql = new SelectStatement();
+        $sql->columns([
+            'user_id',
+            'user_pwd',
+        ]);
+        $sql->where('user_id = ' . $sql->quote($user_id));
+        $sql->from(App::core()->prefix() . 'user');
+        $record = $sql->select();
 
-        if ($rs->isEmpty()) {
+        if ($record->isEmpty()) {
             return false;
         }
 
-        if (hash(App::core()->config()->get('crypt_algo'), App::core()->user()->cryptLegacy($rs->f('user_pwd'))) != $pwd) {
+        if (hash(App::core()->config()->get('crypt_algo'), App::core()->user()->cryptLegacy($record->f('user_pwd'))) != $pwd) {
             return false;
         }
 
         $permissions = App::core()->permissions()->getBlogPermissions(id: App::core()->blog()->id);
 
-        if (empty($permissions[$rs->f('user_id')])) {
+        if (empty($permissions[$record->f('user_id')])) {
             return false;
         }
 
-        return $rs->f('user_id');
+        return $record->f('user_id');
     }
 
     public function purgeOldSpam(): void

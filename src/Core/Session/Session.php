@@ -209,54 +209,52 @@ class Session
 
     public function _read(string $ses_id): string
     {
-        $rs = SelectStatement::init(__METHOD__)
-            ->columns(['ses_value'])
-            ->from(App::core()->prefix() . 'session')
-            ->where("ses_id = '" . $this->checkID($ses_id) . "'")
-            ->select()
-        ;
+        $sql = new SelectStatement();
+        $sql->columns(['ses_value']);
+        $sql->from(App::core()->prefix() . 'session');
+        $sql->where("ses_id = '" . $this->checkID($ses_id) . "'");
 
-        return $rs->isEmpty() ? '' : $rs->f('ses_value');
+        $record = $sql->select();
+
+        return $record->isEmpty() ? '' : $record->f('ses_value');
     }
 
     public function _write(string $ses_id, string $data): bool
     {
         $ses_id = $this->checkID($ses_id);
 
-        $rs = SelectStatement::init(__METHOD__)
-            ->columns(['ses_id'])
-            ->from(App::core()->prefix() . 'session')
-            ->where("ses_id = '" . $ses_id . "'")
-            ->select()
-        ;
+        $sql = new SelectStatement();
+        $sql->columns(['ses_id']);
+        $sql->from(App::core()->prefix() . 'session');
+        $sql->where("ses_id = '" . $ses_id . "'");
 
-        if (!$rs->isEmpty()) {
-            $sql = new UpdateStatement(__METHOD__);
-            $sql
-                ->from(App::core()->prefix() . 'session')
-                ->where('ses_id = ' . $sql->quote($ses_id))
-                ->set('ses_time = ' . Clock::ts())
-                ->set('ses_value = ' . $sql->quote($data))
-                ->update()
-            ;
+        $record = $sql->select();
+
+        if (!$record->isEmpty()) {
+            $sql = new UpdateStatement();
+            $sql->from(App::core()->prefix() . 'session');
+            $sql->where('ses_id = ' . $sql->quote($ses_id));
+            $sql->set('ses_time = ' . Clock::ts());
+            $sql->set('ses_value = ' . $sql->quote($data));
+
+            $sql->update();
         } else {
-            $sql = new InsertStatement(__METHOD__);
-            $sql
-                ->from(App::core()->prefix() . 'session')
-                ->columns([
-                    'ses_id',
-                    'ses_start',
-                    'ses_time',
-                    'ses_value',
-                ])
-                ->line([[
-                    $sql->quote($ses_id),
-                    CLock::ts(),
-                    Clock::ts(),
-                    $sql->quote($data),
-                ]])
-                ->insert()
-            ;
+            $sql = new InsertStatement();
+            $sql->from(App::core()->prefix() . 'session');
+            $sql->columns([
+                'ses_id',
+                'ses_start',
+                'ses_time',
+                'ses_value',
+            ]);
+            $sql->line([[
+                $sql->quote($ses_id),
+                CLock::ts(),
+                Clock::ts(),
+                $sql->quote($data),
+            ]]);
+
+            $sql->insert();
         }
 
         return true;
@@ -264,11 +262,11 @@ class Session
 
     public function _destroy(string $ses_id): bool
     {
-        DeleteStatement::init(__METHOD__)
-            ->from(App::core()->prefix() . 'session')
-            ->where("ses_id = '" . $this->checkID($ses_id) . "'")
-            ->delete()
-        ;
+        $sql = new DeleteStatement();
+        $sql->from(App::core()->prefix() . 'session');
+        $sql->where("ses_id = '" . $this->checkID($ses_id) . "'");
+
+        $sql->delete();
 
         if (!$this->transient) {
             $this->_optimize();
@@ -279,11 +277,11 @@ class Session
 
     public function _gc(): bool
     {
-        DeleteStatement::init(__METHOD__)
-            ->from(App::core()->prefix() . 'session')
-            ->where('ses_time < ' . Clock::ts($this->ttl))
-            ->delete()
-        ;
+        $sql = new DeleteStatement();
+        $sql->from(App::core()->prefix() . 'session');
+        $sql->where('ses_time < ' . Clock::ts($this->ttl));
+
+        $sql->delete();
 
         if (0 < App::core()->con()->changes()) {
             $this->_optimize();

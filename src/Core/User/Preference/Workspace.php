@@ -83,42 +83,40 @@ class Workspace
     /**
      * Get preferences.
      *
-     * @param null|Record $rs Record instance
+     * @param null|Record $record Record instance
      */
-    private function getPrefs(?Record $rs = null): bool
+    private function getPrefs(?Record $record = null): bool
     {
-        if (null == $rs) {
+        if (null == $record) {
             try {
-                $sql = new SelectStatement(__METHOD__);
-                $rs  = $sql
-                    ->columns([
-                        'user_id',
-                        'pref_id',
-                        'pref_value',
-                        'pref_type',
-                        'pref_label',
-                        'pref_ws',
-                    ])
-                    ->from(App::core()->prefix() . 'pref')
-                    ->where($sql->orGroup([
-                        'user_id = ' . $sql->quote($this->user_id),
-                        'user_id IS NULL',
-                    ]))
-                    ->and('pref_ws = ' . $sql->quote($this->ws))
-                    ->order('pref_id ASC')
-                    ->select()
-                ;
+                $sql = new SelectStatement();
+                $sql->columns([
+                    'user_id',
+                    'pref_id',
+                    'pref_value',
+                    'pref_type',
+                    'pref_label',
+                    'pref_ws',
+                ]);
+                $sql->from(App::core()->prefix() . 'pref');
+                $sql->where($sql->orGroup([
+                    'user_id = ' . $sql->quote($this->user_id),
+                    'user_id IS NULL',
+                ]));
+                $sql->and('pref_ws = ' . $sql->quote($this->ws));
+                $sql->order('pref_id ASC');
+                $record = $sql->select();
             } catch (Exception $e) {
                 throw $e;
             }
         }
-        while ($rs->fetch()) {
-            if ($rs->f('pref_ws') != $this->ws) {
+        while ($record->fetch()) {
+            if ($record->f('pref_ws') != $this->ws) {
                 break;
             }
-            $id    = trim($rs->f('pref_id'));
-            $value = $rs->f('pref_value');
-            $type  = $rs->f('pref_type');
+            $id    = trim($record->f('pref_id'));
+            $value = $record->f('pref_value');
+            $type  = $record->f('pref_type');
 
             if ('array' == $type) {
                 $value = @json_decode($value, true);
@@ -132,14 +130,14 @@ class Workspace
 
             settype($value, $type);
 
-            $array = $rs->f('user_id') ? 'local' : 'global';
+            $array = $record->f('user_id') ? 'local' : 'global';
 
             $this->{$array . '_prefs'}[$id] = [
                 'ws'     => $this->ws,
                 'value'  => $value,
                 'type'   => $type,
-                'label'  => (string) $rs->f('pref_label'),
-                'global' => $rs->f('user_id') == '',
+                'label'  => (string) $record->f('pref_label'),
+                'global' => $record->f('user_id') == '',
             ];
         }
 
@@ -292,46 +290,42 @@ class Workspace
 
         // Update
         if ($this->prefExists($id, $global) && $this->ws == $this->prefs[$id]['ws']) {
-            $sql = new UpdateStatement(__METHOD__);
-            $sql
-                ->set([
-                    'pref_value = ' . $sql->quote('boolean' == $type ? (string) (int) $value : (string) $value),
-                    'pref_type = ' . $sql->quote($type),
-                    'pref_label = ' . $sql->quote($label),
-                ])
-                ->where(
-                    $global ?
-                    'user_id IS NULL' :
-                    'user_id = ' . $sql->quote($this->user_id)
-                )
-                ->and('pref_id = ' . $sql->quote($id))
-                ->and('pref_ws = ' . $sql->quote($this->ws))
-                ->from(App::core()->prefix() . 'pref')
-                ->update()
-            ;
+            $sql = new UpdateStatement();
+            $sql->set([
+                'pref_value = ' . $sql->quote('boolean' == $type ? (string) (int) $value : (string) $value),
+                'pref_type = ' . $sql->quote($type),
+                'pref_label = ' . $sql->quote($label),
+            ]);
+            $sql->where(
+                $global ?
+                'user_id IS NULL' :
+                'user_id = ' . $sql->quote($this->user_id)
+            );
+            $sql->and('pref_id = ' . $sql->quote($id));
+            $sql->and('pref_ws = ' . $sql->quote($this->ws));
+            $sql->from(App::core()->prefix() . 'pref');
+            $sql->update();
         // Insert
         } else {
-            $sql = new InsertStatement(__METHOD__);
-            $sql
-                ->columns([
-                    'pref_value',
-                    'pref_type',
-                    'pref_label',
-                    'pref_id',
-                    'user_id',
-                    'pref_ws',
-                ])
-                ->line([[
-                    $sql->quote('boolean' == $type ? (string) (int) $value : (string) $value),
-                    $sql->quote($type),
-                    $sql->quote($label),
-                    $sql->quote($id),
-                    $global ? 'NULL' : $sql->quote($this->user_id),
-                    $sql->quote($this->ws),
-                ]])
-                ->from(App::core()->prefix() . 'pref')
-                ->insert()
-            ;
+            $sql = new InsertStatement();
+            $sql->columns([
+                'pref_value',
+                'pref_type',
+                'pref_label',
+                'pref_id',
+                'user_id',
+                'pref_ws',
+            ]);
+            $sql->line([[
+                $sql->quote('boolean' == $type ? (string) (int) $value : (string) $value),
+                $sql->quote($type),
+                $sql->quote($label),
+                $sql->quote($id),
+                $global ? 'NULL' : $sql->quote($this->user_id),
+                $sql->quote($this->ws),
+            ]]);
+            $sql->from(App::core()->prefix() . 'pref');
+            $sql->insert();
         }
     }
 
@@ -364,14 +358,12 @@ class Workspace
         unset($this->prefs[$oldId]);
 
         // Rename the pref in the database
-        $sql = new UpdateStatement(__METHOD__);
-        $sql
-            ->set('pref_id = ' . $sql->quote($newId))
-            ->where('pref_ws = ' . $sql->quote($this->ws))
-            ->and('pref_id = ' . $sql->quote($oldId))
-            ->from(App::core()->prefix() . 'pref')
-            ->update()
-        ;
+        $sql = new UpdateStatement();
+        $sql->set('pref_id = ' . $sql->quote($newId));
+        $sql->where('pref_ws = ' . $sql->quote($this->ws));
+        $sql->and('pref_id = ' . $sql->quote($oldId));
+        $sql->from(App::core()->prefix() . 'pref');
+        $sql->update();
 
         return true;
     }
@@ -392,18 +384,16 @@ class Workspace
 
         $global = $force_global || null === $this->user_id;
 
-        $sql = new DeleteStatement(__METHOD__);
-        $sql
-            ->where(
-                $global ?
-                'user_id IS NULL' :
-                'user_id = ' . $sql->quote($this->user_id)
-            )
-            ->and('pref_id = ' . $sql->quote($id))
-            ->and('pref_ws = ' . $sql->quote($this->ws))
-            ->from(App::core()->prefix() . 'pref')
-            ->delete()
-        ;
+        $sql = new DeleteStatement();
+        $sql->where(
+            $global ?
+            'user_id IS NULL' :
+            'user_id = ' . $sql->quote($this->user_id)
+        );
+        $sql->and('pref_id = ' . $sql->quote($id));
+        $sql->and('pref_ws = ' . $sql->quote($this->ws));
+        $sql->from(App::core()->prefix() . 'pref');
+        $sql->delete();
 
         if ($this->prefExists($id, $global)) {
             $array = $global ? 'global' : 'local';
@@ -428,20 +418,16 @@ class Workspace
             throw new CoreException(__('No workspace specified'));
         }
 
-        $sql = new DeleteStatement(__METHOD__);
-        $sql
-            ->where('pref_id = ' . $sql->quote($id))
-            ->and('pref_ws = ' . $sql->quote($this->ws))
-        ;
+        $sql = new DeleteStatement();
+        $sql->where('pref_id = ' . $sql->quote($id));
+        $sql->and('pref_ws = ' . $sql->quote($this->ws));
 
         if (!$global) {
             $sql->and('user_id IS NOT NULL');
         }
 
-        $sql
-            ->from(App::core()->prefix() . 'pref')
-            ->delete()
-        ;
+        $sql->from(App::core()->prefix() . 'pref');
+        $sql->delete();
     }
 
     /**
@@ -459,17 +445,15 @@ class Workspace
 
         $global = $force_global || null === $this->user_id;
 
-        $sql = new DeleteStatement(__METHOD__);
-        $sql
-            ->where(
-                $global ?
-                'user_id IS NULL' :
-                'user_id = ' . $sql->quote($this->user_id)
-            )
-            ->and('pref_ws = ' . $sql->quote($this->ws))
-            ->from(App::core()->prefix() . 'pref')
-            ->delete()
-        ;
+        $sql = new DeleteStatement();
+        $sql->where(
+            $global ?
+            'user_id IS NULL' :
+            'user_id = ' . $sql->quote($this->user_id)
+        );
+        $sql->and('pref_ws = ' . $sql->quote($this->ws));
+        $sql->from(App::core()->prefix() . 'pref');
+        $sql->delete();
 
         $array = $global ? 'global' : 'local';
         unset($this->{$array . '_prefs'});

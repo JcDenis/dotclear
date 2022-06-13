@@ -48,15 +48,15 @@ class Trackback
      */
     public function getPostPings(int $post_id): Record
     {
-        return SelectStatement::init(__METHOD__)
-            ->columns([
-                'ping_url',
-                'ping_dt',
-            ])
-            ->from(App::core()->prefix() . 'ping')
-            ->where('post_id = ' . $post_id)
-            ->select()
-        ;
+        $sql = new SelectStatement();
+        $sql->columns([
+            'ping_url',
+            'ping_dt',
+        ]);
+        $sql->from(App::core()->prefix() . 'ping');
+        $sql->where('post_id = ' . $post_id);
+            
+        return $sql->select();
     }
 
     /**
@@ -78,19 +78,17 @@ class Trackback
             return false;
         }
 
-        $sql = new SelectStatement(__METHOD__);
-        $rs  = $sql
-            ->columns([
-                'post_id',
-                'ping_url',
-            ])
-            ->from(App::core()->prefix() . 'ping')
-            ->where('post_id = ' . $post_id)
-            ->and('ping_url = ' . $sql->quote($url))
-            ->select()
-        ;
+        $sql = new SelectStatement();
+        $sql->columns([
+            'post_id',
+            'ping_url',
+        ]);
+        $sql->from(App::core()->prefix() . 'ping');
+        $sql->where('post_id = ' . $post_id);
+        $sql->and('ping_url = ' . $sql->quote($url));
+        $record = $sql->select();
 
-        if (!$rs->isEmpty()) {
+        if (!$record->isEmpty()) {
             throw new CoreException(sprintf(__('%s has still been pinged'), $url));
         }
 
@@ -169,20 +167,18 @@ class Trackback
             throw new CoreException(sprintf(__('%s, ping error:'), $url) . ' ' . $ping_msg);
         }
         // Notify ping result in database
-        $sql = new InsertStatement(__METHOD__);
-        $sql
-            ->columns([
-                'post_id',
-                'ping_url',
-                'ping_dt',
-            ])
-            ->line([[
-                $post_id,
-                $sql->quote($url),
-                $sql->quote(Clock::database()),
-            ]])
-            ->insert()
-        ;
+        $sql = new InsertStatement();
+        $sql->columns([
+            'post_id',
+            'ping_url',
+            'ping_dt',
+        ]);
+        $sql->line([[
+            $post_id,
+            $sql->quote($url),
+            $sql->quote(Clock::database()),
+        ]]);
+        $sql->insert();
 
         return true;
     }
@@ -521,13 +517,12 @@ class Trackback
      */
     private function delBacklink(int $post_id, string $url): void
     {
-        $sql = new DeleteStatement(__METHOD__);
-        $sql->from(App::core()->prefix() . 'ping')
-            ->where('post_id = ' . $post_id)
-            ->and('comment_site = ' . $sql->quote($url))
-            ->and('comment_trackback = 1')
-            ->delete()
-        ;
+        $sql = new DeleteStatement();
+        $sql->from(App::core()->prefix() . 'ping');
+        $sql->where('post_id = ' . $post_id);
+        $sql->and('comment_site = ' . $sql->quote($url));
+        $sql->and('comment_trackback = 1');
+        $sql->delete();
     }
 
     /**

@@ -42,7 +42,7 @@ final class Settings
     public function __construct(private string|null $blog)
     {
         try {
-            $sql = new SelectStatement(__METHOD__);
+            $sql = new SelectStatement();
             $sql->columns([
                 'blog_id',
                 'setting_id',
@@ -137,7 +137,7 @@ final class Settings
         unset($this->groups[$from]);
 
         // Rename the group in the database
-        $sql = new UpdateStatement(__METHOD__);
+        $sql = new UpdateStatement();
         $sql->from(App::core()->prefix() . 'setting');
         $sql->set('setting_ns = ' . $sql->quote($to));
         $sql->where('setting_ns = ' . $sql->quote($from));
@@ -163,7 +163,7 @@ final class Settings
         unset($this->groups[$id]);
 
         // Delete all settings from the group in the database
-        $sql = new DeleteStatement(__METHOD__);
+        $sql = new DeleteStatement();
         $sql->from(App::core()->prefix() . 'setting');
         $sql->where('setting_ns = ' . $sql->quote($id));
         $sql->delete();

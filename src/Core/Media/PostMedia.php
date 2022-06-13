@@ -35,29 +35,27 @@ class PostMedia
      */
     public function getPostMedia(array $params = []): Record
     {
-        $sql = SelectStatement::init(__METHOD__)
-            ->columns([
-                'M.media_file',
-                'M.media_id',
-                'M.media_path',
-                'M.media_title',
-                'M.media_meta',
-                'M.media_dt',
-                'M.media_creadt',
-                'M.media_upddt',
-                'M.media_private',
-                'M.user_id',
-                'PM.post_id',
-            ])
-            ->from(App::core()->prefix() . 'media M')
-            ->join(
-                JoinStatement::init(__METHOD__)
-                    ->type('INNER')
-                    ->from(App::core()->prefix() . 'post_media PM')
-                    ->on('M.media_id = PM.media_id')
-                    ->statement()
-            )
-        ;
+        $join = new JoinStatement();
+        $join->type('INNER');
+        $join->from(App::core()->prefix() . 'post_media PM');
+        $join->on('M.media_id = PM.media_id');
+
+        $sql = new SelectStatement();
+        $sql->columns([
+            'M.media_file',
+            'M.media_id',
+            'M.media_path',
+            'M.media_title',
+            'M.media_meta',
+            'M.media_dt',
+            'M.media_creadt',
+            'M.media_upddt',
+            'M.media_private',
+            'M.user_id',
+            'PM.post_id',
+        ]);
+        $sql->from(App::core()->prefix() . 'media M');
+        $sql->join($join->statement());
 
         if (!empty($params['columns']) && is_array($params['columns'])) {
             $sql->columns($params['columns']);
@@ -105,20 +103,19 @@ class PostMedia
             return;
         }
 
-        $sql = new InsertStatement(__METHOD__);
-        $sql->from(App::core()->prefix() . 'post_media')
-            ->columns([
-                'post_id',
-                'media_id',
-                'link_type',
-            ])
-            ->line([[
-                $post_id,
-                $media_id,
-                $sql->quote($link_type),
-            ]])
-            ->insert()
-        ;
+        $sql = new InsertStatement();
+        $sql->from(App::core()->prefix() . 'post_media');
+        $sql->columns([
+            'post_id',
+            'media_id',
+            'link_type',
+        ]);
+        $sql->line([[
+            $post_id,
+            $media_id,
+            $sql->quote($link_type),
+        ]]);
+        $sql->insert();
 
         App::core()->blog()->triggerBlog();
     }
@@ -132,11 +129,10 @@ class PostMedia
      */
     public function removePostMedia(int $post_id, int $media_id, ?string $link_type = null): void
     {
-        $sql = DeleteStatement::init(__METHOD__)
-            ->from(App::core()->prefix() . 'post_media')
-            ->where('post_id = ' . $post_id)
-            ->and('media_id = ' . $media_id)
-        ;
+        $sql = new DeleteStatement();
+        $sql->from(App::core()->prefix() . 'post_media');
+        $sql->where('post_id = ' . $post_id);
+        $sql->and('media_id = ' . $media_id);
 
         if (null != $link_type) {
             $sql->and('link_type = ' . $sql->quote($link_type, true));

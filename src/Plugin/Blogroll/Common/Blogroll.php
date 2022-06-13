@@ -31,32 +31,30 @@ class Blogroll
 {
     public function getLinks(array|ArrayObject $params = []): Record
     {
-        $sql = new SelectStatement(__METHOD__);
-        $sql
-            ->columns([
-                'link_id',
-                'link_title',
-                'link_desc',
-                'link_href',
-                'link_lang',
-                'link_xfn',
-                'link_position',
-            ])
-            ->where('blog_id = ' . $sql->quote(App::core()->blog()->id))
-            ->from(App::core()->prefix() . 'link')
-            ->order('link_position')
-        ;
+        $sql = new SelectStatement();
+        $sql->columns([
+            'link_id',
+            'link_title',
+            'link_desc',
+            'link_href',
+            'link_lang',
+            'link_xfn',
+            'link_position',
+        ]);
+        $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
+        $sql->from(App::core()->prefix() . 'link');
+        $sql->order('link_position');
 
         if (isset($params['link_id'])) {
             $sql->and('link_id = ' . (int) $params['link_id']);
         }
 
-        $rs = $sql->select();
-        $rs = $rs->toStatic();
+        $record = $sql->select();
+        $record = $record->toStatic();
 
-        $this->setLinksData($rs);
+        $this->setLinksData($record);
 
-        return $rs;
+        return $record;
     }
 
     public function getLangs(Param $param = null): Record
@@ -64,18 +62,16 @@ class Blogroll
         // Use post_lang as an alias of link_lang to be able to use the dcAdminCombos::getLangsCombo() function
         $param = new LangsParam($param);
 
-        $sql = new SelectStatement(__METHOD__);
-        $sql
-            ->columns([
-                $sql->count('link_id', 'nb_link'),
-                'link_lang as post_lang',
-            ])
-            ->from(App::core()->prefix() . 'link')
-            ->where('blog_id = ' . $sql->quote(App::core()->blog()->id))
-            ->and("link_id <> ''")
-            ->and('link_id IS NOT NULL')
-            ->order('link_lang ' . (!empty($param->order()) && preg_match('/^(desc|asc)$/i', $param->order()) ? $param->order() : 'desc'))
-        ;
+        $sql = new SelectStatement();
+        $sql->columns([
+            $sql->count('link_id', 'nb_link'),
+            'link_lang as post_lang',
+        ]);
+        $sql->from(App::core()->prefix() . 'link');
+        $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
+        $sql->and("link_id <> ''");
+        $sql->and('link_id IS NOT NULL');
+        $sql->order('link_lang ' . (!empty($param->order()) && preg_match('/^(desc|asc)$/i', $param->order()) ? $param->order() : 'desc'));
 
         if (null !== $param->post_lang()) {
             $sql->and('link_lang = ' . $sql->quote($param->post_lang()));
@@ -99,33 +95,32 @@ class Blogroll
             throw new ModuleException(__('You must provide a link URL'));
         }
 
-        $sql = new InsertStatement(__METHOD__);
-        $sql
-            ->columns([
-                'blog_id',
-                'link_title',
-                'link_href',
-                'link_desc',
-                'link_lang',
-                'link_xfn',
-                'link_id',
-            ])
-            ->line([[
-                $sql->quote(App::core()->blog()->id),
-                $sql->quote($title),
-                $sql->quote($href),
-                $sql->quote($desc),
-                $sql->quote($lang),
-                $sql->quote($xfn),
-                SelectStatement::init(__METHOD__)
-                    ->from(App::core()->prefix() . 'link')
-                    ->column($sql->max('link_id'))
-                    ->select()
-                    ->fInt() + 1,
-            ]])
-            ->from(App::core()->prefix() . 'link')
-            ->insert()
-        ;
+        $sql = new SelectStatement();
+        $sql->from(App::core()->prefix() . 'link');
+        $sql->column($sql->max('link_id'));
+        $id = $sql->select()->fInt() + 1;
+
+        $sql = new InsertStatement();
+        $sql->columns([
+            'blog_id',
+            'link_title',
+            'link_href',
+            'link_desc',
+            'link_lang',
+            'link_xfn',
+            'link_id',
+        ]);
+        $sql->line([[
+            $sql->quote(App::core()->blog()->id),
+            $sql->quote($title),
+            $sql->quote($href),
+            $sql->quote($desc),
+            $sql->quote($lang),
+            $sql->quote($xfn),
+            $id,
+        ]]);
+        $sql->from(App::core()->prefix() . 'link');
+        $sql->insert();
 
         App::core()->blog()->triggerBlog();
     }
@@ -140,20 +135,18 @@ class Blogroll
             throw new ModuleException(__('You must provide a link URL'));
         }
 
-        $sql = new UpdateStatement(__METHOD__);
-        $sql
-            ->sets([
-                'link_title = ' . $sql->quote($title),
-                'link_href = ' . $sql->quote($href),
-                'link_desc = ' . $sql->quote($desc),
-                'link_lang = ' . $sql->quote($lang),
-                'link_xfn = ' . $sql->quote($xfn),
-            ])
-            ->where('link_id = ' . $id)
-            ->and('blog_id = ' . $sql->quote(App::core()->blog()->id))
-            ->from(App::core()->prefix() . 'link')
-            ->update()
-        ;
+        $sql = new UpdateStatement();
+        $sql->sets([
+            'link_title = ' . $sql->quote($title),
+            'link_href = ' . $sql->quote($href),
+            'link_desc = ' . $sql->quote($desc),
+            'link_lang = ' . $sql->quote($lang),
+            'link_xfn = ' . $sql->quote($xfn),
+        ]);
+        $sql->where('link_id = ' . $id);
+        $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
+        $sql->from(App::core()->prefix() . 'link');
+        $sql->update();
 
         App::core()->blog()->triggerBlog();
     }
@@ -164,14 +157,12 @@ class Blogroll
             throw new ModuleException(__('You must provide a category title'));
         }
 
-        $sql = new UpdateStatement(__METHOD__);
-        $sql
-            ->set('link_desc = ' . $sql->quote($desc))
-            ->where('link_id = ' . $id)
-            ->and('blog_id = ' . $sql->quote(App::core()->blog()->id))
-            ->from(App::core()->prefix() . 'link')
-            ->update()
-        ;
+        $sql = new UpdateStatement();
+        $sql->set('link_desc = ' . $sql->quote($desc));
+        $sql->where('link_id = ' . $id);
+        $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
+        $sql->from(App::core()->prefix() . 'link');
+        $sql->update();
 
         App::core()->blog()->triggerBlog();
     }
@@ -182,32 +173,28 @@ class Blogroll
             throw new ModuleException(__('You must provide a category title'));
         }
 
-        $sql = new InsertStatement(__METHOD__);
+        $sql = new SelectStatement();
+        $sql->from(App::core()->prefix() . 'link');
+        $sql->column($sql->max('link_id'));
+        $id = $sql->select()->fInt() + 1;
 
-        $id = SelectStatement::init(__METHOD__)
-            ->from(App::core()->prefix() . 'link')
-            ->column($sql->max('link_id'))
-            ->select()
-            ->fInt() + 1;
-
-        $sql
-            ->columns([
-                'blog_id',
-                'link_title',
-                'link_href',
-                'link_desc',
-                'link_id',
-            ])
-            ->line([[
-                $sql->quote(App::core()->blog()->id),
-                $sql->quote(''),
-                $sql->quote(''),
-                $sql->quote($title),
-                $id,
-            ]])
-            ->from(App::core()->prefix() . 'link')
-            ->insert()
-        ;
+        $sql = new InsertStatement();
+        $sql->columns([
+            'blog_id',
+            'link_title',
+            'link_href',
+            'link_desc',
+            'link_id',
+        ]);
+        $sql->line([[
+            $sql->quote(App::core()->blog()->id),
+            $sql->quote(''),
+            $sql->quote(''),
+            $sql->quote($title),
+            $id,
+        ]]);
+        $sql->from(App::core()->prefix() . 'link');
+        $sql->insert();
 
         App::core()->blog()->triggerBlog();
 
@@ -216,52 +203,48 @@ class Blogroll
 
     public function delItem(int $id): void
     {
-        $sql = new DeleteStatement(__METHOD__);
-        $sql
-            ->where('link_id = ' . $id)
-            ->and('blog_id = ' . $sql->quote(App::core()->blog()->id))
-            ->from(App::core()->prefix() . 'link')
-            ->delete()
-        ;
+        $sql = new DeleteStatement();
+        $sql->where('link_id = ' . $id);
+        $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
+        $sql->from(App::core()->prefix() . 'link');
+        $sql->delete();
 
         App::core()->blog()->triggerBlog();
     }
 
     public function updateOrder(int $id, int $position): void
     {
-        $sql = new UpdateStatement(__METHOD__);
-        $sql
-            ->set('link_position = ' . $position)
-            ->where('link_id = ' . $id)
-            ->and('blog_id = ' . $sql->quote(App::core()->blog()->id))
-            ->from(App::core()->prefix() . 'link')
-            ->update()
-        ;
+        $sql = new UpdateStatement();
+        $sql->set('link_position = ' . $position);
+        $sql->where('link_id = ' . $id);
+        $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
+        $sql->from(App::core()->prefix() . 'link');
+        $sql->update();
 
         App::core()->blog()->triggerBlog();
     }
 
-    private function setLinksData(StaticRecord $rs): void
+    private function setLinksData(StaticRecord $record): void
     {
         $cat_title = null;
-        while ($rs->fetch()) {
-            $rs->set('is_cat', !$rs->f('link_title') && !$rs->f('link_href'));
+        while ($record->fetch()) {
+            $record->set('is_cat', !$record->f('link_title') && !$record->f('link_href'));
 
-            if ($rs->f('is_cat')) {
-                $cat_title = $rs->f('link_desc');
-                $rs->set('cat_title', null);
+            if ($record->f('is_cat')) {
+                $cat_title = $record->f('link_desc');
+                $record->set('cat_title', null);
             } else {
-                $rs->set('cat_title', $cat_title);
+                $record->set('cat_title', $cat_title);
             }
         }
-        $rs->moveStart();
+        $record->moveStart();
     }
 
-    public function getLinksHierarchy(Record $rs): array
+    public function getLinksHierarchy(Record $record): array
     {
         $res = [];
 
-        foreach ($rs->rows() as $k => $v) {
+        foreach ($record->rows() as $k => $v) {
             if (!$v['is_cat']) {
                 $res[$v['cat_title']][] = $v;
             }

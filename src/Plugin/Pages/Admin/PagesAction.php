@@ -113,23 +113,22 @@ class PagesAction extends PostAction
                 throw new AdminException(__('You are not allowed to change this entry status'));
             }
 
-            $sql = new UpdateStatement(__METHOD__);
+            $sql = new UpdateStatement();
 
             // If user can only publish, we need to check the post's owner
             if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
                 $sql->and('user_id = ' . $sql->quote(App::core()->user()->userID()));
             }
 
-            $sql
-                ->sets([
-                    'post_position = ' . ((int) $value - 1),
-                    'post_upddt = ' . $sql->quote(Clock::database()),
-                ])
-                ->where('blog_id = ' . $sql->quote(App::core()->blog()->id))
-                ->and('post_id' . $sql->in($post_id))
-                ->from(App::core()->prefix() . 'post')
-                ->update()
-            ;
+            $sql->sets([
+                'post_position = ' . ((int) $value - 1),
+                'post_upddt = ' . $sql->quote(Clock::database()),
+            ]);
+            $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
+            $sql->and('post_id' . $sql->in($post_id));
+            $sql->from(App::core()->prefix() . 'post');
+
+            $sql->update();
 
             App::core()->blog()->triggerBlog();
         }

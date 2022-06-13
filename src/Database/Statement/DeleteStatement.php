@@ -19,11 +19,6 @@ use Dotclear\App;
  */
 class DeleteStatement extends SqlStatement
 {
-    public static function init(string $ctx = null): DeleteStatement
-    {
-        return new self($ctx);
-    }
-
     /**
      * Returns the delete statement.
      *

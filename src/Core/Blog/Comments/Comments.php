@@ -104,7 +104,7 @@ final class Comments
     public function countComments(?Param $param = null, ?SelectStatement $sql = null): int
     {
         $params = new CommentsParam($param);
-        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $query  = $sql ? clone $sql : new SelectStatement();
 
         // --BEHAVIOR-- coreBeforeCountComments, Param, SelectStatement
         App::core()->behavior()->call('coreBeforeCountComments', param: $params, sql: $query);
@@ -135,7 +135,7 @@ final class Comments
     public function getComments(?Param $param = null, ?SelectStatement $sql = null): Record
     {
         $params = new CommentsParam($param);
-        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $query  = $sql ? clone $sql : new SelectStatement();
 
         // --BEHAVIOR-- coreBeforeGetComments, Param, SelectStatement
         App::core()->behavior()->call('coreBeforeGetComments', param: $params, sql: $query);
@@ -194,12 +194,12 @@ final class Comments
      */
     public function queryCommentsTable(CommentsParam $param, SelectStatement $sql): Record
     {
-        $post_join = new JoinStatement(__METHOD__);
+        $post_join = new JoinStatement();
         $post_join->type('INNER');
         $post_join->from(App::core()->prefix() . 'post P');
         $post_join->on('C.post_id = P.post_id');
 
-        $user_join = new JoinStatement(__METHOD__);
+        $user_join = new JoinStatement();
         $user_join->type('INNER');
         $user_join->from(App::core()->prefix() . 'user U');
         $user_join->on('P.user_id = U.user_id');
@@ -332,7 +332,7 @@ final class Comments
 
         try {
             // Get ID
-            $sql = new SelectStatement(__METHOD__);
+            $sql = new SelectStatement();
             $sql->column($sql->max('comment_id'));
             $sql->from(App::core()->prefix() . 'comment');
             $id = $sql->select()->fInt();
@@ -477,7 +477,7 @@ final class Comments
             throw new InsufficientPermissions(__("You are not allowed to change this comment's status"));
         }
 
-        $sql = new UpdateStatement(__METHOD__);
+        $sql = new UpdateStatement();
         $sql->set('comment_status = ' . $status);
         $sql->where('comment_id' . $sql->in($ids->dump()));
         $sql->from(App::core()->prefix() . 'comment');
@@ -509,7 +509,7 @@ final class Comments
         }
 
         // Retrieve posts affected by comments deletion
-        $sql = new SelectStatement(__METHOD__);
+        $sql = new SelectStatement();
         $sql->column('post_id');
         $sql->where('comment_id' . $sql->in($ids->dump()));
         $sql->group('post_id');
@@ -524,7 +524,7 @@ final class Comments
         // --BEHAVIOR-- coreBeforeDeleteComments, Integers
         App::core()->behavior()->call('coreBeforeDeleteComments', ids: $ids);
 
-        $sql = new DeleteStatement(__METHOD__);
+        $sql = new DeleteStatement();
         $sql->where('comment_id' . $sql->in($ids->dump()));
         $sql->from(App::core()->prefix() . 'comment');
 
@@ -547,7 +547,7 @@ final class Comments
             throw new InsufficientPermissions(__('You are not allowed to delete comments'));
         }
 
-        $sql = new DeleteStatement(__METHOD__);
+        $sql = new DeleteStatement();
         $sql->where('comment_status = -2');
         $sql->from(App::core()->prefix() . 'comment');
 
@@ -565,7 +565,7 @@ final class Comments
      */
     private function setPostOwnerStatement(SqlStatement $sql): void
     {
-        $in = new SelectStatement(__METHOD__);
+        $in = new SelectStatement();
         $in->column('tp.post_id');
         $in->where('tp.blog_id = ' . $in->quote(App::core()->blog()->id));
         $in->from(App::core()->prefix() . 'post tp');

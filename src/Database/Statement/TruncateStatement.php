@@ -19,11 +19,6 @@ use Dotclear\App;
  */
 class TruncateStatement extends SqlStatement
 {
-    public static function init(string $ctx = null): TruncateStatement
-    {
-        return new self($ctx);
-    }
-
     /**
      * Returns the truncate statement.
      *

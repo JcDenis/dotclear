@@ -69,7 +69,7 @@ final class SettingsGroup
 
         if (null == $record) {
             try {
-                $sql = new SelectStatement(__METHOD__);
+                $sql = new SelectStatement();
                 $sql->columns([
                     'blog_id',
                     'setting_id',
@@ -285,7 +285,7 @@ final class SettingsGroup
         if (($global && $this->hasGlobalSetting(id: $id) || !$global && $this->hasLocalSetting(id: $id))
             && $this->group == $this->settings[$id]->group
         ) {
-            $sql = new UpdateStatement(__METHOD__);
+            $sql = new UpdateStatement();
             $sql->set([
                 'setting_value = ' . $sql->quote('boolean' == $type ? (string) (int) $value : (string) $value),
                 'setting_type = ' . $sql->quote($type),
@@ -302,7 +302,7 @@ final class SettingsGroup
             $sql->update();
         // Insert
         } else {
-            $sql = new InsertStatement(__METHOD__);
+            $sql = new InsertStatement();
             $sql->columns([
                 'setting_value',
                 'setting_type',
@@ -354,7 +354,7 @@ final class SettingsGroup
         unset($this->settings[$from]);
 
         // Rename the setting in the database
-        $sql = new UpdateStatement(__METHOD__);
+        $sql = new UpdateStatement();
         $sql->from(App::core()->prefix() . 'setting');
         $sql->set('setting_id = ' . $sql->quote($to));
         $sql->where('setting_ns = ' . $sql->quote($this->group));
@@ -415,7 +415,7 @@ final class SettingsGroup
             throw new MissingOrEmptyValue(__('No namespace specified'));
         }
 
-        $sql = new DeleteStatement(__METHOD__);
+        $sql = new DeleteStatement();
         $sql->from(App::core()->prefix() . 'setting');
         $sql->where($where);
         $sql->and('setting_id = ' . $sql->quote($id));
@@ -443,7 +443,7 @@ final class SettingsGroup
             return;
         }
 
-        $sql = new DeleteStatement(__METHOD__);
+        $sql = new DeleteStatement();
         $sql->from(App::core()->prefix() . 'setting');
         $sql->where('blog_id = ' . $sql->quote($this->blog));
         $sql->and('setting_ns = ' . $sql->quote($this->group));
@@ -465,7 +465,7 @@ final class SettingsGroup
             throw new MissingOrEmptyValue(__('No namespace specified'));
         }
 
-        $sql = new DeleteStatement(__METHOD__);
+        $sql = new DeleteStatement();
         $sql->from(App::core()->prefix() . 'setting');
         $sql->where('blog_id IS NULL');
         $sql->and('setting_ns = ' . $sql->quote($this->group));

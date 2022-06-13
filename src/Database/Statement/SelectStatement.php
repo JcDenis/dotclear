@@ -19,44 +19,21 @@ use Dotclear\App;
  */
 class SelectStatement extends SqlStatement
 {
-    protected $join;
-    protected $having;
-    protected $order;
-    protected $group;
-    protected $limit;
-    protected $offset;
-    protected $distinct;
-
-    /**
-     * Class constructor.
-     *
-     * @param mixed $ctx optional context
-     */
-    public function __construct($ctx = null)
-    {
-        $this->join = $this->having = $this->order = $this->group = [];
-
-        $this->limit    = null;
-        $this->offset   = null;
-        $this->distinct = false;
-
-        parent::__construct($ctx);
-    }
-
-    public static function init(string $ctx = null): SelectStatement
-    {
-        return new self($ctx);
-    }
+    protected $join = [];
+    protected $having = [];
+    protected $order = [];
+    protected $group = [];
+    protected $limit = null;
+    protected $offset = null;
+    protected $distinct = false;
 
     /**
      * Adds JOIN clause(s) (applied on first from item only).
      *
      * @param mixed $c     the join clause(s)
      * @param bool  $reset reset previous join(s) first
-     *
-     * @return self instance, enabling to chain calls
      */
-    public function join($c, bool $reset = false): SelectStatement
+    public function join($c, bool $reset = false): void
     {
         if ($reset) {
             $this->join = [];
@@ -66,8 +43,6 @@ class SelectStatement extends SqlStatement
         } else {
             array_push($this->join, $c);
         }
-
-        return $this;
     }
 
     /**
@@ -75,10 +50,8 @@ class SelectStatement extends SqlStatement
      *
      * @param mixed $c     the clause(s)
      * @param bool  $reset reset previous having(s) first
-     *
-     * @return self instance, enabling to chain calls
      */
-    public function having($c, bool $reset = false): SelectStatement
+    public function having($c, bool $reset = false): void
     {
         if ($reset) {
             $this->having = [];
@@ -88,8 +61,6 @@ class SelectStatement extends SqlStatement
         } else {
             array_push($this->having, $c);
         }
-
-        return $this;
     }
 
     /**
@@ -97,10 +68,8 @@ class SelectStatement extends SqlStatement
      *
      * @param mixed $c     the clause(s)
      * @param bool  $reset reset previous order(s) first
-     *
-     * @return self instance, enabling to chain calls
      */
-    public function order($c, bool $reset = false): SelectStatement
+    public function order($c, bool $reset = false): void
     {
         if ($reset) {
             $this->order = [];
@@ -110,8 +79,6 @@ class SelectStatement extends SqlStatement
         } else {
             array_push($this->order, $c);
         }
-
-        return $this;
     }
 
     /**
@@ -119,10 +86,8 @@ class SelectStatement extends SqlStatement
      *
      * @param mixed $c     the clause(s)
      * @param bool  $reset reset previous group(s) first
-     *
-     * @return self instance, enabling to chain calls
      */
-    public function group($c, bool $reset = false): SelectStatement
+    public function group($c, bool $reset = false): void
     {
         if ($reset) {
             $this->group = [];
@@ -132,18 +97,14 @@ class SelectStatement extends SqlStatement
         } else {
             array_push($this->group, $c);
         }
-
-        return $this;
     }
 
     /**
      * Defines the LIMIT for select.
      *
      * @param mixed $limit
-     *
-     * @return self instance, enabling to chain calls
      */
-    public function limit($limit): SelectStatement
+    public function limit($limit): void
     {
         $offset = null;
         if (is_array($limit)) {
@@ -162,32 +123,22 @@ class SelectStatement extends SqlStatement
         if (null !== $offset) {
             $this->offset = $offset;
         }
-
-        return $this;
     }
 
     /**
      * Defines the OFFSET for select.
-     *
-     * @return self instance, enabling to chain calls
      */
-    public function offset(int $offset): SelectStatement
+    public function offset(int $offset): void
     {
         $this->offset = $offset;
-
-        return $this;
     }
 
     /**
      * Defines the DISTINCT flag for select.
-     *
-     * @return self instance, enabling to chain calls
      */
-    public function distinct(bool $distinct = true): SelectStatement
+    public function distinct(bool $distinct = true): void
     {
         $this->distinct = $distinct;
-
-        return $this;
     }
 
     /**

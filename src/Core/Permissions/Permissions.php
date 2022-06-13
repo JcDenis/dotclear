@@ -184,12 +184,12 @@ final class Permissions
 
         $this->blogs[$id] = [];
 
-        $join = new JoinStatement(__METHOD__);
+        $join = new JoinStatement();
         $join->from(App::core()->prefix() . 'permissions P');
         $join->on('U.user_id = P.user_id');
         $join->where('blog_id = ' . $join->quote($id));
 
-        $sql = new SelectStatement(__METHOD__);
+        $sql = new SelectStatement();
         $sql->from(App::core()->prefix() . 'user U');
         $sql->columns([
             'U.user_id AS user_id',
@@ -203,7 +203,7 @@ final class Permissions
         $sql->join($join->statement());
 
         if ($super) {
-            $union = new SelectStatement(__METHOD__);
+            $union = new SelectStatement();
             $union->from(App::core()->prefix() . 'user U');
             $union->columns([
                 'U.user_id AS user_id',
@@ -254,12 +254,12 @@ final class Permissions
 
         $this->users[$id] = [];
 
-        $join = new JoinStatement(__METHOD__);
+        $join = new JoinStatement();
         $join->type('INNER');
         $join->from(App::core()->prefix() . 'blog B');
         $join->on('P.blog_id = B.blog_id');
 
-        $sql = new SelectStatement(__METHOD__);
+        $sql = new SelectStatement();
         $sql->columns([
             'B.blog_id',
             'blog_name',
@@ -339,7 +339,7 @@ final class Permissions
         App::core()->behavior()->call('coreBeforeSetUserBlogPermissions', id: $id, blog: $blog, permissions: $permissions);
 
         // Delete all user blog permissions
-        $sql = new DeleteStatement(__METHOD__);
+        $sql = new DeleteStatement();
         $sql->where('blog_id = ' . $sql->quote($blog));
         $sql->and('user_id = ' . $sql->quote($id));
         $sql->from(App::core()->prefix() . 'permissions');
@@ -347,7 +347,7 @@ final class Permissions
 
         if ($permissions->count()) {
             // Set user blog permissions
-            $sql = new InsertStatement(__METHOD__);
+            $sql = new InsertStatement();
             $sql->columns([
                 'user_id',
                 'blog_id',

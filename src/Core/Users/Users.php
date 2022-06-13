@@ -46,7 +46,7 @@ final class Users
     public function countUsers(?Param $param = null, ?SelectStatement $sql = null): int
     {
         $params = new UsersParam($param);
-        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $query  = $sql ? clone $sql : new SelectStatement();
 
         // --BEHAVIOR-- coreBeforeCountUsers, Param, SelectStatement
         App::core()->behavior()->call('coreBeforeCountUsers', param: $params, sql: $query);
@@ -77,7 +77,7 @@ final class Users
     public function getUsers(?Param $param = null, ?SelectStatement $sql = null): Record
     {
         $params = new UsersParam($param);
-        $query  = $sql ? clone $sql : new SelectStatement(__METHOD__);
+        $query  = $sql ? clone $sql : new SelectStatement();
 
         // --BEHAVIOR-- coreBeforeGetUsers, Param, SelectStatement
         App::core()->behavior()->call('coreBeforeGetUsers', param: $params, sql: $query);
@@ -86,7 +86,7 @@ final class Users
             $query->columns($params->columns());
         }
 
-        $join = new JoinStatement(__METHOD__);
+        $join = new JoinStatement();
         $join->type('LEFT');
         $join->from(App::core()->prefix() . 'post P');
         $join->on('U.user_id = P.user_id');
@@ -272,7 +272,7 @@ final class Users
         // --BEHAVIOR-- coreBeforeUpdateUser, Cursor, int
         App::core()->behavior()->call('coreBeforeUpdateUser', cursor: $cursor, id: $id);
 
-        $sql = new UpdateStatement(__METHOD__);
+        $sql = new UpdateStatement();
         $sql->where('user_id = ' . $sql->quote($id));
         $sql->update($cursor);
 
@@ -287,7 +287,7 @@ final class Users
         }
 
         // Updating all user's blogs
-        $sql = new SelectStatement(__METHOD__);
+        $sql = new SelectStatement();
         $sql->distinct();
         $sql->where('user_id = ' . $sql->quote($id));
         $sql->from(App::core()->prefix() . 'post');
@@ -329,7 +329,7 @@ final class Users
             // --BEHAVIOR-- coreBeforeDeleteUsers, Strings
             App::core()->behavior()->call('coreBeforeDeleteUsers', ids: $ids);
 
-            $sql = new DeleteStatement(__METHOD__);
+            $sql = new DeleteStatement();
             $sql->from(App::core()->prefix() . 'user');
             $sql->where('user_id' . $sql->in($ids->dump()));
             $sql->delete();
@@ -349,7 +349,7 @@ final class Users
      */
     public function hasUser(string $id): bool
     {
-        $sql = new SelectStatement(__METHOD__);
+        $sql = new SelectStatement();
         $sql->column('user_id');
         $sql->where('user_id = ' . $sql->quote($id));
         $sql->from(App::core()->prefix() . 'user');
@@ -369,7 +369,7 @@ final class Users
      */
     public function setUserDefaultBlog(string $id, string $blog): void
     {
-        $sql = new UpdateStatement(__METHOD__);
+        $sql = new UpdateStatement();
         $sql->set('user_default_blog = ' . $sql->quote($blog));
         $sql->from(App::core()->prefix() . 'user');
         $sql->where('user_id = ' . $sql->quote($id));

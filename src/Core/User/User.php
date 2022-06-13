@@ -103,41 +103,39 @@ class User
     public function checkUser(string $user_id, ?string $pwd = null, ?string $user_key = null, bool $check_blog = true): bool
     {
         // Check user and password
-        $sql = new SelectStatement(__METHOD__);
-        $sql
-            ->columns(array_keys($this->user->getCurrentProperties()))
-            ->from(App::core()->prefix() . $this->user_table)
-            ->where('user_id = ' . $sql->quote($user_id))
-        ;
+        $sql = new SelectStatement();
+        $sql->columns(array_keys($this->user->getCurrentProperties()));
+        $sql->from(App::core()->prefix() . $this->user_table);
+        $sql->where('user_id = ' . $sql->quote($user_id));
 
         try {
-            $rs = $sql->select();
+            $record = $sql->select();
         } catch (Exception $e) {
             $err = $e->getMessage();
 
             return false;
         }
 
-        if ($rs->isEmpty()) {
+        if ($record->isEmpty()) {
             sleep(rand(2, 5));
 
             return false;
         }
 
-        $rs->extend(new RsExtUser());
+        $record->extend(new RsExtUser());
 
         if ('' != $pwd) {
-            $user_pwd = $rs->f('user_pwd');
+            $user_pwd = $record->f('user_pwd');
             $rehash   = false;
-            if (password_verify($pwd, $rs->f('user_pwd'))) {
+            if (password_verify($pwd, $record->f('user_pwd'))) {
                 // User password ok
-                if (password_needs_rehash($rs->f('user_pwd'), PASSWORD_DEFAULT)) {
+                if (password_needs_rehash($record->f('user_pwd'), PASSWORD_DEFAULT)) {
                     $user_pwd = $this->crypt($pwd);
                     $rehash   = true;
                 }
             } else {
                 // Check if pwd still stored in old fashion way
-                $ret = password_get_info($rs->f('user_pwd'));
+                $ret = password_get_info($record->f('user_pwd'));
                 if (is_array($ret) && isset($ret['algo']) && 0 == $ret['algo']) {
                     // hash not done with password_hash() function, check by old fashion way
                     if (Crypt::hmac(App::core()->config()->get('master_key'), $pwd, App::core()->config()->get('crypt_algo')) == $user_pwd) {
@@ -159,22 +157,20 @@ class User
             }
             if ($rehash) {
                 // Store new hash in DB
-                $sql = new UpdateStatement(__METHOD__);
-                $sql
-                    ->set('user_pwd = ' . $sql->quote($user_pwd))
-                    ->from(App::core()->prefix() . $this->user_table)
-                    ->where('user_id = ' . $sql->quote($rs->f('user_id')))
-                    ->update()
-                ;
+                $sql = new UpdateStatement();
+                $sql->set('user_pwd = ' . $sql->quote($user_pwd));
+                $sql->from(App::core()->prefix() . $this->user_table);
+                $sql->where('user_id = ' . $sql->quote($record->f('user_id')));
+                $sql->update();
             }
         } elseif ('' != $user_key) {
             // Avoid time attacks by measuring server response time during comparison
-            if (!hash_equals(Http::browserUID(App::core()->config()->get('master_key') . $rs->f('user_id') . $this->cryptLegacy($rs->f('user_id'))), $user_key)) {
+            if (!hash_equals(Http::browserUID(App::core()->config()->get('master_key') . $record->f('user_id') . $this->cryptLegacy($record->f('user_id'))), $user_key)) {
                 return false;
             }
         }
 
-        $this->user->parseFromRecord($rs);
+        $this->user->parseFromRecord($record);
         $this->preference = new Preference($this->user->getProperty('user_id'));
 
         // Get permissions on blogs
@@ -375,7 +371,7 @@ class User
 
         // If user is super admin, check if blog exists and set him as admin
         if ($this->user->getProperty('user_super')) {
-            $sql = new SelectStatement(__METHOD__);
+            $sql = new SelectStatement();
             $sql->column('blog_id');
             $sql->from(App::core()->prefix() . $this->blog_table);
             $sql->where('blog_id = ' . $sql->quote($blog_id));
@@ -385,7 +381,7 @@ class User
                 $this->blogs[$blog_id] = new Strings(['admin']);
             }
         } else {
-            $sql = new SelectStatement(__METHOD__);
+            $sql = new SelectStatement();
             $sql->column('permissions');
             $sql->from(App::core()->prefix() . $this->perm_table);
             $sql->where('user_id = ' . $sql->quote($this->user->getProperty('user_id')));
@@ -430,7 +426,7 @@ class User
             return $blog_id;
         }
 
-        $sql = new SelectStatement(__METHOD__);
+        $sql = new SelectStatement();
 
         if ($this->user->getProperty('user_super')) {
             $sql->column('blog_id');
@@ -522,28 +518,24 @@ class User
      */
     public function setRecoverKey(string $user_id, string $user_email): string
     {
-        $sql = new SelectStatement(__METHOD__);
-        $rs  = $sql
-            ->column('user_id')
-            ->from(App::core()->prefix() . $this->user_table)
-            ->where('user_id = ' . $sql->quote($user_id))
-            ->and('user_email = ' . $sql->quote($user_email))
-            ->select()
-        ;
+        $sql = new SelectStatement();
+        $sql->column('user_id');
+        $sql->from(App::core()->prefix() . $this->user_table);
+        $sql->where('user_id = ' . $sql->quote($user_id));
+        $sql->and('user_email = ' . $sql->quote($user_email));
+        $record = $sql->select();
 
-        if ($rs->isEmpty()) {
+        if ($record->isEmpty()) {
             throw new CoreException(__('That user does not exist in the database.'));
         }
 
         $key = md5(uniqid('', true));
 
-        $sql = new UpdateStatement(__METHOD__);
-        $sql
-            ->set('user_recover_key = ' . $sql->quote($key))
-            ->from(App::core()->prefix() . $this->user_table)
-            ->where('user_id = ' . $sql->quote($user_id))
-            ->update()
-        ;
+        $sql = new UpdateStatement();
+        $sql->set('user_recover_key = ' . $sql->quote($key));
+        $sql->from(App::core()->prefix() . $this->user_table);
+        $sql->where('user_id = ' . $sql->quote($user_id));
+        $sql->update();
 
         return $key;
     }
@@ -560,31 +552,27 @@ class User
      */
     public function recoverUserPassword(string $recover_key): array
     {
-        $sql = new SelectStatement(__METHOD__);
-        $rs  = $sql
-            ->columns(['user_id', 'user_email'])
-            ->from(App::core()->prefix() . $this->user_table)
-            ->where('user_recover_key = ' . $sql->quote($recover_key))
-            ->select()
-        ;
+        $sql = new SelectStatement();
+        $sql->columns(['user_id', 'user_email']);
+        $sql->from(App::core()->prefix() . $this->user_table);
+        $sql->where('user_recover_key = ' . $sql->quote($recover_key));
+        $record = $sql->select();
 
-        if ($rs->isEmpty()) {
+        if ($record->isEmpty()) {
             throw new CoreException(__('That key does not exist in the database.'));
         }
 
         $new_pass = Crypt::createPassword();
 
-        $sql = new UpdateStatement(__METHOD__);
-        $sql
-            ->set('user_pwd = ' . $sql->quote($this->crypt($new_pass)))
-            ->set('user_recover_key = NULL')
-            ->set('user_change_pwd = 1') // User will have to change this temporary password at next login
-            ->from(App::core()->prefix() . $this->user_table)
-            ->where('user_recover_key = ' . $sql->quote($recover_key))
-            ->update()
-        ;
+        $sql = new UpdateStatement();
+        $sql->set('user_pwd = ' . $sql->quote($this->crypt($new_pass)));
+        $sql->set('user_recover_key = NULL');
+        $sql->set('user_change_pwd = 1'); // User will have to change this temporary password at next login
+        $sql->from(App::core()->prefix() . $this->user_table);
+        $sql->where('user_recover_key = ' . $sql->quote($recover_key));
+        $sql->update();
 
-        return ['user_email' => $rs->f('user_email'), 'user_id' => $rs->f('user_id'), 'new_pass' => $new_pass];
+        return ['user_email' => $record->f('user_email'), 'user_id' => $record->f('user_id'), 'new_pass' => $new_pass];
     }
     // @}
 
