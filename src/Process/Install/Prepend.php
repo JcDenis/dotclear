@@ -66,7 +66,7 @@ final class Prepend extends Core
         return $this->resource;
     }
 
-    protected function process(string $_ = null): void
+    public function process(string $_ = null): void
     {
         // Serve a file (css, png, ...)
         if (!GPC::get()->empty('df')) {

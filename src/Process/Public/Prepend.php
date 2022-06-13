@@ -161,7 +161,7 @@ final class Prepend extends Core
      *
      * @param string $blog_id The blog ID
      */
-    protected function process(string $blog_id = null): void
+    public function process(string $blog_id = null): void
     {
         // Load Core Prepend
         parent::process();

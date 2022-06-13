@@ -183,12 +183,6 @@ class Core
     private $wiki;
 
     /**
-     * @var null|static $instance
-     *                  Core singleton instance
-     */
-    private static $instance;
-
-    /**
      * @var array<int,array> $top_behaviors
      *                       top behaviors
      */
@@ -216,7 +210,7 @@ class Core
      *
      * Set up some (no config) static features.
      */
-    final protected function __construct()
+    final public function __construct()
     {
         // Start time and memory statistics (dev)
         Statistic::start();
@@ -233,30 +227,6 @@ class Core
         // Add custom regs
         Html::$absolute_regs[] = '/(<param\s+name="movie"\s+value=")(.*?)(")/msu';
         Html::$absolute_regs[] = '/(<param\s+name="FlashVars"\s+value=".*?(?:mp3|flv)=)(.*?)(&|")/msu';
-    }
-
-    /**
-     * Get core unique instance.
-     *
-     * Use a two-stage instanciation (construct then process).
-     *
-     * This method is mark as <b>final</b>
-     * to cope with singleton instance.
-     *
-     * Singleton Core is accessible from App::core()
-     *
-     * @param null|string $blog_id Blog ID on first public process call
-     *
-     * @return null|static Core (Process) instance
-     */
-    final public static function singleton(?string $blog_id = null): ?static
-    {
-        if (null == self::$instance && self::class != static::class) {
-            self::$instance = new static();
-            self::$instance->process($blog_id);
-        }
-
-        return self::$instance;
     }
     // @}
 
@@ -678,7 +648,7 @@ class Core
     /**
      * Start Dotclear Core process.
      */
-    protected function process(string $_ = null): void
+    public function process(string $_ = null): void
     {
         // Find configuration file
         if (null === $this->config_path) {

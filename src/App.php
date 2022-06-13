@@ -21,6 +21,8 @@ use Exception;
  */
 final class App
 {
+    private static $class = null;
+
     /**
      * Run process.
      *
@@ -29,18 +31,22 @@ final class App
      */
     public static function run(string $process, string $blog_id = null): void
     {
-        // Third party autoload (PSR-4 compliant)
-        $file = implode(DIRECTORY_SEPARATOR, [__DIR__, '..', 'vendor', 'autoload.php']);
-        if (file_exists($file)) {
-            require_once $file;
-        }
-
-        // Dotclear autoload (used first)
-        require_once implode(DIRECTORY_SEPARATOR, [__DIR__, 'Helper', 'Autoload.php']);
-        $autoload = new \Dotclear\Helper\Autoload(prepend: true);
-        $autoload->addNamespace('Dotclear', __DIR__);
-
         try {
+            if (self::$class) {
+                throw new Exception('Application can not be started twice.', 500);
+            }
+
+            // Third party autoload (PSR-4 compliant)
+            $file = implode(DIRECTORY_SEPARATOR, [__DIR__, '..', 'vendor', 'autoload.php']);
+            if (file_exists($file)) {
+                require_once $file;
+            }
+
+            // Dotclear autoload (used first)
+            require_once implode(DIRECTORY_SEPARATOR, [__DIR__, 'Helper', 'Autoload.php']);
+            $autoload = new \Dotclear\Helper\Autoload(prepend: true);
+            $autoload->addNamespace('Dotclear', __DIR__);
+
             // Find process (Admin|Public|Install|...)
             $class = 'Dotclear\\Process\\' . ucfirst(strtolower($process)) . '\\Prepend';
             if (!is_subclass_of($class, 'Dotclear\\Core\\Core')) {
@@ -49,7 +55,8 @@ final class App
 
             // Execute Process
             ob_start();
-            $class::singleton($blog_id);
+            self::$class = new $class();
+            self::$class->process($blog_id);
             ob_end_flush();
         } catch (Exception|Error $e) {
             ob_end_clean();
@@ -74,11 +81,7 @@ final class App
      */
     public static function core(): ?object
     {
-        if (class_exists('Dotclear\\Core\\Core')) {
-            return \Dotclear\Core\Core::singleton();
-        }
-
-        return null;
+        return self::$class;
     }
 
     /**
