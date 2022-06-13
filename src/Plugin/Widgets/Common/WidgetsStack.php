@@ -758,7 +758,7 @@ class WidgetsStack
             } else {
                 $text = $e;
             }
-            $widget->set($setting, preg_replace_callback('/\{tpl:lang (.*?)\}/msu', ['self', 'widgetL10nHandler'], $text));
+            $widget->set($setting, preg_replace_callback('/\{tpl:lang (.*?)\}/msu', fn ($m) => self::widgetL10nHandler($m), $text));
         }
 
         echo $widget->call(0);

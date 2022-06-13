@@ -424,16 +424,16 @@ class Http
     public static function trimRequest(): void
     {
         if (!empty($_GET)) {
-            array_walk($_GET, ['self', 'trimRequestInVar']);
+            array_walk($_GET, fn (&$value, $key) => self::trimRequestInVar($value, $key));
         }
         if (!empty($_POST)) {
-            array_walk($_POST, ['self', 'trimRequestInVar']);
+            array_walk($_POST, fn (&$value, $key) => self::trimRequestInVar($value, $key));
         }
         if (!empty($_REQUEST)) {
-            array_walk($_REQUEST, ['self', 'trimRequestInVar']);
+            array_walk($_REQUEST, fn (&$value, $key) => self::trimRequestInVar($value, $key));
         }
         if (!empty($_COOKIE)) {
-            array_walk($_COOKIE, ['self', 'trimRequestInVar']);
+            array_walk($_COOKIE, fn (&$value, $key) => self::trimRequestInVar($value, $key));
         }
     }
 

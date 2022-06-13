@@ -212,7 +212,7 @@ class Clock
 
         $res = self::format($format, $date, $from, $to);
 
-        return preg_replace_callback('/{{__(a|A|b|B)([0-9]{1,2})__}}/', ['self', '_callback'], $res);
+        return preg_replace_callback('/{{__(a|A|b|B)([0-9]{1,2})__}}/', fn ($args) => self::_callback($args), $res);
     }
 
     /**

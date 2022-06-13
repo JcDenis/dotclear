@@ -151,10 +151,10 @@ class Html
         self::$url_root = $root ?? '';
         $attr           = 'action|background|cite|classid|code|codebase|data|download|formaction|href|longdesc|profile|src|usemap';
 
-        $str = preg_replace_callback('/((?:' . $attr . ')=")(.*?)(")/msu', ['self', 'absoluteURLHandler'], $str ?? '');
+        $str = preg_replace_callback('/((?:' . $attr . ')=")(.*?)(")/msu', fn ($m) => self::absoluteURLHandler($m), $str ?? '');
 
         foreach (self::$absolute_regs as $r) {
-            $str = preg_replace_callback($r, ['self', 'absoluteURLHandler'], $str);
+            $str = preg_replace_callback($r, fn ($m) => self::absoluteURLHandler($m), $str);
         }
 
         self::$url_root = null;
