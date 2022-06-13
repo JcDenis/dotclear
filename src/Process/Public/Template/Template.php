@@ -1812,7 +1812,7 @@ class Template extends BaseTemplate
      */
     public function EntryCategoryID(ArrayObject $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("posts")->fint("cat_id")') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("posts")->integer("cat_id")') . ';' . self::$toff;
     }
 
     /*dtd

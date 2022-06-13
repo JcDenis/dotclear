@@ -27,7 +27,7 @@ class FlatBackupItem
         return iconv('UTF-8', 'UTF-8//IGNORE', (string) $this->__data[$name]);
     }
 
-    public function f(string $name): string
+    public function field(string $name): string
     {
         return $this->get($name);
     }

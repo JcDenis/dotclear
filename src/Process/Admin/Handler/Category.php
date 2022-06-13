@@ -95,7 +95,7 @@ class Category extends AbstractPage
             // Allowed siblings list
             $rs = App::core()->blog()->categories()->getCategoryFirstChildren(id: $this->cat_parent);
             while ($rs->fetch()) {
-                if ($rs->fint('cat_id') != $this->cat_id) {
+                if ($rs->integer('cat_id') != $this->cat_id) {
                     $this->cat_siblings[Html::escapeHTML($rs->field('cat_title'))] = $rs->integer('cat_id');
                 }
             }
@@ -233,7 +233,7 @@ class Category extends AbstractPage
             '<option value="0">' . __('(none)') . '</option>';
             while ($rs->fetch()) {
                 echo '<option value="' . $rs->field('cat_id') . '" ' . ($rs->integer('cat_id')                                  == GPC::post()->int('new_cat_parent') ? 'selected="selected"' : '') . '>' .
-                str_repeat('&nbsp;&nbsp;', $rs->integer('level') - 1) . (0                                                  == $rs->integer('level') - 1 ? '' : '&bull; ') . Html::escapeHTML($rs->field('cat_title')) . '</option>';
+                str_repeat('&nbsp;&nbsp;', $rs->integer('level') - 1) . (0                                                      == $rs->integer('level') - 1 ? '' : '&bull; ') . Html::escapeHTML($rs->field('cat_title')) . '</option>';
             }
             echo '</select></label></p>';
             unset($rs);

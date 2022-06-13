@@ -112,7 +112,7 @@ class UserInventory extends Inventory
         $res = '<tr class="line">';
 
         $cols = [
-            'check' => '<td class="nowrap">' . Form::hidden(['nb_post[]'], $this->rs->fint('nb_post')) .
+            'check' => '<td class="nowrap">' . Form::hidden(['nb_post[]'], $this->rs->integer('nb_post')) .
             Form::checkbox(['users[]'], $this->rs->field('user_id')) . '</td>',
             'username' => '<td class="maximal" scope="row"><a href="' .
             App::core()->adminurl()->get('admin.user', ['id' => $this->rs->field('user_id')]) . '">' .
