@@ -75,7 +75,7 @@ class MaintenanceTaskIndexposts extends MaintenanceTask
         $sql   = new SelectStatement();
         $sql->column($sql->count('post_id'));
         $sql->from(App::core()->prefix() . 'post');
-        
+
         $count = $sql->select()->integer();
 
         if (null !== $start && null !== $limit) {

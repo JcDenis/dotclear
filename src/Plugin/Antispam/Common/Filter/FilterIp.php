@@ -300,7 +300,7 @@ class FilterIp extends Spamfilter
             'blog_id = ' . $sql->quote(App::core()->blog()->id)
         );
         $sql->from(App::core()->prefix() . 'spamrule');
-        
+
         return $sql->select();
     }
 
@@ -316,7 +316,7 @@ class FilterIp extends Spamfilter
         ]));
         $sql->order('rule_content ASC');
         $sql->from(App::core()->prefix() . 'spamrule');
-        
+
         $record = $sql->select();
 
         while ($record->fetch()) {

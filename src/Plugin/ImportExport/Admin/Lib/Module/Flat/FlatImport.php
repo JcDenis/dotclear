@@ -712,7 +712,7 @@ class FlatImport extends FlatBackup
     private function insertPostSingle(FlatBackupItem $post): void
     {
         if (!$post->field('cat_id') || isset($this->old_ids['category'][(int) $post->field('cat_id')])) {
-            $post_id                                          = $this->stack['post_id'];
+            $post_id                                              = $this->stack['post_id'];
             $this->old_ids['post'][(int) $post->field('post_id')] = $post_id;
 
             $cat_id = $post->field('cat_id') ? $this->old_ids['category'][(int) $post->field('cat_id')] : null;

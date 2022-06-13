@@ -543,7 +543,7 @@ class Media extends Manager
                         $sql->where('media_id = ' . $this->fileRecord($record)->media_id);
                         $sql->delete();
                     } else {
-                        $f_res[]                     = $this->fileRecord($record);
+                        $f_res[]                             = $this->fileRecord($record);
                         $f_reg[$record->field('media_file')] = 1;
                     }
                 }

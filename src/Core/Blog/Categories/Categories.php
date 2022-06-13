@@ -101,7 +101,7 @@ final class Categories
             $nb_post = $counter[$record->integer('cat_id')] ?? 0;
 
             if ($record->integer('level') > $level) {
-                $nb_total                      = $nb_post;
+                $nb_total                         = $nb_post;
                 $stack[$record->integer('level')] = $nb_post;
             } elseif ($record->integer('level') == $level) {
                 $nb_total                       = $nb_post;

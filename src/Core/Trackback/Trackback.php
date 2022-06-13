@@ -55,7 +55,7 @@ class Trackback
         ]);
         $sql->from(App::core()->prefix() . 'ping');
         $sql->where('post_id = ' . $post_id);
-            
+
         return $sql->select();
     }
 

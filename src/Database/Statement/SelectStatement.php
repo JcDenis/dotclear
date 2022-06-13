@@ -19,12 +19,12 @@ use Dotclear\App;
  */
 class SelectStatement extends SqlStatement
 {
-    protected $join = [];
+    protected $join   = [];
     protected $having = [];
-    protected $order = [];
-    protected $group = [];
-    protected $limit = null;
-    protected $offset = null;
+    protected $order  = [];
+    protected $group  = [];
+    protected $limit;
+    protected $offset;
     protected $distinct = false;
 
     /**

@@ -19,7 +19,7 @@ use Dotclear\App;
  */
 class JoinStatement extends SqlStatement
 {
-    protected $type = null;
+    protected $type;
 
     /**
      * Defines the type for join.

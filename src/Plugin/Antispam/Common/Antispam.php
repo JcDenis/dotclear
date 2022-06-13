@@ -167,7 +167,7 @@ class Antispam
         }
 
         $record = $sql->select();
-        $ids = new Integers();
+        $ids    = new Integers();
         while ($record->fetch()) {
             $ids->add($record->integer('comment_id'));
         }

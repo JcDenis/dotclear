@@ -247,7 +247,7 @@ class FilterIpv6 extends Spamfilter
             'rule_content ASC',
         ]);
         $sql->from(App::core()->prefix() . 'spamrule');
-            
+
         return $sql->select();
     }
 
@@ -267,7 +267,7 @@ class FilterIpv6 extends Spamfilter
             'blog_id = ' . $sql->quote(App::core()->blog()->id)
         );
         $sql->from(App::core()->prefix() . 'spamrule');
-            
+
         return $sql->select();
     }
 

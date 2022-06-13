@@ -21,7 +21,7 @@ use Exception;
  */
 final class App
 {
-    private static $class = null;
+    private static $class;
 
     /**
      * Run process.

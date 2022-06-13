@@ -252,9 +252,9 @@ class RsExtComment extends RsExtend
             array_map('trim', explode(',', $user_prefs->get('profile')->get('urls'))) :
             [];
 
-        return
-            ($this->rs->field('comment_email') && $this->rs->field('comment_site'))
-                                           && ($this->rs->field('comment_email') == $this->rs->field('user_email')  || in_array($this->rs->field('comment_email'), $user_profile_mails))
-                                           && ($this->rs->field('comment_site')  == $this->rs->field('user_url')    || in_array($this->rs->field('comment_site'), $user_profile_urls));
+        return $this->rs->field('comment_email')
+            && $this->rs->field('comment_site')
+            && ($this->rs->field('comment_email') == $this->rs->field('user_email')  || in_array($this->rs->field('comment_email'), $user_profile_mails))
+            && ($this->rs->field('comment_site')  == $this->rs->field('user_url')    || in_array($this->rs->field('comment_site'), $user_profile_urls));
     }
 }
