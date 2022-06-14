@@ -18,6 +18,7 @@ use Dotclear\Helper\GPC\GPC;
 use Dotclear\Modules\ModulePrepend;
 use Dotclear\Plugin\Pages\Common\PagesUrl;
 use Dotclear\Plugin\Pages\Common\PagesWidgets;
+use Dotclear\Process\Admin\AdminUrl\AdminUrlDescriptor;
 use Dotclear\Process\Admin\Favorite\Favorite;
 
 /**
@@ -36,10 +37,10 @@ class Prepend extends ModulePrepend
         ));
 
         // Add admin url (only page detail, the other one was auto created by Module)
-        App::core()->adminurl()->register(
-            'admin.plugin.Page',
-            'Dotclear\\Plugin\\Pages\\Admin\\HandlerEdit'
-        );
+        App::core()->adminurl()->register(new AdminUrlDescriptor(
+            name: 'admin.plugin.Page',
+            class: 'Dotclear\\Plugin\\Pages\\Admin\\HandlerEdit',
+        ));
 
         // Add menu
         $this->addStandardMenu('Blog');

@@ -20,6 +20,7 @@ use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Modules\Repository\Repository;
+use Dotclear\Process\Admin\AdminUrl\AdminUrlDescriptor;
 use Error;
 use Exception;
 
@@ -159,10 +160,10 @@ class Modules
         $icons   = ['images/menu/' . $this->getType(true) . 's.svg', 'images/menu/' . $this->getType(true) . 's-dark.svg'];
         $handler = 'admin.' . $this->getType(true);
 
-        App::core()->adminurl()->register(
-            $handler,
-            'Dotclear\\Modules\\' . $this->getType() . '\\' . $this->getType() . 'Handler'
-        );
+        App::core()->adminurl()->register(new AdminUrlDescriptor(
+            name: $handler,
+            class: 'Dotclear\\Modules\\' . $this->getType() . '\\' . $this->getType() . 'Handler',
+        ));
         App::core()->summary()->register(
             empty($this->group) ? 'System' : $this->group,
             $this->getName(),
@@ -554,7 +555,10 @@ class Modules
         if (App::core()->processed('Admin')) {
             $class = 'Dotclear\\' . $this->getType() . '\\' . $define->id() . '\\Admin\\' . 'Handler';
             if (is_subclass_of($class, 'Dotclear\\Process\\Admin\\Page\\AbstractPage')) {
-                App::core()->adminurl()->register('admin.' . $this->getType(true) . '.' . $define->id(), $class);
+                App::core()->adminurl()->register(new AdminUrlDescriptor(
+                    name: 'admin.' . $this->getType(true) . '.' . $define->id(),
+                    class: $class
+                ));
             }
         }
 

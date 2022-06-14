@@ -11,9 +11,9 @@ namespace Dotclear\Process\Admin\AdminUrl;
 
 // Dotclear\Process\Admin\AdminUrl\AdminUrl
 use Dotclear\App;
-use Dotclear\Exception\AdminException;
+use Dotclear\Exception\InvalidValueReference;
 use Dotclear\Helper\GPC\GPC;
-use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Html\Form\Hidden;
 use Dotclear\Helper\Network\Http;
 
 /**
@@ -23,11 +23,11 @@ use Dotclear\Helper\Network\Http;
  *
  * @ingroup  Admin Handler
  */
-class AdminUrl
+final class AdminUrl
 {
     /**
-     * @var array<string,array> $urls
-     *                          List of registered URLs
+     * @var array<string,AdminUrlDescriptor> $urls
+     *                                       List of registered URLs
      */
     private $urls = [];
 
@@ -55,6 +55,8 @@ class AdminUrl
      * Check called URL handler.
      *
      * @param string $name The URL handler name to check
+     *
+     * @return bool True if this is the called URL handler
      */
     public function is(string $name): bool
     {
@@ -64,25 +66,11 @@ class AdminUrl
     /**
      * Register a new URL class.
      *
-     * @param string $name   The URL handler name
-     * @param string $class  The class name (with namespace)
-     * @param array  $params The query string params (optional)
+     * @param AdminUrlDescriptor $descriptor The admin URL descriptor
      */
-    public function register(string $name, string $class, array $params = []): void
+    public function register(AdminUrlDescriptor $descriptor): void
     {
-        $this->urls[$name] = ['class' => $class, 'qs' => $params];
-    }
-
-    /**
-     * Register multiple new URL class.
-     *
-     * @param array $args The array of URL name, class, params
-     */
-    public function registerMultiple(array ...$args): void
-    {
-        foreach ($args as $arg) {
-            call_user_func_array([$this, 'register'], $arg);
-        }
+        $this->urls[$descriptor->name] = $descriptor;
     }
 
     /**
@@ -93,19 +81,19 @@ class AdminUrl
      * @param array  $params   The extra parameters to add
      * @param string $newclass The new class if different from the original
      *
-     * @throws AdminException On unknow URL handler
+     * @throws InvalidValueReference On unknow URL handler
      */
     public function registerCopy(string $name, string $orig, array $params = [], string $newclass = ''): void
     {
         if (!isset($this->urls[$orig])) {
-            throw new AdminException('Unknown URL handler for ' . $orig);
+            throw new InvalidValueReference('Unknown URL handler for ' . $orig);
         }
-        $url       = $this->urls[$orig];
-        $url['qs'] = array_merge($url['qs'], $params);
-        if ('' != $newclass) {
-            $url['class'] = $newclass;
-        }
-        $this->urls[$name] = $url;
+
+        $this->urls[$name] = new AdminUrlDescriptor(
+            name: $name,
+            class: '' != $newclass ? $newclass : $this->urls[$orig]->class,
+            params: array_merge($this->urls[$orig]->params, $params),
+        );
     }
 
     /**
@@ -116,18 +104,17 @@ class AdminUrl
      * @param string $separator  The separator to use between QS parameters
      * @param bool   $parametric set to true if URL will be used as (s)printf() format
      *
-     * @throws AdminException On unknow URL handler
+     * @throws InvalidValueReference On unknow URL handler
      *
      * @return string The forged URL
      */
     public function get(string $name, array $params = [], string $separator = '&amp;', bool $parametric = false): string
     {
         if (!isset($this->urls[$name])) {
-            throw new AdminException('Unknown URL handler for ' . $name);
+            throw new InvalidValueReference('Unknown URL handler for ' . $name);
         }
 
-        $url = $this->urls[$name];
-        $p   = array_merge($url['qs'], $params, ['handler' => $name]);
+        $p   = array_merge($this->urls[$name]->params, $params, ['handler' => $name]);
         $u   = http_build_query($p, '', $separator);
 
         if ($parametric) {
@@ -145,12 +132,12 @@ class AdminUrl
      * @param array  $params The query string parameters, given as an associative array
      * @param string $suffix The suffix to be added to the QS parameters
      *
-     * @throws AdminException On unknow URL handler
+     * @throws InvalidValueReference On unknow URL handler
      */
     public function redirect(string $name, array $params = [], string $suffix = ''): void
     {
         if (!isset($this->urls[$name])) {
-            throw new AdminException('Unknown URL handler for ' . $name);
+            throw new InvalidValueReference('Unknown URL handler for ' . $name);
         }
         Http::redirect($this->get($name, $params, '&') . $suffix);
     }
@@ -173,17 +160,17 @@ class AdminUrl
      *
      * @param string $name The URL handler name
      *
-     * @throws AdminException On unknow URL handler
+     * @throws InvalidValueReference On unknow URL handler
      *
      * @return string The full class name
      */
     public function getBase(string $name): string
     {
         if (!isset($this->urls[$name])) {
-            throw new AdminException('Unknown URL handler for ' . $name);
+            throw new InvalidValueReference('Unknown URL handler for ' . $name);
         }
 
-        return $this->urls[$name]['class'];
+        return $this->urls[$name]->class;
     }
 
     /**
@@ -193,20 +180,20 @@ class AdminUrl
      * @param array  $params The query string parameters, given as an associative array
      * @param bool   $nonce  Add the Nonce field
      *
-     * @throws AdminException On unknow URL handler
+     * @throws InvalidValueReference On unknow URL handler
      *
      * @return string The forged form data
      */
     public function getHiddenFormFields(string $name, array $params = [], bool $nonce = false): string
     {
         if (!isset($this->urls[$name])) {
-            throw new AdminException('Unknown URL handler for ' . $name);
+            throw new InvalidValueReference('Unknown URL handler for ' . $name);
         }
-        $url = $this->urls[$name];
-        $p   = array_merge($url['qs'], $params, ['handler' => $name]);
+
+        $p   = array_merge($this->urls[$name]->params, $params, ['handler' => $name]);
         $str = '';
-        foreach ((array) $p as $k => $v) {
-            $str .= Form::hidden([$k], $v);
+        foreach ($p as $k => $v) {
+            $str .= (new Hidden($k, (string) $v))->render();
         }
         if ($nonce) {
             $str .= App::core()->nonce()->form();
@@ -218,9 +205,9 @@ class AdminUrl
     /**
      * Return registered URLs properties.
      *
-     * @return array<string,array> The registred URLs
+     * @return array<string,AdminUrlDescriptor> The registred URLs
      */
-    public function dump()
+    public function dump(): array
     {
         return $this->urls;
     }
@@ -228,49 +215,49 @@ class AdminUrl
     /**
      * Setup admin URLs.
      */
-    public function setup()
+    public function setup(): void
     {
-        $this->initDefaultURLs();
+        $ns = 'Dotclear\\Process\\Admin\\Handler\\';
+
+        $default = [
+            ['admin.home', $ns . 'Home'],
+            ['admin.auth', $ns . 'Auth'],
+            ['admin.posts', $ns . 'Posts'],
+            ['admin.posts.popup', $ns . 'PostsPopup'],
+            ['admin.post', $ns . 'Post'],
+            ['admin.post.media', $ns . 'PostMedia'],
+            ['admin.blogs', $ns . 'Blogs'],
+            ['admin.blog', $ns . 'Blog'],
+            ['admin.blog.pref', $ns . 'BlogPref'],
+            ['admin.blog.del', $ns . 'BlogDel'],
+            ['admin.categories', $ns . 'Categories'],
+            ['admin.category', $ns . 'Category'],
+            ['admin.comments', $ns . 'Comments'],
+            ['admin.comment', $ns . 'Comment'],
+            ['admin.help', $ns . 'Help'],
+            ['admin.help.charte', $ns . 'Charte'],
+            ['admin.langs', $ns . 'Langs'],
+            ['admin.link.popup', $ns . 'LinkPopup'],
+            ['admin.media', $ns . 'Media'],
+            ['admin.media.item', $ns . 'MediaItem'],
+            ['admin.search', $ns . 'Search'],
+            ['admin.users', $ns . 'Users'],
+            ['admin.user', $ns . 'User'],
+            ['admin.user.pref', $ns . 'UserPref'],
+            ['admin.user.actions', $ns . 'UserAction'],
+            ['admin.update', $ns . 'Update'],
+            ['admin.services', $ns . 'Services'],
+            ['admin.xmlrpc', $ns . 'Xmlrpc'],
+            ['admin.cspreport', $ns . 'CspReport'],
+        ];
+
+        foreach ($default as $url) {
+            $this->register(new AdminUrlDescriptor(
+                name: $url[0],
+                class: $url[1],
+            ));
+        }
+
         App::core()->behavior()->call('adminURLs', $this);
-    }
-
-    /**
-     * Register default Dotclear admin URLs.
-     */
-    private function initDefaultURLs()
-    {
-        $d = 'Dotclear\\Process\\Admin\\Handler\\';
-
-        $this->registerMultiple(
-            ['admin.home', $d . 'Home'],
-            ['admin.auth', $d . 'Auth'],
-            ['admin.posts', $d . 'Posts'],
-            ['admin.posts.popup', $d . 'PostsPopup'],
-            ['admin.post', $d . 'Post'],
-            ['admin.post.media', $d . 'PostMedia'],
-            ['admin.blogs', $d . 'Blogs'],
-            ['admin.blog', $d . 'Blog'],
-            ['admin.blog.pref', $d . 'BlogPref'],
-            ['admin.blog.del', $d . 'BlogDel'],
-            ['admin.categories', $d . 'Categories'],
-            ['admin.category', $d . 'Category'],
-            ['admin.comments', $d . 'Comments'],
-            ['admin.comment', $d . 'Comment'],
-            ['admin.help', $d . 'Help'],
-            ['admin.help.charte', $d . 'Charte'],
-            ['admin.langs', $d . 'Langs'],
-            ['admin.link.popup', $d . 'LinkPopup'],
-            ['admin.media', $d . 'Media'],
-            ['admin.media.item', $d . 'MediaItem'],
-            ['admin.search', $d . 'Search'],
-            ['admin.users', $d . 'Users'],
-            ['admin.user', $d . 'User'],
-            ['admin.user.pref', $d . 'UserPref'],
-            ['admin.user.actions', $d . 'UserAction'],
-            ['admin.update', $d . 'Update'],
-            ['admin.services', $d . 'Services'],
-            ['admin.xmlrpc', $d . 'Xmlrpc'],
-            ['admin.cspreport', $d . 'CspReport']
-        );
     }
 }
