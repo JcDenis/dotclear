@@ -9,18 +9,18 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Menu;
 
-// Dotclear\Process\Admin\Menu\Summary
+// Dotclear\Process\Admin\Menu\Menus
 use Dotclear\App;
 use Dotclear\Helper\GPC\GPC;
 
 /**
  * Admin menu handling facilities.
  *
- * Accessible from App::core()->summary()
+ * Accessible from App::core()->menus()
  *
- * @ingroup  Admin
+ * @ingroup  Admin Menu
  */
-class Summary
+final class Menus
 {
     /**
      * @var array<string,MenuGroup> $stack
@@ -35,82 +35,63 @@ class Summary
      */
     public function __construct()
     {
-        $this->add('Dashboard', 'dashboard-menu', '');
+        $this->addGroup(new MenuGroup(
+            section: 'Dashboard',
+            id: 'dashboard-menu',
+            title: ''
+        ));
         if (!App::core()->user()->preference()->get('interface')->get('nofavmenu')) {
-            App::core()->favorite()->appendMenuTitle($this);
+            $this->addGroup(new MenuGroup(
+                section: 'Favorites',
+                id: 'favorites-menu',
+                title: __('My favorites')
+            ));
         }
-        $this->add('Blog', 'blog-menu', __('Blog'));
-        $this->add('System', 'system-menu', __('System settings'));
-        $this->add('Plugins', 'plugins-menu', __('Miscellaneous'));
+        $this->addGroup(new MenuGroup(
+            section: 'Blog',
+            id: 'blog-menu',
+            title: __('Blog')
+        ));
+        $this->addGroup(new MenuGroup(
+            section: 'System',
+            id: 'system-menu',
+            title: __('System settings')
+        ));
+        $this->addGroup(new MenuGroup(
+            section: 'Plugins',
+            id: 'plugins-menu',
+            title: __('Miscellaneous')
+        ));
     }
 
     /**
      * Add a menu.
      *
-     * This create a Menu instance
-     *
-     * @param string $section   The menu name
-     * @param string $id        The menu id
-     * @param string $title     The menu title
-     * @param string $itemSpace The item space
+     * @param MenuGroup $menu The menu group
      */
-    public function add(string $section, string $id, string $title, string $itemSpace = ''): void
+    public function addGroup(MenuGroup $menu): void
     {
-        $this->stack[$section] = new MenuGroup($id, $title, $itemSpace);
+        $this->stack[$menu->section] = $menu;
     }
 
     /**
-     * Add a menu item.
-     *
-     * @param string $section  The section
-     * @param string $desc     The description
-     * @param string $adminurl The adminurl
-     * @param mixed  $icon     The icon(s)
-     * @param mixed  $perm     The permission
-     * @param bool   $pinned   The pinned
-     * @param bool   $strict   The strict
-     */
-    public function register($section, $desc, $adminurl, $icon, $perm, $pinned = false, $strict = false): void
-    {
-        $match = App::core()->adminurl()->is($adminurl);
-        if ($strict && $match) {
-            $match = 1 == GPC::get()->count();
-        }
-
-        if (!isset($this->stack[$section])) {
-            return;
-        }
-
-        $this->stack[$section]->prependItem(new MenuItem(
-            $desc,
-            App::core()->adminurl()->get($adminurl),
-            $icon,
-            $match,
-            $perm,
-            null,
-            null,
-            $pinned
-        ));
-    }
-
-    /**
-     * Get a menu instance.
+     * Get a menu.
      *
      * @param string $section The menu name
      *
      * @return null|MenuGroup The menu instance or null if not exists
      */
-    public function menu(string $section): ?MenuGroup
+    public function getGroup(string $section): ?MenuGroup
     {
         return $this->stack[$section] ?? null;
     }
 
     /**
-     * Get all menu in an array.
+     * Get all menus.
      *
      * @return array<string,MenuGroup> The menu list
      */
-    public function dump(): array
+    public function getGroups(): array
     {
         return $this->stack;
     }
@@ -161,98 +142,89 @@ class Summary
      *
      * This method should be called only from Admin Prepend.
      */
-    public function setup(): void
+    public function setDefaultMenusItems(): void
     {
-        $this->initDefaultMenus();
-        App::core()->behavior()->call('adminMenus', $this);
-    }
-
-    /**
-     * Set default menus items.
-     */
-    private function initDefaultMenus(): void
-    {
-        $this->register(
-            'Blog',
-            __('Blog settings'),
-            'admin.blog.pref',
-            ['images/menu/blog-pref.svg', 'images/menu/blog-pref-dark.svg'],
-            App::core()->user()->check('admin', App::core()->blog()->id)
-        );
+        $this->getGroup('Blog')->addItem(new MenuItem(
+            title: __('Blog settings'),
+            url: App::core()->adminurl()->get('admin.blog.pref'),
+            icons: ['images/menu/blog-pref.svg', 'images/menu/blog-pref-dark.svg'],
+            permission: 'admin',
+        ));
         if (App::core()->blog()->public_path) {
-            $this->register(
-                'Blog',
-                __('Media manager'),
-                'admin.media',
-                ['images/menu/media.svg', 'images/menu/media-dark.svg'],
-                App::core()->user()->check('media,media_admin', App::core()->blog()->id)
-            );
+            $this->getGroup('Blog')->addItem(new MenuItem(
+                title: __('Media manager'),
+                url: App::core()->adminurl()->get('admin.media'),
+                icons: ['images/menu/media.svg', 'images/menu/media-dark.svg'],
+                permission: 'media,media_admin',
+            ));
         }
-        $this->register(
-            'Blog',
-            __('Categories'),
-            'admin.categories',
-            ['images/menu/categories.svg', 'images/menu/categories-dark.svg'],
-            App::core()->user()->check('categories', App::core()->blog()->id)
-        );
-        $this->register(
-            'Blog',
-            __('Search'),
-            'admin.search',
-            ['images/menu/search.svg', 'images/menu/search-dark.svg'],
-            App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)
-        );
-        $this->register(
-            'Blog',
-            __('Comments'),
-            'admin.comments',
-            ['images/menu/comments.svg', 'images/menu/comments-dark.svg'],
-            App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)
-        );
-        $this->register(
-            'Blog',
-            __('Posts'),
-            'admin.posts',
-            ['images/menu/entries.svg', 'images/menu/entries-dark.svg'],
-            App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)
-        );
-        $this->register(
-            'Blog',
-            __('New post'),
-            'admin.post',
-            ['images/menu/edit.svg', 'images/menu/edit-dark.svg'],
-            App::core()->user()->check('usage,contentadmin', App::core()->blog()->id),
-            true,
-            true
-        );
+        $this->getGroup('Blog')->addItem(new MenuItem(
+            title: __('Categories'),
+            url: App::core()->adminurl()->get('admin.categories'),
+            icons: ['images/menu/categories.svg', 'images/menu/categories-dark.svg'],
+            permission: 'categories',
+        ));
+        $this->getGroup('Blog')->addItem(new MenuItem(
+            title: __('Search'),
+            url: App::core()->adminurl()->get('admin.search'),
+            icons: ['images/menu/search.svg', 'images/menu/search-dark.svg'],
+            permission: 'usage,contentadmin',
+        ));
+        $this->getGroup('Blog')->addItem(new MenuItem(
+            title: __('Comments'),
+            url: App::core()->adminurl()->get('admin.comments'),
+            icons: ['images/menu/comments.svg', 'images/menu/comments-dark.svg'],
+            permission: 'usage,contentadmin',
+        ));
+        $this->getGroup('Blog')->addItem(new MenuItem(
+            title: __('Posts'),
+            url: App::core()->adminurl()->get('admin.posts'),
+            icons: ['images/menu/entries.svg', 'images/menu/entries-dark.svg'],
+            permission: 'usage,contentadmin',
+        ));
+        $this->getGroup('Blog')->addItem(new MenuItem(
+            title: __('New post'),
+            url: App::core()->adminurl()->get('admin.post'),
+            icons: ['images/menu/edit.svg', 'images/menu/edit-dark.svg'],
+            permission: 'usage,contentadmin',
+            activation: App::core()->adminurl()->is('admin.post') && 1 == GPC::get()->count(),
+            pinned: true
+        ));
+        $this->getGroup('System')->addItem(new MenuItem(
+            title: __('Update'),
+            url: App::core()->adminurl()->get('admin.update'),
+            icons: ['images/menu/update.svg', 'images/menu/update-dark.svg'],
+            permission: App::core()->user()->isSuperAdmin() && is_readable(App::core()->config()->get('digests_dir')),
+        ));
+        $this->getGroup('System')->addItem(new MenuItem(
+            title: __('Languages'),
+            url: App::core()->adminurl()->get('admin.langs'),
+            icons: ['images/menu/langs.svg', 'images/menu/langs-dark.svg'],
+        ));
+        $this->getGroup('System')->addItem(new MenuItem(
+            title: __('Users'),
+            url: App::core()->adminurl()->get('admin.users'),
+            icons: 'images/menu/users.svg',
+        ));
+        $this->getGroup('System')->addItem(new MenuItem(
+            title: __('Blogs'),
+            url: App::core()->adminurl()->get('admin.blogs'),
+            icons: ['images/menu/blogs.svg', 'images/menu/blogs-dark.svg'],
+            permission: App::core()->user()->isSuperAdmin() || App::core()->user()->check('usage,contentadmin', App::core()->blog()->id) && 1 < App::core()->user()->getBlogCount(),
+        ));
 
-        $this->register(
-            'System',
-            __('Update'),
-            'admin.update',
-            ['images/menu/update.svg', 'images/menu/update-dark.svg'],
-            App::core()->user()->isSuperAdmin() && is_readable(App::core()->config()->get('digests_dir'))
-        );
-        $this->register(
-            'System',
-            __('Languages'),
-            'admin.langs',
-            ['images/menu/langs.svg', 'images/menu/langs-dark.svg'],
-            App::core()->user()->isSuperAdmin()
-        );
-        $this->register(
-            'System',
-            __('Users'),
-            'admin.users',
-            'images/menu/users.svg',
-            App::core()->user()->isSuperAdmin()
-        );
-        $this->register(
-            'System',
-            __('Blogs'),
-            'admin.blogs',
-            ['images/menu/blogs.svg', 'images/menu/blogs-dark.svg'],
-            App::core()->user()->isSuperAdmin() || App::core()->user()->check('usage,contentadmin', App::core()->blog()->id) && 1 < App::core()->user()->getBlogCount()
-        );
+        // Add default top menus (favorites)
+        if (!App::core()->user()->preference()->get('interface')->get('nofavmenu')) {
+            foreach (App::core()->favorite()->getUserFavorites() as $item) {
+                $this->getGroup('Favorites')->addItem(new MenuItem(
+                    title: $item->title,
+                    url: $item->url,
+                    icons: $item->icons,
+                    activation: $item->active,
+                    permission: true,
+                    pinned: true,
+                ));
+            }
+        }
     }
 }

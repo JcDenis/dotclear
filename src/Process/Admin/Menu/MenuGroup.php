@@ -14,13 +14,13 @@ use Dotclear\App;
 use Dotclear\Helper\Lexical;
 
 /**
- * Admin menu items helper.
+ * Admin menu items group helper.
  *
- * Accessible from App::core()->summary()->menu('a_menu_id')
+ * Accessible from App::core()->menus()->getGroup('a_menu_group_id')
  *
- * @ingroup  Admin
+ * @ingroup  Admin Menu Item
  */
-class MenuGroup
+final class MenuGroup
 {
     /**
      * @var array<int,string> $pinned
@@ -37,12 +37,17 @@ class MenuGroup
     /**
      * Constructor.
      *
+     * @param string $section   The section
      * @param string $id        The identifier
      * @param string $title     The title
      * @param string $itemSpace The item space
      */
-    public function __construct(private string $id, private string $title, private string $itemSpace = '')
-    {
+    public function __construct(
+        public readonly string $section,
+        public readonly string $id,
+        public readonly string $title,
+        private string $itemSpace = ''
+    ) {
     }
 
     /**
@@ -52,11 +57,11 @@ class MenuGroup
      */
     public function addItem(MenuItem $item): void
     {
-        if ($item->show()) {
-            if ($item->pinned()) {
-                $this->pinned[] = $item->html();
+        if ($item->show) {
+            if ($item->pinned) {
+                $this->pinned[] = $item->toHTML();
             } else {
-                $this->items[$item->title()] = $item->html();
+                $this->items[$item->title] = $item->toHTML();
             }
         }
     }
@@ -68,21 +73,21 @@ class MenuGroup
      */
     public function prependItem(MenuItem $item): void
     {
-        if ($item->show()) {
-            if ($item->pinned()) {
-                array_unshift($this->pinned, $item->html());
+        if ($item->show) {
+            if ($item->pinned) {
+                array_unshift($this->pinned, $item->toHTML());
             } else {
-                $this->items[$item->title()] = $item->html();
+                $this->items[$item->title] = $item->toHTML();
             }
         }
     }
 
     /**
-     * Draw a menu.
+     * Get HTML representation of a menu.
      *
      * @return string The forged menu
      */
-    public function draw(): string
+    public function toHTML(): string
     {
         if (0 == count($this->items) + count($this->pinned)) {
             return '';

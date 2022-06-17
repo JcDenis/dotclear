@@ -20,6 +20,8 @@ use Dotclear\Plugin\Pages\Common\PagesUrl;
 use Dotclear\Plugin\Pages\Common\PagesWidgets;
 use Dotclear\Process\Admin\AdminUrl\AdminUrlDescriptor;
 use Dotclear\Process\Admin\Favorite\Favorite;
+use Dotclear\Process\Admin\Favorite\FavoriteItem;
+use Dotclear\Process\Admin\Favorite\DashboardIcon;
 
 /**
  * Admin prepend for plugin Pages.
@@ -46,29 +48,31 @@ class Prepend extends ModulePrepend
         $this->addStandardMenu('Blog');
 
         // Add favorites
-        App::core()->behavior()->add('adminDashboardFavorites', function (Favorite $favs): void {
-            $favs->register('pages', [
-                'title'        => __('Pages'),
-                'url'          => App::core()->adminurl()->get('admin.plugin.Pages'),
-                'icons'        => ['Plugin/Pages/icon.svg', 'Plugin/Pages/icon-dark.svg'],
-                'permissions'  => 'contentadmin,pages',
-                'dashboard_cb' => function (ArrayObject $v): void {
+        App::core()->behavior()->add('adminAfterSetDefaultFavoriteItems', function (Favorite $favorite): void {
+            $favorite->AddItem(new FavoriteItem(
+                id: 'pages',
+                title: __('Pages'),
+                url: App::core()->adminurl()->get('admin.plugin.Pages'),
+                icons: ['Plugin/Pages/icon.svg', 'Plugin/Pages/icon-dark.svg'],
+                permission: 'contentadmin,pages',
+                dashboard: function (DashboardIcon $icon): void {
                     $param = new Param();
                     $param->set('post_type', 'page');
                     $page_count = App::core()->blog()->posts()->countPosts(param: $param);
                     if (0 < $page_count) {
                         $str_pages = (1 < $page_count) ? __('%d pages') : __('%d page');
-                        $v['title'] = sprintf($str_pages, $page_count);
+                        $icon->replaceTitle(sprintf($str_pages, $page_count));
                     }
                 },
-            ]);
-            $favs->register('newpage', [
-                'title'       => __('New page'),
-                'url'         => App::core()->adminurl()->get('admin.plugin.Page'),
-                'icons'       => ['Plugin/Pages/icon-np.svg', 'Plugin/Pages/icon-np-dark.svg'],
-                'permissions' => 'contentadmin,pages',
-                'active_cb'   => fn () => App::core()->adminurl()->is('admin.plugin.Page') && GPC::request()->empty('id'),
-            ]);
+            ));
+            $favorite->AddItem(new FavoriteItem(
+                id: 'newpage',
+                title: __('New page'),
+                url: App::core()->adminurl()->get('admin.plugin.Page'),
+                icons: ['Plugin/Pages/icon-np.svg', 'Plugin/Pages/icon-np-dark.svg'],
+                permission: 'contentadmin,pages',
+                activation: App::core()->adminurl()->is('admin.plugin.Page') && GPC::request()->empty('id'),
+            ));
         });
 
         // Add headers

@@ -12,10 +12,11 @@ namespace Dotclear\Process\Admin\Handler;
 // Dotclear\Process\Admin\Handler\Home
 use ArrayObject;
 use Dotclear\App;
-use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\GPC\GPC;
+use Dotclear\Process\Admin\Favorite\DashboardIcons;
+use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
 
 /**
@@ -134,9 +135,7 @@ class Home extends AbstractPage
     protected function getPageContent(): void
     {
         // Dashboard icons
-        $__dashboard_icons = new ArrayObject();
-
-        App::core()->favorite()->appendDashboardIcons($__dashboard_icons);
+        $__dashboard_icons = new DashboardIcons();
 
         // Latest news for dashboard
         /** @var ArrayObject<int, ArrayObject> */
@@ -278,13 +277,7 @@ class Home extends AbstractPage
         $__dashboard_main = [];
         if (!App::core()->user()->preference()->get('dashboard')->get('nofavicons')) {
             // Dashboard icons
-            $dashboardIcons = '<div id="icons">';
-            foreach ($__dashboard_icons as $dib => $i) {
-                $dashboardIcons .= '<p id="db-icon-' . $dib . '"><a href="' . $i[1] . '">' . App::core()->summary()->getIconTheme($i[2]) .
-                    '<br /><span class="db-icon-title">' . $i[0] . '</span></a></p>';
-            }
-            $dashboardIcons .= '</div>';
-            $__dashboard_main[] = $dashboardIcons;
+            $__dashboard_main[] = $__dashboard_icons->toHtml();
         }
         if (App::core()->user()->preference()->get('dashboard')->get('quickentry')) {
             if (App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)) {

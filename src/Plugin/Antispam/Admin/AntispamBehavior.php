@@ -17,6 +17,7 @@ use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\XmlTag;
 use Dotclear\Plugin\Antispam\Common\Antispam;
+use Dotclear\Process\Admin\Favorite\DashboardIcon;
 
 /**
  * Admin behaviors for plugin Antispam.
@@ -31,22 +32,22 @@ class AntispamBehavior
         App::core()->rest()->addFunction('getSpamsCount', [$this, 'restGetSpamsCount']);
 
         // Admin behaviors
-        App::core()->behavior()->add('adminDashboardFavsIcon', [$this, 'behaviorAdminDashboardFavsIcon']);
+        App::core()->behavior()->add('adminBeforeAddDashboardIcon', [$this, 'adminBeforeAddDashboardIcon']);
 
         // @phpstan-ignore-next-line (Failed to judge constant)
         if (false == DC_ANTISPAM_CONF_SUPER || App::core()->user()->isSuperAdmin()) {
             App::core()->behavior()->add('adminBlogPreferencesForm', [$this, 'behaviorAdminBlogPreferencesForm']);
-            App::core()->behavior()->add('adminBeforeBlogSettingsUpdate', [$this, 'behaviorAdminBeforeBlogSettingsUpdate']);
+            App::core()->behavior()->add('adminBeforeBlogSettingsUpdate', [$this, 'adminBeforeBlogSettingsUpdate']);
             App::core()->behavior()->add('adminCommentsSpamForm', [$this, 'behaviorAdminCommentsSpamForm']);
             App::core()->behavior()->add('adminPageHelpBlock', [$this, 'behaviorAdminPageHelpBlock']);
         }
     }
 
-    public function behaviorAdminDashboardFavsIcon(string $name, ArrayObject $icon): void
+    public function adminBeforeAddDashboardIcon(DashboardIcon $icon): void
     {
         $str = '';
         // Check if it is comments favs
-        if ('comments' == $name) {
+        if ('comments' == $icon->id) {
             // Hack comments title if there is at least one spam
             if (0 < ($count = (new Antispam())->countSpam())) {
                 $str = '</span></a> <a href="' . App::core()->adminurl()->get('admin.comments', ['status' => '-2']) . '"><span class="db-icon-title-spam">' .
@@ -54,7 +55,7 @@ class AntispamBehavior
             }
 
             if ('' != $str) {
-                $icon[0] .= $str;
+                $icon->appendTitle($str);
             }
         }
     }
@@ -98,7 +99,7 @@ class AntispamBehavior
             '</div>';
     }
 
-    public function behaviorAdminBeforeBlogSettingsUpdate(Settings $settings): void
+    public function adminBeforeBlogSettingsUpdate(Settings $settings): void
     {
         $settings->getGroup('antispam')->putSetting('antispam_moderation_ttl', GPC::post()->int('antispam_moderation_ttl'));
     }

@@ -21,6 +21,8 @@ use Dotclear\Helper\L10n;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Modules\Repository\Repository;
 use Dotclear\Process\Admin\AdminUrl\AdminUrlDescriptor;
+use Dotclear\Process\Admin\Favorite\FavoriteItem;
+use Dotclear\Process\Admin\Menu\MenuItem;
 use Error;
 use Exception;
 
@@ -164,18 +166,19 @@ class Modules
             name: $handler,
             class: 'Dotclear\\Modules\\' . $this->getType() . '\\' . $this->getType() . 'Handler',
         ));
-        App::core()->summary()->register(
-            empty($this->group) ? 'System' : $this->group,
-            $this->getName(),
-            $handler,
-            $icons,
-            true
-        );
-        App::core()->favorite()->register($this->getType(), [
-            'title'      => $this->getName(),
-            'url'        => App::core()->adminurl()->get($handler),
-            'icons'      => $icons,
-        ]);
+        $group = empty($this->group) ? 'System' : $this->group;
+        App::core()->menus()->getGroup($group)?->prependItem(new MenuItem(
+            title: $this->getName(),
+            url: App::core()->adminurl()->get($handler),
+            icons: $icons,
+            permission: true,
+        ));
+        App::core()->favorite()->AddItem(new FavoriteItem(
+            id: $this->getType(),
+            title: $this->getName(),
+            url: App::core()->adminurl()->get($handler),
+            icons: $icons,
+        ));
 
         new ModulesBehavior($this);
     }

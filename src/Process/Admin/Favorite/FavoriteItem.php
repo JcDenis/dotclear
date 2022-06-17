@@ -7,18 +7,18 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Process\Admin\Menu;
+namespace Dotclear\Process\Admin\Favorite;
 
-// Dotclear\Process\Admin\Menu\MenuItem
+// Dotclear\Process\Admin\Favorite\FavoriteItem
 use Dotclear\App;
 use Dotclear\Exception\InvalidValueReference;
 
 /**
- * Admin menu item helper.
+ * Admin favorite item helper.
  *
- * @ingroup  Admin Menu Item
+ * @ingroup  Admin Favorite Item
  */
-final class MenuItem
+final class FavoriteItem
 {
     public readonly bool $active;
     public readonly bool $show;
@@ -26,27 +26,28 @@ final class MenuItem
     /**
      * Constructor.
      *
+     * @param string       $id         The id
      * @param string       $title      The title
      * @param string       $url        The url
      * @param array|string $icons      The image(s)
-     * @param string       $class      The menu HTML li class
-     * @param string       $attributes The HTML a attributes
-     * @param bool         $pinned     The pinned flag
      * @param mixed        $permission The permission callback
      * @param mixed        $activation The activation callback
+     * @param mixed        $dashboard  The dashboard callback
      */
     public function __construct(
+        public readonly string $id,
         public readonly string $title,
         public readonly string $url,
-        public readonly string|array $icons,
-        public readonly string $class = '',
-        public readonly string $attributes = '',
-        public readonly bool $pinned = false,
+        public readonly string|array $icons = 'images/menu/no-icon.svg',
         public readonly mixed $permission = null,
         public readonly mixed $activation = null,
+        public readonly mixed $dashboard = null,
     ) {
+        if (empty($this->id)) {
+            throw new InvalidValueReference(__('Favorite item has no id'));
+        }
         if (empty($this->title)) {
-            throw new InvalidValueReference(__('Menu item has no title'));
+            throw new InvalidValueReference(__('Favorite item has no title'));
         }
 
         // Use value sets on item creation
@@ -74,18 +75,5 @@ final class MenuItem
 
         $this->active = (bool) $active;
         $this->show   = $show;
-    }
-
-    /**
-     * Get the HTML repesentation of the menu item.
-     *
-     * @return string The HTML code of the menu item
-     */
-    public function toHTML(): string
-    {
-        return
-            '<li' . (($this->active || $this->class) ? ' class="' . (($this->active) ? 'active ' : '') . (($this->class) ? $this->class : '') . '"' : '') . '>' .
-            '<a href="' . $this->url . '"' . $this->attributes . '>' . App::core()->menus()->getIconTheme($this->icons) . $this->title . '</a>' .
-            '</li>' . "\n";
     }
 }

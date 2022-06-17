@@ -17,6 +17,8 @@ use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance;
 use Dotclear\Process\Admin\Favorite\Favorite;
+use Dotclear\Process\Admin\Favorite\FavoriteItem;
+use Dotclear\Process\Admin\Favorite\DashboardIcon;
 
 /**
  * Admin behaviors for plugin Maintenance.
@@ -28,7 +30,7 @@ class MaintenanceBehavior
     public function __construct()
     {
         App::core()->behavior()->add('dcMaintenanceInit', [$this, 'behaviorDcMaintenanceInit']);
-        App::core()->behavior()->add('adminDashboardFavorites', [$this, 'behaviorAdminDashboardFavorites']);
+        App::core()->behavior()->add('adminAfterSetDefaultFavoriteItems', [$this, 'adminAfterSetDefaultFavoriteItems']);
         App::core()->behavior()->add('adminDashboardContents', [$this, 'behaviorAdminDashboardItems']);
         App::core()->behavior()->add('adminDashboardOptionsForm', [$this, 'behaviorAdminDashboardOptionsForm']);
         App::core()->behavior()->add('adminAfterDashboardOptionsUpdate', [$this, 'behaviorAdminAfterDashboardOptionsUpdate']);
@@ -75,18 +77,18 @@ class MaintenanceBehavior
     /**
      * Favorites.
      *
-     * @param Favorite $favs Favorite instance
+     * @param Favorite $favorite Favorite instance
      */
-    public function behaviorAdminDashboardFavorites(Favorite $favs): void
+    public function adminAfterSetDefaultFavoriteItems(Favorite $favorite): void
     {
-        $favs->register('maintenance', [
-            'title'        => __('Maintenance'),
-            'url'          => App::core()->adminurl()->get('admin.plugin.Maintenance'),
-            'icons'        => ['Plugin/Maintenance/icon.svg', 'Plugin/Maintenance/icon-dark.svg'],
-            'permissions'  => 'admin',
-            'active_cb'    => App::core()->adminurl()->is('admin.plugin.Maintenance'),
-            'dashboard_cb' => [$this, 'behaviorAdminDashboardFavoritesCallback'],
-        ]);
+        $favorite->AddItem(new FavoriteItem(
+            id: 'maintenance',
+            title: __('Maintenance'),
+            url: App::core()->adminurl()->get('admin.plugin.Maintenance'),
+            icons: ['Plugin/Maintenance/icon.svg', 'Plugin/Maintenance/icon-dark.svg'],
+            permission: 'admin',
+            dashboard: [$this, 'behaviorAdminDashboardFavoritesCallback'],
+        ));
     }
 
     /**
@@ -95,9 +97,9 @@ class MaintenanceBehavior
      * This updates maintenance fav icon text
      * if there are tasks required maintenance.
      *
-     * @param ArrayObject $fav The fav
+     * @param DashboardIcon $icon The dashboard favorite icon
      */
-    public function behaviorAdminDashboardFavoritesCallback(ArrayObject $fav): void
+    public function behaviorAdminDashboardFavoritesCallback(DashboardIcon $icon): void
     {
         // Check user option
         if (!App::core()->user()->preference()->get('maintenance')->get('dashboard_icon')) {
@@ -117,8 +119,8 @@ class MaintenanceBehavior
             return;
         }
 
-        $fav['title'] .= '<br />' . sprintf(__('One task to execute', '%s tasks to execute', $count), $count);
-        $fav['icons'] = ['Plugin/Maintenance/icon-update.svg', 'Plugin/Maintenance/icon-dark-update.svg'];
+        $icon->appendTitle('<br />' . sprintf(__('One task to execute', '%s tasks to execute', $count), $count));
+        $icon->replaceIcons(['Plugin/Maintenance/icon-update.svg', 'Plugin/Maintenance/icon-dark-update.svg']);
     }
 
     /**
@@ -162,7 +164,7 @@ class MaintenanceBehavior
 
         $items[] = new ArrayObject([
             '<div id="maintenance-expired" class="box small">' .
-            '<h3>' . App::core()->summary()->getIconTheme(['Plugin/Maintenance/icon.svg', 'Plugin/Maintenance/icon-dark.svg'], true, '', '', 'icon-small') . __('Maintenance') . '</h3>' .
+            '<h3>' . App::core()->menus()->getIconTheme(['Plugin/Maintenance/icon.svg', 'Plugin/Maintenance/icon-dark.svg'], true, '', '', 'icon-small') . __('Maintenance') . '</h3>' .
             '<p class="warning no-margin">' . sprintf(__('There is a task to execute.', 'There are %s tasks to execute.', count($lines)), count($lines)) . '</p>' .
             '<ul>' . implode('', $lines) . '</ul>' .
             '<p><a href="' . App::core()->adminurl()->get('admin.plugin.Maintenance') . '">' . __('Manage tasks') . '</a></p>' .

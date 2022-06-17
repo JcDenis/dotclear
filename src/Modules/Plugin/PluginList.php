@@ -671,7 +671,7 @@ class PluginList
                 }
 
                 echo '<td class="module-icon nowrap">' .
-                App::core()->summary()->getIconTheme($icon, false, Html::escapeHTML($id), Html::escapeHTML($id)) .
+                App::core()->menus()->getIconTheme($icon, false, Html::escapeHTML($id), Html::escapeHTML($id)) .
                 '</td>';
             }
 

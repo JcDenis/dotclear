@@ -10,12 +10,10 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Favorite;
 
 // Dotclear\Process\Admin\Favorite\Favorite
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Core\User\Preference\Workspace;
 use Dotclear\Helper\GPC\GPC;
-use Dotclear\Process\Admin\Menu\Summary;
-use Dotclear\Process\Admin\Menu\MenuItem;
+use Dotclear\Helper\Mapper\Strings;
 
 /**
  * Admin favorites handling facilities.
@@ -27,149 +25,123 @@ use Dotclear\Process\Admin\Menu\MenuItem;
 class Favorite
 {
     /**
-     * @var ArrayObject $fav_defs
-     *                  list of favorite definitions
+     * @var array<string,FavoriteItem> $favorites
+     *                                 The list of favorite items
      */
-    private $fav_defs;
+    private $favorites = [];
 
     /**
      * @var Workspace $ws
-     *                current favorite landing workspace
+     *                The current favorite landing workspace
      */
     private $ws;
 
     /**
-     * @var array<string,mixed> $local_prefs
-     *                          list of user-defined favorite ids
+     * @var Strings $local_prefs
+     *              The list of user-defined favorite ids
      */
-    private $local_prefs = [];
+    private $local_prefs;
 
     /**
-     *  @var array<string,mixed> $global_prefs
-     * list of globally-defined favorite ids
+     * @var Strings $global_prefs
+     *              The list of globally-defined favorite ids
      */
-    private $global_prefs = [];
+    private $global_prefs;
 
     /**
-     * @var array<string,mixed> $user_prefs
-     *                          list of user preferences (either one of the 2 above, or not!)
+     * @var array<string,FavoriteItem> $user_prefs
+     *                                 The list of user preferences (either one of the 2 above, or not!)
      */
     private $user_prefs = [];
 
     /**
-     * @var array<string,string> $default_favorites
-     *                           Default favorites values
-     */
-    private $default_favorites = [
-        // favorite title (localized)
-        'title' => '',
-        // favorite URL
-        'url' => '',
-        // favorite small icon (for menu)
-        'icons' => 'images/menu/no-icon.svg',
-        // (optional) comma-separated list of permissions for thie fav, if not set : no restriction
-        'permissions' => '',
-        // (optional) callback to modify title if dynamic, if not set : title is taken as is
-        'dashboard_cb' => '',
-        //  (optional) callback to tell whether current page matches favorite or not, for complex pages
-        'active_cb' => '',
-    ];
-
-    /**
-     * Class constructor.
+     * Constructor.
      */
     public function __construct()
     {
-        $this->fav_defs   = new ArrayObject();
         $this->ws         = App::core()->user()->preference()->get('dashboard');
         $this->user_prefs = [];
 
         if ($this->ws->prefExists('favorites')) {
-            $this->local_prefs  = $this->ws->getLocal('favorites');
-            $this->global_prefs = $this->ws->getGlobal('favorites');
-            // Since we never know what user puts through user:preferences ...
-            if (!is_array($this->local_prefs)) {
-                $this->local_prefs = [];
-            }
-            if (!is_array($this->global_prefs)) {
-                $this->global_prefs = [];
-            }
+            $this->local_prefs  = new Strings($this->ws->getLocal('favorites'));
+            $this->global_prefs = new Strings($this->ws->getGlobal('favorites'));
+        } else {
+            $this->local_prefs  = new Strings();
+            $this->global_prefs = new Strings();
         }
     }
 
     /**
-     * Sets up favorites.
+     * Add a favorite item.
      *
-     * Fetch user favorites (against his permissions)
-     * This method is to be called after loading plugins
+     * Registers a new favorite definition
+     *
+     * @param FavoriteItem $item The favorite item
      */
-    public function setup(): void
+    public function addItem(FavoriteItem $item): void
     {
-        $this->initDefaultFavorites();
-        App::core()->behavior()->call('adminDashboardFavorites', $this);
-        $this->setUserPrefs();
+        $this->favorites[$item->id] = $item;
     }
 
     /**
-     * Get Favorite.
+     * Check if a Favorite item exist.
+     *
+     * Tells whether a fav definition exists or not.
+     *
+     * @param string $id The fav id to test
+     *
+     * @return bool true if the fav definition exists, false otherwise
+     */
+    public function hasItem(string $id): bool
+    {
+        return isset($this->favorites[$id]);
+    }
+
+    /**
+     * Get a Favorite item.
      *
      * Retrieves a favorite (complete description) from its id.
      *
-     * @param array|string $p the favorite id, or an array having 1 key 'name' set to id, ther keys are merged to favorite
+     * @param string $id The favorite id
      *
-     * @return array The favorite
+     * @return null|FavoriteItem The favorite item
      */
-    public function getFavorite(string|array $p): array
+    public function getItem(string $id): ?FavoriteItem
     {
-        if (is_array($p)) {
-            $fname = $p['name'];
-            if (!isset($this->fav_defs[$fname])) {
-                return [];
-            }
-            $fattr = $p;
-            unset($fattr['name']);
-            $fattr = array_merge($this->fav_defs[$fname], $fattr);
-        } else {
-            if (!isset($this->fav_defs[$p])) {
-                return [];
-            }
-            $fattr = $this->fav_defs[$p];
-        }
-        $fattr = array_merge(['id' => null, 'class' => null], $fattr);
-        if (isset($fattr['permissions'])) {
-            if (is_bool($fattr['permissions']) && !$fattr['permissions']) {
-                return [];
-            }
-            if (!App::core()->user()->check($fattr['permissions'], App::core()->blog()->id)) {
-                return [];
-            }
-        } elseif (!App::core()->user()->isSuperAdmin()) {
-            return [];
-        }
-
-        return $fattr;
+        return $this->hasItem($id) && $this->favorites[$id]->show ? $this->favorites[$id] : null;
     }
 
     /**
-     * Get Favorites.
+     * Get Favorites items.
      *
      * Retrieves a list of favorites.
      *
-     * @param array $ids an array of ids, as defined in getFavorite
+     * @param Strings $ids an array of ids, as defined in getFavorite
      *
-     * @return array The favorites, can be empty if ids are not found (or not permitted)
+     * @return array<string,FavoriteItem> The favorites, can be empty if ids are not found (or not permitted)
      */
-    public function getFavorites(array $ids): array
+    public function getItems(Strings $ids): array
     {
         $prefs = [];
-        foreach ($ids as $id) {
-            $f = $this->getFavorite($id);
-            if (!empty($f)) {
-                $prefs[$id] = $f;
+        foreach ($ids->dump() as $id) {
+            if (null != ($item = $this->getItem($id))) {
+                $prefs[$id] = $item;
             }
         }
 
         return $prefs;
+    }
+
+    /**
+     * Get Favorites IDs.
+     *
+     * Returns all available fav ids
+     *
+     * @return Strings List of favorites ids (only ids, not enriched)
+     */
+    public function getIDs(): Strings
+    {
+        return new Strings(array_keys($this->favorites));
     }
 
     /**
@@ -186,24 +158,12 @@ class Favorite
      */
     protected function setUserPrefs(): void
     {
-        $this->user_prefs = $this->local_prefs ? $this->getFavorites($this->local_prefs) : [];
+        $this->user_prefs = $this->local_prefs->count() ? $this->getItems($this->local_prefs) : [];
         if (empty($this->user_prefs)) {
-            $this->user_prefs = $this->global_prefs ? $this->getFavorites($this->global_prefs) : [];
+            $this->user_prefs = $this->global_prefs->count() ? $this->getItems($this->global_prefs) : [];
         }
         if (empty($this->user_prefs)) {
-            $this->user_prefs = $this->getFavorites(['new_post']);
-        }
-        // Loop over prefs to enable active favorites
-        foreach ($this->user_prefs as $k => &$v) {
-            // Use callback if defined to match whether favorite is active or not
-            if (!empty($v['active_cb']) && is_callable($v['active_cb'])) {
-                $v['active'] = call_user_func($v['active_cb']);
-            // Or use called handler
-            } else {
-                parse_str(parse_url($v['url'], PHP_URL_QUERY), $url);
-                $handler     = $url['handler'] ?: null;
-                $v['active'] = App::core()->adminurl()->is($handler);
-            }
+            $this->user_prefs = $this->getItems(new Strings(['new_post']));
         }
     }
 
@@ -213,7 +173,7 @@ class Favorite
      * Returns favorites that correspond to current user
      * (may be local, global, or failback favorites)
      *
-     * @return array Array of favorites (enriched)
+     * @return array<string,FavoriteItem> The favorite items (enriched)
      */
     public function getUserFavorites(): array
     {
@@ -221,262 +181,162 @@ class Favorite
     }
 
     /**
-     * Get Favorite IDs.
+     * Get global Favorite IDs.
      *
-     * Returns user-defined or global favorites ids list
+     * Returns global favorites ids list
      * shall not be called outside handler UserPref.
      *
-     * @param bool $global If true, retrieve global favs, user favs otherwise
-     *
-     * @return array Array of favorites ids (only ids, not enriched)
+     * @return Strings The list of favorites ids (only ids, not enriched)
      */
-    public function getFavoriteIDs(bool $global = false): array
+    public function getGlobalFavoriteIDs(): Strings
     {
-        return $global ? $this->global_prefs : $this->local_prefs;
+        return $this->global_prefs;
     }
 
     /**
-     * Set Favorite IDs.
+     * Set global Favorite IDs.
      *
-     * Stores user-defined or global favorites ids list
+     * Stores global favorites ids list
      * shall not be called outside handler UserPref.
      *
-     * @param array $ids    List of fav ids
-     * @param bool  $global If true, retrieve global favs, user favs otherwise
+     * @param Strings $ids List of fav ids
      */
-    public function setFavoriteIDs(array $ids, bool $global = false): void
+    public function setGlobalFavoriteIDs(Strings $ids): void
     {
-        $this->ws->put('favorites', $ids, 'array', null, true, $global);
+        $this->ws->put('favorites', $ids->dump(), 'array', null, true, true);
     }
 
     /**
-     * Get Available Favorites IDs.
+     * Get local Favorite IDs.
      *
-     * Returns all available fav ids
+     * Returns user-defined favorites ids list
+     * shall not be called outside handler UserPref.
      *
-     * @return array Array of favorites ids (only ids, not enriched)
+     * @return Strings The list of favorites ids (only ids, not enriched)
      */
-    public function getAvailableFavoritesIDs(): array
+    public function getLocalFavoriteIDs(): Strings
     {
-        return array_keys($this->fav_defs->getArrayCopy());
+        return $this->local_prefs;
     }
 
     /**
-     * Append Menu Title.
+     * Set local Favorite IDs.
      *
-     * Adds favorites section title to sidebar menu
-     * shall not be called outside Admin Prepend.
+     * Stores user-defined favorites ids list
+     * shall not be called outside handler UserPref.
      *
-     * @param Summary $summary Summary instance
+     * @param Strings $ids List of fav ids
      */
-    public function appendMenuTitle(Summary $summary): void
+    public function setLocalFavoriteIDs(Strings $ids): void
     {
-        $summary->add('Favorites', 'favorites-menu', __('My favorites'));
+        $this->ws->put('favorites', $ids->dump(), 'array', null, true, false);
     }
 
     /**
-     * Append Menu.
+     * Sets up favorites.
      *
-     * Adds favorites items title to sidebar menu
-     * shall not be called outside Admin Prepend.
-     *
-     * @param Summary $summary Summary instance
+     * Fetch user favorites (against his permissions)
+     * This method is to be called after loading plugins
      */
-    public function appendMenu(Summary $summary): void
+    public function setDefaultFavoriteItems(): void
     {
-        foreach ($this->user_prefs as $k => $v) {
-            $summary->menu('Favorites')->addItem(new MenuItem(
-                $v['title'],
-                $v['url'],
-                $v['icons'],
-                $v['active'],
-                true,
-                $v['id'],
-                $v['class'],
-                true
-            ));
-        }
-    }
-
-    /**
-     * Append Dashboard Icons.
-     *
-     * Adds favorites icons to index page
-     * shall not be called outside Admin handler Home.
-     *
-     * @param ArrayObject $icons Dashboard icon list to enrich
-     */
-    public function appendDashboardIcons(ArrayObject $icons): void
-    {
-        foreach ($this->user_prefs as $k => $v) {
-            if (!empty($v['dashboard_cb']) && is_callable($v['dashboard_cb'])) {
-                $v = new ArrayObject($v);
-                call_user_func($v['dashboard_cb'], $v);
-            }
-            $icons[$k] = new ArrayObject([$v['title'], $v['url'], $v['icons']]);
-            App::core()->behavior()->call('adminDashboardFavsIcon', $k, $icons[$k]);
-        }
-    }
-
-    /**
-     * Register.
-     *
-     * Registers a new favorite definition
-     *
-     * @param string $id   Favorite id
-     * @param array  $data Favorite information. @see self::$default_favorites
-     *
-     * @return Favorite Favorite instance
-     */
-    public function register(string $id, array $data): Favorite
-    {
-        $this->fav_defs[$id] = array_merge($this->default_favorites, $data);
-
-        return $this;
-    }
-
-    /**
-     * Register Multiple.
-     *
-     * Registers a list of favorites definition
-     *
-     * @see self::register()
-     *
-     * @param array $data an array defining all favorites key is the id, value is the data
-     *
-     * @return Favorite Favorite instance
-     */
-    public function registerMultiple(array $data): Favorite
-    {
-        foreach ($data as $k => $v) {
-            $this->register($k, $v);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Exists.
-     *
-     * Tells whether a fav definition exists or not
-     *
-     * @param string $id The fav id to test
-     *
-     * @return bool true if the fav definition exists, false otherwise
-     */
-    public function exists(string $id): bool
-    {
-        return isset($this->fav_defs[$id]);
-    }
-
-    /**
-     * Initializes the default favorites.
-     */
-    private function initDefaultFavorites(): void
-    {
-        $this->registerMultiple([
-            'prefs' => [
-                'title'      => __('My preferences'),
-                'url'        => App::core()->adminurl()->get('admin.user.pref'),
-                'icons'      => 'images/menu/user-pref.svg', ],
-            'new_post' => [
-                'title'       => __('New post'),
-                'url'         => App::core()->adminurl()->get('admin.post'),
-                'icons'       => ['images/menu/edit.svg', 'images/menu/edit-dark.svg'],
-                'permissions' => 'usage,contentadmin',
-                'active_cb'   => [$this, 'cbNewpostActive'], ],
-            'posts' => [
-                'title'        => __('Posts'),
-                'url'          => App::core()->adminurl()->get('admin.posts'),
-                'icons'        => ['images/menu/entries.svg', 'images/menu/entries-dark.svg'],
-                'permissions'  => 'usage,contentadmin',
-                'dashboard_cb' => [$this, 'cbPostsDashboard'], ],
-            'comments' => [
-                'title'        => __('Comments'),
-                'url'          => App::core()->adminurl()->get('admin.comments'),
-                'icons'        => ['images/menu/comments.svg', 'images/menu/comments-dark.svg'],
-                'permissions'  => 'usage,contentadmin',
-                'dashboard_cb' => [$this, 'cbCommentsDashboard'], ],
-            'search' => [
-                'title'       => __('Search'),
-                'url'         => App::core()->adminurl()->get('admin.search'),
-                'icons'       => ['images/menu/search.svg', 'images/menu/search-dark.svg'],
-                'permissions' => 'usage,contentadmin', ],
-            'categories' => [
-                'title'       => __('Categories'),
-                'url'         => App::core()->adminurl()->get('admin.categories'),
-                'icons'       => ['images/menu/categories.svg', 'images/menu/categories-dark.svg'],
-                'permissions' => 'categories', ],
-            'blog_pref' => [
-                'title'       => __('Blog settings'),
-                'url'         => App::core()->adminurl()->get('admin.blog.pref'),
-                'icons'       => ['images/menu/blog-pref.svg', 'images/menu/blog-pref-dark.svg'],
-                'permissions' => 'admin', ],
-            'blogs' => [
-                'title'       => __('Blogs'),
-                'url'         => App::core()->adminurl()->get('admin.blogs'),
-                'icons'       => ['images/menu/blogs.svg', 'images/menu/blogs-dark.svg'],
-                'permissions' => 'usage,contentadmin', ],
-            'users' => [
-                'title'      => __('Users'),
-                'url'        => App::core()->adminurl()->get('admin.users'),
-                'icons'      => 'images/menu/users.svg', ],
-            'langs' => [
-                'title'      => __('Languages'),
-                'url'        => App::core()->adminurl()->get('admin.langs'),
-                'icons'      => ['images/menu/langs.svg', 'images/menu/langs-dark.svg'], ],
-            'help' => [
-                'title'      => __('Global help'),
-                'url'        => App::core()->adminurl()->get('admin.help'),
-                'icons'      => 'images/menu/help.svg', ],
-        ]);
+        $this->AddItem(new FavoriteItem(
+            id: 'prefs',
+            title: __('My preferences'),
+            url: App::core()->adminurl()->get('admin.user.pref'),
+            icons: 'images/menu/user-pref.svg',
+        ));
+        $this->AddItem(new FavoriteItem(
+            id: 'new_post',
+            title: __('New post'),
+            url: App::core()->adminurl()->get('admin.post'),
+            icons: ['images/menu/edit.svg', 'images/menu/edit-dark.svg'],
+            permission: 'usage,contentadmin',
+            activation: App::core()->adminurl()->is('admin.post') && !GPC::request()->isset('id'),
+        ));
+        $this->AddItem(new FavoriteItem(
+            id: 'posts',
+            title: __('Posts'),
+            url: App::core()->adminurl()->get('admin.posts'),
+            icons: ['images/menu/entries.svg', 'images/menu/entries-dark.svg'],
+            permission: 'usage,contentadmin',
+            dashboard: function (DashboardIcon $icon): void {
+                $post_count  = App::core()->blog()->posts()->countPosts();
+                $str_entries = __('%d post', '%d posts', $post_count);
+                $icon->replaceTitle(sprintf($str_entries, $post_count));
+            },
+        ));
+        $this->AddItem(new FavoriteItem(
+            id: 'comments',
+            title: __('Comments'),
+            url: App::core()->adminurl()->get('admin.comments'),
+            icons: ['images/menu/comments.svg', 'images/menu/comments-dark.svg'],
+            permission: 'usage,contentadmin',
+            dashboard: function (DashboardIcon $icon): void {
+                $comment_count = App::core()->blog()->comments()->countComments();
+                $str_comments  = __('%d comment', '%d comments', $comment_count);
+                $icon->replaceTitle(sprintf($str_comments, $comment_count));
+            },
+        ));
+        $this->AddItem(new FavoriteItem(
+            id: 'search',
+            title: __('Search'),
+            url: App::core()->adminurl()->get('admin.search'),
+            icons: ['images/menu/search.svg', 'images/menu/search-dark.svg'],
+            permission: 'usage,contentadmin',
+        ));
+        $this->AddItem(new FavoriteItem(
+            id: 'categories',
+            title: __('Categories'),
+            url: App::core()->adminurl()->get('admin.categories'),
+            icons: ['images/menu/categories.svg', 'images/menu/categories-dark.svg'],
+            permission: 'categories',
+        ));
+        $this->AddItem(new FavoriteItem(
+            id: 'blog_pref',
+            title: __('Blog settings'),
+            url: App::core()->adminurl()->get('admin.blog.pref'),
+            icons: ['images/menu/blog-pref.svg', 'images/menu/blog-pref-dark.svg'],
+            permission: 'admin',
+        ));
+        $this->AddItem(new FavoriteItem(
+            id: 'blogs',
+            title: __('Blogs'),
+            url: App::core()->adminurl()->get('admin.blogs'),
+            icons: ['images/menu/blogs.svg', 'images/menu/blogs-dark.svg'],
+            permission: 'usage,contentadmin',
+        ));
+        $this->AddItem(new FavoriteItem(
+            id: 'users',
+            title: __('Users'),
+            url: App::core()->adminurl()->get('admin.users'),
+            icons: 'images/menu/users.svg',
+        ));
+        $this->AddItem(new FavoriteItem(
+            id: 'langs',
+            title: __('Languages'),
+            url: App::core()->adminurl()->get('admin.langs'),
+            icons: ['images/menu/langs.svg', 'images/menu/langs-dark.svg'],
+        ));
+        $this->AddItem(new FavoriteItem(
+            id: 'help',
+            title: __('Global help'),
+            url: App::core()->adminurl()->get('admin.help'),
+            icons: 'images/menu/help.svg',
+        ));
 
         if (App::core()->blog()->public_path) {
-            $this->register(
-                'media',
-                [
-                    'title'       => __('Media manager'),
-                    'url'         => App::core()->adminurl()->get('admin.media'),
-                    'icons'       => ['images/menu/media.svg', 'images/menu/media-dark.svg'],
-                    'permissions' => 'media,media_admin',
-                ]
-            );
+            $this->AddItem(new FavoriteItem(
+                id: 'media',
+                title: __('Media manager'),
+                url: App::core()->adminurl()->get('admin.media'),
+                icons: ['images/menu/media.svg', 'images/menu/media-dark.svg'],
+                permission: 'media,media_admin',
+            ));
         }
-    }
 
-    /**
-     * Helper for posts icon on dashboard.
-     *
-     * @param ArrayObject $v Favicon object
-     */
-    private function cbPostsDashboard(ArrayObject $v): void
-    {
-        $post_count  = App::core()->blog()->posts()->countPosts();
-        $str_entries = __('%d post', '%d posts', $post_count);
-        $v['title']  = sprintf($str_entries, $post_count);
-    }
+        App::core()->behavior()->call('adminAfterSetDefaultFavoriteItems', $this);
 
-    /**
-     * Helper for new post active menu.
-     *
-     * Take account of post edition (if id is set)
-     *
-     * @return bool Active
-     */
-    private function cbNewpostActive(): bool
-    {
-        return App::core()->adminurl()->is('admin.post') && !GPC::request()->isset('id');
-    }
-
-    /**
-     * Helper for comments icon on dashboard.
-     *
-     * @param ArrayObject $v Favicon object
-     */
-    private function cbCommentsDashboard(ArrayObject $v): void
-    {
-        $comment_count = App::core()->blog()->comments()->countComments();
-        $str_comments  = __('%d comment', '%d comments', $comment_count);
-        $v['title']    = sprintf($str_comments, $comment_count);
+        $this->setUserPrefs();
     }
 }

@@ -28,7 +28,7 @@ use Dotclear\Process\Admin\Favorite\Favorite;
 use Dotclear\Process\Admin\Help\Help;
 use Dotclear\Process\Admin\ListOption\ListOption;
 use Dotclear\Process\Admin\Notice\Notice;
-use Dotclear\Process\Admin\Menu\Summary;
+use Dotclear\Process\Admin\Menu\Menus;
 use Dotclear\Process\Admin\Resource\Resource;
 use Exception;
 
@@ -82,10 +82,10 @@ final class Prepend extends Core
     private $notice;
 
     /**
-     * @var Summary $summary
-     *              Summary instance
+     * @var Menus $menus
+     *            Menus instance
      */
-    private $summary;
+    private $menus;
 
     /**
      * @var resource $resource
@@ -184,17 +184,17 @@ final class Prepend extends Core
     }
 
     /**
-     * Get summary (menus) instance.
+     * Get menus (menus) instance.
      *
-     * @return Summary Summary instance
+     * @return Menus Menus instance
      */
-    public function summary(): Summary
+    public function menus(): Menus
     {
-        if (!($this->summary instanceof Summary)) {
-            $this->summary = new Summary();
+        if (!($this->menus instanceof Menus)) {
+            $this->menus = new Menus();
         }
 
-        return $this->summary;
+        return $this->menus;
     }
 
     /**
@@ -415,21 +415,16 @@ final class Prepend extends Core
                 // throw new Exception($this->production() ? __('Unable to load modules.') : $e->getMessage(), 640, $e);
             }
 
-            // Finalize menu and favorites
-            $this->summary()->setup();
-            $this->favorite()->setup();
-
             // Stop if no themes path found
             if (!$this->themes()->getPaths()) {
                 throw new InvalidConfiguration(__('There seems to be no valid Theme directory set in configuration file.'));
             }
 
-            // Add default top menus
-            if (!$this->user()->preference()->get('interface')->get('nofavmenu')) {
-                $this->favorite()->appendMenu($this->summary());
-            }
+            // Finalize menu and favorites
+            $this->favorite()->setDefaultFavoriteItems();
+            $this->menus()->setDefaultMenusItems();
 
-            // No user session and not on auth page, go on
+        // No user session and not on auth page, go on
         } elseif (!$this->adminurl()->is('admin.auth')) {
             $this->adminurl()->redirect('admin.auth');
 

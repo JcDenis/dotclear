@@ -275,7 +275,7 @@ class Install
 
                 // Add default favorites
                 $init_favs = ['posts', 'new_post', 'newpage', 'comments', 'categories', 'media', 'blog_theme', 'widgets', 'simpleMenu', 'prefs', 'help'];
-                App::core()->favorite()->setFavoriteIDs($init_favs, true);
+                App::core()->favorite()->setGlobalFavoriteIDs($init_favs);
 
                 // Check existence of default blog public directory (only on new install)
                 try {

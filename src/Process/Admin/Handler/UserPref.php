@@ -20,6 +20,7 @@ use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Lexical;
+use Dotclear\Helper\Mapper\Strings;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
 
@@ -372,13 +373,13 @@ class UserPref extends AbstractPage
                 if (GPC::post()->empty('append')) {
                     throw new AdminException(__('No favorite selected'));
                 }
-                $user_favs = App::core()->favorite()->getFavoriteIDs(false);
+                $user_favs = App::core()->favorite()->getLocalFavoriteIDs();
                 foreach (GPC::post()->array('append') as $k => $v) {
-                    if (App::core()->favorite()->exists($v)) {
-                        $user_favs[] = $v;
+                    if (App::core()->favorite()->hasItem($v)) {
+                        $user_favs->add($v);
                     }
                 }
-                App::core()->favorite()->setFavoriteIDs($user_favs, false);
+                App::core()->favorite()->setLocalFavoriteIDs($user_favs);
 
                 if (!App::core()->error()->flag()) {
                     App::core()->notice()->addSuccessNotice(__('Favorites have been successfully added.'));
@@ -395,16 +396,13 @@ class UserPref extends AbstractPage
                 if (GPC::post()->empty('remove')) {
                     throw new AdminException(__('No favorite selected'));
                 }
-                $user_fav_ids = [];
-                foreach (App::core()->favorite()->getFavoriteIDs(false) as $v) {
-                    $user_fav_ids[$v] = true;
-                }
+                $user_fav_ids = App::core()->favorite()->getLocalFavoriteIDs();
                 foreach (GPC::post()->array('remove') as $v) {
-                    if (isset($user_fav_ids[$v])) {
-                        unset($user_fav_ids[$v]);
+                    if ($user_fav_ids->exists($v)) {
+                        $user_fav_ids->remove($v);
                     }
                 }
-                App::core()->favorite()->setFavoriteIDs(array_keys($user_fav_ids), false);
+                App::core()->favorite()->setLocalFavoriteIDs($user_fav_ids);
                 if (!App::core()->error()->flag()) {
                     App::core()->notice()->addSuccessNotice(__('Favorites have been successfully removed.'));
                     App::core()->adminurl()->redirect('admin.user.pref', [], '#user-favorites');
@@ -415,22 +413,22 @@ class UserPref extends AbstractPage
         }
 
         // Order favs
-        $order = [];
+        $order = new Strings();
         if (GPC::post()->empty('favs_order') && !GPC::post()->empty('order')) {
             $order = GPC::post()->array('order');
             asort($order);
-            $order = array_keys($order);
+            $order = new Strings(array_keys($order));
         } elseif (!GPC::post()->empty('favs_order')) {
-            $order = explode(',', GPC::post()->string('favs_order'));
+            $order = new Strings(explode(',', GPC::post()->string('favs_order')));
         }
 
-        if (!GPC::post()->empty('saveorder') && !empty($order)) {
-            foreach ($order as $k => $v) {
-                if (!App::core()->favorite()->exists($v)) {
-                    unset($order[$k]);
+        if (!GPC::post()->empty('saveorder') && $order->count()) {
+            foreach ($order->dump() as $v) {
+                if (!App::core()->favorite()->hasItem($v)) {
+                    $order->remove($v);
                 }
             }
-            App::core()->favorite()->setFavoriteIDs($order, false);
+            App::core()->favorite()->setLocalFavoriteIDs($order);
             if (!App::core()->error()->flag()) {
                 App::core()->notice()->addSuccessNotice(__('Favorites have been successfully updated.'));
                 App::core()->adminurl()->redirect('admin.user.pref', [], '#user-favorites');
@@ -439,8 +437,8 @@ class UserPref extends AbstractPage
 
         // Replace default favorites by current set (super admin only)
         if (!GPC::post()->empty('replace') && App::core()->user()->isSuperAdmin()) {
-            $user_favs = App::core()->favorite()->getFavoriteIDs(false);
-            App::core()->favorite()->setFavoriteIDs($user_favs, true);
+            $user_favs = App::core()->favorite()->getLocalFavoriteIDs();
+            App::core()->favorite()->setGlobalFavoriteIDs($user_favs);
 
             if (!App::core()->error()->flag()) {
                 App::core()->notice()->addSuccessNotice(__('Default favorites have been successfully updated.'));
@@ -797,31 +795,31 @@ class UserPref extends AbstractPage
         echo '<div id="my-favs" class="fieldset"><h4>' . __('My favorites') . '</h4>';
 
         $count    = 0;
-        $user_fav = App::core()->favorite()->getFavoriteIDs(false);
-        foreach ($user_fav as $id) {
-            $fav = App::core()->favorite()->getFavorite($id);
-            if (!empty($fav)) {
+        $user_fav = App::core()->favorite()->getLocalFavoriteIDs();
+        foreach ($user_fav->dump() as $id) {
+            $item = App::core()->favorite()->getItem($id);
+            if (!empty($item)) {
                 // User favorites only
                 if (0 == $count) {
                     echo '<ul class="fav-list">';
                 }
 
                 ++$count;
-                $icon = App::core()->summary()->getIconTheme($fav['icons']);
-                $zoom = App::core()->summary()->getIconTheme($fav['icons'], false);
+                $icon = App::core()->menus()->getIconTheme($item->icons);
+                $zoom = App::core()->menus()->getIconTheme($item->icons, false);
                 if ('' !== $zoom) {
                     $icon .= ' <span class="zoom">' . $zoom . '</span>';
                 }
                 echo '<li id="fu-' . $id . '">' . '<label for="fuk-' . $id . '">' . $icon .
                 Form::number(['order[' . $id . ']'], [
                     'min'        => 1,
-                    'max'        => count($user_fav),
+                    'max'        => $user_fav->count(),
                     'default'    => (string) $count,
                     'class'      => 'position',
-                    'extra_html' => 'title="' . sprintf(__('position of %s'), $fav['title']) . '"',
+                    'extra_html' => 'title="' . sprintf(__('position of %s'), $item->title) . '"',
                 ]) .
                 Form::hidden(['dynorder[]', 'dynorder-' . $id . ''], $id) .
-                Form::checkbox(['remove[]', 'fuk-' . $id], $id) . __($fav['title']) . '</label>' .
+                Form::checkbox(['remove[]', 'fuk-' . $id], $id) . __($item->title) . '</label>' .
                     '</li>';
             }
         }
@@ -853,9 +851,9 @@ class UserPref extends AbstractPage
             echo '<p>' . __('Currently no personal favorites.') . '</p>';
         }
 
-        $avail_fav       = App::core()->favorite()->getFavorites(App::core()->favorite()->getAvailableFavoritesIDs());
+        $avail_fav       = App::core()->favorite()->getItems(App::core()->favorite()->getIDs());
         $default_fav_ids = [];
-        foreach (App::core()->favorite()->getFavoriteIDs(true) as $v) {
+        foreach (App::core()->favorite()->getGlobalFavoriteIDs()->dump() as $v) {
             $default_fav_ids[$v] = true;
         }
         echo '</div>'; // /box my-fav
@@ -866,30 +864,30 @@ class UserPref extends AbstractPage
         $count = 0;
         uasort($avail_fav, function ($a, $b) {
             return strcoll(
-                strtolower(Lexical::removeDiacritics($a['title'])),
-                strtolower(Lexical::removeDiacritics($b['title']))
+                strtolower(Lexical::removeDiacritics($a->title)),
+                strtolower(Lexical::removeDiacritics($b->title))
             );
         });
 
-        foreach ($avail_fav as $k => $v) {
-            if (in_array($k, $user_fav)) {
-                unset($avail_fav[$k]);
+        foreach ($avail_fav as $id => $item) {
+            if ($user_fav->exists($id)) {
+                unset($avail_fav[$id]);
             }
         }
-        foreach ($avail_fav as $k => $fav) {
+        foreach ($avail_fav as $k => $item) {
             if (0 == $count) {
                 echo '<ul class="fav-list">';
             }
 
             ++$count;
-            $icon = App::core()->summary()->getIconTheme($fav['icons']);
-            $zoom = App::core()->summary()->getIconTheme($fav['icons'], false);
+            $icon = App::core()->menus()->getIconTheme($item->icons);
+            $zoom = App::core()->menus()->getIconTheme($item->icons, false);
             if ('' !== $zoom) {
                 $icon .= ' <span class="zoom">' . $zoom . '</span>';
             }
             echo '<li id="fa-' . $k . '">' . '<label for="fak-' . $k . '">' . $icon .
             Form::checkbox(['append[]', 'fak-' . $k], $k) .
-                $fav['title'] . '</label>' .
+                $item->title . '</label>' .
                 (isset($default_fav_ids[$k]) ? ' <span class="default-fav"><img src="?df=images/selected.png" alt="' . __('(default favorite)') . '" /></span>' : '') .
                 '</li>';
         }

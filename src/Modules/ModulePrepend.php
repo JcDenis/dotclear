@@ -12,6 +12,7 @@ namespace Dotclear\Modules;
 // Dotclear\Modules\ModulePrepend
 use Dotclear\App;
 use Dotclear\Process\Admin\Favorite\Favorite;
+use Dotclear\Process\Admin\Favorite\FavoriteItem;
 use Dotclear\Process\Admin\Menu\MenuItem;
 
 /**
@@ -25,10 +26,10 @@ use Dotclear\Process\Admin\Menu\MenuItem;
 class ModulePrepend
 {
     /**
-     * @var array<string,mixed> $favorites
-     *                          Module Favorites (On Admin Process only)
+     * @var FavoriteItem $favorite
+     *                   Module Favorites (On Admin Process only)
      */
-    private $favorites = [];
+    private $favorite;
 
     /**
      * Constructor.
@@ -129,29 +130,28 @@ class ModulePrepend
             return;
         }
 
-        if (!$menu || null === App::core()->summary()->menu($menu)) {
+        if (!$menu || null === App::core()->menus()->getGroup($menu)) {
             $menu = 'Plugins';
         }
         if ('' === $permissions) {
             $permissions = $this->define()->permissions();
         }
 
-        App::core()->summary()->menu($menu)->addItem(new MenuItem(
-            $this->define()->name(),
-            App::core()->adminurl()->get('admin.' . $this->define()->type(true) . '.' . $this->define()->id()),
-            [
+        App::core()->menus()->getGroup($menu)?->addItem(new MenuItem(
+            title: $this->define()->name(),
+            url: App::core()->adminurl()->get('admin.' . $this->define()->type(true) . '.' . $this->define()->id()),
+            icons: [
                 $this->define()->type() . '/' . $this->define()->id() . '/icon.svg',
                 $this->define()->type() . '/' . $this->define()->id() . '/icon-dark.svg',
             ],
-            App::core()->adminurl()->is('admin.' . $this->define()->type(true) . '.' . $this->define()->id()),
-            null === $permissions ? App::core()->user()->isSuperAdmin() : App::core()->user()->check($permissions, App::core()->blog()->id)
+            permission: $permissions
         ));
     }
 
     /**
-     * Helper to add a standard admin favorites item.
+     * Helper to add a standard admin Favorite item.
      *
-     * If permissions is not set, defined module permissions are used
+     * If permission is not set, defined module permissions are used
      *
      * @param null|string $permissions Special permissions to show Favorite
      */
@@ -161,18 +161,19 @@ class ModulePrepend
             return;
         }
 
-        App::core()->behavior()->add('adminDashboardFavorites', function (Favorite $favs): void {
-            $favs->register($this->define()->id(), $this->favorites);
+        App::core()->behavior()->add('adminAfterSetDefaultFavoriteItems', function (Favorite $favorite): void {
+            $favorite->AddItem($this->favorite);
         });
 
         $url = $this->define()->type() . '/' . $this->define()->id() . '/icon%s.svg';
 
-        $this->favorites = [
-            'title'       => $this->define()->name(),
-            'url'         => App::core()->adminurl()->get('admin.' . $this->define()->type(true) . '.' . $this->define()->id()),
-            'icons'       => [sprintf($url, ''), sprintf($url, '-dark')],
-            'permissions' => $permissions ?: $this->define()->permissions(),
-        ];
+        $this->favorite = new FavoriteItem(
+            id: $this->define()->id(),
+            title: $this->define()->name(),
+            url: App::core()->adminurl()->get('admin.' . $this->define()->type(true) . '.' . $this->define()->id()),
+            icons: [sprintf($url, ''), sprintf($url, '-dark')],
+            permission: $permissions ?: $this->define()->permissions(),
+        );
     }
     // @}
 
