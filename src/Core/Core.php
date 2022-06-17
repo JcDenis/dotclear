@@ -505,8 +505,7 @@ class Core
     final public function session(): Session
     {
         if (!($this->session instanceof Session)) {
-            $id            = defined('DOTCLEAR_AUTH_SESS_ID') ? DOTCLEAR_AUTH_SESS_ID : null;
-            $this->session = new Session(external_session_id: $id);
+            $this->session = new Session();
         }
 
         return $this->session;

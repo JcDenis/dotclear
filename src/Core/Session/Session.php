@@ -65,10 +65,8 @@ class Session
      * Constructor.
      *
      * This method creates an instance of sessionDB class.
-     *
-     * @param null|string $external_session_id Third party auth sess ID
      */
-    public function __construct(private ?string $external_session_id = null)
+    public function __construct()
     {
         $this->cookie_name   = App::core()->config()->get('session_name');
         $this->cookie_path   = '/';
@@ -136,8 +134,8 @@ class Session
             $this->destroy();
         }
 
-        if (null !== $this->external_session_id) {
-            session_id($this->external_session_id);
+        if (defined('DOTCLEAR_AUTH_SESS_ID')) {
+            session_id(DOTCLEAR_AUTH_SESS_ID );
         } elseif (GPC::cookie()->isset($this->cookie_name)) {
             session_id(GPC::cookie()->string($this->cookie_name));
         } else {
