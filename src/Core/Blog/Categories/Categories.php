@@ -532,7 +532,7 @@ final class Categories
 
             $record = $sql->select();
             if ($record->isEmpty()) {
-                return $url;
+                return $url . '1';
             }
 
             $a = [];
