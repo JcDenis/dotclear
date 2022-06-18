@@ -65,7 +65,7 @@ final class Filter
             }
         }
 
-        foreach ($this->params as $param) {
+        foreach ($this->params as $i => $param) {
             // filter id as param name
             if (null === $param[0]) {
                 $param[0] = $this->id;
@@ -74,7 +74,7 @@ final class Filter
             if (null === $param[1]) {
                 $param[1] = fn ($f) => $f[0];
             }
-            $this->params[] = [$param[0], $param[1]];
+            $this->params[$i] = [$param[0], $param[1]];
         }
     }
 
