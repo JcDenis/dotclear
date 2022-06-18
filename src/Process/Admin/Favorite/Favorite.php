@@ -203,7 +203,7 @@ class Favorite
      */
     public function setGlobalFavoriteIDs(Strings $ids): void
     {
-        $this->ws->put('favorites', array_values($ids->dump()), 'array', null, true, true);
+        $this->ws->put('favorites', $ids->dump(), 'array', null, true, true);
     }
 
     /**
@@ -229,7 +229,7 @@ class Favorite
      */
     public function setLocalFavoriteIDs(Strings $ids): void
     {
-        $this->ws->put('favorites', array_values($ids->dump()), 'array', null, true, false);
+        $this->ws->put('favorites', $ids->dump(), 'array', null, true, false);
     }
 
     /**

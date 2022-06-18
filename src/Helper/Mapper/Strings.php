@@ -82,7 +82,7 @@ class Strings
      */
     public function dump(): array
     {
-        return $this->stack;
+        return array_values($this->stack);
     }
 
     /**
@@ -98,7 +98,7 @@ class Strings
     }
 
     /**
-     * Try to convert a value to absolute integer.
+     * Try to convert a value to string.
      *
      * @param mixed $value The value
      *
