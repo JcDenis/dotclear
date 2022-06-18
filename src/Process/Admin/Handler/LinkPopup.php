@@ -36,7 +36,7 @@ class LinkPopup extends AbstractPage
             ->setPageType('popup')
             ->setPageHead(
                 App::core()->resource()->load('_popup_link.js') .
-                App::core()->behavior()->call('adminPopupLink', Html::sanitizeURL(GPC::get()->string('plugin_id')))
+                App::core()->behavior('adminPopupLink')->call(Html::sanitizeURL(GPC::get()->string('plugin_id')))
             )
         ;
 

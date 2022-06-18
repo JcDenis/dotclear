@@ -43,19 +43,19 @@ class Search extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        App::core()->behavior()->add('adminSearchPageCombo', [$this, 'typeCombo']);
-        App::core()->behavior()->add('adminSearchPageHead', [$this, 'pageHead']);
+        App::core()->behavior('adminSearchPageCombo')->add([$this, 'typeCombo']);
+        App::core()->behavior('adminSearchPageHead')->add([$this, 'pageHead']);
         // posts search
-        App::core()->behavior()->add('adminSearchPageProcess', [$this, 'processPosts']);
-        App::core()->behavior()->add('adminSearchPageDisplay', [$this, 'displayPosts']);
+        App::core()->behavior('adminSearchPageProcess')->add([$this, 'processPosts']);
+        App::core()->behavior('adminSearchPageDisplay')->add([$this, 'displayPosts']);
         // comments search
-        App::core()->behavior()->add('adminSearchPageProcess', [$this, 'processComments']);
-        App::core()->behavior()->add('adminSearchPageDisplay', [$this, 'displayComments']);
+        App::core()->behavior('adminSearchPageProcess')->add([$this, 'processComments']);
+        App::core()->behavior('adminSearchPageDisplay')->add([$this, 'displayComments']);
 
         $qtype_combo = new ArrayObject();
 
         // --BEHAVIOR-- adminSearchPageCombo
-        App::core()->behavior()->call('adminSearchPageCombo', $qtype_combo);
+        App::core()->behavior('adminSearchPageCombo')->call($qtype_combo);
 
         $this->s_qtype_combo = $qtype_combo->getArrayCopy();
         $q                   = GPC::request()->empty('q') ? GPC::request()->string('qx', null) : GPC::request()->string('q');
@@ -73,11 +73,11 @@ class Search extends AbstractPage
         $this->s_args = ['q' => $q, 'qtype' => $qtype, 'page' => $page, 'nb' => $nb];
 
         // --BEHAVIOR-- adminSearchPageHead
-        $starting_scripts = $q ? App::core()->behavior()->call('adminSearchPageHead', $this->s_args) : '';
+        $starting_scripts = $q ? App::core()->behavior('adminSearchPageHead')->call($this->s_args) : '';
 
         if ($q) {
             // --BEHAVIOR-- adminSearchPageProcess
-            App::core()->behavior()->call('adminSearchPageProcess', $this->s_args);
+            App::core()->behavior('adminSearchPageProcess')->call($this->s_args);
         }
 
         // Page setup
@@ -113,7 +113,7 @@ class Search extends AbstractPage
             ob_start();
 
             // --BEHAVIOR-- adminSearchPageDisplay
-            App::core()->behavior()->call('adminSearchPageDisplay', $this->s_args);
+            App::core()->behavior('adminSearchPageDisplay')->call($this->s_args);
 
             $res = ob_get_contents();
             ob_end_clean();

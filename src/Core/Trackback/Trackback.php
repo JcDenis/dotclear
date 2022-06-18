@@ -500,12 +500,12 @@ class Trackback
         $cur->setField('comment_ip', Http::realIP());
 
         // --BEHAVIOR-- publicBeforeTrackbackCreate
-        App::core()->behavior()->call('publicBeforeTrackbackCreate', $cur);
+        App::core()->behavior('publicBeforeTrackbackCreate')->call($cur);
         if ($cur->getField('post_id')) {
             $comment_id = App::core()->blog()->comments()->createComment(cursor: $cur);
 
             // --BEHAVIOR-- publicAfterTrackbackCreate
-            App::core()->behavior()->call('publicAfterTrackbackCreate', $cur, $comment_id);
+            App::core()->behavior('publicAfterTrackbackCreate')->call($cur, $comment_id);
         }
     }
 
@@ -584,7 +584,7 @@ class Trackback
         // Does the targeted URL look like a registered post type?
         $url_part   = $m[1];
         $p_type     = '';
-        $post_types = App::core()->posttype()->dump();
+        $post_types = App::core()->posttype()->getItems();
         $post_url   = '';
         foreach ($post_types as $post_type) {
             $reg = '!^' . preg_quote(str_replace('%s', '', $post_type->public)) . '(.*)!';

@@ -41,14 +41,14 @@ class Maintenance
     private $tasks_id = [];
 
     /**
-     * @var array<string,MaintenanceDescriptor> $tabs
-     *                                          Tasks tabs
+     * @var array<string,MaintenanceItem> $tabs
+     *                                    Tasks tabs
      */
     private $tabs = [];
 
     /**
-     * @var array<string,MaintenanceDescriptor> $groups
-     *                                          Tasks groups
+     * @var array<string,MaintenanceItem> $groups
+     *                                    Tasks groups
      */
     private $groups = [];
 
@@ -78,7 +78,7 @@ class Maintenance
     protected function init(): void
     {
         // --BEHAVIOR-- dcMaintenanceInit
-        App::core()->behavior()->call('dcMaintenanceInit', $this);
+        App::core()->behavior('dcMaintenanceInit')->call($this);
     }
 
     // / @name Tab methods
@@ -94,7 +94,7 @@ class Maintenance
      */
     public function addTab(string $id, string $name, array $options = []): Maintenance
     {
-        $this->tabs[$id] = new MaintenanceDescriptor($id, $name, $options);
+        $this->tabs[$id] = new MaintenanceItem($id, $name, $options);
 
         return $this;
     }
@@ -104,9 +104,9 @@ class Maintenance
      *
      * @param string $id The identifier
      *
-     * @return null|MaintenanceDescriptor the tab
+     * @return null|MaintenanceItem the tab
      */
-    public function getTab(string $id): ?MaintenanceDescriptor
+    public function getTab(string $id): ?MaintenanceItem
     {
         return array_key_exists($id, $this->tabs) ? $this->tabs[$id] : null;
     }
@@ -114,7 +114,7 @@ class Maintenance
     /**
      * Gets the tabs.
      *
-     * @return array<string, MaintenanceDescriptor> the tabs
+     * @return array<string, MaintenanceItem> the tabs
      */
     public function getTabs(): array
     {
@@ -135,7 +135,7 @@ class Maintenance
      */
     public function addGroup(string $id, string $name, array $options = []): Maintenance
     {
-        $this->groups[$id] = new MaintenanceDescriptor($id, $name, $options);
+        $this->groups[$id] = new MaintenanceItem($id, $name, $options);
 
         return $this;
     }
@@ -145,9 +145,9 @@ class Maintenance
      *
      * @param string $id The identifier
      *
-     * @return null|MaintenanceDescriptor the group
+     * @return null|MaintenanceItem the group
      */
-    public function getGroup($id): ?MaintenanceDescriptor
+    public function getGroup($id): ?MaintenanceItem
     {
         return array_key_exists($id, $this->groups) ? $this->groups[$id] : null;
     }
@@ -155,7 +155,7 @@ class Maintenance
     /**
      * Gets the groups.
      *
-     * @return array<string, MaintenanceDescriptor> the groups
+     * @return array<string, MaintenanceItem> the groups
      */
     public function getGroups(): array
     {

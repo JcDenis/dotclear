@@ -237,7 +237,7 @@ class RestMethods
         $upd = new ArrayObject([]);
 
         // --BEHAVIOR-- restCheckStoreUpdate, string, ArrayObject
-        App::core()->behavior()->call('restCheckStoreUpdate', $post['store'], $upd);
+        App::core()->behavior('restCheckStoreUpdate')->call($post['store'], $upd);
 
         if (count($upd)) {
             $ret = sprintf(__('An update is available', '%s updates are available.', count($upd)), count($upd));

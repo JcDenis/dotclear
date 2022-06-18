@@ -200,7 +200,7 @@ class Update extends AbstractPage
 
                 App::core()->error()->add($msg);
 
-                App::core()->behavior()->call('adminDCUpdateException', $e);
+                App::core()->behavior('adminDCUpdateException')->call($e);
             }
         }
 

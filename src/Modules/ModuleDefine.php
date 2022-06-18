@@ -296,7 +296,7 @@ class ModuleDefine extends Configuration
      *
      * @return null|string Permissions
      */
-    public function permissions(): ?string
+    public function permission(): ?string
     {
         // This forced permissions on Theme
         if ('Theme' == $this->get('type')) {

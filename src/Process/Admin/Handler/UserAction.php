@@ -73,7 +73,7 @@ class UserAction extends AbstractPage
             }
 
             // --BEHAVIOR-- adminUsersActions
-            App::core()->behavior()->call('adminUsersActions', $this->users, $this->blogs, $this->user_action, $this->user_redir);
+            App::core()->behavior('adminUsersActions')->call($this->users, $this->blogs, $this->user_action, $this->user_redir);
 
             // Delete users
             if ('deleteuser' == $this->user_action && !empty($this->users)) {
@@ -116,7 +116,7 @@ class UserAction extends AbstractPage
                                 }
                             }
 
-                            App::core()->permissions()->setUserBlogPermissions(id: $user, blog: $blog, permissions: $permissions);
+                            App::core()->permission()->setUserBlogPermissions(id: $user, blog: $blog, permissions: $permissions);
                         }
                     }
                 } catch (Exception $e) {
@@ -149,7 +149,7 @@ class UserAction extends AbstractPage
             ->setPageHead(
                 App::core()->resource()->load('_users_actions.js') .
                 // --BEHAVIOR-- adminUsersActionsHeaders
-                App::core()->behavior()->call('adminUsersActionsHeaders')
+                App::core()->behavior('adminUsersActionsHeaders')->call()
             )
         ;
 
@@ -181,7 +181,7 @@ class UserAction extends AbstractPage
         echo '<p><a class="back" href="' . Html::escapeURL($this->user_redir) . '">' . __('Back to user profile') . '</a></p>';
 
         // --BEHAVIOR-- adminUsersActionsContent
-        App::core()->behavior()->call('adminUsersActionsContent', $this->user_action, $hidden_fields);
+        App::core()->behavior('adminUsersActionsContent')->call($this->user_action, $hidden_fields);
 
         // Blog list where to set permissions
         if (!empty($this->users) && empty($this->blogs) && 'blogs' == $this->user_action) {
@@ -253,7 +253,7 @@ class UserAction extends AbstractPage
         } elseif (!empty($this->blogs) && !empty($this->users) && 'perms' == $this->user_action) {
             $user_perm = $user_list = [];
             if (count($this->users) == 1) {
-                $user_perm = App::core()->permissions()->getUserPermissions(id: $this->users[0]);
+                $user_perm = App::core()->permission()->getUserPermissions(id: $this->users[0]);
             }
 
             foreach ($this->users as $u) {
@@ -270,7 +270,7 @@ class UserAction extends AbstractPage
                 echo '<h3>' . ('Blog:') . ' <a href="' . App::core()->adminurl()->get('admin.blog', ['id' => Html::escapeHTML($b)]) . '">' . Html::escapeHTML($b) . '</a>' .
                 Form::hidden(['blogs[]'], $b) . '</h3>';
 
-                foreach (App::core()->permissions()->getPermTypes() as $perm) {
+                foreach (App::core()->permission()->getItems() as $perm) {
                     $checked = false;
 
                     if (count($this->users) == 1) {
@@ -287,7 +287,7 @@ class UserAction extends AbstractPage
                 }
                 if (isset($user_perm[$b])) {
                     foreach ($user_perm[$b]->perm->dump() as $type) {
-                        if (App::core()->permissions()->isPermType($type)) {
+                        if (App::core()->permission()->hasItem(type: $type)) {
                             continue;
                         }
 

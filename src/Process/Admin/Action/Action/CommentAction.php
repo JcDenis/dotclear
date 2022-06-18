@@ -48,7 +48,7 @@ class CommentAction extends DefaultCommentAction
     protected function loadDefaults(): void
     {
         $this->loadCommentAction($this);
-        App::core()->behavior()->call('adminCommentsActionsPage', $this);
+        App::core()->behavior('adminCommentsActionsPage')->call($this);
     }
 
     protected function error(Exception $e): void

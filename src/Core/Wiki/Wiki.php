@@ -100,7 +100,7 @@ final class Wiki
         $this->wiki2xhtml()->registerFunction('url:post', [$this, 'wikiPostLink']);
 
         // --BEHAVIOR-- coreInitWikiPost, Wiki2xhtml
-        App::core()->behavior()->call('coreInitWikiPost', $this->wiki2xhtml);
+        App::core()->behavior('coreInitWikiPost')->call($this->wiki2xhtml);
     }
 
     /**
@@ -147,7 +147,7 @@ final class Wiki
         ]);
 
         // --BEHAVIOR-- coreInitWikiSimpleComment, Dotclear\Helper\Html\Wiki2xhtml
-        App::core()->behavior()->call('coreInitWikiSimpleComment', $this->wiki2xhtml);
+        App::core()->behavior('coreInitWikiSimpleComment')->call($this->wiki2xhtml);
     }
 
     /**
@@ -193,7 +193,7 @@ final class Wiki
         ]);
 
         // --BEHAVIOR-- coreInitWikiComment, Dotclear\Helper\Html\Wiki2xhtml
-        App::core()->behavior()->call('coreInitWikiComment', $this->wiki2xhtml);
+        App::core()->behavior('coreInitWikiComment')->call($this->wiki2xhtml);
     }
 
     /**

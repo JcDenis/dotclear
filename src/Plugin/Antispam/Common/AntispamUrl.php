@@ -14,7 +14,7 @@ namespace Dotclear\Plugin\Antispam\Common;
 
 // Dotclear\Plugin\Antispam\Common\AntispamUrl
 use Dotclear\App;
-use Dotclear\Core\Url\UrlDescriptor;
+use Dotclear\Core\Url\UrlItem;
 use Dotclear\Database\Param;
 use Dotclear\Helper\Html\Html;
 
@@ -27,13 +27,13 @@ class AntispamUrl
 {
     public function __construct()
     {
-        App::core()->url()->registerHandler(new UrlDescriptor(
+        App::core()->url()->addItem(new UrlItem(
             type: 'spamfeed',
             url: 'spamfeed',
             scheme: '^spamfeed/(.+)$',
             callback: [$this, 'spamFeed']
         ));
-        App::core()->url()->registerHandler(new UrlDescriptor(
+        App::core()->url()->addItem(new UrlItem(
             type: 'hamfeed',
             url: 'hamfeed',
             scheme: '^hamfeed/(.+)$',

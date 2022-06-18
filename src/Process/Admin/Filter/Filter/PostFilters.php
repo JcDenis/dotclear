@@ -32,7 +32,7 @@ class PostFilters extends Filters
     {
         $filter_stack = new FilterStack();
 
-        if (!App::core()->posttype()->hasPostType(type: $this->post_type)) {
+        if (!App::core()->posttype()->hasItem(type: $this->post_type)) {
             $this->post_type = 'post';
         }
         if ('post' != $this->post_type) {

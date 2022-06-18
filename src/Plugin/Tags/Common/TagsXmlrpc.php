@@ -24,9 +24,9 @@ class TagsXmlrpc
 {
     public function __construct()
     {
-        App::core()->behavior()->add('xmlrpcGetPostInfo', [$this, 'getPostInfo']);
-        App::core()->behavior()->add('xmlrpcAfterNewPost', [$this, 'editPost']);
-        App::core()->behavior()->add('xmlrpcAfterEditPost', [$this, 'editPost']);
+        App::core()->behavior('xmlrpcGetPostInfo')->add([$this, 'getPostInfo']);
+        App::core()->behavior('xmlrpcAfterNewPost')->add([$this, 'editPost']);
+        App::core()->behavior('xmlrpcAfterEditPost')->add([$this, 'editPost']);
     }
 
     public function getPostInfo(Xmlrpc $x, string $type, array $res): void

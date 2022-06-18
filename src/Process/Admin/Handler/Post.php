@@ -200,7 +200,7 @@ class Post extends AbstractPage
                 foreach (explode("\n", $this->tb_urls) as $tb_url) {
                     try {
                         // --BEHAVIOR-- adminBeforePingTrackback
-                        App::core()->behavior()->call('adminBeforePingTrackback', $tb_url, $this->post_id, $tb_post_title, $this->tb_excerpt, $tb_post_url);
+                        App::core()->behavior('adminBeforePingTrackback')->call($tb_url, $this->post_id, $tb_post_title, $this->tb_excerpt, $tb_post_url);
 
                         $this->trackback->ping($tb_url, $this->post_id, $tb_post_title, $this->tb_excerpt, $tb_post_url);
                     } catch (Exception $e) {
@@ -385,23 +385,20 @@ class Post extends AbstractPage
                 $c_edit = $this->post_editor['xhtml'];
             }
             if ($p_edit == $c_edit) {
-                $this->setPageHead(App::core()->behavior()->call(
-                    'adminPostEditor',
+                $this->setPageHead(App::core()->behavior('adminPostEditor')->call(
                     $p_edit,
                     'post',
                     ['#post_excerpt', '#post_content', '#comment_content'],
                     $this->post_format
                 ));
             } else {
-                $this->setPageHead(App::core()->behavior()->call(
-                    'adminPostEditor',
+                $this->setPageHead(App::core()->behavior('adminPostEditor')->call(
                     $p_edit,
                     'post',
                     ['#post_excerpt', '#post_content'],
                     $this->post_format
                 ));
-                $this->setPageHead(App::core()->behavior()->call(
-                    'adminPostEditor',
+                $this->setPageHead(App::core()->behavior('adminPostEditor')->call(
                     $c_edit,
                     'comment',
                     ['#comment_content'],
@@ -421,7 +418,7 @@ class Post extends AbstractPage
                 App::core()->resource()->load('_post.js') .
                 App::core()->resource()->confirmClose('entry-form', 'comment-form') .
                 // --BEHAVIOR-- adminPostHeaders
-                App::core()->behavior()->call('adminPostHeaders') .
+                App::core()->behavior('adminPostHeaders')->call() .
                 App::core()->resource()->pageTabs($default_tab) .
                 $next_headlink . "\n" . $prev_headlink
             )
@@ -502,7 +499,7 @@ class Post extends AbstractPage
             }
 
             // --BEHAVIOR-- adminPostNavLinks
-            App::core()->behavior()->call('adminPostNavLinks', $this->post ?? null, 'post');
+            App::core()->behavior('adminPostNavLinks')->call($this->post ?? null, 'post');
 
             echo '</p>';
         }
@@ -655,7 +652,7 @@ class Post extends AbstractPage
             );
 
             // --BEHAVIOR-- adminPostFormItems, ArrayObject, ArrayObject, Record|null, string
-            App::core()->behavior()->call('adminPostFormItems', $main_items, $sidebar_items, $this->post ?? null, 'post');
+            App::core()->behavior('adminPostFormItems')->call($main_items, $sidebar_items, $this->post ?? null, 'post');
 
             echo '<div class="multi-part" title="' . ($this->post_id ? __('Edit post') : __('New post')) .
             sprintf(' &rsaquo; %s', $this->post_format) . '" id="edit-entry">';
@@ -670,7 +667,7 @@ class Post extends AbstractPage
             }
 
             // --BEHAVIOR-- adminPostForm (may be deprecated)
-            App::core()->behavior()->call('adminPostForm', $this->post ?? null, 'post');
+            App::core()->behavior('adminPostForm')->call($this->post ?? null, 'post');
 
             echo '<p class="border-top">' .
             ($this->post_id ? Form::hidden('id', $this->post_id) : '') .
@@ -712,13 +709,13 @@ class Post extends AbstractPage
             }
 
             // --BEHAVIOR-- adminPostFormSidebar (may be deprecated)
-            App::core()->behavior()->call('adminPostFormSidebar', $this->post ?? null, 'post');
+            App::core()->behavior('adminPostFormSidebar')->call($this->post ?? null, 'post');
             echo '</div>'; // End #entry-sidebar
 
             echo '</form>';
 
             // --BEHAVIOR-- adminPostForm
-            App::core()->behavior()->call('adminPostAfterForm', $this->post ?? null, 'post');
+            App::core()->behavior('adminPostAfterForm')->call($this->post ?? null, 'post');
 
             echo '</div>';
         }

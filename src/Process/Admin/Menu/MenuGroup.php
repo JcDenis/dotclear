@@ -16,7 +16,7 @@ use Dotclear\Helper\Lexical;
 /**
  * Admin menu items group helper.
  *
- * Accessible from App::core()->menus()->getGroup('a_menu_group_id')
+ * Accessible from App::core()->menu()->getGroup('a_menu_group_id')
  *
  * @ingroup  Admin Menu Item
  */
@@ -51,7 +51,7 @@ final class MenuGroup
     }
 
     /**
-     * Adds an item.
+     * Add an item.
      *
      * @param MenuItem $item The menu item
      */

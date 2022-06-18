@@ -24,13 +24,13 @@ class AttachmentsBehavior
 {
     public function __construct()
     {
-        App::core()->behavior()->add('adminPostFormItems', [$this, 'behaviorAdminPostFormItems']);
-        App::core()->behavior()->add('adminPostAfterForm', [$this, 'behaviorAdminPostAfterForm']);
-        App::core()->behavior()->add('adminPostHeaders', [$this, 'behaviorAdminPostHeaders']);
-        App::core()->behavior()->add('adminPageFormItems', [$this, 'behaviorAdminPostFormItems']);
-        App::core()->behavior()->add('adminPageAfterForm', [$this, 'behaviorAdminPostAfterForm']);
-        App::core()->behavior()->add('adminPageHeaders', [$this, 'behaviorAdminPostHeaders']);
-        App::core()->behavior()->add('adminPageHelpBlock', [$this, 'behaviorAdminPageHelpBlock']);
+        App::core()->behavior('adminPostFormItems')->add([$this, 'behaviorAdminPostFormItems']);
+        App::core()->behavior('adminPostAfterForm')->add([$this, 'behaviorAdminPostAfterForm']);
+        App::core()->behavior('adminPostHeaders')->add([$this, 'behaviorAdminPostHeaders']);
+        App::core()->behavior('adminPageFormItems')->add([$this, 'behaviorAdminPostFormItems']);
+        App::core()->behavior('adminPageAfterForm')->add([$this, 'behaviorAdminPostAfterForm']);
+        App::core()->behavior('adminPageHeaders')->add([$this, 'behaviorAdminPostHeaders']);
+        App::core()->behavior('adminPageHelpBlock')->add([$this, 'behaviorAdminPageHelpBlock']);
     }
 
     public function behaviorAdminPageHelpBlock(ArrayObject $blocks): void

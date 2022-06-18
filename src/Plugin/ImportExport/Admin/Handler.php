@@ -34,7 +34,7 @@ class Handler extends AbstractPage
         $modules = new ArrayObject(['import' => [], 'export' => []]);
 
         // --BEHAVIOR-- importExportModules
-        App::core()->behavior()->call('importExportModules', $modules);
+        App::core()->behavior('importExportModules')->call($modules);
 
         $type = null;
         if (in_array(GPC::request()->string('type'), ['export', 'import'])) {

@@ -11,7 +11,7 @@ namespace Dotclear\Plugin\Blogroll\Common;
 
 // Dotclear\Plugin\Blogroll\Common\BlogrollUrl
 use Dotclear\App;
-use Dotclear\Core\Url\UrlDescriptor;
+use Dotclear\Core\Url\UrlItem;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Exception;
@@ -25,7 +25,7 @@ class BlogrollUrl
 {
     public function __construct()
     {
-        App::core()->url()->registerHandler(new UrlDescriptor(
+        App::core()->url()->addItem(new UrlItem(
             type: 'xbel',
             url: 'xbel',
             scheme: '^xbel(?:/?)$',

@@ -27,7 +27,7 @@ class Prepend extends ModulePrepend
             return;
         }
 
-        App::core()->behavior()->add('publicHeadContent', function (): void {
+        App::core()->behavior('publicHeadContent')->add(function (): void {
             echo Html::jsJson('dotclear_berlin', [
                 'show_menu'  => __('Show menu'),
                 'hide_menu'  => __('Hide menu'),

@@ -55,7 +55,7 @@ class Comments extends AbstractPage
             'comment_spam_filter' => 'comment_spam_filter', ];
 
         // --BEHAVIOR-- adminCommentsSortbyLexCombo
-        App::core()->behavior()->call('adminCommentsSortbyLexCombo', [&$sortby_lex]);
+        App::core()->behavior('adminCommentsSortbyLexCombo')->call([&$sortby_lex]);
 
         $param->set('order', (
             array_key_exists($this->filter->getValue(id: 'sortby'), $sortby_lex) ?
@@ -145,7 +145,7 @@ class Comments extends AbstractPage
             '<input name="delete_all_spam" class="delete" type="submit" value="' . __('Delete all spams') . '" /></p>';
 
             // --BEHAVIOR-- adminCommentsSpamForm
-            App::core()->behavior()->call('adminCommentsSpamForm');
+            App::core()->behavior('adminCommentsSpamForm')->call();
 
             echo '</form>';
         }

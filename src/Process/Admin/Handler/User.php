@@ -200,7 +200,7 @@ class User extends AbstractPage
                 ]) .
                 App::core()->resource()->load('pwstrength.js') .
                 App::core()->resource()->load('_user.js') .
-                App::core()->behavior()->call('adminUserHeaders')
+                App::core()->behavior('adminUserHeaders')->call()
             )
             ->setPageBreadcrumb([
                 __('System') => '',
@@ -373,7 +373,7 @@ class User extends AbstractPage
             '</p>';
 
         // --BEHAVIOR-- adminUserForm, UserContainer
-        App::core()->behavior()->call('adminUserForm', user: $this->user);
+        App::core()->behavior('adminUserForm')->call($this->user);
 
         echo '</div>' .
             '</div>';
@@ -415,7 +415,7 @@ class User extends AbstractPage
             ], true) . '</p>' .
                 '</form>';
 
-            $user_permissions = App::core()->permissions()->getUserPermissions(id: $this->user->getProperty('user_id'));
+            $user_permissions = App::core()->permission()->getUserPermissions(id: $this->user->getProperty('user_id'));
 
             if (empty($user_permissions)) {
                 echo '<p>' . __('No permissions so far.') . '</p>';
@@ -429,7 +429,7 @@ class User extends AbstractPage
 
                         echo '<ul class="ul-perm">';
                         foreach ($blog_permissions->perm->dump() as $type) {
-                            echo '<li>' . App::core()->permissions()->getPermType($type)->label . '</li>';
+                            echo '<li>' . App::core()->permission()->getItem(type: $type)->label . '</li>';
                         }
                         echo '</ul>' .
                         '<p class="add-perm"><input type="submit" class="reset" value="' . __('Change permissions') . '" />' .

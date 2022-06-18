@@ -308,7 +308,7 @@ class Handler extends AbstractPage
         ]) .
         App::core()->resource()->load('widgets.js', 'Plugin', 'Widgets') .
         (!$user_dm_nodragdrop ? App::core()->resource()->load('dragdrop.js', 'Plugin', 'Widgets') : '') .
-        ($rte_flag ? (string) App::core()->behavior()->call('adminPostEditor', $widget_editor['xhtml'], 'widget', ['#sidebarsWidgets textarea:not(.noeditor)'], 'xhtml') : '') .
+        ($rte_flag ? (string) App::core()->behavior('adminPostEditor')->call($widget_editor['xhtml'], 'widget', ['#sidebarsWidgets textarea:not(.noeditor)'], 'xhtml') : '') .
         App::core()->resource()->confirmClose('sidebarsWidgets');
     }
 

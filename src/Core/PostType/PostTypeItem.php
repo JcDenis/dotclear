@@ -9,14 +9,14 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\PostType;
 
-// Dotclear\Core\PostType\PostTypeDescriptor
+// Dotclear\Core\PostType\PostTypeItem
 
 /**
  * Post type definition.
  *
  * @ingroup  Core Post
  */
-final class PostTypeDescriptor
+final class PostTypeItem
 {
     public readonly string $label;
 

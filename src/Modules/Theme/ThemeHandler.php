@@ -66,7 +66,7 @@ class ThemeHandler extends AbstractPage
             $this->setPageHelp('core_blog_theme_conf');
 
             // --BEHAVIOR-- themessToolsHeaders
-            $head = App::core()->behavior()->call('themessToolsHeaders', true);
+            $head = App::core()->behavior('themessToolsHeaders')->call(true);
             if ($head) {
                 $this->setPageHead($head);
             }
@@ -102,7 +102,7 @@ class ThemeHandler extends AbstractPage
                     App::core()->resource()->pageTabs() .
 
                     // --BEHAVIOR-- pluginsToolsHeaders
-                    (string) App::core()->behavior()->call('themesToolsHeaders', false)
+                    (string) App::core()->behavior('themesToolsHeaders')->call(false)
                 )
                 ->setPageBreadcrumb([
                     Html::escapeHTML(App::core()->blog()->name)                      => '',
@@ -272,7 +272,7 @@ class ThemeHandler extends AbstractPage
         }
 
         // --BEHAVIOR-- themessToolsTabs
-        App::core()->behavior()->call('themesToolsTabs');
+        App::core()->behavior('themesToolsTabs')->call();
 
         // -- Notice for super admin --
         if (App::core()->user()->isSuperAdmin() && !$this->m_list->isWritablePath()) {

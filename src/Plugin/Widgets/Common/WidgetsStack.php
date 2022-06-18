@@ -592,7 +592,7 @@ class WidgetsStack
         ;
 
         // --BEHAVIOR-- initWidgets
-        App::core()->behavior()->call('initWidgets', $__widgets);
+        App::core()->behavior('initWidgets')->call($__widgets);
 
         $__default_widgets = ['nav' => new Widgets(), 'extra' => new Widgets(), 'custom' => new Widgets()];
 
@@ -602,7 +602,7 @@ class WidgetsStack
         $__default_widgets['custom']->append($__widgets->get('subscribe'));
 
         // --BEHAVIOR-- initDefaultWidgets
-        App::core()->behavior()->call('initDefaultWidgets', $__widgets, $__default_widgets);
+        App::core()->behavior('initDefaultWidgets')->call($__widgets, $__default_widgets);
 
         self::$__widgets         = $__widgets;
         self::$__default_widgets = $__default_widgets;

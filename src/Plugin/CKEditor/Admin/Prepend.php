@@ -12,7 +12,7 @@ namespace Dotclear\Plugin\CKEditor\Admin;
 // Dotclear\Plugin\CKEditor\Admin\Prepend
 use Dotclear\App;
 use Dotclear\Modules\ModulePrepend;
-use Dotclear\Process\Admin\AdminUrl\AdminUrlDescriptor;
+use Dotclear\Process\Admin\AdminUrl\AdminUrlItem;
 
 /**
  * Admin prepend for plugin CKEditor.
@@ -33,7 +33,7 @@ class Prepend extends ModulePrepend
         }
 
         // Admin url for post js
-        App::core()->adminurl()->register(new AdminUrlDescriptor(
+        App::core()->adminurl()->addItem(new AdminUrlItem(
             name: 'admin.plugin.CKEditorPost',
             class: 'Dotclear\\Plugin\\CKEditor\\Admin\\HandlerPost',
         ));

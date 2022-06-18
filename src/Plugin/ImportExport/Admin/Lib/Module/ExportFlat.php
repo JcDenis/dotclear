@@ -101,7 +101,7 @@ class ExportFlat extends Module
                 );
 
                 // --BEHAVIOR-- exportSingle
-                App::core()->behavior()->call('exportSingle', $exp, $blog_id);
+                App::core()->behavior('exportSingle')->call($exp, $blog_id);
 
                 $_SESSION['export_file']     = $fullname;
                 $_SESSION['export_filename'] = $_POST['file_name'];
@@ -139,7 +139,7 @@ class ExportFlat extends Module
                 $exp->exportTable('version');
 
                 // --BEHAVIOR-- exportFull
-                App::core()->behavior()->call('exportFull', $exp);
+                App::core()->behavior('exportFull')->call($exp);
 
                 $_SESSION['export_file']     = $fullname;
                 $_SESSION['export_filename'] = $_POST['file_name'];

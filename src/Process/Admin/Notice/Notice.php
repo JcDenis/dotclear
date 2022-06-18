@@ -170,7 +170,7 @@ final class Notice
             }
 
             // --BEHAVIOR-- coreBeforeNoticeCreate, Cursor
-            App::core()->behavior()->call('adminBeforeNoticeCreate', $cursor);
+            App::core()->behavior('adminBeforeNoticeCreate')->call($cursor);
 
             $cursor->insert();
             App::core()->con()->unlock();
@@ -181,7 +181,7 @@ final class Notice
         }
 
         // --BEHAVIOR-- coreAfterNoticeCreate, Cursor
-        App::core()->behavior()->call('adminAfterNoticeCreate', $cursor);
+        App::core()->behavior('adminAfterNoticeCreate')->call($cursor);
 
         return $cursor->getField('notice_id');
     }
@@ -222,7 +222,7 @@ final class Notice
         // Return error messages if any
         if (App::core()->error()->flag() && !$this->error_displayed) {
             // --BEHAVIOR-- adminPageNotificationError
-            $notice_error = App::core()->behavior()->call('adminPageNotificationError');
+            $notice_error = App::core()->behavior('adminPageNotificationError')->call();
 
             if (isset($notice_error) && !empty($notice_error)) {
                 $res .= $notice_error;
@@ -270,7 +270,7 @@ final class Notice
                         $notifications = array_merge($notification, @json_decode($lines->field('notice_options'), true));
                     }
                     // --BEHAVIOR-- adminPageNotification, array
-                    $notice = App::core()->behavior()->call('adminPageNotification', $notification);
+                    $notice = App::core()->behavior('adminPageNotification')->call($notification);
 
                     $res .= !empty($notice) ? $notice : $this->getNotification($notification);
                 }

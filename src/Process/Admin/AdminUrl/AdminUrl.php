@@ -26,10 +26,114 @@ use Dotclear\Helper\Network\Http;
 final class AdminUrl
 {
     /**
-     * @var array<string,AdminUrlDescriptor> $urls
-     *                                       List of registered URLs
+     * @var array<string,AdminUrlItem> $urls
+     *                                 List of registered URLs
      */
     private $urls = [];
+
+    /**
+     * Constructor.
+     *
+     * Set default admin URLs
+     */
+    public function __construct()
+    {
+        $ns = 'Dotclear\\Process\\Admin\\Handler\\';
+
+        $default = [
+            ['admin.home', $ns . 'Home'],
+            ['admin.auth', $ns . 'Auth'],
+            ['admin.posts', $ns . 'Posts'],
+            ['admin.posts.popup', $ns . 'PostsPopup'],
+            ['admin.post', $ns . 'Post'],
+            ['admin.post.media', $ns . 'PostMedia'],
+            ['admin.blogs', $ns . 'Blogs'],
+            ['admin.blog', $ns . 'Blog'],
+            ['admin.blog.pref', $ns . 'BlogPref'],
+            ['admin.blog.del', $ns . 'BlogDel'],
+            ['admin.categories', $ns . 'Categories'],
+            ['admin.category', $ns . 'Category'],
+            ['admin.comments', $ns . 'Comments'],
+            ['admin.comment', $ns . 'Comment'],
+            ['admin.help', $ns . 'Help'],
+            ['admin.help.charte', $ns . 'Charte'],
+            ['admin.langs', $ns . 'Langs'],
+            ['admin.link.popup', $ns . 'LinkPopup'],
+            ['admin.media', $ns . 'Media'],
+            ['admin.media.item', $ns . 'MediaItem'],
+            ['admin.search', $ns . 'Search'],
+            ['admin.users', $ns . 'Users'],
+            ['admin.user', $ns . 'User'],
+            ['admin.user.pref', $ns . 'UserPref'],
+            ['admin.user.actions', $ns . 'UserAction'],
+            ['admin.update', $ns . 'Update'],
+            ['admin.services', $ns . 'Services'],
+            ['admin.xmlrpc', $ns . 'Xmlrpc'],
+            ['admin.cspreport', $ns . 'CspReport'],
+        ];
+
+        foreach ($default as $url) {
+            $this->addItem(new AdminUrlItem(
+                name: $url[0],
+                class: $url[1],
+            ));
+        }
+    }
+
+    /**
+     * Register a new URL class.
+     *
+     * @param AdminUrlItem $item The admin URL descriptor
+     */
+    public function addItem(AdminUrlItem $item): void
+    {
+        $this->urls[$item->name] = $item;
+    }
+
+    /**
+     * Register a new URL as a copy of an existing one.
+     *
+     * @param string $name     The URL handler name
+     * @param string $orig     The class to copy information from
+     * @param array  $params   The extra parameters to add
+     * @param string $newclass The new class if different from the original
+     *
+     * @throws InvalidValueReference On unknow URL handler
+     */
+    public function copyItem(string $name, string $orig, array $params = [], string $newclass = ''): void
+    {
+        if (!isset($this->urls[$orig])) {
+            throw new InvalidValueReference('Unknown URL handler for ' . $orig);
+        }
+
+        $this->urls[$name] = new AdminUrlItem(
+            name: $name,
+            class: '' != $newclass ? $newclass : $this->urls[$orig]->class,
+            params: array_merge($this->urls[$orig]->params, $params),
+        );
+    }
+
+    /**
+     * Check if an URL handler is registered.
+     *
+     * @param string $name The handler name
+     *
+     * @return bool True if exists
+     */
+    public function hasItem(string $name): bool
+    {
+        return isset($this->urls[$name]);
+    }
+
+    /**
+     * Return registered URLs properties.
+     *
+     * @return array<string,AdminUrlItem> The registred URLs
+     */
+    public function getItems(): array
+    {
+        return $this->urls;
+    }
 
     /**
      * Admin URL alias.
@@ -61,39 +165,6 @@ final class AdminUrl
     public function is(string $name): bool
     {
         return $this->called() == $name;
-    }
-
-    /**
-     * Register a new URL class.
-     *
-     * @param AdminUrlDescriptor $descriptor The admin URL descriptor
-     */
-    public function register(AdminUrlDescriptor $descriptor): void
-    {
-        $this->urls[$descriptor->name] = $descriptor;
-    }
-
-    /**
-     * Register a new URL as a copy of an existing one.
-     *
-     * @param string $name     The URL handler name
-     * @param string $orig     The class to copy information from
-     * @param array  $params   The extra parameters to add
-     * @param string $newclass The new class if different from the original
-     *
-     * @throws InvalidValueReference On unknow URL handler
-     */
-    public function registerCopy(string $name, string $orig, array $params = [], string $newclass = ''): void
-    {
-        if (!isset($this->urls[$orig])) {
-            throw new InvalidValueReference('Unknown URL handler for ' . $orig);
-        }
-
-        $this->urls[$name] = new AdminUrlDescriptor(
-            name: $name,
-            class: '' != $newclass ? $newclass : $this->urls[$orig]->class,
-            params: array_merge($this->urls[$orig]->params, $params),
-        );
     }
 
     /**
@@ -143,18 +214,6 @@ final class AdminUrl
     }
 
     /**
-     * Check if an URL handler is registered.
-     *
-     * @param string $name The handler name
-     *
-     * @return bool True if exists
-     */
-    public function exists(string $name): bool
-    {
-        return isset($this->urls[$name]);
-    }
-
-    /**
      * Retrieve a class name given its handler name, and optional parameters
      * acts like get, but without the query string, should be used within forms actions.
      *
@@ -200,64 +259,5 @@ final class AdminUrl
         }
 
         return $str;
-    }
-
-    /**
-     * Return registered URLs properties.
-     *
-     * @return array<string,AdminUrlDescriptor> The registred URLs
-     */
-    public function dump(): array
-    {
-        return $this->urls;
-    }
-
-    /**
-     * Setup admin URLs.
-     */
-    public function setup(): void
-    {
-        $ns = 'Dotclear\\Process\\Admin\\Handler\\';
-
-        $default = [
-            ['admin.home', $ns . 'Home'],
-            ['admin.auth', $ns . 'Auth'],
-            ['admin.posts', $ns . 'Posts'],
-            ['admin.posts.popup', $ns . 'PostsPopup'],
-            ['admin.post', $ns . 'Post'],
-            ['admin.post.media', $ns . 'PostMedia'],
-            ['admin.blogs', $ns . 'Blogs'],
-            ['admin.blog', $ns . 'Blog'],
-            ['admin.blog.pref', $ns . 'BlogPref'],
-            ['admin.blog.del', $ns . 'BlogDel'],
-            ['admin.categories', $ns . 'Categories'],
-            ['admin.category', $ns . 'Category'],
-            ['admin.comments', $ns . 'Comments'],
-            ['admin.comment', $ns . 'Comment'],
-            ['admin.help', $ns . 'Help'],
-            ['admin.help.charte', $ns . 'Charte'],
-            ['admin.langs', $ns . 'Langs'],
-            ['admin.link.popup', $ns . 'LinkPopup'],
-            ['admin.media', $ns . 'Media'],
-            ['admin.media.item', $ns . 'MediaItem'],
-            ['admin.search', $ns . 'Search'],
-            ['admin.users', $ns . 'Users'],
-            ['admin.user', $ns . 'User'],
-            ['admin.user.pref', $ns . 'UserPref'],
-            ['admin.user.actions', $ns . 'UserAction'],
-            ['admin.update', $ns . 'Update'],
-            ['admin.services', $ns . 'Services'],
-            ['admin.xmlrpc', $ns . 'Xmlrpc'],
-            ['admin.cspreport', $ns . 'CspReport'],
-        ];
-
-        foreach ($default as $url) {
-            $this->register(new AdminUrlDescriptor(
-                name: $url[0],
-                class: $url[1],
-            ));
-        }
-
-        App::core()->behavior()->call('adminURLs', $this);
     }
 }

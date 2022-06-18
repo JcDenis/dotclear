@@ -42,7 +42,7 @@ class AttachmentsTemplate
         App::core()->template()->addBlock('AttachmentIf', [$this, 'AttachmentIf']);
         App::core()->template()->addValue('EntryAttachmentCount', [$this, 'EntryAttachmentCount']);
 
-        App::core()->behavior()->add('tplIfConditions', [$this, 'tplIfConditions']);
+        App::core()->behavior('tplIfConditions')->add([$this, 'tplIfConditions']);
     }
 
     /*dtd

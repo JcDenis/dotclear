@@ -167,7 +167,7 @@ class UserPref extends AbstractPage
             'cat_descr'  => [true, __('Category description')],
         ];
         $this->rte = new ArrayObject($rte);
-        App::core()->behavior()->call('adminRteFlags', $this->rte);
+        App::core()->behavior('adminRteFlags')->call($this->rte);
         // Load user settings
         $rte_flags = @App::core()->user()->preference()->get('interface')->get('rte_flags');
         if (is_array($rte_flags)) {
@@ -265,7 +265,7 @@ class UserPref extends AbstractPage
                 $cur->setField('user_options', new ArrayObject($this->user->getOptions()));
 
                 // --BEHAVIOR-- adminBeforeUserOptionsUpdate
-                App::core()->behavior()->call('adminBeforeUserOptionsUpdate', $cur, App::core()->user()->userID());
+                App::core()->behavior('adminBeforeUserOptionsUpdate')->call($cur, App::core()->user()->userID());
 
                 // Update user prefs
                 App::core()->user()->preference()->get('accessibility')->put('nodragdrop', !GPC::post()->empty('user_acc_nodragdrop'), 'boolean');
@@ -332,7 +332,7 @@ class UserPref extends AbstractPage
                 App::core()->users()->updateUser(id: App::core()->user()->userID(), cursor: $cur);
 
                 // --BEHAVIOR-- adminAfterUserOptionsUpdate
-                App::core()->behavior()->call('adminAfterUserOptionsUpdate', $cur, App::core()->user()->userID());
+                App::core()->behavior('adminAfterUserOptionsUpdate')->call($cur, App::core()->user()->userID());
 
                 App::core()->notice()->addSuccessNotice(__('Personal options has been successfully updated.'));
                 App::core()->adminurl()->redirect('admin.user.pref', [], '#user-options');
@@ -345,7 +345,7 @@ class UserPref extends AbstractPage
         if (GPC::post()->isset('db-options')) {
             try {
                 // --BEHAVIOR-- adminBeforeUserOptionsUpdate
-                App::core()->behavior()->call('adminBeforeDashboardOptionsUpdate', App::core()->user()->userID());
+                App::core()->behavior('adminBeforeDashboardOptionsUpdate')->call(App::core()->user()->userID());
 
                 // Update user prefs
                 App::core()->user()->preference()->get('dashboard')->put('doclinks', !GPC::post()->empty('user_dm_doclinks'), 'boolean');
@@ -358,7 +358,7 @@ class UserPref extends AbstractPage
                 App::core()->user()->preference()->get('interface')->put('nofavmenu', GPC::post()->empty('user_ui_nofavmenu'), 'boolean');
 
                 // --BEHAVIOR-- adminAfterUserOptionsUpdate
-                App::core()->behavior()->call('adminAfterDashboardOptionsUpdate', App::core()->user()->userID());
+                App::core()->behavior('adminAfterDashboardOptionsUpdate')->call(App::core()->user()->userID());
 
                 App::core()->notice()->addSuccessNotice(__('Dashboard options has been successfully updated.'));
                 App::core()->adminurl()->redirect('admin.user.pref', [], '#user-favorites');
@@ -373,13 +373,13 @@ class UserPref extends AbstractPage
                 if (GPC::post()->empty('append')) {
                     throw new AdminException(__('No favorite selected'));
                 }
-                $user_favs = App::core()->favorite()->getLocalFavoriteIDs();
+                $user_favs = App::core()->favorite()->getLocalIds();
                 foreach (GPC::post()->array('append') as $k => $v) {
                     if (App::core()->favorite()->hasItem($v)) {
                         $user_favs->add($v);
                     }
                 }
-                App::core()->favorite()->setLocalFavoriteIDs($user_favs);
+                App::core()->favorite()->setLocalIds($user_favs);
 
                 if (!App::core()->error()->flag()) {
                     App::core()->notice()->addSuccessNotice(__('Favorites have been successfully added.'));
@@ -396,13 +396,13 @@ class UserPref extends AbstractPage
                 if (GPC::post()->empty('remove')) {
                     throw new AdminException(__('No favorite selected'));
                 }
-                $user_fav_ids = App::core()->favorite()->getLocalFavoriteIDs();
+                $user_fav_ids = App::core()->favorite()->getLocalIds();
                 foreach (GPC::post()->array('remove') as $v) {
                     if ($user_fav_ids->exists($v)) {
                         $user_fav_ids->remove($v);
                     }
                 }
-                App::core()->favorite()->setLocalFavoriteIDs($user_fav_ids);
+                App::core()->favorite()->setLocalIds($user_fav_ids);
                 if (!App::core()->error()->flag()) {
                     App::core()->notice()->addSuccessNotice(__('Favorites have been successfully removed.'));
                     App::core()->adminurl()->redirect('admin.user.pref', [], '#user-favorites');
@@ -428,7 +428,7 @@ class UserPref extends AbstractPage
                     $order->remove($v);
                 }
             }
-            App::core()->favorite()->setLocalFavoriteIDs($order);
+            App::core()->favorite()->setLocalIds($order);
             if (!App::core()->error()->flag()) {
                 App::core()->notice()->addSuccessNotice(__('Favorites have been successfully updated.'));
                 App::core()->adminurl()->redirect('admin.user.pref', [], '#user-favorites');
@@ -437,8 +437,8 @@ class UserPref extends AbstractPage
 
         // Replace default favorites by current set (super admin only)
         if (!GPC::post()->empty('replace') && App::core()->user()->isSuperAdmin()) {
-            $user_favs = App::core()->favorite()->getLocalFavoriteIDs();
-            App::core()->favorite()->setGlobalFavoriteIDs($user_favs);
+            $user_favs = App::core()->favorite()->getLocalIds();
+            App::core()->favorite()->setGlobalIds($user_favs);
 
             if (!App::core()->error()->flag()) {
                 App::core()->notice()->addSuccessNotice(__('Default favorites have been successfully updated.'));
@@ -481,7 +481,7 @@ class UserPref extends AbstractPage
                 App::core()->resource()->confirmClose('user-form', 'opts-forms', 'favs-form', 'db-forms') .
 
                 // --BEHAVIOR-- adminPreferencesHeaders
-                App::core()->behavior()->call('adminPreferencesHeaders')
+                App::core()->behavior('adminPreferencesHeaders')->call()
             )
             ->setPageBreadcrumb([
                 Html::escapeHTML(App::core()->user()->userID()) => '',
@@ -774,7 +774,7 @@ class UserPref extends AbstractPage
         echo '<h4 class="pretty-title">' . __('Other options') . '</h4>';
 
         // --BEHAVIOR-- adminPreferencesForm, UserContainer
-        App::core()->behavior()->call('adminPreferencesForm', user: $this->user);
+        App::core()->behavior('adminPreferencesForm')->call($this->user);
 
         echo '<p class="clear vertical-separator">' .
         App::core()->adminurl()->getHiddenFormFields('admin.user.pref', [], true) .
@@ -795,7 +795,7 @@ class UserPref extends AbstractPage
         echo '<div id="my-favs" class="fieldset"><h4>' . __('My favorites') . '</h4>';
 
         $count    = 0;
-        $user_fav = App::core()->favorite()->getLocalFavoriteIDs();
+        $user_fav = App::core()->favorite()->getLocalIds();
         foreach ($user_fav->dump() as $id) {
             $item = App::core()->favorite()->getItem($id);
             if (!empty($item)) {
@@ -805,8 +805,8 @@ class UserPref extends AbstractPage
                 }
 
                 ++$count;
-                $icon = App::core()->menus()->getIconTheme($item->icons);
-                $zoom = App::core()->menus()->getIconTheme($item->icons, false);
+                $icon = App::core()->menu()->getIconTheme($item->icons);
+                $zoom = App::core()->menu()->getIconTheme($item->icons, false);
                 if ('' !== $zoom) {
                     $icon .= ' <span class="zoom">' . $zoom . '</span>';
                 }
@@ -851,11 +851,9 @@ class UserPref extends AbstractPage
             echo '<p>' . __('Currently no personal favorites.') . '</p>';
         }
 
-        $avail_fav       = App::core()->favorite()->getItems(App::core()->favorite()->getIDs());
-        $default_fav_ids = [];
-        foreach (App::core()->favorite()->getGlobalFavoriteIDs()->dump() as $v) {
-            $default_fav_ids[$v] = true;
-        }
+        $avail_fav       = App::core()->favorite()->getItems(App::core()->favorite()->getIds());
+        $default_fav_ids = App::core()->favorite()->getGlobalIds();
+
         echo '</div>'; // /box my-fav
 
         echo '<div class="fieldset" id="available-favs">';
@@ -880,15 +878,15 @@ class UserPref extends AbstractPage
             }
 
             ++$count;
-            $icon = App::core()->menus()->getIconTheme($item->icons);
-            $zoom = App::core()->menus()->getIconTheme($item->icons, false);
+            $icon = App::core()->menu()->getIconTheme($item->icons);
+            $zoom = App::core()->menu()->getIconTheme($item->icons, false);
             if ('' !== $zoom) {
                 $icon .= ' <span class="zoom">' . $zoom . '</span>';
             }
             echo '<li id="fa-' . $k . '">' . '<label for="fak-' . $k . '">' . $icon .
             Form::checkbox(['append[]', 'fak-' . $k], $k) .
                 $item->title . '</label>' .
-                (isset($default_fav_ids[$k]) ? ' <span class="default-fav"><img src="?df=images/selected.png" alt="' . __('(default favorite)') . '" /></span>' : '') .
+                ($default_fav_ids->exists($k) ? ' <span class="default-fav"><img src="?df=images/selected.png" alt="' . __('(default favorite)') . '" /></span>' : '') .
                 '</li>';
         }
         if (0 < $count) {
@@ -942,7 +940,7 @@ class UserPref extends AbstractPage
         echo '</div>';
 
         // --BEHAVIOR-- adminDashboardOptionsForm
-        App::core()->behavior()->call('adminDashboardOptionsForm', App::core());
+        App::core()->behavior('adminDashboardOptionsForm')->call(App::core());
 
         echo '<p>' .
         Form::hidden('db-options', '-') .

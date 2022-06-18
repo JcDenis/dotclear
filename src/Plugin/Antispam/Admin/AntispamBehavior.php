@@ -32,14 +32,14 @@ class AntispamBehavior
         App::core()->rest()->addFunction('getSpamsCount', [$this, 'restGetSpamsCount']);
 
         // Admin behaviors
-        App::core()->behavior()->add('adminBeforeAddDashboardIcon', [$this, 'adminBeforeAddDashboardIcon']);
+        App::core()->behavior('adminBeforeAddDashboardIcon')->add([$this, 'adminBeforeAddDashboardIcon']);
 
         // @phpstan-ignore-next-line (Failed to judge constant)
         if (false == DC_ANTISPAM_CONF_SUPER || App::core()->user()->isSuperAdmin()) {
-            App::core()->behavior()->add('adminBlogPreferencesForm', [$this, 'behaviorAdminBlogPreferencesForm']);
-            App::core()->behavior()->add('adminBeforeBlogSettingsUpdate', [$this, 'adminBeforeBlogSettingsUpdate']);
-            App::core()->behavior()->add('adminCommentsSpamForm', [$this, 'behaviorAdminCommentsSpamForm']);
-            App::core()->behavior()->add('adminPageHelpBlock', [$this, 'behaviorAdminPageHelpBlock']);
+            App::core()->behavior('adminBlogPreferencesForm')->add([$this, 'behaviorAdminBlogPreferencesForm']);
+            App::core()->behavior('adminBeforeBlogSettingsUpdate')->add([$this, 'adminBeforeBlogSettingsUpdate']);
+            App::core()->behavior('adminCommentsSpamForm')->add([$this, 'behaviorAdminCommentsSpamForm']);
+            App::core()->behavior('adminPageHelpBlock')->add([$this, 'behaviorAdminPageHelpBlock']);
         }
     }
 

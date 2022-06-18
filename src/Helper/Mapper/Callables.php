@@ -7,81 +7,68 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Helper;
+namespace Dotclear\Helper\Mapper;
 
-// Dotclear\Helper\Behavior
+// Dotclear\Helper\Mapper\Callables
 use Dotclear\App;
 use Dotclear\Exception\InvalidMethodException;
 use Exception;
 use Error;
 
 /**
- * Stack by group of callable functions.
- *
- * @ingroup  Helper Behavior Stack
+ * Tiny helper to manage array of callable values.
  */
-class Behavior
+class Callables
 {
     /**
-     * @var array<string,array> $behaviors
-     *                          Registered behaviors
+     * @var array<int,callable> $stack
+     *                          The callables stack
      */
-    private $behaviors = [];
+    protected $stack = [];
 
     /**
-     * Adds a new function to a behaviors group.
+     * Add a new callback.
      *
-     * $callback must be a valid and callable callback.
-     *
-     * @param string   $group    The group name
-     * @param callable $callback The callback function
+     * @param callable $value The callback to add
      */
-    public function add(string $group, callable $callback): void
+    public function add(callable $value): void
     {
-        $this->behaviors[$group][] = $callback;
+        $this->stack[] = $value;
     }
 
     /**
-     * Determines if a group exists in behaviors.
+     * Get stack size (number of callback).
      *
-     * @param string $group The behavior
-     *
-     * @return bool True if behavior exists, False otherwise
+     * @return int The size
      */
-    public function has(string $group): bool
+    public function count(): int
     {
-        return !empty($group) && isset($this->behaviors[$group]);
+        return count($this->stack);
     }
 
     /**
-     * Gets the behaviors of a given group.
+     * Dump array of callbacks.
      *
-     * @param string $group The group
-     *
-     * @return array<int,callable> The behaviors of a group
+     * @return array<int,callable> The callbacks
      */
-    public function get(string $group): array
+    public function dump(): array
     {
-        return $this->has($group) ? $this->behaviors[$group] : [];
+        return $this->stack;
     }
 
     /**
-     * Calls every function in behaviors for a given group
-     * and returns concatened result of each function.
+     * Calls every function in stack.
      *
-     * Every parameters added after $group will be pass to calls.
+     * @param mixed $args The callback arguments
      *
-     * @param string $group   The group
-     * @param mixed  ...$args The arguments
-     *
-     * @return string Behavior concatened result
+     * @return string The callbacks concatened result
      */
-    public function call(string $group, mixed ...$args): string
+    public function call(mixed ...$args): string
     {
         $result = '';
 
         try {
-            foreach ($this->get($group) as $callback) {
+            foreach ($this->stack as $callback) {
                 $response = $callback(...$args);
                 if (is_string($response)) {
                     $result .= $response;
@@ -89,20 +76,10 @@ class Behavior
             }
         } catch (Exception|Error $e) {
             if (!App::core()->production()) {
-                throw new InvalidMethodException('Invalid callback on behavior "' . $group . '": ' . $e->getMessage() . $e->getPrevious()?->getMessage());
+                throw new InvalidMethodException('Invalid callback: ' . $e->getMessage() . $e->getPrevious()?->getMessage());
             }
         }
 
         return $result;
-    }
-
-    /**
-     * Dump behaviors stack.
-     *
-     * @return array<string,array> Registred behaviors
-     */
-    public function dump(): array
-    {
-        return $this->behaviors;
     }
 }

@@ -151,9 +151,9 @@ abstract class Action extends AbstractPage
     /**
      * Add actions.
      *
-     * @param ActionDescriptor $descriptor The actions descriptor
+     * @param ActionItem $descriptor The actions descriptor
      */
-    public function addAction(ActionDescriptor $descriptor): void
+    public function addAction(ActionItem $descriptor): void
     {
         // Check if action is callable
         if (!is_callable($descriptor->callback)) {

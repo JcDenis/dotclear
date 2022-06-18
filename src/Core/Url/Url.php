@@ -35,8 +35,8 @@ use Exception;
 final class Url
 {
     /**
-     * @var array<string,UrlDescriptor> $handlers
-     *                                  URL registered types
+     * @var array<string,UrlItem> $handlers
+     *                            URL registered types
      */
     private $handlers = [];
 
@@ -94,76 +94,76 @@ final class Url
      */
     public function __construct()
     {
-        $this->registerDefault(callback: [$this, 'home']);
-        $this->registerError(callback: [$this, 'default404']);
+        $this->setDefaultHandler(callback: [$this, 'home']);
+        $this->setErrorHandler(callback: [$this, 'default404']);
 
-        $this->registerHandler(new UrlDescriptor(
+        $this->addItem(new UrlItem(
             type: 'lang',
             url: '',
             scheme: '^([a-zA-Z]{2}(?:-[a-z]{2})?(?:/page/[0-9]+)?)$',
             callback: [$this, 'lang']
         ));
-        $this->registerHandler(new UrlDescriptor(
+        $this->addItem(new UrlItem(
             type: 'posts',
             url: 'posts',
             scheme: '^posts(/.+)?$',
             callback: [$this, 'home']
         ));
-        $this->registerHandler(new UrlDescriptor(
+        $this->addItem(new UrlItem(
             type: 'post',
             url: 'post',
             scheme: '^post/(.+)$',
             callback: [$this, 'post']
         ));
-        $this->registerHandler(new UrlDescriptor(
+        $this->addItem(new UrlItem(
             type: 'preview',
             url: 'preview',
             scheme: '^preview/(.+)$',
             callback: [$this, 'preview']
         ));
-        $this->registerHandler(new UrlDescriptor(
+        $this->addItem(new UrlItem(
             type: 'category',
             url: 'category',
             scheme: '^category/(.+)$',
             callback: [$this, 'category']
         ));
-        $this->registerHandler(new UrlDescriptor(
+        $this->addItem(new UrlItem(
             type: 'archive',
             url: 'archive',
             scheme: '^archive(/.+)?$',
             callback: [$this, 'archive']
         ));
-        $this->registerHandler(new UrlDescriptor(
+        $this->addItem(new UrlItem(
             type: 'resources',
             url: 'resources',
             scheme: '^resources/(.+)?$',
             callback: [$this, 'resources']
         ));
-        $this->registerHandler(new UrlDescriptor(
+        $this->addItem(new UrlItem(
             type: 'feed',
             url: 'feed',
             scheme: '^feed/(.+)$',
             callback: [$this, 'feed']
         ));
-        $this->registerHandler(new UrlDescriptor(
+        $this->addItem(new UrlItem(
             type: 'trackback',
             url: 'trackback',
             scheme: '^trackback/(.+)$',
             callback: [$this, 'trackback']
         ));
-        $this->registerHandler(new UrlDescriptor(
+        $this->addItem(new UrlItem(
             type: 'webmention',
             url: 'webmention',
             scheme: '^webmention(/.+)?$',
             callback: [$this, 'webmention']
         ));
-        $this->registerHandler(new UrlDescriptor(
+        $this->addItem(new UrlItem(
             type: 'rsd',
             url: 'rsd',
             scheme: '^rsd$',
             callback: [$this, 'rsd']
         ));
-        $this->registerHandler(new UrlDescriptor(
+        $this->addItem(new UrlItem(
             type: 'xmlrpc',
             url: 'xmlrpc',
             scheme: '^xmlrpc/(.+)$',
@@ -276,7 +276,7 @@ final class Url
      */
     public function getURLFor(string $type, string|int $value = ''): string
     {
-        $url = App::core()->behavior()->call('publicBeforeGetURLFor', $type, $value);
+        $url = App::core()->behavior('publicBeforeGetURLFor')->call($type, $value);
         if (!$url) {
             $url = $this->getBase($type);
             if ('' !== $value) {
@@ -293,34 +293,14 @@ final class Url
     /**
      * Register a URL.
      *
-     * @param UrlDescriptor $descriptor The URL handler definition instance
+     * @param UrlItem $item The URL handler definition instance
      */
-    public function registerHandler(UrlDescriptor $descriptor): void
+    public function addItem(UrlItem $item): void
     {
-        // --BEHAVIOR-- publicBeforeRegisterHandler, UrlDescriptor
-        App::core()->behavior()->call('publicBeforeRegisterHandler', descriptor: $descriptor);
+        // --BEHAVIOR-- publicBeforeAddItem, UrlItem
+        App::core()->behavior('publicBeforeAddItem')->call(item: $item);
 
-        $this->handlers[$descriptor->type] = $descriptor;
-    }
-
-    /**
-     * Register default handler.
-     *
-     * @param callable $callback The handler
-     */
-    public function registerDefault(callable $callback): void
-    {
-        $this->default_handler = $callback;
-    }
-
-    /**
-     * Register an error handler.
-     *
-     * @param callable $callback The handler
-     */
-    public function registerError(callable $callback): void
-    {
-        array_unshift($this->error_handlers, $callback);
+        $this->handlers[$item->type] = $item;
     }
 
     /**
@@ -328,7 +308,7 @@ final class Url
      *
      * @param string $type The handler type
      */
-    public function unregisterHandler(string $type): void
+    public function removeItem(string $type): void
     {
         if (isset($this->handlers[$type])) {
             unset($this->handlers[$type]);
@@ -338,9 +318,9 @@ final class Url
     /**
      * Get registered handlers.
      *
-     * @return array<string,UrlDescriptor> The types
+     * @return array<string,UrlItem> The types
      */
-    public function getHandlers(): array
+    public function getItems(): array
     {
         return $this->handlers;
     }
@@ -348,13 +328,33 @@ final class Url
     /**
      * Sort handlers.
      */
-    private function sortHandlers(): void
+    private function sortItems(): void
     {
         $r = [];
         foreach ($this->handlers as $handler) {
             $r[$handler->type] = $handler->url;
         }
         array_multisort($r, SORT_DESC, $this->handlers);
+    }
+
+    /**
+     * Register default handler.
+     *
+     * @param callable $callback The handler
+     */
+    public function setDefaultHandler(callable $callback): void
+    {
+        $this->default_handler = $callback;
+    }
+
+    /**
+     * Register an error handler.
+     *
+     * @param callable $callback The handler
+     */
+    public function setErrorHandler(callable $callback): void
+    {
+        array_unshift($this->error_handlers, $callback);
     }
 
     /**
@@ -428,7 +428,7 @@ final class Url
         App::core()->context()->set('http_etag', $http_etag);
 
         // --BEHAVIOR-- publicBeforeServeDocument, Context
-        App::core()->behavior()->call('publicBeforeServeDocument', context: App::core()->context());
+        App::core()->behavior('publicBeforeServeDocument')->call(context: App::core()->context());
 
         if (App::core()->context()->get('http_cache')) {
             $this->mod_files = array_merge($this->mod_files, [$tpl_file]);
@@ -447,7 +447,7 @@ final class Url
         $param->set('headers', headers_list());
 
         // --BEHAVIOR-- publicAfterServeDocument, Param (not really after but hey)
-        App::core()->behavior()->call('publicAfterServeDocument', param: $param);
+        App::core()->behavior('publicAfterServeDocument')->call(param: $param);
 
         if (App::core()->context()->get('http_cache') && App::core()->context()->get('http_etag')) {
             Http::etag($param->get('content'), Http::getSelfURI());
@@ -500,7 +500,7 @@ final class Url
         $this->getArgs($part, $type, $args);
 
         // --BEHAVIOR-- publicBeforeGetDocument
-        App::core()->behavior()->call('publicBeforeGetDocument');
+        App::core()->behavior('publicBeforeGetDocument')->call();
 
         if (!$type) {
             $this->type = $this->getHomeType();
@@ -511,7 +511,7 @@ final class Url
         }
 
         // --BEHAVIOR-- publicAfterGetDocument
-        App::core()->behavior()->call('publicAfterGetDocument');
+        App::core()->behavior('publicAfterGetDocument')->call();
     }
 
     /**
@@ -530,7 +530,7 @@ final class Url
             return;
         }
 
-        $this->sortHandlers();
+        $this->sortItems();
 
         foreach ($this->handlers as $handler) {
             if ($part == $handler->scheme) {
@@ -653,7 +653,7 @@ final class Url
         echo App::core()->template()->getData(App::core()->context()->get('current_tpl'));
 
         // --BEHAVIOR-- publicAfterDocument (recall this behavior as we stop script here)
-        App::core()->behavior()->call('publicAfterGetDocument');
+        App::core()->behavior('publicAfterGetDocument')->call();
 
         exit;
     }
@@ -727,7 +727,7 @@ final class Url
                 $param->set('search', $this->search_string);
 
                 // --BEHAVIOR-- publicBeforeCountPostsOnSearch, Param
-                App::core()->behavior()->call('publicBeforeCountPostsOnSearch', param: $param, args: '');
+                App::core()->behavior('publicBeforeCountPostsOnSearch')->call(param: $param, args: '');
 
                 $this->search_count = App::core()->blog()->posts()->countPosts(param: $param);
             }
@@ -748,7 +748,7 @@ final class Url
         $param->set('post_lang', $args);
 
         // --BEHAVIOR-- publicBeforeGetLangsOnLang, Param
-        App::core()->behavior()->call('publicBeforeGetLangsOnLang', param: $param, args: $args);
+        App::core()->behavior('publicBeforeGetLangsOnLang')->call(param: $param, args: $args);
 
         App::core()->context()->set('langs', App::core()->blog()->posts()->getLangs(param: $param));
 
@@ -783,7 +783,7 @@ final class Url
             $param->set('without_empty', false);
 
             // --BEHAVIOR-- publicBeforeGetCategoriesOnCategory, Param
-            App::core()->behavior()->call('publicBeforeGetCategoriesOnCategory', param: $param, args: $args);
+            App::core()->behavior('publicBeforeGetCategoriesOnCategory')->call(param: $param, args: $args);
 
             App::core()->context()->set('categories', App::core()->blog()->categories()->getCategories(param: $param));
 
@@ -816,7 +816,7 @@ final class Url
             $param->set('type', 'month');
 
             // --BEHAVIOR-- publicBeforeGetDatesOnArchive, Param
-            App::core()->behavior()->call('publicBeforeGetDatesOnArchive', param: $param, args: $args);
+            App::core()->behavior('publicBeforeGetDatesOnArchive')->call(param: $param, args: $args);
 
             App::core()->context()->set('archives', App::core()->blog()->posts()->getDates(param: $param));
 
@@ -849,7 +849,7 @@ final class Url
             $param->set('post_url', $args);
 
             // --BEHAVIOR-- publicBeforeGetPostsOnPost, Param, string
-            App::core()->behavior()->call('publicBeforeGetPostsOnPost', param: $param, args: $args);
+            App::core()->behavior('publicBeforeGetPostsOnPost')->call(param: $param, args: $args);
 
             App::core()->context()->set('posts', App::core()->blog()->posts()->getPosts(param: $param));
 
@@ -925,7 +925,7 @@ final class Url
 
                     if ('' != $content) {
                         // --BEHAVIOR-- publicBeforeTransformComment
-                        $response = App::core()->behavior()->call('publicBeforeTransformComment', content: $content);
+                        $response = App::core()->behavior('publicBeforeTransformComment')->call(content: $content);
                         if ('' != $response) {
                             $content = $response;
                         } else {
@@ -948,7 +948,7 @@ final class Url
 
                     if ($preview) {
                         // --BEHAVIOR-- publicBeforePreviewComment, Param
-                        App::core()->behavior()->call('publicBeforePreviewComment', param: $comment_preview);
+                        App::core()->behavior('publicBeforePreviewComment')->call(param: $comment_preview);
 
                         $comment_preview->set('preview', true);
                     } else {
@@ -981,7 +981,7 @@ final class Url
                             }
 
                             // --BEHAVIOR-- publicBeforeRedirectComment, Cursor
-                            $redir_arg .= filter_var(App::core()->behavior()->call('publicBeforeRedirectComment', cursor: $cursor), FILTER_SANITIZE_URL);
+                            $redir_arg .= filter_var(App::core()->behavior('publicBeforeRedirectComment')->call(cursor: $cursor), FILTER_SANITIZE_URL);
 
                             header('Location: ' . $redir . $redir_arg);
                         } catch (Exception $e) {
@@ -1050,7 +1050,7 @@ final class Url
             $args = $m[3];
 
             // --BEHAVIOR-- publicBeforeGetLangsOnFeed, Param, string
-            App::core()->behavior()->call('publicBeforeGetLangsOnFeed', param: $param, args: $args);
+            App::core()->behavior('publicBeforeGetLangsOnFeed')->call(param: $param, args: $args);
 
             App::core()->context()->set('langs', App::core()->blog()->posts()->getLangs(param: $param));
 
@@ -1096,7 +1096,7 @@ final class Url
             $param->set('post_type', 'post');
 
             // --BEHAVIOR-- publicBeforeGetCategoriesOnFeed, Param, string
-            App::core()->behavior()->call('publicBeforeGetCategoriesOnFeed', param: $param, args: $args);
+            App::core()->behavior('publicBeforeGetCategoriesOnFeed')->call(param: $param, args: $args);
 
             App::core()->context()->set('categories', App::core()->blog()->categories()->getCategories(param: $param));
 
@@ -1114,7 +1114,7 @@ final class Url
             $param->set('post_type', '');
 
             // --BEHAVIOR-- publicBeforeGetPostsOnFeed, Param, string
-            App::core()->behavior()->call('publicBeforeGetPostsOnFeed', param: $param, args: $args);
+            App::core()->behavior('publicBeforeGetPostsOnFeed')->call(param: $param, args: $args);
 
             App::core()->context()->set('posts', App::core()->blog()->posts()->getPosts(param: $param));
 
@@ -1170,7 +1170,7 @@ final class Url
             $param->set('type', 'trackback');
 
             // --BEHAVIOR-- publicBeforeReceiveTrackback, Param, string
-            App::core()->behavior()->call('publicBeforeReceiveTrackback', param: $param, args: $args);
+            App::core()->behavior('publicBeforeReceiveTrackback')->call(param: $param, args: $args);
 
             $trackback = new Trackback();
             $trackback->receiveTrackback($post_id);
@@ -1188,7 +1188,7 @@ final class Url
         $param->set('type', 'webmention');
 
         // --BEHAVIOR-- publicBeforeReceiveTrackback, Param, string
-        App::core()->behavior()->call('publicBeforeReceiveTrackback', param: $param, args: $args);
+        App::core()->behavior('publicBeforeReceiveTrackback')->call(param: $param, args: $args);
 
         $trackback = new Trackback();
         $trackback->receiveWebmention();
@@ -1340,7 +1340,7 @@ final class Url
         }
 
         // --BEHAVIOR-- publicBeforeSendAdditionalHeaders, Strings
-        App::core()->behavior()->call('publicBeforeSendAdditionalHeaders', headers: $headers);
+        App::core()->behavior('publicBeforeSendAdditionalHeaders')->call(headers: $headers);
 
         // Send additional headers if any
         foreach ($headers->dump() as $header) {

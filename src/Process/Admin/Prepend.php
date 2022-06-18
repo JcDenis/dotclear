@@ -28,7 +28,7 @@ use Dotclear\Process\Admin\Favorite\Favorite;
 use Dotclear\Process\Admin\Help\Help;
 use Dotclear\Process\Admin\ListOption\ListOption;
 use Dotclear\Process\Admin\Notice\Notice;
-use Dotclear\Process\Admin\Menu\Menus;
+use Dotclear\Process\Admin\Menu\Menu;
 use Dotclear\Process\Admin\Resource\Resource;
 use Exception;
 
@@ -82,10 +82,10 @@ final class Prepend extends Core
     private $notice;
 
     /**
-     * @var Menus $menus
-     *            Menus instance
+     * @var Menu $menu
+     *           Menu instance
      */
-    private $menus;
+    private $menu;
 
     /**
      * @var resource $resource
@@ -120,8 +120,6 @@ final class Prepend extends Core
     {
         if (!($this->adminurl instanceof AdminUrl)) {
             $this->adminurl = new AdminUrl();
-            // Register default admin URLs
-            $this->adminurl->setup();
         }
 
         return $this->adminurl;
@@ -184,17 +182,17 @@ final class Prepend extends Core
     }
 
     /**
-     * Get menus (menus) instance.
+     * Get menuinstance.
      *
-     * @return Menus Menus instance
+     * @return Menu Menu instance
      */
-    public function menus(): Menus
+    public function menu(): Menu
     {
-        if (!($this->menus instanceof Menus)) {
-            $this->menus = new Menus();
+        if (!($this->menu instanceof Menu)) {
+            $this->menu = new Menu();
         }
 
-        return $this->menus;
+        return $this->menu;
     }
 
     /**
@@ -236,9 +234,9 @@ final class Prepend extends Core
     {
         if (!$this->timezone) {
             try {
-                $dtz = new DateTimeZone($this->user()->getInfo('user_tz'));
-                $this->behavior()->call('setAdminInterfaceTimezone', $dtz);
-                $this->timezone = $dtz->getName();
+                $timezone = new DateTimeZone($this->user()->getInfo('user_tz'));
+                $this->behavior('adminBeforeSetTimezone')->call(timezone: $timezone);
+                $this->timezone = $timezone->getName();
             } catch (Exception) {
                 $this->timezone = Clock::getTZ();
             }
@@ -421,8 +419,8 @@ final class Prepend extends Core
             }
 
             // Finalize menu and favorites
-            $this->favorite()->setDefaultFavoriteItems();
-            $this->menus()->setDefaultMenusItems();
+            $this->favorite()->setDefaultItems();
+            $this->menu()->setDefaultItems();
 
         // No user session and not on auth page, go on
         } elseif (!$this->adminurl()->is('admin.auth')) {
@@ -505,7 +503,7 @@ final class Prepend extends Core
         // Create page instance
         try {
             // --BEHAVIOR-- adminPrepend
-            $this->behavior()->call('adminPrepend');
+            $this->behavior('adminPrepend')->call();
 
             $class = $this->adminurl()->getBase($handler);
             if (!is_subclass_of($class, 'Dotclear\\Process\\Admin\\Page\\AbstractPage')) {

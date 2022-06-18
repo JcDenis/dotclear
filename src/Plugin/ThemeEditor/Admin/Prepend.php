@@ -28,9 +28,9 @@ class Prepend extends ModulePrepend
 {
     public function loadModule(): void
     {
-        App::core()->behavior()->add('adminCurrentThemeDetails', [$this, 'behaviorAdminCurrentThemeDetails']);
-        App::core()->behavior()->add('adminBeforeUserOptionsUpdate', [$this, 'behaviorAdminBeforeUserOptionsUpdate']);
-        App::core()->behavior()->add('adminPreferencesForm', [$this, 'behaviorAdminPreferencesForm']);
+        App::core()->behavior('adminCurrentThemeDetails')->add([$this, 'behaviorAdminCurrentThemeDetails']);
+        App::core()->behavior('adminBeforeUserOptionsUpdate')->add([$this, 'behaviorAdminBeforeUserOptionsUpdate']);
+        App::core()->behavior('adminPreferencesForm')->add([$this, 'behaviorAdminPreferencesForm']);
     }
 
     public function behaviorAdminCurrentThemeDetails(ModuleDefine $theme): string

@@ -34,7 +34,7 @@ class SimpleMenuWidgets
 
     public function __construct()
     {
-        App::core()->behavior()->add('initWidgets', [$this, 'initWidgets']);
+        App::core()->behavior('initWidgets')->add([$this, 'initWidgets']);
         if (App::core()->processed('Public')) {
             App::core()->template()->addValue('SimpleMenu', [$this, 'simpleMenu']);
         }
@@ -188,7 +188,7 @@ class SimpleMenuWidgets
                 ]);
 
                 // --BEHAVIOR-- publicSimpleMenuItem
-                App::core()->behavior()->call('publicSimpleMenuItem', $i, $item);
+                App::core()->behavior('publicSimpleMenuItem')->call($i, $item);
 
                 $ret .= '<li class="li' . ($i + 1) .
                     ($item['active'] ? ' active' : '') .

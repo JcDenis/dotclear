@@ -22,7 +22,7 @@ use Dotclear\Helper\GPC\GPCGroup;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Action\Action;
-use Dotclear\Process\Admin\Action\ActionDescriptor;
+use Dotclear\Process\Admin\Action\ActionItem;
 
 /**
  * Admin behaviors for plugin Tags.
@@ -33,19 +33,19 @@ class TagsBehavior
 {
     public function __construct()
     {
-        App::core()->behavior()->add('adminPostFormItems', [$this, 'tagsField']);
-        App::core()->behavior()->add('adminAfterPostCreate', [$this, 'setTags']);
-        App::core()->behavior()->add('adminAfterPostUpdate', [$this, 'setTags']);
-        App::core()->behavior()->add('adminPostHeaders', [$this, 'postHeaders']);
-        App::core()->behavior()->add('adminPostsActionsPage', [$this, 'adminPostsActionsPage']);
-        App::core()->behavior()->add('adminPreferencesForm', [$this, 'adminUserForm']);
-        App::core()->behavior()->add('adminBeforeUserOptionsUpdate', [$this, 'setTagListFormat']);
-        App::core()->behavior()->add('adminUserForm', [$this, 'adminUserForm']);
-        App::core()->behavior()->add('adminBeforeUserCreate', [$this, 'setTagListFormat']);
-        App::core()->behavior()->add('adminBeforeUserUpdate', [$this, 'setTagListFormat']);
-        App::core()->behavior()->add('adminPageHelpBlock', [$this, 'adminPageHelpBlock']);
-        App::core()->behavior()->add('adminPostEditor', [$this, 'adminPostEditor']);
-        App::core()->behavior()->add('ckeditorExtraPlugins', [$this, 'ckeditorExtraPlugins']);
+        App::core()->behavior('adminPostFormItems')->add([$this, 'tagsField']);
+        App::core()->behavior('adminAfterPostCreate')->add([$this, 'setTags']);
+        App::core()->behavior('adminAfterPostUpdate')->add([$this, 'setTags']);
+        App::core()->behavior('adminPostHeaders')->add([$this, 'postHeaders']);
+        App::core()->behavior('adminPostsActionsPage')->add([$this, 'adminPostsActionsPage']);
+        App::core()->behavior('adminPreferencesForm')->add([$this, 'adminUserForm']);
+        App::core()->behavior('adminBeforeUserOptionsUpdate')->add([$this, 'setTagListFormat']);
+        App::core()->behavior('adminUserForm')->add([$this, 'adminUserForm']);
+        App::core()->behavior('adminBeforeUserCreate')->add([$this, 'setTagListFormat']);
+        App::core()->behavior('adminBeforeUserUpdate')->add([$this, 'setTagListFormat']);
+        App::core()->behavior('adminPageHelpBlock')->add([$this, 'adminPageHelpBlock']);
+        App::core()->behavior('adminPostEditor')->add([$this, 'adminPostEditor']);
+        App::core()->behavior('ckeditorExtraPlugins')->add([$this, 'ckeditorExtraPlugins']);
     }
 
     public function adminPostEditor(string $editor = '', string $context = '', array $tags = [], string $syntax = ''): string
@@ -127,14 +127,14 @@ class TagsBehavior
 
     public function adminPostsActionsPage(Action $ap)
     {
-        $ap->addAction(new ActionDescriptor(
+        $ap->addAction(new ActionItem(
             group: __('Tags'),
             actions: [__('Add tags') => 'tags'],
             callback: [$this, 'adminAddTags'],
         ));
 
         if (App::core()->user()->check('delete,contentadmin', App::core()->blog()->id)) {
-            $ap->addAction(new ActionDescriptor(
+            $ap->addAction(new ActionItem(
                 group: __('Tags'),
                 actions: [__('Remove tags') => 'tags_remove'],
                 callback: [$this, 'adminRemoveTags'],

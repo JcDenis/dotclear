@@ -62,7 +62,7 @@ class BlogInventory extends Inventory
             ];
 
             $cols = new ArrayObject($cols);
-            App::core()->behavior()->call('adminBlogListHeader', $this->rs, $cols);
+            App::core()->behavior('adminBlogListHeader')->call($this->rs, $cols);
 
             $html_block = '<div class="table-outer"><table>' .
             (
@@ -150,7 +150,7 @@ class BlogInventory extends Inventory
         ];
 
         $cols = new ArrayObject($cols);
-        App::core()->behavior()->call('adminBlogListValue', $this->rs, $cols);
+        App::core()->behavior('adminBlogListValue')->call($this->rs, $cols);
 
         return
         '<tr class="line" id="b' . $blog_id . '">' .

@@ -110,7 +110,7 @@ class PostInventory extends Inventory
                 'status' => '<th scope="col">' . __('Status') . '</th>',
             ];
             $cols = new ArrayObject($cols);
-            App::core()->behavior()->call('adminPostListHeader', $this->rs, $cols);
+            App::core()->behavior('adminPostListHeader')->call($this->rs, $cols);
 
             $cols = App::core()->listoption()->getUserColumns('posts', $cols);
 
@@ -223,7 +223,7 @@ class PostInventory extends Inventory
             'status'     => '<td class="nowrap status">' . $img_status . ' ' . $selected . ' ' . $protected . ' ' . $attach . '</td>',
         ];
         $cols = new ArrayObject($cols);
-        App::core()->behavior()->call('adminPostListValue', $this->rs, $cols);
+        App::core()->behavior('adminPostListValue')->call($this->rs, $cols);
 
         $cols = App::core()->listoption()->getUserColumns('posts', $cols);
 

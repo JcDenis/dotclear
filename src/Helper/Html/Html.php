@@ -209,7 +209,7 @@ class Html
         $options = new Strings();
 
         // --BEHAVIOR-- coreBeforeHtmlFilter, Strings
-        App::core()->behavior()->call('coreBeforeHtmlFilter', options: $options);
+        App::core()->behavior('coreBeforeHtmlFilter')->call(options: $options);
 
         $filter = new HtmlFilter($options->exists('keep_aria'), $options->exists('keep_data'), $options->exists('keep_js'));
 

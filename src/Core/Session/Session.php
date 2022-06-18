@@ -135,7 +135,7 @@ class Session
         }
 
         if (defined('DOTCLEAR_AUTH_SESS_ID')) {
-            session_id(DOTCLEAR_AUTH_SESS_ID );
+            session_id(DOTCLEAR_AUTH_SESS_ID);
         } elseif (GPC::cookie()->isset($this->cookie_name)) {
             session_id(GPC::cookie()->string($this->cookie_name));
         } else {

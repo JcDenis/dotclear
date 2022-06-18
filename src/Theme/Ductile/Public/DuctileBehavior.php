@@ -49,8 +49,8 @@ class DuctileBehavior
     {
         $this->config = new ModuleHelper();
 
-        App::core()->behavior()->add('publicHeadContent', [$this, 'behaviorPublicHeadContent']);
-        App::core()->behavior()->add('publicInsideFooter', [$this, 'behaviorPublicInsideFooter']);
+        App::core()->behavior('publicHeadContent')->add([$this, 'behaviorPublicHeadContent']);
+        App::core()->behavior('publicInsideFooter')->add([$this, 'behaviorPublicInsideFooter']);
     }
 
     public function behaviorPublicHeadContent()

@@ -43,7 +43,7 @@ class PostsPopup extends AbstractPage
         $this->page      = !GPC::request()->empty('page') ? max(1, GPC::request()->int('page')) : 1;
         $this->type      = GPC::request()->string('type', null);
 
-        $post_types = App::core()->posttype()->dump();
+        $post_types = App::core()->posttype()->getItems();
         foreach ($post_types as $post_type) {
             $this->type_combo[$post_type->label] = $post_type->type;
         }
@@ -78,7 +78,7 @@ class PostsPopup extends AbstractPage
             ->setPageHead(
                 App::core()->resource()->load('_posts_list.js') .
                 App::core()->resource()->load('_popup_posts.js') .
-                App::core()->behavior()->call('adminPopupPosts', $this->plugin_id)
+                App::core()->behavior('adminPopupPosts')->call($this->plugin_id)
             )
         ;
 

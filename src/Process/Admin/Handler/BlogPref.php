@@ -234,7 +234,7 @@ class BlogPref extends AbstractPage
                 $system->putSetting('static_home_url', GPC::post()->string('static_home_url'));
 
                 // --BEHAVIOR-- adminBeforeBlogSettingsUpdate
-                App::core()->behavior()->call('adminBeforeBlogSettingsUpdate', $this->blog_settings);
+                App::core()->behavior('adminBeforeBlogSettingsUpdate')->call($this->blog_settings);
 
                 if (App::core()->user()->isSuperAdmin() && in_array(GPC::post()->string('url_scan'), $url_scan_combo)) {
                     $system->putSetting('url_scan', GPC::post()->string('url_scan'));
@@ -264,11 +264,11 @@ class BlogPref extends AbstractPage
                     'warning_query_string' => __('Warning: except for special configurations, it is generally advised to have a trailing "?" in your blog URL in QUERY_STRING mode.'),
                 ]) .
                 App::core()->resource()->confirmClose('blog-form') .
-                ($rte_flag ? App::core()->behavior()->call('adminPostEditor', $desc_editor['xhtml'], 'blog_desc', ['#blog_desc'], 'xhtml') : '') .
+                ($rte_flag ? App::core()->behavior('adminPostEditor')->call($desc_editor['xhtml'], 'blog_desc', ['#blog_desc'], 'xhtml') : '') .
                 App::core()->resource()->load('_blog_pref.js') .
 
                 // --BEHAVIOR-- adminBlogPreferencesHeaders
-                App::core()->behavior()->call('adminBlogPreferencesHeaders') .
+                App::core()->behavior('adminBlogPreferencesHeaders')->call() .
 
                 App::core()->resource()->pageTabs()
             )
@@ -859,7 +859,7 @@ class BlogPref extends AbstractPage
         echo '<div id="plugins-pref"><h3>' . __('Plugins parameters') . '</h3>';
 
         // --BEHAVIOR-- adminBlogPreferencesForm
-        App::core()->behavior()->call('adminBlogPreferencesForm', $this->blog_settings);
+        App::core()->behavior('adminBlogPreferencesForm')->call($this->blog_settings);
 
         echo '</div>'; // End 3rd party, aka plugins
 
@@ -887,7 +887,7 @@ class BlogPref extends AbstractPage
         //
         // Users on the blog (with permissions)
 
-        $blog_users = App::core()->permissions()->getBlogPermissions(id: $this->blog_id, super: App::core()->user()->isSuperAdmin());
+        $blog_users = App::core()->permission()->getBlogPermissions(id: $this->blog_id, super: App::core()->user()->isSuperAdmin());
 
         echo '<div class="multi-part" id="users" title="' . __('Users') . '">' .
         '<h3 class="out-of-screen-if-js">' . __('Users on this blog') . '</h3>';
@@ -902,7 +902,7 @@ class BlogPref extends AbstractPage
             // Sort users list on user_id key
             Lexical::lexicalKeySort($blog_users);
 
-            $post_types      = App::core()->posttype()->dump();
+            $post_types      = App::core()->posttype()->getItems();
             $current_blog_id = App::core()->blog()->id;
             if (App::core()->blog()->id != $this->blog_id) {
                 // Need to change blog to count user posts
@@ -940,7 +940,7 @@ class BlogPref extends AbstractPage
                         '<span class="form-note">' . __('All rights on all blogs.') . '</span></li>';
                     } else {
                         foreach ($user->perm->dump() as $type) {
-                            echo '<li ' . ('admin' == $type ? 'class="user_admin"' : '') . '>' . App::core()->permissions()->getPermType($type)->label;
+                            echo '<li ' . ('admin' == $type ? 'class="user_admin"' : '') . '>' . App::core()->permission()->getItem(type: $type)->label;
 
                             if ('admin' == $type) {
                                 echo '<br /><span class="form-note">' . __('All rights on this blog.') . '</span>';

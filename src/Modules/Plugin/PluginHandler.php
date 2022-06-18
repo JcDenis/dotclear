@@ -66,7 +66,7 @@ class PluginHandler extends AbstractPage
             $this->setPageHelp('core_plugins_conf');
 
             // --BEHAVIOR-- pluginsToolsHeaders
-            $head = App::core()->behavior()->call('pluginsToolsHeaders', true);
+            $head = App::core()->behavior('pluginsToolsHeaders')->call(true);
             if ($head) {
                 $this->setPageHead($head);
             }
@@ -102,7 +102,7 @@ class PluginHandler extends AbstractPage
                     App::core()->resource()->pageTabs() .
 
                     // --BEHAVIOR-- pluginsToolsHeaders
-                    (string) App::core()->behavior()->call('pluginsToolsHeaders', false)
+                    (string) App::core()->behavior('pluginsToolsHeaders')->call(false)
                 )
                 ->setPageBreadcrumb([
                     __('System')             => '',
@@ -268,7 +268,7 @@ class PluginHandler extends AbstractPage
         }
 
         // --BEHAVIOR-- pluginsToolsTabs
-        App::core()->behavior()->call('pluginsToolsTabs');
+        App::core()->behavior('pluginsToolsTabs')->call();
 
         // -- Notice for super admin --
         if (App::core()->user()->isSuperAdmin() && !$this->m_list->isWritablePath()) {

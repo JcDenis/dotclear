@@ -28,13 +28,13 @@ class PingsBehavior
 {
     public function __construct()
     {
-        App::core()->behavior()->add('adminPostHeaders', [$this, 'pingJS']);
-        App::core()->behavior()->add('adminPostFormItems', [$this, 'pingsFormItems']);
-        App::core()->behavior()->add('adminAfterPostCreate', [$this, 'doPings']);
-        App::core()->behavior()->add('adminAfterPostUpdate', [$this, 'doPings']);
+        App::core()->behavior('adminPostHeaders')->add([$this, 'pingJS']);
+        App::core()->behavior('adminPostFormItems')->add([$this, 'pingsFormItems']);
+        App::core()->behavior('adminAfterPostCreate')->add([$this, 'doPings']);
+        App::core()->behavior('adminAfterPostUpdate')->add([$this, 'doPings']);
 
         // Admin help
-        App::core()->behavior()->add('adminPageHelpBlock', function (ArrayObject $blocks): void {
+        App::core()->behavior('adminPageHelpBlock')->add(function (ArrayObject $blocks): void {
             $found = false;
             foreach ($blocks as $block) {
                 if ('core_post' == $block) {

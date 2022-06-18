@@ -378,7 +378,7 @@ class Auth extends AbstractPage
 
 <?php
         // --BEHAVIOR-- loginPageHTMLHead
-        App::core()->behavior()->call('loginPageHTMLHead');
+        App::core()->behavior('loginPageHTMLHead')->call();
 
         echo App::core()->resource()->json('pwstrength', [
             'min' => sprintf(__('Password strength: %s'), __('weak')),

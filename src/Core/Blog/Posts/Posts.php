@@ -106,7 +106,7 @@ final class Posts
         $query  = $sql ? clone $sql : new SelectStatement();
 
         // --BEHAVIOR-- coreBeforeCountPosts, Param, SelectStatement
-        App::core()->behavior()->call('coreBeforeCountPosts', param: $params, sql: $query);
+        App::core()->behavior('coreBeforeCountPosts')->call(param: $params, sql: $query);
 
         $params->unset('order');
         $params->unset('limit');
@@ -116,7 +116,7 @@ final class Posts
         $record = $this->queryPostsTable(param: $params, sql: $query);
 
         // --BEHAVIOR-- coreAfterCountPosts, Record
-        App::core()->behavior()->call('coreAfterCountPosts', record: $record);
+        App::core()->behavior('coreAfterCountPosts')->call(record: $record);
 
         return $record->integer();
     }
@@ -137,7 +137,7 @@ final class Posts
         $query  = $sql ? clone $sql : new SelectStatement();
 
         // --BEHAVIOR-- coreBeforeGetPosts, Param, SelectStatement
-        App::core()->behavior()->call('coreBeforeGetPosts', param: $params, sql: $query);
+        App::core()->behavior('coreBeforeGetPosts')->call(param: $params, sql: $query);
 
         if (false === $params->no_content()) {
             $query->columns([
@@ -192,7 +192,7 @@ final class Posts
         $record = $this->queryPostsTable(param: $params, sql: $query);
 
         // --BEHAVIOR-- coreAfterGetPosts, Record
-        App::core()->behavior()->call('coreAfterGetPosts', record: $record);
+        App::core()->behavior('coreAfterGetPosts')->call(record: $record);
 
         return $record;
     }
@@ -299,9 +299,9 @@ final class Posts
 
             if (!empty($words)) {
                 $param->set('words', $words);
-                if (App::core()->behavior()->has('coreBeforeSearchPosts')) {
+                if (App::core()->behavior('coreBeforeSearchPosts')->count()) {
                     // --BEHAVIOR coreBeforeSearchPosts, Param, SelectStatement
-                    App::core()->behavior()->call('coreBeforeSearchPosts', param: $param, sql: $sql);
+                    App::core()->behavior('coreBeforeSearchPosts')->call(param: $param, sql: $sql);
                 }
 
                 $w = [];
@@ -629,7 +629,7 @@ final class Posts
             }
 
             // --BEHAVIOR-- coreBeforeCreatePost, Cursor
-            App::core()->behavior()->call('coreBeforeCreatePost', cursor: $cursor);
+            App::core()->behavior('coreBeforeCreatePost')->call(cursor: $cursor);
 
             $cursor->insert();
             App::core()->con()->unlock();
@@ -640,7 +640,7 @@ final class Posts
         }
 
         // --BEHAVIOR-- coreAfterCreatePost, Cursor
-        App::core()->behavior()->call('coreAfterCreatePost', cursor: $cursor);
+        App::core()->behavior('coreAfterCreatePost')->call(cursor: $cursor);
 
         App::core()->blog()->triggerBlog();
 
@@ -702,12 +702,12 @@ final class Posts
         }
 
         // --BEHAVIOR-- coreBeforeUpdatePost, Cursor, int
-        App::core()->behavior()->call('coreBeforeUpdatePost', cursor: $cursor, id: $id);
+        App::core()->behavior('coreBeforeUpdatePost')->call(cursor: $cursor, id: $id);
 
         $cursor->update('WHERE post_id = ' . $id . ' ');
 
         // --BEHAVIOR-- coreAfterUpdatePost, Cursor, int
-        App::core()->behavior()->call('coreAfterUpdatePost', cursor: $cursor, id: $id);
+        App::core()->behavior('coreAfterUpdatePost')->call(cursor: $cursor, id: $id);
 
         App::core()->blog()->triggerBlog();
 
@@ -729,7 +729,7 @@ final class Posts
         }
 
         // --BEHAVIOR-- coreBeforeUpdatePostsStatus, Integers, int
-        App::core()->behavior()->call('coreBeforeUpdatePostsStatus', ids: $ids, status: $status);
+        App::core()->behavior('coreBeforeUpdatePostsStatus')->call(ids: $ids, status: $status);
 
         if (!$ids->count()) {
             throw new MissingOrEmptyValue(__('No such entry ID'));
@@ -770,7 +770,7 @@ final class Posts
         }
 
         // --BEHAVIOR-- coreBeforeUpdatePostsAuthor, Integers, bool
-        App::core()->behavior()->call('coreBeforeUpdatePostsSelected', ids: $ids, selected: $selected);
+        App::core()->behavior('coreBeforeUpdatePostsSelected')->call(ids: $ids, selected: $selected);
 
         if (!$ids->count()) {
             throw new MissingOrEmptyValue(__('No such entry ID'));
@@ -810,7 +810,7 @@ final class Posts
         }
 
         // --BEHAVIOR-- coreBeforeUpdatePostsAuthor, Integers, string
-        App::core()->behavior()->call('coreBeforeUpdatePostsAuthor', ids: $ids, author: $author);
+        App::core()->behavior('coreBeforeUpdatePostsAuthor')->call(ids: $ids, author: $author);
 
         if (!$ids->count()) {
             throw new MissingOrEmptyValue(__('No such entry ID'));
@@ -854,7 +854,7 @@ final class Posts
         }
 
         // --BEHAVIOR-- coreBeforeUpdatePostsLang, Integers, string
-        App::core()->behavior()->call('coreBeforeUpdatePostsLang', ids: $ids, lang: $lang);
+        App::core()->behavior('coreBeforeUpdatePostsLang')->call(ids: $ids, lang: $lang);
 
         if (!$ids->count()) {
             throw new MissingOrEmptyValue(__('No such entry ID'));
@@ -891,7 +891,7 @@ final class Posts
         }
 
         // --BEHAVIOR-- coreBeforeUpdatePostsCategory, Integers, ?int
-        App::core()->behavior()->call('coreBeforeUpdatePostsCategory', ids: $ids, category: $category);
+        App::core()->behavior('coreBeforeUpdatePostsCategory')->call(ids: $ids, category: $category);
 
         if (!$ids->count()) {
             throw new MissingOrEmptyValue(__('No such entry ID'));
@@ -932,7 +932,7 @@ final class Posts
         }
 
         // --BEHAVIOR-- coreBeforeChangePostsCategory, int, ?int
-        App::core()->behavior()->call('coreBeforeChangePostsCategory', from: $from, to: $to);
+        App::core()->behavior('coreBeforeChangePostsCategory')->call(from: $from, to: $to);
 
         $sql = new UpdateStatement();
         $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
@@ -965,7 +965,7 @@ final class Posts
         }
 
         // --BEHAVIOR-- coreBeforeDeletePosts, Integers
-        App::core()->behavior()->call('coreBeforeDeletePosts', ids: $ids);
+        App::core()->behavior('coreBeforeDeletePosts')->call(ids: $ids);
 
         $sql = new DeleteStatement();
         $sql->from(App::core()->prefix() . 'post');
@@ -1005,7 +1005,7 @@ final class Posts
         }
         if ($posts->count()) {
             // --BEHAVIOR-- coreBeforePublishScheduledPosts, Integers
-            App::core()->behavior()->call('coreBeforePublishScheduledPosts', ids: $posts);
+            App::core()->behavior('coreBeforePublishScheduledPosts')->call(ids: $posts);
 
             $sql = new UpdateStatement();
             $sql->from(App::core()->prefix() . 'post');
@@ -1017,7 +1017,7 @@ final class Posts
             App::core()->blog()->triggerBlog();
 
             // --BEHAVIOR-- coreAfterPublishScheduledPosts, Integers
-            App::core()->behavior()->call('coreAfterPublishScheduledPosts', ids: $posts);
+            App::core()->behavior('coreAfterPublishScheduledPosts')->call(ids: $posts);
 
             $this->firstPublicationPosts(ids: $posts);
         }
@@ -1051,7 +1051,7 @@ final class Posts
             $sql->update();
 
             // --BEHAVIOR-- coreAfterFirstPublicationPosts, Integers
-            App::core()->behavior()->call('coreAfterFirstPublicationPosts', ids: $posts);
+            App::core()->behavior('coreAfterFirstPublicationPosts')->call(ids: $posts);
         }
     }
 
@@ -1284,7 +1284,7 @@ final class Posts
         }
 
         // --BEHAVIOR-- coreAfterFormatPostContent, array
-        App::core()->behavior()->call('coreAfterFormatPostContent', content: [
+        App::core()->behavior('coreAfterFormatPostContent')->call(content: [
             'excerpt'       => &$excerpt,
             'content'       => &$content,
             'excerpt_xhtml' => &$excerpt_xhtml,

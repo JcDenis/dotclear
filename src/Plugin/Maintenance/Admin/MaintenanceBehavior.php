@@ -29,12 +29,12 @@ class MaintenanceBehavior
 {
     public function __construct()
     {
-        App::core()->behavior()->add('dcMaintenanceInit', [$this, 'behaviorDcMaintenanceInit']);
-        App::core()->behavior()->add('adminAfterSetDefaultFavoriteItems', [$this, 'adminAfterSetDefaultFavoriteItems']);
-        App::core()->behavior()->add('adminDashboardContents', [$this, 'behaviorAdminDashboardItems']);
-        App::core()->behavior()->add('adminDashboardOptionsForm', [$this, 'behaviorAdminDashboardOptionsForm']);
-        App::core()->behavior()->add('adminAfterDashboardOptionsUpdate', [$this, 'behaviorAdminAfterDashboardOptionsUpdate']);
-        App::core()->behavior()->add('adminPageHelpBlock', [$this, 'behaviorAdminPageHelpBlock']);
+        App::core()->behavior('dcMaintenanceInit')->add([$this, 'behaviorDcMaintenanceInit']);
+        App::core()->behavior('adminAfterSetDefaultFavoriteItems')->add([$this, 'adminAfterSetDefaultFavoriteItems']);
+        App::core()->behavior('adminDashboardContents')->add([$this, 'behaviorAdminDashboardItems']);
+        App::core()->behavior('adminDashboardOptionsForm')->add([$this, 'behaviorAdminDashboardOptionsForm']);
+        App::core()->behavior('adminAfterDashboardOptionsUpdate')->add([$this, 'behaviorAdminAfterDashboardOptionsUpdate']);
+        App::core()->behavior('adminPageHelpBlock')->add([$this, 'behaviorAdminPageHelpBlock']);
     }
 
     /**
@@ -81,7 +81,7 @@ class MaintenanceBehavior
      */
     public function adminAfterSetDefaultFavoriteItems(Favorite $favorite): void
     {
-        $favorite->AddItem(new FavoriteItem(
+        $favorite->addItem(new FavoriteItem(
             id: 'maintenance',
             title: __('Maintenance'),
             url: App::core()->adminurl()->get('admin.plugin.Maintenance'),
@@ -164,7 +164,7 @@ class MaintenanceBehavior
 
         $items[] = new ArrayObject([
             '<div id="maintenance-expired" class="box small">' .
-            '<h3>' . App::core()->menus()->getIconTheme(['Plugin/Maintenance/icon.svg', 'Plugin/Maintenance/icon-dark.svg'], true, '', '', 'icon-small') . __('Maintenance') . '</h3>' .
+            '<h3>' . App::core()->menu()->getIconTheme(['Plugin/Maintenance/icon.svg', 'Plugin/Maintenance/icon-dark.svg'], true, '', '', 'icon-small') . __('Maintenance') . '</h3>' .
             '<p class="warning no-margin">' . sprintf(__('There is a task to execute.', 'There are %s tasks to execute.', count($lines)), count($lines)) . '</p>' .
             '<ul>' . implode('', $lines) . '</ul>' .
             '<p><a href="' . App::core()->adminurl()->get('admin.plugin.Maintenance') . '">' . __('Manage tasks') . '</a></p>' .

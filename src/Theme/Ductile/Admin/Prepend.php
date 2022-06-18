@@ -23,7 +23,7 @@ class Prepend extends ModulePrepend
 {
     public function loadModule(): void
     {
-        App::core()->behavior()->add('adminCurrentThemeDetails', function (ModuleDefine $module): string {
+        App::core()->behavior('adminCurrentThemeDetails')->add(function (ModuleDefine $module): string {
             return $module->id() == $this->define()->id() && App::core()->user()->check('admin', App::core()->blog()->id) ?
                 '<p><a href="' . App::core()->adminurl()->get('admin.theme.' . $this->define()->id()) . '" class="button submit">' . __('Configure theme') . '</a></p>'
                 : '';

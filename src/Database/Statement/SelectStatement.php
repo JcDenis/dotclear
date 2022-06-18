@@ -149,7 +149,7 @@ class SelectStatement extends SqlStatement
     public function statement(): string
     {
         // --BEHAVIOR-- coreBeforeSelectStatement
-        App::core()->behavior()->call('coreBeforeSelectStatement', $this);
+        App::core()->behavior('coreBeforeSelectStatement')->call($this);
 
         // Check if source given
         if (!count($this->from)) {
@@ -219,7 +219,7 @@ class SelectStatement extends SqlStatement
         $query = trim($query);
 
         // --BEHAVIOR-- coreAfertSelectStatement
-        App::core()->behavior()->call('coreAfterSelectStatement', $this, $query);
+        App::core()->behavior('coreAfterSelectStatement')->call($this, $query);
 
         return $query;
     }

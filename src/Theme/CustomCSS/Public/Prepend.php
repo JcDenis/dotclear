@@ -26,7 +26,7 @@ class Prepend extends ModulePrepend
             return;
         }
 
-        App::core()->behavior()->add('publicHeadContent', function (): void {
+        App::core()->behavior('publicHeadContent')->add(function (): void {
             echo '<link rel="stylesheet" type="text/css" href="' .
                 App::core()->blog()->public_url .
                 '/custom_style.css" media="screen">' . "\n";

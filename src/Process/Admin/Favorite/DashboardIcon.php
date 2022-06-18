@@ -72,7 +72,7 @@ class DashboardIcon
      */
     public function toHtml()
     {
-        return '<p id="db-icon-' . $this->id . '"><a href="' . $this->url . '">' . App::core()->menus()->getIconTheme($this->icons) .
+        return '<p id="db-icon-' . $this->id . '"><a href="' . $this->url . '">' . App::core()->menu()->getIconTheme($this->icons) .
                 '<br /><span class="db-icon-title">' . $this->title . '</span></a></p>';
     }
 }

@@ -49,7 +49,7 @@ final class Users
         $query  = $sql ? clone $sql : new SelectStatement();
 
         // --BEHAVIOR-- coreBeforeCountUsers, Param, SelectStatement
-        App::core()->behavior()->call('coreBeforeCountUsers', param: $params, sql: $query);
+        App::core()->behavior('coreBeforeCountUsers')->call(param: $params, sql: $query);
 
         $params->unset('order');
         $params->unset('limit');
@@ -59,7 +59,7 @@ final class Users
         $record = $this->queryUsersTable(param: $params, sql: $query);
 
         // --BEHAVIOR-- coreAfterCountUsers, Record
-        App::core()->behavior()->call('coreAfterCountUsers', record: $record);
+        App::core()->behavior('coreAfterCountUsers')->call(record: $record);
 
         return $record->integer();
     }
@@ -80,7 +80,7 @@ final class Users
         $query  = $sql ? clone $sql : new SelectStatement();
 
         // --BEHAVIOR-- coreBeforeGetUsers, Param, SelectStatement
-        App::core()->behavior()->call('coreBeforeGetUsers', param: $params, sql: $query);
+        App::core()->behavior('coreBeforeGetUsers')->call(param: $params, sql: $query);
 
         if (!empty($params->columns())) {
             $query->columns($params->columns());
@@ -150,7 +150,7 @@ final class Users
         $record = $this->queryUsersTable(param: $params, sql: $query);
 
         // --BEHAVIOR-- coreAfterGetUsers, Record
-        App::core()->behavior()->call('coreAfterGetUsers', record: $record);
+        App::core()->behavior('coreAfterGetUsers')->call(record: $record);
 
         return $record;
     }
@@ -234,14 +234,14 @@ final class Users
         }
 
         // --BEHAVIOR-- coreBeforeCreateUser, Cursor
-        App::core()->behavior()->call('coreBeforeCreateUser', cursor: $cursor);
+        App::core()->behavior('coreBeforeCreateUser')->call(cursor: $cursor);
 
         $cursor->insert();
 
         App::core()->user()->afterCreateUser(cursor: $cursor);
 
         // --BEHAVIOR-- coreAfterCreateUser, Cursor
-        App::core()->behavior()->call('coreAfterCreateUser', cursor: $cursor);
+        App::core()->behavior('coreAfterCreateUser')->call(cursor: $cursor);
 
         return $cursor->getField('user_id');
     }
@@ -270,7 +270,7 @@ final class Users
         }
 
         // --BEHAVIOR-- coreBeforeUpdateUser, Cursor, int
-        App::core()->behavior()->call('coreBeforeUpdateUser', cursor: $cursor, id: $id);
+        App::core()->behavior('coreBeforeUpdateUser')->call(cursor: $cursor, id: $id);
 
         $sql = new UpdateStatement();
         $sql->where('user_id = ' . $sql->quote($id));
@@ -279,7 +279,7 @@ final class Users
         App::core()->user()->afterUpdateUser(id: $id, cursor: $cursor);
 
         // --BEHAVIOR-- coreAfterUpdateUser, Cursor, int
-        App::core()->behavior()->call('coreAfterUpdateUser', cursor: $cursor, id: $id);
+        App::core()->behavior('coreAfterUpdateUser')->call(cursor: $cursor, id: $id);
 
         // If the user ID is changed
         if (null !== $cursor->getField('user_id')) {
@@ -327,7 +327,7 @@ final class Users
 
         if ($ids->count()) {
             // --BEHAVIOR-- coreBeforeDeleteUsers, Strings
-            App::core()->behavior()->call('coreBeforeDeleteUsers', ids: $ids);
+            App::core()->behavior('coreBeforeDeleteUsers')->call(ids: $ids);
 
             $sql = new DeleteStatement();
             $sql->from(App::core()->prefix() . 'user');

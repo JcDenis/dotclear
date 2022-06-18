@@ -30,8 +30,8 @@ class Prepend extends ModulePrepend
         __('This page\'s comments feed');
 
         // Add post type to queries
-        App::core()->behavior()->add('coreBeforeCountPosts', [$this, 'behaviorCoreBeforeXxxPosts']);
-        App::core()->behavior()->add('coreBeforeGetPosts', [$this, 'behaviorCoreBeforeXxxPosts']);
+        App::core()->behavior('coreBeforeCountPosts')->add([$this, 'behaviorCoreBeforeXxxPosts']);
+        App::core()->behavior('coreBeforeGetPosts')->add([$this, 'behaviorCoreBeforeXxxPosts']);
 
         $this->addTemplatePath();
         new PagesUrl();

@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\Maintenance\Admin\Lib;
 
-// Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceDescriptor
+// Dotclear\Plugin\Maintenance\Admin\Lib\MaintenanceItem
 
 /**
  * Simple descriptor for tabs, groups and more.
@@ -19,7 +19,7 @@ namespace Dotclear\Plugin\Maintenance\Admin\Lib;
  *
  * @ingroup  Plugin Maintenance
  */
-class MaintenanceDescriptor
+class MaintenanceItem
 {
     /**
      * Constructs a new instance.

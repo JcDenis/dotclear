@@ -394,7 +394,7 @@ class User
 
             $record = $sql->select();
             if (!$record->isEmpty()) {
-                $this->blogs[$blog_id] = App::core()->permissions()->parsePermissions($record->field('permissions'));
+                $this->blogs[$blog_id] = App::core()->permission()->parsePermissions($record->field('permissions'));
             }
         }
 

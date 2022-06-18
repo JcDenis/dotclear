@@ -86,7 +86,7 @@ class ModulePrepend
             return;
         }
 
-        App::core()->behavior()->add('publicBeforeGetDocument', function () {
+        App::core()->behavior('publicBeforeGetDocument')->add(function () {
             $tplset = App::core()->themes()->getModule((string) App::core()->blog()->settings()->getGroup('system')->getSetting('theme'))->templateset();
             App::core()->template()->setPath(
                 App::core()->template()->getPath(),
@@ -126,18 +126,18 @@ class ModulePrepend
      */
     protected function addStandardMenu(?string $menu = null, ?string $permissions = ''): void
     {
-        if (!App::core()->processed('Admin') || !App::core()->adminurl()->exists('admin.' . $this->define()->type(true) . '.' . $this->define()->id())) {
+        if (!App::core()->processed('Admin') || !App::core()->adminurl()->hasItem('admin.' . $this->define()->type(true) . '.' . $this->define()->id())) {
             return;
         }
 
-        if (!$menu || null === App::core()->menus()->getGroup($menu)) {
+        if (!$menu || null === App::core()->menu()->getGroup($menu)) {
             $menu = 'Plugins';
         }
         if ('' === $permissions) {
-            $permissions = $this->define()->permissions();
+            $permissions = $this->define()->permission();
         }
 
-        App::core()->menus()->getGroup($menu)?->addItem(new MenuItem(
+        App::core()->menu()->getGroup($menu)?->addItem(new MenuItem(
             title: $this->define()->name(),
             url: App::core()->adminurl()->get('admin.' . $this->define()->type(true) . '.' . $this->define()->id()),
             icons: [
@@ -157,12 +157,12 @@ class ModulePrepend
      */
     protected function addStandardFavorites(?string $permissions = null): void
     {
-        if (!App::core()->processed('Admin') || !App::core()->adminurl()->exists('admin.' . $this->define()->type(true) . '.' . $this->define()->id())) {
+        if (!App::core()->processed('Admin') || !App::core()->adminurl()->hasItem('admin.' . $this->define()->type(true) . '.' . $this->define()->id())) {
             return;
         }
 
-        App::core()->behavior()->add('adminAfterSetDefaultFavoriteItems', function (Favorite $favorite): void {
-            $favorite->AddItem($this->favorite);
+        App::core()->behavior('adminAfterSetDefaultFavoriteItems')->add(function (Favorite $favorite): void {
+            $favorite->addItem($this->favorite);
         });
 
         $url = $this->define()->type() . '/' . $this->define()->id() . '/icon%s.svg';
@@ -172,7 +172,7 @@ class ModulePrepend
             title: $this->define()->name(),
             url: App::core()->adminurl()->get('admin.' . $this->define()->type(true) . '.' . $this->define()->id()),
             icons: [sprintf($url, ''), sprintf($url, '-dark')],
-            permission: $permissions ?: $this->define()->permissions(),
+            permission: $permissions ?: $this->define()->permission(),
         );
     }
     // @}

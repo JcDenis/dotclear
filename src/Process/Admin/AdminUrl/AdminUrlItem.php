@@ -9,14 +9,14 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\AdminUrl;
 
-// Dotclear\Process\Admin\Adminurl\AdminUrlDescriptor
+// Dotclear\Process\Admin\Adminurl\AdminUrlItem
 
 /**
  * Admin URL handler.
  *
  * @ingroup  Admin Url Handler
  */
-final class AdminUrlDescriptor
+final class AdminUrlItem
 {
     /**
      * Constructor.

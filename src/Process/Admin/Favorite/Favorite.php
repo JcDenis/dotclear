@@ -22,7 +22,7 @@ use Dotclear\Helper\Mapper\Strings;
  *
  * @ingroup  Admin Favorite
  */
-class Favorite
+final class Favorite
 {
     /**
      * @var array<string,FavoriteItem> $favorites
@@ -108,7 +108,7 @@ class Favorite
      */
     public function getItem(string $id): ?FavoriteItem
     {
-        return $this->hasItem($id) && $this->favorites[$id]->show ? $this->favorites[$id] : null;
+        return $this->hasItem(id: $id) && $this->favorites[$id]->show ? $this->favorites[$id] : null;
     }
 
     /**
@@ -124,7 +124,7 @@ class Favorite
     {
         $prefs = [];
         foreach ($ids->dump() as $id) {
-            if (null != ($item = $this->getItem($id))) {
+            if (null != ($item = $this->getItem(id: $id))) {
                 $prefs[$id] = $item;
             }
         }
@@ -139,32 +139,9 @@ class Favorite
      *
      * @return Strings List of favorites ids (only ids, not enriched)
      */
-    public function getIDs(): Strings
+    public function getIds(): Strings
     {
         return new Strings(array_keys($this->favorites));
-    }
-
-    /**
-     * Set user prefs.
-     *
-     * Get user favorites from settings.
-     * These are complete favorites, not ids only
-     * returned favorites are the first non-empty list from :
-     * - user-defined favorites
-     * - globally-defined favorites
-     * - a failback list "new post" (shall never be empty)
-     *
-     * This method is called by self::setup()
-     */
-    protected function setUserPrefs(): void
-    {
-        $this->user_prefs = $this->local_prefs->count() ? $this->getItems($this->local_prefs) : [];
-        if (empty($this->user_prefs)) {
-            $this->user_prefs = $this->global_prefs->count() ? $this->getItems($this->global_prefs) : [];
-        }
-        if (empty($this->user_prefs)) {
-            $this->user_prefs = $this->getItems(new Strings(['new_post']));
-        }
     }
 
     /**
@@ -175,7 +152,7 @@ class Favorite
      *
      * @return array<string,FavoriteItem> The favorite items (enriched)
      */
-    public function getUserFavorites(): array
+    public function getUserItems(): array
     {
         return $this->user_prefs;
     }
@@ -188,7 +165,7 @@ class Favorite
      *
      * @return Strings The list of favorites ids (only ids, not enriched)
      */
-    public function getGlobalFavoriteIDs(): Strings
+    public function getGlobalIds(): Strings
     {
         return $this->global_prefs;
     }
@@ -201,7 +178,7 @@ class Favorite
      *
      * @param Strings $ids List of fav ids
      */
-    public function setGlobalFavoriteIDs(Strings $ids): void
+    public function setGlobalIds(Strings $ids): void
     {
         $this->ws->put('favorites', $ids->dump(), 'array', null, true, true);
     }
@@ -214,7 +191,7 @@ class Favorite
      *
      * @return Strings The list of favorites ids (only ids, not enriched)
      */
-    public function getLocalFavoriteIDs(): Strings
+    public function getLocalIds(): Strings
     {
         return $this->local_prefs;
     }
@@ -227,7 +204,7 @@ class Favorite
      *
      * @param Strings $ids List of fav ids
      */
-    public function setLocalFavoriteIDs(Strings $ids): void
+    public function setLocalIds(Strings $ids): void
     {
         $this->ws->put('favorites', $ids->dump(), 'array', null, true, false);
     }
@@ -238,15 +215,15 @@ class Favorite
      * Fetch user favorites (against his permissions)
      * This method is to be called after loading plugins
      */
-    public function setDefaultFavoriteItems(): void
+    public function setDefaultItems(): void
     {
-        $this->AddItem(new FavoriteItem(
+        $this->addItem(new FavoriteItem(
             id: 'prefs',
             title: __('My preferences'),
             url: App::core()->adminurl()->get('admin.user.pref'),
             icons: 'images/menu/user-pref.svg',
         ));
-        $this->AddItem(new FavoriteItem(
+        $this->addItem(new FavoriteItem(
             id: 'new_post',
             title: __('New post'),
             url: App::core()->adminurl()->get('admin.post'),
@@ -254,7 +231,7 @@ class Favorite
             permission: 'usage,contentadmin',
             activation: App::core()->adminurl()->is('admin.post') && !GPC::request()->isset('id'),
         ));
-        $this->AddItem(new FavoriteItem(
+        $this->addItem(new FavoriteItem(
             id: 'posts',
             title: __('Posts'),
             url: App::core()->adminurl()->get('admin.posts'),
@@ -262,11 +239,10 @@ class Favorite
             permission: 'usage,contentadmin',
             dashboard: function (DashboardIcon $icon): void {
                 $post_count  = App::core()->blog()->posts()->countPosts();
-                $str_entries = __('%d post', '%d posts', $post_count);
-                $icon->replaceTitle(sprintf($str_entries, $post_count));
+                $icon->replaceTitle(sprintf(__('%d post', '%d posts', $post_count), $post_count));
             },
         ));
-        $this->AddItem(new FavoriteItem(
+        $this->addItem(new FavoriteItem(
             id: 'comments',
             title: __('Comments'),
             url: App::core()->adminurl()->get('admin.comments'),
@@ -274,51 +250,50 @@ class Favorite
             permission: 'usage,contentadmin',
             dashboard: function (DashboardIcon $icon): void {
                 $comment_count = App::core()->blog()->comments()->countComments();
-                $str_comments  = __('%d comment', '%d comments', $comment_count);
-                $icon->replaceTitle(sprintf($str_comments, $comment_count));
+                $icon->replaceTitle(sprintf(__('%d comment', '%d comments', $comment_count), $comment_count));
             },
         ));
-        $this->AddItem(new FavoriteItem(
+        $this->addItem(new FavoriteItem(
             id: 'search',
             title: __('Search'),
             url: App::core()->adminurl()->get('admin.search'),
             icons: ['images/menu/search.svg', 'images/menu/search-dark.svg'],
             permission: 'usage,contentadmin',
         ));
-        $this->AddItem(new FavoriteItem(
+        $this->addItem(new FavoriteItem(
             id: 'categories',
             title: __('Categories'),
             url: App::core()->adminurl()->get('admin.categories'),
             icons: ['images/menu/categories.svg', 'images/menu/categories-dark.svg'],
             permission: 'categories',
         ));
-        $this->AddItem(new FavoriteItem(
+        $this->addItem(new FavoriteItem(
             id: 'blog_pref',
             title: __('Blog settings'),
             url: App::core()->adminurl()->get('admin.blog.pref'),
             icons: ['images/menu/blog-pref.svg', 'images/menu/blog-pref-dark.svg'],
             permission: 'admin',
         ));
-        $this->AddItem(new FavoriteItem(
+        $this->addItem(new FavoriteItem(
             id: 'blogs',
             title: __('Blogs'),
             url: App::core()->adminurl()->get('admin.blogs'),
             icons: ['images/menu/blogs.svg', 'images/menu/blogs-dark.svg'],
             permission: 'usage,contentadmin',
         ));
-        $this->AddItem(new FavoriteItem(
+        $this->addItem(new FavoriteItem(
             id: 'users',
             title: __('Users'),
             url: App::core()->adminurl()->get('admin.users'),
             icons: 'images/menu/users.svg',
         ));
-        $this->AddItem(new FavoriteItem(
+        $this->addItem(new FavoriteItem(
             id: 'langs',
             title: __('Languages'),
             url: App::core()->adminurl()->get('admin.langs'),
             icons: ['images/menu/langs.svg', 'images/menu/langs-dark.svg'],
         ));
-        $this->AddItem(new FavoriteItem(
+        $this->addItem(new FavoriteItem(
             id: 'help',
             title: __('Global help'),
             url: App::core()->adminurl()->get('admin.help'),
@@ -326,7 +301,7 @@ class Favorite
         ));
 
         if (App::core()->blog()->public_path) {
-            $this->AddItem(new FavoriteItem(
+            $this->addItem(new FavoriteItem(
                 id: 'media',
                 title: __('Media manager'),
                 url: App::core()->adminurl()->get('admin.media'),
@@ -335,8 +310,15 @@ class Favorite
             ));
         }
 
-        App::core()->behavior()->call('adminAfterSetDefaultFavoriteItems', $this);
+        App::core()->behavior('adminAfterSetDefaultFavoriteItems')->call(favorite: $this);
 
-        $this->setUserPrefs();
+        // Set user favorites preferences
+        $this->user_prefs = $this->local_prefs->count() ? $this->getItems(ids: $this->local_prefs) : [];
+        if (empty($this->user_prefs)) {
+            $this->user_prefs = $this->global_prefs->count() ? $this->getItems(ids: $this->global_prefs) : [];
+        }
+        if (empty($this->user_prefs)) {
+            $this->user_prefs = $this->getItems(ids: new Strings(['new_post']));
+        }
     }
 }

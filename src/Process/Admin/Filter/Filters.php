@@ -125,11 +125,11 @@ class Filters
             return;
         }
 
-        if (App::core()->behavior()->has('adminFiltersAddFilters')) {
+        if (App::core()->behavior('adminFiltersAddFilters')->count()) {
             $cloned_filters = clone $filters;
 
             // --BEHAVIOR-- adminFiltersAddStack, string, FilterStack
-            App::core()->behavior()->call('adminFiltersAddFilters', $this->getId(), $cloned_filters);
+            App::core()->behavior('adminFiltersAddFilters')->call($this->getId(), $cloned_filters);
 
             if ($cloned_filters instanceof FilterStack) {
                 $filters = $cloned_filters;

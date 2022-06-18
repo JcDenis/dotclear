@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Action;
 
-// Dotclear\Process\Admin\Action\ActionDescriptor
+// Dotclear\Process\Admin\Action\ActionItem
 use Dotclear\Exception\MissingOrEmptyValue;
 
 /**
@@ -17,7 +17,7 @@ use Dotclear\Exception\MissingOrEmptyValue;
  *
  * @ingroup  Admin Action
  */
-final class ActionDescriptor
+final class ActionItem
 {
     /**
      * Constructor.

@@ -120,7 +120,7 @@ class CommentInventory extends Inventory
             $cols['entry'] = '<th scope="col" abbr="entry">' . __('Entry') . '</th>';
 
             $cols = new ArrayObject($cols);
-            App::core()->behavior()->call('adminCommentListHeader', $this->rs, $cols, $spam);
+            App::core()->behavior('adminCommentListHeader')->call($this->rs, $cols, $spam);
 
             $html_block .= '<tr>' . implode(iterator_to_array($cols)) . '</tr>%s</table>%s</div>';
 
@@ -207,7 +207,7 @@ class CommentInventory extends Inventory
             ('post' != $this->rs->field('post_type') ? ' (' . Html::escapeHTML($this->rs->field('post_type')) . ')' : '') . '</td>';
 
         $cols = new ArrayObject($cols);
-        App::core()->behavior()->call('adminCommentListValue', $this->rs, $cols, $spam);
+        App::core()->behavior('adminCommentListValue')->call($this->rs, $cols, $spam);
 
         $res .= implode(iterator_to_array($cols));
         $res .= '</tr>';

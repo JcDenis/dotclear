@@ -76,7 +76,7 @@ final class Categories
         $params = new CategoriesParam($param);
 
         // --BEHAVIOR-- coreBeforeGetCategories, Param
-        App::core()->behavior()->call('coreBeforeGetCategories', param: $params);
+        App::core()->behavior('coreBeforeGetCategories')->call(param: $params);
 
         // Find and use post_type only for posts count
         $c_params = clone $params;
@@ -317,7 +317,7 @@ final class Categories
         $cursor->setField('blog_id', (string) App::core()->blog()->id);
 
         // --BEHAVIOR-- coreBeforeCreateCategory, Cursor
-        App::core()->behavior()->call('coreBeforeCreateCategory', cursor: $cursor);
+        App::core()->behavior('coreBeforeCreateCategory')->call(cursor: $cursor);
 
         $id = $this->categoriestree()->addNode(cursor: $cursor, parent: $parent);
         if (false !== $id) {
@@ -333,7 +333,7 @@ final class Categories
         }
 
         // --BEHAVIOR-- coreAfterCreateCategory, Cursor
-        App::core()->behavior()->call('coreAfterCreateCategory', cursor: $cursor);
+        App::core()->behavior('coreAfterCreateCategory')->call(cursor: $cursor);
 
         App::core()->blog()->triggerBlog();
 
@@ -369,7 +369,7 @@ final class Categories
         $this->getCategoryCursor(cursor: $cursor);
 
         // --BEHAVIOR-- coreBeforeUpdateCategory, Cursor, int
-        App::core()->behavior()->call('coreBeforeUpdateCategory', cursor: $cursor, id: $id);
+        App::core()->behavior('coreBeforeUpdateCategory')->call(cursor: $cursor, id: $id);
 
         $cursor->update(
             'WHERE cat_id = ' . (int) $id . ' ' .
@@ -377,7 +377,7 @@ final class Categories
         );
 
         // --BEHAVIOR-- coreAfterUpdateCategory,Cursor, int
-        App::core()->behavior()->call('coreAfterUpdateCategory', cursor: $cursor, id: $id);
+        App::core()->behavior('coreAfterUpdateCategory')->call(cursor: $cursor, id: $id);
 
         App::core()->blog()->triggerBlog();
     }
@@ -396,7 +396,7 @@ final class Categories
         $this->checkUserPermissions(message: __('You are not allowed to update category position'));
 
         // --BEHAVIOR-- coreBeforeUpdateCategoryPosition, int, int, int
-        App::core()->behavior()->call('coreBeforeUpdateCategoryPosition', id: $id, left: $left, right: $right);
+        App::core()->behavior('coreBeforeUpdateCategoryPosition')->call(id: $id, left: $left, right: $right);
 
         $this->categoriestree()->updatePosition(id: $id, left: $left, right: $right);
         App::core()->blog()->triggerBlog();
@@ -415,7 +415,7 @@ final class Categories
         $this->checkUserPermissions(message: __('You are not allowed to set category parent'));
 
         // --BEHAVIOR-- coreBeforeSetCategoryParent, int, int, int
-        App::core()->behavior()->call('coreBeforeSetCategoryParent', id: $id, parent: $parent);
+        App::core()->behavior('coreBeforeSetCategoryParent')->call(id: $id, parent: $parent);
 
         $this->categoriestree()->setNodeParent(node: $id, target: $parent);
         App::core()->blog()->triggerBlog();
@@ -435,7 +435,7 @@ final class Categories
         $this->checkUserPermissions(message: __('You are not allowed to set category position'));
 
         // --BEHAVIOR-- coreBeforeSetCategoryPosition, int, int, int
-        App::core()->behavior()->call('coreBeforeSetCategoryPosition', id: $id, sibling: $sibling, position: $position);
+        App::core()->behavior('coreBeforeSetCategoryPosition')->call(id: $id, sibling: $sibling, position: $position);
 
         $this->categoriestree()->setNodePosition(node: $id, sibling: $sibling, position: $position);
         App::core()->blog()->triggerBlog();
@@ -456,7 +456,7 @@ final class Categories
         $this->checkUserPermissions(message: __('You are not allowed to delete categories'));
 
         // --BEHAVIOR-- coreBeforeDeleteCategory, int
-        App::core()->behavior()->call('coreBeforeDeleteCategory', id: $id);
+        App::core()->behavior('coreBeforeDeleteCategory')->call(id: $id);
 
         $sql = new SelectStatement();
         $sql->column($sql->count('post_id', 'nb_post'));
@@ -472,7 +472,7 @@ final class Categories
         $this->categoriestree()->deleteNode(node: $id);
 
         // --BEHAVIOR-- coreAfterDeleteCategory, int
-        App::core()->behavior()->call('coreAfterDeleteCategory', id: $id);
+        App::core()->behavior('coreAfterDeleteCategory')->call(id: $id);
 
         App::core()->blog()->triggerBlog();
     }
@@ -487,7 +487,7 @@ final class Categories
         $this->checkUserPermissions(message: __('You are not allowed to reset categories order'));
 
         // --BEHAVIOR-- coreBeforeResetCategoriesOrder
-        App::core()->behavior()->call('coreBeforeResetCategoriesOrder');
+        App::core()->behavior('coreBeforeResetCategoriesOrder')->call();
 
         $this->categoriestree()->resetOrder();
         App::core()->blog()->triggerBlog();

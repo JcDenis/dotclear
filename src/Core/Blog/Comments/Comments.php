@@ -107,7 +107,7 @@ final class Comments
         $query  = $sql ? clone $sql : new SelectStatement();
 
         // --BEHAVIOR-- coreBeforeCountComments, Param, SelectStatement
-        App::core()->behavior()->call('coreBeforeCountComments', param: $params, sql: $query);
+        App::core()->behavior('coreBeforeCountComments')->call(param: $params, sql: $query);
 
         $params->unset('order');
         $params->unset('limit');
@@ -117,7 +117,7 @@ final class Comments
         $record = $this->queryCommentsTable(param: $params, sql: $query);
 
         // --BEHAVIOR-- coreAfterCountComments, Record
-        App::core()->behavior()->call('coreAfterCountComments', record: $record);
+        App::core()->behavior('coreAfterCountComments')->call(record: $record);
 
         return $record->integer();
     }
@@ -138,7 +138,7 @@ final class Comments
         $query  = $sql ? clone $sql : new SelectStatement();
 
         // --BEHAVIOR-- coreBeforeGetComments, Param, SelectStatement
-        App::core()->behavior()->call('coreBeforeGetComments', param: $params, sql: $query);
+        App::core()->behavior('coreBeforeGetComments')->call(param: $params, sql: $query);
 
         if (true !== $params->no_content()) {
             $query->column('comment_content');
@@ -179,7 +179,7 @@ final class Comments
         $record = $this->queryCommentsTable(param: $params, sql: $query);
 
         // --BEHAVIOR-- coreAfterGetComments, Record
-        App::core()->behavior()->call('coreAfterGetComments', record: $record);
+        App::core()->behavior('coreAfterGetComments')->call(record: $record);
 
         return $record;
     }
@@ -291,9 +291,9 @@ final class Comments
 
             if (!empty($words)) {
                 $param->set('words', $words);
-                if (App::core()->behavior()->has('coreBeforeSearchComments')) {
+                if (App::core()->behavior('coreBeforeSearchComments')->count()) {
                     // --BEHAVIOR coreBeforeSearchComments, Param, SelectStatement
-                    App::core()->behavior()->call('coreBeforeSearchComments', param: $param, sql: $sql);
+                    App::core()->behavior('coreBeforeSearchComments')->call(param: $param, sql: $sql);
                 }
 
                 $w = [];
@@ -348,7 +348,7 @@ final class Comments
             }
 
             // --BEHAVIOR-- coreBeforeCreateComment, Comments, Cursor
-            App::core()->behavior()->call('coreBeforeCreateComment', cursor: $cursor);
+            App::core()->behavior('coreBeforeCreateComment')->call(cursor: $cursor);
 
             $cursor->insert();
             App::core()->con()->unlock();
@@ -359,7 +359,7 @@ final class Comments
         }
 
         // --BEHAVIOR-- coreAfterCreateComment, Comments, Cursor
-        App::core()->behavior()->call('coreAfterCreateComment', cursor: $cursor);
+        App::core()->behavior('coreAfterCreateComment')->call(cursor: $cursor);
 
         App::core()->blog()->triggerComments(ids: new Integers($cursor->getField('comment_id')));
         if (-2 != $cursor->getField('comment_status')) {
@@ -412,12 +412,12 @@ final class Comments
         }
 
         // --BEHAVIOR-- coreBeforeUpdateComment, Cursor, int
-        App::core()->behavior()->call('coreBeforeUpdateComment', cursor: $cursor, id: $id);
+        App::core()->behavior('coreBeforeUpdateComment')->call(cursor: $cursor, id: $id);
 
         $cursor->update('WHERE comment_id = ' . $id . ' ');
 
         // --BEHAVIOR-- coreAfterUpdateComment, Cursor, int
-        App::core()->behavior()->call('coreAfterUpdateComment', cursor: $cursor, id: $id);
+        App::core()->behavior('coreAfterUpdateComment')->call(cursor: $cursor, id: $id);
 
         App::core()->blog()->triggerComments(ids: new Integers($id));
         App::core()->blog()->triggerBlog();
@@ -522,7 +522,7 @@ final class Comments
         }
 
         // --BEHAVIOR-- coreBeforeDeleteComments, Integers
-        App::core()->behavior()->call('coreBeforeDeleteComments', ids: $ids);
+        App::core()->behavior('coreBeforeDeleteComments')->call(ids: $ids);
 
         $sql = new DeleteStatement();
         $sql->where('comment_id' . $sql->in($ids->dump()));

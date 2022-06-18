@@ -30,6 +30,7 @@
 - [ ] used named arguments on behaviors to be more strict
 - [ ] unset unused variables
 - [ ] enabled choice of response format for REST server. (JSON vs XML)
+- [ ] use same method name on item descriptor (ex: add vs register)
 
 ### Idea
 

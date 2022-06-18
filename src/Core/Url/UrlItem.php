@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 namespace Dotclear\Core\Url;
 
-// Dotclear\Core\Url\UrlDescriptor
+// Dotclear\Core\Url\UrlItem
 use Dotclear\Exception\InvalidValueType;
 
 /**
@@ -17,7 +17,7 @@ use Dotclear\Exception\InvalidValueType;
  *
  * @ingroup  Core Public Url
  */
-final class UrlDescriptor
+final class UrlItem
 {
     /**
      * Constructor.

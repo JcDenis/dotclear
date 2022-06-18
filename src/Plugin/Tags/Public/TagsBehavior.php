@@ -22,7 +22,7 @@ class TagsBehavior
 {
     public function __construct()
     {
-        App::core()->behavior()->add('templateBeforeBlock', [$this, 'templateBeforeBlock']);
+        App::core()->behavior('templateBeforeBlock')->add([$this, 'templateBeforeBlock']);
     }
 
     public function templateBeforeBlock(string $tag, ArrayObject $attr): string

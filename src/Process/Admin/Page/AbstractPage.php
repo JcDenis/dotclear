@@ -292,7 +292,7 @@ abstract class AbstractPage
             $csp['frame-src'] = '*';
 
             // --BEHAVIOR-- adminPageHTTPHeaderCSP, ArrayObject
-            App::core()->behavior()->call('adminPageHTTPHeaderCSP', $csp);
+            App::core()->behavior('adminPageHTTPHeaderCSP')->call($csp);
 
             // Construct CSP header
             $directives = [];
@@ -309,7 +309,7 @@ abstract class AbstractPage
         }
 
         // --BEHAVIOR-- adminPageHTTPHeaders, ArrayObject
-        App::core()->behavior()->call('adminPageHTTPHeaders', $headers);
+        App::core()->behavior('adminPageHTTPHeaders')->call($headers);
 
         foreach ($headers as $key => $value) {
             header($value);
@@ -357,7 +357,7 @@ abstract class AbstractPage
         $this->page_head;
 
         // --BEHAVIOR-- adminPageHTMLHead, string, string
-        App::core()->behavior()->call('adminPageHTMLHead', $this->handler, $this->page_type);
+        App::core()->behavior('adminPageHTMLHead')->call($this->handler, $this->page_type);
 
         echo "</head>\n" .
         '<body id="dotclear-admin" class="no-js' .
@@ -459,7 +459,7 @@ abstract class AbstractPage
         $this->page_head;
 
         // --BEHAVIOR-- adminPageHTMLHead, string, string
-        App::core()->behavior()->call('adminPageHTMLHead', $this->handler, $this->page_type);
+        App::core()->behavior('adminPageHTMLHead')->call($this->handler, $this->page_type);
 
         echo "</head>\n" .
             '<body id="dotclear-admin" class="popup' .
@@ -526,7 +526,7 @@ abstract class AbstractPage
         $args = new ArrayObject($this->page_help);
 
         // --BEHAVIOR-- adminPageHelpBlock, ArrayObject
-        App::core()->behavior()->call('adminPageHelpBlock', $args);
+        App::core()->behavior('adminPageHelpBlock')->call($args);
 
         if (!count($args)) {
             return;
@@ -595,14 +595,14 @@ abstract class AbstractPage
         '<input type="submit" value="' . __('OK') . '" /></p>' .
             '</form>';
 
-        foreach (App::core()->menus()->getGroups() as $section => $group) {
+        foreach (App::core()->menu()->getGroups() as $section => $group) {
             echo $group->toHTML();
         }
 
         $text = sprintf(__('Thank you for using %s.'), 'Dotclear ' . App::core()->config()->get('core_version'));
 
         // --BEHAVIOR-- adminPageFooter, string
-        $textAlt = App::core()->behavior()->call('adminPageFooter', $text);
+        $textAlt = App::core()->behavior('adminPageFooter')->call($text);
         if ('' != $textAlt) {
             $text = $textAlt;
         }

@@ -9,18 +9,18 @@ declare(strict_types=1);
 
 namespace Dotclear\Process\Admin\Menu;
 
-// Dotclear\Process\Admin\Menu\Menus
+// Dotclear\Process\Admin\Menu\Menu
 use Dotclear\App;
 use Dotclear\Helper\GPC\GPC;
 
 /**
  * Admin menu handling facilities.
  *
- * Accessible from App::core()->menus()
+ * Accessible from App::core()->menu()
  *
  * @ingroup  Admin Menu
  */
-final class Menus
+final class Menu
 {
     /**
      * @var array<string,MenuGroup> $stack
@@ -142,7 +142,7 @@ final class Menus
      *
      * This method should be called only from Admin Prepend.
      */
-    public function setDefaultMenusItems(): void
+    public function setDefaultItems(): void
     {
         $this->getGroup('Blog')->addItem(new MenuItem(
             title: __('Blog settings'),
@@ -215,7 +215,7 @@ final class Menus
 
         // Add default top menus (favorites)
         if (!App::core()->user()->preference()->get('interface')->get('nofavmenu')) {
-            foreach (App::core()->favorite()->getUserFavorites() as $item) {
+            foreach (App::core()->favorite()->getUserItems() as $item) {
                 $this->getGroup('Favorites')->addItem(new MenuItem(
                     title: $item->title,
                     url: $item->url,

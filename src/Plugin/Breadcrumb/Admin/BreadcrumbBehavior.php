@@ -24,8 +24,8 @@ class BreadcrumbBehavior
 {
     public function __construct()
     {
-        App::core()->behavior()->add('adminBlogPreferencesForm', [$this, 'behaviorAdminBlogPreferencesForm']);
-        App::core()->behavior()->add('adminBeforeBlogSettingsUpdate', [$this, 'behaviorAdminBeforeBlogSettingsUpdate']);
+        App::core()->behavior('adminBlogPreferencesForm')->add([$this, 'behaviorAdminBlogPreferencesForm']);
+        App::core()->behavior('adminBeforeBlogSettingsUpdate')->add([$this, 'behaviorAdminBeforeBlogSettingsUpdate']);
     }
 
     public function behaviorAdminBlogPreferencesForm(Settings $settings): void

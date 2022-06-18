@@ -7,9 +7,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core\Permissions;
+namespace Dotclear\Core\Permission;
 
-// Dotclear\Core\Permissions\UserPermissionsDescriptor
+// Dotclear\Core\Permission\UserPermissionItem
 use Dotclear\Core\User\UserContainer;
 use Dotclear\Helper\Mapper\Strings;
 
@@ -18,7 +18,7 @@ use Dotclear\Helper\Mapper\Strings;
  *
  * @ingroup  Core User Permission
  */
-final class UserPermissionsDescriptor
+final class UserPermissionItem
 {
     /**
      * Constructor.

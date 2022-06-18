@@ -62,7 +62,7 @@ class ListOption
         $cols = new ArrayObject($cols);
 
         // --BEHAVIOR-- adminColumnsLists
-        App::core()->behavior()->call('adminColumnsLists', $cols);
+        App::core()->behavior('adminColumnsLists')->call($cols);
 
         // Load user settings
         $cols_user = @App::core()->user()->preference()->get('interface')->get('cols');
@@ -164,7 +164,7 @@ class ListOption
             $sorts = new ArrayObject($sorts);
 
             // --BEHAVIOR-- adminFiltersLists
-            App::core()->behavior()->call('adminFiltersLists', $sorts);
+            App::core()->behavior('adminFiltersLists')->call($sorts);
 
             $sorts_user = @App::core()->user()->preference()->get('interface')->get('sorts');
             if (is_array($sorts_user)) {

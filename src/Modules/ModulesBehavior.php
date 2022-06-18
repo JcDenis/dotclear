@@ -36,11 +36,11 @@ class ModulesBehavior
     public function __construct(private Modules $modules)
     {
         if ($this->modules->hasModules()) {
-            App::core()->behavior()->add('adminHomePagePrepend', [$this, 'adminHomePagePrepend']);
-            App::core()->behavior()->add('adminHomePageContent', [$this, 'adminHomePageContent']);
+            App::core()->behavior('adminHomePagePrepend')->add([$this, 'adminHomePagePrepend']);
+            App::core()->behavior('adminHomePageContent')->add([$this, 'adminHomePageContent']);
         }
 
-        App::core()->behavior()->add('restCheckStoreUpdate', [$this, 'restCheckStoreUpdate']);
+        App::core()->behavior('restCheckStoreUpdate')->add([$this, 'restCheckStoreUpdate']);
     }
 
     /**

@@ -49,7 +49,7 @@ class PostMiniInventory extends Inventory
             ];
 
             $cols = new ArrayObject($cols);
-            App::core()->behavior()->call('adminPostMiniListHeader', $this->rs, $cols);
+            App::core()->behavior('adminPostMiniListHeader')->call($this->rs, $cols);
 
             $cols = App::core()->listoption()->getUserColumns('posts', $cols);
 
@@ -117,7 +117,7 @@ class PostMiniInventory extends Inventory
         ];
 
         $cols = new ArrayObject($cols);
-        App::core()->behavior()->call('adminPostMiniListValue', $this->rs, $cols);
+        App::core()->behavior('adminPostMiniListValue')->call($this->rs, $cols);
 
         $cols = App::core()->listoption()->getUserColumns('posts', $cols);
 

@@ -19,9 +19,9 @@ use Dotclear\Core\Media\Media;
 use Dotclear\Core\Meta\Meta;
 use Dotclear\Core\Nonce\Nonce;
 use Dotclear\Core\Session\Session;
-use Dotclear\Core\Permissions\Permissions;
+use Dotclear\Core\Permission\Permission;
 use Dotclear\Core\PostType\PostType;
-use Dotclear\Core\PostType\PostTypeDescriptor;
+use Dotclear\Core\PostType\PostTypeItem;
 use Dotclear\Core\Url\Url;
 use Dotclear\Core\User\User;
 use Dotclear\Core\Users\Users;
@@ -32,7 +32,7 @@ use Dotclear\Exception\InvalidConfiguration;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
-use Dotclear\Helper\Behavior;
+use Dotclear\Helper\Mapper\Callables;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\Configuration;
 use Dotclear\Helper\Crypt;
@@ -56,10 +56,10 @@ class Core
     use MagicTrait;
 
     /**
-     * @var Behavior $behavior
-     *               Behavior instance
+     * @var array<string,Callables> $behavior
+     *                              Behaviors instances
      */
-    private $behavior;
+    private $behavior = [];
 
     /**
      * @var null|Blog $blog
@@ -116,10 +116,10 @@ class Core
     private $nonce;
 
     /**
-     * @var Permissions $permissions
-     *                  Permissions instance
+     * @var Permission $permission
+     *                 Permission instance
      */
-    private $permissions;
+    private $permission;
 
     /**
      * @var PostType $posttype
@@ -227,18 +227,28 @@ class Core
     // @{
 
     /**
-     * Get behavior instance.
+     * Get a behaviors group instance.
      *
-     * Behavior methods are accesible from App::core()->behavior()
+     * Behavior methods are accesible from App::core()->behavior('a_group')
      *
-     * @return Behavior The behaviors instance
+     * @return Callables The behaviors group instance
      */
-    final public function behavior(): Behavior
+    final public function behavior(string $group): Callables
     {
-        if (!($this->behavior instanceof Behavior)) {
-            $this->behavior = new Behavior();
+        if (!isset($this->behavior[$group])) {
+            $this->behavior[$group] = new Callables();
         }
 
+        return $this->behavior[$group];
+    }
+
+    /**
+     * Get all behaviors groups.
+     *
+     * @return array<string,Callables> The behaviors
+     */
+    public function behaviors(): array
+    {
         return $this->behavior;
     }
 
@@ -351,8 +361,10 @@ class Core
     final public function config(): Configuration
     {
         if (!($this->config instanceof Configuration)) {
-            $config_file  = (null !== $this->config_path && is_file($this->config_path) ? $this->config_path : []);
-            $this->config = new Configuration($this->getDefaultConfig(), $config_file);
+            $this->config = new Configuration(
+                default: $this->getDefaultConfig(),
+                path: (null !== $this->config_path && is_file($this->config_path) ? $this->config_path : [])
+            );
 
             // Alias that could be required before first connection instance
             $this->prefix = $this->config->get('database_prefix');
@@ -450,17 +462,17 @@ class Core
     /**
      * Get permissions instance.
      *
-     * Permissions methods are accesible from App::core()->permissions()
+     * Permission methods are accesible from App::core()->permission()
      *
-     * @return Permissions The permission types instance
+     * @return Permission The permission types instance
      */
-    final public function permissions(): Permissions
+    final public function permission(): Permission
     {
-        if (!($this->permissions instanceof Permissions)) {
-            $this->permissions = new Permissions();
+        if (!($this->permission instanceof Permission)) {
+            $this->permission = new Permission();
         }
 
-        return $this->permissions;
+        return $this->permission;
     }
 
     /**
@@ -735,11 +747,11 @@ class Core
 
         // Add top behaviors
         foreach (self::$top_behaviors as $behavior) {
-            $this->behavior()->add($behavior[0], $behavior[1]);
+            $this->behavior($behavior[0])->add($behavior[1]);
         }
 
         // Register Core post types
-        $this->posttype()->setPostType(new PostTypeDescriptor(
+        $this->posttype()->addItem(new PostTypeItem(
             type: 'post',
             admin: '?handler=admin.post&id=%d',
             public: $this->url()->getURLFor('post', '%s'),

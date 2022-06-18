@@ -11,7 +11,7 @@ namespace Dotclear\Plugin\Tags\Common;
 
 // Dotclear\Plugin\Tags\Common\TagsUrl
 use Dotclear\App;
-use Dotclear\Core\Url\UrlDescriptor;
+use Dotclear\Core\Url\UrlItem;
 use Dotclear\Database\Param;
 
 /**
@@ -23,19 +23,19 @@ class TagsUrl
 {
     public function __construct()
     {
-        App::core()->url()->registerHandler(new UrlDescriptor(
+        App::core()->url()->addItem(new UrlItem(
             type: 'tag',
             url: 'tag',
             scheme: '^tag/(.+)$',
             callback: [$this, 'tag']
         ));
-        App::core()->url()->registerHandler(new UrlDescriptor(
+        App::core()->url()->addItem(new UrlItem(
             type: 'tags',
             url: 'tags',
             scheme: '^tags$',
             callback: [$this, 'tags']
         ));
-        App::core()->url()->registerHandler(new UrlDescriptor(
+        App::core()->url()->addItem(new UrlItem(
             type: 'tag_feed',
             url: 'feed/tag',
             scheme: '^feed/tag/(.+)$',

@@ -164,7 +164,7 @@ class Media extends Manager
         ;
 
         // --BEHAVIOR-- coreMediaConstruct
-        App::core()->behavior()->call('coreMediaConstruct', $this);
+        App::core()->behavior('coreMediaConstruct')->call($this);
     }
 
     /**
@@ -1319,7 +1319,7 @@ class Media extends Manager
         }
 
         // --BEHAVIOR-- coreBeforeImageMetaCreate
-        App::core()->behavior()->call('coreBeforeImageMetaCreate', $c);
+        App::core()->behavior('coreBeforeImageMetaCreate')->call($c);
 
         $sql = new UpdateStatement();
         $sql->where('media_id = ' . $id);

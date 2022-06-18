@@ -61,7 +61,7 @@ class UserInventory extends Inventory
             ];
 
             $cols = new ArrayObject($cols);
-            App::core()->behavior()->call('adminUserListHeader', $this->rs, $cols);
+            App::core()->behavior('adminUserListHeader')->call($this->rs, $cols);
 
             $html_block .= '<tr>' . implode(iterator_to_array($cols)) . '</tr>%s</table>%s</div>';
             if ($enclose_block) {
@@ -97,7 +97,7 @@ class UserInventory extends Inventory
         $img        = '<img alt="%1$s" title="%1$s" src="?df=images/%2$s" />';
         $img_status = '';
 
-        $user_blog_permissions = App::core()->permissions()->getUserBlogPermissions(
+        $user_blog_permissions = App::core()->permission()->getUserBlogPermissions(
             id: $this->rs->field('user_id'),
             blog: App::core()->blog()->id
         );
@@ -126,7 +126,7 @@ class UserInventory extends Inventory
         ];
 
         $cols = new ArrayObject($cols);
-        App::core()->behavior()->call('adminUserListValue', $this->rs, $cols);
+        App::core()->behavior('adminUserListValue')->call($this->rs, $cols);
 
         $res .= implode(iterator_to_array($cols));
         $res .= '</tr>';

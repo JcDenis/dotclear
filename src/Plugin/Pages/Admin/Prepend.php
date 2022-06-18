@@ -12,13 +12,13 @@ namespace Dotclear\Plugin\Pages\Admin;
 // Dotclear\Plugin\Pages\Admin\Prepend
 use ArrayObject;
 use Dotclear\App;
-use Dotclear\Core\Permissions\PermissionDescriptor;
+use Dotclear\Core\Permission\PermissionItem;
 use Dotclear\Database\Param;
 use Dotclear\Helper\GPC\GPC;
 use Dotclear\Modules\ModulePrepend;
 use Dotclear\Plugin\Pages\Common\PagesUrl;
 use Dotclear\Plugin\Pages\Common\PagesWidgets;
-use Dotclear\Process\Admin\AdminUrl\AdminUrlDescriptor;
+use Dotclear\Process\Admin\AdminUrl\AdminUrlItem;
 use Dotclear\Process\Admin\Favorite\Favorite;
 use Dotclear\Process\Admin\Favorite\FavoriteItem;
 use Dotclear\Process\Admin\Favorite\DashboardIcon;
@@ -33,13 +33,13 @@ class Prepend extends ModulePrepend
     public function loadModule(): void
     {
         // Add pages permissions
-        App::core()->permissions()->addPermType(new PermissionDescriptor(
+        App::core()->permission()->addItem(new PermissionItem(
             type: 'pages',
             label: __('manage pages')
         ));
 
         // Add admin url (only page detail, the other one was auto created by Module)
-        App::core()->adminurl()->register(new AdminUrlDescriptor(
+        App::core()->adminurl()->addItem(new AdminUrlItem(
             name: 'admin.plugin.Page',
             class: 'Dotclear\\Plugin\\Pages\\Admin\\HandlerEdit',
         ));
@@ -48,8 +48,8 @@ class Prepend extends ModulePrepend
         $this->addStandardMenu('Blog');
 
         // Add favorites
-        App::core()->behavior()->add('adminAfterSetDefaultFavoriteItems', function (Favorite $favorite): void {
-            $favorite->AddItem(new FavoriteItem(
+        App::core()->behavior('adminAfterSetDefaultFavoriteItems')->add(function (Favorite $favorite): void {
+            $favorite->addItem(new FavoriteItem(
                 id: 'pages',
                 title: __('Pages'),
                 url: App::core()->adminurl()->get('admin.plugin.Pages'),
@@ -65,7 +65,7 @@ class Prepend extends ModulePrepend
                     }
                 },
             ));
-            $favorite->AddItem(new FavoriteItem(
+            $favorite->addItem(new FavoriteItem(
                 id: 'newpage',
                 title: __('New page'),
                 url: App::core()->adminurl()->get('admin.plugin.Page'),
@@ -76,13 +76,12 @@ class Prepend extends ModulePrepend
         });
 
         // Add headers
-        App::core()->behavior()->add(
-            'adminUsersActionsHeaders',
+        App::core()->behavior('adminUsersActionsHeaders')->add(
             fn () => App::core()->resource()->load('_users_actions.js', 'Plugin', 'Pages')
         );
 
         // Add user pref list columns
-        App::core()->behavior()->add('adminColumnsLists', function (ArrayObject $cols): void {
+        App::core()->behavior('adminColumnsLists')->add(function (ArrayObject $cols): void {
             // Set optional columns in pages lists
             $cols['pages'] = [__('Pages'), [
                 'date'       => [true, __('Date')],
@@ -93,7 +92,7 @@ class Prepend extends ModulePrepend
         });
 
         // Add user pref list filters
-        App::core()->behavior()->add('adminFiltersLists', function (ArrayObject $sorts): void {
+        App::core()->behavior('adminFiltersLists')->add(function (ArrayObject $sorts): void {
             $sorts['pages'] = [
                 __('Pages'),
                 null,

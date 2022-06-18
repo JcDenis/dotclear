@@ -61,7 +61,7 @@ class Home extends AbstractPage
             'dragndrop_on'  => __("Dashboard area's drag and drop is enabled"),
         ];
 
-        App::core()->behavior()->call('adminHomePagePrepend');
+        App::core()->behavior('adminHomePagePrepend')->call();
 
         // Check dashboard module prefs
         if (!App::core()->user()->preference()->get('dashboard')->prefExists('doclinks')) {
@@ -102,7 +102,7 @@ class Home extends AbstractPage
                 $post_editor = App::core()->user()->getOption('editor');
                 if ($post_editor && !empty($post_editor[$post_format])) {
                     // context is not post because of tags not available
-                    $admin_post_behavior = App::core()->behavior()->call('adminPostEditor', $post_editor[$post_format], 'quickentry', ['#post_content'], $post_format);
+                    $admin_post_behavior = App::core()->behavior('adminPostEditor')->call($post_editor[$post_format], 'quickentry', ['#post_content'], $post_format);
                 }
             }
         }
@@ -159,11 +159,11 @@ class Home extends AbstractPage
             }
         }
 
-        App::core()->behavior()->call('adminDashboardItems', $__dashboard_items);
+        App::core()->behavior('adminDashboardItems')->call($__dashboard_items);
 
         // Dashboard content
         $__dashboard_contents = new ArrayObject([new ArrayObject(), new ArrayObject()]);
-        App::core()->behavior()->call('adminDashboardContents', $__dashboard_contents);
+        App::core()->behavior('adminDashboardContents')->call($__dashboard_contents);
 
         $dragndrop = '';
         if (!App::core()->user()->preference()->get('accessibility')->get('nodragdrop')) {
@@ -241,7 +241,7 @@ class Home extends AbstractPage
             '<ul><li>' . implode('</li><li>', $err) . '</li></ul></div>';
         }
 
-        App::core()->behavior()->call('adminHomePageContent');
+        App::core()->behavior('adminHomePageContent')->call();
 
         // Get current main orders
         $main_order = App::core()->user()->preference()->get('dashboard')->get('main_order');

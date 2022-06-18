@@ -49,7 +49,7 @@ final class Log
         $query  = $sql ? clone $sql : new SelectStatement();
 
         // --BEHAVIOR-- coreBeforeCountLogs, Param, SelectStatement
-        App::core()->behavior()->call('coreBeforeCountLogs', param: $params, sql: $query);
+        App::core()->behavior('coreBeforeCountLogs')->call(param: $params, sql: $query);
 
         $params->unset('order');
         $params->unset('limit');
@@ -59,7 +59,7 @@ final class Log
         $record = $this->queryLogTable(param: $params, sql: $query);
 
         // --BEHAVIOR-- coreAfterCountLogs, Record
-        App::core()->behavior()->call('coreAfterCountLogs', record: $record);
+        App::core()->behavior('coreAfterCountLogs')->call(record: $record);
 
         return $record->integer();
     }
@@ -80,7 +80,7 @@ final class Log
         $query  = $sql ? clone $sql : new SelectStatement();
 
         // --BEHAVIOR-- coreBeforeGetLogs, Param, SelectStatement
-        App::core()->behavior()->call('coreBeforeGetLogs', param: $params, sql: $query);
+        App::core()->behavior('coreBeforeGetLogs')->call(param: $params, sql: $query);
 
         $query->order($query->escape($params->order('log_dt DESC')));
 
@@ -91,7 +91,7 @@ final class Log
         $record = $this->queryLogTable(param: $params, sql: $query);
 
         // --BEHAVIOR-- coreAfterGetLogs, Record
-        App::core()->behavior()->call('coreAfterGetLogs', record: $record);
+        App::core()->behavior('coreAfterGetLogs')->call(record: $record);
 
         return $record;
     }
@@ -166,7 +166,7 @@ final class Log
             $this->cleanLogCursor($cursor);
 
             // --BEHAVIOR-- coreBeforeCreateLog, Cursor
-            App::core()->behavior()->call('coreBeforeCreateLog', cursor: $cursor);
+            App::core()->behavior('coreBeforeCreateLog')->call(cursor: $cursor);
 
             $cursor->insert();
             App::core()->con()->unlock();
@@ -177,7 +177,7 @@ final class Log
         }
 
         // --BEHAVIOR-- coreAfterCreateLog, Cursor
-        App::core()->behavior()->call('coreAfterCreateLog', cursor: $cursor);
+        App::core()->behavior('coreAfterCreateLog')->call(cursor: $cursor);
 
         return $cursor->getField('log_id');
     }
@@ -220,7 +220,7 @@ final class Log
     public function deleteLogs(Integers $ids): void
     {
         // --BEHAVIOR-- coreBeforeDeleteLogs, Integers
-        App::core()->behavior()->call('coreBeforeDeleteLogs', ids: $ids);
+        App::core()->behavior('coreBeforeDeleteLogs')->call(ids: $ids);
 
         $sql = new DeleteStatement();
         $sql->where('log_id' . $sql->in($ids->dump()));
@@ -234,7 +234,7 @@ final class Log
     public function emptyLogTable(): void
     {
         // --BEHAVIOR-- coreBeforeEmptyLogTable
-        App::core()->behavior()->call('coreBeforeEmptyLogTable');
+        App::core()->behavior('coreBeforeEmptyLogTable')->call();
 
         $sql = new TruncateStatement();
         $sql->from(App::core()->prefix() . 'log');

@@ -22,7 +22,7 @@ class AkismetBehavior
 {
     public function __construct()
     {
-        App::core()->behavior()->add('antispamInitFilters', function (ArrayObject $spamfilters): void {
+        App::core()->behavior('antispamInitFilters')->add(function (ArrayObject $spamfilters): void {
             $spamfilters[] = __NAMESPACE__ . '\\FilterAkismet';
         });
     }

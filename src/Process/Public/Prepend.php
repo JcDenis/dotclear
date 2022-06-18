@@ -81,9 +81,9 @@ final class Prepend extends Core
     {
         if (!$this->timezone) {
             try {
-                $dtz = new DateTimeZone($this->blog() ? $this->blog()->settings()->getGroup('system')->getSetting('blog_timezone') : Clock::getTZ());
-                $this->behavior()->call('setPublicInterfaceTimezone', $dtz);
-                $this->timezone = $dtz->getName();
+                $timezone = new DateTimeZone($this->blog() ? $this->blog()->settings()->getGroup('system')->getSetting('blog_timezone') : Clock::getTZ());
+                $this->behavior('publicBeforeSetTimezone')->call(timezone: $timezone);
+                $this->timezone = $timezone->getName();
             } catch (Exception) {
                 $this->timezone = Clock::getTZ();
             }
@@ -167,10 +167,10 @@ final class Prepend extends Core
         parent::process();
 
         // Add Record extensions
-        $this->behavior()->add('coreAfterGetPosts', function (Record $record): void {
+        $this->behavior('coreAfterGetPosts')->add(function (Record $record): void {
             $record->extend(new RsExtPostPublic());
         });
-        $this->behavior()->add('coreAfterGetComments', function (Record $record): void {
+        $this->behavior('coreAfterGetComments')->add(function (Record $record): void {
             $record->extend(new RsExtCommentPublic());
         });
 
@@ -188,7 +188,7 @@ final class Prepend extends Core
         }
 
         // Cope with static home page option
-        $this->url()->registerDefault([
+        $this->url()->setDefaultHandler([
             'Dotclear\\Core\\Url\\Url',
             (bool) $this->blog()->settings()->getGroup('system')->getSetting('static_home') ? 'static_home' : 'home',
         ]);
@@ -243,7 +243,7 @@ final class Prepend extends Core
         $this->themes()->loadModuleL10N(array_key_first($path), L10n::lang(), 'public');
 
         // --BEHAVIOR-- publicPrepend
-        $this->behavior()->call('publicPrepend');
+        $this->behavior('publicPrepend')->call();
 
         // Check templateset and add all path to tpl
         $tplset = $this->themes()->getModule(array_key_last($path))->templateset();

@@ -46,7 +46,7 @@ class PostAction extends DefaultPostAction
     protected function loadDefaults(): void
     {
         $this->loadPostAction($this);
-        App::core()->behavior()->call('adminPostsActionsPage', $this);
+        App::core()->behavior('adminPostsActionsPage')->call($this);
     }
 
     protected function error(Exception $e)

@@ -276,7 +276,7 @@ class MediaItem extends AbstractPage
             App::core()->resource()->load('_media_item.js')
         );
         if ($this->item_popup && !empty($plugin_id)) {
-            $this->setPageHead(App::core()->behavior()->call('adminPopupMedia', $plugin_id));
+            $this->setPageHead(App::core()->behavior('adminPopupMedia')->call($plugin_id));
         }
 
         $temp_params      = $this->media_page_url_params;
@@ -855,7 +855,7 @@ class MediaItem extends AbstractPage
             }
 
             // --BEHAVIOR-- adminMediaItemForm
-            App::core()->behavior()->call('adminMediaItemForm', $this->item_file);
+            App::core()->behavior('adminMediaItemForm')->call($this->item_file);
         }
 
         echo '</div>';

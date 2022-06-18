@@ -7,9 +7,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core\Permissions;
+namespace Dotclear\Core\Permission;
 
-// Dotclear\Core\Permissions\PermissionDescriptor
+// Dotclear\Core\Permission\PermissionItem
 use Dotclear\Exception\InvalidValueFormat;
 
 /**
@@ -17,7 +17,7 @@ use Dotclear\Exception\InvalidValueFormat;
  *
  * @ingroup  Core User Permission
  */
-final class PermissionDescriptor
+final class PermissionItem
 {
     private const PERM_TYPE_SCHEMA = '/^[a-z_]{2,}$/';
 

@@ -7,7 +7,7 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core\Permissions;
+namespace Dotclear\Core\Permission;
 
 // Dotclear\Core\Permissions\Permissions
 use Dotclear\App;
@@ -25,11 +25,11 @@ use Dotclear\Helper\Mapper\Strings;
  *
  * @ingroup  Core User Permission
  */
-final class Permissions
+final class Permission
 {
     /**
-     * @var array<string,PermissionDescriptor> $permissions
-     *                                         The permissions descriptions
+     * @var array<string,PermissionItem> $types
+     *                                   The permissions descriptions
      */
     private $types = [];
 
@@ -52,38 +52,48 @@ final class Permissions
      */
     public function __construct()
     {
-        $this->addPermType(new PermissionDescriptor(
+        $this->addItem(new PermissionItem(
             type: 'admin',
             label: __('administrator')
         ));
-        $this->addPermType(new PermissionDescriptor(
+        $this->addItem(new PermissionItem(
             type: 'contentadmin',
             label: __('manage all entries and comments')
         ));
-        $this->addPermType(new PermissionDescriptor(
+        $this->addItem(new PermissionItem(
             type: 'usage',
             label: __('manage their own entries and comments')
         ));
-        $this->addPermType(new PermissionDescriptor(
+        $this->addItem(new PermissionItem(
             type: 'publish',
             label: __('publish entries and comments')
         ));
-        $this->addPermType(new PermissionDescriptor(
+        $this->addItem(new PermissionItem(
             type: 'delete',
             label: __('delete entries and comments')
         ));
-        $this->addPermType(new PermissionDescriptor(
+        $this->addItem(new PermissionItem(
             type: 'categories',
             label: __('manage categories')
         ));
-        $this->addPermType(new PermissionDescriptor(
+        $this->addItem(new PermissionItem(
             type: 'media_admin',
             label: __('manage all media items')
         ));
-        $this->addPermType(new PermissionDescriptor(
+        $this->addItem(new PermissionItem(
             type: 'media',
             label: __('manage their own media items')
         ));
+    }
+
+    /**
+     * Add a new permission type.
+     *
+     * @param PermissionItem $item The permission descriptor
+     */
+    public function addItem(PermissionItem $item): void
+    {
+        $this->types[$item->type] = $item;
     }
 
     /**
@@ -91,32 +101,22 @@ final class Permissions
      *
      * @param string $type The permission type
      *
-     * @return PermissionDescriptor The permission descriptor
+     * @return PermissionItem The permission descriptor
      */
-    public function getPermType(string $type): PermissionDescriptor
+    public function getItem(string $type): PermissionItem
     {
-        return $this->types[$type] ?? new PermissionDescriptor(
+        return $this->types[$type] ?? new PermissionItem(
             type: $type,
             label: sprintf(__('[%s] (unreferenced permission)'), $type)
         );
     }
 
     /**
-     * Add a new permission type.
-     *
-     * @param PermissionDescriptor $descriptor The permission descriptor
-     */
-    public function addPermType(PermissionDescriptor $descriptor): void
-    {
-        $this->types[$descriptor->type] = $descriptor;
-    }
-
-    /**
      * Get all permissions type descriptor.
      *
-     * @return array<string,PermissionDescriptor> The permissions types descriptors
+     * @return array<string,PermissionItem> The permissions types descriptors
      */
-    public function getPermTypes(): array
+    public function getItems(): array
     {
         return $this->types;
     }
@@ -128,7 +128,7 @@ final class Permissions
      *
      * @return bool True if permission eists
      */
-    public function isPermType(string $type): bool
+    public function hasItem(string $type): bool
     {
         return isset($this->types[$type]);
     }
@@ -138,7 +138,7 @@ final class Permissions
      *
      * @return array<int,string> The permissions types
      */
-    public function listPermTypes(): array
+    public function listItems(): array
     {
         return array_keys($this->types);
     }
@@ -170,7 +170,7 @@ final class Permissions
      * @param string $id    The blog ID
      * @param bool   $super Includes super admins in result
      *
-     * @return array<string,UserPermissionsDescriptor> The blog users permissions
+     * @return array<string,UserPermissionItem> The blog users permissions
      */
     public function getBlogPermissions(string $id, bool $super = true): array
     {
@@ -221,7 +221,7 @@ final class Permissions
 
         $record = $sql->select();
         while ($record->fetch()) {
-            $this->blogs[$id][$record->field('user_id')] = new UserPermissionsDescriptor(
+            $this->blogs[$id][$record->field('user_id')] = new UserPermissionItem(
                 id: $record->field('user_id'),
                 name: $record->field('user_name'),
                 firstname: $record->field('user_firstname'),
@@ -240,7 +240,7 @@ final class Permissions
      *
      * @param string $id The user ID
      *
-     * @return array<string,BlogPermissionsDescriptor> The user blogs permissions
+     * @return array<string,BlogPermissionItem> The user blogs permissions
      */
     public function getUserPermissions(string $id): array
     {
@@ -272,7 +272,7 @@ final class Permissions
 
         $record = $sql->select();
         while ($record->fetch()) {
-            $this->users[$id][$record->field('blog_id')] = new BlogPermissionsDescriptor(
+            $this->users[$id][$record->field('blog_id')] = new BlogPermissionItem(
                 id: $record->field('blog_id'),
                 name: $record->field('blog_name'),
                 url: $record->field('blog_url'),
@@ -336,7 +336,7 @@ final class Permissions
         }
 
         // --BEHAVIOR-- coreBeforeSetUserBlogPermissions, string, string, Strings
-        App::core()->behavior()->call('coreBeforeSetUserBlogPermissions', id: $id, blog: $blog, permissions: $permissions);
+        App::core()->behavior('coreBeforeSetUserBlogPermissions')->call(id: $id, blog: $blog, permissions: $permissions);
 
         // Delete all user blog permissions
         $sql = new DeleteStatement();

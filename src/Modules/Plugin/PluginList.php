@@ -671,7 +671,7 @@ class PluginList
                 }
 
                 echo '<td class="module-icon nowrap">' .
-                App::core()->menus()->getIconTheme($icon, false, Html::escapeHTML($id), Html::escapeHTML($id)) .
+                App::core()->menu()->getIconTheme($icon, false, Html::escapeHTML($id), Html::escapeHTML($id)) .
                 '</td>';
             }
 
@@ -911,7 +911,7 @@ class PluginList
                 // Behavior
                 case 'behavior':
                     // --BEHAVIOR-- adminModulesListGetActions
-                    $tmp = App::core()->behavior()->call('adminModulesListGetActions', $this, $id, $module);
+                    $tmp = App::core()->behavior('adminModulesListGetActions')->call($this, $id, $module);
 
                     if (!empty($tmp)) {
                         $submits[] = $tmp;
@@ -975,7 +975,7 @@ class PluginList
                 // Behavior
                 case 'behavior':
                     // --BEHAVIOR-- adminModulesListGetGlobalActions
-                    $tmp = App::core()->behavior()->call('adminModulesListGetGlobalActions', $this, $with_selection);
+                    $tmp = App::core()->behavior('adminModulesListGetGlobalActions')->call($this, $with_selection);
 
                     if (!empty($tmp)) {
                         $submits[] = $tmp;
@@ -1030,12 +1030,12 @@ class PluginList
                     }
 
                     // --BEHAVIOR-- moduleBeforeDelete
-                    App::core()->behavior()->call('pluginBeforeDelete', $module);
+                    App::core()->behavior('pluginBeforeDelete')->call($module);
 
                     $this->modules()->deleteModule($id);
 
                     // --BEHAVIOR-- moduleAfterDelete
-                    App::core()->behavior()->call('pluginAfterDelete', $module);
+                    App::core()->behavior('pluginAfterDelete')->call($module);
                 } else {
                     $this->modules()->deleteModule($id, true);
                 }
@@ -1078,12 +1078,12 @@ class PluginList
                 $dest = $this->getPath() . '/' . basename($module->file());
 
                 // --BEHAVIOR-- moduleBeforeAdd
-                App::core()->behavior()->call('pluginBeforeAdd', $module);
+                App::core()->behavior('pluginBeforeAdd')->call($module);
 
                 $this->modules()->store()->process($module->file(), $dest);
 
                 // --BEHAVIOR-- moduleAfterAdd
-                App::core()->behavior()->call('pluginAfterAdd', $module);
+                App::core()->behavior('pluginAfterAdd')->call($module);
 
                 ++$count;
             }
@@ -1113,12 +1113,12 @@ class PluginList
                 }
 
                 // --BEHAVIOR-- moduleBeforeActivate
-                App::core()->behavior()->call('pluginBeforeActivate', $id);
+                App::core()->behavior('pluginBeforeActivate')->call($id);
 
                 $this->modules()->activateModule($id);
 
                 // --BEHAVIOR-- moduleAfterActivate
-                App::core()->behavior()->call('pluginAfterActivate', $id);
+                App::core()->behavior('pluginAfterActivate')->call($id);
 
                 ++$count;
             }
@@ -1155,12 +1155,12 @@ class PluginList
                 }
 
                 // --BEHAVIOR-- moduleBeforeDeactivate
-                App::core()->behavior()->call('pluginBeforeDeactivate', $module);
+                App::core()->behavior('pluginBeforeDeactivate')->call($module);
 
                 $this->modules()->deactivateModule($id);
 
                 // --BEHAVIOR-- moduleAfterDeactivate
-                App::core()->behavior()->call('pluginAfterDeactivate', $module);
+                App::core()->behavior('pluginAfterDeactivate')->call($module);
 
                 ++$count;
             }
@@ -1203,12 +1203,12 @@ class PluginList
                 }
 
                 // --BEHAVIOR-- moduleBeforeUpdate
-                App::core()->behavior()->call('pluginBeforeUpdate', $module);
+                App::core()->behavior('pluginBeforeUpdate')->call($module);
 
                 $this->modules()->store()->process($module->file(), $dest);
 
                 // --BEHAVIOR-- moduleAfterUpdate
-                App::core()->behavior()->call('pluginAfterUpdate', $module);
+                App::core()->behavior('pluginAfterUpdate')->call($module);
 
                 ++$count;
             }
@@ -1243,12 +1243,12 @@ class PluginList
             }
 
             // --BEHAVIOR-- moduleBeforeAdd
-            App::core()->behavior()->call('pluginBeforeAdd', null);
+            App::core()->behavior('pluginBeforeAdd')->call(null);
 
             $ret_code = $this->modules()->store()->install($dest);
 
             // --BEHAVIOR-- moduleAfterAdd
-            App::core()->behavior()->call('pluginAfterAdd', null);
+            App::core()->behavior('pluginAfterAdd')->call(null);
 
             App::core()->notice()->addSuccessNotice(
                 2 == $ret_code ?
@@ -1260,7 +1260,7 @@ class PluginList
         // Actions from behaviors
         } else {
             // --BEHAVIOR-- adminModulesListDoActions
-            App::core()->behavior()->call('adminModulesListDoActions', $this, $modules, 'plugin');
+            App::core()->behavior('adminModulesListDoActions')->call($this, $modules, 'plugin');
         }
     }
 

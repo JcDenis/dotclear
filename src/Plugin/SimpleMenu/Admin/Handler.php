@@ -150,7 +150,7 @@ class Handler extends AbstractPage
 
         // --BEHAVIOR-- adminSimpleMenuAddType
         // Should add an item to $this->sm_items[<id>] as an [<label>,<optional step (true or false)>]
-        App::core()->behavior()->call('adminSimpleMenuAddType', $this->sm_items);
+        App::core()->behavior('adminSimpleMenuAddType')->call($this->sm_items);
 
         $this->sm_items['special'] = new ArrayObject([__('User defined'), false]);
 
@@ -288,8 +288,7 @@ class Handler extends AbstractPage
                                 // --BEHAVIOR-- adminSimpleMenuBeforeEdit
                                 // Should modify if necessary $this->sm_item_label, $this->sm_item_descr and $this->sm_item_url
                                 // Should set if necessary $this->sm_item_select_label (displayed on further admin step only)
-                                App::core()->behavior()->call(
-                                    'adminSimpleMenuBeforeEdit',
+                                App::core()->behavior('adminSimpleMenuBeforeEdit')->call(
                                     $this->sm_item_type,
                                     $this->sm_item_select,
                                     [&$this->sm_item_label, &$this->sm_item_descr, &$this->sm_item_url, &$this->sm_item_select_label]
@@ -543,7 +542,7 @@ class Handler extends AbstractPage
                             default:
                                 echo // --BEHAVIOR-- adminSimpleMenuSelect
                                 // Optional step once $this->sm_item_type known : should provide a field using 'item_select' as id
-                                App::core()->behavior()->call('adminSimpleMenuSelect', $this->sm_item_type, 'item_select');
+                                App::core()->behavior('adminSimpleMenuSelect')->call($this->sm_item_type, 'item_select');
                         }
                         echo '<p>' . App::core()->adminurl()->getHiddenFormFields('admin.plugin.SimpleMenu', ['item_type' => $this->sm_item_type, 'add' => 3], true);
                         echo '<input type="submit" name="appendaction" value="' . __('Continue...') . '" /></p>';

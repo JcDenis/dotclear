@@ -205,7 +205,7 @@ class Category extends AbstractPage
             ->setPageHead(
                 App::core()->resource()->confirmClose('category-form') .
                 App::core()->resource()->load('_category.js') .
-                ($rte_flag ? App::core()->behavior()->call('adminPostEditor', $category_editor['xhtml'], 'category', ['#cat_desc'], 'xhtml') : '')
+                ($rte_flag ? App::core()->behavior('adminPostEditor')->call($category_editor['xhtml'], 'category', ['#cat_desc'], 'xhtml') : '')
             )
         ;
 

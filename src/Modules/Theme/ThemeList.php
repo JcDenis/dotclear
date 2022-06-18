@@ -190,7 +190,7 @@ class ThemeList extends PluginList
                 }
 
                 // --BEHAVIOR-- adminCurrentThemeDetails
-                $line .= App::core()->behavior()->call('adminCurrentThemeDetails', $module);
+                $line .= App::core()->behavior('adminCurrentThemeDetails')->call($module);
 
                 $line .= '</div>';
             }
@@ -306,7 +306,7 @@ class ThemeList extends PluginList
                 // Behavior
                 case 'behavior':
                     // --BEHAVIOR-- adminModulesListGetActions
-                    $tmp = App::core()->behavior()->call('adminModulesListGetActions', $this, $id, $module);
+                    $tmp = App::core()->behavior('adminModulesListGetActions')->call($this, $id, $module);
 
                     if (!empty($tmp)) {
                         $submits[] = $tmp;
@@ -339,7 +339,7 @@ class ThemeList extends PluginList
                 // Behavior
                 case 'behavior':
                     // --BEHAVIOR-- adminModulesListGetGlobalActions
-                    $tmp = App::core()->behavior()->call('adminModulesListGetGlobalActions', $this);
+                    $tmp = App::core()->behavior('adminModulesListGetGlobalActions')->call($this);
 
                     if (!empty($tmp)) {
                         $submits[] = $tmp;
@@ -398,12 +398,12 @@ class ThemeList extends PluginList
                     }
 
                     // --BEHAVIOR-- themeBeforeActivate
-                    App::core()->behavior()->call('themeBeforeActivate', $id);
+                    App::core()->behavior('themeBeforeActivate')->call($id);
 
                     $this->modules()->activateModule($id);
 
                     // --BEHAVIOR-- themeAfterActivate
-                    App::core()->behavior()->call('themeAfterActivate', $id);
+                    App::core()->behavior('themeAfterActivate')->call($id);
 
                     ++$count;
                 }
@@ -436,12 +436,12 @@ class ThemeList extends PluginList
                     }
 
                     // --BEHAVIOR-- themeBeforeDeactivate
-                    App::core()->behavior()->call('themeBeforeDeactivate', $module);
+                    App::core()->behavior('themeBeforeDeactivate')->call($module);
 
                     $this->modules()->deactivateModule($id);
 
                     // --BEHAVIOR-- themeAfterDeactivate
-                    App::core()->behavior()->call('themeAfterDeactivate', $module);
+                    App::core()->behavior('themeAfterDeactivate')->call($module);
 
                     ++$count;
                 }
@@ -466,12 +466,12 @@ class ThemeList extends PluginList
                     }
 
                     // --BEHAVIOR-- themeBeforeClone
-                    App::core()->behavior()->call('themeBeforeClone', $id);
+                    App::core()->behavior('themeBeforeClone')->call($id);
 
                     $this->cloneModule($id);
 
                     // --BEHAVIOR-- themeAfterClone
-                    App::core()->behavior()->call('themeAfterClone', $id);
+                    App::core()->behavior('themeAfterClone')->call($id);
 
                     ++$count;
                 }
@@ -504,12 +504,12 @@ class ThemeList extends PluginList
                         }
 
                         // --BEHAVIOR-- themeBeforeDelete
-                        App::core()->behavior()->call('themeBeforeDelete', $module);
+                        App::core()->behavior('themeBeforeDelete')->call($module);
 
                         $this->modules()->deleteModule($id);
 
                         // --BEHAVIOR-- themeAfterDelete
-                        App::core()->behavior()->call('themeAfterDelete', $module);
+                        App::core()->behavior('themeAfterDelete')->call($module);
                     } else {
                         $this->modules()->deleteModule($id, true);
                     }
@@ -548,12 +548,12 @@ class ThemeList extends PluginList
                     $dest = $this->getPath() . '/' . basename($module->file());
 
                     // --BEHAVIOR-- themeBeforeAdd
-                    App::core()->behavior()->call('themeBeforeAdd', $module);
+                    App::core()->behavior('themeBeforeAdd')->call($module);
 
                     $this->modules()->store()->process($module->file(), $dest);
 
                     // --BEHAVIOR-- themeAfterAdd
-                    App::core()->behavior()->call('themeAfterAdd', $module);
+                    App::core()->behavior('themeAfterAdd')->call($module);
 
                     ++$count;
                 }
@@ -588,12 +588,12 @@ class ThemeList extends PluginList
                     }
 
                     // --BEHAVIOR-- themeBeforeUpdate
-                    App::core()->behavior()->call('themeBeforeUpdate', $module);
+                    App::core()->behavior('themeBeforeUpdate')->call($module);
 
                     $this->modules()->store()->process($module->file(), $dest);
 
                     // --BEHAVIOR-- themeAfterUpdate
-                    App::core()->behavior()->call('themeAfterUpdate', $module);
+                    App::core()->behavior('themeAfterUpdate')->call($module);
 
                     ++$count;
                 }
@@ -628,12 +628,12 @@ class ThemeList extends PluginList
                 }
 
                 // --BEHAVIOR-- themeBeforeAdd
-                App::core()->behavior()->call('themeBeforeAdd', null);
+                App::core()->behavior('themeBeforeAdd')->call(null);
 
                 $ret_code = $this->modules()->store()->install($dest);
 
                 // --BEHAVIOR-- themeAfterAdd
-                App::core()->behavior()->call('themeAfterAdd', null);
+                App::core()->behavior('themeAfterAdd')->call(null);
 
                 App::core()->notice()->addSuccessNotice(
                     2 == $ret_code ?
@@ -643,7 +643,7 @@ class ThemeList extends PluginList
                 Http::redirect($this->getURL() . '#themes');
             } else {
                 // --BEHAVIOR-- adminModulesListDoActions
-                App::core()->behavior()->call('adminModulesListDoActions', $this, $modules, 'theme');
+                App::core()->behavior('adminModulesListDoActions')->call($this, $modules, 'theme');
             }
         }
     }

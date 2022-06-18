@@ -20,7 +20,7 @@ use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Modules\Repository\Repository;
-use Dotclear\Process\Admin\AdminUrl\AdminUrlDescriptor;
+use Dotclear\Process\Admin\AdminUrl\AdminUrlItem;
 use Dotclear\Process\Admin\Favorite\FavoriteItem;
 use Dotclear\Process\Admin\Menu\MenuItem;
 use Error;
@@ -162,18 +162,18 @@ class Modules
         $icons   = ['images/menu/' . $this->getType(true) . 's.svg', 'images/menu/' . $this->getType(true) . 's-dark.svg'];
         $handler = 'admin.' . $this->getType(true);
 
-        App::core()->adminurl()->register(new AdminUrlDescriptor(
+        App::core()->adminurl()->addItem(new AdminUrlItem(
             name: $handler,
             class: 'Dotclear\\Modules\\' . $this->getType() . '\\' . $this->getType() . 'Handler',
         ));
         $group = empty($this->group) ? 'System' : $this->group;
-        App::core()->menus()->getGroup($group)?->prependItem(new MenuItem(
+        App::core()->menu()->getGroup($group)?->prependItem(new MenuItem(
             title: $this->getName(),
             url: App::core()->adminurl()->get($handler),
             icons: $icons,
             permission: true,
         ));
-        App::core()->favorite()->AddItem(new FavoriteItem(
+        App::core()->favorite()->addItem(new FavoriteItem(
             id: $this->getType(),
             title: $this->getName(),
             url: App::core()->adminurl()->get($handler),
@@ -242,7 +242,7 @@ class Modules
             $self = false;
         }
         if ($config || $index || !empty($settings)) {
-            if ($config && (!$check || App::core()->user()->isSuperAdmin() || App::core()->user()->check($module->permissions(), App::core()->blog()->id))) {
+            if ($config && (!$check || App::core()->user()->isSuperAdmin() || App::core()->user()->check($module->permission(), App::core()->blog()->id))) {
                 $params = ['module' => $id, 'conf' => '1'];
                 if (!$module->standaloneConfig() && !$self) {
                     $params['redir'] = $this->getModuleURL($id);
@@ -274,7 +274,7 @@ class Modules
 
                     case 'self':
                         if ($self) {
-                            if (!$check || App::core()->user()->isSuperAdmin() || App::core()->user()->check($module->permissions(), App::core()->blog()->id)) {
+                            if (!$check || App::core()->user()->isSuperAdmin() || App::core()->user()->check($module->permission(), App::core()->blog()->id)) {
                                 $st['self'] = '<a class="module-config" href="' .
                                 $this->getModuleURL($id) . $sv .
                                 '">' . __('Settings') . '</a>';
@@ -286,7 +286,7 @@ class Modules
                         break;
 
                     case 'other':
-                        if (!$check || App::core()->user()->isSuperAdmin() || App::core()->user()->check($module->permissions(), App::core()->blog()->id)) {
+                        if (!$check || App::core()->user()->isSuperAdmin() || App::core()->user()->check($module->permission(), App::core()->blog()->id)) {
                             $st['other'] = '<a class="module-config" href="' .
                             $sv .
                             '">' . __('Settings') . '</a>';
@@ -295,7 +295,7 @@ class Modules
                         break;
                 }
             }
-            if ($index && $self && (!$check || App::core()->user()->isSuperAdmin() || App::core()->user()->check($module->permissions(), App::core()->blog()->id))) {
+            if ($index && $self && (!$check || App::core()->user()->isSuperAdmin() || App::core()->user()->check($module->permission(), App::core()->blog()->id))) {
                 $st['index'] = '<a class="module-config" href="' .
                 $this->getModuleURL($id) .
                 '">' . __('Dedicated page') . '</a>';
@@ -440,8 +440,8 @@ class Modules
         // Check module permissions
         if (App::core()->processed('Admin')
             && (
-                '' == $define->permissions() && !App::core()->user()->isSuperAdmin()
-                || $define->permissions() && !App::core()->user()->check($define->permissions(), App::core()->blog()->id)
+                '' == $define->permission() && !App::core()->user()->isSuperAdmin()
+                || $define->permission() && !App::core()->user()->check($define->permission(), App::core()->blog()->id)
             )
         ) {
             return;
@@ -558,7 +558,7 @@ class Modules
         if (App::core()->processed('Admin')) {
             $class = 'Dotclear\\' . $this->getType() . '\\' . $define->id() . '\\Admin\\' . 'Handler';
             if (is_subclass_of($class, 'Dotclear\\Process\\Admin\\Page\\AbstractPage')) {
-                App::core()->adminurl()->register(new AdminUrlDescriptor(
+                App::core()->adminurl()->addItem(new AdminUrlItem(
                     name: 'admin.' . $this->getType(true) . '.' . $define->id(),
                     class: $class
                 ));

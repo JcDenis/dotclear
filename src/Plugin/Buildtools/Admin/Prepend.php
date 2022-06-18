@@ -29,7 +29,7 @@ class Prepend extends ModulePrepend
 
     public function loadModule(): void
     {
-        App::core()->behavior()->add('dcMaintenanceInit', function (Maintenance $maintenance): void {
+        App::core()->behavior('dcMaintenanceInit')->add(function (Maintenance $maintenance): void {
             $maintenance->addTask('Dotclear\\Plugin\\Buildtools\\Admin\\MaintenanceTaskBuildtools');
         });
     }

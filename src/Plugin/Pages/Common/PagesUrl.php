@@ -12,8 +12,8 @@ namespace Dotclear\Plugin\Pages\Common;
 // Dotclear\Plugin\Pages\Common\PagesUrl
 use ArrayObject;
 use Dotclear\App;
-use Dotclear\Core\PostType\PostTypeDescriptor;
-use Dotclear\Core\Url\UrlDescriptor;
+use Dotclear\Core\PostType\PostTypeItem;
+use Dotclear\Core\Url\UrlItem;
 use Dotclear\Database\Param;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\GPC\GPC;
@@ -31,20 +31,20 @@ class PagesUrl
 {
     public function __construct()
     {
-        App::core()->url()->registerHandler(new UrlDescriptor(
+        App::core()->url()->addItem(new UrlItem(
             type: 'pages',
             url: 'pages',
             scheme: '^pages/(.+)$',
             callback: [$this, 'pages']
         ));
-        App::core()->url()->registerHandler(new UrlDescriptor(
+        App::core()->url()->addItem(new UrlItem(
             type: 'pagespreview',
             url: 'pagespreview',
             scheme: '^pagespreview/(.+)$',
             callback: [$this, 'pagespreview']
         ));
 
-        App::core()->posttype()->setPostType(new PostTypeDescriptor(
+        App::core()->posttype()->addItem(new PostTypeItem(
             type: 'page',
             admin: '?handler=admin.plugin.Page&id=%d',
             public: App::core()->url()->getURLFor('pages', '%s'),
@@ -65,7 +65,7 @@ class PagesUrl
             $param->set('post_url', $args);
 
             // --BEHAVIOR-- publicPagesBeforeGetPosts, Param, string
-            App::core()->behavior()->call('publicPagesBeforeGetPosts', $param, $args);
+            App::core()->behavior('publicPagesBeforeGetPosts')->call($param, $args);
 
             App::core()->context()->set('posts', App::core()->blog()->posts()->getPosts(param: $param));
 
@@ -141,7 +141,7 @@ class PagesUrl
 
                     if ('' != $content) {
                         // --BEHAVIOR-- publicBeforeCommentTransform
-                        $buffer = App::core()->behavior()->call('publicBeforeCommentTransform', $content);
+                        $buffer = App::core()->behavior('publicBeforeCommentTransform')->call($content);
                         if ('' != $buffer) {
                             $content = $buffer;
                         } else {
@@ -165,7 +165,7 @@ class PagesUrl
 
                     if ($preview) {
                         // --BEHAVIOR-- publicBeforeCommentPreview
-                        App::core()->behavior()->call('publicBeforeCommentPreview', $cp);
+                        App::core()->behavior('publicBeforeCommentPreview')->call($cp);
 
                         $cp->set('preview', true);
                     } else {
@@ -188,12 +188,12 @@ class PagesUrl
                             }
 
                             // --BEHAVIOR-- publicBeforeCommentCreate
-                            App::core()->behavior()->call('publicBeforeCommentCreate', $cur);
+                            App::core()->behavior('publicBeforeCommentCreate')->call($cur);
                             if ($cur->getField('post_id')) {
                                 $comment_id = App::core()->blog()->comments()->createComment(cursor: $cur);
 
                                 // --BEHAVIOR-- publicAfterCommentCreate
-                                App::core()->behavior()->call('publicAfterCommentCreate', $cur, $comment_id);
+                                App::core()->behavior('publicAfterCommentCreate')->call($cur, $comment_id);
                             }
 
                             if (1 == $cur->getField('comment_status')) {

@@ -198,12 +198,12 @@ class Context
         $args[0] = &$str;
 
         // --BEHAVIOR-- publicBeforeContentFilter
-        App::core()->behavior()->call('publicBeforeContentFilter', $tag, $args);
+        App::core()->behavior('publicBeforeContentFilter')->call($tag, $args);
         $str = $args[0];
 
         foreach ($filters as $filter) {
             // --BEHAVIOR-- publicContentFilter
-            switch (App::core()->behavior()->call('publicContentFilter', $tag, $args, $filter)) {
+            switch (App::core()->behavior('publicContentFilter')->call($tag, $args, $filter)) {
                 case '1':
                     // 3rd party filter applied and must stop
                     break;
@@ -219,7 +219,7 @@ class Context
         }
 
         // --BEHAVIOR-- publicAfterContentFilter
-        App::core()->behavior()->call('publicAfterContentFilter', $tag, $args);
+        App::core()->behavior('publicAfterContentFilter')->call($tag, $args);
         $str = $args[0];
 
         return $str;

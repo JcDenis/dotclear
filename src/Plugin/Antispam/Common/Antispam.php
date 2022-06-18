@@ -24,7 +24,7 @@ use Dotclear\Helper\Mapper\Integers;
 use Dotclear\Plugin\Antispam\Common\Filter\FilterIp;
 use Dotclear\Plugin\Antispam\Common\Filter\FilterIpv6;
 use Dotclear\Process\Admin\Action\Action;
-use Dotclear\Process\Admin\Action\ActionDescriptor;
+use Dotclear\Process\Admin\Action\ActionItem;
 
 /**
  * Antispam main class.
@@ -42,17 +42,17 @@ class Antispam
     public function __construct()
     {
         if (App::core()->processed('Public')) {
-            App::core()->behavior()->add('publicBeforeCommentCreate', [$this, 'isSpam']);
-            App::core()->behavior()->add('publicBeforeTrackbackCreate', [$this, 'isSpam']);
-            App::core()->behavior()->add('publicBeforeGetDocument', [$this, 'purgeOldSpam']);
+            App::core()->behavior('publicBeforeCommentCreate')->add([$this, 'isSpam']);
+            App::core()->behavior('publicBeforeTrackbackCreate')->add([$this, 'isSpam']);
+            App::core()->behavior('publicBeforeGetDocument')->add([$this, 'purgeOldSpam']);
         } elseif (App::core()->processed('Admin')) {
-            App::core()->behavior()->add('coreAfterUpdateComment', [$this, 'trainFilters']);
-            App::core()->behavior()->add('adminAfterCommentDesc', [$this, 'statusMessage']);
-            App::core()->behavior()->add('adminDashboardHeaders', [$this, 'dashboardHeaders']);
-            App::core()->behavior()->add('adminCommentsActionsPage', [$this, 'commentsActionsPage']);
-            App::core()->behavior()->add('coreAfterGetComments', [$this, 'blogGetComments']);
-            App::core()->behavior()->add('adminCommentListHeader', [$this, 'commentListHeader']);
-            App::core()->behavior()->add('adminCommentListValue', [$this, 'commentListValue']);
+            App::core()->behavior('coreAfterUpdateComment')->add([$this, 'trainFilters']);
+            App::core()->behavior('adminAfterCommentDesc')->add([$this, 'statusMessage']);
+            App::core()->behavior('adminDashboardHeaders')->add([$this, 'dashboardHeaders']);
+            App::core()->behavior('adminCommentsActionsPage')->add([$this, 'commentsActionsPage']);
+            App::core()->behavior('coreAfterGetComments')->add([$this, 'blogGetComments']);
+            App::core()->behavior('adminCommentListHeader')->add([$this, 'commentListHeader']);
+            App::core()->behavior('adminCommentListValue')->add([$this, 'commentListValue']);
         }
     }
 
@@ -61,7 +61,7 @@ class Antispam
         $spamfilters = new ArrayObject($this->defaultFilters());
 
         // --BEHAVIOR-- antispamInitFilters , ArrayObject
-        App::core()->behavior()->call('antispamInitFilters', $spamfilters);
+        App::core()->behavior('antispamInitFilters')->call($spamfilters);
         $spamfilters = $spamfilters->getArrayCopy();
 
         $this->filters = new Spamfilters();
@@ -218,7 +218,7 @@ class Antispam
             return false;
         }
 
-        $permissions = App::core()->permissions()->getBlogPermissions(id: App::core()->blog()->id);
+        $permissions = App::core()->permission()->getBlogPermissions(id: App::core()->blog()->id);
 
         if (empty($permissions[$record->field('user_id')])) {
             return false;
@@ -304,7 +304,7 @@ class Antispam
                 $blocklist_actions[__('Blocklist IP (global)')] = 'blocklist_global';
             }
 
-            $ap->addAction(new ActionDescriptor(
+            $ap->addAction(new ActionItem(
                 group: __('IP address'),
                 actions: $blocklist_actions,
                 callback: [$this, 'doBlocklistIP'],

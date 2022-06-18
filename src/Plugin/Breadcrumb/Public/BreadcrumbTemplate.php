@@ -206,7 +206,7 @@ class BreadcrumbTemplate
                 $ret = '<a id="bc-home" href="' . App::core()->blog()->url . '">' . __('Home') . '</a>';
                 // --BEHAVIOR-- publicBreadcrumb
                 // Should specific breadcrumb if any, will be added after home page url
-                $special = App::core()->behavior()->call('publicBreadcrumb', App::core()->url()->getCurrentType(), $separator);
+                $special = App::core()->behavior('publicBreadcrumb')->call(App::core()->url()->getCurrentType(), $separator);
                 if ($special) {
                     $ret .= $separator . $special;
                 }

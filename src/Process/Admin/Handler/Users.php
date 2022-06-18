@@ -49,7 +49,7 @@ class Users extends AbstractPage
             'user_displayname' => 'user_displayname', ];
 
         // --BEHAVIOR-- adminUsersSortbyLexCombo
-        App::core()->behavior()->call('adminUsersSortbyLexCombo', [&$sortby_lex]);
+        App::core()->behavior('adminUsersSortbyLexCombo')->call([&$sortby_lex]);
 
         $param->set('order', (
             array_key_exists($this->filter->getValue(id: 'sortby'), $sortby_lex) ?
@@ -58,7 +58,7 @@ class Users extends AbstractPage
         ) . ' ' . $this->filter->getValue(id: 'order'));
 
         // --BEHAVIOR-- adminGetUsers, Param
-        App::core()->behavior()->call('adminGetUsers', $param);
+        App::core()->behavior('adminGetUsers')->call($param);
 
         $rs       = App::core()->users()->getUsers(param: $param);
         $count    = App::core()->users()->countUsers(param: $param);
@@ -106,7 +106,7 @@ class Users extends AbstractPage
         ];
 
         // --BEHAVIOR-- adminUsersActionsCombo
-        App::core()->behavior()->call('adminUsersActionsCombo', [&$combo_action]);
+        App::core()->behavior('adminUsersActionsCombo')->call([&$combo_action]);
 
         echo '<p class="top-add"><strong><a class="button add" href="' . App::core()->adminurl()->get('admin.user') . '">' . __('New user') . '</a></strong></p>';
 

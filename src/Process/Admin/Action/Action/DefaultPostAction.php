@@ -21,7 +21,7 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\Mapper\Integers;
 use Dotclear\Process\Admin\Action\Action;
-use Dotclear\Process\Admin\Action\ActionDescriptor;
+use Dotclear\Process\Admin\Action\ActionItem;
 
 /**
  * Admin handler for default action on selected entries.
@@ -33,13 +33,13 @@ abstract class DefaultPostAction extends Action
     protected function loadPostAction(Action $ap): void
     {
         if (App::core()->user()->check('publish,contentadmin', App::core()->blog()->id)) {
-            $this->addAction(new ActionDescriptor(
+            $this->addAction(new ActionItem(
                 group: __('Status'),
                 actions: App::core()->blog()->posts()->status()->getActions(),
                 callback: [$this, 'doChangePostStatus'],
             ));
         }
-        $this->addAction(new ActionDescriptor(
+        $this->addAction(new ActionItem(
             group: __('Mark'),
             actions: [
                 __('Mark as selected')   => 'selected',
@@ -47,25 +47,25 @@ abstract class DefaultPostAction extends Action
             ],
             callback: [$this, 'doUpdateSelectedPost'],
         ));
-        $this->addAction(new ActionDescriptor(
+        $this->addAction(new ActionItem(
             group: __('Change'),
             actions: [__('Change category') => 'category'],
             callback: [$this, 'doChangePostCategory'],
         ));
-        $this->addAction(new ActionDescriptor(
+        $this->addAction(new ActionItem(
             group: __('Change'),
             actions: [__('Change language') => 'lang'],
             callback: [$this, 'doChangePostLang'],
         ));
         if (App::core()->user()->check('admin', App::core()->blog()->id)) {
-            $this->addAction(new ActionDescriptor(
+            $this->addAction(new ActionItem(
                 group: __('Change'),
                 actions: [__('Change author') => 'author'],
                 callback: [$this, 'doChangePostAuthor'],
             ));
         }
         if (App::core()->user()->check('delete,contentadmin', App::core()->blog()->id)) {
-            $this->addAction(new ActionDescriptor(
+            $this->addAction(new ActionItem(
                 group: __('Delete'),
                 actions: [__('Delete') => 'delete'],
                 callback: [$this, 'doDeletePost'],

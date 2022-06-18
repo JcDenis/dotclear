@@ -27,7 +27,7 @@ class DeleteStatement extends SqlStatement
     public function statement(): string
     {
         // --BEHAVIOR-- coreBeforeDeleteStatement
-        App::core()->behavior()->call('coreBeforeDeleteStatement', $this);
+        App::core()->behavior('coreBeforeDeleteStatement')->call($this);
 
         // Check if source given
         if (!count($this->from)) {
@@ -61,7 +61,7 @@ class DeleteStatement extends SqlStatement
         $query = trim($query);
 
         // --BEHAVIOR-- coreAfertDeleteStatement
-        App::core()->behavior()->call('coreAfterDeleteStatement', $this, $query);
+        App::core()->behavior('coreAfterDeleteStatement')->call($this, $query);
 
         return $query;
     }

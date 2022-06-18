@@ -37,7 +37,7 @@ class HandlerPost extends AbstractPage
 
         /** @var ArrayObject<int, array> */
         $__extraPlugins = new ArrayObject();
-        App::core()->behavior()->call('ckeditorExtraPlugins', $__extraPlugins, $context);
+        App::core()->behavior('ckeditorExtraPlugins')->call($__extraPlugins, $context);
         $extraPlugins = $__extraPlugins->getArrayCopy(); ?>
 
 (function($) {

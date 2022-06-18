@@ -31,10 +31,10 @@ class Prepend extends ModulePrepend
 
         // Load widgets stack only on widget admin page
         if (App::core()->adminurl()->is('admin.plugin.Widgets')) {
-            App::core()->behavior()->add('adminRteFlags', function (ArrayObject $rte): void {
+            App::core()->behavior('adminRteFlags')->add(function (ArrayObject $rte): void {
                 $rte['widgets_text'] = [true, __('Widget\'s textareas')];
             });
-            App::core()->behavior()->add('adminPrepend', fn () => new WidgetsStack());
+            App::core()->behavior('adminPrepend')->add(fn () => new WidgetsStack());
         }
     }
 

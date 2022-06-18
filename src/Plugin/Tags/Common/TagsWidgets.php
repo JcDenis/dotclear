@@ -26,8 +26,8 @@ class TagsWidgets
 {
     public function __construct()
     {
-        App::core()->behavior()->add('initWidgets', [$this, 'initWidgets']);
-        App::core()->behavior()->add('initDefaultWidgets', [$this, 'initDefaultWidgets']);
+        App::core()->behavior('initWidgets')->add([$this, 'initWidgets']);
+        App::core()->behavior('initDefaultWidgets')->add([$this, 'initDefaultWidgets']);
     }
 
     public function initWidgets(Widgets $w): void

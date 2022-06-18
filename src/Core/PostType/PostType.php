@@ -19,10 +19,52 @@ namespace Dotclear\Core\PostType;
 final class PostType
 {
     /**
-     * @var array<string,PostTypeDescriptor> $post_types
-     *                                       Posts types descriptors
+     * @var array<string,PostTypeItem> $post_types
+     *                                 Posts types descriptors
      */
     private $post_types = [];
+
+    /**
+     * Set the post type.
+     *
+     * @param PostTypeItem $item The post type descriptor
+     */
+    public function addItem(PostTypeItem $item): void
+    {
+        $this->post_types[$item->type] = $item;
+    }
+
+    /**
+     * Dump posts types.
+     *
+     * @return array<string,PostTypeItem> The posts types descriptors
+     */
+    public function getItems(): array
+    {
+        return $this->post_types;
+    }
+
+    /**
+     * Get the post types.
+     *
+     * @return array<int,string> The post types
+     */
+    public function listItems(): array
+    {
+        return array_keys($this->post_types);
+    }
+
+    /**
+     * Check if a post type exists.
+     *
+     * @param string $type The post type
+     *
+     * @return bool True if it exists
+     */
+    public function hasItem(string $type): bool
+    {
+        return array_key_exists($type, $this->post_types);
+    }
 
     /**
      * Get the post admin url.
@@ -34,7 +76,7 @@ final class PostType
      */
     public function getPostAdminURL(string $type, string|int $id): string
     {
-        return sprintf($this->post_types[$this->hasPostType($type) ? $type : 'post']->admin, $id);
+        return sprintf($this->post_types[$this->hasItem($type) ? $type : 'post']->admin, $id);
     }
 
     /**
@@ -47,48 +89,6 @@ final class PostType
      */
     public function getPostPublicURL(string $type, string $url): string
     {
-        return sprintf($this->post_types[$this->hasPostType($type) ? $type : 'post']->public, $url);
-    }
-
-    /**
-     * Set the post type.
-     *
-     * @param PostTypeDescriptor $descriptor The post type descriptor
-     */
-    public function setPostType(PostTypeDescriptor $descriptor): void
-    {
-        $this->post_types[$descriptor->type] = $descriptor;
-    }
-
-    /**
-     * Get the post types.
-     *
-     * @return array<int,string> The post types
-     */
-    public function getPostTypes(): array
-    {
-        return array_keys($this->post_types);
-    }
-
-    /**
-     * Check if a post type exists.
-     *
-     * @param string $type The post type
-     *
-     * @return bool True if it exists
-     */
-    public function hasPostType(string $type): bool
-    {
-        return array_key_exists($type, $this->post_types);
-    }
-
-    /**
-     * Dump posts types.
-     *
-     * @return array<string,PostTypeDescriptor> The posts types descriptors
-     */
-    public function dump(): array
-    {
-        return $this->post_types;
+        return sprintf($this->post_types[$this->hasItem($type) ? $type : 'post']->public, $url);
     }
 }

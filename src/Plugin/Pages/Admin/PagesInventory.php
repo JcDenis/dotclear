@@ -52,7 +52,7 @@ class PagesInventory extends Inventory
             ];
 
             $cols = new ArrayObject($cols);
-            App::core()->behavior()->call('adminPagesListHeader', $this->rs, $cols);
+            App::core()->behavior('adminPagesListHeader')->call($this->rs, $cols);
 
             $cols = App::core()->listoption()->getUserColumns('pages', $cols);
 
@@ -152,7 +152,7 @@ class PagesInventory extends Inventory
         ];
 
         $cols = new ArrayObject($cols);
-        App::core()->behavior()->call('adminPagesListValue', $this->rs, $cols);
+        App::core()->behavior('adminPagesListValue')->call($this->rs, $cols);
 
         $cols = App::core()->listoption()->getUserColumns('pages', $cols);
 

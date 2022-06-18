@@ -128,7 +128,7 @@ class MediaInventory extends Inventory
             // Item
             $params = array_merge($filters->getValues(), ['id' => $f->media_id]);
 
-            // !App::core()->behavior()->call('adminMediaURLParams', $params);
+            // !App::core()->behavior('adminMediaURLParams')->call($params);
 
             $link = App::core()->adminurl()->get('admin.media.item', (array) $params);
             if ($f->media_priv) {

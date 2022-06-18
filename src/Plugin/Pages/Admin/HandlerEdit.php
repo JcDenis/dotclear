@@ -267,12 +267,12 @@ class HandlerEdit extends AbstractPage
             if ($this->post_id) {
                 try {
                     // --BEHAVIOR-- adminBeforePageUpdate
-                    App::core()->behavior()->call('adminBeforePageUpdate', $cur, $this->post_id);
+                    App::core()->behavior('adminBeforePageUpdate')->call($cur, $this->post_id);
 
                     App::core()->blog()->posts()->updatePost(id: $this->post_id, cursor: $cur);
 
                     // --BEHAVIOR-- adminAfterPageUpdate
-                    App::core()->behavior()->call('adminAfterPageUpdate', $cur, $this->post_id);
+                    App::core()->behavior('adminAfterPageUpdate')->call($cur, $this->post_id);
 
                     App::core()->adminurl()->redirect('admin.plugin.Page', ['id' => $this->post_id, 'upd' => 1]);
                 } catch (Exception $e) {
@@ -283,12 +283,12 @@ class HandlerEdit extends AbstractPage
 
                 try {
                     // --BEHAVIOR-- adminBeforePageCreate
-                    App::core()->behavior()->call('adminBeforePageCreate', $cur);
+                    App::core()->behavior('adminBeforePageCreate')->call($cur);
 
                     $return_id = App::core()->blog()->posts()->createPost(cursor: $cur);
 
                     // --BEHAVIOR-- adminAfterPageCreate
-                    App::core()->behavior()->call('adminAfterPageCreate', $cur, $return_id);
+                    App::core()->behavior('adminAfterPageCreate')->call($cur, $return_id);
 
                     App::core()->adminurl()->redirect('admin.plugin.Page', ['id' => $return_id, 'crea' => 1]);
                 } catch (Exception $e) {
@@ -340,23 +340,20 @@ class HandlerEdit extends AbstractPage
                 $c_edit = $this->post_editor['xhtml'];
             }
             if ($p_edit == $c_edit) {
-                $this->setPageHead(App::core()->behavior()->call(
-                    'adminPostEditor',
+                $this->setPageHead(App::core()->behavior('adminPostEditor')->call(
                     $p_edit,
                     'post',
                     ['#post_excerpt', '#post_content', '#comment_content'],
                     $this->post_format
                 ));
             } else {
-                $this->setPageHead(App::core()->behavior()->call(
-                    'adminPostEditor',
+                $this->setPageHead(App::core()->behavior('adminPostEditor')->call(
                     $p_edit,
                     'post',
                     ['#post_excerpt', '#post_content'],
                     $this->post_format
                 ));
-                $this->setPageHead(App::core()->behavior()->call(
-                    'adminPostEditor',
+                $this->setPageHead(App::core()->behavior('adminPostEditor')->call(
                     $c_edit,
                     'comment',
                     ['#comment_content'],
@@ -369,7 +366,7 @@ class HandlerEdit extends AbstractPage
             ->setPageHead(
                 App::core()->resource()->confirmClose('entry-form', 'comment-form') .
                 // --BEHAVIOR-- adminPostHeaders
-                App::core()->behavior()->call('adminPageHeaders') .
+                App::core()->behavior('adminPageHeaders')->call() .
                 App::core()->resource()->pageTabs($default_tab) .
                 $next_headlink . "\n" . $prev_headlink
             )
@@ -437,7 +434,7 @@ class HandlerEdit extends AbstractPage
             }
 
             // --BEHAVIOR-- adminPostNavLinks
-            App::core()->behavior()->call('adminPageNavLinks', $this->post ?? null);
+            App::core()->behavior('adminPageNavLinks')->call($this->post ?? null);
 
             echo '</p>';
         }
@@ -577,7 +574,7 @@ class HandlerEdit extends AbstractPage
             );
 
             // --BEHAVIOR-- adminPostFormItems
-            App::core()->behavior()->call('adminPageFormItems', $main_items, $sidebar_items, $this->post ?? null);
+            App::core()->behavior('adminPageFormItems')->call($main_items, $sidebar_items, $this->post ?? null);
 
             echo '<div class="multi-part" title="' . ($this->post_id ? __('Edit page') : __('New page')) .
             sprintf(' &rsaquo; %s', $this->post_format) . '" id="edit-entry">';
@@ -592,7 +589,7 @@ class HandlerEdit extends AbstractPage
             }
 
             // --BEHAVIOR-- adminPageForm
-            App::core()->behavior()->call('adminPageForm', $this->post ?? null);
+            App::core()->behavior('adminPageForm')->call($this->post ?? null);
 
             echo '<p class="border-top">' .
             ($this->post_id ? Form::hidden('id', $this->post_id) : '') .
@@ -640,14 +637,14 @@ class HandlerEdit extends AbstractPage
             }
 
             // --BEHAVIOR-- adminPageFormSidebar
-            App::core()->behavior()->call('adminPageFormSidebar', $this->post ?? null);
+            App::core()->behavior('adminPageFormSidebar')->call($this->post ?? null);
 
             echo '</div>'; // End #entry-sidebar
 
             echo '</form>';
 
             // --BEHAVIOR-- adminPostForm
-            App::core()->behavior()->call('adminPageAfterForm', $this->post ?? null);
+            App::core()->behavior('adminPageAfterForm')->call($this->post ?? null);
 
             echo '</div>'; // End
 

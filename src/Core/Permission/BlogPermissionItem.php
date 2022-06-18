@@ -7,9 +7,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core\Permissions;
+namespace Dotclear\Core\Permission;
 
-// Dotclear\Core\Permissions\BlogPermissionsDescriptor
+// Dotclear\Core\Permission\BlogPermissionItem
 use Dotclear\Helper\Mapper\Strings;
 
 /**
@@ -17,7 +17,7 @@ use Dotclear\Helper\Mapper\Strings;
  *
  * @ingroup  Core User Permission
  */
-final class BlogPermissionsDescriptor
+final class BlogPermissionItem
 {
     /**
      * Constructor.

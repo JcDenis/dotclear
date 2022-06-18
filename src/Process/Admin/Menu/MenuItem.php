@@ -85,7 +85,7 @@ final class MenuItem
     {
         return
             '<li' . (($this->active || $this->class) ? ' class="' . (($this->active) ? 'active ' : '') . (($this->class) ? $this->class : '') . '"' : '') . '>' .
-            '<a href="' . $this->url . '"' . $this->attributes . '>' . App::core()->menus()->getIconTheme($this->icons) . $this->title . '</a>' .
+            '<a href="' . $this->url . '"' . $this->attributes . '>' . App::core()->menu()->getIconTheme($this->icons) . $this->title . '</a>' .
             '</li>' . "\n";
     }
 }

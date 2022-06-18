@@ -26,12 +26,12 @@ class CKEditorBehavior
 {
     public function __construct()
     {
-        App::core()->behavior()->add('adminPostEditor', [$this, 'adminPostEditor']);
-        App::core()->behavior()->add('adminPopupMedia', [$this, 'adminPopupMedia']);
-        App::core()->behavior()->add('adminPopupLink', [$this, 'adminPopupLink']);
-        App::core()->behavior()->add('adminPopupPosts', [$this, 'adminPopupPosts']);
-        App::core()->behavior()->add('adminFiltersAddFilters', [$this, 'adminFiltersAddFilters']);
-        App::core()->behavior()->add('adminPageHTTPHeaderCSP', [$this, 'adminPageHTTPHeaderCSP']);
+        App::core()->behavior('adminPostEditor')->add([$this, 'adminPostEditor']);
+        App::core()->behavior('adminPopupMedia')->add([$this, 'adminPopupMedia']);
+        App::core()->behavior('adminPopupLink')->add([$this, 'adminPopupLink']);
+        App::core()->behavior('adminPopupPosts')->add([$this, 'adminPopupPosts']);
+        App::core()->behavior('adminFiltersAddFilters')->add([$this, 'adminFiltersAddFilters']);
+        App::core()->behavior('adminPageHTTPHeaderCSP')->add([$this, 'adminPageHTTPHeaderCSP']);
     }
 
     /**

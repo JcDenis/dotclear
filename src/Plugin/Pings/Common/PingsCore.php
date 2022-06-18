@@ -21,7 +21,7 @@ class PingsCore
 {
     public function __construct()
     {
-        App::core()->behavior()->add('coreAfterFirstPublicationPosts', [$this, 'doPings']);
+        App::core()->behavior('coreAfterFirstPublicationPosts')->add([$this, 'doPings']);
     }
 
     public function doPings($ids): void

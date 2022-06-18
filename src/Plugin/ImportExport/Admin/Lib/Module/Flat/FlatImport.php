@@ -232,7 +232,7 @@ class FlatImport extends FlatBackup
         // $this->cur_version     = App::core()->con()->openCursor(App::core()->prefix() . 'version');
 
         // --BEHAVIOR-- importInit
-        App::core()->behavior()->call('importInit', $this);
+        App::core()->behavior('importInit')->call($this);
     }
 
     public function getMode(): string
@@ -328,7 +328,7 @@ class FlatImport extends FlatBackup
                 };
 
                 // --BEHAVIOR-- importSingle, FlatBackupItem, FlatImport
-                App::core()->behavior()->call('importSingle', $line, $this);
+                App::core()->behavior('importSingle')->call($line, $this);
             }
 
             if ('mysql' == App::core()->con()->syntax()) {
@@ -388,7 +388,7 @@ class FlatImport extends FlatBackup
                     default       => '',
                 };
                 // --BEHAVIOR-- importFull
-                App::core()->behavior()->call('importFull', $line, $this);
+                App::core()->behavior('importFull')->call($line, $this);
             }
         } catch (Exception $e) {
             @fclose($this->fp);
@@ -966,6 +966,6 @@ class FlatImport extends FlatBackup
         }
 
         // --BEHAVIOR-- importPrepareDC12
-        App::core()->behavior()->call('importPrepareDC12', $line, $this);
+        App::core()->behavior('importPrepareDC12')->call($line, $this);
     }
 }

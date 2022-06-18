@@ -54,7 +54,7 @@ class Posts extends AbstractPage
             'user_id'    => 'P.user_id', ];
 
         // --BEHAVIOR-- adminPostsSortbyLexCombo
-        App::core()->behavior()->call('adminPostsSortbyLexCombo', [&$sortby_lex]);
+        App::core()->behavior('adminPostsSortbyLexCombo')->call([&$sortby_lex]);
 
         $param->set('order', (
             array_key_exists($this->filter->getValue(id: 'sortby'), $sortby_lex) ?

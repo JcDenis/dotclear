@@ -11,7 +11,7 @@ namespace Dotclear\Plugin\Blogroll\Admin;
 
 // Dotclear\Plugin\Blogroll\Admin\Prepend
 use Dotclear\App;
-use Dotclear\Core\Permissions\PermissionDescriptor;
+use Dotclear\Core\Permission\PermissionItem;
 use Dotclear\Database\Structure;
 use Dotclear\Modules\ModulePrepend;
 use Dotclear\Plugin\Blogroll\Common\BlogrollWidgets;
@@ -30,12 +30,11 @@ class Prepend extends ModulePrepend
         $this->addStandardFavorites('usage,contentadmin');
 
         // Manage user permissions
-        App::core()->behavior()->add(
-            'adminUsersActionsHeaders',
+        App::core()->behavior('adminUsersActionsHeaders')->add(
             fn () => App::core()->resource()->load('_users_actions.js', 'Plugin', 'Blogroll')
         );
 
-        App::core()->permissions()->addPermType(new PermissionDescriptor(
+        App::core()->permission()->addItem(new PermissionItem(
             type: 'blogroll',
             label: __('manage blogroll')
         ));

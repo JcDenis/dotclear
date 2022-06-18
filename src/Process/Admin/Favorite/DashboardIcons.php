@@ -32,7 +32,7 @@ class DashboardIcons
      */
     public function __construct()
     {
-        foreach (App::core()->favorite()->getUserFavorites() as $item) {
+        foreach (App::core()->favorite()->getUserItems() as $item) {
             $icon = new DashboardIcon(
                 id: $item->id,
                 title: $item->title,
@@ -44,7 +44,7 @@ class DashboardIcons
                 call_user_func($item->dashboard, $icon);
             }
 
-            App::core()->behavior()->call('adminBeforeAddDashboardIcon', $icon);
+            App::core()->behavior('adminBeforeAddDashboardIcon')->call(icon: $icon);
 
             $this->addIcon(icon: $icon);
         }

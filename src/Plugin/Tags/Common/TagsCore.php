@@ -23,7 +23,7 @@ class TagsCore
 {
     public function __construct()
     {
-        App::core()->behavior()->add('coreInitWikiPost', function (Wiki2xhtml $wiki2xhtml): void {
+        App::core()->behavior('coreInitWikiPost')->add(function (Wiki2xhtml $wiki2xhtml): void {
             $wiki2xhtml->registerFunction('url:tag', [$this, 'wiki2xhtmlTag']);
         });
     }

@@ -70,12 +70,12 @@ class Comment extends AbstractPage
                 $cur->setField('post_id', GPC::post()->int('post_id'));
 
                 // --BEHAVIOR-- adminBeforeCommentCreate
-                App::core()->behavior()->call('adminBeforeCommentCreate', $cur);
+                App::core()->behavior('adminBeforeCommentCreate')->call($cur);
 
                 $this->comment_id = App::core()->blog()->comments()->createComment(cursor: $cur);
 
                 // --BEHAVIOR-- adminAfterCommentCreate
-                App::core()->behavior()->call('adminAfterCommentCreate', $cur, $this->comment_id);
+                App::core()->behavior('adminAfterCommentCreate')->call($cur, $this->comment_id);
 
                 App::core()->notice()->addSuccessNotice(__('Comment has been successfully created.'));
             } catch (Exception $e) {
@@ -145,12 +145,12 @@ class Comment extends AbstractPage
 
                 try {
                     // --BEHAVIOR-- adminBeforeCommentUpdate
-                    App::core()->behavior()->call('adminBeforeCommentUpdate', $cur, $this->comment_id);
+                    App::core()->behavior('adminBeforeCommentUpdate')->call($cur, $this->comment_id);
 
                     App::core()->blog()->comments()->updateComment(id: $this->comment_id, cursor: $cur);
 
                     // --BEHAVIOR-- adminAfterCommentUpdate
-                    App::core()->behavior()->call('adminAfterCommentUpdate', $cur, $this->comment_id);
+                    App::core()->behavior('adminAfterCommentUpdate')->call($cur, $this->comment_id);
 
                     App::core()->notice()->addSuccessNotice(__('Comment has been successfully updated.'));
                     App::core()->adminurl()->redirect('admin.comment', ['id' => $this->comment_id]);
@@ -162,7 +162,7 @@ class Comment extends AbstractPage
             if (!GPC::post()->empty('delete') && $this->commnet_can_delete) {
                 try {
                     // --BEHAVIOR-- adminBeforeCommentDelete
-                    App::core()->behavior()->call('adminBeforeCommentDelete', $this->comment_id);
+                    App::core()->behavior('adminBeforeCommentDelete')->call($this->comment_id);
 
                     App::core()->blog()->comments()->deleteComments(ids: new Integers($this->comment_id));
 
@@ -191,10 +191,10 @@ class Comment extends AbstractPage
             ->setPageHead(
                 App::core()->resource()->confirmClose('comment-form') .
                 App::core()->resource()->load('_comment.js') .
-                App::core()->behavior()->call('adminPostEditor', $comment_editor['xhtml'], 'comment', ['#comment_content'], 'xhtml') .
+                App::core()->behavior('adminPostEditor')->call($comment_editor['xhtml'], 'comment', ['#comment_content'], 'xhtml') .
 
                 // --BEHAVIOR-- adminCommentHeaders
-                App::core()->behavior()->call('adminCommentHeaders')
+                App::core()->behavior('adminCommentHeaders')->call()
             )
             ->setPageBreadcrumb([
                 Html::escapeHTML(App::core()->blog()->name) => '',
@@ -268,7 +268,7 @@ class Comment extends AbstractPage
         '</p>' .
 
         // --BEHAVIOR-- adminAfterCommentDesc
-        // !App::core()->behavior()->call('adminAfterCommentDesc', $rs) .
+        // !App::core()->behavior('adminAfterCommentDesc')->call($rs) .
 
         '<p class="area"><label for="comment_content">' . __('Comment:') . '</label> ' .
         Form::textarea(

@@ -260,7 +260,7 @@ class Combo
             __('Number of trackbacks') => 'nb_trackback',
         ]);
         // --BEHAVIOR-- adminPostsSortbyCombo , ArrayObject
-        App::core()->behavior()->call('adminPostsSortbyCombo', $sortby_combo);
+        App::core()->behavior('adminPostsSortbyCombo')->call($sortby_combo);
 
         return $sortby_combo->getArrayCopy();
     }
@@ -282,7 +282,7 @@ class Combo
             __('Spam filter') => 'comment_spam_filter',
         ]);
         // --BEHAVIOR-- adminCommentsSortbyCombo , ArrayObject
-        App::core()->behavior()->call('adminCommentsSortbyCombo', $sortby_combo);
+        App::core()->behavior('adminCommentsSortbyCombo')->call($sortby_combo);
 
         return $sortby_combo->getArrayCopy();
     }
@@ -301,7 +301,7 @@ class Combo
             __('Status')      => 'blog_status',
         ]);
         // --BEHAVIOR-- adminBlogsSortbyCombo , ArrayObject
-        App::core()->behavior()->call('adminBlogsSortbyCombo', $sortby_combo);
+        App::core()->behavior('adminBlogsSortbyCombo')->call($sortby_combo);
 
         return $sortby_combo->getArrayCopy();
     }
@@ -323,7 +323,7 @@ class Combo
                 __('Number of entries') => 'nb_post',
             ]);
             // --BEHAVIOR-- adminUsersSortbyCombo , ArrayObject
-            App::core()->behavior()->call('adminUsersSortbyCombo', $sortby_combo);
+            App::core()->behavior('adminUsersSortbyCombo')->call($sortby_combo);
         }
 
         return $sortby_combo->getArrayCopy();

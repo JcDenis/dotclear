@@ -96,7 +96,7 @@ final class Blogs
         $query  = $sql ? clone $sql : new SelectStatement();
 
         // --BEHAVIOR-- coreBeforeCountBlogs, Param, SelectStatement
-        App::core()->behavior()->call('coreBeforeCountBlogs', param: $params, sql: $query);
+        App::core()->behavior('coreBeforeCountBlogs')->call(param: $params, sql: $query);
 
         $params->unset('order');
         $params->unset('limit');
@@ -106,7 +106,7 @@ final class Blogs
         $record = $this->queryBlogsTable(param: $params, sql: $query);
 
         // --BEHAVIOR-- coreAfterCountBlogs, Record
-        App::core()->behavior()->call('coreAfterCountBlogs', record: $record);
+        App::core()->behavior('coreAfterCountBlogs')->call(record: $record);
 
         return $record->integer();
     }
@@ -127,7 +127,7 @@ final class Blogs
         $query  = $sql ? clone $sql : new SelectStatement();
 
         // --BEHAVIOR-- coreBeforeGetBlogs, Param, SelectStatement
-        App::core()->behavior()->call('coreBeforeGetBlogs', param: $params, sql: $query);
+        App::core()->behavior('coreBeforeGetBlogs')->call(param: $params, sql: $query);
 
         if (!empty($params->columns())) {
             $query->columns($params->columns());
@@ -152,7 +152,7 @@ final class Blogs
         $record = $this->queryBlogsTable(param: $params, sql: $query);
 
         // --BEHAVIOR-- coreAfterGetBlogs, Record
-        App::core()->behavior()->call('coreAfterGetBlogs', record: $record);
+        App::core()->behavior('coreAfterGetBlogs')->call(record: $record);
 
         return $record;
     }
@@ -224,7 +224,7 @@ final class Blogs
         }
 
         // --BEHAVIOR-- coreBeforeCreateBlog, Cursor
-        App::core()->behavior()->call('coreBeforeCreateBlog', cursor: $cursor);
+        App::core()->behavior('coreBeforeCreateBlog')->call(cursor: $cursor);
 
         $this->getBlogCursor(cursor: $cursor);
 
@@ -235,7 +235,7 @@ final class Blogs
         $cursor->insert();
 
         // --BEHAVIOR-- coreAfterCreateBlog, Cursor
-        App::core()->behavior()->call('coreAfterCreateBlog', cursor: $cursor);
+        App::core()->behavior('coreAfterCreateBlog')->call(cursor: $cursor);
     }
 
     /**
@@ -247,7 +247,7 @@ final class Blogs
     public function updateBlog(string $id, Cursor $cursor): void
     {
         // --BEHAVIOR-- coreBeforeUpdateBlog, int, Cursor
-        App::core()->behavior()->call('coreBeforeUpdateBlog', id: $id, cursor: $cursor);
+        App::core()->behavior('coreBeforeUpdateBlog')->call(id: $id, cursor: $cursor);
 
         $this->getBlogCursor(cursor: $cursor);
 
@@ -256,7 +256,7 @@ final class Blogs
         $cursor->update("WHERE blog_id = '" . App::core()->con()->escape($id) . "'");
 
         // --BEHAVIOR-- coreAfterUpdateBlog, int, Cursor
-        App::core()->behavior()->call('coreAfterUpdateBlog', id: $id, cursor: $cursor);
+        App::core()->behavior('coreAfterUpdateBlog')->call(id: $id, cursor: $cursor);
     }
 
     /**
@@ -310,7 +310,7 @@ final class Blogs
         }
 
         // --BEHAVIOR-- coreBeforeUpdateBlogsStatus, Strings, int
-        App::core()->behavior()->call('coreBeforeUpdateBlogsStatus', ids: $ids, status: $status);
+        App::core()->behavior('coreBeforeUpdateBlogsStatus')->call(ids: $ids, status: $status);
 
         $sql = new UpdateStatement();
         $sql->from(App::core()->prefix() . 'blog');
@@ -345,7 +345,7 @@ final class Blogs
 
         if ($ids->count()) {
             // --BEHAVIOR-- coreBeforeDeleteBlogs, Strings
-            App::core()->behavior()->call('coreBeforeDeleteBlogs', ids: $ids);
+            App::core()->behavior('coreBeforeDeleteBlogs')->call(ids: $ids);
 
             $sql = new DeleteStatement();
             $sql->from(App::core()->prefix() . 'blog');

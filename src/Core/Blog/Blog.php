@@ -157,7 +157,7 @@ final class Blog
         $this->public_path = $record->isEmpty() ? false : Path::real(Path::fullFromRoot($this->settings()->getGroup('system')->getSetting('public_path'), App::core()->config()->get('base_dir')));
 
         // --BEHAVIOR-- coreAfterConstructBlog, Blog
-        App::core()->behavior()->call('coreAfterConstructBlog', blog: $this);
+        App::core()->behavior('coreAfterConstructBlog')->call(blog: $this);
     }
 
     /**
@@ -340,7 +340,7 @@ final class Blog
         $sql->update();
 
         // --BEHAVIOR-- coreAfterTriggerBlog
-        App::core()->behavior()->call('coreAfterTriggerBlog');
+        App::core()->behavior('coreAfterTriggerBlog')->call();
     }
 
     /**

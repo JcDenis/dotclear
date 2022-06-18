@@ -69,7 +69,7 @@ class InsertStatement extends SqlStatement
     public function statement(): string
     {
         // --BEHAVIOR-- coreBeforeInsertStatement
-        App::core()->behavior()->call('coreBeforeInsertStatement', $this);
+        App::core()->behavior('coreBeforeInsertStatement')->call($this);
 
         // Check if source given
         if (!count($this->from)) {
@@ -104,7 +104,7 @@ class InsertStatement extends SqlStatement
         $query = trim($query);
 
         // --BEHAVIOR-- coreAfertInsertStatement
-        App::core()->behavior()->call('coreAfterInsertStatement', $this, $query);
+        App::core()->behavior('coreAfterInsertStatement')->call($this, $query);
 
         return $query;
     }

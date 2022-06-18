@@ -17,7 +17,7 @@ use Dotclear\Helper\Clock;
 use Dotclear\Helper\GPC\GPCGroup;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Process\Admin\Action\Action;
-use Dotclear\Process\Admin\Action\ActionDescriptor;
+use Dotclear\Process\Admin\Action\ActionItem;
 use Dotclear\Process\Admin\Action\Action\PostAction;
 use Exception;
 
@@ -56,7 +56,7 @@ class PagesAction extends PostAction
     public function loadDefaults(): void
     {
         if (App::core()->user()->check('publish,contentadmin', App::core()->blog()->id)) {
-            $this->addAction(new ActionDescriptor(
+            $this->addAction(new ActionItem(
                 group: __('Status'),
                 actions: [
                     __('Publish')         => 'publish',
@@ -68,27 +68,27 @@ class PagesAction extends PostAction
             ));
         }
         if (App::core()->user()->check('admin', App::core()->blog()->id)) {
-            $this->addAction(new ActionDescriptor(
+            $this->addAction(new ActionItem(
                 group: __('Change'),
                 actions: [__('Change author') => 'author'],
                 callback: [$this, 'doChangePostAuthor'],
             ));
         }
         if (App::core()->user()->check('delete,contentadmin', App::core()->blog()->id)) {
-            $this->addAction(new ActionDescriptor(
+            $this->addAction(new ActionItem(
                 group: __('Delete'),
                 actions: [__('Delete') => 'delete'],
                 callback: [$this, 'doDeletePost'],
             ));
         }
 
-        $this->addAction(new ActionDescriptor(
+        $this->addAction(new ActionItem(
             hidden: true,
             actions: ['reorder' => 'reorder'],
             callback: [$this, 'doReorderPages'],
         ));
 
-        App::core()->behavior()->call('adminPagesActionsPage', $this);
+        App::core()->behavior('adminPagesActionsPage')->call($this);
     }
 
     public function getPagePrepend(): ?bool
