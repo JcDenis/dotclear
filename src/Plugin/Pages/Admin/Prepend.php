@@ -22,6 +22,9 @@ use Dotclear\Process\Admin\AdminUrl\AdminUrlItem;
 use Dotclear\Process\Admin\Favorite\Favorite;
 use Dotclear\Process\Admin\Favorite\FavoriteItem;
 use Dotclear\Process\Admin\Favorite\DashboardIcon;
+use Dotclear\Process\Admin\ListOption\Column;
+use Dotclear\Process\Admin\ListOption\ColumnGroup;
+use Dotclear\Process\Admin\ListOption\ColumnItem;
 
 /**
  * Admin prepend for plugin Pages.
@@ -81,14 +84,28 @@ class Prepend extends ModulePrepend
         );
 
         // Add user pref list columns
-        App::core()->behavior('adminColumnsLists')->add(function (ArrayObject $cols): void {
-            // Set optional columns in pages lists
-            $cols['pages'] = [__('Pages'), [
-                'date'       => [true, __('Date')],
-                'author'     => [true, __('Author')],
-                'comments'   => [true, __('Comments')],
-                'trackbacks' => [true, __('Trackbacks')],
-            ]];
+        App::core()->behavior('adminAfterConstructColumn')->add(function (Column $column): void {
+            $group = new ColumnGroup(
+                id: 'pages',
+                title: __('Pages'),
+            );
+            $group->addItem(new ColumnItem(
+                id: 'date',
+                title: __('Date'),
+            ));
+            $group->addItem(new ColumnItem(
+                id: 'author',
+                title: __('Author'),
+            ));
+            $group->addItem(new ColumnItem(
+                id: 'comments',
+                title: __('Comments'),
+            ));
+            $group->addItem(new ColumnItem(
+                id: 'trackbacks',
+                title: __('Trackbacks'),
+            ));
+            $column->addGroup(group: $group);
         });
 
         // Add user pref list filters

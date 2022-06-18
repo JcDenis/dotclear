@@ -23,7 +23,7 @@ use Dotclear\App;
  *
  * @ingroup  Admin User Preference
  */
-class ListOption
+final class ListOption
 {
     /**
      * @var ArrayObject $sorts
@@ -32,62 +32,23 @@ class ListOption
     private $sorts;
 
     /**
-     * Get default columns.
-     *
-     * @return array The default columns
+     * @var Column $column
+     *             The lists columns instance
      */
-    public function getDefaultColumns(): array
-    {
-        return ['posts' => [__('Posts'), [
-            'date'       => [true, __('Date')],
-            'category'   => [true, __('Category')],
-            'author'     => [true, __('Author')],
-            'comments'   => [true, __('Comments')],
-            'trackbacks' => [true, __('Trackbacks')],
-        ]]];
-    }
+    private $column;
 
     /**
-     * Get users columns preferences.
+     * Get lists columns instance.
      *
-     * @param string      $type    The columns type
-     * @param ArrayObject $columns The columns list
-     *
-     * @return ArrayObject The user columns
+     * @return Column The lists columns instance
      */
-    public function getUserColumns(string $type = null, ArrayObject $columns = null): ArrayObject
+    public function column(): Column
     {
-        // Get default colums (admin lists)
-        $cols = $this->getDefaultColumns();
-        $cols = new ArrayObject($cols);
-
-        // --BEHAVIOR-- adminColumnsLists
-        App::core()->behavior('adminColumnsLists')->call($cols);
-
-        // Load user settings
-        $cols_user = @App::core()->user()->preference()->get('interface')->get('cols');
-        if (is_array($cols_user) || $cols_user instanceof ArrayObject) {
-            foreach ($cols_user as $ct => $cv) {
-                foreach ($cv as $cn => $cd) {
-                    if (isset($cols[$ct][1][$cn])) {
-                        $cols[$ct][1][$cn][0] = $cd;
-
-                        // remove unselected columns if type is given
-                        if (!$cd && !empty($type) && !empty($columns) && $ct == $type && isset($columns[$cn])) {
-                            unset($columns[$cn]);
-                        }
-                    }
-                }
-            }
-        }
-        if (null !== $columns) {
-            return $columns;
-        }
-        if (null !== $type) {
-            return new ArrayObject($cols[$type] ?? []);
+        if (!($this->column instanceof Column)) {
+            $this->column = new Column();
         }
 
-        return $cols;
+        return $this->column;
     }
 
     /**

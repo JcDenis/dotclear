@@ -54,7 +54,7 @@ class PagesInventory extends Inventory
             $cols = new ArrayObject($cols);
             App::core()->behavior('adminPagesListHeader')->call($this->rs, $cols);
 
-            $cols = App::core()->listoption()->getUserColumns('pages', $cols);
+            $cols = App::core()->listoption()->column()->cleanColumns(id: 'pages', columns: $cols);
 
             $html_block .= '<tr>' . implode(iterator_to_array($cols)) .
                 '</tr></thead><tbody id="pageslist">%s</tbody></table>%s</div>';
@@ -154,7 +154,7 @@ class PagesInventory extends Inventory
         $cols = new ArrayObject($cols);
         App::core()->behavior('adminPagesListValue')->call($this->rs, $cols);
 
-        $cols = App::core()->listoption()->getUserColumns('pages', $cols);
+        $cols = App::core()->listoption()->column()->cleanColumns(id: 'pages', columns: $cols);
 
         $res .= implode(iterator_to_array($cols));
         $res .= '</tr>';

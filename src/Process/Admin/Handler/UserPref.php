@@ -52,7 +52,6 @@ class UserPref extends AbstractPage
     private $format_by_editors = [];
     private $available_formats = [];
 
-    private $cols;
     private $sorts;
 
     private $rte;
@@ -178,9 +177,6 @@ class UserPref extends AbstractPage
             }
         }
 
-        // Get default colums (admin lists)
-        $this->cols = App::core()->listoption()->getUserColumns();
-
         // Get default sortby, order, nbperpage (admin lists)
         $this->sorts = App::core()->listoption()->getUserFilters();
 
@@ -287,13 +283,13 @@ class UserPref extends AbstractPage
 
                 // Update user columns (lists)
                 $cu = [];
-                foreach ($this->cols as $col_type => $cols_list) {
+                foreach (App::core()->listoption()->column()->getGroups() as $group) {
                     $ct = [];
-                    foreach ($cols_list[1] as $col_name => $col_data) {
-                        $ct[$col_name] = in_array($col_name, GPC::post()->array('cols_' . $col_type), true) ? true : false;
+                    foreach ($group->getItems() as $item) {
+                        $ct[$item->id] = in_array($item->id, GPC::post()->array('cols_' . $group->id), true) ? true : false;
                     }
                     if (count($ct)) {
-                        $cu[$col_type] = $ct;
+                        $cu[$group->id] = $ct;
                     }
                 }
                 App::core()->user()->preference()->get('interface')->put('cols', $cu, 'array');
@@ -686,12 +682,12 @@ class UserPref extends AbstractPage
         echo '<div class="fieldset">' .
         '<h4 id="user_options_columns">' . __('Optional columns displayed in lists') . '</h4>';
         $odd = true;
-        foreach ($this->cols as $col_type => $col_list) {
+        foreach (App::core()->listoption()->column()->getGroups() as $group) {
             echo '<div class="two-boxes ' . ($odd ? 'odd' : 'even') . '">';
-            echo '<h5>' . $col_list[0] . '</h5>';
-            foreach ($col_list[1] as $col_name => $col_data) {
-                echo '<p><label for="cols_' . $col_type . '-' . $col_name . '" class="classic">' .
-                Form::checkbox(['cols_' . $col_type . '[]', 'cols_' . $col_type . '-' . $col_name], $col_name, $col_data[0]) . $col_data[1] . '</label>';
+            echo '<h5>' . $group->title . '</h5>';
+            foreach ($group->getItems() as $item) {
+                echo '<p><label for="cols_' . $group->id . '-' . $item->id . '" class="classic">' .
+                Form::checkbox(['cols_' . $group->id . '[]', 'cols_' . $group->id . '-' . $item->id], $item->id, $item->isActive()) . $item->title . '</label>';
             }
             echo '</div>';
             $odd = !$odd;
