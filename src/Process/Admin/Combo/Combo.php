@@ -65,7 +65,7 @@ class Combo
      */
     public function getPostStatusesCombo(): array
     {
-        return array_map(fn($v) => (string) $v, App::core()->blog()->posts()->status()->getStates());
+        return array_map(fn ($v) => (string) $v, App::core()->blog()->posts()->status()->getStates());
     }
 
     /**
@@ -216,7 +216,7 @@ class Combo
      */
     public function getBlogStatusesCombo(): array
     {
-        return array_map(fn($v) => (string) $v, App::core()->blogs()->status()->getStates());
+        return array_map(fn ($v) => (string) $v, App::core()->blogs()->status()->getStates());
     }
 
     /**
@@ -226,7 +226,7 @@ class Combo
      */
     public function getCommentStatusesCombo(): array
     {
-        return array_map(fn($v) => (string) $v, App::core()->blog()->comments()->status()->getStates());
+        return array_map(fn ($v) => (string) $v, App::core()->blog()->comments()->status()->getStates());
     }
 
     /**
