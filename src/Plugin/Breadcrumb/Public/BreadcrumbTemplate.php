@@ -14,7 +14,7 @@ use Dotclear\App;
 use Dotclear\Database\Param;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\L10n;
-use Dotclear\Process\Public\Template\Engine\TplAttr;
+use Dotclear\Process\Public\Template\TplAttr;
 
 /**
  * Public templates for plugin Breacrumb.

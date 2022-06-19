@@ -12,7 +12,7 @@ namespace Dotclear\Theme\Ductile\Public;
 // Dotclear\Theme\Ductile\Public\DuctileTemplate
 use Dotclear\App;
 use Dotclear\Helper\File\Files;
-use Dotclear\Process\Public\Template\Engine\TplAttr;
+use Dotclear\Process\Public\Template\TplAttr;
 
 /**
  * Public templates for theme Ductile.

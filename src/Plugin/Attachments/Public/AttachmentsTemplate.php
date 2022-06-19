@@ -12,7 +12,7 @@ namespace Dotclear\Plugin\Attachments\Public;
 // Dotclear\Plugin\Attachments\Public\AttachmentsTemplate
 use Dotclear\App;
 use Dotclear\Helper\Mapper\Strings;
-use Dotclear\Process\Public\Template\Engine\TplAttr;
+use Dotclear\Process\Public\Template\TplAttr;
 
 /**
  * Public templates for plugin Attachments.

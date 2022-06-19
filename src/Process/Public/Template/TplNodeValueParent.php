@@ -7,9 +7,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Process\Public\Template\Engine;
+namespace Dotclear\Process\Public\Template;
 
-// Dotclear\Process\Public\Template\Engine\TplNodeValueParent
+// Dotclear\Process\Public\Template\TplNodeValueParent
 
 /**
  * Template value node parent.

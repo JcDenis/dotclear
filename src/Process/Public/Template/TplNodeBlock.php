@@ -7,9 +7,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Process\Public\Template\Engine;
+namespace Dotclear\Process\Public\Template;
 
-// Dotclear\Process\Public\Template\Engine\TplNodeBlock
+// Dotclear\Process\Public\Template\TplNodeBlock
 
 /**
  * Template block node.

@@ -11,7 +11,7 @@ namespace Dotclear\Plugin\Tags\Public;
 
 // Dotclear\Plugin\Tags\Public\TagsBehavior
 use Dotclear\App;
-use Dotclear\Process\Public\Template\Engine\TplAttr;
+use Dotclear\Process\Public\Template\TplAttr;
 
 /**
  * Public behaviors for plugin Tags.

@@ -7,9 +7,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Process\Public\Template\Engine;
+namespace Dotclear\Process\Public\Template;
 
-// Dotclear\Process\Public\Template\Engine\TplNode
+// Dotclear\Process\Public\Template\TplNode
 use ArrayObject;
 
 /**

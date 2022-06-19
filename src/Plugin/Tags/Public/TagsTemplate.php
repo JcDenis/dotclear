@@ -12,7 +12,7 @@ namespace Dotclear\Plugin\Tags\Public;
 // Dotclear\Plugin\Tags\Public\TagsTemplate
 use Dotclear\App;
 use Dotclear\Helper\Mapper\Strings;
-use Dotclear\Process\Public\Template\Engine\TplAttr;
+use Dotclear\Process\Public\Template\TplAttr;
 
 /**
  * XML-RPC methods of plugin Tags.

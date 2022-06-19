@@ -14,7 +14,7 @@ use Dotclear\App;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Plugin\Blogroll\Common\Blogroll;
-use Dotclear\Process\Public\Template\Engine\TplAttr;
+use Dotclear\Process\Public\Template\TplAttr;
 
 /**
  * Public templates methods for plugin Blogroll.

@@ -16,7 +16,7 @@ use Dotclear\Database\Record;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Feed\Reader;
-use Dotclear\Process\Public\Template\Engine\TplAttr;
+use Dotclear\Process\Public\Template\TplAttr;
 use SimpleXMLElement;
 
 /**

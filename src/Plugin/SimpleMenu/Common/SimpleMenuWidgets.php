@@ -16,7 +16,7 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Plugin\Widgets\Common\Widget;
 use Dotclear\Plugin\Widgets\Common\Widgets;
-use Dotclear\Process\Public\Template\Engine\TplAttr;
+use Dotclear\Process\Public\Template\TplAttr;
 
 /**
  * Widgets methods for plugin SmpleMenu.

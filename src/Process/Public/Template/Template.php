@@ -12,18 +12,21 @@ namespace Dotclear\Process\Public\Template;
 // Dotclear\Process\Public\Template\Template
 use ArrayObject;
 use Dotclear\App;
+use Dotclear\Exception\TemplateException;
 use Dotclear\Helper\Clock;
+use Dotclear\Helper\File\Files;
+use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Mapper\Strings;
-use Dotclear\Process\Public\Template\Engine\Template as BaseTemplate;
-use Dotclear\Process\Public\Template\Engine\TplAttr;
 
 /**
  * Public template methods.
  *
+ * Source clearbricks https://git.dotclear.org/dev/clearbricks
+ *
  * @ingroup  Public Template
  */
-class Template extends BaseTemplate
+final class Template
 {
     // \cond
     // php tags break doxygen parser...
@@ -37,15 +40,40 @@ class Template extends BaseTemplate
      */
     private $current_tag;
 
+    public $use_cache = true;
+
+    private $blocks = [];
+    private $values = [];
+
+    private $remove_php = true;
+
+    private $unknown_value_handler;
+    private $unknown_block_handler;
+
+    private $tpl_path = [];
+    private $cache_dir;
+    private $parent_file;
+
+    private $compile_stack = [];
+    private $parent_stack  = [];
+
+    // Inclusion variables
+    private static $superglobals = ['GLOBALS', '_SERVER', '_GET', '_POST', '_COOKIE', '_FILES', '_ENV', '_REQUEST', '_SESSION'];
+    private static $_k;
+    private static $_n;
+    private static $_r;
+
     /**
      * Constructor.
      *
      * @param string $cache_dir Cache directory path
      * @param string $self_name Tempalte engine method name
      */
-    public function __construct(string $cache_dir, string $self_name)
+    public function __construct(string $cache_dir, private string $self_name)
     {
-        parent::__construct($cache_dir, $self_name);
+        $this->setCacheDir($cache_dir);
+        $this->addValue('include', [$this, 'includeFile']);
+        $this->addBlock('Block', [$this, 'blockSection']);
 
         $this->remove_php = !App::core()->blog()->settings()->getGroup('system')->getSetting('tpl_allow_php');
         $this->use_cache  = App::core()->blog()->settings()->getGroup('system')->getSetting('tpl_use_cache');
@@ -240,6 +268,199 @@ class Template extends BaseTemplate
         $this->addValue('else', [$this, 'GenericElse']);
     }
 
+    public function includeFile(TplAttr $attr): string
+    {
+        if (!$attr->has('src')) {
+            return '';
+        }
+
+        $src = Path::clean($attr->get('src'));
+
+        $tpl_file = $this->getFilePath($src);
+        if (!$tpl_file) {
+            return '';
+        }
+        if (in_array($tpl_file, $this->compile_stack)) {
+            return '';
+        }
+
+        return
+        '<?php try { ' .
+        'echo ' . $this->self_name . "->getData('" . str_replace("'", "\\'", $src) . "'); " .
+            '} catch (\Exception) {} ?>' . "\n";
+    }
+
+    public function blockSection(TplAttr $attr, string $content): string
+    {
+        return $content;
+    }
+
+    public function setPath(): void
+    {
+        $path = [];
+
+        foreach (func_get_args() as $v) {
+            if (is_array($v)) {
+                $path = array_merge($path, array_values($v));
+            } else {
+                $path[] = $v;
+            }
+        }
+
+        foreach ($path as $k => $v) {
+            if (false === ($v = Path::real($v))) {
+                unset($path[$k]);
+            }
+        }
+
+        $this->tpl_path = array_unique($path);
+    }
+
+    public function getPath(): array
+    {
+        return $this->tpl_path;
+    }
+
+    public function setCacheDir(string $dir): void
+    {
+        $dir = Path::real($dir);
+
+        if (!$dir || !is_dir($dir)) {
+            throw new TemplateException($dir . ' is not a valid directory.');
+        }
+
+        if (!is_writable($dir)) {
+            throw new TemplateException($dir . ' is not writable.');
+        }
+
+        $this->cache_dir = $dir . '/';
+    }
+
+    public function addBlock(string $name, callable $callback): void
+    {
+        $this->blocks[$name] = $callback;
+    }
+
+    public function addValue(string $name, callable $callback): void
+    {
+        $this->values[$name] = $callback;
+    }
+
+    public function blockExists(string $name): bool
+    {
+        return isset($this->blocks[$name]);
+    }
+
+    public function valueExists(string $name): bool
+    {
+        return isset($this->values[$name]);
+    }
+
+    public function tagExists(string $name): bool
+    {
+        return $this->blockExists($name) || $this->valueExists($name);
+    }
+
+    public function getValueCallback(string $name): false|callable
+    {
+        if ($this->valueExists($name)) {
+            return $this->values[$name];
+        }
+
+        return false;
+    }
+
+    public function getBlockCallback(string $name): false|callable
+    {
+        if ($this->blockExists($name)) {
+            return $this->blocks[$name];
+        }
+
+        return false;
+    }
+
+    public function getBlocksList(): array
+    {
+        return array_keys($this->blocks);
+    }
+
+    public function getValuesList(): array
+    {
+        return array_keys($this->values);
+    }
+
+    public function getFile(string $file): string
+    {
+        $tpl_file = $this->getFilePath($file);
+
+        if (!$tpl_file) {
+            throw new TemplateException('No template found for ' . $file);
+        }
+
+        $file_md5  = md5($tpl_file);
+        $dest_file = sprintf(
+            '%s/%s/%s/%s/%s.php',
+            $this->cache_dir,
+            'cbtpl',
+            substr($file_md5, 0, 2),
+            substr($file_md5, 2, 2),
+            $file_md5
+        );
+
+        clearstatcache();
+        $stat_f = $stat_d = false;
+        if (file_exists($dest_file)) {
+            $stat_f = stat($tpl_file);
+            $stat_d = stat($dest_file);
+        }
+
+        // We create template if:
+        // - dest_file doest not exists
+        // - we don't want cache
+        // - dest_file size == 0
+        // - tpl_file is more recent thant dest_file
+        if (!$stat_d || !$this->use_cache || 0 == $stat_d['size'] || $stat_f['mtime'] > $stat_d['mtime']) {
+            Files::makeDir(dirname($dest_file), true);
+
+            if (false === ($fp = @fopen($dest_file, 'wb'))) {
+                throw new TemplateException('Unable to create cache file');
+            }
+
+            $fc = $this->compileFile($tpl_file);
+            fwrite($fp, $fc);
+            fclose($fp);
+            Files::inheritChmod($dest_file);
+        }
+
+        return $dest_file;
+    }
+
+    public function getFilePath(string $file)
+    {
+        foreach ($this->tpl_path as $p) {
+            if (file_exists($p . '/' . $file)) {
+                return $p . '/' . $file;
+            }
+        }
+
+        return false;
+    }
+
+    public function getParentFilePath(string $previous_path, string $file): false|string
+    {
+        $check_file = false;
+        foreach ($this->tpl_path as $p) {
+            if ($check_file && file_exists($p . '/' . $file)) {
+                return $p . '/' . $file;
+            }
+            if ($p == $previous_path) {
+                $check_file = true;
+            }
+        }
+
+        return false;
+    }
+
     public function getData(string $________): string
     {
         // --BEHAVIOR-- tplBeforeData
@@ -250,7 +471,22 @@ class Template extends BaseTemplate
             }
         }
 
-        parent::getData($________);
+        self::$_k = array_keys($GLOBALS);
+
+        foreach (self::$_k as self::$_n) {
+            if (!in_array(self::$_n, self::$superglobals)) {
+                global ${self::$_n};
+            }
+        }
+        $dest_file = $this->getFile($________);
+        ob_start();
+        if (ini_get('display_errors') == true) {
+            include $dest_file;
+        } else {
+            @include $dest_file;
+        }
+        self::$_r = ob_get_contents();
+        ob_end_clean();
 
         // --BEHAVIOR-- tplAfterData
         if (App::core()->behavior('tplAfterData')->count()) {
@@ -260,14 +496,171 @@ class Template extends BaseTemplate
         return self::$_r;
     }
 
-    protected function compileFile(string $file): string
+    private function getCompiledTree(string $file, &$err): TplNode
     {
-        return
-            self::$ton . "\n" .
-            'use Dotclear\App;' . "\n" .
-            'use Dotclear\Database\Param;' . "\n" .
-            'use Dotclear\Helper\GPC\GPC;' . "\n" .
-            self::$toff . "\n" . parent::compileFile($file);
+        $fc = file_get_contents($file);
+
+        $this->compile_stack[] = $file;
+
+        // Remove every PHP tags
+        if ($this->remove_php) {
+            $fc = preg_replace('/<\?(?=php|=|\s).*?\?>/ms', '', $fc);
+        }
+
+        // Transform what could be considered as PHP short tags
+        $fc = preg_replace(
+            '/(<\?(?!php|=|\s))(.*?)(\?>)/ms',
+            '<?php echo "$1"; ?>$2<?php echo "$3"; ?>',
+            $fc
+        );
+
+        // Remove template comments <!-- #... -->
+        $fc = preg_replace('/(^\s*)?<!-- #(.*?)-->/ms', '', $fc);
+
+        // Lexer part : split file into small pieces
+        // each array entry will be either a tag or plain text
+        $blocks = preg_split(
+            '#(<tpl:\w+[^>]*>)|(</tpl:\w+>)|({{tpl:\w+[^}]*}})#msu',
+            $fc,
+            -1,
+            PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY
+        );
+
+        // Next : build semantic tree from tokens.
+        $rootNode          = new TplNode();
+        $node              = $rootNode;
+        $errors            = [];
+        $this->parent_file = '';
+        foreach ($blocks as $id => $block) {
+            $isblock = preg_match('#<tpl:(\w+)(?:(\s+.*?)>|>)|</tpl:(\w+)>|{{tpl:(\w+)(\s(.*?))?}}#ms', $block, $match);
+            if (1 == $isblock) {
+                if (substr($match[0], 1, 1) == '/') {
+                    // Closing tag, check if it matches current opened node
+                    $tag = $match[3];
+                    if (($node instanceof TplNodeBlock) && $node->getTag() == $tag) {
+                        $node->setClosing();
+                        $node = $node->getParent();
+                    } else {
+                        // Closing tag does not match opening tag
+                        // Search if it closes a parent tag
+                        $search = $node;
+                        while ($search->getTag() != 'ROOT' && $search->getTag() != $tag) {
+                            $search = $search->getParent();
+                        }
+                        if ($search->getTag() == $tag) {
+                            $errors[] = sprintf(
+                                __('Did not find closing tag for block <tpl:%s>. Content has been ignored.'),
+                                Html::escapeHTML($node->getTag())
+                            );
+                            $search->setClosing();
+                            $node = $search->getParent();
+                        } else {
+                            $errors[] = sprintf(
+                                __('Unexpected closing tag </tpl:%s> found.'),
+                                $tag
+                            );
+                        }
+                    }
+                } elseif (substr($match[0], 0, 1) == '{') {
+                    // Value tag
+                    $tag      = $match[4];
+                    $str_attr = '';
+                    $attr     = new TplAttr();
+                    if (isset($match[6])) {
+                        $str_attr = $match[6];
+                        $attr     = new TplAttr($match[6]);
+                    }
+                    if (strtolower($tag) == 'extends') {
+                        if ($attr->has('parent') && '' == $this->parent_file) {
+                            $this->parent_file = $attr->get('parent');
+                        }
+                    } elseif (strtolower($tag) == 'parent') {
+                        $node->addChild(new TplNodeValueParent($tag, $attr, $str_attr));
+                    } else {
+                        $node->addChild(new TplNodeValue($tag, $attr, $str_attr));
+                    }
+                } else {
+                    // Opening tag, create new node and dive into it
+                    $tag = $match[1];
+                    if ('Block' == $tag) {
+                        $newnode = new TplNodeBlockDefinition($tag, new TplAttr($match[2] ?? ''));
+                    } else {
+                        $newnode = new TplNodeBlock($tag, new TplAttr($match[2] ?? ''));
+                    }
+                    $node->addChild($newnode);
+                    $node = $newnode;
+                }
+            } else {
+                // Simple text
+                $node->addChild(new TplNodeText($block));
+            }
+        }
+
+        if (($node instanceof TplNodeBlock) && !$node->isClosed()) {
+            $errors[] = sprintf(
+                __('Did not find closing tag for block <tpl:%s>. Content has been ignored.'),
+                Html::escapeHTML($node->getTag())
+            );
+        }
+
+        $err = '';
+        if (count($errors) > 0) {
+            $err = "\n\n<!-- \n" .
+            __('WARNING: the following errors have been found while parsing template file :') .
+            "\n * " .
+            join("\n * ", $errors) .
+                "\n -->\n";
+        }
+
+        return $rootNode;
+    }
+
+    private function getCompileFileHeader($file)
+    {
+        $class = new Strings();
+        $class->add('Dotclear\App');
+        $class->add('Dotclear\Database\Param');
+        $class->add('Dotclear\Helper\GPC\GPC');
+
+        // --BEHAVIOR-- templateBeforeFile
+        App::core()->behavior('templateBeforeFile')->call($file, $class);
+
+        return self::$ton . "\n" . 'use ' . implode("; \n use ", $class->dump()) . "; \n" .self::$toff . "\n";
+    }
+
+    private function compileFile(string $file): string
+    {
+        $head = $this->getCompileFileHeader($file);
+        $tree = null;
+        $err  = '';
+        while (true) {
+            if ($file && !in_array($file, $this->parent_stack)) {
+                $tree = $this->getCompiledTree($file, $err);
+
+                if ('__parent__' == $this->parent_file) {
+                    $this->parent_stack[] = $file;
+                    $newfile              = $this->getParentFilePath(dirname($file), basename($file));
+                    if (!$newfile) {
+                        throw new TemplateException('No template found for ' . basename($file));
+                    }
+                    $file = $newfile;
+                } elseif ('' != $this->parent_file) {
+                    $this->parent_stack[] = $file;
+                    $file                 = $this->getFilePath($this->parent_file);
+                    if (!$file) {
+                        throw new TemplateException('No template found for ' . $this->parent_file);
+                    }
+                } else {
+                    return $head . $tree->compile($this) . $err;
+                }
+            } else {
+                if (null != $tree) {
+                    return $head . $tree->compile($this) . $err;
+                }
+
+                return '';
+            }
+        }
     }
 
     public function compileBlockNode(string $tag, TplAttr $attr, string $content): string
@@ -280,7 +673,11 @@ class Template extends BaseTemplate
         // --BEHAVIOR-- templateInsideBlock
         App::core()->behavior('templateInsideBlock')->call($this->current_tag, $attr, [&$content]);
 
-        $res .= parent::compileBlockNode($this->current_tag, $attr, $content);
+        if (isset($this->blocks[$this->current_tag])) {
+            $res .= call_user_func($this->blocks[$this->current_tag], $attr, $content);
+        } elseif (null != $this->unknown_block_handler) {
+            $res .= call_user_func($this->unknown_block_handler, $this->current_tag, $attr, $content);
+        }
 
         // --BEHAVIOR-- templateAfterBlock
         $res .= App::core()->behavior('templateAfterBlock')->call($this->current_tag, $attr);
@@ -295,12 +692,26 @@ class Template extends BaseTemplate
         // --BEHAVIOR-- templateBeforeValue
         $res = App::core()->behavior('templateBeforeValue')->call($this->current_tag, $attr);
 
-        $res .= parent::compileValueNode($this->current_tag, $attr, $str_attr);
+        if (isset($this->values[$this->current_tag])) {
+            $res .= call_user_func($this->values[$this->current_tag], $attr, ltrim((string) $str_attr));
+        } elseif (null != $this->unknown_value_handler) {
+            $res .= call_user_func($this->unknown_value_handler, $this->current_tag, $attr, $str_attr);
+        }
 
         // --BEHAVIOR-- templateAfterValue
         $res .= App::core()->behavior('templateAfterValue')->call($this->current_tag, $attr);
 
         return $res;
+    }
+
+    public function setUnknownValueHandler(callable $callback): void
+    {
+        $this->unknown_value_handler = $callback;
+    }
+
+    public function setUnknownBlockHandler(callable $callback): void
+    {
+        $this->unknown_block_handler = $callback;
     }
 
     public function getFilters(TplAttr $attr, array $default = []): string
