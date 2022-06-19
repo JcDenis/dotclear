@@ -37,10 +37,10 @@ class BlogrollTemplate
 
     public function blogroll(TplAttr $attr): string
     {
-        $category = $attr->has('category') ? addslashes($attr->get('category')) : '<h3>%s</h3>';
-        $block    = $attr->has('block') ? addslashes($attr->get('block')) : '<ul>%s</ul>';
-        $item     = $attr->has('item') ? addslashes($attr->get('item')) : '<li%2$s>%1$s</li>';
-        $only_cat = empty($attr->get('only_category')) ? 'null' : "'" . addslashes($attr->get('only_category')) . "'";
+        $category = $attr->isset('category') ? addslashes($attr->get('category')) : '<h3>%s</h3>';
+        $block    = $attr->isset('block') ? addslashes($attr->get('block')) : '<ul>%s</ul>';
+        $item     = $attr->isset('item') ? addslashes($attr->get('item')) : '<li%2$s>%1$s</li>';
+        $only_cat = $attr->empty('only_category') ? 'null' : "'" . addslashes($attr->get('only_category')) . "'";
 
         return
             self::$ton .

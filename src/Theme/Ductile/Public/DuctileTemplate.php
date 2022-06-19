@@ -89,12 +89,12 @@ class DuctileTemplate
 
     public function EntryIfContentIsCut(TplAttr $attr, string $content): string
     {
-        if (empty($attr->get('cut_string')) || !empty($attr->get('full'))) {
+        if ($attr->empty('cut_string') || !$attr->empty('full')) {
             return '';
         }
 
         $urls = '0';
-        if (!empty($attr->get('absolute_urls'))) {
+        if (!$attr->empty('absolute_urls')) {
             $urls = '1';
         }
 
@@ -130,7 +130,7 @@ class DuctileTemplate
             }
         }
 
-        $default = $attr->has('default') ? trim($attr->get('default')) : 'short';
+        $default = $attr->isset('default') ? trim($attr->get('default')) : 'short';
         $ret     = self::$ton . "\n" .
         'switch (' . __CLASS__ . '::ductileEntriesListHelper(\'' . $default . '\')) {' . "\n";
 

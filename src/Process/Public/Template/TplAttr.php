@@ -70,9 +70,21 @@ class TplAttr
      *
      * @return bool true if attribute exists
      */
-    public function has(string $key): bool
+    public function isset(string $key): bool
     {
         return isset($this->stack[$key]);
+    }
+
+    /**
+     * Check if a attribte is empty.
+     *
+     * @param string $key The attribute name
+     *
+     * @return bool true if attribute exists
+     */
+    public function empty(string $key): bool
+    {
+        return !isset($this->stack[$key]) || empty(trim($this->stack[$key]));
     }
 
     /**

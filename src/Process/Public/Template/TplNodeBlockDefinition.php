@@ -99,7 +99,7 @@ class TplNodeBlockDefinition extends TplNodeBlock
     {
         parent::__construct($tag, $attr);
         $this->name = '';
-        if ($attr->has('name')) {
+        if ($attr->isset('name')) {
             $this->name = $attr->get('name');
         }
     }

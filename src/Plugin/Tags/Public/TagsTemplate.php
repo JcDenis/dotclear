@@ -56,10 +56,10 @@ class TagsTemplate
 
     public function Tags(TplAttr $attr, string $content): string
     {
-        $type   = $attr->has('type') ? addslashes($attr->get('type')) : 'tag';
-        $limit  = $attr->has('limit') ? (int) $attr->get('limit') : 'null';
+        $type   = $attr->isset('type') ? addslashes($attr->get('type')) : 'tag';
+        $limit  = $attr->isset('limit') ? (int) $attr->get('limit') : 'null';
         $combo  = ['meta_id_lower', 'count', 'latest', 'oldest'];
-        $sortby = ($attr->has('sortby') && in_array($attr->get('sortby'), $combo)) ? strtolower($attr->get('sortby')) : 'meta_id_lower';
+        $sortby = ($attr->isset('sortby') && in_array($attr->get('sortby'), $combo)) ? strtolower($attr->get('sortby')) : 'meta_id_lower';
         $order  = 'desc' == $attr->get('order') ? 'desc' : 'asc';
 
         $res = self::$ton . "\n" .
@@ -95,9 +95,9 @@ class TagsTemplate
 
     public function EntryTags(TplAttr $attr, string $content): string
     {
-        $type   = $attr->has('type') ? addslashes($attr->get('type')) : 'tag';
+        $type   = $attr->isset('type') ? addslashes($attr->get('type')) : 'tag';
         $combo  = ['meta_id_lower', 'count', 'latest', 'oldest'];
-        $sortby = ($attr->has('sortby') && in_array($attr->get('sortby'), $combo)) ? strtolower($attr->get('sortby')) : 'meta_id_lower';
+        $sortby = ($attr->isset('sortby') && in_array($attr->get('sortby'), $combo)) ? strtolower($attr->get('sortby')) : 'meta_id_lower';
         $order  = ('desc' == $attr->get('order')) ? 'desc' : 'asc';
 
         $res = self::$ton . "\n" .
@@ -115,12 +115,12 @@ class TagsTemplate
     {
         $if = new Strings();
 
-        if ($attr->has('has_entries')) {
+        if ($attr->isset('has_entries')) {
             $if->add(((bool) $attr->get('has_entries') ? '' : '!') . 'App::core()->context()->get("meta")->integer("count")');
         }
 
         if ($if->count()) {
-            return self::$ton . 'if(' . implode(' ' . ($attr->has('operator') ? App::core()->template()->getOperator($attr->get('operator')) : '&&') . ' ', $if->dump()) . ') :' . self::$toff . $content . self::$ton . 'endif;' . self::$toff;
+            return self::$ton . 'if(' . implode(' ' . ($attr->isset('operator') ? App::core()->template()->getOperator($attr->get('operator')) : '&&') . ' ', $if->dump()) . ') :' . self::$toff . $content . self::$ton . 'endif;' . self::$toff;
         }
 
         return $content;

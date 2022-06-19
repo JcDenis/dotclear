@@ -72,8 +72,6 @@ final class Template
     public function __construct(string $cache_dir, private string $self_name)
     {
         $this->setCacheDir($cache_dir);
-        $this->addValue('include', [$this, 'includeFile']);
-        $this->addBlock('Block', [$this, 'blockSection']);
 
         $this->remove_php = !App::core()->blog()->settings()->getGroup('system')->getSetting('tpl_allow_php');
         $this->use_cache  = App::core()->blog()->settings()->getGroup('system')->getSetting('tpl_use_cache');
@@ -265,34 +263,9 @@ final class Template
         $this->addValue('SysSelfURI', [$this, 'SysSelfURI']);
 
         // Generic
+        $this->addValue('include', [$this, 'includeFile']);
+        $this->addBlock('Block', [$this, 'blockSection']);
         $this->addValue('else', [$this, 'GenericElse']);
-    }
-
-    public function includeFile(TplAttr $attr): string
-    {
-        if (!$attr->has('src')) {
-            return '';
-        }
-
-        $src = Path::clean($attr->get('src'));
-
-        $tpl_file = $this->getFilePath($src);
-        if (!$tpl_file) {
-            return '';
-        }
-        if (in_array($tpl_file, $this->compile_stack)) {
-            return '';
-        }
-
-        return
-        '<?php try { ' .
-        'echo ' . $this->self_name . "->getData('" . str_replace("'", "\\'", $src) . "'); " .
-            '} catch (\Exception) {} ?>' . "\n";
-    }
-
-    public function blockSection(TplAttr $attr, string $content): string
-    {
-        return $content;
     }
 
     public function setPath(): void
@@ -363,20 +336,12 @@ final class Template
 
     public function getValueCallback(string $name): false|callable
     {
-        if ($this->valueExists($name)) {
-            return $this->values[$name];
-        }
-
-        return false;
+        return $this->valueExists($name) ? $this->values[$name] : false;
     }
 
     public function getBlockCallback(string $name): false|callable
     {
-        if ($this->blockExists($name)) {
-            return $this->blocks[$name];
-        }
-
-        return false;
+        return $this->blockExists($name) ? $this->blocks[$name] : false;
     }
 
     public function getBlocksList(): array
@@ -435,7 +400,7 @@ final class Template
         return $dest_file;
     }
 
-    public function getFilePath(string $file)
+    public function getFilePath(string $file): false|string
     {
         foreach ($this->tpl_path as $p) {
             if (file_exists($p . '/' . $file)) {
@@ -571,7 +536,7 @@ final class Template
                         $attr     = new TplAttr($match[6]);
                     }
                     if (strtolower($tag) == 'extends') {
-                        if ($attr->has('parent') && '' == $this->parent_file) {
+                        if ($attr->isset('parent') && '' == $this->parent_file) {
                             $this->parent_file = $attr->get('parent');
                         }
                     } elseif (strtolower($tag) == 'parent') {
@@ -714,6 +679,33 @@ final class Template
         $this->unknown_block_handler = $callback;
     }
 
+    public function includeFile(TplAttr $attr): string
+    {
+        if (!$attr->isset('src')) {
+            return '';
+        }
+
+        $src = Path::clean($attr->get('src'));
+
+        $tpl_file = $this->getFilePath($src);
+        if (!$tpl_file) {
+            return '';
+        }
+        if (in_array($tpl_file, $this->compile_stack)) {
+            return '';
+        }
+
+        return
+        self::$ton . 'try { ' .
+        'echo ' . $this->self_name . "->getData('" . str_replace("'", "\\'", $src) . "'); " .
+            '} catch (\Exception) {}' . self::$toff . "\n";
+    }
+
+    public function blockSection(TplAttr $attr, string $content): string
+    {
+        return $content;
+    }
+
     public function getFilters(TplAttr $attr, array $default = []): string
     {
         $p = array_merge(
@@ -799,10 +791,10 @@ final class Template
             return implode(', ', $res);
         }
 
-        if ($attr->has('order') && preg_match('/^(desc|asc)$/i', $attr->get('order'))) {
+        if ($attr->isset('order') && preg_match('/^(desc|asc)$/i', $attr->get('order'))) {
             $default_order = $attr->get('order');
         }
-        if ($attr->has('sortby')) {
+        if ($attr->isset('sortby')) {
             $sorts = explode(',', $attr->get('sortby'));
             foreach ($sorts as $k => $sort) {
                 $order = $default_order;
@@ -825,7 +817,7 @@ final class Template
 
     public function getAge(TplAttr $attr): string
     {
-        if ($attr->has('age') && preg_match('/^(\-[0-9]+|last).*$/i', $attr->get('age'))) {
+        if ($attr->isset('age') && preg_match('/^(\-[0-9]+|last).*$/i', $attr->get('age'))) {
             if ('' != ($ts = Clock::ts(date: $attr->get('age')))) {
                 return Clock::str(format: '%Y-%m-%d %H:%m:%S', date: $ts);
             }
@@ -836,19 +828,19 @@ final class Template
 
     public function displayCounter(string $variable, array $values, TplAttr $attr, bool $count_only_by_default = false): string
     {
-        $count_only = $attr->has('count_only') ? (1 == $attr->get('count_only')) : $count_only_by_default;
+        $count_only = $attr->isset('count_only') ? (1 == $attr->get('count_only')) : $count_only_by_default;
         if ($count_only) {
             return self::$ton . 'echo ' . $variable . ';' . self::$toff;
         }
 
         $v = $values;
-        if ($attr->has('none')) {
+        if ($attr->isset('none')) {
             $v['none'] = addslashes($attr->get('none'));
         }
-        if ($attr->has('one')) {
+        if ($attr->isset('one')) {
             $v['one'] = addslashes($attr->get('one'));
         }
-        if ($attr->has('more')) {
+        if ($attr->isset('more')) {
             $v['more'] = addslashes($attr->get('more'));
         }
 
@@ -874,10 +866,10 @@ final class Template
 
     public function LoopPosition(TplAttr $attr, string $content): string
     {
-        $start  = $attr->has('start') ? (int) $attr->get('start') : '0';
-        $length = $attr->has('length') ? (int) $attr->get('length') : 'null';
-        $even   = $attr->has('even') ? (int) (bool) $attr->get('even') : 'null';
-        $modulo = $attr->has('modulo') ? (int) $attr->get('modulo') : 'null';
+        $start  = $attr->isset('start') ? (int) $attr->get('start') : '0';
+        $length = $attr->isset('length') ? (int) $attr->get('length') : 'null';
+        $even   = $attr->isset('even') ? (int) (bool) $attr->get('even') : 'null';
+        $modulo = $attr->isset('modulo') ? (int) $attr->get('modulo') : 'null';
 
         if (0 < $start) {
             --$start;
@@ -910,30 +902,30 @@ final class Template
     {
         $p = 'if (!isset($param)) { $param = new Param(); }' . "\n";
         $p .= "\$param->set('type', 'month');\n";
-        if ($attr->has('type')) {
+        if ($attr->isset('type')) {
             $p .= "\$param->set('type', '" . addslashes($attr->get('type')) . "');\n";
         }
 
-        if ($attr->has('category')) {
+        if ($attr->isset('category')) {
             $p .= "\$param->set('cat_url', '" . addslashes($attr->get('category')) . "');\n";
         }
 
-        if ($attr->has('post_type')) {
+        if ($attr->isset('post_type')) {
             $p .= "\$param->set('post_type', '" . addslashes($attr->get('post_type')) . "');\n";
         }
 
-        if ($attr->has('post_lang')) {
+        if ($attr->isset('post_lang')) {
             $p .= "\$param->set('post_lang', '" . addslashes($attr->get('post_lang')) . "');\n";
         }
 
-        if (empty($attr->get('no_context')) && !$attr->has('category')) {
+        if ($attr->empty('no_context') && !$attr->isset('category')) {
             $p .= 'if (App::core()->context()->exists("categories")) { ' .
                 "\$param->set('cat_id', App::core()->context()->get('categories')->integer('cat_id')); " .
                 "}\n";
         }
 
         $order = 'desc';
-        if ($attr->has('order') && preg_match('/^(desc|asc)$/i', $attr->get('order'))) {
+        if ($attr->isset('order') && preg_match('/^(desc|asc)$/i', $attr->get('order'))) {
             $p .= "\$param->set('order', '" . $attr->get('order') . "');\n ";
         }
 
@@ -1004,12 +996,7 @@ final class Template
      */
     public function ArchiveDate(TplAttr $attr): string
     {
-        $format = '%B %Y';
-        if (!empty($attr->get('format'))) {
-            $format = addslashes($attr->get('format'));
-        }
-
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), "App::core()->context()->get('archives')->getDate('" . $format . "')") . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), "App::core()->context()->get('archives')->getDate('" . ($attr->empty('format') ? '%B %Y' : addslashes($attr->get('format'))) . "')") . ';' . self::$toff;
     }
 
     /*dtd
@@ -1041,15 +1028,15 @@ final class Template
     {
         $p = 'if (!isset($param)) { $param = new Param(); }' . "\n";
         $p .= "\$param->set('type', 'month');\n";
-        if ($attr->has('type')) {
+        if ($attr->isset('type')) {
             $p .= "\$param->set('type', '" . addslashes($attr->get('type')) . "');\n";
         }
 
-        if ($attr->has('post_type')) {
+        if ($attr->isset('post_type')) {
             $p .= "\$param->set('post_type', '" . addslashes($attr->get('post_type')) . "');\n";
         }
 
-        if ($attr->has('post_lang')) {
+        if ($attr->isset('post_lang')) {
             $p .= "\$param->set('post_lang', '" . addslashes($attr->get('post_lang')) . "');\n";
         }
 
@@ -1082,15 +1069,15 @@ final class Template
     {
         $p = 'if (!isset($param)) { $param = new Param(); }' . "\n";
         $p .= "\$param->set('type', 'month');\n";
-        if ($attr->has('type')) {
+        if ($attr->isset('type')) {
             $p .= "\$param->set('type', '" . addslashes($attr->get('type')) . "');\n";
         }
 
-        if ($attr->has('post_type')) {
+        if ($attr->isset('post_type')) {
             $p .= "\$param->set('post_type', '" . addslashes($attr->get('post_type')) . "');\n";
         }
 
-        if ($attr->has('post_lang')) {
+        if ($attr->isset('post_lang')) {
             $p .= "\$param->set('post_lang', '" . addslashes($attr->get('post_lang')) . "');\n";
         }
 
@@ -1233,26 +1220,16 @@ final class Template
      */
     public function BlogUpdateDate(TplAttr $attr): string
     {
-        $format = '';
-        if (!empty($attr->get('format'))) {
-            $format = addslashes($attr->get('format'));
-        } else {
-            $format = '%Y-%m-%d %H:%M:%S';
-        }
-
-        $iso8601 = !empty($attr->get('iso8601'));
-        $rfc822  = !empty($attr->get('rfc822'));
-
         $f = $this->getFilters($attr);
 
-        if ($rfc822) {
+        if (!$attr->empty('rfc822')) {
             return self::$ton . 'echo ' . sprintf($f, "App::core()->blog()->getUpdateDate('rfc822')") . ';' . self::$toff;
         }
-        if ($iso8601) {
+        if (!$attr->empty('iso8601')) {
             return self::$ton . 'echo ' . sprintf($f, "App::core()->blog()->getUpdateDate('iso8601')") . ';' . self::$toff;
         }
 
-        return self::$ton . 'echo ' . sprintf($f, "App::core()->blog()->getUpdateDate('" . $format . "')") . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($f, "App::core()->blog()->getUpdateDate('" . ($attr->empty('format') ? '%Y-%m-%d %H:%M:%S' : addslashes($attr->get('format'))) . "')") . ';' . self::$toff;
     }
 
     /*dtd
@@ -1305,9 +1282,7 @@ final class Template
      */
     public function BlogMetaRobots(TplAttr $attr): string
     {
-        $robots = $attr->has('robots') ? addslashes($attr->get('robots')) : '';
-
-        return self::$ton . "echo App::core()->context()->robotsPolicy(App::core()->blog()->settings()->getGroup('system')->getSetting('robots_policy'),'" . $robots . "');" . self::$toff;
+        return self::$ton . "echo App::core()->context()->robotsPolicy(App::core()->blog()->settings()->getGroup('system')->getSetting('robots_policy'),'" . addslashes($attr->get('robots')) . "');" . self::$toff;
     }
 
     /*dtd
@@ -1373,19 +1348,19 @@ final class Template
     {
         $p = 'if (!isset($param)) $param = new Param();' . "\n";
 
-        if ($attr->has('url')) {
+        if ($attr->isset('url')) {
             $p .= "\$param->set('cat_url', '" . addslashes($attr->get('url')) . "');\n";
         }
 
-        if (!empty($attr->get('post_type'))) {
+        if (!$attr->empty('post_type')) {
             $p .= "\$param->set('post_type', '" . addslashes($attr->get('post_type')) . "');\n";
         }
 
-        if (!empty($attr->get('level'))) {
+        if (!$attr->empty('level')) {
             $p .= "\$param->set('level', " . (int) $attr->get('level') . ");\n";
         }
 
-        if ($attr->has('with_empty') && ((bool) $attr->get('with_empty') == true)) {
+        if ($attr->isset('with_empty') && ((bool) $attr->get('with_empty') == true)) {
             $p .= '$param->set(\'without_empty\', false);';
         }
 
@@ -1438,7 +1413,7 @@ final class Template
     {
         $if = new Strings();
 
-        if ($attr->has('url')) {
+        if ($attr->isset('url')) {
             $url  = addslashes(trim($attr->get('url')));
             $args = preg_split('/\s*[?]\s*/', $url, -1, PREG_SPLIT_NO_EMPTY);
             $url  = array_shift($args);
@@ -1459,7 +1434,7 @@ final class Template
             }
         }
 
-        if ($attr->has('urls')) {
+        if ($attr->isset('urls')) {
             $urls = explode(',', addslashes(trim($attr->get('urls'))));
             if (is_array($urls)) {
                 foreach ($urls as $url) {
@@ -1484,11 +1459,11 @@ final class Template
             }
         }
 
-        if ($attr->has('has_entries')) {
+        if ($attr->isset('has_entries')) {
             $if->add('App::core()->context()->get("categories")->integer("nb_post") ' . ((bool) $attr->get('has_entries') ? '>' : '==') . ' 0');
         }
 
-        if ($attr->has('has_description')) {
+        if ($attr->isset('has_description')) {
             $if->add('App::core()->context()->get("categories")->field("cat_desc") ' . ((bool) $attr->get('has_description') ? '!=' : '==') . ' ""');
         }
 
@@ -1616,7 +1591,7 @@ final class Template
     public function Entries(TplAttr $attr, string $content): string
     {
         $lastn = -1;
-        if ($attr->has('lastn')) {
+        if ($attr->isset('lastn')) {
             $lastn = abs((int) $attr->get('lastn')) + 0;
         }
 
@@ -1652,40 +1627,40 @@ final class Template
             }
         }
 
-        if ($attr->has('author')) {
+        if ($attr->isset('author')) {
             $p .= "\$param->set('user_id', '" . addslashes($attr->get('author')) . "');\n";
         }
 
-        if ($attr->has('category')) {
+        if ($attr->isset('category')) {
             $p .= "\$param->set('cat_url', '" . addslashes($attr->get('category')) . "');\n";
             $p .= "App::core()->context()->categoryPostParam(\$param);\n";
         }
 
-        if ($attr->has('with_category') && $attr->get('with_category')) {
+        if ($attr->isset('with_category') && $attr->get('with_category')) {
             $p .= "\$param->push('sql', ' AND P.cat_id IS NOT NULL ');\n";
         }
 
-        if ($attr->has('no_category') && $attr->get('no_category')) {
+        if ($attr->isset('no_category') && $attr->get('no_category')) {
             $p .= "\$param->push('sql', ' AND P.cat_id IS NULL ');\n";
             $p .= "\$param->unset('cat_url');\n";
         }
 
-        if (!empty($attr->get('type'))) {
+        if (!$attr->empty('type')) {
             $p .= "\$param->set('post_type', preg_split('/\\s*,\\s*/','" . addslashes($attr->get('type')) . "',-1,PREG_SPLIT_NO_EMPTY));\n";
         }
 
-        if (!empty($attr->get('url'))) {
+        if (!$attr->empty('url')) {
             $p .= "\$param->set('post_url', '" . addslashes($attr->get('url')) . "');\n";
         }
 
-        if (empty($attr->get('no_context'))) {
-            if (!$attr->has('author')) {
+        if ($attr->empty('no_context')) {
+            if (!$attr->isset('author')) {
                 $p .= 'if (App::core()->context()->exists("users")) { ' .
                     "\$param->set('user_id', App::core()->context()->get('users')->field('user_id')); " .
                     "}\n";
             }
 
-            if (!$attr->has('category') && (!$attr->has('no_category') || !$attr->get('no_category'))) {
+            if (!$attr->isset('category') && (!$attr->isset('no_category') || !$attr->get('no_category'))) {
                 $p .= 'if (App::core()->context()->exists("categories")) { ' .
                     "\$param->set('cat_id', App::core()->context()->get('categories')->integer('cat_id').(App::core()->blog()->settings()->getGroup('system')->getSetting('inc_subcats')?' ?sub':''));" .
                     "}\n";
@@ -1694,7 +1669,7 @@ final class Template
             $p .= 'if (App::core()->context()->exists("archives")) { ' .
                 "\$param->set('post_year', App::core()->context()->get('archives')->year()); " .
                 "\$param->set('post_month', App::core()->context()->get('archives')->month()); ";
-            if (!$attr->has('lastn')) {
+            if (!$attr->isset('lastn')) {
                 $p .= "\$param->unset('limit'); ";
             }
             $p .= "}\n";
@@ -1710,15 +1685,15 @@ final class Template
 
         $p .= "\$param->set('order', '" . $this->getSortByStr($attr, 'post') . "');\n";
 
-        if ($attr->has('no_content') && $attr->get('no_content')) {
+        if ($attr->isset('no_content') && $attr->get('no_content')) {
             $p .= "\$param->set('no_content', true);\n";
         }
 
-        if ($attr->has('selected')) {
+        if ($attr->isset('selected')) {
             $p .= "\$param->set('post_selected', " . (((bool) $attr->get('selected')) ? 'true' : 'false') . ');';
         }
 
-        if ($attr->has('age')) {
+        if ($attr->isset('age')) {
             $age = $this->getAge($attr);
             $p .= !empty($age) ? "\$param->push('sql', ' AND P.post_dt > \\'" . $age . "\\'');\n" : '';
         }
@@ -1786,19 +1761,15 @@ final class Template
      */
     public function EntryIf(TplAttr $attr, string $content): string
     {
-        $if          = new Strings();
-        $extended    = null;
-        $hascategory = null;
+        $if = new Strings();
 
-        $operator = $attr->has('operator') ? $this->getOperator($attr->get('operator')) : '&&';
-
-        if ($attr->has('type')) {
+        if ($attr->isset('type')) {
             $type = trim($attr->get('type'));
             $type = !empty($type) ? $type : 'post';
             $if->add('App::core()->context()->get("posts")->field("post_type") == "' . addslashes($type) . '"');
         }
 
-        if ($attr->has('url')) {
+        if ($attr->isset('url')) {
             $url = trim($attr->get('url'));
             $if->add(
                 substr($url, 0, 1) == '!' ?
@@ -1807,7 +1778,7 @@ final class Template
             );
         }
 
-        if ($attr->has('category')) {
+        if ($attr->isset('category')) {
             $category = addslashes(trim($attr->get('category')));
             $args     = preg_split('/\s*[?]\s*/', $category, -1, PREG_SPLIT_NO_EMPTY);
             $category = array_shift($args);
@@ -1828,7 +1799,7 @@ final class Template
             }
         }
 
-        if ($attr->has('categories')) {
+        if ($attr->isset('categories')) {
             $categories = explode(',', addslashes(trim($attr->get('categories'))));
             if (is_array($categories)) {
                 foreach ($categories as $category) {
@@ -1853,43 +1824,43 @@ final class Template
             }
         }
 
-        if ($attr->has('first')) {
+        if ($attr->isset('first')) {
             $if->add('App::core()->context()->get("posts")->index() ' . ((bool) $attr->get('first') ? '=' : '!') . '= 0');
         }
 
-        if ($attr->has('odd')) {
+        if ($attr->isset('odd')) {
             $if->add('(App::core()->context()->get("posts")->index()+1)%2 ' . ((bool) $attr->get('odd') ? '=' : '!') . '= 1');
         }
 
-        if ($attr->has('extended')) {
+        if ($attr->isset('extended')) {
             $if->add(((bool) $attr->get('extended') ? '' : '!') . 'App::core()->context()->get("posts")->isExtended()');
         }
 
-        if ($attr->has('selected')) {
+        if ($attr->isset('selected')) {
             $if->add(((bool) $attr->get('selected') ? '' : '!') . '(bool)App::core()->context()->get("posts")->integer("post_selected")');
         }
 
-        if ($attr->has('has_category')) {
+        if ($attr->isset('has_category')) {
             $if->add(((bool) $attr->get('has_category') ? '' : '!') . 'App::core()->context()->get("posts")->integer("cat_id")');
         }
 
-        if ($attr->has('comments_active')) {
+        if ($attr->isset('comments_active')) {
             $if->add(((bool) $attr->get('comments_active') ? '' : '!') . 'App::core()->context()->get("posts")->commentsActive()');
         }
 
-        if ($attr->has('pings_active')) {
+        if ($attr->isset('pings_active')) {
             $if->add(((bool) $attr->get('pings_active') ? '' : '!') . 'App::core()->context()->get("posts")->trackbacksActive()');
         }
 
-        if ($attr->has('has_comment')) {
+        if ($attr->isset('has_comment')) {
             $if->add(((bool) $attr->get('has_comment') ? '' : '!') . 'App::core()->context()->get("posts")->hasComments()');
         }
 
-        if ($attr->has('has_ping')) {
+        if ($attr->isset('has_ping')) {
             $if->add(((bool) $attr->get('has_ping') ? '' : '!') . 'App::core()->context()->get("posts")->hasTrackbacks()');
         }
 
-        if ($attr->has('show_comments')) {
+        if ($attr->isset('show_comments')) {
             $if->add(
                 ((bool) $attr->get('show_comments')) ?
                 '(App::core()->context()->get("posts")->hasComments() || App::core()->context()->get("posts")->commentsActive())' :
@@ -1897,7 +1868,7 @@ final class Template
             );
         }
 
-        if ($attr->has('show_pings')) {
+        if ($attr->isset('show_pings')) {
             $if->add(
                 ((bool) $attr->get('show_pings')) ?
                 '(App::core()->context()->get("posts")->hasTrackbacks() || App::core()->context()->get("posts")->trackbacksActive())' :
@@ -1905,11 +1876,11 @@ final class Template
             );
         }
 
-        if ($attr->has('republished')) {
+        if ($attr->isset('republished')) {
             $if->add(((bool) $attr->get('republished') ? '' : '!') . '(bool)App::core()->context()->get("posts")->isRepublished()');
         }
 
-        if ($attr->has('author')) {
+        if ($attr->isset('author')) {
             $author = trim($attr->get('author'));
             $if->add(
                 substr($author, 0, 1) == '!' ?
@@ -1921,7 +1892,7 @@ final class Template
         App::core()->behavior('tplIfConditions')->call('EntryIf', $attr, $content, $if);
 
         if ($if->count()) {
-            return self::$ton . 'if(' . implode(' ' . $operator . ' ', $if->dump()) . ') :' . self::$toff . $content . self::$ton . 'endif;' . self::$toff;
+            return self::$ton . 'if(' . implode(' ' . $this->getOperator($attr->get('operator')) . ' ', $if->dump()) . ') :' . self::$toff . $content . self::$ton . 'endif;' . self::$toff;
         }
 
         return $content;
@@ -1976,14 +1947,11 @@ final class Template
      */
     public function EntryContent(TplAttr $attr): string
     {
-        $urls = '0';
-        if (!empty($attr->get('absolute_urls'))) {
-            $urls = '1';
-        }
+        $urls = $attr->empty('absolute_urls') ? '0' : '1';
 
         $f = $this->getFilters($attr);
 
-        if (!empty($attr->get('full'))) {
+        if (!$attr->empty('full')) {
             return self::$ton . 'echo ' . sprintf(
                 $f,
                 'App::core()->context()->get("posts")->getExcerpt(' . $urls . ').' .
@@ -2007,22 +1975,18 @@ final class Template
      */
     public function EntryIfContentCut(TplAttr $attr, string $content): string
     {
-        if (empty($attr->get('cut_string'))) {
+        if ($attr->empty('cut_string')) {
             return '';
         }
 
-        $urls = '0';
-        if (!empty($attr->get('absolute_urls'))) {
-            $urls = '1';
-        }
-
-        $short              = $this->getFilters($attr);
-        $cut                = $attr->get('cut_string');
+        $urls  = $attr->empty('absolute_urls') ? '0' : '1';
+        $short = $this->getFilters($attr);
+        $cut   = $attr->get('cut_string');
         $attr->set('cut_string', '0');
-        $full               = $this->getFilters($attr);
+        $full  = $this->getFilters($attr);
         $attr->set('cut_string', $cut);
 
-        if (!empty($attr->get('full'))) {
+        if (!$attr->empty('full')) {
             return self::$ton . 'if (strlen(' . sprintf(
                 $full,
                 'App::core()->context()->get("posts")->getExcerpt(' . $urls . ').' .
@@ -2059,12 +2023,7 @@ final class Template
      */
     public function EntryExcerpt(TplAttr $attr): string
     {
-        $urls = '0';
-        if (!empty($attr->get('absolute_urls'))) {
-            $urls = '1';
-        }
-
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("posts")->getExcerpt(' . $urls . ')') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("posts")->getExcerpt(' . ($attr->empty('absolute_urls') ? '0' : '1') . ')') . ';' . self::$toff;
     }
 
     /*dtd
@@ -2099,7 +2058,7 @@ final class Template
      */
     public function EntryAuthorEmail(TplAttr $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("posts")->getAuthorEmail(' . (($attr->has('spam_protected') && !$attr->get('spam_protected')) ? 'false' : 'true') . ')') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("posts")->getAuthorEmail(' . (($attr->isset('spam_protected') && !$attr->get('spam_protected')) ? 'false' : 'true') . ')') . ';' . self::$toff;
     }
 
     /*dtd
@@ -2209,10 +2168,10 @@ final class Template
     {
         $size          = $attr->get('size');
         $class         = $attr->get('class');
-        $with_category = !empty($attr->get('with_category')) ? 1 : 0;
-        $no_tag        = !empty($attr->get('no_tag')) ? 1 : 0;
-        $content_only  = !empty($attr->get('content_only')) ? 1 : 0;
-        $cat_only      = !empty($attr->get('cat_only')) ? 1 : 0;
+        $with_category = !$attr->empty('with_category') ? 1 : 0;
+        $no_tag        = !$attr->empty('no_tag') ? 1 : 0;
+        $content_only  = !$attr->empty('content_only') ? 1 : 0;
+        $cat_only      = !$attr->empty('cat_only') ? 1 : 0;
 
         return self::$ton . "echo App::core()->context()->EntryFirstImageHelper('" . addslashes($size) . "'," . $with_category . ",'" . addslashes($class) . "'," .
             $no_tag . ',' . $content_only . ',' . $cat_only . ');' . self::$toff;
@@ -2250,11 +2209,8 @@ final class Template
      */
     public function EntryNext(TplAttr $attr, string $content): string
     {
-        $restrict_to_category = !empty($attr->get('restrict_to_category')) ? '1' : '0';
-        $restrict_to_lang     = !empty($attr->get('restrict_to_lang')) ? '1' : '0';
-
         return
-            self::$ton . '$next_post = App::core()->blog()->posts()->getNextPost(App::core()->context()->get("posts"),' . $restrict_to_category . ',' . $restrict_to_lang . ');' . self::$toff . "\n" .
+            self::$ton . '$next_post = App::core()->blog()->posts()->getNextPost(App::core()->context()->get("posts"),' . ($attr->empty('restrict_to_category') ? '0' : '1') . ',' . ($attr->empty('restrict_to_lang') ? '0' : '1') . ');' . self::$toff . "\n" .
             self::$ton . 'if ($next_post !== null) :' . self::$toff .
 
             self::$ton . 'App::core()->context()->set("posts", $next_post); unset($next_post);' . "\n" .
@@ -2273,11 +2229,8 @@ final class Template
      */
     public function EntryPrevious(TplAttr $attr, string $content): string
     {
-        $restrict_to_category = !empty($attr->get('restrict_to_category')) ? '1' : '0';
-        $restrict_to_lang     = !empty($attr->get('restrict_to_lang')) ? '1' : '0';
-
         return
-            self::$ton . '$prev_post = App::core()->blog()->posts()->getPreviousPost(App::core()->context()->get("posts"),' . $restrict_to_category . ',' . $restrict_to_lang . ');' . self::$toff . "\n" .
+            self::$ton . '$prev_post = App::core()->blog()->posts()->getPreviousPost(App::core()->context()->get("posts"),' . ($attr->empty('restrict_to_category') ? '0' : '1') . ',' . ($attr->empty('restrict_to_lang') ? '0' : '1') . ');' . self::$toff . "\n" .
             self::$ton . 'if ($prev_post !== null) :' . self::$toff .
 
             self::$ton . 'App::core()->context()->set("posts", $prev_post); unset($prev_post);' . "\n" .
@@ -2315,26 +2268,19 @@ final class Template
      */
     public function EntryDate(TplAttr $attr): string
     {
-        $format = '';
-        if (!empty($attr->get('format'))) {
-            $format = addslashes($attr->get('format'));
-        }
-
-        $iso8601 = !empty($attr->get('iso8601'));
-        $rfc822  = !empty($attr->get('rfc822'));
-        $type    = (!empty($attr->get('creadt')) ? 'creadt' : '');
-        $type    = (!empty($attr->get('upddt')) ? 'upddt' : $type);
+        $type    = (!$attr->empty('creadt') ? 'creadt' : '');
+        $type    = (!$attr->empty('upddt') ? 'upddt' : $type);
 
         $f = $this->getFilters($attr);
 
-        if ($rfc822) {
+        if (!$attr->empty('rfc822')) {
             return self::$ton . 'echo ' . sprintf($f, "App::core()->context()->get('posts')->getRFC822Date('" . $type . "')") . ';' . self::$toff;
         }
-        if ($iso8601) {
+        if (!$attr->empty('iso8601')) {
             return self::$ton . 'echo ' . sprintf($f, "App::core()->context()->get('posts')->getISO8601Date('" . $type . "')") . ';' . self::$toff;
         }
 
-        return self::$ton . 'echo ' . sprintf($f, "App::core()->context()->get('posts')->getDate('" . $format . "','" . $type . "')") . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($f, "App::core()->context()->get('posts')->getDate('" . addslashes($attr->get('format')) . "','" . $type . "')") . ';' . self::$toff;
     }
 
     /*dtd
@@ -2347,8 +2293,7 @@ final class Template
      */
     public function EntryTime(TplAttr $attr): string
     {
-        $type = (!empty($attr->get('creadt')) ? 'creadt' : '');
-        $type = (!empty($attr->get('upddt')) ? 'upddt' : $type);
+        $type = !$attr->empty('upddt') ? 'upddt' : (!$attr->empty('creadt') ? 'creadt' : '');
 
         return self::$ton . 'echo ' . sprintf($this->getFilters($attr), "App::core()->context()->get('posts')->getTime('" . addslashes($attr->get('format')) . "','" . $type . "')") . ';' . self::$toff;
     }
@@ -2388,7 +2333,7 @@ final class Template
     {
         return $this->displayCounter(
             (
-                empty($attr->get('count_all')) ?
+                $attr->empty('count_all') ?
                 'App::core()->context()->get("posts")->integer("nb_comment")' :
                 '(App::core()->context()->get("posts")->integer("nb_comment") + App::core()->context()->get("posts")->integer("nb_trackback"))'
             ),
@@ -2452,7 +2397,7 @@ final class Template
     {
         $p = 'if (!isset($param)) { $param = new Param(); }' . "\n";
 
-        if ($attr->has('lang')) {
+        if ($attr->isset('lang')) {
             $p = "\$param->set('post_lang', '" . addslashes($attr->get('lang')) . "');\n";
         }
 
@@ -2560,9 +2505,9 @@ final class Template
             $content
         );
         $p .= 'App::core()->context()->set("pagination", App::core()->blog()->posts()->countPosts(param: $param)); unset($param);' . "\n";
-        $p .= "?>\n";
+        $p .= self::$toff . "\n";
 
-        if ($attr->has('no_context') && $attr->get('no_context')) {
+        if ($attr->isset('no_context') && $attr->get('no_context')) {
             return $p . $content;
         }
 
@@ -2586,7 +2531,7 @@ final class Template
      */
     public function PaginationCurrent(TplAttr $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->PaginationPosition(' . ($attr->has('offset') ? (int) $attr->get('offset') : 0) . ')') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->PaginationPosition(' . ($attr->isset('offset') ? (int) $attr->get('offset') : 0) . ')') . ';' . self::$toff;
     }
 
     /*dtd
@@ -2600,11 +2545,11 @@ final class Template
     {
         $if = new Strings();
 
-        if ($attr->has('start')) {
+        if ($attr->isset('start')) {
             $if->add(((bool) $attr->get('start') ? '' : '!') . 'App::core()->context()->PaginationStart()');
         }
 
-        if ($attr->has('end')) {
+        if ($attr->isset('end')) {
             $if->add(((bool) $attr->get('end') ? '' : '!') . 'App::core()->context()->PaginationEnd()');
         }
 
@@ -2625,7 +2570,7 @@ final class Template
      */
     public function PaginationURL(TplAttr $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->PaginationURL(' . ($attr->has('offset') ? (int) $attr->get('offset') : 0) . ')') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->PaginationURL(' . ($attr->isset('offset') ? (int) $attr->get('offset') : 0) . ')') . ';' . self::$toff;
     }
 
     // Comments ---------------------------------------
@@ -2643,12 +2588,12 @@ final class Template
     public function Comments(TplAttr $attr, string $content): string
     {
         $p = 'if (!isset($param)) { $param = new Param(); }' . "\n";
-        if (empty($attr->get('with_pings'))) {
+        if ($attr->empty('with_pings')) {
             $p .= "\$param->set('comment_trackback', 0);\n";
         }
 
         $lastn = 0;
-        if ($attr->has('lastn')) {
+        if ($attr->isset('lastn')) {
             $lastn = abs((int) $attr->get('lastn')) + 0;
         }
 
@@ -2658,7 +2603,7 @@ final class Template
             $p .= "if (App::core()->context()->get('nb_comment_per_page') !== null) { \$param->set('limit', (int) App::core()->context()->get('nb_comment_per_page')); }\n";
         }
 
-        if (empty($attr->get('no_context'))) {
+        if ($attr->empty('no_context')) {
             $p .= 'if (App::core()->context()->get("posts") !== null) { ' .
                 "\$param->set('post_id', App::core()->context()->get('posts')->integer('post_id')); " .
                 "App::core()->blog()->setWithPassword();\n" .
@@ -2672,17 +2617,17 @@ final class Template
                 "}\n";
         }
 
-        if (!$attr->has('order')) {
+        if (!$attr->isset('order')) {
             $attr->set('order', 'asc');
         }
 
         $p .= "\$param->set('order', '" . $this->getSortByStr($attr, 'comment') . "');\n";
 
-        if ($attr->has('no_content') && $attr->get('no_content')) {
+        if ($attr->isset('no_content') && $attr->get('no_content')) {
             $p .= "\$param->set('no_content', true);\n";
         }
 
-        if ($attr->has('age')) {
+        if ($attr->isset('age')) {
             $age = $this->getAge($attr);
             $p .= !empty($age) ? "@\$param->push('sql', ' AND P.post_dt > \\'" . $age . "\\'');\n" : '';
         }
@@ -2697,7 +2642,7 @@ final class Template
         $res .= 'App::core()->context()->set("comments", App::core()->blog()->comments()->getComments(param: $param)); unset($param);' . "\n";
         $res .= "if (App::core()->context()->get('posts') !== null) { App::core()->blog()->setWithoutPassword();}\n";
 
-        if (!empty($attr->get('with_pings'))) {
+        if (!$attr->empty('with_pings')) {
             $res .= 'App::core()->context()->set("pings", App::core()->context()->get("comments"));' . "\n";
         }
 
@@ -2756,7 +2701,7 @@ final class Template
      */
     public function CommentContent(TplAttr $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("comments")->getContent(' . (empty($attr->get('absolute_urls')) ? '0' : '1') . ')') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("comments")->getContent(' . ($attr->empty('absolute_urls') ? '0' : '1') . ')') . ';' . self::$toff;
     }
 
     /*dtd
@@ -2770,16 +2715,14 @@ final class Template
      */
     public function CommentDate(TplAttr $attr): string
     {
-        $iso8601 = !empty($attr->get('iso8601'));
-        $rfc822  = !empty($attr->get('rfc822'));
-        $type    = (!empty($attr->get('upddt')) ? 'upddt' : '');
+        $type = (!$attr->empty('upddt') ? 'upddt' : '');
 
         $f = $this->getFilters($attr);
 
-        if ($rfc822) {
+        if (!$attr->empty('rfc822')) {
             return self::$ton . 'echo ' . sprintf($f, "App::core()->context()->get('comments')->getRFC822Date('" . $type . "')") . ';' . self::$toff;
         }
-        if ($iso8601) {
+        if (!$attr->empty('iso8601')) {
             return self::$ton . 'echo ' . sprintf($f, "App::core()->context()->get('comments')->getISO8601Date('" . $type . "')") . ';' . self::$toff;
         }
 
@@ -2795,7 +2738,7 @@ final class Template
      */
     public function CommentTime(TplAttr $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), "App::core()->context()->get('comments')->getTime('" . addslashes($attr->get('format')) . "','" . (!empty($attr->get('upddt')) ? 'upddt' : '') . "')") . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), "App::core()->context()->get('comments')->getTime('" . addslashes($attr->get('format')) . "','" . (!$attr->empty('upddt') ? 'upddt' : '') . "')") . ';' . self::$toff;
     }
 
     /*dtd
@@ -2806,7 +2749,7 @@ final class Template
      */
     public function CommentEmail(TplAttr $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("comments")->getEmail(' . (($attr->has('spam_protected') && !$attr->get('spam_protected')) ? 'false' : 'true') . ')') . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), 'App::core()->context()->get("comments")->getEmail(' . (($attr->isset('spam_protected') && !$attr->get('spam_protected')) ? 'false' : 'true') . ')') . ';' . self::$toff;
     }
 
     /*dtd
@@ -2841,9 +2784,9 @@ final class Template
      */
     public function CommentIf(TplAttr $attr, string $content): string
     {
-        $if      = new Strings();
+        $if = new Strings();
 
-        if ($attr->has('is_ping')) {
+        if ($attr->isset('is_ping')) {
             $if->add(((bool) $attr->get('is_ping') ? '' : '!') . 'App::core()->context()->get("comments")->integer("comment_trackback")');
         }
 
@@ -3021,7 +2964,7 @@ final class Template
      */
     public function CommentPreviewContent(TplAttr $attr): string
     {
-        $co = empty($attr->get('raw')) ?
+        $co = $attr->empty('raw') ?
             'App::core()->context()->get("comment_preview")->get("content")' :
             'App::core()->context()->get("comment_preview")->get("rawcontent")';
 
@@ -3064,16 +3007,14 @@ final class Template
      */
     public function PingDate(TplAttr $attr, string $type = ''): string
     {
-        $iso8601 = !empty($attr->get('iso8601'));
-        $rfc822  = !empty($attr->get('rfc822'));
-        $type    = !empty($attr->get('upddt')) ? 'upddt' : '';
+        $type = $attr->empty('upddt') ? '' : 'upddt';
 
         $f = $this->getFilters($attr);
 
-        if ($rfc822) {
+        if (!$attr->empty('rfc822')) {
             return self::$ton . 'echo ' . sprintf($f, "App::core()->context()->get('pings')->getRFC822Date('" . $type . "')") . ';' . self::$toff;
         }
-        if ($iso8601) {
+        if (!$attr->empty('iso8601')) {
             return self::$ton . 'echo ' . sprintf($f, "App::core()->context()->get('pings')->getISO8601Date('" . $type . "')") . ';' . self::$toff;
         }
 
@@ -3089,7 +3030,7 @@ final class Template
      */
     public function PingTime(TplAttr $attr): string
     {
-        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), "App::core()->context()->get('pings')->getTime('" . addslashes($attr->get('format')) . "','" . (empty($attr->get('upddt')) ? '' : 'upddt') . "')") . ';' . self::$toff;
+        return self::$ton . 'echo ' . sprintf($this->getFilters($attr), "App::core()->context()->get('pings')->getTime('" . addslashes($attr->get('format')) . "','" . ($attr->empty('upddt') ? '' : 'upddt') . "')") . ';' . self::$toff;
     }
 
     /*dtd
@@ -3198,7 +3139,7 @@ final class Template
         $p .= "\$param->set('comment_trackback', 1);\n";
 
         $lastn = 0;
-        if ($attr->has('lastn')) {
+        if ($attr->isset('lastn')) {
             $lastn = abs((int) $attr->get('lastn')) + 0;
         }
 
@@ -3208,7 +3149,7 @@ final class Template
             $p .= "if (App::core()->context()->get('nb_comment_per_page') !== null) { \$param->set('limit', App::core()->context()->get('nb_comment_per_page')); }\n";
         }
 
-        if (empty($attr->get('no_context'))) {
+        if ($attr->empty('no_context')) {
             $p .= 'if (App::core()->context()->exists("categories")) { ' .
                 "\$param->set('cat_id', App::core()->context()->get('categories')->integer('cat_id')); " .
                 "}\n";
@@ -3220,7 +3161,7 @@ final class Template
 
         $p .= "\$param->set('order', 'comment_dt " . (preg_match('/^(desc|asc)$/i', $attr->get('order')) ? $attr->get('order') : 'asc') . "');\n";
 
-        if ($attr->has('no_content') && $attr->get('no_content')) {
+        if ($attr->isset('no_content') && $attr->get('no_content')) {
             $p .= "\$param->set('no_content', true);\n";
         }
 
@@ -3287,15 +3228,9 @@ final class Template
      */
     public function SysBehavior(TplAttr $attr, string $raw): string
     {
-        if (!$attr->has('behavior')) {
-            return '';
-        }
-
-        $b = addslashes($attr->get('behavior'));
-
-        return
-            self::$ton . 'if (App::core()->behavior(\'' . $b . '\')->count()) { ' .
-            'App::core()->behavior(\'' . $b . '\')->call(App::core()->context());' .
+        return !$attr->isset('behavior') ? '' :
+            self::$ton . 'if (App::core()->behavior(\'' . addslashes($attr->get('behavior')) . '\')->count()) { ' .
+            'App::core()->behavior(\'' . addslashes($attr->get('behavior')) . '\')->call(App::core()->context());' .
             '}' . self::$toff;
     }
 
@@ -3318,57 +3253,57 @@ final class Template
      */
     public function SysIf(TplAttr $attr, string $content): string
     {
-        $if      = new Strings();
+        $if = new Strings();
 
-        if ($attr->has('categories')) {
+        if ($attr->isset('categories')) {
             $if->add('App::core()->context()->get("categories") ' . ((bool) $attr->get('categories') ? '!' : '=') . '== null');
         }
 
-        if ($attr->has('posts')) {
+        if ($attr->isset('posts')) {
             $if->add('App::core()->context()->get("posts") ' . ((bool) $attr->get('posts') ? '!' : '=') . '== null');
         }
 
-        if ($attr->has('blog_lang')) {
+        if ($attr->isset('blog_lang')) {
             $if->add($this->getSign('blog_lang', $attr) . "(App::core()->blog()->settings()->getGroup('system')->getSetting('lang') == '" . addslashes($attr->get('blog_lang')) . "')");
         }
 
-        if ($attr->has('current_tpl')) {
+        if ($attr->isset('current_tpl')) {
             $if->add($this->getSign('current_tpl', $attr) . "(App::core()->context()->get('current_tpl') == '" . addslashes($attr->get('current_tpl')) . "')");
         }
 
-        if ($attr->has('current_mode')) {
+        if ($attr->isset('current_mode')) {
             $if->add($this->getSign('current_mode', $attr) . "(App::core()->url()->getCurrentType() == '" . addslashes($attr->get('current_mode')) . "')");
         }
 
-        if ($attr->has('has_tpl')) {
+        if ($attr->isset('has_tpl')) {
             $if->add($this->getSign('has_tpl', $attr) . "App::core()->template()->getFilePath('" . addslashes($attr->get('has_tpl')) . "') !== false");
         }
 
-        if ($attr->has('has_tag')) {
+        if ($attr->isset('has_tag')) {
             $if->add($this->getSign('has_tag', $attr) . "App::core()->template()->tagExists('" . addslashes($attr->get('has_tag')) . "')");
         }
 
-        if ($attr->has('blog_id')) {
+        if ($attr->isset('blog_id')) {
             $if->add($this->getSign('blog_id', $attr) . "(App::core()->blog()->id == '" . addslashes($attr->get('blog_id')) . "')");
         }
 
-        if ($attr->has('comments_active')) {
+        if ($attr->isset('comments_active')) {
             $if->add(((bool) $attr->get('comments_active') ? '' : '!') . 'App::core()->blog()->settings()->getGroup("system")->getSetting("allow_comments")');
         }
 
-        if ($attr->has('pings_active')) {
+        if ($attr->isset('pings_active')) {
             $if->add(((bool) $attr->get('pings_active') ? '' : '!') . 'App::core()->blog()->settings()->getGroup("system")->getSetting("allow_trackbacks")');
         }
 
-        if ($attr->has('wiki_comments')) {
+        if ($attr->isset('wiki_comments')) {
             $if->add(((bool) $attr->get('wiki_comments') ? '' : '!') . 'App::core()->blog()->settings()->getGroup("system")->getSetting("wiki_comments")');
         }
 
-        if ($attr->has('search_count') && preg_match('/^((=|!|&gt;|&lt;)=|(&gt;|&lt;))\s*[0-9]+$/', trim($attr->get('search_count')))) {
+        if ($attr->isset('search_count') && preg_match('/^((=|!|&gt;|&lt;)=|(&gt;|&lt;))\s*[0-9]+$/', trim($attr->get('search_count')))) {
             $if->add('(App::core()->url()->getSearchString() && App::core()->url()->getSearchCount() ' . Html::decodeEntities($attr->get('search_count')) . ')');
         }
 
-        if ($attr->has('jquery_needed')) {
+        if ($attr->isset('jquery_needed')) {
             $if->add(((bool) $attr->get('jquery_needed') ? '' : '!') . 'App::core()->blog()->settings()->getGroup("system")->getSetting("jquery_needed")');
         }
 
@@ -3453,7 +3388,7 @@ final class Template
         return self::$ton . 'else:' . self::$toff;
     }
 
-    private function getSign(string $key, TplAttr $attr): string
+    public function getSign(string $key, TplAttr $attr): string
     {
         $sign = '';
         if (substr($attr->get($key), 0, 1) == '!') {

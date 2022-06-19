@@ -27,7 +27,7 @@ class TagsBehavior
 
     public function templateBeforeBlock(string $tag, TplAttr $attr): string
     {
-        if (in_array($tag, ['Entries', 'Comments']) && $attr->has('tag')) {
+        if (in_array($tag, ['Entries', 'Comments']) && $attr->isset('tag')) {
             return
             "<?php\n" .
             'if (!isset($param)) { $param = new Param(); }' . "\n" .
@@ -37,7 +37,7 @@ class TagsBehavior
             "\$param->push('sql' \"AND META.meta_id = '" . App::core()->con()->escape($attr->get('tag')) . "' \");\n" .
                 "?>\n";
         }
-        if (empty($attr->get('no_context')) && in_array($tag, ['Entries', 'Comments'])) {
+        if ($attr->empty('no_context') && in_array($tag, ['Entries', 'Comments'])) {
             return
                 '<?php if (App::core()->context()->exists("meta") && App::core()->context()->get("meta")->rows() && App::core()->context()->get("meta")->field("meta_type") == "tag") { ' .
                 'if (!isset($param)) { $param = new Param(); }' . "\n" .

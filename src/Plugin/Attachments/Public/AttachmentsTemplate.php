@@ -102,27 +102,27 @@ class AttachmentsTemplate
     {
         $if = new Strings();
 
-        if ($attr->has('is_image')) {
+        if ($attr->isset('is_image')) {
             $if->add(((bool) $attr->get('is_image') ? '' : '!') . '$attach_f->media_image');
         }
 
-        if ($attr->has('has_thumb')) {
+        if ($attr->isset('has_thumb')) {
             $if->add(((bool) $attr->get('has_thumb') ? '' : '!') . 'isset($attach_f->media_thumb[\'sq\'])');
         }
 
-        if ($attr->has('is_mp3')) {
+        if ($attr->isset('is_mp3')) {
             $if->add('$attach_f->type ' . ((bool) $attr->get('is_mp3') ? '==' : '!=') . ' "audio/mpeg3"');
         }
 
-        if ($attr->has('is_flv')) {
+        if ($attr->isset('is_flv')) {
             $if->add('$attach_f->type ' . ((bool) $attr->get('is_flv') ? '==' : '!=') . ' "video/x-flv"');
         }
 
-        if ($attr->has('is_audio')) {
+        if ($attr->isset('is_audio')) {
             $if->add('$attach_f->type_prefix ' . ((bool) $attr->get('is_audio') ? '==' : '!=') . ' "audio"');
         }
 
-        if ($attr->has('is_video')) {
+        if ($attr->isset('is_video')) {
             // Since 2.15 .flv media are no more considered as video (Flash is obsolete)
             $sign = ((bool) $attr->get('is_video')) ? '==' : '!=';
             $test = '$attach_f->type_prefix ' . $sign . ' "video"';
@@ -175,7 +175,7 @@ class AttachmentsTemplate
     {
         return self::$ton . 'echo ' . sprintf(
             App::core()->template()->getFilters($attr),
-            empty($attr->get('full')) ?
+            $attr->empty('full') ?
             'Dotclear\Helper\File\Files::size($attach_f->size)' :
             '$attach_f->size'
         ) . ';' . self::$toff;
@@ -239,7 +239,7 @@ class AttachmentsTemplate
 
     public function tplIfConditions(string $tag, TplAttr $attr, string $content, Strings $if): void
     {
-        if ('EntryIf' == $tag && $attr->has('has_attachment')) {
+        if ('EntryIf' == $tag && $attr->isset('has_attachment')) {
             $if->add(((bool) $attr->get('has_attachment') ? '' : '!') . 'App::core()->context()->get("posts")->countMedia(\'attachment\')');
         }
     }

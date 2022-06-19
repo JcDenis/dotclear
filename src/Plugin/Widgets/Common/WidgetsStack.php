@@ -712,7 +712,7 @@ class WidgetsStack
 
     public function tplWidget(TplAttr $attr, string $content): string
     {
-        if (!$attr->has('id') || !(self::$__widgets->get($attr->get('id')) instanceof Widget)) {
+        if (!$attr->isset('id') || !(self::$__widgets->get($attr->get('id')) instanceof Widget)) {
             return '';
         }
 
