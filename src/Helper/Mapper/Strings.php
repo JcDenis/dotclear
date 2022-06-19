@@ -106,6 +106,7 @@ class Strings
      */
     protected function convert(mixed $value): string
     {
-        return preg_match($this->pattern, (string) $value) ? (string) $value : '';
+        return strval($value);
+        // return preg_match($this->pattern, (string) $value) ? (string) $value : '';
     }
 }
