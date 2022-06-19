@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Process\Public\Template\Engine;
 
 // Dotclear\Process\Public\Template\Engine\TplNodeBlock
-use ArrayObject;
 
 /**
  * Template block node.
@@ -26,7 +25,7 @@ class TplNodeBlock extends TplNode
     protected $closed  = false;
     protected $content = '';
 
-    public function __construct(protected string $tag, protected array $attr)
+    public function __construct(protected string $tag, protected TplAttr $attr)
     {
         parent::__construct();
     }
@@ -46,7 +45,7 @@ class TplNodeBlock extends TplNode
         if ($this->closed) {
             $content = parent::compile($tpl);
 
-            return $tpl->compileBlockNode($this->tag, new ArrayObject($this->attr), $content);
+            return $tpl->compileBlockNode($this->tag, $this->attr, $content);
         }
         // if tag has not been closed, silently ignore its content...
         return '';

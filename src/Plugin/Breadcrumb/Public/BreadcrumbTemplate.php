@@ -10,11 +10,11 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Breadcrumb\Public;
 
 // Dotclear\Plugin\Breadcrumb\Public\BreadcrumbTemplate
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Database\Param;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\L10n;
+use Dotclear\Process\Public\Template\Engine\TplAttr;
 
 /**
  * Public templates for plugin Breacrumb.
@@ -35,12 +35,10 @@ class BreadcrumbTemplate
     }
 
     // Template function
-    public function tplValueBreadcrumb(ArrayObject $attr): string
+    public function tplValueBreadcrumb(TplAttr $attr): string
     {
-        $separator = $attr['separator'] ?? '';
-
         return self::$ton . 'echo ' . __CLASS__ . '::tplDisplayBreadcrumb(' .
-        "'" . addslashes($separator) . "'" .
+        "'" . addslashes($attr->get('separator')) . "'" .
             ');' . self::$toff;
     }
 

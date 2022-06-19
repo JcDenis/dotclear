@@ -55,13 +55,13 @@ class Template
         $this->addBlock('Block', [$this, 'blockSection']);
     }
 
-    public function includeFile($attr)
+    public function includeFile(TplAttr $attr)
     {
-        if (!isset($attr['src'])) {
+        if (!$attr->has('src')) {
             return;
         }
 
-        $src = Path::clean($attr['src']);
+        $src = Path::clean($attr->get('src'));
 
         $tpl_file = $this->getFilePath($src);
         if (!$tpl_file) {
@@ -77,7 +77,7 @@ class Template
             '} catch (\Exception) {} ?>' . "\n";
     }
 
-    public function blockSection($attr, string $content)
+    public function blockSection(TplAttr $attr, string $content)
     {
         return $content;
     }
@@ -339,14 +339,14 @@ class Template
                     // Value tag
                     $tag      = $match[4];
                     $str_attr = '';
-                    $attr     = [];
+                    $attr     = new TplAttr();
                     if (isset($match[6])) {
                         $str_attr = $match[6];
-                        $attr     = $this->getAttrs($match[6]);
+                        $attr     = new TplAttr($match[6]);
                     }
                     if (strtolower($tag) == 'extends') {
-                        if (isset($attr['parent']) && '' == $this->parent_file) {
-                            $this->parent_file = $attr['parent'];
+                        if ($attr->has('parent') && '' == $this->parent_file) {
+                            $this->parent_file = $attr->get('parent');
                         }
                     } elseif (strtolower($tag) == 'parent') {
                         $node->addChild(new TplNodeValueParent($tag, $attr, $str_attr));
@@ -357,9 +357,9 @@ class Template
                     // Opening tag, create new node and dive into it
                     $tag = $match[1];
                     if ('Block' == $tag) {
-                        $newnode = new TplNodeBlockDefinition($tag, isset($match[2]) ? $this->getAttrs($match[2]) : []);
+                        $newnode = new TplNodeBlockDefinition($tag, new TplAttr($match[2] ?? ''));
                     } else {
-                        $newnode = new TplNodeBlock($tag, isset($match[2]) ? $this->getAttrs($match[2]) : []);
+                        $newnode = new TplNodeBlock($tag, new TplAttr($match[2] ?? ''));
                     }
                     $node->addChild($newnode);
                     $node = $newnode;
@@ -423,7 +423,7 @@ class Template
         }
     }
 
-    public function compileBlockNode(string $tag, ArrayObject $attr, string $content): string
+    public function compileBlockNode(string $tag, TplAttr $attr, string $content): string
     {
         $res = '';
         if (isset($this->blocks[$tag])) {
@@ -435,7 +435,7 @@ class Template
         return $res;
     }
 
-    public function compileValueNode(string $tag, ArrayObject $attr, string $str_attr): string
+    public function compileValueNode(string $tag, TplAttr $attr, string $str_attr): string
     {
         $res = '';
         if (isset($this->values[$tag])) {
@@ -447,15 +447,16 @@ class Template
         return $res;
     }
 
-    protected function compileValue(ArrayObject $match)
-    {
-        $v        = $match[1];
-        $attr     = isset($match[2]) ? $this->getAttrs($match[2]) : [];
-        $str_attr = $match[2] ?? null;
+    /*
+        protected function compileValue(ArrayObject $match)
+        {
+            $v        = $match[1];
+            $attr     = new TplAttr($match[2] ?? '');
+            $str_attr = $match[2] ?? null;
 
-        return call_user_func($this->values[$v], $attr, ltrim((string) $str_attr));
-    }
-
+            return call_user_func($this->values[$v], $attr, ltrim((string) $str_attr));
+        }
+    */
     public function setUnknownValueHandler(callable $callback): void
     {
         $this->unknown_value_handler = $callback;
@@ -464,17 +465,5 @@ class Template
     public function setUnknownBlockHandler(callable $callback): void
     {
         $this->unknown_block_handler = $callback;
-    }
-
-    protected function getAttrs(string $str): array
-    {
-        $res = [];
-        if (preg_match_all('|([a-zA-Z0-9_:-]+)="([^"]*)"|ms', $str, $m) > 0) {
-            foreach ($m[1] as $i => $v) {
-                $res[$v] = $m[2][$i];
-            }
-        }
-
-        return $res;
     }
 }

@@ -10,8 +10,8 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Tags\Public;
 
 // Dotclear\Plugin\Tags\Public\TagsBehavior
-use ArrayObject;
 use Dotclear\App;
+use Dotclear\Process\Public\Template\Engine\TplAttr;
 
 /**
  * Public behaviors for plugin Tags.
@@ -25,19 +25,19 @@ class TagsBehavior
         App::core()->behavior('templateBeforeBlock')->add([$this, 'templateBeforeBlock']);
     }
 
-    public function templateBeforeBlock(string $tag, ArrayObject $attr): string
+    public function templateBeforeBlock(string $tag, TplAttr $attr): string
     {
-        if (in_array($tag, ['Entries', 'Comments']) && isset($attr['tag'])) {
+        if (in_array($tag, ['Entries', 'Comments']) && $attr->has('tag')) {
             return
             "<?php\n" .
             'if (!isset($param)) { $param = new Param(); }' . "\n" .
             "\$param->push('from', App::core()->prefix().'meta META');\n" .
             "\$param->push('sql', 'AND META.post_id = P.post_id ');\n" .
             "\$param->push('sql', \"AND META.meta_type = 'tag' \");\n" .
-            "\$param->push('sql' \"AND META.meta_id = '" . App::core()->con()->escape($attr['tag']) . "' \");\n" .
+            "\$param->push('sql' \"AND META.meta_id = '" . App::core()->con()->escape($attr->get('tag')) . "' \");\n" .
                 "?>\n";
         }
-        if (empty($attr['no_context']) && in_array($tag, ['Entries', 'Comments'])) {
+        if (empty($attr->get('no_context')) && in_array($tag, ['Entries', 'Comments'])) {
             return
                 '<?php if (App::core()->context()->exists("meta") && App::core()->context()->get("meta")->rows() && App::core()->context()->get("meta")->field("meta_type") == "tag") { ' .
                 'if (!isset($param)) { $param = new Param(); }' . "\n" .

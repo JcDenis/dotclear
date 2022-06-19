@@ -10,9 +10,9 @@ declare(strict_types=1);
 namespace Dotclear\Theme\Ductile\Public;
 
 // Dotclear\Theme\Ductile\Public\DuctileTemplate
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Helper\File\Files;
+use Dotclear\Process\Public\Template\Engine\TplAttr;
 
 /**
  * Public templates for theme Ductile.
@@ -36,11 +36,9 @@ class DuctileTemplate
         App::core()->template()->addBlock('IfPreviewIsNotMandatory', [$this, 'IfPreviewIsNotMandatory']);
     }
 
-    public function ductileNbEntryPerPage(ArrayObject $attr): string
+    public function ductileNbEntryPerPage(TplAttr $attr): string
     {
-        $nb = $attr['nb'] ?? null;
-
-        return self::$ton . __CLASS__ . '::ductileNbEntryPerPageHelper(' . strval((int) $nb) . ');' . self::$toff;
+        return self::$ton . __CLASS__ . '::ductileNbEntryPerPageHelper(' . strval((int) ($attr->get('nb') ?: null)) . ');' . self::$toff;
     }
 
     public static function ductileNbEntryPerPageHelper(int $nb): void
@@ -89,22 +87,22 @@ class DuctileTemplate
         }
     }
 
-    public function EntryIfContentIsCut(ArrayObject $attr, string $content): string
+    public function EntryIfContentIsCut(TplAttr $attr, string $content): string
     {
-        if (empty($attr['cut_string']) || !empty($attr['full'])) {
+        if (empty($attr->get('cut_string')) || !empty($attr->get('full'))) {
             return '';
         }
 
         $urls = '0';
-        if (!empty($attr['absolute_urls'])) {
+        if (!empty($attr->get('absolute_urls'))) {
             $urls = '1';
         }
 
-        $short              = App::core()->template()->getFilters($attr);
-        $cut                = $attr['cut_string'];
-        $attr['cut_string'] = 0;
-        $full               = App::core()->template()->getFilters($attr);
-        $attr['cut_string'] = $cut;
+        $short = App::core()->template()->getFilters($attr);
+        $cut   = $attr->get('cut_string');
+        $attr->set('cut_string', '0');
+        $full  = App::core()->template()->getFilters($attr);
+        $attr->set('cut_string', $cut);
 
         return self::$ton . 'if (strlen(' . sprintf($full, 'App::core()->context()->get("posts")->getContent(' . $urls . ')') . ') > ' .
         'strlen(' . sprintf($short, 'App::core()->context()->get("posts")->getContent(' . $urls . ')') . ')) :' . self::$toff .
@@ -112,7 +110,7 @@ class DuctileTemplate
             self::$ton . 'endif;' . self::$toff;
     }
 
-    public function ductileEntriesList(ArrayObject $attr): string
+    public function ductileEntriesList(TplAttr $attr): string
     {
         $tpl_path   = __DIR__ . '/../templates/tpl/';
         $list_types = ['title', 'short', 'full'];
@@ -132,7 +130,7 @@ class DuctileTemplate
             }
         }
 
-        $default = isset($attr['default']) ? trim($attr['default']) : 'short';
+        $default = $attr->has('default') ? trim($attr->get('default')) : 'short';
         $ret     = self::$ton . "\n" .
         'switch (' . __CLASS__ . '::ductileEntriesListHelper(\'' . $default . '\')) {' . "\n";
 
@@ -165,7 +163,7 @@ class DuctileTemplate
         return $default;
     }
 
-    public function ductileLogoSrc(ArrayObject $attr): string
+    public function ductileLogoSrc(TplAttr $attr): string
     {
         return self::$ton . 'echo ' . __CLASS__ . '::ductileLogoSrcHelper();' . self::$toff;
     }
@@ -202,7 +200,7 @@ class DuctileTemplate
         return $img_url;
     }
 
-    public function IfPreviewIsNotMandatory(ArrayObject $attr, string $content): string
+    public function IfPreviewIsNotMandatory(TplAttr $attr, string $content): string
     {
         $s = App::core()->blog()->settings()->getGroup('themes')->getSetting(App::core()->blog()->settings()->getGroup('system')->getSetting('theme') . '_style');
         if (null !== $s) {

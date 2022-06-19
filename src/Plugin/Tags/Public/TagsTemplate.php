@@ -10,8 +10,9 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Tags\Public;
 
 // Dotclear\Plugin\Tags\Public\TagsTemplate
-use ArrayObject;
 use Dotclear\App;
+use Dotclear\Helper\Mapper\Strings;
+use Dotclear\Process\Public\Template\Engine\TplAttr;
 
 /**
  * XML-RPC methods of plugin Tags.
@@ -53,23 +54,13 @@ class TagsTemplate
         App::core()->template()->addBlock('EntryMetaData', [$this, 'EntryTags']);
     }
 
-    public function Tags(ArrayObject $attr, string $content): string
+    public function Tags(TplAttr $attr, string $content): string
     {
-        $type = isset($attr['type']) ? addslashes($attr['type']) : 'tag';
-
-        $limit = isset($attr['limit']) ? (int) $attr['limit'] : 'null';
-
-        $combo = ['meta_id_lower', 'count', 'latest', 'oldest'];
-
-        $sortby = 'meta_id_lower';
-        if (isset($attr['sortby']) && in_array($attr['sortby'], $combo)) {
-            $sortby = strtolower($attr['sortby']);
-        }
-
-        $order = 'asc';
-        if (isset($attr['order']) && 'desc' == $attr['order']) {
-            $order = 'desc';
-        }
+        $type   = $attr->has('type') ? addslashes($attr->get('type')) : 'tag';
+        $limit  = $attr->has('limit') ? (int) $attr->get('limit') : 'null';
+        $combo  = ['meta_id_lower', 'count', 'latest', 'oldest'];
+        $sortby = ($attr->has('sortby') && in_array($attr->get('sortby'), $combo)) ? strtolower($attr->get('sortby')) : 'meta_id_lower';
+        $order  = 'desc' == $attr->get('order') ? 'desc' : 'asc';
 
         $res = self::$ton . "\n" .
             '$param = new Param();' .
@@ -86,7 +77,7 @@ class TagsTemplate
         return $res;
     }
 
-    public function TagsHeader(ArrayObject $attr, string $content): string
+    public function TagsHeader(TplAttr $attr, string $content): string
     {
         return
             self::$ton . 'if (App::core()->context()->get("meta")->isStart()) :' . self::$toff .
@@ -94,7 +85,7 @@ class TagsTemplate
             self::$ton . 'endif;' . self::$toff;
     }
 
-    public function TagsFooter(ArrayObject $attr, string $content): string
+    public function TagsFooter(TplAttr $attr, string $content): string
     {
         return
             self::$ton . 'if (App::core()->context()->get("meta")->isEnd()) :' . self::$toff .
@@ -102,21 +93,12 @@ class TagsTemplate
             self::$ton . 'endif;' . self::$toff;
     }
 
-    public function EntryTags(ArrayObject $attr, string $content): string
+    public function EntryTags(TplAttr $attr, string $content): string
     {
-        $type = isset($attr['type']) ? addslashes($attr['type']) : 'tag';
-
-        $combo = ['meta_id_lower', 'count', 'latest', 'oldest'];
-
-        $sortby = 'meta_id_lower';
-        if (isset($attr['sortby']) && in_array($attr['sortby'], $combo)) {
-            $sortby = strtolower($attr['sortby']);
-        }
-
-        $order = 'asc';
-        if (isset($attr['order']) && 'desc' == $attr['order']) {
-            $order = 'desc';
-        }
+        $type   = $attr->has('type') ? addslashes($attr->get('type')) : 'tag';
+        $combo  = ['meta_id_lower', 'count', 'latest', 'oldest'];
+        $sortby = ($attr->has('sortby') && in_array($attr->get('sortby'), $combo)) ? strtolower($attr->get('sortby')) : 'meta_id_lower';
+        $order  = ('desc' == $attr->get('order')) ? 'desc' : 'asc';
 
         $res = self::$ton . "\n" .
             "App::core()->context()->set('meta', App::core()->meta()->getMetaRecordset((string) App::core()->context()->get('posts')->field('post_meta'),'" . $type . "')); " .
@@ -129,63 +111,55 @@ class TagsTemplate
         return $res;
     }
 
-    public function TagIf(ArrayObject $attr, string $content): string
+    public function TagIf(TplAttr $attr, string $content): string
     {
-        $if        = [];
-        $operateur = isset($attr['operator']) ? App::core()->template()->getOperator($attr['operator']) : '&&';
+        $if = new Strings();
 
-        if (isset($attr['has_entries'])) {
-            $sign = (bool) $attr['has_entries'] ? '' : '!';
-            $if[] = $sign . 'App::core()->context()->get("meta")->integer("count")';
+        if ($attr->has('has_entries')) {
+            $if->add(((bool) $attr->get('has_entries') ? '' : '!') . 'App::core()->context()->get("meta")->integer("count")');
         }
 
-        if (!empty($if)) {
-            return self::$ton . 'if(' . implode(' ' . $operateur . ' ', $if) . ') :' . self::$toff . $content . self::$ton . 'endif;' . self::$toff;
+        if ($if->count()) {
+            return self::$ton . 'if(' . implode(' ' . ($attr->has('operator') ? App::core()->template()->getOperator($attr->get('operator')) : '&&') . ' ', $if->dump()) . ') :' . self::$toff . $content . self::$ton . 'endif;' . self::$toff;
         }
 
         return $content;
     }
 
-    public function TagID(ArrayObject $attr): string
+    public function TagID(TplAttr $attr): string
     {
         return self::$ton . 'echo ' . sprintf(App::core()->template()->getFilters($attr), 'App::core()->context()->get("meta")->field("meta_id")') . ';' . self::$toff;
     }
 
-    public function TagCount(ArrayObject $attr): string
+    public function TagCount(TplAttr $attr): string
     {
         return self::$ton . 'echo App::core()->context()->get("meta")->integer("count");' . self::$toff;
     }
 
-    public function TagPercent(ArrayObject $attr): string
+    public function TagPercent(TplAttr $attr): string
     {
         return self::$ton . 'echo App::core()->context()->get("meta")->field("percent");' . self::$toff;
     }
 
-    public function TagRoundPercent(ArrayObject $attr): string
+    public function TagRoundPercent(TplAttr $attr): string
     {
         return self::$ton . 'echo App::core()->context()->get("meta")->field("roundpercent");' . self::$toff;
     }
 
-    public function TagURL(ArrayObject $attr): string
+    public function TagURL(TplAttr $attr): string
     {
         return self::$ton . 'echo ' . sprintf(App::core()->template()->getFilters($attr), 'App::core()->blog()->getURLFor("tag",' .
             'rawurlencode(App::core()->context()->get("meta")->field("meta_id")))') . ';' . self::$toff;
     }
 
-    public function TagCloudURL(ArrayObject $attr): string
+    public function TagCloudURL(TplAttr $attr): string
     {
         return self::$ton . 'echo ' . sprintf(App::core()->template()->getFilters($attr), 'App::core()->blog()->getURLFor("tags")') . ';' . self::$toff;
     }
 
-    public function TagFeedURL(ArrayObject $attr): string
+    public function TagFeedURL(TplAttr $attr): string
     {
-        $type = !empty($attr['type']) ? $attr['type'] : 'rss2';
-
-        if (!preg_match('#^(rss2|atom)$#', $type)) {
-            $type = 'rss2';
-        }
-
         return self::$ton . 'echo ' . sprintf(App::core()->template()->getFilters($attr), 'App::core()->blog()->getURLFor("tag_feed",' .
-            'rawurlencode(App::core()->context()->get("meta")->field("meta_id"))."/' . $type . '")') . ';' . self::$toff;
+            'rawurlencode(App::core()->context()->get("meta")->field("meta_id"))."/' . (preg_match('#^(rss2|atom)$#', $attr->get('type')) ? $attr->get('type') : 'rss2') . '")') . ';' . self::$toff;
     }
 }

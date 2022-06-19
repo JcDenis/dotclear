@@ -10,8 +10,9 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Attachments\Public;
 
 // Dotclear\Plugin\Attachments\Public\AttachmentsTemplate
-use ArrayObject;
 use Dotclear\App;
+use Dotclear\Helper\Mapper\Strings;
+use Dotclear\Process\Public\Template\Engine\TplAttr;
 
 /**
  * Public templates for plugin Attachments.
@@ -48,7 +49,7 @@ class AttachmentsTemplate
     /*dtd
     <!ELEMENT tpl:Attachments - - -- Post Attachments loop -->
      */
-    public function Attachments(ArrayObject $attr, string $content): string
+    public function Attachments(TplAttr $attr, string $content): string
     {
         return self::$ton . "\n" .
             'if (App::core()->context()->get("posts") !== null) {' . "\n" .
@@ -67,7 +68,7 @@ class AttachmentsTemplate
     /*dtd
     <!ELEMENT tpl:AttachmentsHeader - - -- First attachments result container -->
      */
-    public function AttachmentsHeader(ArrayObject $attr, string $content): string
+    public function AttachmentsHeader(TplAttr $attr, string $content): string
     {
         return
             self::$ton . 'if ($attach_i == 0) :' . self::$toff .
@@ -78,7 +79,7 @@ class AttachmentsTemplate
     /*dtd
     <!ELEMENT tpl:AttachmentsFooter - - -- Last attachments result container -->
      */
-    public function AttachmentsFooter(ArrayObject $attr, string $content): string
+    public function AttachmentsFooter(TplAttr $attr, string $content): string
     {
         return
             self::$ton . 'if ($attach_i+1 == count(App::core()->context()->get("attachments"))) :' . self::$toff .
@@ -97,51 +98,44 @@ class AttachmentsTemplate
     is_video    (0|1)    #IMPLIED    -- test if attachment is a video file (value : 1) or not (value : 0)
     >
      */
-    public function AttachmentIf(ArrayObject $attr, string $content): string
+    public function AttachmentIf(TplAttr $attr, string $content): string
     {
-        $if = [];
+        $if = new Strings();
 
-        $operator = isset($attr['operator']) ? App::core()->template()->getOperator($attr['operator']) : '&&';
-
-        if (isset($attr['is_image'])) {
-            $sign = (bool) $attr['is_image'] ? '' : '!';
-            $if[] = $sign . '$attach_f->media_image';
+        if ($attr->has('is_image')) {
+            $if->add(((bool) $attr->get('is_image') ? '' : '!') . '$attach_f->media_image');
         }
 
-        if (isset($attr['has_thumb'])) {
-            $sign = (bool) $attr['has_thumb'] ? '' : '!';
-            $if[] = $sign . 'isset($attach_f->media_thumb[\'sq\'])';
+        if ($attr->has('has_thumb')) {
+            $if->add(((bool) $attr->get('has_thumb') ? '' : '!') . 'isset($attach_f->media_thumb[\'sq\'])');
         }
 
-        if (isset($attr['is_mp3'])) {
-            $sign = (bool) $attr['is_mp3'] ? '==' : '!=';
-            $if[] = '$attach_f->type ' . $sign . ' "audio/mpeg3"';
+        if ($attr->has('is_mp3')) {
+            $if->add('$attach_f->type ' . ((bool) $attr->get('is_mp3') ? '==' : '!=') . ' "audio/mpeg3"');
         }
 
-        if (isset($attr['is_flv'])) {
-            $sign = (bool) $attr['is_flv'] ? '==' : '!=';
-            $if[] = '$attach_f->type ' . $sign . ' "video/x-flv"';
+        if ($attr->has('is_flv')) {
+            $if->add('$attach_f->type ' . ((bool) $attr->get('is_flv') ? '==' : '!=') . ' "video/x-flv"');
         }
 
-        if (isset($attr['is_audio'])) {
-            $sign = (bool) $attr['is_audio'] ? '==' : '!=';
-            $if[] = '$attach_f->type_prefix ' . $sign . ' "audio"';
+        if ($attr->has('is_audio')) {
+            $if->add('$attach_f->type_prefix ' . ((bool) $attr->get('is_audio') ? '==' : '!=') . ' "audio"');
         }
 
-        if (isset($attr['is_video'])) {
+        if ($attr->has('is_video')) {
             // Since 2.15 .flv media are no more considered as video (Flash is obsolete)
-            $sign = (bool) $attr['is_video'] ? '==' : '!=';
+            $sign = ((bool) $attr->get('is_video')) ? '==' : '!=';
             $test = '$attach_f->type_prefix ' . $sign . ' "video"';
             if ('==' == $sign) {
                 $test .= ' && $attach_f->type != "video/x-flv"';
             } else {
                 $test .= ' || $attach_f->type == "video/x-flv"';
             }
-            $if[] = $test;
+            $if->add($test);
         }
 
-        if (count($if) != 0) {
-            return self::$ton . 'if(' . implode(' ' . $operator . ' ', (array) $if) . ') :' . self::$toff . $content . self::$ton . 'endif;' . self::$toff;
+        if ($if->count()) {
+            return self::$ton . 'if(' . implode(' ' . App::core()->template()->getOperator($attr->get('operator')) . ' ', $if->dump()) . ') :' . self::$toff . $content . self::$ton . 'endif;' . self::$toff;
         }
 
         return $content;
@@ -150,7 +144,7 @@ class AttachmentsTemplate
     /*dtd
     <!ELEMENT tpl:AttachmentMimeType - O -- Attachment MIME Type -->
      */
-    public function AttachmentMimeType(ArrayObject $attr): string
+    public function AttachmentMimeType(TplAttr $attr): string
     {
         return self::$ton . 'echo ' . sprintf(App::core()->template()->getFilters($attr), '$attach_f->type') . ';' . self::$toff;
     }
@@ -158,7 +152,7 @@ class AttachmentsTemplate
     /*dtd
     <!ELEMENT tpl:AttachmentType - O -- Attachment type -->
      */
-    public function AttachmentType(ArrayObject $attr): string
+    public function AttachmentType(TplAttr $attr): string
     {
         return self::$ton . 'echo ' . sprintf(App::core()->template()->getFilters($attr), '$attach_f->media_type') . ';' . self::$toff;
     }
@@ -166,7 +160,7 @@ class AttachmentsTemplate
     /*dtd
     <!ELEMENT tpl:AttachmentFileName - O -- Attachment file name -->
      */
-    public function AttachmentFileName(ArrayObject $attr): string
+    public function AttachmentFileName(TplAttr $attr): string
     {
         return self::$ton . 'echo ' . sprintf(App::core()->template()->getFilters($attr), '$attach_f->basename') . ';' . self::$toff;
     }
@@ -177,11 +171,11 @@ class AttachmentsTemplate
     full    CDATA    #IMPLIED    -- if set, size is rounded to a human-readable value (in KB, MB, GB, TB)
     >
      */
-    public function AttachmentSize(ArrayObject $attr): string
+    public function AttachmentSize(TplAttr $attr): string
     {
         return self::$ton . 'echo ' . sprintf(
             App::core()->template()->getFilters($attr),
-            empty($attr['full']) ?
+            empty($attr->get('full')) ?
             'Dotclear\Helper\File\Files::size($attach_f->size)' :
             '$attach_f->size'
         ) . ';' . self::$toff;
@@ -190,7 +184,7 @@ class AttachmentsTemplate
     /*dtd
     <!ELEMENT tpl:AttachmentTitle - O -- Attachment title -->
      */
-    public function AttachmentTitle(ArrayObject $attr): string
+    public function AttachmentTitle(TplAttr $attr): string
     {
         return self::$ton . 'echo ' . sprintf(App::core()->template()->getFilters($attr), '$attach_f->media_title') . ';' . self::$toff;
     }
@@ -198,7 +192,7 @@ class AttachmentsTemplate
     /*dtd
     <!ELEMENT tpl:AttachmentThumbnailURL - O -- Attachment square thumbnail URL -->
      */
-    public function AttachmentThumbnailURL(ArrayObject $attr): string
+    public function AttachmentThumbnailURL(TplAttr $attr): string
     {
         return
         self::$ton .
@@ -211,12 +205,12 @@ class AttachmentsTemplate
     /*dtd
     <!ELEMENT tpl:AttachmentURL - O -- Attachment URL -->
      */
-    public function AttachmentURL(ArrayObject $attr): string
+    public function AttachmentURL(TplAttr $attr): string
     {
         return self::$ton . 'echo ' . sprintf(App::core()->template()->getFilters($attr), '$attach_f->file_url') . ';' . self::$toff;
     }
 
-    public function MediaURL(ArrayObject $attr): string
+    public function MediaURL(TplAttr $attr): string
     {
         return self::$ton . 'echo ' . sprintf(App::core()->template()->getFilters($attr), 'App::core()->context()->get("file_url")') . ';' . self::$toff;
     }
@@ -229,7 +223,7 @@ class AttachmentsTemplate
     more    CDATA    #IMPLIED    -- text to display for "more attachment" (default: %s attachment, %s is replaced by the number of attachments)
     >
      */
-    public function EntryAttachmentCount(ArrayObject $attr): string
+    public function EntryAttachmentCount(TplAttr $attr): string
     {
         return App::core()->template()->displayCounter(
             'App::core()->context()->get("posts")->countMedia(\'attachment\')',
@@ -243,11 +237,10 @@ class AttachmentsTemplate
         );
     }
 
-    public function tplIfConditions(string $tag, ArrayObject $attr, string $content, ArrayObject $if): void
+    public function tplIfConditions(string $tag, TplAttr $attr, string $content, Strings $if): void
     {
-        if ('EntryIf' == $tag && isset($attr['has_attachment'])) {
-            $sign = (bool) $attr['has_attachment'] ? '' : '!';
-            $if[] = $sign . 'App::core()->context()->get("posts")->countMedia(\'attachment\')';
+        if ('EntryIf' == $tag && $attr->has('has_attachment')) {
+            $if->add(((bool) $attr->get('has_attachment') ? '' : '!') . 'App::core()->context()->get("posts")->countMedia(\'attachment\')');
         }
     }
 }

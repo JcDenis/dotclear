@@ -10,11 +10,11 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Blogroll\Public;
 
 // Dotclear\Plugin\Blogroll\Public\BlogrollTemplate
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Plugin\Blogroll\Common\Blogroll;
+use Dotclear\Process\Public\Template\Engine\TplAttr;
 
 /**
  * Public templates methods for plugin Blogroll.
@@ -35,28 +35,12 @@ class BlogrollTemplate
         App::core()->template()->addValue('BlogrollXbelLink', [$this, 'blogrollXbelLink']);
     }
 
-    public function blogroll(ArrayObject $attr): string
+    public function blogroll(TplAttr $attr): string
     {
-        $category = '<h3>%s</h3>';
-        $block    = '<ul>%s</ul>';
-        $item     = '<li%2$s>%1$s</li>';
-
-        if (isset($attr['category'])) {
-            $category = addslashes($attr['category']);
-        }
-
-        if (isset($attr['block'])) {
-            $block = addslashes($attr['block']);
-        }
-
-        if (isset($attr['item'])) {
-            $item = addslashes($attr['item']);
-        }
-
-        $only_cat = 'null';
-        if (!empty($attr['only_category'])) {
-            $only_cat = "'" . addslashes($attr['only_category']) . "'";
-        }
+        $category = $attr->has('category') ? addslashes($attr->get('category')) : '<h3>%s</h3>';
+        $block    = $attr->has('block') ? addslashes($attr->get('block')) : '<ul>%s</ul>';
+        $item     = $attr->has('item') ? addslashes($attr->get('item')) : '<li%2$s>%1$s</li>';
+        $only_cat = empty($attr->get('only_category')) ? 'null' : "'" . addslashes($attr->get('only_category')) . "'";
 
         return
             self::$ton .
@@ -64,7 +48,7 @@ class BlogrollTemplate
             self::$toff;
     }
 
-    public function blogrollXbelLink(ArrayObject $attr): string
+    public function blogrollXbelLink(TplAttr $attr): string
     {
         return self::$ton . 'echo ' . sprintf(App::core()->template()->getFilters($attr), 'App::core()->blog()->getURLFor("xbel")') . ';' . self::$toff;
     }

@@ -92,15 +92,15 @@ class TplNodeBlockDefinition extends TplNodeBlock
     /**
      * Block definition specific constructor : keep block name in mind.
      *
-     * @param string $tag  Current tag (might be "Block")
-     * @param array  $attr Tag attributes (must contain "name" attribute)
+     * @param string  $tag  Current tag (might be "Block")
+     * @param TplAttr $attr Tag attributes (must contain "name" attribute)
      */
-    public function __construct(string $tag, array $attr)
+    public function __construct(string $tag, TplAttr $attr)
     {
         parent::__construct($tag, $attr);
         $this->name = '';
-        if (isset($attr['name'])) {
-            $this->name = $attr['name'];
+        if ($attr->has('name')) {
+            $this->name = $attr->get('name');
         }
     }
 
@@ -131,7 +131,7 @@ class TplNodeBlockDefinition extends TplNodeBlock
     {
         return $tpl->compileBlockNode(
             $this->tag,
-            new ArrayObject($this->attr),
+            $this->attr,
             self::getStackBlock($this->name, $tpl)
         );
     }

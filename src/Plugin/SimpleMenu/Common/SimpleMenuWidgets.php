@@ -16,6 +16,7 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Plugin\Widgets\Common\Widget;
 use Dotclear\Plugin\Widgets\Common\Widgets;
+use Dotclear\Process\Public\Template\Engine\TplAttr;
 
 /**
  * Widgets methods for plugin SmpleMenu.
@@ -66,23 +67,21 @@ class SimpleMenuWidgets
     }
 
     // Template function
-    public function simpleMenu(ArrayObject $attr): string
+    public function simpleMenu(TplAttr $attr): string
     {
         if (!(bool) App::core()->blog()->settings()->getGroup('system')->getSetting('simpleMenu_active')) {
             return '';
         }
 
-        $class       = isset($attr['class']) ? trim($attr['class']) : '';
-        $id          = isset($attr['id']) ? trim($attr['id']) : '';
-        $description = isset($attr['description']) ? trim($attr['description']) : '';
+        $description = trim($attr->get('description'));
 
         if (!preg_match('#^(title|span|both|none)$#', $description)) {
             $description = '';
         }
 
         return self::$ton . 'echo ' . __CLASS__ . '::$widgets->displayMenu(' .
-        "'" . addslashes($class) . "'," .
-        "'" . addslashes($id) . "'," .
+        "'" . addslashes(trim($attr->get('class'))) . "'," .
+        "'" . addslashes(trim($attr->get('id'))) . "'," .
         "'" . addslashes($description) . "'" .
             ');' . self::$toff;
     }

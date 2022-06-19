@@ -10,13 +10,13 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Widgets\Common;
 
 // Dotclear\Plugin\Widgets\Common\WidgetsStack
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Database\Param;
 use Dotclear\Database\Record;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Feed\Reader;
+use Dotclear\Process\Public\Template\Engine\TplAttr;
 use SimpleXMLElement;
 
 /**
@@ -611,12 +611,12 @@ class WidgetsStack
 
     // / @name Widgets tempalte methods
     // @{
-    public function tplWidgets(ArrayObject $attr): string
+    public function tplWidgets(TplAttr $attr): string
     {
-        $type = $attr['type'] ?? '';
+        $type = $attr->get('type');
 
         // widgets to disable
-        $disable = isset($attr['disable']) ? trim($attr['disable']) : '';
+        $disable = trim($attr->get('disable'));
 
         if ('' == $type) {
             $res = __CLASS__ . "::\$stack->widgetsHandler('nav','" . addslashes($disable) . "');" . "\n" .
@@ -662,12 +662,12 @@ class WidgetsStack
         }
     }
 
-    public function tplIfWidgets(ArrayObject $attr, string $content): string
+    public function tplIfWidgets(TplAttr $attr, string $content): string
     {
-        $type = $attr['type'] ?? '';
+        $type = $attr->get('type');
 
         // widgets to disable
-        $disable = isset($attr['disable']) ? trim($attr['disable']) : '';
+        $disable = trim($attr->get('disable'));
 
         if ('' == $type) {
             $res = __CLASS__ . "::\$stack->ifWidgetsHandler('nav','" . addslashes($disable) . "') &&" . "\n" .
@@ -710,9 +710,9 @@ class WidgetsStack
         return $widgets;
     }
 
-    public function tplWidget(ArrayObject $attr, string $content): string
+    public function tplWidget(TplAttr $attr, string $content): string
     {
-        if (!isset($attr['id']) || !(self::$__widgets->get($attr['id']) instanceof Widget)) {
+        if (!$attr->has('id') || !(self::$__widgets->get($attr->get('id')) instanceof Widget)) {
             return '';
         }
 
@@ -722,7 +722,7 @@ class WidgetsStack
         // We remove every {{tpl:
         $content = preg_replace('/\{\{tpl:.*?\}\}/msu', '', $content);
 
-        return '<?php ' . __CLASS__ . "::\$stack->widgetHandler('" . addslashes($attr['id']) . "','" . str_replace("'", "\\'", $content) . "'); ?>";
+        return '<?php ' . __CLASS__ . "::\$stack->widgetHandler('" . addslashes($attr->get('id')) . "','" . str_replace("'", "\\'", $content) . "'); ?>";
     }
 
     public function widgetHandler(string $id, string $xml): void
