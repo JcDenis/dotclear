@@ -52,8 +52,6 @@ class UserPref extends AbstractPage
     private $format_by_editors = [];
     private $available_formats = [];
 
-    private $sorts;
-
     private $rte;
 
     private $user_dm_doclinks           = '';
@@ -177,9 +175,6 @@ class UserPref extends AbstractPage
             }
         }
 
-        // Get default sortby, order, nbperpage (admin lists)
-        $this->sorts = App::core()->listoption()->getUserFilters();
-
         // Add or update user
         if (GPC::post()->isset('user_name')) {
             try {
@@ -296,21 +291,21 @@ class UserPref extends AbstractPage
 
                 // Update user lists options
                 $su = [];
-                foreach ($this->sorts as $sort_type => $sort_data) {
-                    if (null !== $sort_data[1]) {
-                        $k = 'sorts_' . $sort_type . '_sortby';
+                foreach (App::core()->listoption()->sort()->getGroups() as $group) {
+                    if (null !== $group->getSortby()) {
+                        $k = 'sorts_' . $group->id . '_sortby';
 
-                        $su[$sort_type][0] = in_array(GPC::post()->string($k), $sort_data[1]) ? GPC::post()->string($k) : $sort_data[2];
+                        $su[$group->id][0] = in_array(GPC::post()->string($k), $group->combo) ? GPC::post()->string($k) : $group->getSortby();
                     }
-                    if (null !== $sort_data[3]) {
-                        $k = 'sorts_' . $sort_type . '_order';
+                    if (null !== $group->getSortOrder()) {
+                        $k = 'sorts_' . $group->id . '_order';
 
-                        $su[$sort_type][1] = in_array(GPC::post()->string($k), ['asc', 'desc']) ? GPC::post()->string($k) : $sort_data[3];
+                        $su[$group->id][1] = in_array(GPC::post()->string($k), App::core()->combo()->getOrderCombo()) ? GPC::post()->string($k) : $group->getSortOrder();
                     }
-                    if (null !== $sort_data[4]) {
-                        $k = 'sorts_' . $sort_type . '_nb';
+                    if (null !== $group->getSortLimit()) {
+                        $k = 'sorts_' . $group->id . '_nb';
 
-                        $su[$sort_type][2] = GPC::post()->isset($k) ? abs(GPC::post()->int($k)) : $sort_data[4][1];
+                        $su[$group->id][2] = GPC::post()->isset($k) ? abs(GPC::post()->int($k)) : $group->getSortLimit();
                     }
                 }
                 App::core()->user()->preference()->get('interface')->put('sorts', $su, 'array');
@@ -701,24 +696,24 @@ class UserPref extends AbstractPage
         __('Apply filters on the fly') . '</label></p>';
 
         $odd = true;
-        foreach ($this->sorts as $sort_type => $sort_data) {
+        foreach (App::core()->listoption()->sort()->getGroups() as $group) {
             if ($odd) {
                 echo '<hr />';
             }
             echo '<div class="two-boxes ' . ($odd ? 'odd' : 'even') . '">';
-            echo '<h5>' . $sort_data[0] . '</h5>';
-            if (null !== $sort_data[1]) {
-                echo '<p class="field"><label for="sorts_' . $sort_type . '_sortby">' . __('Order by:') . '</label> ' .
-                Form::combo('sorts_' . $sort_type . '_sortby', $sort_data[1], $sort_data[2]) . '</p>';
+            echo '<h5>' . $group->title . '</h5>';
+            if (null !== $group->getSortBy()) {
+                echo '<p class="field"><label for="sorts_' . $group->id . '_sortby">' . __('Order by:') . '</label> ' .
+                Form::combo('sorts_' . $group->id . '_sortby', $group->combo, $group->getSortBy()) . '</p>';
             }
-            if (null !== $sort_data[3]) {
-                echo '<p class="field"><label for="sorts_' . $sort_type . '_order">' . __('Sort:') . '</label> ' .
-                Form::combo('sorts_' . $sort_type . '_order', App::core()->combo()->getOrderCombo(), $sort_data[3]) . '</p>';
+            if (null !== $group->getSortOrder()) {
+                echo '<p class="field"><label for="sorts_' . $group->id . '_order">' . __('Sort:') . '</label> ' .
+                Form::combo('sorts_' . $group->id . '_order', App::core()->combo()->getOrderCombo(), $group->getSortOrder()) . '</p>';
             }
-            if (is_array($sort_data[4])) {
-                echo '<p><span class="label ib">' . __('Show') . '</span> <label for="sorts_' . $sort_type . '_nb" class="classic">' .
-                Form::number('sorts_' . $sort_type . '_nb', 0, 999, (string) $sort_data[4][1]) . ' ' .
-                $sort_data[4][0] . '</label></p>';
+            if (null !== $group->getSortLimit()) {
+                echo '<p><span class="label ib">' . __('Show') . '</span> <label for="sorts_' . $group->id . '_nb" class="classic">' .
+                Form::number('sorts_' . $group->id . '_nb', 0, 999, (string) $group->getSortLimit()) . ' ' .
+                $group->keyword . '</label></p>';
             }
             echo '</div>';
             $odd = !$odd;

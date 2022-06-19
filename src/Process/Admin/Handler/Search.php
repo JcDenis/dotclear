@@ -65,7 +65,7 @@ class Search extends AbstractPage
         }
 
         $page = GPC::get()->empty('page') ? 1 : max(1, GPC::get()->int('page'));
-        $nb   = App::core()->listoption()->getUserFiltersNb('search');
+        $nb   = App::core()->listoption()->sort()->getGroup('search')?->getSortLimit() ?? 20;
         if (0 < GPC::get()->int('nb')) {
             $nb = GPC::get()->int('nb');
         }

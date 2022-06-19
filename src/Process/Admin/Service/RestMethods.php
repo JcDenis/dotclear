@@ -805,7 +805,7 @@ class RestMethods
             throw new AdminException('No list name');
         }
 
-        $sorts = App::core()->listoption()->getUserFilters();
+        $sorts = App::core()->listoption()->sort()->getGroups();
 
         if (!isset($sorts[$post['id']])) {
             throw new AdminException('List name invalid');
@@ -814,18 +814,18 @@ class RestMethods
         $rsp = new XmlTag('result');
 
         $su = [];
-        foreach ($sorts as $sort_type => $sort_data) {
-            if (null !== $sort_data[1]) {
+        foreach ($sorts as $group) {
+            if (null !== $group->getSortBy()) {
                 $k                 = 'sort';
-                $su[$sort_type][0] = $sort_type == $post['id'] && isset($post[$k]) && in_array($post[$k], $sort_data[1]) ? $post[$k] : $sort_data[2];
+                $su[$group->id][0] = $group->id == $post['id'] && isset($post[$k]) && in_array($post[$k], $group->combo) ? $post[$k] : $group->getSortBy();
             }
-            if (null !== $sort_data[3]) {
+            if (null !== $group->getSortOrder()) {
                 $k                 = 'order';
-                $su[$sort_type][1] = $sort_type == $post['id'] && isset($post[$k]) && in_array($post[$k], ['asc', 'desc']) ? $post[$k] : $sort_data[3];
+                $su[$group->id][1] = $group->id == $post['id'] && isset($post[$k]) && in_array($post[$k], App::core()->combo()->getOrderCombo()) ? $post[$k] : $group->getSortOrder();
             }
-            if (null !== $sort_data[4]) {
+            if (null !== $group->getSortLimit()) {
                 $k                 = 'nb';
-                $su[$sort_type][2] = $sort_type == $post['id'] && isset($post[$k]) ? abs((int) $post[$k]) : $sort_data[4][1];
+                $su[$group->id][2] = $group->id == $post['id'] && isset($post[$k]) ? abs((int) $post[$k]) : $group->getSortLimit();
             }
         }
 

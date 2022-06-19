@@ -45,7 +45,7 @@ class Handler extends AbstractPage
         $param->set('post_type', 'page');
 
         $this->p_page = !GPC::get()->empty('page') ? max(1, GPC::get()->int('page')) : 1;
-        $this->p_nbbp = App::core()->listoption()->getUserFiltersNb('pages');
+        $this->p_nbbp = App::core()->listoption()->sort()->getGroup('pages')?->getSortLimit() ?? 20;
 
         if (0 < GPC::get()->int('nb')) {
             $this->p_nbbp = GPC::get()->int('nb');

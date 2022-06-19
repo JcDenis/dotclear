@@ -59,16 +59,16 @@ class Filters
      */
     private function parseUserOptions(): void
     {
-        $user_options = App::core()->listoption()->getUserFiltersType($this->getId());
+        $user_options = App::core()->listoption()->sort()->getGroup($this->getId());
         if (!empty($user_options)) {
             $this->has_user_pref = true;
         }
 
-        if (!empty($user_options[1])) {
-            $value = App::core()->listoption()->getUserFiltersSortby($this->getId());
+        $value = $user_options->getSortBy();
+        if (null !== $value) {
             if (!GPC::get()->empty('sortby')
-                && in_array(GPC::get()->string('sortby'), $user_options[1], true)
-                && App::core()->listoption()->getUserFiltersSortby($this->getId()) != GPC::get()->string('sortby')
+                && in_array(GPC::get()->string('sortby'), $user_options->combo, true)
+                && GPC::get()->string('sortby') != $value
             ) {
                 $this->setUnfolded();
                 $value = GPC::get()->string('sortby');
@@ -77,14 +77,15 @@ class Filters
             $this->filters['sortby'] = new Filter(
                 id: 'sortby',
                 value: $value,
-                options: $user_options[1]
+                options: $user_options->combo
             );
         }
-        if (!empty($user_options[3])) {
-            $value = App::core()->listoption()->getUserFiltersOrder($this->getId());
+
+        $value = $user_options->getSortOrder();
+        if (null !== $value) {
             if (!GPC::get()->empty('order')
                 && in_array(GPC::get()->string('order'), App::core()->combo()->getOrderCombo(), true)
-                && App::core()->listoption()->getUserFiltersOrder($this->getId()) != GPC::get()->string('order')
+                && GPC::get()->string('order') != $value
             ) {
                 $this->setUnfolded();
                 $value = GPC::get()->string('order');
@@ -95,10 +96,10 @@ class Filters
                 options: App::core()->combo()->getOrderCombo()
             );
         }
-        if (!empty($user_options[4])) {
-            $value = App::core()->listoption()->getUserFiltersNb($this->getId());
+        $value = $user_options->getSortLimit();
+        if (null !== $value) {
             if (0 < GPC::get()->int('nb')
-                && GPC::get()->int('nb') != App::core()->listoption()->getUserFiltersNb($this->getId())
+                && GPC::get()->int('nb') !== $value
             ) {
                 $this->setUnfolded();
                 $value = GPC::get()->int('nb');
@@ -107,7 +108,7 @@ class Filters
             $this->filters['nb'] = new Filter(
                 id: 'nb',
                 value: $value,
-                title: $user_options[4][0]
+                title: $user_options->keyword
             );
         }
     }

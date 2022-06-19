@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Pages\Admin;
 
 // Dotclear\Plugin\Pages\Admin\Prepend
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Core\Permission\PermissionItem;
 use Dotclear\Database\Param;
@@ -25,6 +24,8 @@ use Dotclear\Process\Admin\Favorite\DashboardIcon;
 use Dotclear\Process\Admin\ListOption\Column;
 use Dotclear\Process\Admin\ListOption\ColumnGroup;
 use Dotclear\Process\Admin\ListOption\ColumnItem;
+use Dotclear\Process\Admin\ListOption\Sort;
+use Dotclear\Process\Admin\ListOption\SortGroup;
 
 /**
  * Admin prepend for plugin Pages.
@@ -109,14 +110,13 @@ class Prepend extends ModulePrepend
         });
 
         // Add user pref list filters
-        App::core()->behavior('adminFiltersLists')->add(function (ArrayObject $sorts): void {
-            $sorts['pages'] = [
-                __('Pages'),
-                null,
-                null,
-                null,
-                [__('entries per page'), 30],
-            ];
+        App::core()->behavior('adminAfterConstructSort')->add(function (Sort $sort): void {
+            $sort->addGroup(new SortGroup(
+                id: 'pages',
+                title: __('Pages'),
+                sortlimit: 30,
+                keyword: __('entries per page'),
+            ));
         });
 
         // Urls
