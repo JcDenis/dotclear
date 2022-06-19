@@ -436,13 +436,15 @@ final class Template
             }
         }
 
+        /*
         self::$_k = array_keys($GLOBALS);
-
         foreach (self::$_k as self::$_n) {
             if (!in_array(self::$_n, self::$superglobals)) {
                 global ${self::$_n};
             }
         }
+        //*/
+
         $dest_file = $this->getFile($________);
         ob_start();
         if (ini_get('display_errors') == true) {
