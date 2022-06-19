@@ -137,7 +137,7 @@ class DuctileTemplate
         foreach ($list_types as $v) {
             $ret .= '   case \'' . $v . '\':' . "\n" .
             self::$toff . "\n" .
-            App::core()->template()->includeFile(['src' => '_entry-' . $v . '.html']) . "\n" .
+            App::core()->template()->includeFile(new TplAttr('src="_entry-' . $v . '.html"')) . "\n" .
                 self::$ton . "\n" .
                 '       break;' . "\n";
         }
