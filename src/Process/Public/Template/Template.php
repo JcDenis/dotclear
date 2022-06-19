@@ -12,7 +12,8 @@ namespace Dotclear\Process\Public\Template;
 // Dotclear\Process\Public\Template\Template
 use ArrayObject;
 use Dotclear\App;
-use Dotclear\Exception\TemplateException;
+use Dotclear\Exception\InsufficientPermissions;
+use Dotclear\Exception\InvalidValueReference;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
@@ -58,9 +59,9 @@ final class Template
     private $parent_stack  = [];
 
     // Inclusion variables
-    private static $superglobals = ['GLOBALS', '_SERVER', '_GET', '_POST', '_COOKIE', '_FILES', '_ENV', '_REQUEST', '_SESSION'];
-    private static $_k;
-    private static $_n;
+    // private static $superglobals = ['GLOBALS', '_SERVER', '_GET', '_POST', '_COOKIE', '_FILES', '_ENV', '_REQUEST', '_SESSION'];
+    // private static $_k;
+    // private static $_n;
     private static $_r;
 
     /**
@@ -299,11 +300,11 @@ final class Template
         $dir = Path::real($dir);
 
         if (!$dir || !is_dir($dir)) {
-            throw new TemplateException($dir . ' is not a valid directory.');
+            throw new InvalidValueReference($dir . ' is not a valid directory.');
         }
 
         if (!is_writable($dir)) {
-            throw new TemplateException($dir . ' is not writable.');
+            throw new InsufficientPermissions($dir . ' is not writable.');
         }
 
         $this->cache_dir = $dir . '/';
@@ -359,7 +360,7 @@ final class Template
         $tpl_file = $this->getFilePath($file);
 
         if (!$tpl_file) {
-            throw new TemplateException('No template found for ' . $file);
+            throw new InvalidValueReference('No template found for ' . $file);
         }
 
         $file_md5  = md5($tpl_file);
@@ -388,7 +389,7 @@ final class Template
             Files::makeDir(dirname($dest_file), true);
 
             if (false === ($fp = @fopen($dest_file, 'wb'))) {
-                throw new TemplateException('Unable to create cache file');
+                throw new InsufficientPermissions('Unable to create cache file');
             }
 
             $fc = $this->compileFile($tpl_file);
@@ -582,22 +583,18 @@ final class Template
         return $rootNode;
     }
 
-    private function getCompileFileHeader($file)
+    private function compileFile(string $file): string
     {
+        // Get class to declare on top of each compiled file
         $class = new Strings();
         $class->add('Dotclear\App');
         $class->add('Dotclear\Database\Param');
         $class->add('Dotclear\Helper\GPC\GPC');
 
-        // --BEHAVIOR-- templateBeforeFile
-        App::core()->behavior('templateBeforeFile')->call($file, $class);
+        // --BEHAVIOR-- templateBeforeUseClass, string, Strings
+        App::core()->behavior('templateBeforeUseClass')->call($file, $class);
 
-        return self::$ton . "\n" . 'use ' . implode("; \n use ", $class->dump()) . "; \n" . self::$toff . "\n";
-    }
-
-    private function compileFile(string $file): string
-    {
-        $head = $this->getCompileFileHeader($file);
+        $head = $class->count() ? self::$ton . "\n" . 'use ' . implode("; \nuse ", $class->dump()) . "; \n" . self::$toff . "\n" : '';
         $tree = null;
         $err  = '';
         while (true) {
@@ -608,14 +605,14 @@ final class Template
                     $this->parent_stack[] = $file;
                     $newfile              = $this->getParentFilePath(dirname($file), basename($file));
                     if (!$newfile) {
-                        throw new TemplateException('No template found for ' . basename($file));
+                        throw new InvalidValueReference('No template found for ' . basename($file));
                     }
                     $file = $newfile;
                 } elseif ('' != $this->parent_file) {
                     $this->parent_stack[] = $file;
                     $file                 = $this->getFilePath($this->parent_file);
                     if (!$file) {
-                        throw new TemplateException('No template found for ' . $this->parent_file);
+                        throw new InvalidValueReference('No template found for ' . $this->parent_file);
                     }
                 } else {
                     return $head . $tree->compile($this) . $err;
@@ -710,7 +707,7 @@ final class Template
 
     /**
      * Get filters.
-     * 
+     *
      * $default can be
      * - encode_xml,
      * - encode_html,

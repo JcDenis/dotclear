@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Process\Public\Template;
 
 // Dotclear\Process\Public\Template\TplNode
-use ArrayObject;
 
 /**
  * Template node.
@@ -24,17 +23,21 @@ use ArrayObject;
 class TplNode
 {
     // Basic tree structure : links to parent, children forrest
-    protected $parentNode;
-    protected $children;
 
-    public function __construct()
-    {
-        $this->children   = new ArrayObject();
-        $this->parentNode = null;
-    }
+    /**
+     * @var TplNode $parentNode
+     *              The parent node
+     */
+    protected $parentNode;
+
+    /**
+     * @var array<int,TplNode> $children
+     *                         The node children
+     */
+    protected $children = [];
 
     // Returns compiled block
-    public function compile(Template $tpl)
+    public function compile(Template $tpl): string
     {
         $res = '';
         foreach ($this->children as $child) {
@@ -45,23 +48,14 @@ class TplNode
     }
 
     // Add a children to current node
-    public function addChild($child)
+    public function addChild($child): void
     {
         $this->children[] = $child;
         $child->setParent($this);
     }
 
-    // Set current node children
-    public function setChildren($children)
-    {
-        $this->children = $children;
-        foreach ($this->children as $child) {
-            $child->setParent($this);
-        }
-    }
-
     // Defines parent for current node
-    protected function setParent($parent)
+    protected function setParent($parent): void
     {
         $this->parentNode = $parent;
     }
@@ -74,7 +68,7 @@ class TplNode
     }
 
     // Current node tag
-    public function getTag()
+    public function getTag(): string
     {
         return 'ROOT';
     }

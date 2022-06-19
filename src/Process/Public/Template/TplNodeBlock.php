@@ -27,15 +27,14 @@ class TplNodeBlock extends TplNode
 
     public function __construct(protected string $tag, protected TplAttr $attr)
     {
-        parent::__construct();
     }
 
-    public function setClosing()
+    public function setClosing(): void
     {
         $this->closed = true;
     }
 
-    public function isClosed()
+    public function isClosed(): bool
     {
         return $this->closed;
     }
@@ -51,7 +50,7 @@ class TplNodeBlock extends TplNode
         return '';
     }
 
-    public function getTag()
+    public function getTag(): string
     {
         return $this->tag;
     }

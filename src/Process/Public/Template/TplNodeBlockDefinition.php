@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Process\Public\Template;
 
 // Dotclear\Process\Public\Template\TplNodeBlockDefinition
-use ArrayObject;
 
 /**
  * Template block node definition.
@@ -64,7 +63,6 @@ class TplNodeBlockDefinition extends TplNodeBlock
         $pos   = $stack['pos'];
         // First check if block position is correct
         if (isset($stack['blocks'][$pos])) {
-            $saved_current_block = self::$current_block;
             self::$current_block = $name;
             if (!is_string($stack['blocks'][$pos])) {
                 // Not a string ==> need to compile the tree
@@ -108,7 +106,7 @@ class TplNodeBlockDefinition extends TplNodeBlock
      * Override tag closing processing. Here we enrich the block stack to
      * keep block history.
      */
-    public function setClosing()
+    public function setClosing(): void
     {
         if (!isset(self::$stack[$this->name])) {
             self::$stack[$this->name] = [
@@ -117,7 +115,7 @@ class TplNodeBlockDefinition extends TplNodeBlock
         }
         parent::setClosing();
         self::$stack[$this->name]['blocks'][] = $this->children;
-        $this->children                       = new ArrayObject();
+        $this->children                       = [];
     }
 
     /**

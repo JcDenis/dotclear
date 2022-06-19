@@ -24,7 +24,6 @@ class TplNodeText extends TplNode
 {
     public function __construct(protected string $content)
     {
-        parent::__construct();
     }
 
     public function compile(Template $tpl): string

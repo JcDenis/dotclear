@@ -26,7 +26,6 @@ class TplNodeValue extends TplNode
 
     public function __construct(protected string $tag, protected TplAttr $attr, protected string $str_attr)
     {
-        parent::__construct();
     }
 
     public function compile(Template $tpl): string
