@@ -708,23 +708,23 @@ final class Template
         return $content;
     }
 
+    /**
+     * Get filters.
+     * 
+     * $default can be
+     * - encode_xml,
+     * - encode_html,
+     * - cut_string,
+     * - lower_case,
+     * - upper_case,
+     * - encode_url,
+     * - remove_html,
+     * - capitalize,
+     * - strip_tags,
+     */
     public function getFilters(TplAttr $attr, array $default = []): string
     {
-        $p = array_merge(
-            [
-                0             => null,
-                'encode_xml'  => 0,
-                'encode_html' => 0,
-                'cut_string'  => 0,
-                'lower_case'  => 0,
-                'upper_case'  => 0,
-                'encode_url'  => 0,
-                'remove_html' => 0,
-                'capitalize'  => 0,
-                'strip_tags'  => 0,
-            ],
-            $default
-        );
+        $p = array_merge([0 => null], $default);
 
         foreach ($attr->dump() as $k => $v) {
             // attributes names must follow this rule

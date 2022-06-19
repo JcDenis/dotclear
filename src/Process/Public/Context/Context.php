@@ -212,7 +212,7 @@ class Context
                 default:
                     // 3rd party filter applied and should continue
                     // Apply default filter
-                    if (isset($args[$filter]) && $args[$filter]) {
+                    if (!empty($args[$filter])) {
                         $str = $this->default_filters($filter, $str, $args[$filter]);
                     }
             }
