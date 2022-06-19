@@ -22,28 +22,40 @@ namespace Dotclear\Process\Public\Template;
  */
 class TplNodeBlockDefinition extends TplNodeBlock
 {
+    /**
+     * @var array<string,array> $stack
+     *                          The stack of blocks
+     */
     protected static $stack = [];
-    protected static $current_block;
-    protected static $c = 1;
 
+    /**
+     * @var null|string $current_block
+     *                  The current block name (from process loop)
+     */
+    protected static $current_block;
+
+    /**
+     * @var string $name
+     *             The block name (from constructor)
+     */
     protected $name;
 
     /**
-     * Renders the parent block of currently being displayed block.
+     * Render the parent block of currently being displayed block.
      *
      * @param Template $tpl the current template engine instance
      *
      * @return string the compiled parent block
      */
-    public static function renderParent(Template $tpl)
+    public static function renderParent(Template $tpl): string
     {
         return self::getStackBlock(self::$current_block, $tpl);
     }
 
     /**
-     * resets blocks stack.
+     * Reset blocks stack.
      */
-    public static function reset()
+    public static function reset(): void
     {
         self::$stack         = [];
         self::$current_block = null;
@@ -88,23 +100,22 @@ class TplNodeBlockDefinition extends TplNodeBlock
     }
 
     /**
-     * Block definition specific constructor : keep block name in mind.
+     * Block definition specific constructor.
+     *
+     * Keep block name in mind.
      *
      * @param string  $tag  Current tag (might be "Block")
      * @param TplAttr $attr Tag attributes (must contain "name" attribute)
      */
-    public function __construct(string $tag, TplAttr $attr)
+    public function __construct(protected string $tag, protected TplAttr $attr)
     {
-        parent::__construct($tag, $attr);
-        $this->name = '';
-        if ($attr->isset('name')) {
-            $this->name = $attr->get('name');
-        }
+        $this->name = $attr->get('name');
     }
 
     /**
-     * Override tag closing processing. Here we enrich the block stack to
-     * keep block history.
+     * Override tag closing processing.
+     *
+     * Here we enrich the block stack to keep block history.
      */
     public function setClosing(): void
     {
@@ -119,11 +130,13 @@ class TplNodeBlockDefinition extends TplNodeBlock
     }
 
     /**
-     * Compile the block definition : grab latest block content being defined.
+     * Return compiled node.
      *
-     * @param Template $tpl current template engine instance
+     * Grab latest block content being defined.
      *
-     * @return string the compiled block
+     * @param Template $tpl Template engine instance
+     *
+     * @return string The compiled node
      */
     public function compile(Template $tpl): string
     {

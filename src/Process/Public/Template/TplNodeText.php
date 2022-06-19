@@ -22,15 +22,34 @@ namespace Dotclear\Process\Public\Template;
  */
 class TplNodeText extends TplNode
 {
+    /**
+     * Consturtor.
+     *
+     * @param string $content The text node content
+     */
     public function __construct(protected string $content)
     {
     }
 
+    /**
+     * Return compiled node.
+     *
+     * This simply return node content
+     *
+     * @param Template $tpl Template engine instance
+     *
+     * @return string The compiled node
+     */
     public function compile(Template $tpl): string
     {
         return $this->content;
     }
 
+    /**
+     * Current node tag.
+     *
+     * @return string The node tag
+     */
     public function getTag(): string
     {
         return 'TEXT';

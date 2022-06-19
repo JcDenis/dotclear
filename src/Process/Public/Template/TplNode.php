@@ -22,8 +22,6 @@ namespace Dotclear\Process\Public\Template;
  */
 class TplNode
 {
-    // Basic tree structure : links to parent, children forrest
-
     /**
      * @var TplNode $parentNode
      *              The parent node
@@ -36,7 +34,13 @@ class TplNode
      */
     protected $children = [];
 
-    // Returns compiled block
+    /**
+     * Return compiled block.
+     *
+     * @param Template $tpl Template engine instance
+     *
+     * @return string The compiled children nodes
+     */
     public function compile(Template $tpl): string
     {
         $res = '';
@@ -47,27 +51,49 @@ class TplNode
         return $res;
     }
 
-    // Add a children to current node
+    /**
+     * Add a children to current node.
+     *
+     * $child could be one of TplNode children class.
+     *
+     * @param mixed $child A child node
+     */
     public function addChild($child): void
     {
         $this->children[] = $child;
         $child->setParent($this);
     }
 
-    // Defines parent for current node
+    /**
+     * Define parent for current node.
+     *
+     * $parent could be one of TplNode children class.
+     *
+     * @param mixed $parent The parent node
+     */
     protected function setParent($parent): void
     {
         $this->parentNode = $parent;
     }
 
-    // Retrieves current node parent.
-    // If parent is root node, null is returned
+    /**
+     * Retrieve current node parent.
+     *
+     * If parent is root node, null is returned
+     * Returned parent could be one of TplNode children class.
+     *
+     * @return mixed The parent node
+     */
     public function getParent()
     {
         return $this->parentNode;
     }
 
-    // Current node tag
+    /**
+     * Current node tag.
+     *
+     * @return string The node tag
+     */
     public function getTag(): string
     {
         return 'ROOT';

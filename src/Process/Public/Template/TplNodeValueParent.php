@@ -22,9 +22,17 @@ namespace Dotclear\Process\Public\Template;
  */
 class TplNodeValueParent extends TplNodeValue
 {
+    /**
+     * Return compiled node.
+     *
+     * Simply ask currently being displayed to display itself.
+     *
+     * @param Template $tpl Template engine instance
+     *
+     * @return string The compiled node
+     */
     public function compile(Template $tpl): string
     {
-        // Simply ask currently being displayed to display itself!
         return TplNodeBlockDefinition::renderParent($tpl);
     }
 }
