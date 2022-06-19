@@ -21,6 +21,7 @@ use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\Mapper\Integers;
+use Dotclear\Helper\Mapper\Strings;
 use Dotclear\Plugin\Antispam\Common\Filter\FilterIp;
 use Dotclear\Plugin\Antispam\Common\Filter\FilterIpv6;
 use Dotclear\Process\Admin\Action\Action;

@@ -590,7 +590,7 @@ final class Template
         // --BEHAVIOR-- templateBeforeFile
         App::core()->behavior('templateBeforeFile')->call($file, $class);
 
-        return self::$ton . "\n" . 'use ' . implode("; \n use ", $class->dump()) . "; \n" .self::$toff . "\n";
+        return self::$ton . "\n" . 'use ' . implode("; \n use ", $class->dump()) . "; \n" . self::$toff . "\n";
     }
 
     private function compileFile(string $file): string

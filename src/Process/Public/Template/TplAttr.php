@@ -13,7 +13,7 @@ namespace Dotclear\Process\Public\Template;
 
 /**
  * Template attributes.
- * 
+ *
  * Key and value of attributes must be of type string.
  *
  * @ingroup  Template Stack
