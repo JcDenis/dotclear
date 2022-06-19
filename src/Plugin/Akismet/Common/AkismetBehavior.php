@@ -11,7 +11,7 @@ namespace Dotclear\Plugin\Akismet\Common;
 
 // Dotclear\Plugin\Akismet\Common\AkismetBehavior
 use Dotclear\App;
-use ArrayObject;
+use Dotclear\Helper\Mapper\Strings;
 
 /**
  * Akismet behaviors.
@@ -22,8 +22,8 @@ class AkismetBehavior
 {
     public function __construct()
     {
-        App::core()->behavior('antispamInitFilters')->add(function (ArrayObject $spamfilters): void {
-            $spamfilters[] = __NAMESPACE__ . '\\FilterAkismet';
+        App::core()->behavior('antispamInitFilters')->add(function (Strings $spamfilters): void {
+            $spamfilters->add(__NAMESPACE__ . '\\FilterAkismet');
         });
     }
 }

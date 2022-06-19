@@ -10,9 +10,9 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\FairTrackbacks\Common;
 
 // Dotclear\Plugin\FairTrackbacks\Common\FilterFairtrackbacks
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Database\Param;
+use Dotclear\Helper\Mapper\Strings;
 use Dotclear\Helper\Network\NetHttp\NetHttp;
 use Dotclear\Plugin\Antispam\Common\Spamfilter;
 use Exception;
@@ -34,8 +34,8 @@ class FilterFairtrackbacks extends Spamfilter
         if (App::core()->processed('Admin') && (!defined('DC_FAIRTRACKBACKS_FORCE') || !DC_FAIRTRACKBACKS_FORCE)
             || App::core()->processed('Public') && defined('DC_FAIRTRACKBACKS_FORCE') && DC_FAIRTRACKBACKS_FORCE
         ) {
-            App::core()->behavior('antispamInitFilters')->add(function (ArrayObject $spamfilters): void {
-                $spamfilters[] = __CLASS__;
+            App::core()->behavior('antispamInitFilters')->add(function (Strings $spamfilters): void {
+                $spamfilters->add(__CLASS__);
             });
         }
     }

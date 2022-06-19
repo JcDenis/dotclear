@@ -58,31 +58,22 @@ class Antispam
 
     public function initFilters(): void
     {
-        $spamfilters = new ArrayObject($this->defaultFilters());
-
-        // --BEHAVIOR-- antispamInitFilters , ArrayObject
-        App::core()->behavior('antispamInitFilters')->call($spamfilters);
-        $spamfilters = $spamfilters->getArrayCopy();
-
-        $this->filters = new Spamfilters();
-        $this->filters->init($spamfilters);
-    }
-
-    public function defaultFilters(): array
-    {
-        $ns             = __NAMESPACE__ . '\\Filter\\';
-        $defaultfilters = [
-            $ns . 'FilterIp',
-            $ns . 'FilterIplookup',
-            $ns . 'FilterWords',
-            $ns . 'FilterLinkslookup',
-        ];
+        $ns          = __NAMESPACE__ . '\\Filter\\Filter';
+        $spamfilters = new Strings();
+        $spamfilters->add($ns . 'Ip');
+        $spamfilters->add($ns . 'Iplookup');
+        $spamfilters->add($ns . 'Words');
+        $spamfilters->add($ns . 'Linkslookup');
 
         if (function_exists('gmp_init') || function_exists('bcadd')) {
-            $defaultfilters[] = $ns . 'FilterIpv6';
+            $spamfilters->add($ns . 'Ipv6');
         }
 
-        return $defaultfilters;
+        // --BEHAVIOR-- antispamInitFilters , Strings
+        App::core()->behavior('antispamInitFilters')->call(spamfilters: $spamfilters);
+
+        $this->filters = new Spamfilters();
+        $this->filters->init($spamfilters->dump());
     }
 
     public function isSpam(Cursor $cur): void
