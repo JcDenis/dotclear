@@ -110,8 +110,8 @@ class Combo
             $dt_m_combo[Clock::str(
                 format: '%B %Y',
                 date: $dates->call('ts'),
-                from: App::core()->timezone(),
-                to: App::core()->timezone()
+                from: App::core()->getTimezone(),
+                to: App::core()->getTimezone()
             )] = $dates->call('year') . $dates->call('month');
         }
 

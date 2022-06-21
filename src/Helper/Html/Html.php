@@ -230,7 +230,7 @@ class Html
     {
         return $src .
             (str_contains($src, '?') ? '&amp;' : '?') .
-            'v=' . (!App::core()->production() ? md5(uniqid()) : ($v ?: App::core()->config()->get('core_version')));
+            'v=' . (!App::core()->isProductionMode() ? md5(uniqid()) : ($v ?: App::core()->config()->get('core_version')));
     }
 
     /**

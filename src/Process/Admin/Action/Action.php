@@ -157,7 +157,7 @@ abstract class Action extends AbstractPage
     {
         // Check if action is callable
         if (!is_callable($descriptor->callback)) {
-            if (!App::core()->production()) {
+            if (!App::core()->isProductionMode()) {
                 throw new InvalidValueType(__('Action callback must be callable.'));
             }
 

@@ -160,10 +160,10 @@ final class Blog
         App::core()->behavior('coreAfterConstructBlog')->call(blog: $this);
     }
 
+    // / @name Blog sub instances methods
+    // @{
+
     /**
-     * // / @name Blog sub instances methods
-     * // @{.
-     * /**
      * Get categories instance.
      *
      * Categories methods are accesible from App::core()->blog()->categories()
@@ -315,10 +315,10 @@ final class Blog
     public function getUpdateDate(string $format = ''): int|string
     {
         return match ($format) {
-            'rfc822'  => Clock::rfc822(date: $this->upddt, to: App::core()->timezone()),
-            'iso8601' => Clock::iso8601(date: $this->upddt, to: App::core()->timezone()),
-            ''        => Clock::str(format: $format, date: $this->upddt, to: App::core()->timezone()),
-            default   => Clock::database(date: $this->upddt, to: App::core()->timezone()),
+            'rfc822'  => Clock::rfc822(date: $this->upddt, to: App::core()->getTimezone()),
+            'iso8601' => Clock::iso8601(date: $this->upddt, to: App::core()->getTimezone()),
+            ''        => Clock::str(format: $format, date: $this->upddt, to: App::core()->getTimezone()),
+            default   => Clock::database(date: $this->upddt, to: App::core()->getTimezone()),
         };
     }
     // @}
@@ -334,7 +334,7 @@ final class Blog
     public function triggerBlog(): void
     {
         $sql = new UpdateStatement();
-        $sql->from(App::core()->prefix() . 'blog');
+        $sql->from(App::core()->getPrefix() . 'blog');
         $sql->set('blog_upddt = ' . $sql->quote(Clock::database()));
         $sql->where('blog_id = ' . $sql->quote($this->id));
         $sql->update();
@@ -357,7 +357,7 @@ final class Blog
         // Get posts affected by comments edition
         if (null === $posts || !$posts->count()) {
             $sql = new SelectStatement();
-            $sql->from(App::core()->prefix() . 'comment ');
+            $sql->from(App::core()->getPrefix() . 'comment ');
             $sql->where('comment_id' . $sql->in($ids->dump()));
             $sql->group('post_id');
 
@@ -379,7 +379,7 @@ final class Blog
             $sql->count('post_id', 'nb_comment'),
             'comment_trackback',
         ]);
-        $sql->from(App::core()->prefix() . 'comment ');
+        $sql->from(App::core()->getPrefix() . 'comment ');
         $sql->where('comment_status = 1');
         $sql->and('post_id' . $sql->in($posts->dump()));
         $sql->group(['post_id', 'comment_trackback']);
@@ -393,7 +393,7 @@ final class Blog
         // Update number of comments on affected posts
         foreach ($posts->dump() as $post_id) {
             $sql = new UpdateStatement();
-            $sql->from(App::core()->prefix() . 'post');
+            $sql->from(App::core()->getPrefix() . 'post');
             $sql->where('post_id = ' . $post_id);
 
             if (array_key_exists($post_id, $nb)) {

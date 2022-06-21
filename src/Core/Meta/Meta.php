@@ -149,7 +149,7 @@ final class Meta
         // If user can only publish, we need to check the post's owner
         if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
             $sql = new SelectStatement();
-            $sql->from(App::core()->prefix() . 'post');
+            $sql->from(App::core()->getPrefix() . 'post');
             $sql->column('post_id');
             $sql->where('post_id = ' . $post_id);
             $sql->and('user_id = ' . $sql->quote(App::core()->user()->userID()));
@@ -169,7 +169,7 @@ final class Meta
     private function updatePostMeta(int $post_id): void
     {
         $sql = new SelectStatement();
-        $sql->from(App::core()->prefix() . 'meta');
+        $sql->from(App::core()->getPrefix() . 'meta');
         $sql->columns([
             'meta_id',
             'meta_type',
@@ -184,7 +184,7 @@ final class Meta
 
         $sql = new UpdateStatement();
         $sql->set('post_meta = ' . $sql->quote(serialize($meta)));
-        $sql->from(App::core()->prefix() . 'post');
+        $sql->from(App::core()->getPrefix() . 'post');
         $sql->where('post_id = ' . $post_id);
         $sql->update();
 
@@ -254,7 +254,7 @@ final class Meta
             return false;
         }
 
-        $sql->from(App::core()->prefix() . 'meta META');
+        $sql->from(App::core()->getPrefix() . 'meta META');
         $sql->and('META.post_id = P.post_id');
         $sql->and('META.meta_id = ' . $sql->quote($param->meta_id()));
 
@@ -330,7 +330,7 @@ final class Meta
             return false;
         }
 
-        $sql->from(App::core()->prefix() . 'meta META');
+        $sql->from(App::core()->getPrefix() . 'meta META');
         $sql->and('META.post_id = P.post_id');
         $sql->and('META.meta_id = ' . $sql->quote($param->meta_id()));
 
@@ -414,10 +414,10 @@ final class Meta
     {
         $join = new JoinStatement();
         $join->type('LEFT');
-        $join->from(App::core()->prefix() . 'post P');
+        $join->from(App::core()->getPrefix() . 'post P');
         $join->on('M.post_id = P.post_id');
 
-        $sql->from(App::core()->prefix() . 'meta M');
+        $sql->from(App::core()->getPrefix() . 'meta M');
         $sql->join($join->statement());
         $sql->where('P.blog_id = ' . $sql->quote(App::core()->blog()->id));
 
@@ -513,7 +513,7 @@ final class Meta
         }
 
         $sql = new InsertStatement();
-        $sql->from(App::core()->prefix() . 'meta');
+        $sql->from(App::core()->getPrefix() . 'meta');
         $sql->columns([
             'post_id',
             'meta_id',
@@ -541,7 +541,7 @@ final class Meta
         $this->checkPermissionsOnPost($post_id);
 
         $sql = new DeleteStatement();
-        $sql->from(App::core()->prefix() . 'meta');
+        $sql->from(App::core()->getPrefix() . 'meta');
         $sql->where('post_id = ' . $post_id);
 
         if (null !== $type) {
@@ -577,8 +577,8 @@ final class Meta
 
         $sql = new SelectStatement();
         $sql->from([
-            App::core()->prefix() . 'meta M',
-            App::core()->prefix() . 'post P',
+            App::core()->getPrefix() . 'meta M',
+            App::core()->getPrefix() . 'post P',
         ]);
         $sql->column('M.post_id');
         $sql->where('P.post_id = M.post_id');
@@ -626,7 +626,7 @@ final class Meta
         // Delete duplicate meta
         if (!empty($to_remove)) {
             $sqlDel = new DeleteStatement();
-            $sqlDel->from(App::core()->prefix() . 'meta');
+            $sqlDel->from(App::core()->getPrefix() . 'meta');
             $sqlDel->where('post_id' . $sqlDel->in($to_remove));
             $sqlDel->and('meta_id = ' . $sqlDel->quote($meta_id));
 
@@ -644,7 +644,7 @@ final class Meta
         // Update meta
         if (!empty($to_update)) {
             $sqlUpd = new UpdateStatement();
-            $sqlUpd->from(App::core()->prefix() . 'meta');
+            $sqlUpd->from(App::core()->getPrefix() . 'meta');
             $sqlUpd->set('meta_id = ' . $sqlUpd->quote($new_meta_id));
             $sqlUpd->where('post_id' . $sqlUpd->in($to_update));
             $sqlUpd->and('meta_id = ' . $sqlUpd->quote($meta_id));
@@ -677,8 +677,8 @@ final class Meta
         $sql = new SelectStatement();
         $sql->column('M.post_id');
         $sql->from([
-            App::core()->prefix() . 'meta M',
-            App::core()->prefix() . 'post P',
+            App::core()->getPrefix() . 'meta M',
+            App::core()->getPrefix() . 'post P',
         ]);
         $sql->where('P.post_id = M.post_id');
         $sql->and('P.blog_id = ' . $sql->quote(App::core()->blog()->id));
@@ -704,7 +704,7 @@ final class Meta
         }
 
         $sql = new DeleteStatement();
-        $sql->from(App::core()->prefix() . 'meta');
+        $sql->from(App::core()->getPrefix() . 'meta');
         $sql->where('post_id' . $sql->in($ids, 'int'));
         $sql->and('meta_id = ' . $sql->quote($meta_id));
 

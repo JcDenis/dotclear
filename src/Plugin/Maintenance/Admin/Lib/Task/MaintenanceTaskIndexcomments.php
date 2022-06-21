@@ -74,7 +74,7 @@ class MaintenanceTaskIndexcomments extends MaintenanceTask
     {
         $sql   = new SelectStatement();
         $sql->column($sql->count('comment_id'));
-        $sql->from(App::core()->prefix() . 'comment');
+        $sql->from(App::core()->getPrefix() . 'comment');
 
         $count = $sql->select()->integer();
 
@@ -93,7 +93,7 @@ class MaintenanceTaskIndexcomments extends MaintenanceTask
         $record = $sql->select();
 
         $sql = new UpdateStatement();
-        $sql->from(App::core()->prefix() . 'comment');
+        $sql->from(App::core()->getPrefix() . 'comment');
 
         while ($record->fetch()) {
             $sql->set('comment_words = ' . $sql->quote(implode(' ', Text::splitWords($record->field('comment_content')))), true);

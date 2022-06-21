@@ -53,7 +53,7 @@ class Trackback
             'ping_url',
             'ping_dt',
         ]);
-        $sql->from(App::core()->prefix() . 'ping');
+        $sql->from(App::core()->getPrefix() . 'ping');
         $sql->where('post_id = ' . $post_id);
 
         return $sql->select();
@@ -83,7 +83,7 @@ class Trackback
             'post_id',
             'ping_url',
         ]);
-        $sql->from(App::core()->prefix() . 'ping');
+        $sql->from(App::core()->getPrefix() . 'ping');
         $sql->where('post_id = ' . $post_id);
         $sql->and('ping_url = ' . $sql->quote($url));
         $record = $sql->select();
@@ -490,7 +490,7 @@ class Trackback
             '<p><strong>' . ($title ?: $blog_name) . "</strong></p>\n" .
             '<p>' . $excerpt . '</p>';
 
-        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'comment');
+        $cur = App::core()->con()->openCursor(App::core()->getPrefix() . 'comment');
         $cur->setField('comment_author', $blog_name);
         $cur->setField('comment_site', $url);
         $cur->setField('comment_content', $comment);
@@ -518,7 +518,7 @@ class Trackback
     private function delBacklink(int $post_id, string $url): void
     {
         $sql = new DeleteStatement();
-        $sql->from(App::core()->prefix() . 'ping');
+        $sql->from(App::core()->getPrefix() . 'ping');
         $sql->where('post_id = ' . $post_id);
         $sql->and('comment_site = ' . $sql->quote($url));
         $sql->and('comment_trackback = 1');

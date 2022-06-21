@@ -209,7 +209,7 @@ class Session
     {
         $sql = new SelectStatement();
         $sql->columns(['ses_value']);
-        $sql->from(App::core()->prefix() . 'session');
+        $sql->from(App::core()->getPrefix() . 'session');
         $sql->where("ses_id = '" . $this->checkID($ses_id) . "'");
 
         $record = $sql->select();
@@ -223,14 +223,14 @@ class Session
 
         $sql = new SelectStatement();
         $sql->columns(['ses_id']);
-        $sql->from(App::core()->prefix() . 'session');
+        $sql->from(App::core()->getPrefix() . 'session');
         $sql->where("ses_id = '" . $ses_id . "'");
 
         $record = $sql->select();
 
         if (!$record->isEmpty()) {
             $sql = new UpdateStatement();
-            $sql->from(App::core()->prefix() . 'session');
+            $sql->from(App::core()->getPrefix() . 'session');
             $sql->where('ses_id = ' . $sql->quote($ses_id));
             $sql->set('ses_time = ' . Clock::ts());
             $sql->set('ses_value = ' . $sql->quote($data));
@@ -238,7 +238,7 @@ class Session
             $sql->update();
         } else {
             $sql = new InsertStatement();
-            $sql->from(App::core()->prefix() . 'session');
+            $sql->from(App::core()->getPrefix() . 'session');
             $sql->columns([
                 'ses_id',
                 'ses_start',
@@ -261,7 +261,7 @@ class Session
     public function _destroy(string $ses_id): bool
     {
         $sql = new DeleteStatement();
-        $sql->from(App::core()->prefix() . 'session');
+        $sql->from(App::core()->getPrefix() . 'session');
         $sql->where("ses_id = '" . $this->checkID($ses_id) . "'");
 
         $sql->delete();
@@ -276,7 +276,7 @@ class Session
     public function _gc(): bool
     {
         $sql = new DeleteStatement();
-        $sql->from(App::core()->prefix() . 'session');
+        $sql->from(App::core()->getPrefix() . 'session');
         $sql->where('ses_time < ' . Clock::ts($this->ttl));
 
         $sql->delete();
@@ -290,7 +290,7 @@ class Session
 
     private function _optimize(): void
     {
-        App::core()->con()->vacuum(App::core()->prefix() . 'session');
+        App::core()->con()->vacuum(App::core()->getPrefix() . 'session');
     }
 
     private function checkID(string $id): ?string

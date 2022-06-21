@@ -74,7 +74,7 @@ class MaintenanceTaskIndexposts extends MaintenanceTask
     {
         $sql   = new SelectStatement();
         $sql->column($sql->count('post_id'));
-        $sql->from(App::core()->prefix() . 'post');
+        $sql->from(App::core()->getPrefix() . 'post');
 
         $count = $sql->select()->integer();
 
@@ -95,7 +95,7 @@ class MaintenanceTaskIndexposts extends MaintenanceTask
         $record = $sql->select();
 
         $sql = new UpdateStatement();
-        $sql->from(App::core()->prefix() . 'post');
+        $sql->from(App::core()->getPrefix() . 'post');
 
         while ($record->fetch()) {
             $words =

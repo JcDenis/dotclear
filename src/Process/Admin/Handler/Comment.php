@@ -61,7 +61,7 @@ class Comment extends AbstractPage
                     throw new AdminException(__('Entry does not exist.'));
                 }
 
-                $cur = App::core()->con()->openCursor(App::core()->prefix() . 'comment');
+                $cur = App::core()->con()->openCursor(App::core()->getPrefix() . 'comment');
 
                 $cur->setField('comment_author', GPC::post()->string('comment_author'));
                 $cur->setField('comment_email', Html::clean(GPC::post()->string('comment_email')));
@@ -132,7 +132,7 @@ class Comment extends AbstractPage
 
             // update comment
             if (!GPC::post()->empty('update') && $this->commnet_can_edit) {
-                $cur = App::core()->con()->openCursor(App::core()->prefix() . 'comment');
+                $cur = App::core()->con()->openCursor(App::core()->getPrefix() . 'comment');
 
                 $cur->setField('comment_author', GPC::post()->string('comment_author'));
                 $cur->setField('comment_email', Html::clean(GPC::post()->string('comment_email')));
@@ -239,7 +239,7 @@ class Comment extends AbstractPage
         }
 
         echo '<p>' . __('Date:') . ' ' .
-        Clock::str(format: __('%Y-%m-%d %H:%M'), date: $this->comment_dt, to: App::core()->timezone()) . '</p>' .
+        Clock::str(format: __('%Y-%m-%d %H:%M'), date: $this->comment_dt, to: App::core()->getTimezone()) . '</p>' .
         '</div>' .
 
         '<h3>' . __('Comment submitted') . '</h3>' .

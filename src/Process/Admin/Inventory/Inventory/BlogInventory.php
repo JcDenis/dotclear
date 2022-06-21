@@ -138,7 +138,7 @@ class BlogInventory extends Inventory
             App::core()->blogs()->countBlogPosts(id: $this->rs->field('blog_id')) .
             '</td>',
             'upddt' => '<td class="nowrap count">' .
-            Clock::str(format: __('%Y-%m-%d %H:%M'), date: $this->rs->field('blog_upddt'), to: App::core()->timezone()) .
+            Clock::str(format: __('%Y-%m-%d %H:%M'), date: $this->rs->field('blog_upddt'), to: App::core()->getTimezone()) .
             '</td>',
             'status' => '<td class="nowrap status txt-center">' .
             sprintf(

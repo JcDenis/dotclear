@@ -252,7 +252,7 @@ final class Categories
     private function getCategoriesPostsCount(CategoriesParam $param): array
     {
         $join = new JoinStatement();
-        $join->from(App::core()->prefix() . 'post P');
+        $join->from(App::core()->getPrefix() . 'post P');
         $join->on('C.cat_id = P.cat_id');
         $join->and('P.blog_id = ' . $join->quote(App::core()->blog()->id));
 
@@ -261,7 +261,7 @@ final class Categories
             'C.cat_id',
             $sql->count('P.post_id', 'nb_post'),
         ]);
-        $sql->from(App::core()->prefix() . 'category AS C');
+        $sql->from(App::core()->getPrefix() . 'category AS C');
         $sql->join($join->statement());
         $sql->where('C.blog_id = ' . $sql->quote(App::core()->blog()->id));
         $sql->group('C.cat_id');
@@ -460,7 +460,7 @@ final class Categories
 
         $sql = new SelectStatement();
         $sql->column($sql->count('post_id', 'nb_post'));
-        $sql->from(App::core()->prefix() . 'post');
+        $sql->from(App::core()->getPrefix() . 'post');
         $sql->where('cat_id = ' . $id);
         $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
 
@@ -508,7 +508,7 @@ final class Categories
     {
         $sql = new SelectStatement();
         $sql->column('cat_url');
-        $sql->from(App::core()->prefix() . 'category');
+        $sql->from(App::core()->getPrefix() . 'category');
         $sql->where('cat_url = ' . $sql->quote($url));
         $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
         $sql->order('cat_url DESC');
@@ -521,7 +521,7 @@ final class Categories
         if (!$record->isEmpty()) {
             $sql = new SelectStatement();
             $sql->column('cat_url');
-            $sql->from(App::core()->prefix() . 'category');
+            $sql->from(App::core()->getPrefix() . 'category');
             $sql->where('cat_url' . $sql->regexp($url));
             $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
             $sql->order('cat_url DESC');

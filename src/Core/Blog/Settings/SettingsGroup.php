@@ -78,7 +78,7 @@ final class SettingsGroup
                     'setting_label',
                     'setting_ns',
                 ]);
-                $sql->from(App::core()->prefix() . 'setting');
+                $sql->from(App::core()->getPrefix() . 'setting');
                 $sql->where($sql->orGroup([
                     'blog_id = ' . $sql->quote($this->blog),
                     'blog_id IS NULL',
@@ -298,7 +298,7 @@ final class SettingsGroup
             );
             $sql->and('setting_id = ' . $sql->quote($id));
             $sql->and('setting_ns = ' . $sql->quote($this->group));
-            $sql->from(App::core()->prefix() . 'setting');
+            $sql->from(App::core()->getPrefix() . 'setting');
             $sql->update();
         // Insert
         } else {
@@ -319,7 +319,7 @@ final class SettingsGroup
                 $global ? 'NULL' : $sql->quote($this->blog),
                 $sql->quote($this->group),
             ]]);
-            $sql->from(App::core()->prefix() . 'setting');
+            $sql->from(App::core()->getPrefix() . 'setting');
             $sql->insert();
         }
     }
@@ -355,7 +355,7 @@ final class SettingsGroup
 
         // Rename the setting in the database
         $sql = new UpdateStatement();
-        $sql->from(App::core()->prefix() . 'setting');
+        $sql->from(App::core()->getPrefix() . 'setting');
         $sql->set('setting_id = ' . $sql->quote($to));
         $sql->where('setting_ns = ' . $sql->quote($this->group));
         $sql->and('setting_id = ' . $sql->quote($from));
@@ -416,7 +416,7 @@ final class SettingsGroup
         }
 
         $sql = new DeleteStatement();
-        $sql->from(App::core()->prefix() . 'setting');
+        $sql->from(App::core()->getPrefix() . 'setting');
         $sql->where($where);
         $sql->and('setting_id = ' . $sql->quote($id));
         $sql->and('setting_ns = ' . $sql->quote($this->group));
@@ -444,7 +444,7 @@ final class SettingsGroup
         }
 
         $sql = new DeleteStatement();
-        $sql->from(App::core()->prefix() . 'setting');
+        $sql->from(App::core()->getPrefix() . 'setting');
         $sql->where('blog_id = ' . $sql->quote($this->blog));
         $sql->and('setting_ns = ' . $sql->quote($this->group));
         $sql->delete();
@@ -466,7 +466,7 @@ final class SettingsGroup
         }
 
         $sql = new DeleteStatement();
-        $sql->from(App::core()->prefix() . 'setting');
+        $sql->from(App::core()->getPrefix() . 'setting');
         $sql->where('blog_id IS NULL');
         $sql->and('setting_ns = ' . $sql->quote($this->group));
         $sql->delete();

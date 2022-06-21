@@ -47,7 +47,7 @@ class Prepend extends ModulePrepend
 
     public function installModule(): ?bool
     {
-        $s = new Structure(App::core()->con(), App::core()->prefix());
+        $s = new Structure(App::core()->con(), App::core()->getPrefix());
 
         $s->table('link')
             ->field('link_id', 'bigint', 0, false)
@@ -66,7 +66,7 @@ class Prepend extends ModulePrepend
         $s->table('link')->reference('fk_link_blog', 'blog_id', 'blog', 'blog_id', 'cascade', 'cascade');
 
         // Schema installation
-        $si      = new Structure(App::core()->con(), App::core()->prefix());
+        $si      = new Structure(App::core()->con(), App::core()->getPrefix());
         $changes = $si->synchronize($s);
 
         return true;

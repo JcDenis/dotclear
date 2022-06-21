@@ -36,8 +36,6 @@ final class Prepend extends Core
      */
     private $resource;
 
-    protected $process = 'Install';
-
     /**
      * Get favorite instance.
      *
@@ -66,7 +64,12 @@ final class Prepend extends Core
         return $this->resource;
     }
 
-    public function process(string $_ = null): void
+    /**
+     * Start Dotclear Install process.
+     *
+     * @param null|string $blog The blog ID (not used)
+     */
+    public function startProcess(string $blog = null): void
     {
         // Serve a file (css, png, ...)
         if (!GPC::get()->empty('df')) {
@@ -75,14 +78,11 @@ final class Prepend extends Core
             exit;
         }
 
-        // Load parent (or part of) to get some constants
-        if (null === $this->config_path) {
-            parent::process();
-        }
+        $path = $this->getConfigurationPath();
 
         // No configuration ? start installalation process
-        if (!is_file($this->config_path)) {
-            new Wizard($this->config_path);
+        if (!is_file($path)) {
+            new Wizard($path);
         } else {
             new Install();
         }

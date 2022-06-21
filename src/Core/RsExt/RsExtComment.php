@@ -46,7 +46,7 @@ class RsExtComment extends RsExtend
         return Clock::str(
             format: $format,
             date: ('upddt' == $type ? $this->rs->field('comment_upddt') : $this->rs->field('comment_dt')),
-            to: App::core()->timezone()
+            to: App::core()->getTimezone()
         );
     }
 
@@ -68,7 +68,7 @@ class RsExtComment extends RsExtend
         return Clock::str(
             format: $format,
             date: ('upddt' == $type ? $this->rs->field('comment_updt') : $this->rs->field('comment_dt')),
-            to: App::core()->timezone()
+            to: App::core()->getTimezone()
         );
     }
 
@@ -83,7 +83,7 @@ class RsExtComment extends RsExtend
     {
         return Clock::ts(
             date: ('upddt' == $type ? $this->rs->field('comment_upddt') : $this->rs->field('comment_dt')),
-            to: App::core()->timezone()
+            to: App::core()->getTimezone()
         );
     }
 
@@ -98,8 +98,8 @@ class RsExtComment extends RsExtend
     {
         return Clock::iso8601(
             date: $this->getTS('upddt' == $type ? $type : ''),
-            from: App::core()->timezone(),
-            to: App::core()->timezone()
+            from: App::core()->getTimezone(),
+            to: App::core()->getTimezone()
         );
     }
 
@@ -114,8 +114,8 @@ class RsExtComment extends RsExtend
     {
         return Clock::rfc822(
             date: $this->getTS('upddt' == $type ? $type : ''),
-            from: App::core()->timezone(),
-            to: App::core()->timezone()
+            from: App::core()->getTimezone(),
+            to: App::core()->getTimezone()
         );
     }
 

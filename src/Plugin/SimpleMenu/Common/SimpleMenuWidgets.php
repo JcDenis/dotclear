@@ -36,7 +36,7 @@ class SimpleMenuWidgets
     public function __construct()
     {
         App::core()->behavior('initWidgets')->add([$this, 'initWidgets']);
-        if (App::core()->processed('Public')) {
+        if (App::core()->isProcess('Public')) {
             App::core()->template()->addValue('SimpleMenu', [$this, 'simpleMenu']);
         }
         self::$widgets = $this;

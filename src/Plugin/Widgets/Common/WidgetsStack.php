@@ -53,7 +53,7 @@ class WidgetsStack
         self::$stack = $this;
 
         // Add widget to template engine on public side (frontend)
-        if (App::core()->processed('Public')) {
+        if (App::core()->isProcess('Public')) {
             App::core()->template()->addValue('Widgets', [$this, 'tplWidgets']);
             App::core()->template()->addBlock('Widget', [$this, 'tplWidget']);
             App::core()->template()->addBlock('IfWidgets', [$this, 'tplIfWidgets']);

@@ -48,54 +48,54 @@ class ExportFlat extends Module
 
                 $exp->export(
                     'category',
-                    'SELECT * FROM ' . App::core()->prefix() . 'category ' .
+                    'SELECT * FROM ' . App::core()->getPrefix() . 'category ' .
                     "WHERE blog_id = '" . $blog_id . "'"
                 );
                 $exp->export(
                     'link',
-                    'SELECT * FROM ' . App::core()->prefix() . 'link ' .
+                    'SELECT * FROM ' . App::core()->getPrefix() . 'link ' .
                     "WHERE blog_id = '" . $blog_id . "'"
                 );
                 $exp->export(
                     'setting',
-                    'SELECT * FROM ' . App::core()->prefix() . 'setting ' .
+                    'SELECT * FROM ' . App::core()->getPrefix() . 'setting ' .
                     "WHERE blog_id = '" . $blog_id . "'"
                 );
                 $exp->export(
                     'post',
-                    'SELECT * FROM ' . App::core()->prefix() . 'post ' .
+                    'SELECT * FROM ' . App::core()->getPrefix() . 'post ' .
                     "WHERE blog_id = '" . $blog_id . "'"
                 );
                 $exp->export(
                     'meta',
                     'SELECT meta_id, meta_type, M.post_id ' .
-                    'FROM ' . App::core()->prefix() . 'meta M, ' . App::core()->prefix() . 'post P ' .
+                    'FROM ' . App::core()->getPrefix() . 'meta M, ' . App::core()->getPrefix() . 'post P ' .
                     'WHERE P.post_id = M.post_id ' .
                     "AND P.blog_id = '" . $blog_id . "'"
                 );
                 $exp->export(
                     'media',
-                    'SELECT * FROM ' . App::core()->prefix() . "media WHERE media_path = '" .
+                    'SELECT * FROM ' . App::core()->getPrefix() . "media WHERE media_path = '" .
                     App::core()->con()->escape(App::core()->blog()->settings()->getGroup('system')->getSetting('public_path')) . "'"
                 );
                 $exp->export(
                     'post_media',
                     'SELECT media_id, M.post_id ' .
-                    'FROM ' . App::core()->prefix() . 'post_media M, ' . App::core()->prefix() . 'post P ' .
+                    'FROM ' . App::core()->getPrefix() . 'post_media M, ' . App::core()->getPrefix() . 'post P ' .
                     'WHERE P.post_id = M.post_id ' .
                     "AND P.blog_id = '" . $blog_id . "'"
                 );
                 $exp->export(
                     'ping',
                     'SELECT ping.post_id, ping_url, ping_dt ' .
-                    'FROM ' . App::core()->prefix() . 'ping ping, ' . App::core()->prefix() . 'post P ' .
+                    'FROM ' . App::core()->getPrefix() . 'ping ping, ' . App::core()->getPrefix() . 'post P ' .
                     'WHERE P.post_id = ping.post_id ' .
                     "AND P.blog_id = '" . $blog_id . "'"
                 );
                 $exp->export(
                     'comment',
                     'SELECT C.* ' .
-                    'FROM ' . App::core()->prefix() . 'comment C, ' . App::core()->prefix() . 'post P ' .
+                    'FROM ' . App::core()->getPrefix() . 'comment C, ' . App::core()->getPrefix() . 'post P ' .
                     'WHERE P.post_id = C.post_id ' .
                     "AND P.blog_id = '" . $blog_id . "'"
                 );

@@ -61,7 +61,7 @@ class Blog extends AbstractPage
 
         // Create a blog
         if (!GPC::post()->isset('id') && !GPC::post()->empty('create')) {
-            $cur                                         = App::core()->con()->openCursor(App::core()->prefix() . 'blog');
+            $cur                                         = App::core()->con()->openCursor(App::core()->getPrefix() . 'blog');
             $cur->setField('blog_id', $this->blog_id     = GPC::post()->string('blog_id'));
             $cur->setField('blog_url', $this->blog_url   = GPC::post()->string('blog_url'));
             $cur->setField('blog_name', $this->blog_name = GPC::post()->string('blog_name'));

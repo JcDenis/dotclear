@@ -42,11 +42,11 @@ class Antispam
 
     public function __construct()
     {
-        if (App::core()->processed('Public')) {
+        if (App::core()->isProcess('Public')) {
             App::core()->behavior('publicBeforeCommentCreate')->add([$this, 'isSpam']);
             App::core()->behavior('publicBeforeTrackbackCreate')->add([$this, 'isSpam']);
             App::core()->behavior('publicBeforeGetDocument')->add([$this, 'purgeOldSpam']);
-        } elseif (App::core()->processed('Admin')) {
+        } elseif (App::core()->isProcess('Admin')) {
             App::core()->behavior('coreAfterUpdateComment')->add([$this, 'trainFilters']);
             App::core()->behavior('adminAfterCommentDesc')->add([$this, 'statusMessage']);
             App::core()->behavior('adminDashboardHeaders')->add([$this, 'dashboardHeaders']);
@@ -144,12 +144,12 @@ class Antispam
     public function delAllSpam(?string $beforeDate = null): void
     {
         $join = new JoinStatement();
-        $join->from(App::core()->prefix() . 'post P');
+        $join->from(App::core()->getPrefix() . 'post P');
         $join->on('P.post_id = C.post_id');
 
         $sql = new SelectStatement();
         $sql->column('comment_id');
-        $sql->from(App::core()->prefix() . 'comment C');
+        $sql->from(App::core()->getPrefix() . 'comment C');
         $sql->join($join->statement());
         $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
         $sql->and('comment_status = -2');
@@ -169,7 +169,7 @@ class Antispam
         }
 
         $sql = new DeleteStatement();
-        $sql->from(App::core()->prefix() . 'comment');
+        $sql->from(App::core()->getPrefix() . 'comment');
         $sql->where('comment_id' . $sql->in($ids->dump()));
         $sql->delete();
     }
@@ -199,7 +199,7 @@ class Antispam
             'user_pwd',
         ]);
         $sql->where('user_id = ' . $sql->quote($user_id));
-        $sql->from(App::core()->prefix() . 'user');
+        $sql->from(App::core()->getPrefix() . 'user');
         $record = $sql->select();
 
         if ($record->isEmpty()) {

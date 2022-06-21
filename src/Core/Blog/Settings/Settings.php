@@ -51,7 +51,7 @@ final class Settings
                 'setting_label',
                 'setting_ns',
             ]);
-            $sql->from(App::core()->prefix() . 'setting');
+            $sql->from(App::core()->getPrefix() . 'setting');
             $sql->where('blog_id = ' . $sql->quote($this->blog));
             $sql->or('blog_id IS NULL');
             $sql->order(['setting_ns ASC', 'setting_id DESC']);
@@ -138,7 +138,7 @@ final class Settings
 
         // Rename the group in the database
         $sql = new UpdateStatement();
-        $sql->from(App::core()->prefix() . 'setting');
+        $sql->from(App::core()->getPrefix() . 'setting');
         $sql->set('setting_ns = ' . $sql->quote($to));
         $sql->where('setting_ns = ' . $sql->quote($from));
         $sql->update();
@@ -164,7 +164,7 @@ final class Settings
 
         // Delete all settings from the group in the database
         $sql = new DeleteStatement();
-        $sql->from(App::core()->prefix() . 'setting');
+        $sql->from(App::core()->getPrefix() . 'setting');
         $sql->where('setting_ns = ' . $sql->quote($id));
         $sql->delete();
 

@@ -72,7 +72,7 @@ class Preference
             'pref_label',
             'pref_ws',
         ]);
-        $sql->from(App::core()->prefix() . 'pref');
+        $sql->from(App::core()->getPrefix() . 'pref');
         $sql->where($sql->orGroup([
             'user_id = ' . $sql->quote($this->user_id),
             'user_id IS NULL',
@@ -147,7 +147,7 @@ class Preference
         // Rename the workspace in the database
         $sql = new UpdateStatement();
         $sql->set('pref_ws = ' . $sql->quote($newWs));
-        $sql->from(App::core()->prefix() . 'pref');
+        $sql->from(App::core()->getPrefix() . 'pref');
         $sql->where('pref_ws = ' . $sql->quote($oldWs));
         $sql->update();
 
@@ -170,7 +170,7 @@ class Preference
 
         // Delete all preferences from the workspace in the database
         $sql = new DeleteStatement();
-        $sql->from(App::core()->prefix() . 'pref');
+        $sql->from(App::core()->getPrefix() . 'pref');
         $sql->where('pref_ws = ' . $sql->quote($ws));
         $sql->delete();
 

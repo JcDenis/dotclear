@@ -29,7 +29,7 @@ class RsExtBlog extends RsExtend
     {
         return Clock::ts(
             date: $this->rs->field('blog_upddt'),
-            to: App::core()->timezone()
+            to: App::core()->getTimezone()
         );
     }
 
@@ -44,8 +44,8 @@ class RsExtBlog extends RsExtend
     {
         return Clock::iso8601(
             date: $this->getTS(),
-            from: App::core()->timezone(),
-            to: ($tz ?: App::core()->timezone())
+            from: App::core()->getTimezone(),
+            to: ($tz ?: App::core()->getTimezone())
         );
     }
 
@@ -60,8 +60,8 @@ class RsExtBlog extends RsExtend
     {
         return Clock::rfc822(
             date: $this->getTS(),
-            from: App::core()->timezone(),
-            to: ($tz ?: App::core()->timezone())
+            from: App::core()->getTimezone(),
+            to: ($tz ?: App::core()->getTimezone())
         );
     }
 
@@ -78,7 +78,7 @@ class RsExtBlog extends RsExtend
         return Clock::str(
             format: ($format ?: App::core()->blog()->settings()->getGroup('system')->getSetting('date_format')),
             date: $this->rs->field('blog_upddt'),
-            to: App::core()->timezone()
+            to: App::core()->getTimezone()
         );
     }
 
@@ -95,7 +95,7 @@ class RsExtBlog extends RsExtend
         return Clock::str(
             format: ($format ?: App::core()->blog()->settings()->getGroup('system')->getSetting('time_format')),
             date: $this->rs->field('blog_upddt'),
-            to: App::core()->timezone()
+            to: App::core()->getTimezone()
         );
     }
 }

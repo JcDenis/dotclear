@@ -28,17 +28,17 @@ class Upgrade
             return -1;
         }
 
-        if (version_compare(App::core()->version()->getVersion(module: 'core'), App::core()->config()->get('core_version'), '<') == 1 || !App::core()->production()) {
+        if (version_compare(App::core()->version()->getVersion(module: 'core'), App::core()->config()->get('core_version'), '<') == 1 || !App::core()->isProductionMode()) {
             try {
                 if (App::core()->con()->driver() == 'sqlite') {
                     return -1; // Need to find a way to upgrade sqlite database
                 }
 
                 // Database upgrade
-                $_s = new Structure(App::core()->con(), App::core()->prefix());
+                $_s = new Structure(App::core()->con(), App::core()->getPrefix());
                 Distrib::getDatabaseStructure($_s);
 
-                $si      = new Structure(App::core()->con(), App::core()->prefix());
+                $si      = new Structure(App::core()->con(), App::core()->getPrefix());
                 $changes = $si->synchronize($_s);
 
                 /* Some other upgrades
@@ -47,7 +47,7 @@ class Upgrade
 
                 // Drop content from session table if changes or if needed
                 if (0 != $changes || $cleanup_sessions) {
-                    App::core()->con()->execute('DELETE FROM ' . App::core()->prefix() . 'session ');
+                    App::core()->con()->execute('DELETE FROM ' . App::core()->getPrefix() . 'session ');
                 }
 
                 // Empty templates cache directory

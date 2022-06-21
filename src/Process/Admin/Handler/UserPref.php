@@ -184,7 +184,7 @@ class UserPref extends AbstractPage
                     throw new AdminException(__('If you want to change your email or password you must provide your current password.'));
                 }
 
-                $cur = App::core()->con()->openCursor(App::core()->prefix() . 'user');
+                $cur = App::core()->con()->openCursor(App::core()->getPrefix() . 'user');
 
                 $cur->setField('user_name', $this->user->setProperty('user_name', GPC::post()->string('user_name')));
                 $cur->setField('user_firstname', $this->user->setProperty('user_firstname', GPC::post()->string('user_firstname')));
@@ -233,7 +233,7 @@ class UserPref extends AbstractPage
         // Update user options
         if (GPC::post()->isset('user_options_submit')) {
             try {
-                $cur = App::core()->con()->openCursor(App::core()->prefix() . 'user');
+                $cur = App::core()->con()->openCursor(App::core()->getPrefix() . 'user');
 
                 $cur->setField('user_name', $this->user->getProperty('user_name'));
                 $cur->setField('user_firstname', $this->user->getProperty('user_firstname'));

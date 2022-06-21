@@ -256,7 +256,7 @@ abstract class AbstractPage
 
         // Content-Security-Policy (only if safe mode if not active, it may help)
         $system = App::core()->blog()->settings()->getGroup('system');
-        if (!App::core()->rescue() && $system->getSetting('csp_admin_on')) {
+        if (!App::core()->isRescueMode() && $system->getSetting('csp_admin_on')) {
             // Get directives from settings if exist, else set defaults
             /** @var ArrayObject<string, string> */
             $csp = new ArrayObject();
@@ -347,7 +347,7 @@ abstract class AbstractPage
         $js['hideMoreInfo']   = (bool) App::core()->user()->preference()->get('interface')->get('hidemoreinfo');
         $js['showAjaxLoader'] = (bool) App::core()->user()->preference()->get('interface')->get('showajaxloader');
         $js['noDragDrop']     = (bool) App::core()->user()->preference()->get('accessibility')->get('nodragdrop');
-        $js['debug']          = !App::core()->production();
+        $js['debug']          = !App::core()->isProductionMode();
         $js['showIp']         = App::core()->blog() && App::core()->blog()->id ? App::core()->user()->check('contentadmin', App::core()->blog()->id) : false;
 
         // Set some JSON data
@@ -361,8 +361,8 @@ abstract class AbstractPage
 
         echo "</head>\n" .
         '<body id="dotclear-admin" class="no-js' .
-        (App::core()->rescue() ? ' safe-mode' : '') .
-        (App::core()->production() ? '' : ' debug-mode') .
+        (App::core()->isRescueMode() ? ' safe-mode' : '') .
+        (App::core()->isProductionMode() ? '' : ' debug-mode') .
         '">' . "\n" .
 
         '<header id="header" role="banner">' .
@@ -397,7 +397,7 @@ abstract class AbstractPage
             '<div id="content" class="clearfix">' . "\n";
 
         // Safe mode
-        if (App::core()->rescue()) {
+        if (App::core()->isRescueMode()) {
             echo '<div class="warning" role="alert"><h3>' . __('Safe mode') . '</h3>' .
             '<p>' . __('You are in safe mode. All plugins have been temporarily disabled. Remind to log out then log in again normally to get back all functionalities') . '</p>' .
                 '</div>';
@@ -450,7 +450,7 @@ abstract class AbstractPage
         $js['hideMoreInfo']   = (bool) App::core()->user()->preference()->get('interface')->get('hidemoreinfo');
         $js['showAjaxLoader'] = (bool) App::core()->user()->preference()->get('interface')->get('showajaxloader');
         $js['noDragDrop']     = (bool) App::core()->user()->preference()->get('accessibility')->get('nodragdrop');
-        $js['debug']          = !App::core()->production();
+        $js['debug']          = !App::core()->isProductionMode();
 
         // Set JSON data
         echo App::core()->resource()->json('dotclear_init', $js) .
@@ -463,8 +463,8 @@ abstract class AbstractPage
 
         echo "</head>\n" .
             '<body id="dotclear-admin" class="popup' .
-            (App::core()->rescue() ? ' safe-mode' : '') .
-            (App::core()->production() ? '' : ' debug-mode') .
+            (App::core()->isRescueMode() ? ' safe-mode' : '') .
+            (App::core()->isProductionMode() ? '' : ' debug-mode') .
             '">' . "\n" .
 
             '<h1>' . App::core()->config()->get('vendor_name') . '</h1>' . "\n";
@@ -626,7 +626,7 @@ abstract class AbstractPage
             $figure .
             ' -->' . "\n";
 
-        if (!App::core()->production()) {
+        if (!App::core()->isProductionMode()) {
             echo $this->pageDebugInfo();
         }
 

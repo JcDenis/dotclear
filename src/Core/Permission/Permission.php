@@ -185,12 +185,12 @@ final class Permission
         $this->blogs[$id] = [];
 
         $join = new JoinStatement();
-        $join->from(App::core()->prefix() . 'permissions P');
+        $join->from(App::core()->getPrefix() . 'permissions P');
         $join->on('U.user_id = P.user_id');
         $join->where('blog_id = ' . $join->quote($id));
 
         $sql = new SelectStatement();
-        $sql->from(App::core()->prefix() . 'user U');
+        $sql->from(App::core()->getPrefix() . 'user U');
         $sql->columns([
             'U.user_id AS user_id',
             'user_super',
@@ -204,7 +204,7 @@ final class Permission
 
         if ($super) {
             $union = new SelectStatement();
-            $union->from(App::core()->prefix() . 'user U');
+            $union->from(App::core()->getPrefix() . 'user U');
             $union->columns([
                 'U.user_id AS user_id',
                 'user_super',
@@ -256,7 +256,7 @@ final class Permission
 
         $join = new JoinStatement();
         $join->type('INNER');
-        $join->from(App::core()->prefix() . 'blog B');
+        $join->from(App::core()->getPrefix() . 'blog B');
         $join->on('P.blog_id = B.blog_id');
 
         $sql = new SelectStatement();
@@ -266,7 +266,7 @@ final class Permission
             'blog_url',
             'permissions',
         ]);
-        $sql->from(App::core()->prefix() . 'permissions P');
+        $sql->from(App::core()->getPrefix() . 'permissions P');
         $sql->join($join->statement());
         $sql->where('user_id = ' . $sql->quote($id));
 
@@ -342,7 +342,7 @@ final class Permission
         $sql = new DeleteStatement();
         $sql->where('blog_id = ' . $sql->quote($blog));
         $sql->and('user_id = ' . $sql->quote($id));
-        $sql->from(App::core()->prefix() . 'permissions');
+        $sql->from(App::core()->getPrefix() . 'permissions');
         $sql->delete();
 
         if ($permissions->count()) {
@@ -358,7 +358,7 @@ final class Permission
                 $sql->quote($blog),
                 $sql->quote('|' . implode('|', $permissions->dump()) . '|'),
             ]]);
-            $sql->from(App::core()->prefix() . 'permissions');
+            $sql->from(App::core()->getPrefix() . 'permissions');
             $sql->insert();
         }
 

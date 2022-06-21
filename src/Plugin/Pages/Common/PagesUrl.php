@@ -170,7 +170,7 @@ class PagesUrl
                         $cp->set('preview', true);
                     } else {
                         // Post the comment
-                        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'comment');
+                        $cur = App::core()->con()->openCursor(App::core()->getPrefix() . 'comment');
                         $cur->setField('comment_author', $name);
                         $cur->setField('comment_site', Html::clean($site));
                         $cur->setField('comment_email', Html::clean($mail));
@@ -235,7 +235,7 @@ class PagesUrl
                 App::core()->url()->p404();
             } else {
                 App::core()->user()->preview = true;
-                if (App::core()->processed('Admin')) {
+                if (App::core()->isProcess('Admin')) {
                     App::core()->user()->xframeoption = App::core()->config()->get('admin_url');
                 }
 

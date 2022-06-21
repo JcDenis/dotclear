@@ -89,9 +89,9 @@ class RsExtPost extends RsExtend
             return true;
         }
 
-        $cdate = Clock::format(format: 'Ymd', date: $this->rs->field('post_dt'), to: App::core()->timezone());
+        $cdate = Clock::format(format: 'Ymd', date: $this->rs->field('post_dt'), to: App::core()->getTimezone());
         $this->rs->movePrev();
-        $ndate = Clock::format(format: 'Ymd', date: $this->rs->field('post_dt'), to: App::core()->timezone());
+        $ndate = Clock::format(format: 'Ymd', date: $this->rs->field('post_dt'), to: App::core()->getTimezone());
         $this->rs->moveNext();
 
         return $ndate != $cdate;
@@ -106,9 +106,9 @@ class RsExtPost extends RsExtend
             return true;
         }
 
-        $cdate = Clock::format(format: 'Ymd', date: $this->rs->field('post_dt'), to: App::core()->timezone());
+        $cdate = Clock::format(format: 'Ymd', date: $this->rs->field('post_dt'), to: App::core()->getTimezone());
         $this->rs->moveNext();
-        $ndate = Clock::format(format: 'Ymd', date: $this->rs->field('post_dt'), to: App::core()->timezone());
+        $ndate = Clock::format(format: 'Ymd', date: $this->rs->field('post_dt'), to: App::core()->getTimezone());
         $this->rs->movePrev();
 
         return $ndate != $cdate;
@@ -124,7 +124,7 @@ class RsExtPost extends RsExtend
             && $this->rs->field('post_open_comment')
             && (
                 0 == App::core()->blog()->settings()->getGroup('system')->getSetting('comments_ttl')
-                || Clock::ts(to: App::core()->timezone()) - (App::core()->blog()->settings()->getGroup('system')->getSetting('comments_ttl') * 86400) < $this->getTS()
+                || Clock::ts(to: App::core()->getTimezone()) - (App::core()->blog()->settings()->getGroup('system')->getSetting('comments_ttl') * 86400) < $this->getTS()
             );
     }
 
@@ -138,7 +138,7 @@ class RsExtPost extends RsExtend
             && $this->rs->field('post_open_tb')
             && (
                 0 == App::core()->blog()->settings()->getGroup('system')->getSetting('trackbacks_ttl')
-                || Clock::ts(to: App::core()->timezone()) - (App::core()->blog()->settings()->getGroup('system')->getSetting('trackbacks_ttl') * 86400) < $this->getTS()
+                || Clock::ts(to: App::core()->getTimezone()) - (App::core()->blog()->settings()->getGroup('system')->getSetting('trackbacks_ttl') * 86400) < $this->getTS()
             );
     }
 
@@ -215,7 +215,7 @@ class RsExtPost extends RsExtend
 
         return CLock::ts(
             date: $date,
-            to: App::core()->timezone()
+            to: App::core()->getTimezone()
         );
     }
 
@@ -230,8 +230,8 @@ class RsExtPost extends RsExtend
     {
         return Clock::iso8601(
             date: $this->getTS($type),
-            from: App::core()->timezone(),
-            to: App::core()->timezone()
+            from: App::core()->getTimezone(),
+            to: App::core()->getTimezone()
         );
     }
 
@@ -246,8 +246,8 @@ class RsExtPost extends RsExtend
     {
         return Clock::rfc822(
             date: $this->getTS($type),
-            from: App::core()->timezone(),
-            to: App::core()->timezone()
+            from: App::core()->getTimezone(),
+            to: App::core()->getTimezone()
         );
     }
 
@@ -265,8 +265,8 @@ class RsExtPost extends RsExtend
         return Clock::str(
             format: ($format ?: App::core()->blog()->settings()->getGroup('system')->getSetting('date_format')),
             date: $this->getTS($type),
-            from: App::core()->timezone(),
-            to: App::core()->timezone()
+            from: App::core()->getTimezone(),
+            to: App::core()->getTimezone()
         );
     }
 
@@ -284,8 +284,8 @@ class RsExtPost extends RsExtend
         return Clock::str(
             format: ($format ?: App::core()->blog()->settings()->getGroup('system')->getSetting('time_format')),
             date: $this->getTS($type),
-            from: App::core()->timezone(),
-            to: App::core()->timezone()
+            from: App::core()->getTimezone(),
+            to: App::core()->getTimezone()
         );
     }
 
@@ -418,7 +418,7 @@ class RsExtPost extends RsExtend
             return $this->_nb_media[$this->rs->index()];
         }
         $strReq = 'SELECT count(media_id) ' .
-            'FROM ' . App::core()->prefix() . 'post_media ' .
+            'FROM ' . App::core()->getPrefix() . 'post_media ' .
             'WHERE post_id = ' . (int) $this->rs->field('post_id') . ' ';
         if (null != $link_type) {
             $strReq .= "AND link_type = '" . App::core()->con()->escape($link_type) . "'";

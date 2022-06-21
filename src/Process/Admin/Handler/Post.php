@@ -234,7 +234,7 @@ class Post extends AbstractPage
                 $this->post_dt = '';
             } else {
                 try {
-                    $this->post_dt = Clock::ts(date: GPC::post()->string('post_dt'), from: App::core()->timezone());
+                    $this->post_dt = Clock::ts(date: GPC::post()->string('post_dt'), from: App::core()->getTimezone());
                 } catch (Exception $e) {
                     $this->bad_dt  = true;
                     $this->post_dt = Clock::format(format: 'Y-m-d H:i');
@@ -279,7 +279,7 @@ class Post extends AbstractPage
         if (!GPC::post()->empty('save') && $this->can_edit_post && !$this->bad_dt) {
             // Create category
             if (!GPC::post()->empty('new_cat_title') && App::core()->user()->check('categories', App::core()->blog()->id)) {
-                $cursor = App::core()->con()->openCursor(App::core()->prefix() . 'category');
+                $cursor = App::core()->con()->openCursor(App::core()->getPrefix() . 'category');
                 $cursor->setField('cat_title', GPC::post()->string('new_cat_title'));
                 $cursor->setField('cat_url', '');
 
@@ -290,7 +290,7 @@ class Post extends AbstractPage
                 unset($cursor);
             }
 
-            $cursor = App::core()->con()->openCursor(App::core()->prefix() . 'post');
+            $cursor = App::core()->con()->openCursor(App::core()->getPrefix() . 'post');
 
             $cursor->setField('cat_id', $this->cat_id ?: null);
             $cursor->setField('post_dt', $this->post_dt ? Clock::database($this->post_dt) : '');
@@ -525,7 +525,7 @@ class Post extends AbstractPage
                         '</p>',
                         'post_dt' => '<p><label for="post_dt">' . __('Publication date and hour') . '</label>' .
                         Form::datetime('post_dt', [
-                            'default' => Clock::formfield(date: $this->post_dt, to: App::core()->timezone()),
+                            'default' => Clock::formfield(date: $this->post_dt, to: App::core()->getTimezone()),
                             'class'   => ($this->bad_dt ? 'invalid' : ''),
                         ]) .
                         '</p>',
@@ -888,7 +888,7 @@ class Post extends AbstractPage
 
                     echo '<ul class="nice">';
                     while ($pings->fetch()) {
-                        echo '<li>' . Clock::str(format: __('%Y-%m-%d %H:%M'), date: $pings->ping_dt, to: App::core()->timezone()) . ' - ' .
+                        echo '<li>' . Clock::str(format: __('%Y-%m-%d %H:%M'), date: $pings->ping_dt, to: App::core()->getTimezone()) . ' - ' .
                         $pings->ping_url . '</li>';
                     }
                     echo '</ul>';

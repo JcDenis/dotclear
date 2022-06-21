@@ -167,13 +167,13 @@ final class Blogs
      */
     private function queryBlogsTable(BlogsParam $param, SelectStatement $sql): Record
     {
-        $sql->from(App::core()->prefix() . 'blog B', false, true);
+        $sql->from(App::core()->getPrefix() . 'blog B', false, true);
         $sql->where('NULL IS NULL');
 
         if (App::core()->user()->userID() && !App::core()->user()->isSuperAdmin()) {
             $join = new JoinStatement();
             $join->type('INNER');
-            $join->from(App::core()->prefix() . 'permissions PE');
+            $join->from(App::core()->getPrefix() . 'permissions PE');
             $join->on('B.blog_id = PE.blog_id');
 
             $sql->join($join->statement());
@@ -313,7 +313,7 @@ final class Blogs
         App::core()->behavior('coreBeforeUpdateBlogsStatus')->call(ids: $ids, status: $status);
 
         $sql = new UpdateStatement();
-        $sql->from(App::core()->prefix() . 'blog');
+        $sql->from(App::core()->getPrefix() . 'blog');
         $sql->set('blog_status = ' . $status);
         // $sql->set('blog_upddt = ' . $sql->quote(Clock::database()));
         $sql->where('blog_id' . $sql->in($ids->dump()));
@@ -348,7 +348,7 @@ final class Blogs
             App::core()->behavior('coreBeforeDeleteBlogs')->call(ids: $ids);
 
             $sql = new DeleteStatement();
-            $sql->from(App::core()->prefix() . 'blog');
+            $sql->from(App::core()->getPrefix() . 'blog');
             $sql->where('blog_id' . $sql->in($ids->dump()));
             $sql->delete();
         }
@@ -365,7 +365,7 @@ final class Blogs
     {
         $sql = new SelectStatement();
         $sql->column('blog_id');
-        $sql->from(App::core()->prefix() . 'blog');
+        $sql->from(App::core()->getPrefix() . 'blog');
         $sql->where('blog_id = ' . $sql->quote($id));
         $record = $sql->select();
 
@@ -384,7 +384,7 @@ final class Blogs
     {
         $sql = new SelectStatement();
         $sql->column($sql->count('post_id'));
-        $sql->from(App::core()->prefix() . 'post');
+        $sql->from(App::core()->getPrefix() . 'post');
         $sql->where('blog_id = ' . $sql->quote($id));
 
         if ($type) {

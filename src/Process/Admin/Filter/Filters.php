@@ -136,7 +136,7 @@ class Filters
                 $filters = $cloned_filters;
 
             // @phpstan-ignore-next-line (Failed to understand behavior)
-            } elseif (!App::core()->production()) {
+            } elseif (!App::core()->isProductionMode()) {
                 throw new InvalidValueType('Invalid value type returned by behavior adminFiltersAddStack');
             }
             unset($cloned_filters);

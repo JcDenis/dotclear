@@ -66,7 +66,7 @@ class FlatExport
 
     public function exportTable(string $table): void
     {
-        $req = 'SELECT * FROM ' . App::core()->con()->escapeSystem(App::core()->prefix() . $table);
+        $req = 'SELECT * FROM ' . App::core()->con()->escapeSystem(App::core()->getPrefix() . $table);
 
         $this->export($table, $req);
     }
@@ -78,8 +78,8 @@ class FlatExport
 
         $tables = [];
         foreach ($db_tables as $t) {
-            if (App::core()->prefix()) {
-                if (str_starts_with($t, App::core()->prefix())) {
+            if (App::core()->getPrefix()) {
+                if (str_starts_with($t, App::core()->getPrefix())) {
                     $tables[] = $t;
                 }
             } else {

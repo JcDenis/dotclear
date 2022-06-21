@@ -98,7 +98,7 @@ class Workspace
                     'pref_label',
                     'pref_ws',
                 ]);
-                $sql->from(App::core()->prefix() . 'pref');
+                $sql->from(App::core()->getPrefix() . 'pref');
                 $sql->where($sql->orGroup([
                     'user_id = ' . $sql->quote($this->user_id),
                     'user_id IS NULL',
@@ -303,7 +303,7 @@ class Workspace
             );
             $sql->and('pref_id = ' . $sql->quote($id));
             $sql->and('pref_ws = ' . $sql->quote($this->ws));
-            $sql->from(App::core()->prefix() . 'pref');
+            $sql->from(App::core()->getPrefix() . 'pref');
             $sql->update();
         // Insert
         } else {
@@ -324,7 +324,7 @@ class Workspace
                 $global ? 'NULL' : $sql->quote($this->user_id),
                 $sql->quote($this->ws),
             ]]);
-            $sql->from(App::core()->prefix() . 'pref');
+            $sql->from(App::core()->getPrefix() . 'pref');
             $sql->insert();
         }
     }
@@ -362,7 +362,7 @@ class Workspace
         $sql->set('pref_id = ' . $sql->quote($newId));
         $sql->where('pref_ws = ' . $sql->quote($this->ws));
         $sql->and('pref_id = ' . $sql->quote($oldId));
-        $sql->from(App::core()->prefix() . 'pref');
+        $sql->from(App::core()->getPrefix() . 'pref');
         $sql->update();
 
         return true;
@@ -392,7 +392,7 @@ class Workspace
         );
         $sql->and('pref_id = ' . $sql->quote($id));
         $sql->and('pref_ws = ' . $sql->quote($this->ws));
-        $sql->from(App::core()->prefix() . 'pref');
+        $sql->from(App::core()->getPrefix() . 'pref');
         $sql->delete();
 
         if ($this->prefExists($id, $global)) {
@@ -426,7 +426,7 @@ class Workspace
             $sql->and('user_id IS NOT NULL');
         }
 
-        $sql->from(App::core()->prefix() . 'pref');
+        $sql->from(App::core()->getPrefix() . 'pref');
         $sql->delete();
     }
 
@@ -452,7 +452,7 @@ class Workspace
             'user_id = ' . $sql->quote($this->user_id)
         );
         $sql->and('pref_ws = ' . $sql->quote($this->ws));
-        $sql->from(App::core()->prefix() . 'pref');
+        $sql->from(App::core()->getPrefix() . 'pref');
         $sql->delete();
 
         $array = $global ? 'global' : 'local';

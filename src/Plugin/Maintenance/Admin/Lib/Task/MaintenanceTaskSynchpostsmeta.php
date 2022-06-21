@@ -64,13 +64,13 @@ class MaintenanceTaskSynchpostsmeta extends MaintenanceTask
     protected function synchronizeAllPostsmeta(?int $start = null, ?int $limit = null): ?int
     {
         $sql = new SelectStatement();
-        $sql->from(App::core()->prefix() . 'post');
+        $sql->from(App::core()->getPrefix() . 'post');
 
         $sql_mid = new SelectStatement();
-        $sql_mid->from(App::core()->prefix() . 'meta');
+        $sql_mid->from(App::core()->getPrefix() . 'meta');
 
         $sql_upd = new UpdateStatement();
-        $sql_upd->from(App::core()->prefix() . 'post');
+        $sql_upd->from(App::core()->getPrefix() . 'post');
 
         // Get number of posts
         $sql->column($sql->count('post_id'));

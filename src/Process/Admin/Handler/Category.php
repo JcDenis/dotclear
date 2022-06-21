@@ -136,7 +136,7 @@ class Category extends AbstractPage
 
         // Create or update a category
         if (GPC::post()->isset('cat_title')) {
-            $cursor = App::core()->con()->openCursor(App::core()->prefix() . 'category');
+            $cursor = App::core()->con()->openCursor(App::core()->getPrefix() . 'category');
 
             $cursor->setField('cat_title', $this->cat_title = GPC::post()->string('cat_title'));
 

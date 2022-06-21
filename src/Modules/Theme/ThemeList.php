@@ -75,7 +75,7 @@ class ThemeList extends PluginList
             }
 
             // Display score only for debug purpose
-            if (in_array('score', $cols) && $this->getSearch() !== null && !App::core()->production()) {
+            if (in_array('score', $cols) && $this->getSearch() !== null && !App::core()->isProductionMode()) {
                 $line .= '<p class="module-score debug">' . sprintf(__('Score: %s'), $module->score()) . '</p>';
             }
 
@@ -240,7 +240,7 @@ class ThemeList extends PluginList
             if (in_array('select', $actions)) {
                 $submits[] = '<input type="submit" name="select[' . Html::escapeHTML($id) . ']" value="' . __('Use this one') . '" />';
             }
-        } elseif (App::core()->production()) {
+        } elseif (App::core()->isProductionMode()) {
             // Currently selected theme
             if ($pos = array_search('delete', $actions, true)) {
                 // Remove 'delete' action
@@ -277,7 +277,7 @@ class ThemeList extends PluginList
                 // Delete
                 case 'delete':
                     if (App::core()->user()->isSuperAdmin() && $this->isDeletablePath($module->root()) && empty($module->depChildren())) {
-                        $dev       = !preg_match('!^' . $this->path_pattern . '!', $module->root()) && !App::core()->production() ? ' debug' : '';
+                        $dev       = !preg_match('!^' . $this->path_pattern . '!', $module->root()) && !App::core()->isProductionMode() ? ' debug' : '';
                         $submits[] = '<input type="submit" class="delete ' . $dev . '" name="delete[' . Html::escapeHTML($id) . ']" value="' . __('Delete') . '" />';
                     }
 

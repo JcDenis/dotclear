@@ -152,7 +152,7 @@ class ImportFeed extends Module
             throw new ModuleException(__('No items in feed.'));
         }
 
-        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'post');
+        $cur = App::core()->con()->openCursor(App::core()->getPrefix() . 'post');
         App::core()->con()->begin();
         foreach ($feed->items as $item) {
             $cur->clean();

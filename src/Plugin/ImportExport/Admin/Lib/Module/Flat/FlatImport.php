@@ -214,22 +214,22 @@ class FlatImport extends FlatBackup
             $this->dc_major_version = '2.0';
         }
 
-        $this->cur_blog        = App::core()->con()->openCursor(App::core()->prefix() . 'blog');
-        $this->cur_category    = App::core()->con()->openCursor(App::core()->prefix() . 'category');
-        $this->cur_link        = App::core()->con()->openCursor(App::core()->prefix() . 'link');
-        $this->cur_setting     = App::core()->con()->openCursor(App::core()->prefix() . 'setting');
-        $this->cur_user        = App::core()->con()->openCursor(App::core()->prefix() . 'user');
-        $this->cur_pref        = App::core()->con()->openCursor(App::core()->prefix() . 'pref');
-        $this->cur_permissions = App::core()->con()->openCursor(App::core()->prefix() . 'permissions');
-        $this->cur_post        = App::core()->con()->openCursor(App::core()->prefix() . 'post');
-        $this->cur_meta        = App::core()->con()->openCursor(App::core()->prefix() . 'meta');
-        $this->cur_media       = App::core()->con()->openCursor(App::core()->prefix() . 'media');
-        $this->cur_post_media  = App::core()->con()->openCursor(App::core()->prefix() . 'post_media');
-        $this->cur_log         = App::core()->con()->openCursor(App::core()->prefix() . 'log');
-        $this->cur_ping        = App::core()->con()->openCursor(App::core()->prefix() . 'ping');
-        $this->cur_comment     = App::core()->con()->openCursor(App::core()->prefix() . 'comment');
-        $this->cur_spamrule    = App::core()->con()->openCursor(App::core()->prefix() . 'spamrule');
-        // $this->cur_version     = App::core()->con()->openCursor(App::core()->prefix() . 'version');
+        $this->cur_blog        = App::core()->con()->openCursor(App::core()->getPrefix() . 'blog');
+        $this->cur_category    = App::core()->con()->openCursor(App::core()->getPrefix() . 'category');
+        $this->cur_link        = App::core()->con()->openCursor(App::core()->getPrefix() . 'link');
+        $this->cur_setting     = App::core()->con()->openCursor(App::core()->getPrefix() . 'setting');
+        $this->cur_user        = App::core()->con()->openCursor(App::core()->getPrefix() . 'user');
+        $this->cur_pref        = App::core()->con()->openCursor(App::core()->getPrefix() . 'pref');
+        $this->cur_permissions = App::core()->con()->openCursor(App::core()->getPrefix() . 'permissions');
+        $this->cur_post        = App::core()->con()->openCursor(App::core()->getPrefix() . 'post');
+        $this->cur_meta        = App::core()->con()->openCursor(App::core()->getPrefix() . 'meta');
+        $this->cur_media       = App::core()->con()->openCursor(App::core()->getPrefix() . 'media');
+        $this->cur_post_media  = App::core()->con()->openCursor(App::core()->getPrefix() . 'post_media');
+        $this->cur_log         = App::core()->con()->openCursor(App::core()->getPrefix() . 'log');
+        $this->cur_ping        = App::core()->con()->openCursor(App::core()->getPrefix() . 'ping');
+        $this->cur_comment     = App::core()->con()->openCursor(App::core()->getPrefix() . 'comment');
+        $this->cur_spamrule    = App::core()->con()->openCursor(App::core()->getPrefix() . 'spamrule');
+        // $this->cur_version     = App::core()->con()->openCursor(App::core()->getPrefix() . 'version');
 
         // --BEHAVIOR-- importInit
         App::core()->behavior('importInit')->call($this);
@@ -254,19 +254,19 @@ class FlatImport extends FlatBackup
 
         $this->categories = App::core()->con()->select(
             'SELECT cat_id, cat_title, cat_url ' .
-            'FROM ' . App::core()->prefix() . 'category ' .
+            'FROM ' . App::core()->getPrefix() . 'category ' .
             "WHERE blog_id = '" . App::core()->con()->escape($this->blog_id) . "' "
         );
 
-        $this->stack['cat_id']     = App::core()->con()->select('SELECT MAX(cat_id) FROM ' . App::core()->prefix() . 'category')->integer()    + 1;
-        $this->stack['link_id']    = App::core()->con()->select('SELECT MAX(link_id) FROM ' . App::core()->prefix() . 'link')->integer()       + 1;
-        $this->stack['post_id']    = App::core()->con()->select('SELECT MAX(post_id) FROM ' . App::core()->prefix() . 'post')->integer()       + 1;
-        $this->stack['media_id']   = App::core()->con()->select('SELECT MAX(media_id) FROM ' . App::core()->prefix() . 'media')->integer()     + 1;
-        $this->stack['comment_id'] = App::core()->con()->select('SELECT MAX(comment_id) FROM ' . App::core()->prefix() . 'comment')->integer() + 1;
-        $this->stack['log_id']     = App::core()->con()->select('SELECT MAX(log_id) FROM ' . App::core()->prefix() . 'log')->integer()         + 1;
+        $this->stack['cat_id']     = App::core()->con()->select('SELECT MAX(cat_id) FROM ' . App::core()->getPrefix() . 'category')->integer()    + 1;
+        $this->stack['link_id']    = App::core()->con()->select('SELECT MAX(link_id) FROM ' . App::core()->getPrefix() . 'link')->integer()       + 1;
+        $this->stack['post_id']    = App::core()->con()->select('SELECT MAX(post_id) FROM ' . App::core()->getPrefix() . 'post')->integer()       + 1;
+        $this->stack['media_id']   = App::core()->con()->select('SELECT MAX(media_id) FROM ' . App::core()->getPrefix() . 'media')->integer()     + 1;
+        $this->stack['comment_id'] = App::core()->con()->select('SELECT MAX(comment_id) FROM ' . App::core()->getPrefix() . 'comment')->integer() + 1;
+        $this->stack['log_id']     = App::core()->con()->select('SELECT MAX(log_id) FROM ' . App::core()->getPrefix() . 'log')->integer()         + 1;
 
         $rs = App::core()->con()->select(
-            'SELECT MAX(cat_rgt) AS cat_rgt FROM ' . App::core()->prefix() . 'category ' .
+            'SELECT MAX(cat_rgt) AS cat_rgt FROM ' . App::core()->getPrefix() . 'category ' .
             "WHERE blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "'"
         );
 
@@ -359,11 +359,11 @@ class FlatImport extends FlatBackup
         }
 
         App::core()->con()->begin();
-        App::core()->con()->execute('DELETE FROM ' . App::core()->prefix() . 'blog');
-        App::core()->con()->execute('DELETE FROM ' . App::core()->prefix() . 'media');
-        App::core()->con()->execute('DELETE FROM ' . App::core()->prefix() . 'spamrule');
-        App::core()->con()->execute('DELETE FROM ' . App::core()->prefix() . 'setting');
-        App::core()->con()->execute('DELETE FROM ' . App::core()->prefix() . 'log');
+        App::core()->con()->execute('DELETE FROM ' . App::core()->getPrefix() . 'blog');
+        App::core()->con()->execute('DELETE FROM ' . App::core()->getPrefix() . 'media');
+        App::core()->con()->execute('DELETE FROM ' . App::core()->getPrefix() . 'spamrule');
+        App::core()->con()->execute('DELETE FROM ' . App::core()->getPrefix() . 'setting');
+        App::core()->con()->execute('DELETE FROM ' . App::core()->getPrefix() . 'log');
 
         $line = false;
 
@@ -854,7 +854,7 @@ class FlatImport extends FlatBackup
         }
 
         $strReq = 'SELECT user_id ' .
-        'FROM ' . App::core()->prefix() . 'user ' .
+        'FROM ' . App::core()->getPrefix() . 'user ' .
         "WHERE user_id = '" . App::core()->con()->escape($user_id) . "' ";
 
         $rs = App::core()->con()->select($strReq);
@@ -867,7 +867,7 @@ class FlatImport extends FlatBackup
     private function prefExists(string $pref_ws, string $pref_id, string $user_id): bool
     {
         $strReq = 'SELECT pref_id,pref_ws,user_id ' .
-        'FROM ' . App::core()->prefix() . 'pref ' .
+        'FROM ' . App::core()->getPrefix() . 'pref ' .
         "WHERE pref_id = '" . App::core()->con()->escape($pref_id) . "' " .
         "AND pref_ws = '" . App::core()->con()->escape($pref_ws) . "' ";
         if (!$user_id) {
@@ -884,7 +884,7 @@ class FlatImport extends FlatBackup
     private function mediaExists(): bool
     {
         $strReq = 'SELECT media_id ' .
-        'FROM ' . App::core()->prefix() . 'media ' .
+        'FROM ' . App::core()->getPrefix() . 'media ' .
         "WHERE media_path = '" . App::core()->con()->escape($this->cur_media->getField('media_path')) . "' " .
         "AND media_file = '" . App::core()->con()->escape($this->cur_media->getField('media_file')) . "' ";
 

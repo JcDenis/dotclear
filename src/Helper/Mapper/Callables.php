@@ -17,6 +17,8 @@ use Error;
 
 /**
  * Tiny helper to manage array of callable values.
+ *
+ * @ingroup Helper Stack
  */
 class Callables
 {
@@ -75,7 +77,7 @@ class Callables
                 }
             }
         } catch (Exception|Error $e) {
-            if (!App::core()->production()) {
+            if (!App::core()->isProductionMode()) {
                 throw new InvalidMethodException('Invalid callback: ' . $e->getMessage() . $e->getPrevious()?->getMessage());
             }
         }

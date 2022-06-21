@@ -44,7 +44,7 @@ class Spamfilter
             $this->name = $this->id;
         }
 
-        if (App::core()->processed('Admin')) {
+        if (App::core()->isProcess('Admin')) {
             $this->gui_url = App::core()->adminurl()->get('admin.plugin.Antispam', ['f' => $this->id], '&');
         }
     }

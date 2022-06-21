@@ -38,7 +38,7 @@ class Prepend extends ModulePrepend
         if ('default' != $theme->id() && App::core()->user()->isSuperAdmin()) {
             // Check if it's not an officially distributed theme
             $path = App::core()->themes()->getPaths();
-            if (!App::core()->production()
+            if (!App::core()->isProductionMode()
                 || !str_contains(Path::real($theme->root(), false), Path::real((string) array_pop($path), false))
                 || !App::core()->themes()->isDistributedModule($theme->id())
             ) {

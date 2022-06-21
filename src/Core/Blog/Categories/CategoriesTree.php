@@ -44,7 +44,7 @@ final class CategoriesTree
         $sql = 
             'SELECT C2.cat_id, C2.cat_lft, C2.cat_rgt, COUNT(C1.cat_id) AS level ' .
             $fields . ' ' .
-            'FROM ' . App::core()->prefix() . 'category AS C1, ' . App::core()->prefix() . 'category AS C2 %s ' .
+            'FROM ' . App::core()->getPrefix() . 'category AS C1, ' . App::core()->getPrefix() . 'category AS C2 %s ' .
             'WHERE C2.cat_lft BETWEEN C1.cat_lft AND C1.cat_rgt ' .
             ' %s ' .
             $this->getCondition('AND', 'C2.') .
@@ -55,7 +55,7 @@ final class CategoriesTree
         ;
 
         if (0 < $start) {
-            $from  = ', ' . App::core()->prefix() . 'category AS C3';
+            $from  = ', ' . App::core()->getPrefix() . 'category AS C3';
             $where = 'AND C3.cat_id = ' . $start . ' AND C1.cat_lft >= C3.cat_lft AND C1.cat_rgt <= C3.cat_rgt';
             $where .= $this->getCondition('AND', 'C3.');
         }
@@ -80,7 +80,7 @@ final class CategoriesTree
     {
         return App::core()->con()->select(
             'SELECT C1.cat_id, C1.cat_title, C1.cat_url, C1.cat_desc ' .
-            'FROM ' . App::core()->prefix() . 'category C1, ' . App::core()->prefix() . 'category C2 ' .
+            'FROM ' . App::core()->getPrefix() . 'category C1, ' . App::core()->getPrefix() . 'category C2 ' .
             'WHERE C2.cat_id = ' . $id . ' ' .
             'AND C1.cat_lft < C2.cat_lft ' .
             'AND C1.cat_rgt > C2.cat_rgt ' .
@@ -101,7 +101,7 @@ final class CategoriesTree
     {
         return App::core()->con()->select(
             'SELECT C1.cat_id, C1.cat_title, C1.cat_url, C1.cat_desc ' .
-            'FROM ' . App::core()->prefix() . 'category C1, ' . App::core()->prefix() . 'category C2 ' .
+            'FROM ' . App::core()->getPrefix() . 'category C1, ' . App::core()->getPrefix() . 'category C2 ' .
             'WHERE C2.cat_id = ' . $id . ' ' .
             'AND C1.cat_lft < C2.cat_lft ' .
             'AND C1.cat_rgt > C2.cat_rgt ' .
@@ -126,15 +126,15 @@ final class CategoriesTree
     public function addNode(Cursor $cursor, int $parent = 0): int|false
     {
         // We want to put it at the end
-        App::core()->con()->writeLock(App::core()->prefix() . 'category');
+        App::core()->con()->writeLock(App::core()->getPrefix() . 'category');
 
         try {
-            $rs = App::core()->con()->select('SELECT MAX(cat_id) as n_id FROM ' . App::core()->prefix() . 'category');
+            $rs = App::core()->con()->select('SELECT MAX(cat_id) as n_id FROM ' . App::core()->getPrefix() . 'category');
             $id = $rs->integer('n_id');
 
             $rs = App::core()->con()->select(
                 'SELECT MAX(cat_rgt) as n_r ' .
-                'FROM ' . App::core()->prefix() . 'category' .
+                'FROM ' . App::core()->getPrefix() . 'category' .
                 $this->getCondition('WHERE')
             );
             $last = $rs->integer('n_r') == 0 ? 1 : $rs->integer('n_r');
@@ -171,7 +171,7 @@ final class CategoriesTree
     public function updatePosition(int $id, int $left, int $right): void
     {
         $sql = 
-            'UPDATE ' . App::core()->prefix() . 'category SET ' .
+            'UPDATE ' . App::core()->getPrefix() . 'category SET ' .
             'cat_lft = ' . $left . ', ' .
             'cat_rgt = ' . $right . ' ' .
             'WHERE cat_id = ' . $id .
@@ -209,10 +209,10 @@ final class CategoriesTree
         try {
             App::core()->con()->begin();
 
-            App::core()->con()->execute('DELETE FROM ' . App::core()->prefix() . 'category WHERE cat_id = ' . $node);
+            App::core()->con()->execute('DELETE FROM ' . App::core()->getPrefix() . 'category WHERE cat_id = ' . $node);
 
             $sql = 
-                'UPDATE ' . App::core()->prefix() . 'category SET ' .
+                'UPDATE ' . App::core()->getPrefix() . 'category SET ' .
                 'cat_rgt = CASE ' .
                 'WHEN cat_rgt BETWEEN ' . $node_left . ' AND ' . $node_right . ' ' .
                 'THEN cat_rgt - 1 ' .
@@ -248,7 +248,7 @@ final class CategoriesTree
     {
         $rs = App::core()->con()->select(
             'SELECT cat_id '
-            . 'FROM ' . App::core()->prefix() . 'category '
+            . 'FROM ' . App::core()->getPrefix() . 'category '
             . $this->getCondition('WHERE')
             . 'ORDER BY cat_lft ASC '
         );
@@ -259,7 +259,7 @@ final class CategoriesTree
         try {
             while ($rs->fetch()) {
                 App::core()->con()->execute(
-                    'UPDATE ' . App::core()->prefix() . 'category SET '
+                    'UPDATE ' . App::core()->getPrefix() . 'category SET '
                     . 'cat_lft = ' . ($lft++) . ', '
                     . 'cat_rgt = ' . ($lft++) . ' '
                     . 'WHERE cat_id = ' . $rs->integer('cat_id') . ' '
@@ -301,7 +301,7 @@ final class CategoriesTree
         } else {
             $rs = App::core()->con()->select(
                 'SELECT MIN(cat_lft)-1 AS cat_lft, MAX(cat_rgt)+1 AS cat_rgt, 0 AS level ' .
-                'FROM ' . App::core()->prefix() . 'category ' .
+                'FROM ' . App::core()->getPrefix() . 'category ' .
                 $this->getCondition('WHERE')
             );
         }
@@ -318,7 +318,7 @@ final class CategoriesTree
 
         if ($target_left < $node_left && $target_right > $node_right && $node_level - 1 > $target_level) {
             $sql = 
-                'UPDATE ' . App::core()->prefix() . 'category SET ' .
+                'UPDATE ' . App::core()->getPrefix() . 'category SET ' .
                 'cat_rgt = CASE ' .
                 'WHEN cat_rgt BETWEEN ' . ($node_right + 1) . ' AND ' . ($target_right - 1) . ' ' .
                 'THEN cat_rgt-(' . ($node_right - $node_left + 1) . ') ' .
@@ -338,7 +338,7 @@ final class CategoriesTree
             ;
         } elseif ($target_left < $node_left) {
             $sql = 
-                'UPDATE ' . App::core()->prefix() . 'category SET ' .
+                'UPDATE ' . App::core()->getPrefix() . 'category SET ' .
                 'cat_lft = CASE ' .
                 'WHEN cat_lft BETWEEN ' . $target_right . ' AND ' . ($node_left - 1) . ' ' .
                 'THEN cat_lft+' . ($node_right - $node_left + 1) . ' ' .
@@ -358,7 +358,7 @@ final class CategoriesTree
             ;
         } else {
             $sql = 
-                'UPDATE ' . App::core()->prefix() . 'category SET ' .
+                'UPDATE ' . App::core()->getPrefix() . 'category SET ' .
                 'cat_lft = CASE ' .
                 'WHEN cat_lft BETWEEN ' . $node_right . ' AND ' . $target_right . ' ' .
                 'THEN cat_lft-' . ($node_right - $node_left + 1) . ' ' .
@@ -426,7 +426,7 @@ final class CategoriesTree
         if ('before' == $position) {
             if ($A_left > $B_left) {
                 $sql = 
-                    'UPDATE ' . App::core()->prefix() . 'category SET ' .
+                    'UPDATE ' . App::core()->getPrefix() . 'category SET ' .
                     'cat_rgt = CASE WHEN cat_lft BETWEEN ' . $A_left . ' AND ' . $A_right . 
                     ' THEN cat_rgt - (' . ($A_left - $B_left) . ') ' .
                     'WHEN cat_lft BETWEEN ' . $B_left . ' AND ' . ($A_left - 1) . 
@@ -439,7 +439,7 @@ final class CategoriesTree
                 ;
             } else {
                 $sql = 
-                    'UPDATE ' . App::core()->prefix() . 'category SET ' .
+                    'UPDATE ' . App::core()->getPrefix() . 'category SET ' .
                     'cat_rgt = CASE WHEN cat_lft BETWEEN ' . $A_left . ' AND ' . $A_right . 
                     ' THEN cat_rgt + ' . (($B_left - $A_left) - ($A_right - $A_left + 1)) . ' ' .
                     'WHEN cat_lft BETWEEN ' . ($A_right + 1) . ' AND ' . ($B_left - 1) . 
@@ -454,7 +454,7 @@ final class CategoriesTree
         } else {
             if ($A_left > $B_left) {
                 $sql = 
-                    'UPDATE ' . App::core()->prefix() . 'category SET ' .
+                    'UPDATE ' . App::core()->getPrefix() . 'category SET ' .
                     'cat_rgt = CASE WHEN cat_lft BETWEEN ' . $A_left . ' AND ' . $A_right . 
                     ' THEN cat_rgt - (' . ($A_left - $B_left - ($B_right - $B_left + 1)) . ') ' .
                     'WHEN cat_lft BETWEEN ' . ($B_right + 1) . ' AND ' . ($A_left - 1) . 
@@ -467,7 +467,7 @@ final class CategoriesTree
                 ;
             } else {
                 $sql = 
-                    'UPDATE ' . App::core()->prefix() . 'category SET ' .
+                    'UPDATE ' . App::core()->getPrefix() . 'category SET ' .
                     'cat_rgt = CASE WHEN cat_lft BETWEEN ' . $A_left . ' AND ' . $A_right . 
                     ' THEN cat_rgt + ' . ($B_right - $A_right) . ' ' .
                     'WHEN cat_lft BETWEEN ' . ($A_right + 1) . ' AND ' . $B_right . 

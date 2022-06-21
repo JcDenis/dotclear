@@ -38,7 +38,7 @@ class MaintenanceTaskVacuum extends MaintenanceTask
         $schema = AbstractSchema::init(App::core()->con());
 
         foreach ($schema->getTables() as $table) {
-            if (str_starts_with($table, App::core()->prefix())) {
+            if (str_starts_with($table, App::core()->getPrefix())) {
                 App::core()->con()->vacuum($table);
             }
         }

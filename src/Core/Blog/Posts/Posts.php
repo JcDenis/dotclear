@@ -209,15 +209,15 @@ final class Posts
     {
         $join_user = new JoinStatement();
         $join_user->type('INNER');
-        $join_user->from(App::core()->prefix() . 'user U');
+        $join_user->from(App::core()->getPrefix() . 'user U');
         $join_user->on('U.user_id = P.user_id');
 
         $join_cat = new JoinStatement();
         $join_cat->type('LEFT OUTER');
-        $join_cat->from(App::core()->prefix() . 'category C');
+        $join_cat->from(App::core()->getPrefix() . 'category C');
         $join_cat->on('P.cat_id = C.cat_id');
 
-        $sql->from(App::core()->prefix() . 'post P', false, true);
+        $sql->from(App::core()->getPrefix() . 'post P', false, true);
         $sql->join($join_user->statement());
         $sql->join($join_cat->statement());
 
@@ -317,7 +317,7 @@ final class Posts
 
         if ($param->isset('media')) {
             $sql_media = new SelectStatement();
-            $sql_media->from(App::core()->prefix() . 'post_media M');
+            $sql_media->from(App::core()->getPrefix() . 'post_media M');
             $sql_media->column('M.post_id');
             $sql_media->where('M.post_id = P.post_id');
 
@@ -444,7 +444,7 @@ final class Posts
             $sql->count('post_id', 'nb_post'),
             'post_lang',
         ]);
-        $sql->from(App::core()->prefix() . 'post');
+        $sql->from(App::core()->getPrefix() . 'post');
         $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
         $sql->and("post_lang <> ''");
         $sql->and('post_lang IS NOT NULL');
@@ -495,12 +495,12 @@ final class Posts
 
         $join = new JoinStatement();
         $join->type('LEFT');
-        $join->from(App::core()->prefix() . 'category C');
+        $join->from(App::core()->getPrefix() . 'category C');
         $join->on('P.cat_id = C.cat_id');
 
         $sql->column('DISTINCT(' . App::core()->con()->dateFormat('post_dt', $dt_f) . ') AS dt');
         $sql->column($sql->count('P.post_id', 'nb_post'));
-        $sql->from(App::core()->prefix() . 'post P');
+        $sql->from(App::core()->getPrefix() . 'post P');
         $sql->join($join->statement());
         $sql->where('P.blog_id = ' . $sql->quote(App::core()->blog()->id));
 
@@ -600,13 +600,13 @@ final class Posts
             throw new InsufficientPermissions(__('You are not allowed to create an entry'));
         }
 
-        App::core()->con()->writeLock(App::core()->prefix() . 'post');
+        App::core()->con()->writeLock(App::core()->getPrefix() . 'post');
 
         try {
             // Get ID
             $sql = new SelectStatement();
             $sql->column($sql->max('post_id'));
-            $sql->from(App::core()->prefix() . 'post');
+            $sql->from(App::core()->getPrefix() . 'post');
             $record = $sql->select();
 
             $cursor->setField('post_id', $record->integer() + 1);
@@ -691,7 +691,7 @@ final class Posts
         // If user is only "usage", we need to check the post's owner
         if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
             $sql = new SelectStatement();
-            $sql->from(App::core()->prefix() . 'post');
+            $sql->from(App::core()->getPrefix() . 'post');
             $sql->where('post_id = ' . $id);
             $sql->and('user_id = ' . $sql->quote(App::core()->user()->userID()));
 
@@ -738,7 +738,7 @@ final class Posts
         $sql = new UpdateStatement();
         $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
         $sql->and('post_id' . $sql->in($ids->dump()));
-        $sql->from(App::core()->prefix() . 'post');
+        $sql->from(App::core()->getPrefix() . 'post');
 
         // If user is only usage, we need to check the post's owner
         if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
@@ -779,7 +779,7 @@ final class Posts
         $sql = new UpdateStatement();
         $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
         $sql->and('post_id' . $sql->in($ids->dump()));
-        $sql->from(App::core()->prefix() . 'post');
+        $sql->from(App::core()->getPrefix() . 'post');
 
         // If user is only usage, we need to check the post's owner
         if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
@@ -829,7 +829,7 @@ final class Posts
         $sql = new UpdateStatement();
         $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
         $sql->and('post_id' . $sql->in($ids->dump()));
-        $sql->from(App::core()->prefix() . 'post');
+        $sql->from(App::core()->getPrefix() . 'post');
 
         $sql->set('user_id = ' . $sql->quote($author));
         $sql->set('post_upddt = ' . $sql->quote(Clock::database()));
@@ -863,7 +863,7 @@ final class Posts
         $sql = new UpdateStatement();
         $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
         $sql->and('post_id' . $sql->in($ids->dump()));
-        $sql->from(App::core()->prefix() . 'post');
+        $sql->from(App::core()->getPrefix() . 'post');
 
         $sql->set('post_lang = ' . $sql->quote($lang));
         $sql->set('post_upddt = ' . $sql->quote(Clock::database()));
@@ -900,7 +900,7 @@ final class Posts
         $sql = new UpdateStatement();
         $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
         $sql->and('post_id' . $sql->in($ids->dump()));
-        $sql->from(App::core()->prefix() . 'post');
+        $sql->from(App::core()->getPrefix() . 'post');
 
         // If user is only usage, we need to check the post's owner
         if (!App::core()->user()->check('contentadmin', App::core()->blog()->id)) {
@@ -937,7 +937,7 @@ final class Posts
         $sql = new UpdateStatement();
         $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
         $sql->and('cat_id = ' . $from);
-        $sql->from(App::core()->prefix() . 'post');
+        $sql->from(App::core()->getPrefix() . 'post');
 
         $sql->set('cat_id =' . (!$to ? 'NULL' : $to));
         $sql->set('post_upddt = ' . $sql->quote(Clock::database()));
@@ -968,7 +968,7 @@ final class Posts
         App::core()->behavior('coreBeforeDeletePosts')->call(ids: $ids);
 
         $sql = new DeleteStatement();
-        $sql->from(App::core()->prefix() . 'post');
+        $sql->from(App::core()->getPrefix() . 'post');
         $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
         $sql->and('post_id' . $sql->in($ids->dump()));
 
@@ -988,7 +988,7 @@ final class Posts
     {
         $sql = new SelectStatement();
         $sql->columns(['post_id', 'post_dt']);
-        $sql->from(App::core()->prefix() . 'post');
+        $sql->from(App::core()->getPrefix() . 'post');
         $sql->where('post_status = -1');
         $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
 
@@ -1008,7 +1008,7 @@ final class Posts
             App::core()->behavior('coreBeforePublishScheduledPosts')->call(ids: $posts);
 
             $sql = new UpdateStatement();
-            $sql->from(App::core()->prefix() . 'post');
+            $sql->from(App::core()->getPrefix() . 'post');
             $sql->set('post_status = 1');
             $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
             $sql->and('post_id' . $sql->in($posts->dump()));
@@ -1044,7 +1044,7 @@ final class Posts
 
         if ($posts->count()) {
             $sql = new UpdateStatement();
-            $sql->from(App::core()->prefix() . 'post');
+            $sql->from(App::core()->getPrefix() . 'post');
             $sql->set('post_firstpub = 1');
             $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
             $sql->and('post_id' . $sql->in($posts->dump()));
@@ -1071,8 +1071,8 @@ final class Posts
             'user_email',
         ]);
         $sql->from([
-            App::core()->prefix() . 'post P',
-            App::core()->prefix() . 'user U',
+            App::core()->getPrefix() . 'post P',
+            App::core()->getPrefix() . 'user U',
         ]);
         $sql->where('P.user_id = U.user_id');
         $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
@@ -1135,7 +1135,7 @@ final class Posts
                 'cat_lft',
                 'cat_rgt',
             ]);
-            $sql->from(App::core()->prefix() . 'category');
+            $sql->from(App::core()->getPrefix() . 'category');
             $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
             $sql->and($field . $sql->in(array_keys($sub)));
 
@@ -1334,7 +1334,7 @@ final class Posts
         // Let's check if URL is taken...
         $sql = new SelectStatement();
         $sql->column('post_url');
-        $sql->from(App::core()->prefix() . 'post');
+        $sql->from(App::core()->getPrefix() . 'post');
         $sql->where('post_url = ' . $sql->quote($url));
         $sql->and('post_id <> ' . (int) $id);
         $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
@@ -1354,7 +1354,7 @@ final class Posts
             }
 
             $sql->column('post_url');
-            $sql->from(App::core()->prefix() . 'post');
+            $sql->from(App::core()->getPrefix() . 'post');
             $sql->where('post_url ' . $clause);
             $sql->and('post_id <> ' . (int) $id);
             $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));

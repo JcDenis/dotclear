@@ -16,13 +16,28 @@ use Exception;
  * Application.
  *
  * Run process from this class.
- *
+ * 
  * @ingroup Process Core
  */
 final class App
 {
     private static $autoload;
     private static $class;
+
+    /**
+     * Use composer autoload.
+     * 
+     * If you need to use composer autoloader, 
+     * call this method to instanciate it.
+     * If Dotclear runs as composer package, you don't need this.
+     */
+    public static function useComposerAutoload(): void
+    {
+        $file = implode(DIRECTORY_SEPARATOR, [__DIR__, '..', 'vendor', 'autoload.php']);
+        if (file_exists($file)) {
+            require_once $file;
+        }
+    }
 
     /**
      * Run process.
@@ -37,31 +52,25 @@ final class App
                 throw new Exception('Application can not be started twice.', 500);
             }
 
-            // Third party autoload (PSR-4 compliant)
-            $file = implode(DIRECTORY_SEPARATOR, [__DIR__, '..', 'vendor', 'autoload.php']);
-            if (file_exists($file)) {
-                require_once $file;
+            $process = ucfirst(strtolower($process));
+            if (!in_array($process, ['Public', 'Admin', 'Install', 'Distrib'])) {
+                throw new Exception(sprintf('Application can not run process %s.', $process), 500);
             }
+            $class = '\\Dotclear\\Process\\' . $process . '\\Prepend';
 
             // Dotclear autoload (used first)
             self::autoload()->addNamespace('Dotclear', __DIR__);
 
-            // Find process (Admin|Public|Install|...)
-            $class = 'Dotclear\\Process\\' . ucfirst(strtolower($process)) . '\\Prepend';
-            if (!is_subclass_of($class, 'Dotclear\\Core\\Core')) {
-                throw new Exception('Something went wrong while trying to start process.', 500);
-            }
-
             // Execute Process
             ob_start();
-            self::$class = new $class();
-            self::$class->process($blog_id);
+            self::$class = new $class(process: $process);
+            self::$class->startProcess(blog: $blog_id);
             ob_end_flush();
         } catch (Exception|Error $e) {
             ob_end_clean();
 
             // Try to display unexpected Exceptions as much cleaned as we can
-            if (false === self::core()?->production()) {
+            if (false === self::core()?->isProductionMode()) {
                 self::stop(new Exception($e->getMessage(), $e->getCode(), $e), false);
             } else {
                 $msg = '<p>We apologize for this temporary unavailability.<br />Thank you for your understanding.</p>';

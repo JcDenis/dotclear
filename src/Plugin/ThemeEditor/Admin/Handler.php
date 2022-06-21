@@ -217,7 +217,7 @@ class Handler extends AbstractPage
         if ($theme && 'default' != $theme->id() && App::core()->user()->isSuperAdmin()) {
             $path = App::core()->themes()->getPaths();
 
-            return !App::core()->production()
+            return !App::core()->isProductionMode()
                 || !str_contains(Path::real($theme->root(), false), Path::real((string) array_pop($path), false))
                 || !App::core()->themes()->isDistributedModule($theme->id());
         }

@@ -472,18 +472,17 @@ final class Url
 
             // Recreates some _GET and _REQUEST pairs
             if (!empty($qs)) {
-                /**
-                 * // todo: find a way to reproduce this with readonly GPC.
-                 *
-                 * foreach ($_GET as $k => $v) {
-                 * if (isset($_REQUEST[$k])) {
-                 * unset($_REQUEST[$k]);
-                 * }
-                 * }.
-                 *
-                 * $_GET     = $qs;
-                 * $_REQUEST = array_merge($qs, $_REQUEST);
-                 * //*/
+                // todo: find a way to reproduce this with readonly GPC.
+                //
+                // foreach ($_GET as $k => $v) {
+                // if (isset($_REQUEST[$k])) {
+                // unset($_REQUEST[$k]);
+                // }
+                // }
+                //
+                // $_GET     = $qs;
+                // $_REQUEST = array_merge($qs, $_REQUEST);
+                //
                 foreach ($qs as $k => $v) {
                     if (null === $v) {
                         $part = $k;
@@ -953,7 +952,7 @@ final class Url
                         $comment_preview->set('preview', true);
                     } else {
                         // Post the comment
-                        $cursor = App::core()->con()->openCursor(App::core()->prefix() . 'comment');
+                        $cursor = App::core()->con()->openCursor(App::core()->getPrefix() . 'comment');
                         $cursor->setField('comment_author', $name);
                         $cursor->setField('comment_site', Html::clean($site));
                         $cursor->setField('comment_email', Html::clean($mail));

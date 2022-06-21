@@ -38,7 +38,7 @@ class MaintenanceTaskLogs extends MaintenanceTask
     {
         if (static::$keep_maintenance_logs) {
             $sql = new DeleteStatement();
-            $sql->from(App::core()->prefix() . 'log');
+            $sql->from(App::core()->getPrefix() . 'log');
             $sql->where("log_table <> 'maintenance'");
 
             $sql->delete();

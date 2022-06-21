@@ -30,7 +30,7 @@ class RsExtDate extends RsExtend
     {
         return Clock::ts(
             date: $this->rs->field('dt'),
-            to: App::core()->timezone()
+            to: App::core()->getTimezone()
         );
     }
 
@@ -42,8 +42,8 @@ class RsExtDate extends RsExtend
         return (int) Clock::format(
             format: 'Y',
             date: $this->ts(),
-            from: App::core()->timezone(),
-            to: App::core()->timezone()
+            from: App::core()->getTimezone(),
+            to: App::core()->getTimezone()
         );
     }
 
@@ -55,8 +55,8 @@ class RsExtDate extends RsExtend
         return (int) Clock::format(
             format: 'm',
             date: $this->ts(),
-            from: App::core()->timezone(),
-            to: App::core()->timezone()
+            from: App::core()->getTimezone(),
+            to: App::core()->getTimezone()
         );
     }
 
@@ -68,8 +68,8 @@ class RsExtDate extends RsExtend
         return (int) Clock::format(
             format: 'd',
             date: $this->ts(),
-            from: App::core()->timezone(),
-            to: App::core()->timezone()
+            from: App::core()->getTimezone(),
+            to: App::core()->getTimezone()
         );
     }
 
@@ -81,8 +81,8 @@ class RsExtDate extends RsExtend
         return App::core()->blog()->getURLFor('archive', Clock::format(
             format: 'Y/m',
             date: $this->ts(),
-            from: App::core()->timezone(),
-            to: App::core()->timezone()
+            from: App::core()->getTimezone(),
+            to: App::core()->getTimezone()
         ));
     }
 
@@ -136,7 +136,7 @@ class RsExtDate extends RsExtend
         return Clock::str(
             format: $format ?: App::core()->blog()->settings()->getGroup('system')->getSetting('date_format'),
             date: $this->rs->field('dt'),
-            to: App::core()->timezone()
+            to: App::core()->getTimezone()
         );
     }
 }

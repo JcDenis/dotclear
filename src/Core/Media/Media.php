@@ -283,7 +283,7 @@ class Media extends Manager
             $f->media_user  = $rs->field('user_id');
             $f->media_priv  = (bool) $rs->field('media_private');
             $f->media_dt    = Clock::ts(date: $rs->field('media_dt'));
-            $f->media_dtstr = Clock::str(format: '%Y-%m-%d %H:%M', date: $f->media_dt, to: App::core()->timezone());
+            $f->media_dtstr = Clock::str(format: '%Y-%m-%d %H:%M', date: $f->media_dt, to: App::core()->getTimezone());
 
             $f->media_image = false;
 
@@ -465,7 +465,7 @@ class Media extends Manager
             'media_private',
             'user_id',
         ]);
-        $sql->from(App::core()->prefix() . 'media');
+        $sql->from(App::core()->getPrefix() . 'media');
         $sql->where('media_path = ' . $sql->quote($this->path));
         $sql->and('media_dir = ' . $sql->quote($media_dir, true));
 
@@ -493,7 +493,7 @@ class Media extends Manager
             'media_private',
             'user_id',
         ]);
-        $sql->from(App::core()->prefix() . 'media');
+        $sql->from(App::core()->getPrefix() . 'media');
         $sql->where('media_path = ' . $sql->quote($this->path));
         $sql->and('media_dir = ' . $sql->quote($media_dir, true));
         $sql->and('media_private = 1');
@@ -539,7 +539,7 @@ class Media extends Manager
                         // That media is duplicated in the database,
                         // time to do a bit of house cleaning.
                         $sql = new DeleteStatement();
-                        $sql->from(App::core()->prefix() . 'media');
+                        $sql->from(App::core()->getPrefix() . 'media');
                         $sql->where('media_id = ' . $this->fileRecord($record)->media_id);
                         $sql->delete();
                     } else {
@@ -553,7 +553,7 @@ class Media extends Manager
                 // dotclear upgrade, do it only if there are files
                 // in directory and directory is root
                 $sql = new DeleteStatement();
-                $sql->from(App::core()->prefix() . 'media');
+                $sql->from(App::core()->getPrefix() . 'media');
                 $sql->where('media_path = ' . $sql->quote($this->path, true));
                 $sql->and('media_file = ' . $sql->quote($record->field('media_file'), true));
                 $sql->delete();
@@ -594,7 +594,7 @@ class Media extends Manager
     public function getFile(int $id): ?Item
     {
         $sql = new SelectStatement();
-        $sql->from(App::core()->prefix() . 'media');
+        $sql->from(App::core()->getPrefix() . 'media');
         $sql->columns([
             'media_id',
             'media_path',
@@ -637,7 +637,7 @@ class Media extends Manager
         }
 
         $sql = new SelectStatement();
-        $sql->from(App::core()->prefix() . 'media');
+        $sql->from(App::core()->getPrefix() . 'media');
         $sql->columns([
             'media_file',
             'media_id',
@@ -768,7 +768,7 @@ class Media extends Manager
         $media_dir = $pwd ?: '.';
 
         $sql = new SelectStatement();
-        $sql->from(App::core()->prefix() . 'media');
+        $sql->from(App::core()->getPrefix() . 'media');
         $sql->columns([
             'media_file',
             'media_id',
@@ -831,10 +831,10 @@ class Media extends Manager
         $media_file = $this->relpwd ? Path::clean($this->relpwd . '/' . $name) : Path::clean($name);
         $media_type = Files::getMimeType($name);
 
-        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'media');
+        $cur = App::core()->con()->openCursor(App::core()->getPrefix() . 'media');
 
         $sql = new SelectStatement();
-        $sql->from(App::core()->prefix() . 'media');
+        $sql->from(App::core()->getPrefix() . 'media');
         $sql->column('media_id');
         $sql->where('media_path = ' . $sql->quote($this->path, true));
         $sql->and('media_file = ' . $sql->quote($media_file, true));
@@ -842,11 +842,11 @@ class Media extends Manager
         $record = $sql->select();
 
         if ($record->isEmpty()) {
-            App::core()->con()->writeLock(App::core()->prefix() . 'media');
+            App::core()->con()->writeLock(App::core()->getPrefix() . 'media');
 
             try {
                 $sql = new SelectStatement();
-                $sql->from(App::core()->prefix() . 'media');
+                $sql->from(App::core()->getPrefix() . 'media');
                 $sql->column($sql->max('media_id'));
 
                 $media_id = $sql->select()->integer() + 1;
@@ -916,7 +916,7 @@ class Media extends Manager
             throw new CoreException(__('You are not the file owner.'));
         }
 
-        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'media');
+        $cur = App::core()->con()->openCursor(App::core()->getPrefix() . 'media');
 
         // We need to tidy newFile basename. If dir isn't empty, concat to basename
         $newFile->relname = Files::tidyFileName($newFile->basename);
@@ -1023,7 +1023,7 @@ class Media extends Manager
         $media_file = $this->relpwd ? Path::clean($this->relpwd . '/' . $f) : Path::clean($f);
 
         $sql = new DeleteStatement();
-        $sql->from(App::core()->prefix() . 'media');
+        $sql->from(App::core()->getPrefix() . 'media');
         $sql->where('media_path = ' . $sql->quote($this->path, true));
         $sql->and('media_file = ' . $sql->quote($media_file));
 
@@ -1055,7 +1055,7 @@ class Media extends Manager
         $media_dir = $this->relpwd ?: '.';
 
         $sql = new SelectStatement();
-        $sql->from(App::core()->prefix() . 'media');
+        $sql->from(App::core()->getPrefix() . 'media');
         $sql->column('distinct media_dir');
         $sql->where('media_path = ' . $sql->quote($this->path));
 
@@ -1302,7 +1302,7 @@ class Media extends Manager
         $meta = ImageMeta::readMeta($file);
         $xml->insertNode($meta);
 
-        $c = App::core()->con()->openCursor(App::core()->prefix() . 'media');
+        $c = App::core()->con()->openCursor(App::core()->getPrefix() . 'media');
         $c->setField('media_meta', $xml->toXML());
 
         if (null !== $cur->getField('media_title') && basename($cur->getField('media_file')) == $cur->getField('media_title')) {

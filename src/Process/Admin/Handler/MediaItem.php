@@ -704,7 +704,7 @@ class MediaItem extends AbstractPage
 
             $param = new Param();
             $param->set('post_type', '');
-            $param->set('join', 'LEFT OUTER JOIN ' . App::core()->prefix() . 'post_media PM ON P.post_id = PM.post_id ');
+            $param->set('join', 'LEFT OUTER JOIN ' . App::core()->getPrefix() . 'post_media PM ON P.post_id = PM.post_id ');
             $param->set(
                 'sql',
                 'AND (' .
@@ -733,7 +733,7 @@ class MediaItem extends AbstractPage
                     Html::escapeHTML(App::core()->posttype()->getPostAdminURL(type: $rs->field('post_type'), id: $rs->field('post_id'))) . '">' .
                     Html::escapeHTML($rs->field('post_title')) . '</a>' .
                     ('post' != $rs->field('post_type') ? ' (' . Html::escapeHTML($rs->field('post_type')) . ')' : '') .
-                    ' - ' . Clock::str(format: __('%Y-%m-%d %H:%M'), date: $rs->field('post_dt'), to: App::core()->timezone()) . '</li>';
+                    ' - ' . Clock::str(format: __('%Y-%m-%d %H:%M'), date: $rs->field('post_dt'), to: App::core()->getTimezone()) . '</li>';
                 }
                 echo '</ul>';
             }
@@ -821,7 +821,7 @@ class MediaItem extends AbstractPage
                 ) . '</p>' .
                 '<p><label for="media_dt">' . __('File date:') . '</label>';
             }
-            echo Form::datetime('media_dt', ['default' => Clock::formfield(date: $this->item_file->media_dt, to: App::core()->timezone())]) .
+            echo Form::datetime('media_dt', ['default' => Clock::formfield(date: $this->item_file->media_dt, to: App::core()->getTimezone())]) .
             '</p>' .
             '<p><label for="media_private" class="classic">' . Form::checkbox('media_private', 1, $this->item_file->media_priv) . ' ' .
             __('Private') . '</label></p>' .
@@ -888,14 +888,14 @@ class MediaItem extends AbstractPage
                 ++$items;
             } elseif (preg_match('/^Date\((.+?)\)$/u', $v, $m)) {
                 if ($dto_first && (0 != $file->media_meta->DateTimeOriginal)) {
-                    $res[] = Clock::str(format: $m[1], date: (string) $file->media_meta->DateTimeOriginal, to: App::core()->timezone());
+                    $res[] = Clock::str(format: $m[1], date: (string) $file->media_meta->DateTimeOriginal, to: App::core()->getTimezone());
                 } else {
-                    $res[] = Clock::str(format: $m[1], date: $file->media_dt, to: App::core()->timezone());
+                    $res[] = Clock::str(format: $m[1], date: $file->media_dt, to: App::core()->getTimezone());
                 }
                 ++$items;
                 ++$dates;
             } elseif (preg_match('/^DateTimeOriginal\((.+?)\)$/u', $v, $m) && $file->media_meta->DateTimeOriginal) {
-                $res[] = Clock::str(format: $m[1], date: (string) $file->media_meta->DateTimeOriginal, to: App::core()->timezone());
+                $res[] = Clock::str(format: $m[1], date: (string) $file->media_meta->DateTimeOriginal, to: App::core()->getTimezone());
                 ++$items;
                 ++$dates;
             } elseif (preg_match('/^separator\((.*?)\)$/u', $v, $m)) {

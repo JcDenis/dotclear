@@ -77,20 +77,15 @@ abstract class AbstractConnection implements InterfaceConnection
      */
     public static function init(string $driver, string $host, string $database, string $user = '', string $password = '', bool $persistent = false): AbstractConnection
     {
-        $parent = __CLASS__;
-        $class  = '';
-
         // Set full namespace of distributed database driver
-        if (in_array($driver, ['mysqli', 'mysqlimb4', 'pgsql', 'sqlite'])) {
-            $class = __NAMESPACE__ . '\\Driver\\' . ucfirst($driver) . '\\Connection';
-        }
+        $class = in_array($driver, ['mysqli', 'mysqlimb4', 'pgsql', 'sqlite']) ? __NAMESPACE__ . '\\Driver\\' . ucfirst($driver) . '\\Connection' : '';
 
         // You can set \DOTCLEAR_CON_CLASS to whatever you want.
         // Your new class *should* inherits Dotclear\Database\AbstractConnection class.
         $class = defined('DOTCLEAR_CON_CLASS') ? \DOTCLEAR_CON_CLASS : $class;
 
-        if (!class_exists($class) || !is_subclass_of($class, $parent)) {
-            trigger_error(sprintf('Database connection class %s does not exist or does not inherit %s', $class, $parent));
+        if (!class_exists($class) || !is_subclass_of($class, __CLASS__)) {
+            trigger_error(sprintf('Database connection class %s does not exist or does not inherit %s', $class, __CLASS__));
 
             exit(1);
         }

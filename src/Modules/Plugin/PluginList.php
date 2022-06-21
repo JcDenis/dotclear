@@ -139,7 +139,7 @@ class PluginList
 
     public function __construct(private Modules $modules)
     {
-        if (!App::core()->processed('Admin')) {
+        if (!App::core()->isProcess('Admin')) {
             throw new Exception(__('Modules list only available on admin process.'));
         }
 
@@ -263,7 +263,7 @@ class PluginList
     public function isDeletablePath(string $root): bool
     {
         return $this->path_writable
-            && (preg_match('!^' . $this->path_pattern . '!', $root) || !App::core()->production())
+            && (preg_match('!^' . $this->path_pattern . '!', $root) || !App::core()->isProductionMode())
             && App::core()->user()->isSuperAdmin();
     }
     // @}
@@ -589,7 +589,7 @@ class PluginList
             echo '<th class="first nowrap"' . (1 < $colspan ? ' colspan="' . $colspan . '"' : '') . '>' . __('Name') . '</th>';
         }
 
-        if (in_array('score', $cols) && $this->getSearch() !== null && !App::core()->production()) {
+        if (in_array('score', $cols) && $this->getSearch() !== null && !App::core()->isProductionMode()) {
             echo '<th class="nowrap">' . __('Score') . '</th>';
         }
 
@@ -693,7 +693,7 @@ class PluginList
                 '</td>';
 
             // Display score only for debug purpose
-            if (in_array('score', $cols) && $this->getSearch() !== null && !App::core()->production()) {
+            if (in_array('score', $cols) && $this->getSearch() !== null && !App::core()->isProductionMode()) {
                 ++$tds;
                 echo '<td class="module-version nowrap count"><span class="debug">' . $module->score() . '</span></td>';
             }
@@ -801,7 +801,7 @@ class PluginList
                 );
 
                 if ($config || $index || !empty($module->section()) || !empty($module->tags()) || !empty($module->settings())
-                    || !empty($module->repository()) && App::core()->config()->get('store_allow_repo') && !App::core()->production()
+                    || !empty($module->repository()) && App::core()->config()->get('store_allow_repo') && !App::core()->isProductionMode()
                 ) {
                     echo '<div><ul class="mod-more">';
 
@@ -810,7 +810,7 @@ class PluginList
                         echo '<li>' . implode(' - ', $settings) . '</li>';
                     }
 
-                    if (!empty($module->repository()) && App::core()->config()->get('store_allow_repo') && !App::core()->production()) {
+                    if (!empty($module->repository()) && App::core()->config()->get('store_allow_repo') && !App::core()->isProductionMode()) {
                         echo '<li class="modules-repository"><a href="' . $module->repository() . '">' . __('Third-party repository') . '</a></li>';
                     }
 
@@ -882,7 +882,7 @@ class PluginList
                 // Delete
                 case 'delete':
                     if (App::core()->user()->isSuperAdmin() && $this->isDeletablePath($module->root()) && empty($module->depChildren())) {
-                        $dev       = !preg_match('!^' . $this->path_pattern . '!', $module->root()) && !App::core()->production() ? ' debug' : '';
+                        $dev       = !preg_match('!^' . $this->path_pattern . '!', $module->root()) && !App::core()->isProductionMode() ? ' debug' : '';
                         $submits[] = '<input type="submit" class="delete ' . $dev . '" name="delete[' . Html::escapeHTML($id) . ']" value="' . __('Delete') . '" />';
                     }
 
@@ -1349,7 +1349,7 @@ class PluginList
         $module = $this->modules()->getModule($id);
 
         // Check config
-        $class = 'Dotclear\\' . $module->type() . '\\' . $module->id() . '\\' . App::core()->processed() . '\\Config';
+        $class = 'Dotclear\\' . $module->type() . '\\' . $module->id() . '\\' . App::core()->process . '\\Config';
         if (!is_subclass_of($class, 'Dotclear\\Modules\\ModuleConfig')) {
             App::core()->error()->add(__('This module has no configuration file.'));
 

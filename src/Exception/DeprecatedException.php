@@ -35,7 +35,7 @@ class DeprecatedException extends Exception
 
     public static function throw(): void
     {
-        if (!App::core()->production()) {
+        if (!App::core()->isProductionMode()) {
             throw new self();
         }
     }

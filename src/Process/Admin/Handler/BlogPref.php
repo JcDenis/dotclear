@@ -101,7 +101,7 @@ class BlogPref extends AbstractPage
             // Status combo
             $status_combo = App::core()->combo()->getBlogStatusesCombo();
 
-            $cur = App::core()->con()->openCursor(App::core()->prefix() . 'blog');
+            $cur = App::core()->con()->openCursor(App::core()->getPrefix() . 'blog');
             $cur->setField('blog_id', GPC::post()->string('blog_id'));
             $cur->setField('blog_url', preg_replace('/\?+$/', '?', GPC::post()->string('blog_url')));
             $cur->setField('blog_name', GPC::post()->string('blog_name'));

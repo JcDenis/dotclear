@@ -144,7 +144,7 @@ class PagesInventory extends Inventory
             'title' => '<td class="maximal" scope="row"><a href="' .
             Html::escapeHTML(App::core()->posttype()->getPostAdminURL(type: $this->rs->field('post_type'), id: $this->rs->field('post_id'))) . '">' .
             Html::escapeHTML($this->rs->field('post_title')) . '</a></td>',
-            'date'       => '<td class="nowrap">' . Clock::str(format: __('%Y-%m-%d %H:%M'), date: $this->rs->field('post_dt'), to: App::core()->timezone()) . '</td>',
+            'date'       => '<td class="nowrap">' . Clock::str(format: __('%Y-%m-%d %H:%M'), date: $this->rs->field('post_dt'), to: App::core()->getTimezone()) . '</td>',
             'author'     => '<td class="nowrap">' . $this->rs->field('user_id') . '</td>',
             'comments'   => '<td class="nowrap count">' . $this->rs->field('nb_comment') . '</td>',
             'trackbacks' => '<td class="nowrap count">' . $this->rs->field('nb_trackback') . '</td>',

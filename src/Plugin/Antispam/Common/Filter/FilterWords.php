@@ -207,7 +207,7 @@ class FilterWords extends Spamfilter
             'blog_id ASC',
             'rule_content ASC',
         ]);
-        $sql->from(App::core()->prefix() . 'spamrule');
+        $sql->from(App::core()->getPrefix() . 'spamrule');
 
         return $sql->select();
     }
@@ -215,7 +215,7 @@ class FilterWords extends Spamfilter
     private function addRule(string $content, bool $general = false): void
     {
         $sql = new SelectStatement();
-        $sql->from(App::core()->prefix() . 'spamrule');
+        $sql->from(App::core()->getPrefix() . 'spamrule');
         $sql->where('rule_type = ' . $sql->quote('word'));
         $sql->and('rule_content = ' . $sql->quote($content));
 
@@ -239,13 +239,13 @@ class FilterWords extends Spamfilter
                 'blog_id = ' . $sql->quote(App::core()->blog()->id)
             );
             $sql->where('rule_id = ' . $record->integer('rule_id'));
-            $sql->from(App::core()->prefix() . 'spamrule');
+            $sql->from(App::core()->getPrefix() . 'spamrule');
 
             $sql->update();
         } else {
             $sql = new SelectStatement();
             $sql->column($sql->max('rule_id'));
-            $sql->from(App::core()->prefix() . 'spamrule');
+            $sql->from(App::core()->getPrefix() . 'spamrule');
 
             $id = $sql->select()->integer() + 1;
 
@@ -262,7 +262,7 @@ class FilterWords extends Spamfilter
                 $general && App::core()->user()->isSuperAdmin() ? 'NULL' : $sql->quote(App::core()->blog()->id),
                 $id,
             ]]);
-            $sql->from(App::core()->prefix() . 'spamrule');
+            $sql->from(App::core()->getPrefix() . 'spamrule');
 
             $sql->insert();
         }
@@ -285,7 +285,7 @@ class FilterWords extends Spamfilter
             $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
         }
 
-        $sql->from(App::core()->prefix() . 'spamrule');
+        $sql->from(App::core()->getPrefix() . 'spamrule');
 
         $sql->delete();
     }

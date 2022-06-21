@@ -27,12 +27,6 @@ class Configuration
     use ErrorTrait;
 
     /**
-     * @var array<string,bool> $files
-     *                         List of read path
-     */
-    protected static $files = [];
-
-    /**
      * @var array<string,mixed> $stack
      *                          The stack of configuration properties
      */
@@ -126,8 +120,7 @@ class Configuration
     {
         $new = [];
         // Do not require twice the same file (prevent loop)
-        if (!isset(static::$files[$file])) {
-            static::$files[$file] = true;
+        if (!empty($file)) {
             ob_start();
 
             try {

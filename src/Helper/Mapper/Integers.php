@@ -13,6 +13,8 @@ namespace Dotclear\Helper\Mapper;
 
 /**
  * Tiny helper to manage array of integer values.
+ *
+ * @ingroup Helper Stack
  */
 class Integers
 {

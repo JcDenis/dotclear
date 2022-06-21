@@ -42,7 +42,7 @@ class Blogroll
             'link_position',
         ]);
         $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
-        $sql->from(App::core()->prefix() . 'link');
+        $sql->from(App::core()->getPrefix() . 'link');
         $sql->order('link_position');
 
         if (isset($params['link_id'])) {
@@ -67,7 +67,7 @@ class Blogroll
             $sql->count('link_id', 'nb_link'),
             'link_lang as post_lang',
         ]);
-        $sql->from(App::core()->prefix() . 'link');
+        $sql->from(App::core()->getPrefix() . 'link');
         $sql->where('blog_id = ' . $sql->quote(App::core()->blog()->id));
         $sql->and("link_id <> ''");
         $sql->and('link_id IS NOT NULL');
@@ -96,7 +96,7 @@ class Blogroll
         }
 
         $sql = new SelectStatement();
-        $sql->from(App::core()->prefix() . 'link');
+        $sql->from(App::core()->getPrefix() . 'link');
         $sql->column($sql->max('link_id'));
         $id = $sql->select()->integer() + 1;
 
@@ -119,7 +119,7 @@ class Blogroll
             $sql->quote($xfn),
             $id,
         ]]);
-        $sql->from(App::core()->prefix() . 'link');
+        $sql->from(App::core()->getPrefix() . 'link');
         $sql->insert();
 
         App::core()->blog()->triggerBlog();
@@ -145,7 +145,7 @@ class Blogroll
         ]);
         $sql->where('link_id = ' . $id);
         $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
-        $sql->from(App::core()->prefix() . 'link');
+        $sql->from(App::core()->getPrefix() . 'link');
         $sql->update();
 
         App::core()->blog()->triggerBlog();
@@ -161,7 +161,7 @@ class Blogroll
         $sql->set('link_desc = ' . $sql->quote($desc));
         $sql->where('link_id = ' . $id);
         $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
-        $sql->from(App::core()->prefix() . 'link');
+        $sql->from(App::core()->getPrefix() . 'link');
         $sql->update();
 
         App::core()->blog()->triggerBlog();
@@ -174,7 +174,7 @@ class Blogroll
         }
 
         $sql = new SelectStatement();
-        $sql->from(App::core()->prefix() . 'link');
+        $sql->from(App::core()->getPrefix() . 'link');
         $sql->column($sql->max('link_id'));
         $id = $sql->select()->integer() + 1;
 
@@ -193,7 +193,7 @@ class Blogroll
             $sql->quote($title),
             $id,
         ]]);
-        $sql->from(App::core()->prefix() . 'link');
+        $sql->from(App::core()->getPrefix() . 'link');
         $sql->insert();
 
         App::core()->blog()->triggerBlog();
@@ -206,7 +206,7 @@ class Blogroll
         $sql = new DeleteStatement();
         $sql->where('link_id = ' . $id);
         $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
-        $sql->from(App::core()->prefix() . 'link');
+        $sql->from(App::core()->getPrefix() . 'link');
         $sql->delete();
 
         App::core()->blog()->triggerBlog();
@@ -218,7 +218,7 @@ class Blogroll
         $sql->set('link_position = ' . $position);
         $sql->where('link_id = ' . $id);
         $sql->and('blog_id = ' . $sql->quote(App::core()->blog()->id));
-        $sql->from(App::core()->prefix() . 'link');
+        $sql->from(App::core()->getPrefix() . 'link');
         $sql->update();
 
         App::core()->blog()->triggerBlog();

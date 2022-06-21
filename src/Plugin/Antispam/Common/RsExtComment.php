@@ -39,7 +39,7 @@ class RsExtComment extends RsExtend
     {
         $sql = new SelectStatement();
         $sql->column($field);
-        $sql->from(App::core()->prefix() . 'comment');
+        $sql->from(App::core()->getPrefix() . 'comment');
         $sql->where('comment_id = ' . $this->rs->integer('comment_id'));
         $sql->limit(1);
         $record = $sql->select();

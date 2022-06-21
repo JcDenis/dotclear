@@ -114,7 +114,7 @@ final class Notice
      */
     private function queryNoticeTable(NoticeParam $param, SelectStatement $sql): Record
     {
-        $sql->from(App::core()->prefix() . 'notice', false, true);
+        $sql->from(App::core()->getPrefix() . 'notice', false, true);
         $sql->where('ses_id = ' . $sql->quote($param->ses_id((string) session_id())));
 
         if (!empty($param->notice_id())) {
@@ -145,13 +145,13 @@ final class Notice
      */
     public function addNotice(Cursor $cursor): int
     {
-        App::core()->con()->writeLock(App::core()->prefix() . 'notice');
+        App::core()->con()->writeLock(App::core()->getPrefix() . 'notice');
 
         try {
             // Get ID
             $sql = new SelectStatement();
             $sql->column($sql->max('notice_id'));
-            $sql->from(App::core()->prefix() . 'notice');
+            $sql->from(App::core()->getPrefix() . 'notice');
             $id = $sql->select()->integer();
 
             $cursor->setField('notice_id', $id + 1);
@@ -194,7 +194,7 @@ final class Notice
     public function deleteNotices(Integers $ids): void
     {
         $sql = new DeleteStatement();
-        $sql->from(App::core()->prefix() . 'notice');
+        $sql->from(App::core()->getPrefix() . 'notice');
         $sql->where('notice_id' . $sql->in($ids->dump()));
         $sql->delete();
     }
@@ -205,7 +205,7 @@ final class Notice
     public function deleteSessionNotices(): void
     {
         $sql = new DeleteStatement();
-        $sql->from(App::core()->prefix() . 'notice');
+        $sql->from(App::core()->getPrefix() . 'notice');
         $sql->where('ses_id = ' . $sql->quote((string) session_id()));
         $sql->delete();
     }
@@ -325,7 +325,7 @@ final class Notice
      */
     private function addTypedNotice(string $type, string $message, array $options = []): void
     {
-        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'notice');
+        $cur = App::core()->con()->openCursor(App::core()->getPrefix() . 'notice');
 
         $cur->setField('notice_type', $type);
         $cur->setField('notice_ts', isset($options['ts']) && $options['ts'] ? $options['ts'] : Clock::database());
@@ -356,8 +356,8 @@ final class Notice
         if (!isset($notification['with_ts']) || (true == $notification['with_ts'])) {
             $ts = sprintf(
                 '<span class="notice-ts"><time datetime="%s">%s</time></span>',
-                Clock::iso8601(date: $notification['ts'], to: App::core()->timezone()),
-                Clock::str(format: __('%H:%M:%S'), date: $notification['ts'], to: App::core()->timezone()),
+                Clock::iso8601(date: $notification['ts'], to: App::core()->getTimezone()),
+                Clock::str(format: __('%H:%M:%S'), date: $notification['ts'], to: App::core()->getTimezone()),
             );
         }
 
@@ -381,8 +381,8 @@ final class Notice
             if ($timestamp) {
                 $ts = sprintf(
                     '<span class="notice-ts"><time datetime="%s">%s</time></span>',
-                    Clock::iso8601(to: App::core()->timezone()),
-                    Clock::str(format: __('%H:%M:%S'), to: App::core()->timezone()),
+                    Clock::iso8601(to: App::core()->getTimezone()),
+                    Clock::str(format: __('%H:%M:%S'), to: App::core()->getTimezone()),
                 );
             }
             $res = ($div ? '<div class="' . $class . '">' : '') . '<p' . ($div ? '' : ' class="' . $class . '"') . '>' .

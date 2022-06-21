@@ -13,6 +13,8 @@ namespace Dotclear\Helper\Mapper;
 
 /**
  * Tiny helper to manage array of string values.
+ *
+ * @ingroup Helper Stack
  */
 class Strings
 {

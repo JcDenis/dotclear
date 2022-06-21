@@ -37,7 +37,7 @@ class PostMedia
     {
         $join = new JoinStatement();
         $join->type('INNER');
-        $join->from(App::core()->prefix() . 'post_media PM');
+        $join->from(App::core()->getPrefix() . 'post_media PM');
         $join->on('M.media_id = PM.media_id');
 
         $sql = new SelectStatement();
@@ -54,7 +54,7 @@ class PostMedia
             'M.user_id',
             'PM.post_id',
         ]);
-        $sql->from(App::core()->prefix() . 'media M');
+        $sql->from(App::core()->getPrefix() . 'media M');
         $sql->join($join->statement());
 
         if (!empty($params['columns']) && is_array($params['columns'])) {
@@ -104,7 +104,7 @@ class PostMedia
         }
 
         $sql = new InsertStatement();
-        $sql->from(App::core()->prefix() . 'post_media');
+        $sql->from(App::core()->getPrefix() . 'post_media');
         $sql->columns([
             'post_id',
             'media_id',
@@ -130,7 +130,7 @@ class PostMedia
     public function removePostMedia(int $post_id, int $media_id, ?string $link_type = null): void
     {
         $sql = new DeleteStatement();
-        $sql->from(App::core()->prefix() . 'post_media');
+        $sql->from(App::core()->getPrefix() . 'post_media');
         $sql->where('post_id = ' . $post_id);
         $sql->and('media_id = ' . $media_id);
 

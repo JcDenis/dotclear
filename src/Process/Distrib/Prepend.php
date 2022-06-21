@@ -22,9 +22,12 @@ use Exception;
  */
 final class Prepend extends Core
 {
-    protected $process = 'Distrib';
-
-    public function process(string $_ = null): void
+    /**
+     * Start Dotclear Distirb process.
+     *
+     * @param null|string $blog The blog id (not used)
+     */
+    public function startProcess(string $blog = null): void
     {
         if ('cli' != PHP_SAPI) {
             throw new DistribException('Not in CLI mode');
@@ -45,7 +48,11 @@ final class Prepend extends Core
         $_SERVER['DOTCLEAR_CONFIG_PATH'] = $dc_conf;
         unset($dc_conf);
 
-        parent::process();
+        // Check if configuration complete and app can run
+        $this->config()->checkConfiguration();
+
+        // Add top behaviors
+        $this->setTopBehaviors();
 
         echo "Starting upgrade process\n";
         $this->con()->begin();

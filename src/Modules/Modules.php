@@ -112,7 +112,7 @@ class Modules
 
         $this->loadModules();
 
-        if (App::core()->processed('Admin')) {
+        if (App::core()->isProcess('Admin')) {
             $this->register($admin);
         }
     }
@@ -192,7 +192,7 @@ class Modules
      */
     public function getModulesURL(array $param = []): string
     {
-        return App::core()->processed('Admin') ? App::core()->adminurl()->get('admin.' . $this->getType(true), $param) : '';
+        return App::core()->isProcess('Admin') ? App::core()->adminurl()->get('admin.' . $this->getType(true), $param) : '';
     }
 
     /**
@@ -205,7 +205,7 @@ class Modules
      */
     public function getModuleURL(string $id, array $param = []): string
     {
-        return App::core()->processed('Admin') && $this->hasModule($id) ? App::core()->adminurl()->get('admin.' . $this->getType(true) . '.' . $id, $param) : '';
+        return App::core()->isProcess('Admin') && $this->hasModule($id) ? App::core()->adminurl()->get('admin.' . $this->getType(true) . '.' . $id, $param) : '';
     }
 
     /**
@@ -220,7 +220,7 @@ class Modules
     public function getSettingsUrls(string $id, bool $check = false, bool $self = true): array
     {
         // Check if module exists
-        if (!App::core()->processed('Admin') || !$this->hasModule($id)) {
+        if (!App::core()->isProcess('Admin') || !$this->hasModule($id)) {
             return [];
         }
 
@@ -327,7 +327,7 @@ class Modules
                 }
 
                 // Module will be disabled
-                $enabled = !file_exists($dir . '/_disabled') && !App::core()->rescue();
+                $enabled = !file_exists($dir . '/_disabled') && !App::core()->isRescueMode();
                 if (!$enabled) {
                     $this->current_disabled = true;
                 }
@@ -438,7 +438,7 @@ class Modules
         }
 
         // Check module permissions
-        if (App::core()->processed('Admin')
+        if (App::core()->isProcess('Admin')
             && (
                 '' == $define->permission() && !App::core()->user()->isSuperAdmin()
                 || $define->permission() && !App::core()->user()->check($define->permission(), App::core()->blog()->id)
@@ -539,7 +539,7 @@ class Modules
     public function loadModule(ModuleDefine $define): void
     {
         // Search module Prepend in Dotclear\Plugin\MyPlugin\Admin\Prepend who should extend Dotclear\Modules\ModulePrepend
-        $class       = 'Dotclear\\' . $this->getType() . '\\' . $define->id() . '\\' . App::core()->processed() . '\Prepend';
+        $class       = 'Dotclear\\' . $this->getType() . '\\' . $define->id() . '\\' . App::core()->process . '\Prepend';
         $has_prepend = is_subclass_of($class, 'Dotclear\\Modules\\ModulePrepend');
 
         // Check module and stop if method not returns True statement
@@ -552,10 +552,10 @@ class Modules
 
         // Load module main l10n
         $this->loadModuleL10N($define->id(), L10n::lang(), 'main');
-        $this->loadModuleL10N($define->id(), L10n::lang(), strtolower(App::core()->processed()));
+        $this->loadModuleL10N($define->id(), L10n::lang(), strtolower(App::core()->process));
 
         // If module has an Admin Page, create an admin url
-        if (App::core()->processed('Admin')) {
+        if (App::core()->isProcess('Admin')) {
             $class = 'Dotclear\\' . $this->getType() . '\\' . $define->id() . '\\Admin\\' . 'Handler';
             if (is_subclass_of($class, 'Dotclear\\Process\\Admin\\Page\\AbstractPage')) {
                 App::core()->adminurl()->addItem(new AdminUrlItem(
@@ -776,7 +776,7 @@ class Modules
             if ($define && false === $define->error()->flag()) {
                 $cur_module = $this->getModule($define->id());
                 if ('' != $cur_module->root()
-                    && (!App::core()->production() || App::core()->version()->compareVersions(current: $define->version(), required: $cur_module->version(), operator: '>'))
+                    && (!App::core()->isProductionMode() || App::core()->version()->compareVersions(current: $define->version(), required: $cur_module->version(), operator: '>'))
                 ) {
                     // Delete old module
                     if (!Files::deltree($destination)) {

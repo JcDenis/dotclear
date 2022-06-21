@@ -193,7 +193,7 @@ class HandlerEdit extends AbstractPage
 
             if (!GPC::post()->empty('post_dt')) {
                 try {
-                    $this->post_dt = Clock::ts(date: GPC::post()->string('post_dt'), from: App::core()->timezone());
+                    $this->post_dt = Clock::ts(date: GPC::post()->string('post_dt'), from: App::core()->getTimezone());
                 } catch (Exception $e) {
                     $this->bad_dt  = true;
                     $this->post_dt = Clock::format('Y-m-d H:i');
@@ -237,7 +237,7 @@ class HandlerEdit extends AbstractPage
 
         // Create or update page
         if (!GPC::post()->empty('save') && $this->can_edit_page && !$this->bad_dt) {
-            $cur = App::core()->con()->openCursor(App::core()->prefix() . 'post');
+            $cur = App::core()->con()->openCursor(App::core()->getPrefix() . 'post');
 
             // Magic tweak :)
             App::core()->blog()->settings()->getGroup('system')->setSetting('post_url_format', '{t}');
@@ -460,7 +460,7 @@ class HandlerEdit extends AbstractPage
                         '</p>',
                         'post_dt' => '<p><label for="post_dt">' . __('Publication date and hour') . '</label>' .
                         Form::datetime('post_dt', [
-                            'default' => Clock::formfield(date: $this->post_dt, to: App::core()->timezone()),
+                            'default' => Clock::formfield(date: $this->post_dt, to: App::core()->getTimezone()),
                             'class'   => ($this->bad_dt ? 'invalid' : ''),
                         ]) .
                         '</p>',
@@ -827,7 +827,7 @@ class HandlerEdit extends AbstractPage
                 ]
             ) : '') . '</td>' .
             '<td class="maximal">' . Html::escapeHTML($rs->field('comment_author')) . '</td>' .
-            '<td class="nowrap">' . Clock::str(format: __('%Y-%m-%d %H:%M'), date: $rs->field('comment_dt'), to: App::core()->timezone()) . '</td>' .
+            '<td class="nowrap">' . Clock::str(format: __('%Y-%m-%d %H:%M'), date: $rs->field('comment_dt'), to: App::core()->getTimezone()) . '</td>' .
             ($this->can_view_ip ?
                 '<td class="nowrap"><a href="' . App::core()->adminurl()->get('admin.comments', ['ip' => $rs->field('comment_ip')]) . '">' . $rs->field('comment_ip') . '</a></td>' : '') .
             '<td class="nowrap status">' . $img_status . '</td>' .

@@ -106,7 +106,7 @@ final class Log
      */
     private function queryLogTable(LogParam $param, SelectStatement $sql): Record
     {
-        $sql->from(App::core()->prefix() . 'log L', false, true);
+        $sql->from(App::core()->getPrefix() . 'log L', false, true);
 
         if (null !== $param->blog_id()) {
             if ('*' != $param->blog_id()) {
@@ -150,13 +150,13 @@ final class Log
      */
     public function createLog(Cursor $cursor): int
     {
-        App::core()->con()->writeLock(App::core()->prefix() . 'log');
+        App::core()->con()->writeLock(App::core()->getPrefix() . 'log');
 
         try {
             // Get ID
             $sql = new SelectStatement();
             $sql->column($sql->max('log_id'));
-            $sql->from(App::core()->prefix() . 'log');
+            $sql->from(App::core()->getPrefix() . 'log');
             $id = $sql->select()->integer();
 
             $cursor->setField('log_id', $id + 1);
@@ -224,7 +224,7 @@ final class Log
 
         $sql = new DeleteStatement();
         $sql->where('log_id' . $sql->in($ids->dump()));
-        $sql->from(App::core()->prefix() . 'log');
+        $sql->from(App::core()->getPrefix() . 'log');
         $sql->run();
     }
 
@@ -237,7 +237,7 @@ final class Log
         App::core()->behavior('coreBeforeEmptyLogTable')->call();
 
         $sql = new TruncateStatement();
-        $sql->from(App::core()->prefix() . 'log');
+        $sql->from(App::core()->getPrefix() . 'log');
         $sql->run();
     }
 }

@@ -172,7 +172,7 @@ class Resource
 
         $url = Html::escapeHTML($url);
 
-        $url .= '&amp;v=' . ($version ?? (!App::core()->production() ? md5(uniqid()) : App::core()->config()->get('core_version')));
+        $url .= '&amp;v=' . ($version ?? (!App::core()->isProductionMode() ? md5(uniqid()) : App::core()->config()->get('core_version')));
 
         if ($preload) {
             return '<link rel="preload" href="' . $url . '" as="' . ($option ?: 'style') . '" />' . "\n";
@@ -343,7 +343,7 @@ class Resource
         $this->load('prepend.js') .
         $this->load('jquery/jquery.js') .
         (
-            !App::core()->production() ?
+            !App::core()->isProductionMode() ?
             $this->json('dotclear_jquery', [
                 'mute' => false === App::core()->blog()?->settings()->getGroup('system')->getSetting('jquery_migrate_mute'),
             ]) .

@@ -390,7 +390,7 @@ class RestMethods
     {
         // Create category
         if (!empty($post['new_cat_title']) && App::core()->user()->check('categories', App::core()->blog()->id)) {
-            $cursor = App::core()->con()->openCursor(App::core()->prefix() . 'category');
+            $cursor = App::core()->con()->openCursor(App::core()->getPrefix() . 'category');
             $cursor->setField('cat_title', $post['new_cat_title']);
             $cursor->setField('cat_url', '');
 
@@ -401,7 +401,7 @@ class RestMethods
             unset($cursor);
         }
 
-        $cursor = App::core()->con()->openCursor(App::core()->prefix() . 'post');
+        $cursor = App::core()->con()->openCursor(App::core()->getPrefix() . 'post');
 
         $cursor->setField('post_title', !empty($post['post_title']) ? $post['post_title'] : '');
         $cursor->setField('user_id', App::core()->user()->userID());

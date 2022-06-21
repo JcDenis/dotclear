@@ -105,7 +105,7 @@ class User
         // Check user and password
         $sql = new SelectStatement();
         $sql->columns(array_keys($this->user->getCurrentProperties()));
-        $sql->from(App::core()->prefix() . $this->user_table);
+        $sql->from(App::core()->getPrefix() . $this->user_table);
         $sql->where('user_id = ' . $sql->quote($user_id));
 
         try {
@@ -159,7 +159,7 @@ class User
                 // Store new hash in DB
                 $sql = new UpdateStatement();
                 $sql->set('user_pwd = ' . $sql->quote($user_pwd));
-                $sql->from(App::core()->prefix() . $this->user_table);
+                $sql->from(App::core()->getPrefix() . $this->user_table);
                 $sql->where('user_id = ' . $sql->quote($record->field('user_id')));
                 $sql->update();
             }
@@ -373,7 +373,7 @@ class User
         if ($this->user->getProperty('user_super')) {
             $sql = new SelectStatement();
             $sql->column('blog_id');
-            $sql->from(App::core()->prefix() . $this->blog_table);
+            $sql->from(App::core()->getPrefix() . $this->blog_table);
             $sql->where('blog_id = ' . $sql->quote($blog_id));
 
             $record = $sql->select();
@@ -383,7 +383,7 @@ class User
         } else {
             $sql = new SelectStatement();
             $sql->column('permissions');
-            $sql->from(App::core()->prefix() . $this->perm_table);
+            $sql->from(App::core()->getPrefix() . $this->perm_table);
             $sql->where('user_id = ' . $sql->quote($this->user->getProperty('user_id')));
             $sql->and('blog_id = ' . $sql->quote($blog_id));
             $sql->and($sql->orGroup([
@@ -430,14 +430,14 @@ class User
 
         if ($this->user->getProperty('user_super')) {
             $sql->column('blog_id');
-            $sql->from(App::core()->prefix() . $this->blog_table);
+            $sql->from(App::core()->getPrefix() . $this->blog_table);
             $sql->order('blog_id ASC');
             $sql->limit(1);
         } else {
             $sql->column('P.blog_id');
             $sql->from([
-                App::core()->prefix() . $this->perm_table . ' P',
-                App::core()->prefix() . $this->blog_table . ' B',
+                App::core()->getPrefix() . $this->perm_table . ' P',
+                App::core()->getPrefix() . $this->blog_table . ' B',
             ]);
             $sql->where('user_id = ' . $sql->quote($this->user->getProperty('user_id')));
             $sql->and('P.blog_id = B.blog_id');
@@ -520,7 +520,7 @@ class User
     {
         $sql = new SelectStatement();
         $sql->column('user_id');
-        $sql->from(App::core()->prefix() . $this->user_table);
+        $sql->from(App::core()->getPrefix() . $this->user_table);
         $sql->where('user_id = ' . $sql->quote($user_id));
         $sql->and('user_email = ' . $sql->quote($user_email));
         $record = $sql->select();
@@ -533,7 +533,7 @@ class User
 
         $sql = new UpdateStatement();
         $sql->set('user_recover_key = ' . $sql->quote($key));
-        $sql->from(App::core()->prefix() . $this->user_table);
+        $sql->from(App::core()->getPrefix() . $this->user_table);
         $sql->where('user_id = ' . $sql->quote($user_id));
         $sql->update();
 
@@ -554,7 +554,7 @@ class User
     {
         $sql = new SelectStatement();
         $sql->columns(['user_id', 'user_email']);
-        $sql->from(App::core()->prefix() . $this->user_table);
+        $sql->from(App::core()->getPrefix() . $this->user_table);
         $sql->where('user_recover_key = ' . $sql->quote($recover_key));
         $record = $sql->select();
 
@@ -568,7 +568,7 @@ class User
         $sql->set('user_pwd = ' . $sql->quote($this->crypt($new_pass)));
         $sql->set('user_recover_key = NULL');
         $sql->set('user_change_pwd = 1'); // User will have to change this temporary password at next login
-        $sql->from(App::core()->prefix() . $this->user_table);
+        $sql->from(App::core()->getPrefix() . $this->user_table);
         $sql->where('user_recover_key = ' . $sql->quote($recover_key));
         $sql->update();
 

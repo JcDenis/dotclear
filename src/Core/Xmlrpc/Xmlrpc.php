@@ -520,7 +520,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             throw new CoreException('Cannot create an empty entry');
         }
 
-        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'post');
+        $cur = App::core()->con()->openCursor(App::core()->getPrefix() . 'post');
 
         $cur->setField('user_id', App::core()->user()->userID());
         $cur->setField('post_lang', App::core()->user()->getInfo('user_lang'));
@@ -619,7 +619,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             throw new CoreException('Cannot create an empty entry');
         }
 
-        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'post');
+        $cur = App::core()->con()->openCursor(App::core()->getPrefix() . 'post');
 
         $cur->setField('post_type', $post_type);
         $cur->setField('post_title', trim($title));
@@ -1006,7 +1006,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
     {
         $timezone = 0;
         if (App::core()->blog()->settings()->getGroup('system')->getSetting('blog_timezone')) {
-            $timezone = Clock::getTimeOffset(to: App::core()->timezone()) / 3600;
+            $timezone = Clock::getTimeOffset(to: App::core()->getTimezone()) / 3600;
         }
 
         $res = [
@@ -1148,7 +1148,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
                 'wp_page_order'          => $posts->field('post_position'),
                 'wp_author_id'           => $posts->field('user_id'),
                 'wp_author_display_name' => $posts->getAuthorCN(),
-                'date_created_gmt'       => new xmlrpcDate(Clock::iso8601(date: $posts->getTS(), from: App::core()->timezone(), to: 'UTC')),
+                'date_created_gmt'       => new xmlrpcDate(Clock::iso8601(date: $posts->getTS(), from: App::core()->getTimezone(), to: 'UTC')),
                 'custom_fields'          => [],
                 'wp_page_template'       => 'default',
             ];
@@ -1253,7 +1253,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             throw new CoreException('You mus give a category name.');
         }
 
-        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'category');
+        $cur = App::core()->con()->openCursor(App::core()->getPrefix() . 'category');
         $cur->setField('cat_title', $struct['name']);
 
         if (!empty($struct['slug'])) {
@@ -1305,7 +1305,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $this->setBlog();
 
         $strReq = 'SELECT cat_id, cat_title, cat_url ' .
-        'FROM ' . App::core()->prefix() . 'category ' .
+        'FROM ' . App::core()->getPrefix() . 'category ' .
         "WHERE blog_id = '" . App::core()->con()->escape(App::core()->blog()->id) . "' " .
         "AND LOWER(cat_title) LIKE LOWER('%" . App::core()->con()->escape($category) . "%') " .
             (0 < $limit ? App::core()->con()->limit($limit) : '');
@@ -1419,7 +1419,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             throw new CoreException('Sorry, no such post.', 404);
         }
 
-        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'comment');
+        $cur = App::core()->con()->openCursor(App::core()->getPrefix() . 'comment');
 
         $cur->setField('comment_author', App::core()->user()->userCN());
         $cur->setField('comment_email', App::core()->user()->getInfo('user_email'));
@@ -1436,7 +1436,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
         $this->setUser($user, $pwd);
         $this->setBlog();
 
-        $cur = App::core()->con()->openCursor(App::core()->prefix() . 'comment');
+        $cur = App::core()->con()->openCursor(App::core()->getPrefix() . 'comment');
 
         if (isset($struct['status'])) {
             $cur->setField('comment_status', $this->translateWpCommentstatus($struct['status']));
@@ -1709,7 +1709,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
 
         $done         = [];
         $blog_changes = false;
-        $cur          = App::core()->con()->openCursor(App::core()->prefix() . 'blog');
+        $cur          = App::core()->con()->openCursor(App::core()->getPrefix() . 'blog');
 
         foreach ($options as $name => $value) {
             if (!isset($opt[$name]) || $opt[$name]['readonly']) {

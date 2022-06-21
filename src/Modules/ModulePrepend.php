@@ -82,7 +82,7 @@ class ModulePrepend
      */
     public function addTemplatePath(): void
     {
-        if (!App::core()->processed('Public') || !is_dir($this->define()->root() . '/templates/')) {
+        if (!App::core()->isProcess('Public') || !is_dir($this->define()->root() . '/templates/')) {
             return;
         }
 
@@ -126,7 +126,7 @@ class ModulePrepend
      */
     protected function addStandardMenu(?string $menu = null, ?string $permissions = ''): void
     {
-        if (!App::core()->processed('Admin') || !App::core()->adminurl()->hasItem('admin.' . $this->define()->type(true) . '.' . $this->define()->id())) {
+        if (!App::core()->isProcess('Admin') || !App::core()->adminurl()->hasItem('admin.' . $this->define()->type(true) . '.' . $this->define()->id())) {
             return;
         }
 
@@ -157,7 +157,7 @@ class ModulePrepend
      */
     protected function addStandardFavorites(?string $permissions = null): void
     {
-        if (!App::core()->processed('Admin') || !App::core()->adminurl()->hasItem('admin.' . $this->define()->type(true) . '.' . $this->define()->id())) {
+        if (!App::core()->isProcess('Admin') || !App::core()->adminurl()->hasItem('admin.' . $this->define()->type(true) . '.' . $this->define()->id())) {
             return;
         }
 

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Dotclear\Core\PostType;
 
 // Dotclear\Core\PostType\PostType
+use Dotclear\App;
 
 /**
  * Post type handling.
@@ -23,6 +24,21 @@ final class PostType
      *                                 Posts types descriptors
      */
     private $post_types = [];
+
+    /**
+     * Constructor.
+     *
+     * Set default posttype (psot)
+     */
+    public function __construct()
+    {
+        $this->addItem(new PostTypeItem(
+            type: 'post',
+            admin: '?handler=admin.post&id=%d',
+            public: App::core()->url()->getURLFor('post', '%s'),
+            label: __('Posts')
+        ));
+    }
 
     /**
      * Set the post type.

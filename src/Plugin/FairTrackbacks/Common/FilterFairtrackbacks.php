@@ -31,8 +31,8 @@ class FilterFairtrackbacks extends Spamfilter
 
     public static function initFairTrackbacks()
     {
-        if (App::core()->processed('Admin') && (!defined('DC_FAIRTRACKBACKS_FORCE') || !DC_FAIRTRACKBACKS_FORCE)
-            || App::core()->processed('Public') && defined('DC_FAIRTRACKBACKS_FORCE') && DC_FAIRTRACKBACKS_FORCE
+        if (App::core()->isProcess('Admin') && (!defined('DC_FAIRTRACKBACKS_FORCE') || !DC_FAIRTRACKBACKS_FORCE)
+            || App::core()->isProcess('Public') && defined('DC_FAIRTRACKBACKS_FORCE') && DC_FAIRTRACKBACKS_FORCE
         ) {
             App::core()->behavior('antispamInitFilters')->add(function (Strings $spamfilters): void {
                 $spamfilters->add(__CLASS__);

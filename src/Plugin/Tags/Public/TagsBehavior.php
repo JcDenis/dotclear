@@ -31,7 +31,7 @@ class TagsBehavior
             return
             "<?php\n" .
             'if (!isset($param)) { $param = new Param(); }' . "\n" .
-            "\$param->push('from', App::core()->prefix().'meta META');\n" .
+            "\$param->push('from', App::core()->getPrefix().'meta META');\n" .
             "\$param->push('sql', 'AND META.post_id = P.post_id ');\n" .
             "\$param->push('sql', \"AND META.meta_type = 'tag' \");\n" .
             "\$param->push('sql' \"AND META.meta_id = '" . App::core()->con()->escape($attr->get('tag')) . "' \");\n" .
@@ -41,7 +41,7 @@ class TagsBehavior
             return
                 '<?php if (App::core()->context()->exists("meta") && App::core()->context()->get("meta")->rows() && App::core()->context()->get("meta")->field("meta_type") == "tag") { ' .
                 'if (!isset($param)) { $param = new Param(); }' . "\n" .
-                "\$param->push('from', App::core()->prefix().'meta META');\n" .
+                "\$param->push('from', App::core()->getPrefix().'meta META');\n" .
                 "\$param->push('sql', 'AND META.post_id = P.post_id ');\n" .
                 "\$param->push('sql', \"AND META.meta_type = 'tag' \");\n" .
                 "\$param->push('sql', \"AND META.meta_id = '\".App::core()->con()->escape(App::core()->context()->get('meta')->field('meta_id')).\"' \");\n" .

@@ -194,7 +194,7 @@ class CommentInventory extends Inventory
             ($this->rs->integer('comment_trackback') ? __('trackback') : __('comment')) . ' ' . '</a></td>',
             'author' => '<td class="nowrap maximal"><a href="' . $author_url . '">' .
             Html::escapeHTML($this->rs->field('comment_author')) . '</a></td>',
-            'date'   => '<td class="nowrap count">' . Clock::str(format: __('%Y-%m-%d %H:%M'), date: $this->rs->field('comment_dt'), to: App::core()->timezone()) . '</td>',
+            'date'   => '<td class="nowrap count">' . Clock::str(format: __('%Y-%m-%d %H:%M'), date: $this->rs->field('comment_dt'), to: App::core()->getTimezone()) . '</td>',
             'status' => '<td class="nowrap status txt-center">' . $img_status . '</td>',
         ];
 

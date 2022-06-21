@@ -242,7 +242,7 @@ class Handler extends AbstractPage
                                     Clock::str(
                                         format: App::core()->blog()->settings()->getGroup('system')->getSetting('date_format') . ' ' . App::core()->blog()->settings()->getGroup('system')->getSetting('time_format'),
                                         date: $ts,
-                                        to: App::core()->timezone()
+                                        to: App::core()->getTimezone()
                                     )
                                 ) . ' ' .
                                 __('You should execute it now.') . '</span>';

@@ -65,12 +65,6 @@ final class Prepend extends Core
     private $themes;
 
     /**
-     * @var string $process
-     *             Current Process
-     */
-    protected $process = 'Public';
-
-    /**
      * Get admin default datetime display timezone.
      *
      * This is the user timezone.
@@ -118,7 +112,7 @@ final class Prepend extends Core
                 $this->template = new Template($this->config()->get('cache_dir'), 'App::core()->template()');
             } catch (Exception $e) {
                 throw new InvalidConfiguration(
-                    false === $this->production() ? $e->getMessage() : __('Unable to create template'),
+                    false === $this->isProductionMode() ? $e->getMessage() : __('Unable to create template'),
                     500,
                     $e
                 );
@@ -159,12 +153,15 @@ final class Prepend extends Core
     /**
      * Start Dotclear Public process.
      *
-     * @param string $blog_id The blog ID
+     * @param null|string $blog The blog ID (not used)
      */
-    public function process(string $blog_id = null): void
+    public function startProcess(string $blog = null): void
     {
-        // Load Core Prepend
-        parent::process();
+        // Check if configuration complete and app can run
+        $this->config()->checkConfiguration();
+
+        // Add top behaviors
+        $this->setTopBehaviors();
 
         // Add Record extensions
         $this->behavior('coreAfterGetPosts')->add(function (Record $record): void {
@@ -175,7 +172,7 @@ final class Prepend extends Core
         });
 
         // Load blog
-        $this->setBlog($blog_id ?: '');
+        $this->setBlog($blog ?: '');
 
         if (null == $this->blog()->id) {
             throw new InvalidConfiguration(__('Did you change your Blog ID?'));
@@ -212,7 +209,7 @@ final class Prepend extends Core
             $this->themes();
         } catch (Exception $e) {
             throw new InvalidConfiguration(
-                false == $this->production() ? $e->getMessage() : __('Something went wrong while loading modules.'),
+                false == $this->isProductionMode() ? $e->getMessage() : __('Something went wrong while loading modules.'),
                 500,
                 $e
             );
@@ -224,7 +221,7 @@ final class Prepend extends Core
         // If theme doesn't exist, stop everything
         if (!count($path)) {
             throw new InvalidConfiguration(
-                false == $this->production() ?
+                false == $this->isProductionMode() ?
                     __('This either means you removed your default theme or set a wrong theme ' .
                         'path in your blog configuration. Please check theme_path value in ' .
                         'about:config module or reinstall default theme. (Berlin)') :
@@ -261,14 +258,14 @@ final class Prepend extends Core
 
         // Prepare the HTTP cache thing
         $this->url()->addModFiles(new Strings(get_included_files()));
-        $this->url()->addModTimestamps(new Integers([Clock::ts(date: $this->blog()->upddt, from: $this->timezone(), to: 'UTC')]));
+        $this->url()->addModTimestamps(new Integers([Clock::ts(date: $this->blog()->upddt, from: $this->getTimezone(), to: 'UTC')]));
         $this->url()->setMode((string) $this->blog()->settings()->getGroup('system')->getSetting('url_scan'));
 
         try {
             $this->url()->getDocument();
         } catch (Exception $e) {
             throw new InvalidConfiguration(
-                false == $this->production() ?
+                false == $this->isProductionMode() ?
                     sprintf(__('The following error was encountered while trying to load template file: %s'), $e->getMessage()) :
                     __('Something went wrong while loading template file for your blog.'),
                 500,

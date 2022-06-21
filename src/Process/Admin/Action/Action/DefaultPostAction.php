@@ -171,7 +171,7 @@ abstract class DefaultPostAction extends Action
             // First create new category if required
             if (!empty($id) && App::core()->user()->check('categories', App::core()->blog()->id)) {
                 // todo: check for duplicate category and throw clean Exception
-                $cursor = App::core()->con()->openCursor(App::core()->prefix() . 'category');
+                $cursor = App::core()->con()->openCursor(App::core()->getPrefix() . 'category');
                 $cursor->setField('cat_title', $from->string('new_cat_title'));
                 $cursor->setField('cat_url', '');
 

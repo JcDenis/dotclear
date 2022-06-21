@@ -88,7 +88,7 @@ final class Users
 
         $join = new JoinStatement();
         $join->type('LEFT');
-        $join->from(App::core()->prefix() . 'post P');
+        $join->from(App::core()->getPrefix() . 'post P');
         $join->on('U.user_id = P.user_id');
         $query->join($join->statement());
 
@@ -165,7 +165,7 @@ final class Users
      */
     private function queryUsersTable(UsersParam $param, SelectStatement $sql): Record
     {
-        $sql->from(App::core()->prefix() . 'user U', false, true);
+        $sql->from(App::core()->getPrefix() . 'user U', false, true);
 
         if (!empty($param->join())) {
             $sql->join($param->join());
@@ -290,7 +290,7 @@ final class Users
         $sql = new SelectStatement();
         $sql->distinct();
         $sql->where('user_id = ' . $sql->quote($id));
-        $sql->from(App::core()->prefix() . 'post');
+        $sql->from(App::core()->getPrefix() . 'post');
 
         $record = $sql->select();
         while ($record->fetch()) {
@@ -330,7 +330,7 @@ final class Users
             App::core()->behavior('coreBeforeDeleteUsers')->call(ids: $ids);
 
             $sql = new DeleteStatement();
-            $sql->from(App::core()->prefix() . 'user');
+            $sql->from(App::core()->getPrefix() . 'user');
             $sql->where('user_id' . $sql->in($ids->dump()));
             $sql->delete();
 
@@ -352,7 +352,7 @@ final class Users
         $sql = new SelectStatement();
         $sql->column('user_id');
         $sql->where('user_id = ' . $sql->quote($id));
-        $sql->from(App::core()->prefix() . 'user');
+        $sql->from(App::core()->getPrefix() . 'user');
 
         $record = $sql->select();
 
@@ -371,7 +371,7 @@ final class Users
     {
         $sql = new UpdateStatement();
         $sql->set('user_default_blog = ' . $sql->quote($blog));
-        $sql->from(App::core()->prefix() . 'user');
+        $sql->from(App::core()->getPrefix() . 'user');
         $sql->where('user_id = ' . $sql->quote($id));
         $sql->update();
     }

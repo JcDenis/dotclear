@@ -106,12 +106,6 @@ final class Prepend extends Core
     private $themes;
 
     /**
-     * @var string $process
-     *             Current Process
-     */
-    protected $process = 'Admin';
-
-    /**
      * Get adminurl instance.
      *
      * @return AdminUrl AdminUrl instance
@@ -282,11 +276,16 @@ final class Prepend extends Core
 
     /**
      * Start Dotclear Admin process.
+     *
+     * @param null|string $blog The blog ID (not used)
      */
-    public function process(string $_ = null): void
+    public function startProcess(string $blog = null): void
     {
-        // Load core prepend and so on
-        parent::process();
+        // Check if configuration complete and app can run
+        $this->config()->checkConfiguration();
+
+        // Add top behaviors
+        $this->setTopBehaviors();
 
         // Set header without cache for admin pages
         header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
@@ -410,7 +409,7 @@ final class Prepend extends Core
                 $this->plugins();
                 $this->themes();
             } catch (Exception $e) {
-                // throw new Exception($this->production() ? __('Unable to load modules.') : $e->getMessage(), 640, $e);
+                // throw new Exception($this->isProductionMode() ? __('Unable to load modules.') : $e->getMessage(), 640, $e);
             }
 
             // Stop if no themes path found
@@ -519,7 +518,7 @@ final class Prepend extends Core
             ob_end_clean();
 
             throw new Exception(
-                $this->production() ? __('Failed to load page') : sprintf(__('Failed to load page: %s '), $e->getMessage()),
+                $this->isProductionMode() ? __('Failed to load page') : sprintf(__('Failed to load page: %s '), $e->getMessage()),
                 601,
                 $e
             );
