@@ -31,7 +31,6 @@ use Dotclear\Database\AbstractConnection;
 use Dotclear\Exception\InvalidConfiguration;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
-use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Mapper\Callables;
 use Dotclear\Helper\Clock;

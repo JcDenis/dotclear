@@ -16,7 +16,7 @@ use Exception;
  * Application.
  *
  * Run process from this class.
- * 
+ *
  * @ingroup Process Core
  */
 final class App
@@ -26,8 +26,8 @@ final class App
 
     /**
      * Use composer autoload.
-     * 
-     * If you need to use composer autoloader, 
+     *
+     * If you need to use composer autoloader,
      * call this method to instanciate it.
      * If Dotclear runs as composer package, you don't need this.
      */

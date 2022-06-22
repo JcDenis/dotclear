@@ -25,6 +25,14 @@ use Dotclear\Helper\Network\Http;
  */
 class Configuration extends ConfigurationHelper
 {
+    /**
+     * Constructor.
+     *
+     * Try to read and parse dotclear configuration,
+     * according to default configuration.
+     *
+     * @path string $path The path to configuration file
+     */
     public function __construct(string $path = null)
     {
         if (is_null($path)) {
@@ -60,7 +68,12 @@ class Configuration extends ConfigurationHelper
         Http::$reverse_proxy       = $this->get('reverse_proxy');
     }
 
-    public function checkConfiguration()
+    /**
+     * Do advanced check for core configuration.
+     *
+     * @throws InvalidConfiguration
+     */
+    public function checkConfiguration(): void
     {
         // Check master key
         if (32 > strlen($this->get('master_key'))) {
