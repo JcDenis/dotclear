@@ -598,10 +598,6 @@ abstract class Core
         // Disallow every special wrapper
         Http::unregisterWrapper();
 
-        // Add custom regs
-        Html::$absolute_regs[] = '/(<param\s+name="movie"\s+value=")(.*?)(")/msu';
-        Html::$absolute_regs[] = '/(<param\s+name="FlashVars"\s+value=".*?(?:mp3|flv)=)(.*?)(&|")/msu';
-
         // Start l10n
         L10n::init();
 

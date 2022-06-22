@@ -32,7 +32,10 @@ class Html
      * @var array<int,string> $absolute_regs
      *                        Array of regular expression for {@link absoluteURLs()}
      */
-    public static $absolute_regs = [];
+    public static $absolute_regs = [
+        '/(<param\s+name="movie"\s+value=")(.*?)(")/msu',
+        '/(<param\s+name="FlashVars"\s+value=".*?(?:mp3|flv)=)(.*?)(&|")/msu',
+    ];
 
     /**
      * HTML escape.
