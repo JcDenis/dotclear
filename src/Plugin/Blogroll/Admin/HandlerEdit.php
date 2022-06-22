@@ -53,7 +53,10 @@ class HandlerEdit extends AbstractPage
         $rs = null;
 
         try {
-            $rs              = $this->br_blogroll->getLink($this->br_id);
+            $param = new Param();
+            $param->set('link_id', $this->br_id);
+
+            $rs              = $this->br_blogroll->getLinks(param: $param);
             $this->br_has_rs = !$rs->isEmpty();
             $this->br_is_cat = (bool) $rs->integer('is_cat');
         } catch (Exception $e) {

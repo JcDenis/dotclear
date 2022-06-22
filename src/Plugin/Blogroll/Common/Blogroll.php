@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Blogroll\Common;
 
 // Dotclear\Plugin\Blogroll\Common\Blogroll
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Core\Blog\Posts\LangsParam;
 use Dotclear\Database\Param;
@@ -29,7 +28,7 @@ use Dotclear\Exception\ModuleException;
  */
 class Blogroll
 {
-    public function getLinks(array|ArrayObject $params = []): Record
+    public function getLinks(Param $param = null): Record
     {
         $sql = new SelectStatement();
         $sql->columns([
@@ -45,8 +44,8 @@ class Blogroll
         $sql->from(App::core()->getPrefix() . 'link');
         $sql->order('link_position');
 
-        if (isset($params['link_id'])) {
-            $sql->and('link_id = ' . (int) $params['link_id']);
+        if (null !== $param?->get('link_id')) {
+            $sql->and('link_id = ' . (int) $param->get('link_id'));
         }
 
         $record = $sql->select();
@@ -78,11 +77,6 @@ class Blogroll
         }
 
         return $sql->select();
-    }
-
-    public function getLink(int $id): Record
-    {
-        return $this->getLinks(['link_id' => $id]);
     }
 
     public function addLink(string $title, string $href, string $desc = '', string $lang = '', string $xfn = ''): void
