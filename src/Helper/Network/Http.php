@@ -415,43 +415,6 @@ class Http
         }
     }
 
-    /**
-     * Trim request.
-     *
-     * Trims every value in GET, POST, REQUEST and COOKIE vars.
-     * Removes magic quotes if magic_quote_gpc is on.
-     */
-    public static function trimRequest(): void
-    {
-        if (!empty($_GET)) {
-            array_walk($_GET, fn (&$value, $key) => self::trimRequestInVar($value, $key));
-        }
-        if (!empty($_POST)) {
-            array_walk($_POST, fn (&$value, $key) => self::trimRequestInVar($value, $key));
-        }
-        if (!empty($_REQUEST)) {
-            array_walk($_REQUEST, fn (&$value, $key) => self::trimRequestInVar($value, $key));
-        }
-        if (!empty($_COOKIE)) {
-            array_walk($_COOKIE, fn (&$value, $key) => self::trimRequestInVar($value, $key));
-        }
-    }
-
-    private static function trimRequestInVar(&$value, $key): void
-    {
-        if (is_array($value)) {
-            foreach ($value as $k => &$v) {
-                if (is_array($v)) {
-                    self::trimRequestInVar($v, $k);
-                } else {
-                    $v = trim($v);
-                }
-            }
-        } else {
-            $value = trim($value);
-        }
-    }
-
     public static function unregisterWrapper(): void
     {
         if (function_exists('stream_wrapper_unregister')) {
