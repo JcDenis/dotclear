@@ -10,10 +10,10 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\CKEditor\Admin;
 
 // Dotclear\Plugin\CKEditor\Admin\CKEditorBehavior
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Mapper\NamedStrings;
 use Dotclear\Process\Admin\Filter\Filter;
 use Dotclear\Process\Admin\Filter\FilterStack;
 
@@ -102,17 +102,17 @@ class CKEditorBehavior
         }
     }
 
-    public function adminPageHTTPHeaderCSP(ArrayObject $csp): void
+    public function adminPageHTTPHeaderCSP(NamedStrings $csp): void
     {
         // add 'unsafe-inline' for CSS, add 'unsafe-eval' for scripts as far as CKEditor 4.x is used
-        if (!str_contains($csp['style-src'], 'unsafe-inline')) {
-            $csp['style-src'] .= " 'unsafe-inline'";
+        if (!str_contains($csp->get('style-src'), 'unsafe-inline')) {
+            $csp->update('style-src', " 'unsafe-inline'");
         }
-        if (!str_contains($csp['script-src'], 'unsafe-inline')) {
-            $csp['script-src'] .= " 'unsafe-inline'";
+        if (!str_contains($csp->get('script-src'), 'unsafe-inline')) {
+            $csp->update('script-src', " 'unsafe-inline'");
         }
-        if (!str_contains($csp['script-src'], 'unsafe-eval')) {
-            $csp['script-src'] .= " 'unsafe-eval'";
+        if (!str_contains($csp->get('script-src'), 'unsafe-eval')) {
+            $csp->update('script-src', " 'unsafe-eval'");
         }
     }
 }

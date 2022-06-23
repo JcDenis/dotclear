@@ -18,6 +18,8 @@ use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\L10n;
+use Dotclear\Helper\Mapper\NamedStrings;
+use Dotclear\Helper\Mapper\Strings;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Statistic;
 use Dotclear\Process\Admin\Action\Action;
@@ -238,65 +240,55 @@ abstract class AbstractPage
         }
 
         // Display
-        /** @var ArrayObject<string, string> */
-        $headers = new ArrayObject();
+        $headers = new Strings();
 
         // Content-Type
-        $headers['content-type'] = 'Content-Type: text/html; charset=UTF-8';
+        $headers->add('Content-Type: text/html; charset=UTF-8');
 
         // Referrer Policy for admin pages
-        $headers['referrer'] = 'Referrer-Policy: strict-origin';
+        $headers->add('Referrer-Policy: strict-origin');
 
         // Prevents Clickjacking as far as possible
-        if (isset($this->options['x-frame-allow'])) {
-            $this->setXFrameOptions($headers, $this->options['x-frame-allow']);
-        } else {
-            $this->setXFrameOptions($headers);
-        }
+        $this->setXFrameOptions($headers, $this->options['x-frame-allow'] ?? null);
 
         // Content-Security-Policy (only if safe mode if not active, it may help)
         $system = App::core()->blog()->settings()->getGroup('system');
         if (!App::core()->isRescueMode() && $system->getSetting('csp_admin_on')) {
             // Get directives from settings if exist, else set defaults
-            /** @var ArrayObject<string, string> */
-            $csp = new ArrayObject();
+            $csp = new NamedStrings();
 
             // SQlite Clearbricks driver does not allow using single quote at beginning or end of a field value
                                                                                 // so we have to use neutral values (localhost and 127.0.0.1) for some CSP directives
             $csp_prefix = App::core()->con()->syntax() == 'sqlite' ? 'localhost ' : ''; // Hack for SQlite Clearbricks syntax
             $csp_suffix = App::core()->con()->syntax() == 'sqlite' ? ' 127.0.0.1' : ''; // Hack for SQlite Clearbricks syntax
 
-            $csp['default-src'] = $system->getSetting('csp_admin_default') ?:
-            $csp_prefix . "'self'" . $csp_suffix;
-            $csp['script-src'] = $system->getSetting('csp_admin_script') ?:
-            $csp_prefix . "'self' 'unsafe-eval'" . $csp_suffix;
-            $csp['style-src'] = $system->getSetting('csp_admin_style') ?:
-            $csp_prefix . "'self' 'unsafe-inline'" . $csp_suffix;
-            $csp['img-src'] = $system->getSetting('csp_admin_img') ?:
-            $csp_prefix . "'self' data: https://media.dotaddict.org blob:";
+            $csp->set('default-src', $system->getSetting('csp_admin_default') ?: $csp_prefix . "'self'" . $csp_suffix);
+            $csp->set('script-src', $system->getSetting('csp_admin_script') ?: $csp_prefix . "'self' 'unsafe-eval'" . $csp_suffix);
+            $csp->set('style-src', $system->getSetting('csp_admin_style') ?: $csp_prefix . "'self' 'unsafe-inline'" . $csp_suffix);
+            $csp->set('img-src', $system->getSetting('csp_admin_img') ?: $csp_prefix . "'self' data: https://media.dotaddict.org blob:");
 
             // Cope with blog post preview (via public URL in iframe)
             if (!is_null(App::core()->blog()->host)) {
-                $csp['default-src'] .= ' ' . parse_url(App::core()->blog()->host, PHP_URL_HOST);
-                $csp['script-src']  .= ' ' . parse_url(App::core()->blog()->host, PHP_URL_HOST);
-                $csp['style-src']   .= ' ' . parse_url(App::core()->blog()->host, PHP_URL_HOST);
+                $csp->update('default-src', ' ' . parse_url(App::core()->blog()->host, PHP_URL_HOST));
+                $csp->update('script-src', ' ' . parse_url(App::core()->blog()->host, PHP_URL_HOST));
+                $csp->update('style-src', ' ' . parse_url(App::core()->blog()->host, PHP_URL_HOST));
             }
             // Cope with media display in media manager (via public URL)
             if (App::core()->media()) {
-                $csp['img-src'] .= ' ' . parse_url(App::core()->media()->root_url, PHP_URL_HOST);
+                $csp->update('img-src', ' ' . parse_url(App::core()->media()->root_url, PHP_URL_HOST));
             } elseif (!is_null(App::core()->blog()->host)) {
                 // Let's try with the blog URL
-                $csp['img-src'] .= ' ' . parse_url(App::core()->blog()->host, PHP_URL_HOST);
+                $csp->update('img-src', ' ' . parse_url(App::core()->blog()->host, PHP_URL_HOST));
             }
             // Allow everything in iframe (used by editors to preview public content)
-            $csp['frame-src'] = '*';
+            $csp->set('frame-src', '*');
 
-            // --BEHAVIOR-- adminPageHTTPHeaderCSP, ArrayObject
+            // --BEHAVIOR-- adminPageHTTPHeaderCSP, NamedStrings
             App::core()->behavior('adminPageHTTPHeaderCSP')->call($csp);
 
             // Construct CSP header
             $directives = [];
-            foreach ($csp as $key => $value) {
+            foreach ($csp->dump() as $key => $value) {
                 if ($value) {
                     $directives[] = $key . ' ' . $value;
                 }
@@ -304,15 +296,15 @@ abstract class AbstractPage
             if (count($directives)) {
                 $directives[]   = 'report-uri ' . App::core()->config()->get('admin_url') . '?handler=admin.cspreport';
                 $report_only    = $system->getSetting('csp_admin_report_only') ? '-Report-Only' : '';
-                $headers['csp'] = 'Content-Security-Policy' . $report_only . ': ' . implode(' ; ', $directives);
+                $headers->add('Content-Security-Policy' . $report_only . ': ' . implode(' ; ', $directives));
             }
         }
 
         // --BEHAVIOR-- adminPageHTTPHeaders, ArrayObject
         App::core()->behavior('adminPageHTTPHeaders')->call($headers);
 
-        foreach ($headers as $key => $value) {
-            header($value);
+        foreach ($headers->dump() as $header) {
+            header($header);
         }
 
         $data_theme = App::core()->user()->preference()->get('interface')->get('theme');
@@ -696,22 +688,24 @@ abstract class AbstractPage
     /**
      * Sets the x frame options.
      *
-     * @param array|ArrayObject $headers The headers
-     * @param null|string       $origin  The origin
+     * @param Strings     $headers The headers
+     * @param null|string $origin  The origin
      */
-    public function setXFrameOptions(array|ArrayObject $headers, ?string $origin = null): void
+    public function setXFrameOptions(Strings $headers, ?string $origin = null): void
     {
         if ($this->page_xframe_loaded) {
             return;
         }
 
         if (null !== $origin) {
-            $url                        = parse_url($origin);
-            $headers['x-frame-options'] = sprintf('X-Frame-Options: %s', is_array($url) && isset($url['host']) ?
+            $url = parse_url($origin);
+            $headers->add(
+                sprintf('X-Frame-Options: %s', is_array($url) && isset($url['host']) ?
                 ('ALLOW-FROM ' . (isset($url['scheme']) ? $url['scheme'] . ':' : '') . '//' . $url['host']) :
-                'SAMEORIGIN');
+                'SAMEORIGIN')
+            );
         } else {
-            $headers['x-frame-options'] = 'X-Frame-Options: SAMEORIGIN'; // FF 3.6.9+ Chrome 4.1+ IE 8+ Safari 4+ Opera 10.5+
+            $headers->add('X-Frame-Options: SAMEORIGIN'); // FF 3.6.9+ Chrome 4.1+ IE 8+ Safari 4+ Opera 10.5+
         }
         $this->page_xframe_loaded = true;
     }

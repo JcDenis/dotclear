@@ -10,10 +10,10 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Inventory\Inventory;
 
 // Dotclear\Process\Admin\Inventory\Inventory\UserInventory
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Mapper\NamedStrings;
 use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Process\Admin\Page\Pager;
 
@@ -52,18 +52,17 @@ class UserInventory extends Inventory
                 $html_block .= '<caption class="hidden">' . __('Users list') . '</caption>';
             }
 
-            $cols = [
+            $cols = new NamedStrings([
                 'username'     => '<th colspan="2" scope="col" class="first">' . __('Username') . '</th>',
                 'first_name'   => '<th scope="col">' . __('First Name') . '</th>',
                 'last_name'    => '<th scope="col">' . __('Last Name') . '</th>',
                 'display_name' => '<th scope="col">' . __('Display name') . '</th>',
                 'entries'      => '<th scope="col" class="nowrap">' . __('Entries (all types)') . '</th>',
-            ];
+            ]);
 
-            $cols = new ArrayObject($cols);
             App::core()->behavior('adminUserListHeader')->call($this->rs, $cols);
 
-            $html_block .= '<tr>' . implode(iterator_to_array($cols)) . '</tr>%s</table>%s</div>';
+            $html_block .= '<tr>' . implode($cols->dump()) . '</tr>%s</table>%s</div>';
             if ($enclose_block) {
                 $html_block = sprintf($enclose_block, $html_block);
             }
@@ -111,7 +110,7 @@ class UserInventory extends Inventory
 
         $res = '<tr class="line">';
 
-        $cols = [
+        $cols = new NamedStrings([
             'check' => '<td class="nowrap">' . Form::hidden(['nb_post[]'], $this->rs->integer('nb_post')) .
             Form::checkbox(['users[]'], $this->rs->field('user_id')) . '</td>',
             'username' => '<td class="maximal" scope="row"><a href="' .
@@ -123,12 +122,11 @@ class UserInventory extends Inventory
             'entries'      => '<td class="nowrap count"><a href="' .
             App::core()->adminurl()->get('admin.posts', ['user_id' => $this->rs->field('user_id')]) . '">' .
             $this->rs->field('nb_post') . '</a></td>',
-        ];
+        ]);
 
-        $cols = new ArrayObject($cols);
         App::core()->behavior('adminUserListValue')->call($this->rs, $cols);
 
-        $res .= implode(iterator_to_array($cols));
+        $res .= implode($cols->dump());
         $res .= '</tr>';
 
         return $res;

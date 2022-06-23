@@ -10,14 +10,14 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Pages\Admin;
 
 // Dotclear\Plugin\Pages\Admin\PagesInventory
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Process\Admin\Page\Pager;
 use Dotclear\Process\Admin\Inventory\Inventory;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Helper\Clock;
+use Dotclear\Helper\Mapper\NamedStrings;
 
 /**
  * Admin inventory for plugin Pages.
@@ -40,7 +40,7 @@ class PagesInventory extends Inventory
             $html_block = '<div class="table-outer">' .
                 '<table class="maximal dragable"><thead><tr>';
 
-            $cols = [
+            $cols = new NamedStrings([
                 'title'    => '<th colspan="3" scope="col" class="first">' . __('Title') . '</th>',
                 'date'     => '<th scope="col">' . __('Date') . '</th>',
                 'author'   => '<th scope="col">' . __('Author') . '</th>',
@@ -49,14 +49,13 @@ class PagesInventory extends Inventory
                 'trackbacks' => '<th scope="col"><img src="?df=images/trackbacks.png" alt="" title="' . __('Trackbacks') .
                 '" /><span class="hidden">' . __('Trackbacks') . '</span></th>',
                 'status' => '<th scope="col">' . __('Status') . '</th>',
-            ];
+            ]);
 
-            $cols = new ArrayObject($cols);
             App::core()->behavior('adminPagesListHeader')->call($this->rs, $cols);
 
-            $cols = App::core()->listoption()->column()->cleanColumns(id: 'pages', columns: $cols);
+            App::core()->listoption()->column()->cleanColumns(id: 'pages', columns: $cols);
 
-            $html_block .= '<tr>' . implode(iterator_to_array($cols)) .
+            $html_block .= '<tr>' . implode($cols->dump()) .
                 '</tr></thead><tbody id="pageslist">%s</tbody></table>%s</div>';
 
             if ($enclose_block) {
@@ -122,7 +121,7 @@ class PagesInventory extends Inventory
         $res = '<tr class="line ' . (1 != $this->rs->integer('post_status') ? 'offline ' : '') . $sts_class . '"' .
         ' id="p' . $this->rs->field('post_id') . '">';
 
-        $cols = [
+        $cols = new NamedStrings([
             'position' => '<td class="nowrap handle minimal">' .
             Form::number(['order[' . $this->rs->field('post_id') . ']'], [
                 'min'        => 1,
@@ -149,14 +148,13 @@ class PagesInventory extends Inventory
             'comments'   => '<td class="nowrap count">' . $this->rs->field('nb_comment') . '</td>',
             'trackbacks' => '<td class="nowrap count">' . $this->rs->field('nb_trackback') . '</td>',
             'status'     => '<td class="nowrap status">' . $img_status . ' ' . $selected . ' ' . $protected . ' ' . $attach . '</td>',
-        ];
+        ]);
 
-        $cols = new ArrayObject($cols);
         App::core()->behavior('adminPagesListValue')->call($this->rs, $cols);
 
-        $cols = App::core()->listoption()->column()->cleanColumns(id: 'pages', columns: $cols);
+        App::core()->listoption()->column()->cleanColumns(id: 'pages', columns: $cols);
 
-        $res .= implode(iterator_to_array($cols));
+        $res .= implode($cols->dump());
         $res .= '</tr>';
 
         return $res;

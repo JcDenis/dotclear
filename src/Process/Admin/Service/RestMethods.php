@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Service;
 
 // Dotclear\Process\Admin\Service\RestMethods
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Database\Param;
 use Dotclear\Exception\AdminException;
@@ -18,6 +17,7 @@ use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\Validator;
 use Dotclear\Helper\Html\XmlTag;
+use Dotclear\Helper\Mapper\NamedStrings;
 use Dotclear\Helper\Network\Feed\Reader;
 use Dotclear\Helper\Text;
 use Dotclear\Modules\Repository\Repository;
@@ -234,15 +234,15 @@ class RestMethods
             throw new AdminException('No store type');
         }
 
-        $upd = new ArrayObject([]);
+        $upd = new NamedStrings();
 
-        // --BEHAVIOR-- restCheckStoreUpdate, string, ArrayObject
+        // --BEHAVIOR-- restCheckStoreUpdate, string, NamedStrings
         App::core()->behavior('restCheckStoreUpdate')->call($post['store'], $upd);
 
-        if (count($upd)) {
-            $ret = sprintf(__('An update is available', '%s updates are available.', count($upd)), count($upd));
+        if ($upd->count()) {
+            $ret = sprintf(__('An update is available', '%s updates are available.', $upd->count()), $upd->count());
             $rsp->insertAttr('check', true);
-            $rsp->insertAttr('nb', count($upd));
+            $rsp->insertAttr('nb', $upd->count());
         }
 
         $rsp->insertAttr('ret', $ret);

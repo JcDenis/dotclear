@@ -10,8 +10,8 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\ListOption;
 
 // Dotclear\Process\Admin\ListOption\Column
-use ArrayObject;
 use Dotclear\App;
+use Dotclear\Helper\Mapper\NamedStrings;
 
 /**
  * User list columns groups helper.
@@ -69,7 +69,7 @@ final class Column
 
         // Load user settings
         $column = @App::core()->user()->preference()->get('interface')->get('cols');
-        if (is_array($column) || $column instanceof ArrayObject) {
+        if (is_array($column)) {
             foreach ($column as $column_type => $column_values) {
                 foreach ($column_values as $column_id => $column_active) {
                     $item = $this->getGroup(id: $column_type)?->getItem(id: $column_id);
@@ -120,19 +120,15 @@ final class Column
     /**
      * Get user columns preferences.
      *
-     * @param string      $id      The columns group ID
-     * @param ArrayObject $columns The columns list
-     *
-     * @return ArrayObject The user columns
+     * @param string       $id      The columns group ID
+     * @param NamedStrings $columns The columns list
      */
-    public function cleanColumns(string $id, ArrayObject $columns): ArrayObject
+    public function cleanColumns(string $id, NamedStrings $columns): void
     {
         foreach ($this->getGroup(id: $id)?->getItems() as $item) {
             if (!$item->isActive()) {
-                unset($columns[$item->id]);
+                $columns->remove($item->id);
             }
         }
-
-        return $columns;
     }
 }

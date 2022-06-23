@@ -10,12 +10,12 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Inventory\Inventory;
 
 // Dotclear\Process\Admin\Inventory\Inventory\BlogInventory
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Mapper\NamedStrings;
 use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Process\Admin\Page\Pager;
 
@@ -50,7 +50,7 @@ class BlogInventory extends Inventory
 
             $pager = new Pager($page, $this->rs_count, $nb_per_page, 10);
 
-            $cols = [
+            $cols = new NamedStrings([
                 'blog' => '<th' .
                 (App::core()->user()->isSuperAdmin() ? ' colspan="2"' : '') .
                 ' scope="col" abbr="comm" class="first nowrap">' . __('Blog id') . '</th>',
@@ -59,9 +59,8 @@ class BlogInventory extends Inventory
                 'posts'  => '<th scope="col" class="nowrap">' . __('Entries (all types)') . '</th>',
                 'upddt'  => '<th scope="col" class="nowrap">' . __('Last update') . '</th>',
                 'status' => '<th scope="col" class="txt-center">' . __('Status') . '</th>',
-            ];
+            ]);
 
-            $cols = new ArrayObject($cols);
             App::core()->behavior('adminBlogListHeader')->call($this->rs, $cols);
 
             $html_block = '<div class="table-outer"><table>' .
@@ -73,7 +72,7 @@ class BlogInventory extends Inventory
                 :
                 '<caption class="hidden">' . __('Blogs list') . '</caption>'
             ) .
-            '<tr>' . implode(iterator_to_array($cols)) . '</tr>%s</table>%s</div>';
+            '<tr>' . implode($cols->dump()) . '</tr>%s</table>%s</div>';
 
             if ($enclose_block) {
                 $html_block = sprintf($enclose_block, $html_block);
@@ -113,7 +112,7 @@ class BlogInventory extends Inventory
     {
         $blog_id = Html::escapeHTML($this->rs->field('blog_id'));
 
-        $cols = [
+        $cols = new NamedStrings([
             'check' => (App::core()->user()->isSuperAdmin() ?
                 '<td class="nowrap">' .
                 Form::checkbox(['blogs[]'], $this->rs->field('blog_id'), $checked) .
@@ -147,14 +146,13 @@ class BlogInventory extends Inventory
                 App::core()->blogs()->status()->getState(code: $this->rs->integer('blog_status'))
             ) .
             '</td>',
-        ];
+        ]);
 
-        $cols = new ArrayObject($cols);
         App::core()->behavior('adminBlogListValue')->call($this->rs, $cols);
 
         return
         '<tr class="line" id="b' . $blog_id . '">' .
-        implode(iterator_to_array($cols)) .
+        implode($cols->dump()) .
             '</tr>';
     }
 }

@@ -10,13 +10,13 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Inventory\Inventory;
 
 // Dotclear\Process\Admin\Inventory\Inventory\CommentInventory
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Database\Param;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Mapper\NamedStrings;
 use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Process\Admin\Page\Pager;
 
@@ -108,21 +108,20 @@ class CommentInventory extends Inventory
                     '</caption>';
             }
 
-            $cols = [
+            $cols = new NamedStrings([
                 'type'   => '<th colspan="2" scope="col" abbr="comm" class="first">' . __('Type') . '</th>',
                 'author' => '<th scope="col">' . __('Author') . '</th>',
                 'date'   => '<th scope="col">' . __('Date') . '</th>',
                 'status' => '<th scope="col" class="txt-center">' . __('Status') . '</th>',
-            ];
+            ]);
             if ($spam) {
-                $cols['ip'] = '<th scope="col">' . __('IP') . '</th>';
+                $cols->set('ip', '<th scope="col">' . __('IP') . '</th>');
             }
-            $cols['entry'] = '<th scope="col" abbr="entry">' . __('Entry') . '</th>';
+            $cols->set('entry', '<th scope="col" abbr="entry">' . __('Entry') . '</th>');
 
-            $cols = new ArrayObject($cols);
             App::core()->behavior('adminCommentListHeader')->call($this->rs, $cols, $spam);
 
-            $html_block .= '<tr>' . implode(iterator_to_array($cols)) . '</tr>%s</table>%s</div>';
+            $html_block .= '<tr>' . implode($cols->dump()) . '</tr>%s</table>%s</div>';
 
             if ($enclose_block) {
                 $html_block = sprintf($enclose_block, $html_block);
@@ -184,7 +183,7 @@ class CommentInventory extends Inventory
         $res = '<tr class="line ' . (1 != $this->rs->integer('comment_status') ? 'offline ' : '') . $sts_class . '"' .
         ' id="c' . $this->rs->field('comment_id') . '">';
 
-        $cols = [
+        $cols = new namedStrings([
             'check' => '<td class="nowrap">' .
             Form::checkbox(['comments[]'], $this->rs->field('comment_id'), $checked) .
             '</td>',
@@ -196,20 +195,25 @@ class CommentInventory extends Inventory
             Html::escapeHTML($this->rs->field('comment_author')) . '</a></td>',
             'date'   => '<td class="nowrap count">' . Clock::str(format: __('%Y-%m-%d %H:%M'), date: $this->rs->field('comment_dt'), to: App::core()->getTimezone()) . '</td>',
             'status' => '<td class="nowrap status txt-center">' . $img_status . '</td>',
-        ];
+        ]);
 
         if ($spam) {
-            $cols['ip'] = '<td class="nowrap"><a href="' .
-            App::core()->adminurl()->get('admin.comments', ['ip' => $this->rs->field('comment_ip')]) . '">' .
-            $this->rs->field('comment_ip') . '</a></td>';
+            $cols->set(
+                'ip',
+                '<td class="nowrap"><a href="' .
+                App::core()->adminurl()->get('admin.comments', ['ip' => $this->rs->field('comment_ip')]) . '">' .
+                $this->rs->field('comment_ip') . '</a></td>'
+            );
         }
-        $cols['entry'] = '<td class="nowrap discrete"><a href="' . Html::escapeHTML($post_url) . '">' . $post_title . '</a>' .
-            ('post' != $this->rs->field('post_type') ? ' (' . Html::escapeHTML($this->rs->field('post_type')) . ')' : '') . '</td>';
+        $cols->set(
+            'entry',
+            '<td class="nowrap discrete"><a href="' . Html::escapeHTML($post_url) . '">' . $post_title . '</a>' .
+            ('post' != $this->rs->field('post_type') ? ' (' . Html::escapeHTML($this->rs->field('post_type')) . ')' : '') . '</td>'
+        );
 
-        $cols = new ArrayObject($cols);
         App::core()->behavior('adminCommentListValue')->call($this->rs, $cols, $spam);
 
-        $res .= implode(iterator_to_array($cols));
+        $res .= implode($cols->dump());
         $res .= '</tr>';
 
         return $res;

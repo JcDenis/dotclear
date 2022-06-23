@@ -10,8 +10,8 @@ declare(strict_types=1);
 namespace Dotclear\Modules;
 
 // Dotclear\Modules\ModulesBehavior
-use ArrayObject;
 use Dotclear\App;
+use Dotclear\Helper\Mapper\NamedStrings;
 
 /**
  * Admin behaviors for modules manager.
@@ -92,14 +92,14 @@ class ModulesBehavior
     /**
      * Check modules manager repository update.
      *
-     * @param string      $type The modules type
-     * @param ArrayObject $upd  The list of updates
+     * @param string       $type The modules type
+     * @param NamedStrings $upd  The list of updates
      */
-    public function restCheckStoreUpdate(string $type, ArrayObject $upd): void
+    public function restCheckStoreUpdate(string $type, NamedStrings $upd): void
     {
         if ($this->modules->getType() == $type) {
             foreach ($this->modules->store()->get(true) as $id => $module) {
-                $upd[$id] = $module->name();
+                $upd->set($id, $module->name());
             }
         }
     }

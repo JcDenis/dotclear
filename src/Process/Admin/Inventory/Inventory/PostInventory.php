@@ -10,13 +10,13 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Inventory\Inventory;
 
 // Dotclear\Process\Admin\Inventory\Inventory\PostInventory
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Database\Param;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Mapper\NamedStrings;
 use Dotclear\Process\Admin\Inventory\Inventory;
 use Dotclear\Process\Admin\Page\Pager;
 
@@ -98,7 +98,7 @@ class PostInventory extends Inventory
                     '</caption>';
             }
 
-            $cols = [
+            $cols = new NamedStrings([
                 'title'    => '<th colspan="2" class="first">' . __('Title') . '</th>',
                 'date'     => '<th scope="col">' . __('Date') . '</th>',
                 'category' => '<th scope="col">' . __('Category') . '</th>',
@@ -108,13 +108,13 @@ class PostInventory extends Inventory
                 'trackbacks' => '<th scope="col"><img src="?df=images/trackbacks.png" alt="" title="' . __('Trackbacks') .
                 '" /><span class="hidden">' . __('Trackbacks') . '</span></th>',
                 'status' => '<th scope="col">' . __('Status') . '</th>',
-            ];
-            $cols = new ArrayObject($cols);
+            ]);
+
             App::core()->behavior('adminPostListHeader')->call($this->rs, $cols);
 
-            $cols = App::core()->listoption()->column()->cleanColumns(id: 'posts', columns: $cols);
+            App::core()->listoption()->column()->cleanColumns(id: 'posts', columns: $cols);
 
-            $html_block .= '<tr>' . implode(iterator_to_array($cols)) . '</tr>%s</table>%s</div>';
+            $html_block .= '<tr>' . implode($cols->dump()) . '</tr>%s</table>%s</div>';
             if ($enclose_block) {
                 $html_block = sprintf($enclose_block, $html_block);
             }
@@ -201,7 +201,7 @@ class PostInventory extends Inventory
         $res = '<tr class="line ' . (1 != $this->rs->field('post_status') ? 'offline ' : '') . $sts_class . '"' .
         ' id="p' . $this->rs->field('post_id') . '">';
 
-        $cols = [
+        $cols = new NamedStrings([
             'check' => '<td class="nowrap">' .
             Form::checkbox(
                 ['entries[]'],
@@ -221,13 +221,13 @@ class PostInventory extends Inventory
             'comments'   => '<td class="nowrap count">' . $this->rs->field('nb_comment') . '</td>',
             'trackbacks' => '<td class="nowrap count">' . $this->rs->field('nb_trackback') . '</td>',
             'status'     => '<td class="nowrap status">' . $img_status . ' ' . $selected . ' ' . $protected . ' ' . $attach . '</td>',
-        ];
-        $cols = new ArrayObject($cols);
+        ]);
+
         App::core()->behavior('adminPostListValue')->call($this->rs, $cols);
 
-        $cols = App::core()->listoption()->column()->cleanColumns(id: 'posts', columns: $cols);
+        App::core()->listoption()->column()->cleanColumns(id: 'posts', columns: $cols);
 
-        $res .= implode(iterator_to_array($cols));
+        $res .= implode($cols->dump());
         $res .= '</tr>';
 
         return $res;

@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Antispam\Common;
 
 // Dotclear\Plugin\Antispam\Common\Antispam
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Param;
@@ -21,6 +20,7 @@ use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\Mapper\Integers;
+use Dotclear\Helper\Mapper\NamedStrings;
 use Dotclear\Helper\Mapper\Strings;
 use Dotclear\Plugin\Antispam\Common\Filter\FilterIp;
 use Dotclear\Plugin\Antispam\Common\Filter\FilterIpv6;
@@ -258,14 +258,14 @@ class Antispam
         $record->extend(new RsExtComment());
     }
 
-    public function commentListHeader(Record $rs, ArrayObject $cols, bool $spam): void
+    public function commentListHeader(Record $rs, NamedStrings $cols, bool $spam): void
     {
         if ($spam) {
-            $cols['spam_filter'] = '<th scope="col">' . __('Spam filter') . '</th>';
+            $cols->set('spam_filter', '<th scope="col">' . __('Spam filter') . '</th>');
         }
     }
 
-    public function commentListValue(Record $rs, ArrayObject $cols, bool $spam): void
+    public function commentListValue(Record $rs, NamedStrings $cols, bool $spam): void
     {
         if ($spam) {
             $filter_name = '';
@@ -275,7 +275,7 @@ class Antispam
                 }
                 $filter_name = (null !== ($f = $this->filters->getFilter($rs->call('spamFilter')))) ? $f->name : $rs->call('spamFilter');
             }
-            $cols['spam_filter'] = '<td class="nowrap">' . $filter_name . '</td>';
+            $cols->set('spam_filter', '<td class="nowrap">' . $filter_name . '</td>');
         }
     }
 
