@@ -10,17 +10,25 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\Home
-use ArrayObject;
 use Dotclear\App;
+use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Helper\GPC\GPC;
-use Dotclear\Process\Admin\Favorite\DashboardIcons;
+use Dotclear\Helper\Mapper\Strings;
+use Dotclear\Process\Admin\Favorite\DashboardIcon;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
 
 /**
  * Admin home page.
+ *
+ * Dashboard composition:
+ * _ main:
+ * __ icons
+ * __ quickentry
+ * __ boxes:
+ * ___ items
+ * ___ contents
  *
  * @ingroup  Admin Home Handler
  */
@@ -134,48 +142,6 @@ class Home extends AbstractPage
 
     protected function getPageContent(): void
     {
-        // Dashboard icons
-        $__dashboard_icons = new DashboardIcons();
-
-        // Latest news for dashboard
-        /** @var ArrayObject<int, ArrayObject> */
-        $__dashboard_items = new ArrayObject([new ArrayObject(), new ArrayObject()]);
-
-        $dashboardItem = 0;
-
-        // Documentation links
-        if (App::core()->user()->preference()->get('dashboard')->get('doclinks')) {
-            if (!empty(App::core()->help()->doc())) {
-                $doc_links = '<div class="box small dc-box" id="doc-and-support"><h3>' . __('Documentation and support') . '</h3><ul>';
-
-                foreach (App::core()->help()->doc() as $k => $v) {
-                    $doc_links .= '<li><a class="outgoing" href="' . $v . '" title="' . $k . '">' . $k .
-                        ' <img src="?df=images/outgoing-link.svg" alt="" /></a></li>';
-                }
-
-                $doc_links .= '</ul></div>';
-                $__dashboard_items[$dashboardItem][] = $doc_links;
-                ++$dashboardItem;
-            }
-        }
-
-        App::core()->behavior('adminDashboardItems')->call($__dashboard_items);
-
-        // Dashboard content
-        $__dashboard_contents = new ArrayObject([new ArrayObject(), new ArrayObject()]);
-        App::core()->behavior('adminDashboardContents')->call($__dashboard_contents);
-
-        $dragndrop = '';
-        if (!App::core()->user()->preference()->get('accessibility')->get('nodragdrop')) {
-            $dragndrop = '<input type="checkbox" id="dragndrop" class="sr-only" title="' . $this->home_dragndrop_msg['dragndrop_off'] . '" />' .
-                '<label for="dragndrop">' .
-                '<svg aria-hidden="true" focusable="false" class="dragndrop-svg">' .
-                '<use xlink:href="?df=images/dragndrop.svg#mask"></use>' .
-                '</svg>' .
-                '<span id="dragndrop-label" class="sr-only">' . $this->home_dragndrop_msg['dragndrop_off'] . '</span>' .
-                '</label>';
-        }
-
         if (App::core()->user()->getInfo('user_default_blog') != App::core()->blog()->id && App::core()->user()->getBlogCount() > 1) {
             echo '<p><a href="' . App::core()->adminurl()->get('admin.home', ['default_blog' => 1]) . '" class="button">' . __('Make this blog my default blog') . '</a></p>';
         }
@@ -243,50 +209,51 @@ class Home extends AbstractPage
 
         App::core()->behavior('adminHomePageContent')->call();
 
-        // Get current main orders
-        $main_order = App::core()->user()->preference()->get('dashboard')->get('main_order');
-        $main_order = ('' != $main_order ? explode(',', $main_order) : []);
+        // Dashboard groups
+        $main     = new Strings();
+        $boxes    = new Strings();
+        $contents = new Strings();
+        $items    = new Strings();
 
-        // Get current boxes orders
-        $boxes_order = App::core()->user()->preference()->get('dashboard')->get('boxes_order');
-        $boxes_order = ('' != $boxes_order ? explode(',', $boxes_order) : []);
-
-        // Get current boxes items orders
-        $boxes_items_order = App::core()->user()->preference()->get('dashboard')->get('boxes_items_order');
-        $boxes_items_order = ('' != $boxes_items_order ? explode(',', $boxes_items_order) : []);
-
-        // Get current boxes contents orders
-        $boxes_contents_order = App::core()->user()->preference()->get('dashboard')->get('boxes_contents_order');
-        $boxes_contents_order = ('' != $boxes_contents_order ? explode(',', $boxes_contents_order) : []);
-
-        // Compose dashboard items (doc, …)
-        $dashboardItems = $this->composeItems($boxes_items_order, $__dashboard_items);
-        // Compose dashboard contents (plugin's modules)
-        $dashboardContents = $this->composeItems($boxes_contents_order, $__dashboard_contents);
-
-        $__dashboard_boxes = [];
-        if ('' != $dashboardItems) {
-            $__dashboard_boxes[] = '<div class="db-items" id="db-items">' . $dashboardItems . '</div>';
-        }
-        if ('' != $dashboardContents) {
-            $__dashboard_boxes[] = '<div class="db-contents" id="db-contents">' . $dashboardContents . '</div>';
-        }
-        $dashboardBoxes = $this->composeItems($boxes_order, $__dashboard_boxes, true);
-
-        // Compose main area
-        $__dashboard_main = [];
+        // Dashboard icons
         if (!App::core()->user()->preference()->get('dashboard')->get('nofavicons')) {
-            // Dashboard icons
-            $__dashboard_main[] = $__dashboard_icons->toHtml();
-        }
-        if (App::core()->user()->preference()->get('dashboard')->get('quickentry')) {
-            if (App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)) {
-                // Getting categories
-                $categories_combo = App::core()->combo()->getCategoriesCombo(
-                    App::core()->blog()->categories()->getCategories()
+            $icons = '';
+            foreach (App::core()->favorite()->getUserItems() as $item) {
+                // Move favorites item to editable dashboard icon
+                $icon = new DashboardIcon(
+                    id: $item->id,
+                    title: $item->title,
+                    url: $item->url,
+                    icons: $item->icons,
                 );
 
-                $dashboardQuickEntry = '<div id="quick">' .
+                if (!empty($item->dashboard) && is_callable($item->dashboard)) {
+                    call_user_func($item->dashboard, $icon);
+                }
+
+                App::core()->behavior('adminBeforeAddDashboardIcon')->call(icon: $icon);
+
+                if ($icon instanceof DashboardIcon) {
+                    $icons .= $icon->toHtml();
+                }
+            }
+
+            if (!empty($icons)) {
+                $main->add('<div id="icons">' . $icons . '</div>');
+            }
+        }
+
+        // Dashboard quick entry
+        if (App::core()->user()->preference()->get('dashboard')->get('quickentry')
+            && App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)
+        ) {
+            // Getting categories
+            $categories_combo = App::core()->combo()->getCategoriesCombo(
+                App::core()->blog()->categories()->getCategories()
+            );
+
+            $main->add(
+                '<div id="quick">' .
                 '<h3>' . __('Quick post') . sprintf(' &rsaquo; %s', App::core()->user()->getOption('post_format')) . '</h3>' .
                 '<form id="quick-entry" action="' . App::core()->adminurl()->root() . '" method="post" class="fieldset">' .
                 '<h4>' . __('New post') . '</h4>' .
@@ -325,32 +292,70 @@ class Home extends AbstractPage
                 Form::hidden('post_notes', '') .
                     '</p>' .
                     '</form>' .
-                    '</div>';
-                $__dashboard_main[] = $dashboardQuickEntry;
+                    '</div>'
+            );
+        }
+
+        // Documentation links
+        if (App::core()->user()->preference()->get('dashboard')->get('doclinks')) {
+            $docs = App::core()->help()->doc();
+            if (!empty($docs)) {
+                $links = '';
+                foreach ($docs as $k => $v) {
+                    $links .= '<li><a class="outgoing" href="' . $v . '" title="' . $k . '">' . $k .
+                        ' <img src="?df=images/outgoing-link.svg" alt="" /></a></li>';
+                }
+
+                $items->add('<div class="box small dc-box" id="doc-and-support"><h3>' . __('Documentation and support') . '</h3><ul>' . $links . '</ul></div>');
             }
         }
-        if ('' != $dashboardBoxes) {
-            $__dashboard_main[] = '<div id="dashboard-boxes">' . $dashboardBoxes . '</div>';
-        }
-        $dashboardMain = $this->composeItems($main_order, $__dashboard_main, true);
 
-        echo $dragndrop . '<div id="dashboard-main">' . $dashboardMain . '</div>';
+        App::core()->behavior('adminBeforeAddDashboardItems')->call(items: $items);
+
+        // Dashoboard items
+        if ('' != ($items = $this->composeDashboardGroup('boxes_items_order', $items))) {
+            $boxes->add('<div class="db-items" id="db-items">' . $items . '</div>');
+        }
+
+        App::core()->behavior('adminBeforeAddDashboardContents')->call(items: $contents);
+
+        // Dashboard contents
+        if ('' != ($contents = $this->composeDashboardGroup('boxes_contents_order', $contents))) {
+            $boxes->add('<div class="db-contents" id="db-contents">' . $contents . '</div>');
+        }
+
+        // Dashboard groups
+        if ($boxes->count()) {
+            $main->add('<div id="dashboard-boxes">' . $this->composeDashboardGroup('boxes_order', $boxes) . '</div>');
+        }
+
+        // Drog n drop
+        if (!App::core()->user()->preference()->get('accessibility')->get('nodragdrop')) {
+            echo '<input type="checkbox" id="dragndrop" class="sr-only" title="' . $this->home_dragndrop_msg['dragndrop_off'] . '" />' .
+                '<label for="dragndrop">' .
+                '<svg aria-hidden="true" focusable="false" class="dragndrop-svg">' .
+                '<use xlink:href="?df=images/dragndrop.svg#mask"></use>' .
+                '</svg>' .
+                '<span id="dragndrop-label" class="sr-only">' . $this->home_dragndrop_msg['dragndrop_off'] . '</span>' .
+                '</label>';
+        }
+
+        echo '<div id="dashboard-main">' . $this->composeDashboardGroup('main_order', $main) . '</div>';
     }
 
-    private function composeItems($list, $blocks, $flat = false)
+    /**
+     * Reorder items of a given group.
+     *
+     * @param string  $part   The group name
+     * @param Strings $blocks The group items
+     *
+     * @return string The sorted group
+     */
+    private function composeDashboardGroup(string $part, Strings $blocks): string
     {
         $ret   = [];
-        $items = [];
-
-        if ($flat) {
-            $items = $blocks;
-        } else {
-            foreach ($blocks as $i) {
-                foreach ($i as $v) {
-                    $items[] = $v;
-                }
-            }
-        }
+        $items = $blocks->dump();
+        $list  = $this->getDashboardOrder($part);
 
         // First loop to find ordered indexes
         $order = [];
@@ -389,5 +394,17 @@ class Home extends AbstractPage
         }
 
         return join('', $ret);
+    }
+
+    /**
+     * Get items order form user preference.
+     *
+     * @return array<int,string> The user isrems order preference
+     */
+    private function getDashboardOrder(string $part): array
+    {
+        $order = App::core()->user()->preference()->get('dashboard')->get($part);
+
+        return '' != $order ? explode(',', $order) : [];
     }
 }

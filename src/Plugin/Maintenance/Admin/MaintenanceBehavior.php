@@ -15,6 +15,7 @@ use Dotclear\App;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
+use Dotclear\Helper\Mapper\Strings;
 use Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance;
 use Dotclear\Process\Admin\Favorite\Favorite;
 use Dotclear\Process\Admin\Favorite\FavoriteItem;
@@ -31,7 +32,7 @@ class MaintenanceBehavior
     {
         App::core()->behavior('dcMaintenanceInit')->add([$this, 'behaviorDcMaintenanceInit']);
         App::core()->behavior('adminAfterSetDefaultFavoriteItems')->add([$this, 'adminAfterSetDefaultFavoriteItems']);
-        App::core()->behavior('adminDashboardContents')->add([$this, 'behaviorAdminDashboardItems']);
+        App::core()->behavior('adminBeforeAddDashboardContents')->add([$this, 'behaviorAdminBeforeAddDashboardItems']);
         App::core()->behavior('adminDashboardOptionsForm')->add([$this, 'behaviorAdminDashboardOptionsForm']);
         App::core()->behavior('adminAfterDashboardOptionsUpdate')->add([$this, 'behaviorAdminAfterDashboardOptionsUpdate']);
         App::core()->behavior('adminPageHelpBlock')->add([$this, 'behaviorAdminPageHelpBlock']);
@@ -126,9 +127,9 @@ class MaintenanceBehavior
     /**
      * Dashboard items stack.
      *
-     * @param ArrayObject $items The items
+     * @param Strings $items The items
      */
-    public function behaviorAdminDashboardItems(ArrayObject $items): void
+    public function behaviorAdminBeforeAddDashboardItems(Strings $items): void
     {
         if (!App::core()->user()->preference()->get('maintenance')->get('dashboard_item')) {
             return;
@@ -162,14 +163,14 @@ class MaintenanceBehavior
             return;
         }
 
-        $items[] = new ArrayObject([
+        $items->add(
             '<div id="maintenance-expired" class="box small">' .
             '<h3>' . App::core()->menu()->getIconTheme(['Plugin/Maintenance/icon.svg', 'Plugin/Maintenance/icon-dark.svg'], true, '', '', 'icon-small') . __('Maintenance') . '</h3>' .
             '<p class="warning no-margin">' . sprintf(__('There is a task to execute.', 'There are %s tasks to execute.', count($lines)), count($lines)) . '</p>' .
             '<ul>' . implode('', $lines) . '</ul>' .
             '<p><a href="' . App::core()->adminurl()->get('admin.plugin.Maintenance') . '">' . __('Manage tasks') . '</a></p>' .
             '</div>',
-        ]);
+        );
     }
 
     /**

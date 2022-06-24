@@ -67,10 +67,10 @@ class Help
     /**
      * Add/get doc bloc.
      *
-     * @param array $values  The values
-     * @param bool  $replace Replace existing bloc
+     * @param array<string,string> $values  The values
+     * @param bool                 $replace Replace existing bloc
      *
-     * @return array The doc bloc
+     * @return array<string,string> The doc bloc
      */
     public function doc(array $values = null, bool $replace = true): array
     {
