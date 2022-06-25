@@ -10,12 +10,12 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\Search
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Database\Param;
 use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Mapper\NamedStrings;
 use Dotclear\Process\Admin\Action\Action\PostAction;
 use Dotclear\Process\Admin\Action\Action\CommentAction;
 use Dotclear\Process\Admin\Inventory\Inventory\PostInventory;
@@ -52,15 +52,14 @@ class Search extends AbstractPage
         App::core()->behavior('adminSearchPageProcess')->add([$this, 'processComments']);
         App::core()->behavior('adminSearchPageDisplay')->add([$this, 'displayComments']);
 
-        $qtype_combo = new ArrayObject();
+        $this->s_qtype_combo = new NamedStrings();
 
         // --BEHAVIOR-- adminSearchPageCombo
-        App::core()->behavior('adminSearchPageCombo')->call($qtype_combo);
+        App::core()->behavior('adminSearchPageCombo')->call($this->s_qtype_combo);
 
-        $this->s_qtype_combo = $qtype_combo->getArrayCopy();
-        $q                   = GPC::request()->empty('q') ? GPC::request()->string('qx', null) : GPC::request()->string('q');
-        $qtype               = !GPC::request()->empty('qtype') ? GPC::request()->string('qtype') : 'p';
-        if (!empty($q) && !in_array($qtype, $this->s_qtype_combo)) {
+        $q     = GPC::request()->empty('q') ? GPC::request()->string('qx', null) : GPC::request()->string('q');
+        $qtype = !GPC::request()->empty('qtype') ? GPC::request()->string('qtype') : 'p';
+        if (!empty($q) && '' != $this->s_qtype_combo->get($qtype)) {
             $qtype = 'p';
         }
 
@@ -101,7 +100,7 @@ class Search extends AbstractPage
         '<p><label for="q">' . __('Query:') . ' </label>' .
         Form::field('q', 30, 255, Html::escapeHTML($this->s_args['q'])) . '</p>' .
         '<p><label for="qtype">' . __('In:') . '</label> ' .
-        Form::combo('qtype', $this->s_qtype_combo, $this->s_args['qtype']) . '</p>' .
+        Form::combo('qtype', $this->s_qtype_combo->dump(), $this->s_args['qtype']) . '</p>' .
         '<p><input type="submit" value="' . __('Search') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
         Form::hidden(['handler'], 'admin.search') .
@@ -121,10 +120,10 @@ class Search extends AbstractPage
         }
     }
 
-    public function typeCombo(ArrayObject $combo)
+    public function typeCombo(NamedStrings $combo)
     {
-        $combo[__('Search in entries')]  = 'p';
-        $combo[__('Search in comments')] = 'c';
+        $combo->set(__('Search in entries'), 'p');
+        $combo->set(__('Search in comments'), 'c');
     }
 
     public function pageHead(array $args)

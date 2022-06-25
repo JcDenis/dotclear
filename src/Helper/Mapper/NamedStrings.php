@@ -47,7 +47,7 @@ class NamedStrings
      */
     public function get(string $key): string
     {
-        return $this->stack[$key] ?: '';
+        return $this->stack[$key] ?? '';
     }
 
     /**
