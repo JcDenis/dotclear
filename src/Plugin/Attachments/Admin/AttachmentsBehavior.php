@@ -14,6 +14,8 @@ use ArrayObject;
 use Dotclear\App;
 use Dotclear\Database\Record;
 use Dotclear\Helper\File\Files;
+use Dotclear\Helper\Mapper\ContentGroups;
+use Dotclear\Helper\Mapper\ContentItem;
 
 /**
  * Admin behaviors for plugin Attachments.
@@ -24,11 +26,11 @@ class AttachmentsBehavior
 {
     public function __construct()
     {
-        App::core()->behavior('adminPostFormItems')->add([$this, 'behaviorAdminPostFormItems']);
-        App::core()->behavior('adminPostAfterForm')->add([$this, 'behaviorAdminPostAfterForm']);
+        App::core()->behavior('adminBeforeDisplayPostFormItems')->add([$this, 'behaviorAdminBeforeDisplayPostFormItems']);
+        App::core()->behavior('adminAfterDisplayPostForm')->add([$this, 'behaviorAdminAfterDisplayPostForm']);
         App::core()->behavior('adminPostHeaders')->add([$this, 'behaviorAdminPostHeaders']);
-        App::core()->behavior('adminPageFormItems')->add([$this, 'behaviorAdminPostFormItems']);
-        App::core()->behavior('adminPageAfterForm')->add([$this, 'behaviorAdminPostAfterForm']);
+        App::core()->behavior('adminBeforeDisplayPageFormItems')->add([$this, 'behaviorAdminBeforeDisplayPostFormItems']);
+        App::core()->behavior('adminAfterDisplayPageForm')->add([$this, 'behaviorAdminAfterDisplayPostForm']);
         App::core()->behavior('adminPageHeaders')->add([$this, 'behaviorAdminPostHeaders']);
         App::core()->behavior('adminPageHelpBlock')->add([$this, 'behaviorAdminPageHelpBlock']);
     }
@@ -54,7 +56,7 @@ class AttachmentsBehavior
         return App::core()->resource()->load('post.js', 'Plugin', 'Attachments');
     }
 
-    public function behaviorAdminPostFormItems(ArrayObject $main, ArrayObject $sidebar, ?Record $post): void
+    public function behaviorAdminBeforeDisplayPostFormItems(ContentGroups $groups, ?Record $post, ?string $type): void
     {
         if (null !== $post && App::core()->media()) {
             $post_media = App::core()->media()->getPostMedia($post->integer('post_id'), null, 'attachment');
@@ -96,11 +98,12 @@ class AttachmentsBehavior
             }
             $item .= '<p class="s-attachments"><a class="button" href="' . App::core()->adminurl()->get('admin.media', ['post_id' => $post->field('post_id'), 'link_type' => 'attachment']) . '">' .
             __('Add files to this entry') . '</a></p>';
-            $sidebar['metas-box']['items']['attachments'] = $item;
+
+            $groups->getGroup('metas-box')?->addItem(new ContentItem(id: 'attachments', content: $item));
         }
     }
 
-    public function behaviorAdminPostAfterForm(?Record $post)
+    public function behaviorAdminAfterDisplayPostForm(?Record $post)
     {
         if (null !== $post) {
             echo '<form action="' . App::core()->adminurl()->root() . '" id="attachment-remove-hide" method="post">' .

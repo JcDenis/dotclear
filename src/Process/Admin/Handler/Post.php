@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\Pos
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Core\Trackback\Trackback;
 use Dotclear\Database\Param;
@@ -18,6 +17,9 @@ use Dotclear\Helper\Clock;
 use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Mapper\ContentGroups;
+use Dotclear\Helper\Mapper\ContentItem;
+use Dotclear\Helper\Mapper\ContentItems;
 use Dotclear\Helper\Mapper\Integers;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Text;
@@ -512,147 +514,180 @@ class Post extends AbstractPage
         /* Post form if we can edit post
         -------------------------------------------------------- */
         if ($this->can_edit_post) {
-            $sidebar_items = new ArrayObject([
-                'status-box' => [
-                    'title' => __('Status'),
-                    'items' => [
-                        'post_status' => '<p class="entry-status"><label for="post_status">' . __('Entry status') . ' ' . $this->img_status . '</label>' .
-                        Form::combo(
-                            'post_status',
-                            $status_combo,
-                            ['default' => $this->post_status, 'class' => 'maximal', 'disabled' => !$this->can_publish]
-                        ) .
-                        '</p>',
-                        'post_dt' => '<p><label for="post_dt">' . __('Publication date and hour') . '</label>' .
-                        Form::datetime('post_dt', [
-                            'default' => Clock::formfield(date: $this->post_dt, to: App::core()->getTimezone()),
-                            'class'   => ($this->bad_dt ? 'invalid' : ''),
-                        ]) .
-                        '</p>',
-                        'post_lang' => '<p><label for="post_lang">' . __('Entry language') . '</label>' .
-                        Form::combo('post_lang', $lang_combo, $this->post_lang) .
-                        '</p>',
-                        'post_format' => '<div>' .
-                        '<h5 id="label_format"><label for="post_format" class="classic">' . __('Text formatting') . '</label></h5>' .
-                        '<p>' . Form::combo('post_format', $available_formats, $this->post_format, 'maximal') . '</p>' .
-                        '<p class="format_control control_no_xhtml">' .
-                        '<a id="convert-xhtml" class="button' . ($this->post_id && 'wiki' != $this->post_format ? ' hide' : '') . '" href="' .
-                        App::core()->adminurl()->get('admin.post', ['id' => $this->post_id, 'xconv' => '1']) .
-                        '">' .
-                        __('Convert to XHTML') . '</a></p></div>', ], ],
-                'metas-box' => [
-                    'title' => __('Filing'),
-                    'items' => [
-                        'post_selected' => '<p><label for="post_selected" class="classic">' .
-                        Form::checkbox('post_selected', 1, $this->post_selected) . ' ' .
-                        __('Selected entry') . '</label></p>',
-                        'cat_id' => '<div>' .
-                        '<h5 id="label_cat_id">' . __('Category') . '</h5>' .
-                        '<p><label for="cat_id">' . __('Category:') . '</label>' .
-                        Form::combo('cat_id', $categories_combo, $this->cat_id, 'maximal') .
-                        '</p>' .
-                        (App::core()->user()->check('categories', App::core()->blog()->id) ?
-                            '<div>' .
-                            '<h5 id="create_cat">' . __('Add a new category') . '</h5>' .
-                            '<p><label for="new_cat_title">' . __('Title:') . ' ' .
-                            Form::field('new_cat_title', 30, 255, ['class' => 'maximal']) . '</label></p>' .
-                            '<p><label for="new_cat_parent">' . __('Parent:') . ' ' .
-                            Form::combo('new_cat_parent', $categories_combo, '', 'maximal') .
-                            '</label></p>' .
-                            '</div>'
-                            : '') .
-                        '</div>', ], ],
-                'options-box' => [
-                    'title' => __('Options'),
-                    'items' => [
-                        'post_open_comment_tb' => '<div>' .
-                        '<h5 id="label_comment_tb">' . __('Comments and trackbacks list') . '</h5>' .
-                        '<p><label for="post_open_comment" class="classic">' .
-                        Form::checkbox('post_open_comment', 1, $this->post_open_comment) . ' ' .
-                        __('Accept comments') . '</label></p>' .
-                        (App::core()->blog()->settings()->getGroup('system')->getSetting('allow_comments') ?
-                            ($this->isContributionAllowed($this->post_id, Clock::ts(date: $this->post_dt), true) ?
-                                '' :
-                                '<p class="form-note warn">' .
-                                __('Warning: Comments are not more accepted for this entry.') . '</p>') :
-                            '<p class="form-note warn">' .
-                            __('Comments are not accepted on this blog so far.') . '</p>') .
-                        '<p><label for="post_open_tb" class="classic">' .
-                        Form::checkbox('post_open_tb', 1, $this->post_open_tb) . ' ' .
-                        __('Accept trackbacks') . '</label></p>' .
-                        (App::core()->blog()->settings()->getGroup('system')->getSetting('allow_trackbacks') ?
-                            ($this->isContributionAllowed($this->post_id, Clock::ts(date: $this->post_dt), false) ?
-                                '' :
-                                '<p class="form-note warn">' .
-                                __('Warning: Trackbacks are not more accepted for this entry.') . '</p>') :
-                            '<p class="form-note warn">' . __('Trackbacks are not accepted on this blog so far.') . '</p>') .
-                        '</div>',
-                        'post_password' => '<p><label for="post_password">' . __('Password') . '</label>' .
-                        Form::field('post_password', 10, 32, Html::escapeHTML($this->post_password), 'maximal') .
-                        '</p>',
-                        'post_url' => '<div class="lockable">' .
-                        '<p><label for="post_url">' . __('Edit basename') . '</label>' .
-                        Form::field('post_url', 10, 255, Html::escapeHTML($this->post_url), 'maximal') .
-                        '</p>' .
+            $status_items = new ContentItems(id: 'status-box', title: __('Status'));
+            $status_items->addItem(new ContentItem(
+                id: 'post_status',
+                content: '<p class="entry-status"><label for="post_status">' . __('Entry status') . ' ' . $this->img_status . '</label>' .
+                Form::combo(
+                    'post_status',
+                    $status_combo,
+                    ['default' => $this->post_status, 'class' => 'maximal', 'disabled' => !$this->can_publish]
+                ) .
+                '</p>'
+            ));
+            $status_items->addItem(new ContentItem(
+                id: 'post_dt',
+                content: '<p><label for="post_dt">' . __('Publication date and hour') . '</label>' .
+                Form::datetime('post_dt', [
+                    'default' => Clock::formfield(date: $this->post_dt, to: App::core()->getTimezone()),
+                    'class'   => ($this->bad_dt ? 'invalid' : ''),
+                ]) .
+                '</p>'
+            ));
+            $status_items->addItem(new ContentItem(
+                id: 'post_lang',
+                content: '<p><label for="post_lang">' . __('Entry language') . '</label>' .
+                Form::combo('post_lang', $lang_combo, $this->post_lang) .
+                '</p>'
+            ));
+            $status_items->addItem(new ContentItem(
+                id: 'post_format',
+                content: '<div>' .
+                '<h5 id="label_format"><label for="post_format" class="classic">' . __('Text formatting') . '</label></h5>' .
+                '<p>' . Form::combo('post_format', $available_formats, $this->post_format, 'maximal') . '</p>' .
+                '<p class="format_control control_no_xhtml">' .
+                '<a id="convert-xhtml" class="button' . ($this->post_id && 'wiki' != $this->post_format ? ' hide' : '') . '" href="' .
+                App::core()->adminurl()->get('admin.post', ['id' => $this->post_id, 'xconv' => '1']) .
+                '">' .
+                __('Convert to XHTML') . '</a></p></div>'
+            ));
+
+            $metas_items = new ContentItems(id: 'metas-box', title: __('Filing'));
+            $metas_items->addItem(new ContentItem(
+                id: 'post_lang',
+                content: '<p><label for="post_selected" class="classic">' .
+                Form::checkbox('post_selected', 1, $this->post_selected) . ' ' .
+                __('Selected entry') . '</label></p>'
+            ));
+            $metas_items->addItem(new ContentItem(
+                id: 'cat_id',
+                content: '<div>' .
+                '<h5 id="label_cat_id">' . __('Category') . '</h5>' .
+                '<p><label for="cat_id">' . __('Category:') . '</label>' .
+                Form::combo('cat_id', $categories_combo, $this->cat_id, 'maximal') .
+                '</p>' .
+                (App::core()->user()->check('categories', App::core()->blog()->id) ?
+                    '<div>' .
+                    '<h5 id="create_cat">' . __('Add a new category') . '</h5>' .
+                    '<p><label for="new_cat_title">' . __('Title:') . ' ' .
+                    Form::field('new_cat_title', 30, 255, ['class' => 'maximal']) . '</label></p>' .
+                    '<p><label for="new_cat_parent">' . __('Parent:') . ' ' .
+                    Form::combo('new_cat_parent', $categories_combo, '', 'maximal') .
+                    '</label></p>' .
+                    '</div>'
+                    : '') .
+                '</div>'
+            ));
+
+            $options_items = new ContentItems(id: 'options-box', title: __('Options'));
+            $options_items->addItem(new ContentItem(
+                id: 'post_open_comment_tb',
+                content: '<div>' .
+                '<h5 id="label_comment_tb">' . __('Comments and trackbacks list') . '</h5>' .
+                '<p><label for="post_open_comment" class="classic">' .
+                Form::checkbox('post_open_comment', 1, $this->post_open_comment) . ' ' .
+                __('Accept comments') . '</label></p>' .
+                (App::core()->blog()->settings()->getGroup('system')->getSetting('allow_comments') ?
+                    ($this->isContributionAllowed($this->post_id, Clock::ts(date: $this->post_dt), true) ?
+                        '' :
                         '<p class="form-note warn">' .
-                        __('Warning: If you set the URL manually, it may conflict with another entry.') .
-                        '</p></div>',
-                    ], ], ]);
+                        __('Warning: Comments are not more accepted for this entry.') . '</p>') :
+                    '<p class="form-note warn">' .
+                    __('Comments are not accepted on this blog so far.') . '</p>') .
+                '<p><label for="post_open_tb" class="classic">' .
+                Form::checkbox('post_open_tb', 1, $this->post_open_tb) . ' ' .
+                __('Accept trackbacks') . '</label></p>' .
+                (App::core()->blog()->settings()->getGroup('system')->getSetting('allow_trackbacks') ?
+                    ($this->isContributionAllowed($this->post_id, Clock::ts(date: $this->post_dt), false) ?
+                        '' :
+                        '<p class="form-note warn">' .
+                        __('Warning: Trackbacks are not more accepted for this entry.') . '</p>') :
+                    '<p class="form-note warn">' . __('Trackbacks are not accepted on this blog so far.') . '</p>') .
+                '</div>'
+            ));
+            $options_items->addItem(new ContentItem(
+                id: 'post_password',
+                content: '<p><label for="post_password">' . __('Password') . '</label>' .
+                Form::field('post_password', 10, 32, Html::escapeHTML($this->post_password), 'maximal') .
+                '</p>'
+            ));
+            $options_items->addItem(new ContentItem(
+                id: 'post_url',
+                content: '<div class="lockable">' .
+                '<p><label for="post_url">' . __('Edit basename') . '</label>' .
+                Form::field('post_url', 10, 255, Html::escapeHTML($this->post_url), 'maximal') .
+                '</p>' .
+                '<p class="form-note warn">' .
+                __('Warning: If you set the URL manually, it may conflict with another entry.') .
+                '</p></div>'
+            ));
 
-            $main_items = new ArrayObject(
-                [
-                    'post_title' => '<p class="col">' .
-                    '<label class="required no-margin bold" for="post_title"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Title:') . '</label>' .
-                    Form::field('post_title', 20, 255, [
-                        'default'    => Html::escapeHTML($this->post_title),
-                        'class'      => 'maximal',
-                        'extra_html' => 'required placeholder="' . __('Title') . '" lang="' . $this->post_lang . '" spellcheck="true"',
-                    ]) .
-                    '</p>',
+            $main_items = new ContentItems(id: 'main-box', title: __('Post'));
+            $main_items->addItem(new ContentItem(
+                id: 'post_title',
+                content: '<p class="col">' .
+                '<label class="required no-margin bold" for="post_title"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Title:') . '</label>' .
+                Form::field('post_title', 20, 255, [
+                    'default'    => Html::escapeHTML($this->post_title),
+                    'class'      => 'maximal',
+                    'extra_html' => 'required placeholder="' . __('Title') . '" lang="' . $this->post_lang . '" spellcheck="true"',
+                ]) .
+                '</p>'
+            ));
+            $main_items->addItem(new ContentItem(
+                id: 'post_excerpt',
+                content: '<p class="area" id="excerpt-area"><label for="post_excerpt" class="bold">' . __('Excerpt:') . ' <span class="form-note">' .
+                __('Introduction to the post.') . '</span></label> ' .
+                Form::textarea(
+                    'post_excerpt',
+                    50,
+                    5,
+                    [
+                        'default'    => Html::escapeHTML($this->post_excerpt),
+                        'extra_html' => 'lang="' . $this->post_lang . '" spellcheck="true"',
+                    ]
+                ) .
+                '</p>'
+            ));
+            $main_items->addItem(new ContentItem(
+                id: 'post_content',
+                content: '<p class="area" id="content-area"><label class="required bold" ' .
+                'for="post_content"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Content:') . '</label> ' .
+                Form::textarea(
+                    'post_content',
+                    50,
+                    (int) App::core()->user()->getOption('edit_size'),
+                    [
+                        'default'    => Html::escapeHTML($this->post_content),
+                        'extra_html' => 'required placeholder="' . __('Content') . '" lang="' . $this->post_lang . '" spellcheck="true"',
+                    ]
+                ) .
+                '</p>'
+            ));
+            $main_items->addItem(new ContentItem(
+                id: 'post_notes',
+                content: '<p class="area" id="notes-area"><label for="post_notes" class="bold">' . __('Personal notes:') . ' <span class="form-note">' .
+                __('Unpublished notes.') . '</span></label>' .
+                Form::textarea(
+                    'post_notes',
+                    50,
+                    5,
+                    [
+                        'default'    => Html::escapeHTML($this->post_notes),
+                        'extra_html' => 'lang="' . $this->post_lang . '" spellcheck="true"',
+                    ]
+                ) .
+                '</p>'
+            ));
 
-                    'post_excerpt' => '<p class="area" id="excerpt-area"><label for="post_excerpt" class="bold">' . __('Excerpt:') . ' <span class="form-note">' .
-                    __('Introduction to the post.') . '</span></label> ' .
-                    Form::textarea(
-                        'post_excerpt',
-                        50,
-                        5,
-                        [
-                            'default'    => Html::escapeHTML($this->post_excerpt),
-                            'extra_html' => 'lang="' . $this->post_lang . '" spellcheck="true"',
-                        ]
-                    ) .
-                    '</p>',
+            $groups = new ContentGroups();
+            $groups->addGroup($status_items);
+            $groups->addGroup($metas_items);
+            $groups->addGroup($options_items);
+            $groups->addGroup($main_items);
 
-                    'post_content' => '<p class="area" id="content-area"><label class="required bold" ' .
-                    'for="post_content"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Content:') . '</label> ' .
-                    Form::textarea(
-                        'post_content',
-                        50,
-                        (int) App::core()->user()->getOption('edit_size'),
-                        [
-                            'default'    => Html::escapeHTML($this->post_content),
-                            'extra_html' => 'required placeholder="' . __('Content') . '" lang="' . $this->post_lang . '" spellcheck="true"',
-                        ]
-                    ) .
-                    '</p>',
-
-                    'post_notes' => '<p class="area" id="notes-area"><label for="post_notes" class="bold">' . __('Personal notes:') . ' <span class="form-note">' .
-                    __('Unpublished notes.') . '</span></label>' .
-                    Form::textarea(
-                        'post_notes',
-                        50,
-                        5,
-                        [
-                            'default'    => Html::escapeHTML($this->post_notes),
-                            'extra_html' => 'lang="' . $this->post_lang . '" spellcheck="true"',
-                        ]
-                    ) .
-                    '</p>',
-                ]
-            );
-
-            // --BEHAVIOR-- adminPostFormItems, ArrayObject, ArrayObject, Record|null, string
-            App::core()->behavior('adminPostFormItems')->call($main_items, $sidebar_items, $this->post ?? null, 'post');
+            // --BEHAVIOR-- adminBeforeDisplayPostFormItems, ContentGroups, Record|null, string
+            App::core()->behavior('adminBeforeDisplayPostFormItems')->call(groups: $groups, post: $this->post ?? null, type: 'post');
 
             echo '<div class="multi-part" title="' . ($this->post_id ? __('Edit post') : __('New post')) .
             sprintf(' &rsaquo; %s', $this->post_format) . '" id="edit-entry">';
@@ -662,12 +697,7 @@ class Post extends AbstractPage
 
             echo '<h3 class="out-of-screen-if-js">' . __('Edit post') . '</h3>';
 
-            foreach ($main_items as $id => $item) {
-                echo $item;
-            }
-
-            // --BEHAVIOR-- adminPostForm (may be deprecated)
-            App::core()->behavior('adminPostForm')->call($this->post ?? null, 'post');
+            $groups->getGroup('main-box')?->echoContent();
 
             echo '<p class="border-top">' .
             ($this->post_id ? Form::hidden('id', $this->post_id) : '') .
@@ -699,23 +729,22 @@ class Post extends AbstractPage
 
             echo '<div id="entry-sidebar" role="complementary">';
 
-            foreach ($sidebar_items as $id => $c) {
-                echo '<div id="' . $id . '" class="sb-box">' .
-                    '<h4>' . $c['title'] . '</h4>';
-                foreach ($c['items'] as $e_name => $e_content) {
-                    echo $e_content;
+            foreach ($groups->dumpGroups() as $group) {
+                if ('main-box' == $group->id) {
+                    continue;
                 }
+                echo '<div id="' . $group->id . '" class="sb-box">' .
+                    '<h4>' . $group->title . '</h4>';
+                $group->echoContent();
                 echo '</div>';
             }
 
-            // --BEHAVIOR-- adminPostFormSidebar (may be deprecated)
-            App::core()->behavior('adminPostFormSidebar')->call($this->post ?? null, 'post');
             echo '</div>'; // End #entry-sidebar
 
             echo '</form>';
 
-            // --BEHAVIOR-- adminPostForm
-            App::core()->behavior('adminPostAfterForm')->call($this->post ?? null, 'post');
+            // --BEHAVIOR-- adminAfterDisplayPostForm
+            App::core()->behavior('adminAfterDisplayPostForm')->call($this->post ?? null, 'post');
 
             echo '</div>';
         }

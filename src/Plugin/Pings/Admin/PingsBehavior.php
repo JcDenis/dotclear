@@ -17,6 +17,8 @@ use Dotclear\Database\Record;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Mapper\ContentGroups;
+use Dotclear\Helper\Mapper\ContentItem;
 use Dotclear\Plugin\Pings\Common\PingsAPI;
 
 /**
@@ -29,7 +31,7 @@ class PingsBehavior
     public function __construct()
     {
         App::core()->behavior('adminPostHeaders')->add([$this, 'pingJS']);
-        App::core()->behavior('adminPostFormItems')->add([$this, 'pingsFormItems']);
+        App::core()->behavior('adminBeforeDisplayPostFormItems')->add([$this, 'pingsFormItems']);
         App::core()->behavior('adminAfterPostCreate')->add([$this, 'doPings']);
         App::core()->behavior('adminAfterPostUpdate')->add([$this, 'doPings']);
 
@@ -55,7 +57,7 @@ class PingsBehavior
         return App::core()->resource()->load('post.js', 'Plugin', 'Pings');
     }
 
-    public function pingsFormItems(ArrayObject $main, ArrayObject $sidebar, ?Record $post, string $type = null): void
+    public function pingsFormItems(ContentGroups $groups, ?Record $post, string $type = null): void
     {
         if (!App::core()->blog()->settings()->getGroup('pings')->getSetting('pings_active')) {
             return;
@@ -75,7 +77,8 @@ class PingsBehavior
             Html::escapeHTML($k) . '</label></p>';
             ++$i;
         }
-        $sidebar['options-box']['items']['pings'] = $item;
+
+        $groups->getGroup('options-box')?->addItem(new ContentItem(id: 'pings', content: $item));
     }
 
     public function doPings(Cursor $cur, int $post_id): void

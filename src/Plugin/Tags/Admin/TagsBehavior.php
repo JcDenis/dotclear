@@ -21,6 +21,8 @@ use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\GPC\GPCGroup;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Mapper\ContentGroups;
+use Dotclear\Helper\Mapper\ContentItem;
 use Dotclear\Plugin\CKEditor\Admin\CKEditorPluginItem;
 use Dotclear\Plugin\CKEditor\Admin\CKEditorPluginItems;
 use Dotclear\Process\Admin\Action\Action;
@@ -35,7 +37,7 @@ class TagsBehavior
 {
     public function __construct()
     {
-        App::core()->behavior('adminPostFormItems')->add([$this, 'tagsField']);
+        App::core()->behavior('adminBeforeDisplayPostFormItems')->add([$this, 'tagsField']);
         App::core()->behavior('adminAfterPostCreate')->add([$this, 'setTags']);
         App::core()->behavior('adminAfterPostUpdate')->add([$this, 'setTags']);
         App::core()->behavior('adminPostHeaders')->add([$this, 'postHeaders']);
@@ -103,15 +105,19 @@ class TagsBehavior
         $blocks[] = 'tag_post';
     }
 
-    public function tagsField(ArrayObject $main, ArrayObject $sidebar, ?Record $post, string $type = null): void
+    public function tagsField(ContentGroups $groups, ?Record $post, string $type = null): void
     {
         if (!GPC::post()->empty('post_tags')) {
             $value = GPC::post()->string('post_tags');
         } else {
             $value = $post ? App::core()->meta()->getMetaStr((string) $post->field('post_meta'), 'tag') : '';
         }
-        $sidebar['metas-box']['items']['post_tags'] = '<h5><label class="s-tags" for="post_tags">' . __('Tags') . '</label></h5>' .
-        '<div class="p s-tags" id="tags-edit">' . Form::textarea('post_tags', 20, 3, (string) $value, 'maximal') . '</div>';
+
+        $groups->getGroup('metas-box')?->addItem(new ContentItem(
+            id: 'post_tags',
+            content: '<h5><label class="s-tags" for="post_tags">' . __('Tags') . '</label></h5>' .
+                '<div class="p s-tags" id="tags-edit">' . Form::textarea('post_tags', 20, 3, (string) $value, 'maximal') . '</div>'
+        ));
     }
 
     public function setTags(Cursor $cur, int $post_id): void
