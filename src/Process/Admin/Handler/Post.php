@@ -364,8 +364,8 @@ class Post extends AbstractPage
         if ($this->post_id) {
             $this->img_status = sprintf(
                 '<img class="img_select_option" alt="%1$s" title="%1$s" src="?df=%2$s" />',
-                App::core()->blog()->posts()->status()->getState($this->post_status),
-                App::core()->blog()->posts()->status()->getIcon($this->post_status),
+                App::core()->blog()->posts()->status()->getState((int) $this->post_status),
+                App::core()->blog()->posts()->status()->getIcon((int) $this->post_status),
             );
             $edit_entry_str  = __('&ldquo;%s&rdquo;');
             $page_title_edit = sprintf($edit_entry_str, Html::escapeHTML(trim(Html::clean($this->post_title)))) . ' ' . $this->img_status;
