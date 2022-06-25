@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\CKEditor\Admin;
 
 // Dotclear\Plugin\CKEditor\Admin\HandlerPost
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Helper\GPC\GPC;
 use Dotclear\Process\Admin\Page\AbstractPage;
@@ -33,12 +32,11 @@ class HandlerPost extends AbstractPage
 
         header('Content-type: text/javascript');
 
-        $context = GPC::get()->string('context');
+        $plugins = new CKEditorPluginItems();
 
-        /** @var ArrayObject<int, array> */
-        $__extraPlugins = new ArrayObject();
-        App::core()->behavior('ckeditorExtraPlugins')->call($__extraPlugins, $context);
-        $extraPlugins = $__extraPlugins->getArrayCopy(); ?>
+        App::core()->behavior('adminBeforeAddCKEditorPlugins')->call(items: $plugins, context: GPC::get()->string('context'));
+
+        $extraPlugins = $plugins->dumpItems(); ?>
 
 (function($) {
     $.toolbarPopup = function toolbarPopup(url) {
@@ -133,7 +131,7 @@ $(function() {
 <?php
 if (!empty($extraPlugins)) {
             foreach ($extraPlugins as $plugin) {
-                printf("\tCKEDITOR.plugins.addExternal('%s','%s');\n", $plugin['name'], $plugin['url']);
+                printf("\tCKEDITOR.plugins.addExternal('%s','%s');\n", $plugin->name, $plugin->url);
             }
         } ?>
     if (dotclear.ckeditor_context === undefined || dotclear.ckeditor_tags_context[dotclear.ckeditor_context] === undefined) {
@@ -145,7 +143,7 @@ if (!empty($extraPlugins)) {
 $defautExtraPlugins = 'entrylink,dclink,media,justify,colorbutton,format,img,footnotes';
         if (!empty($extraPlugins)) {
             foreach ($extraPlugins as $plugin) {
-                $defautExtraPlugins .= ',' . $plugin['name'];
+                $defautExtraPlugins .= ',' . $plugin->name;
             }
         } ?>
         extraPlugins: '<?php echo $defautExtraPlugins; ?>',
@@ -255,7 +253,7 @@ if (!empty($extraPlugins)) {
     $extraPlugins_str = "{name: 'extra', items: [%s]},\n";
     $extra_icons      = '';
     foreach ($extraPlugins as $plugin) {
-        $extra_icons .= sprintf("'%s',", $plugin['button']);
+        $extra_icons .= sprintf("'%s',", $plugin->button);
     }
     printf($extraPlugins_str, $extra_icons);
 } ?>

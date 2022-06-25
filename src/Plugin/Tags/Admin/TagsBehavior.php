@@ -21,6 +21,8 @@ use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\GPC\GPCGroup;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Plugin\CKEditor\Admin\CKEditorPluginItem;
+use Dotclear\Plugin\CKEditor\Admin\CKEditorPluginItems;
 use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Action\ActionItem;
 
@@ -45,7 +47,7 @@ class TagsBehavior
         App::core()->behavior('adminBeforeUserUpdate')->add([$this, 'setTagListFormat']);
         App::core()->behavior('adminPageHelpBlock')->add([$this, 'adminPageHelpBlock']);
         App::core()->behavior('adminPostEditor')->add([$this, 'adminPostEditor']);
-        App::core()->behavior('ckeditorExtraPlugins')->add([$this, 'ckeditorExtraPlugins']);
+        App::core()->behavior('adminBeforeAddCKEditorPlugins')->add([$this, 'adminBeforeAddCKEditorPlugins']);
     }
 
     public function adminPostEditor(string $editor = '', string $context = '', array $tags = [], string $syntax = ''): string
@@ -74,16 +76,15 @@ class TagsBehavior
             ]);
     }
 
-    public function ckeditorExtraPlugins(ArrayObject $extraPlugins, string $context): void
+    public function adminBeforeAddCKEditorPlugins(CKEditorPluginItems $items, string $context): void
     {
-        if ('post' != $context) {
-            return;
+        if ('post' == $context) {
+            $items->addItem(new CKEditorPluginItem(
+                name: 'dctags',
+                button: 'dcTags',
+                url: App::core()->resource()->url('ckeditor-tags-plugin.js', 'Plugin', 'Tags', 'js'),
+            ));
         }
-        $extraPlugins[] = [
-            'name'   => 'dctags',
-            'button' => 'dcTags',
-            'url'    => App::core()->resource()->url('ckeditor-tags-plugin.js', 'Plugin', 'Tags', 'js'),
-        ];
     }
 
     public function adminPageHelpBlock(ArrayObject $blocks): void
