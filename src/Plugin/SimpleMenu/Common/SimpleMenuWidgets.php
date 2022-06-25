@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\SimpleMenu\Common;
 
 // Dotclear\Plugin\SimpleMenu\Common\SimpleMenuWidgets
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
@@ -177,29 +176,29 @@ class SimpleMenuWidgets
 
                 $label = html::escapeHTML($m['label']);
 
-                $item = new ArrayObject([
-                    'url'    => $href,   // URL
-                    'label'  => $label,  // <a> link label
-                    'title'  => $title,  // <a> link title (optional)
-                    'span'   => $span,   // description (will be displayed after <a> link)
-                    'active' => $active, // status (true/false)
-                    'class'  => '',      // additional <li> class (optional)
-                ]);
+                $item = new SimpleMenuItem(
+                    url: $href,   // URL
+                    label: $label,  // <a> link label
+                    title: $title,  // <a> link title (optional)
+                    span: $span,   // description (will be displayed after <a> link)
+                    active: $active, // status (true/false)
+                    class: '',      // additional <li> class (optional)
+                );
 
-                // --BEHAVIOR-- publicSimpleMenuItem
+                // --BEHAVIOR-- publicSimpleMenuItem, int, SimpleMenuItem
                 App::core()->behavior('publicSimpleMenuItem')->call($i, $item);
 
                 $ret .= '<li class="li' . ($i + 1) .
-                    ($item['active'] ? ' active' : '') .
+                    ($item->active ? ' active' : '') .
                     (0                == $i ? ' li-first' : '') .
                     (count($menu) - 1 == $i ? ' li-last' : '') .
-                    ($item['class'] ? ' ' . $item['class'] : '') .
+                    ($item->class ? ' ' . $item->class : '') .
                     '">' .
                     '<a href="' . $href . '"' .
-                    (!empty($item['title']) ? ' title="' . $label . ' - ' . $item['title'] . '"' : '') .
+                    (!empty($item->title) ? ' title="' . $label . ' - ' . $item->title . '"' : '') .
                     (($targetBlank) ? ' target="_blank" rel="noopener noreferrer"' : '') . '>' .
-                    '<span class="simple-menu-label">' . $item['label'] . '</span>' .
-                    $item['span'] . '</a>' .
+                    '<span class="simple-menu-label">' . $item->label . '</span>' .
+                    $item->span . '</a>' .
                     '</li>';
             }
             // Final rendering

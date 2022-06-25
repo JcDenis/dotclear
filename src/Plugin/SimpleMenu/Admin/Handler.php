@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\SimpleMenu\Admin;
 
 // Dotclear\Plugin\SimpleMenu\Admin\Handler
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Database\Param;
 use Dotclear\Exception\ModuleException;
@@ -121,38 +120,37 @@ class Handler extends AbstractPage
         }
 
         // Liste des types d'item de menu
-        $this->sm_items         = new ArrayObject();
-        $this->sm_items['home'] = new ArrayObject([__('Home'), false]);
+        $this->sm_items         = new SimpleMenuTypes();
+        $this->sm_items->addType(new SimpleMenuType(id: 'home', label: __('Home'), stepped: false));
 
         if (App::core()->blog()->settings()->getGroup('system')->getSetting('static_home')) {
-            $this->sm_items['posts'] = new ArrayObject([__('Posts'), false]);
+            $this->sm_items->addType(new SimpleMenuType(id: 'posts', label: __('Posts'), stepped: false));
         }
 
         if (1 < count($this->sm_langs_combo)) {
-            $this->sm_items['lang'] = new ArrayObject([__('Language'), true]);
+            $this->sm_items->addType(new SimpleMenuType(id: 'lang', label: __('Language'), stepped: true));
         }
         if (count($this->sm_categories_combo)) {
-            $this->sm_items['category'] = new ArrayObject([__('Category'), true]);
+            $this->sm_items->addType(new SimpleMenuType(id: 'category', label: __('Category'), stepped: true));
         }
         if (1 < count($this->sm_months_combo)) {
-            $this->sm_items['archive'] = new ArrayObject([__('Archive'), true]);
+            $this->sm_items->addType(new SimpleMenuType(id: 'archive', label: __('Archive'), stepped: true));
         }
-        if (App::core()->plugins()->hasModule('pages')) {
+        if (App::core()->plugins()->hasModule('Pages')) {
             if (count($this->sm_pages_combo)) {
-                $this->sm_items['pages'] = new ArrayObject([__('Page'), true]);
+                $this->sm_items->addType(new SimpleMenuType(id: 'pages', label: __('Page'), stepped: true));
             }
         }
-        if (App::core()->plugins()->hasModule('tags')) {
+        if (App::core()->plugins()->hasModule('Tags')) {
             if (1 < count($this->sm_tags_combo)) {
-                $this->sm_items['tags'] = new ArrayObject([__('Tags'), true]);
+                $this->sm_items->addType(new SimpleMenuType(id: 'tags', label: __('Tags'), stepped: true));
             }
         }
 
-        // --BEHAVIOR-- adminSimpleMenuAddType
-        // Should add an item to $this->sm_items[<id>] as an [<label>,<optional step (true or false)>]
-        App::core()->behavior('adminSimpleMenuAddType')->call($this->sm_items);
+        // --BEHAVIOR-- adminAfterAddSimpleMenuTypes, SimpleMenuTypes
+        App::core()->behavior('adminAfterAddSimpleMenuTypes')->call($this->sm_items);
 
-        $this->sm_items['special'] = new ArrayObject([__('User defined'), false]);
+        $this->sm_items->addType(new SimpleMenuType(id: 'special', label: __('User defined'), stepped: false));
 
         // Lecture menu existant
         $menu = App::core()->blog()->settings()->getGroup('system')->getSetting('simpleMenu');
@@ -191,7 +189,7 @@ class Handler extends AbstractPage
 
             if ($this->sm_step) {
                 // Récupération libellés des choix
-                $this->sm_item_type_label = isset($this->sm_items[$this->sm_item_type]) ? $this->sm_items[$this->sm_item_type][0] : '';
+                $this->sm_item_type_label = $this->sm_items->hasType($this->sm_item_type) ? $this->sm_items->getType($this->sm_item_type)->label : '';
 
                 switch ($this->sm_step) {
                     case 1:
@@ -201,7 +199,7 @@ class Handler extends AbstractPage
                         break;
 
                     case 2:
-                        if ($this->sm_items[$this->sm_item_type][1]) {
+                        if ($this->sm_items->getType($this->sm_item_type)?->stepped) {
                             // Second step (optional), menu item sub-type to be selected
                             $this->sm_item_select = '';
 
@@ -381,8 +379,8 @@ class Handler extends AbstractPage
                         for ($i = 0; count(GPC::post()->array('items_label')) > $i; ++$i) {
                             $newmenu[] = [
                                 'label'       => GPC::post()->array('items_label')[$i],
-                                'descr'       => GPC::post()->array('items_label')[$i],
-                                'url'         => GPC::post()->array('items_label')[$i],
+                                'descr'       => GPC::post()->array('items_descr')[$i],
+                                'url'         => GPC::post()->array('items_url')[$i],
                                 'targetBlank' => !GPC::post()->empty('items_targetBlank' . $i),
                             ];
                         }
@@ -450,14 +448,14 @@ class Handler extends AbstractPage
                     break;
 
                 case 2:
-                    if ($this->sm_items[$this->sm_item_type][1]) {
+                    if ($this->sm_items->getType($this->sm_item_type)?->stepped) {
                         $step_label = __('Step #2');
 
                         break;
                     }
                     // no break
                 case 3:
-                    $step_label = $this->sm_items[$this->sm_item_type][1] ? __('Step #3') : __('Step #2');
+                    $step_label = $this->sm_items->getType($this->sm_item_type)?->stepped ? __('Step #3') : __('Step #2');
 
                     break;
             }
@@ -487,14 +485,10 @@ class Handler extends AbstractPage
             // Formulaire d'ajout d'un item
             switch ($this->sm_step) {
                 case 1:
-                    $items_combo = [];
-                    foreach ($this->sm_items as $k => $v) {
-                        $items_combo[$v[0]] = $k;
-                    }
                     // Selection du type d'item
                     echo '<form id="additem" action="' . App::core()->adminurl()->root() . '" method="post">';
                     echo '<fieldset><legend>' . __('Select type') . '</legend>';
-                    echo '<p class="field"><label for="item_type" class="classic">' . __('Type of item menu:') . '</label>' . form::combo('item_type', $items_combo) . '</p>';
+                    echo '<p class="field"><label for="item_type" class="classic">' . __('Type of item menu:') . '</label>' . form::combo('item_type', $this->sm_items->getCombo()) . '</p>';
                     echo '<p>' . App::core()->adminurl()->getHiddenFormFields('admin.plugin.SimpleMenu', ['add' => 2], true);
                     echo '<input type="submit" name="appendaction" value="' . __('Continue...') . '" />' . '</p>';
                     echo '</fieldset>';
@@ -503,7 +497,7 @@ class Handler extends AbstractPage
                     break;
 
                 case 2:
-                    if ($this->sm_items[$this->sm_item_type][1]) {
+                    if ($this->sm_items->getType($this->sm_item_type)?->stepped) {
                         // Choix à faire
                         echo '<form id="additem" action="' . App::core()->adminurl()->root() . '" method="post">';
                         echo '<fieldset><legend>' . $this->sm_item_type_label . '</legend>';
