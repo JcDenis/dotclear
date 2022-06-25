@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Antispam\Admin;
 
 // Dotclear\Plugin\Antispam\Admin\AntispamBehavior
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Helper\GPC\GPC;
@@ -18,6 +17,7 @@ use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\XmlTag;
 use Dotclear\Plugin\Antispam\Common\Antispam;
 use Dotclear\Process\Admin\Favorite\DashboardIcon;
+use Dotclear\Process\Admin\Help\HelpBlocks;
 
 /**
  * Admin behaviors for plugin Antispam.
@@ -39,7 +39,7 @@ class AntispamBehavior
             App::core()->behavior('adminBlogPreferencesForm')->add([$this, 'behaviorAdminBlogPreferencesForm']);
             App::core()->behavior('adminBeforeBlogSettingsUpdate')->add([$this, 'adminBeforeBlogSettingsUpdate']);
             App::core()->behavior('adminCommentsSpamForm')->add([$this, 'behaviorAdminCommentsSpamForm']);
-            App::core()->behavior('adminPageHelpBlock')->add([$this, 'behaviorAdminPageHelpBlock']);
+            App::core()->behavior('adminBeforeGetPageHelpBlocks')->add([$this, 'behaviorAdminPageHelpBlock']);
         }
     }
 
@@ -60,20 +60,11 @@ class AntispamBehavior
         }
     }
 
-    public function behaviorAdminPageHelpBlock(ArrayObject $blocks): void
+    public function behaviorAdminPageHelpBlock(HelpBlocks $blocks): void
     {
-        $found = false;
-        foreach ($blocks as $block) {
-            if ('core_comments' == $block) {
-                $found = true;
-
-                break;
-            }
+        if ($blocks->hasResource('core_comments')) {
+            $blocks->addResource('attachantispam_commentsments');
         }
-        if (!$found) {
-            return;
-        }
-        $blocks[] = 'antispam_comments';
     }
 
     public function behaviorAdminCommentsSpamForm(): void

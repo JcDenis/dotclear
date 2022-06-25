@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Widgets\Admin;
 
 // Dotclear\Plugin\Widgets\Admin\Handler
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\GPC\GPC;
@@ -222,7 +221,8 @@ class Handler extends AbstractPage
         $this
             ->setPageTitle(__('Widgets'))
             ->setPageHead(self::widgetsHead())
-            ->setPageHelp('widgets', self::widgetsHelp())
+            ->setPageHelp('widgets')
+            ->setPageHelpContent(self::widgetsHelp())
             ->setPageBreadcrumb([
                 Html::escapeHTML(App::core()->blog()->name) => '',
                 __('Widgets')                               => '',
@@ -312,7 +312,7 @@ class Handler extends AbstractPage
         App::core()->resource()->confirmClose('sidebarsWidgets');
     }
 
-    private function widgetsHelp(): ArrayObject
+    private function widgetsHelp(): string
     {
         $help = '<dl>';
         foreach (WidgetsStack::$__widgets->elements() as $w) {
@@ -358,7 +358,7 @@ class Handler extends AbstractPage
         }
         $help .= '</dl></div>';
 
-        return new ArrayObject(['content' => $help]);
+        return $help;
     }
 
     private function sidebarWidgets(string $id, string $title, ?Widgets $widgets, string $pr, Widgets $default_widgets, int &$j): string

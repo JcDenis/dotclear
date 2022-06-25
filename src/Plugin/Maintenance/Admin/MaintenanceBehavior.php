@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Maintenance\Admin;
 
 // Dotclear\Plugin\Maintenance\Admin\MaintenanceBehavior
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\GPC\GPC;
@@ -20,6 +19,7 @@ use Dotclear\Plugin\Maintenance\Admin\Lib\Maintenance;
 use Dotclear\Process\Admin\Favorite\Favorite;
 use Dotclear\Process\Admin\Favorite\FavoriteItem;
 use Dotclear\Process\Admin\Favorite\DashboardIcon;
+use Dotclear\Process\Admin\Help\HelpBlocks;
 
 /**
  * Admin behaviors for plugin Maintenance.
@@ -35,7 +35,7 @@ class MaintenanceBehavior
         App::core()->behavior('adminBeforeAddDashboardContents')->add([$this, 'behaviorAdminBeforeAddDashboardItems']);
         App::core()->behavior('adminDashboardOptionsForm')->add([$this, 'behaviorAdminDashboardOptionsForm']);
         App::core()->behavior('adminAfterDashboardOptionsUpdate')->add([$this, 'behaviorAdminAfterDashboardOptionsUpdate']);
-        App::core()->behavior('adminPageHelpBlock')->add([$this, 'behaviorAdminPageHelpBlock']);
+        App::core()->behavior('adminBeforeGetPageHelpBlocks')->add([$this, 'behaviorAdminPageHelpBlock']);
     }
 
     /**
@@ -216,22 +216,14 @@ class MaintenanceBehavior
      * This method is not so good if used with lot of tranlsations
      * as it grows memory usage and translations files size,
      * it is better to use help ressource files
-     * but keep it for exemple of how to use behavior adminPageHelpBlock.
+     * but keep it for exemple of how to use behavior adminBeforeGetPageHelpBlocks.
      * Cheers, JC
      *
-     * @param ArrayObject $blocks The blocks
+     * @param HelpBlocks $blocks The blocks
      */
-    public function behaviorAdminPageHelpBlock(ArrayObject $blocks): void
+    public function behaviorAdminPageHelpBlock(HelpBlocks $blocks): void
     {
-        $found = false;
-        foreach ($blocks as $block) {
-            if ('maintenancetasks' == $block) {
-                $found = true;
-
-                break;
-            }
-        }
-        if (!$found) {
+        if (!$blocks->hasResource('maintenancetasks')) {
             return;
         }
 
@@ -268,10 +260,9 @@ class MaintenanceBehavior
                     $res_group;
             }
         }
+
         if (!empty($res_tab)) {
-            $res = new ArrayObject();
-            $res->offsetSet('content', $res_tab);
-            $blocks[] = $res;
+            $blocks->addContent($res_tab);
         }
     }
 }

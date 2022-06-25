@@ -10,12 +10,12 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Attachments\Admin;
 
 // Dotclear\Plugin\Attachments\Admin\AttachmentsBehavior
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Database\Record;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Mapper\ContentGroups;
 use Dotclear\Helper\Mapper\ContentItem;
+use Dotclear\Process\Admin\Help\HelpBlocks;
 
 /**
  * Admin behaviors for plugin Attachments.
@@ -32,23 +32,14 @@ class AttachmentsBehavior
         App::core()->behavior('adminBeforeDisplayPageFormItems')->add([$this, 'behaviorAdminBeforeDisplayPostFormItems']);
         App::core()->behavior('adminAfterDisplayPageForm')->add([$this, 'behaviorAdminAfterDisplayPostForm']);
         App::core()->behavior('adminPageHeaders')->add([$this, 'behaviorAdminPostHeaders']);
-        App::core()->behavior('adminPageHelpBlock')->add([$this, 'behaviorAdminPageHelpBlock']);
+        App::core()->behavior('adminBeforeGetPageHelpBlocks')->add([$this, 'behaviorAdminPageHelpBlock']);
     }
 
-    public function behaviorAdminPageHelpBlock(ArrayObject $blocks): void
+    public function behaviorAdminPageHelpBlock(HelpBlocks $blocks): void
     {
-        $found = false;
-        foreach ($blocks as $block) {
-            if ('core_post' == $block) {
-                $found = true;
-
-                break;
-            }
+        if ($blocks->hasResource('core_post')) {
+            $blocks->addResource('attachments');
         }
-        if (!$found) {
-            return;
-        }
-        $blocks[] = 'attachments';
     }
 
     public function behaviorAdminPostHeaders()

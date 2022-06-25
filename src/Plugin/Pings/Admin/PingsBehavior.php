@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Pings\Admin;
 
 // Dotclear\Plugin\Pings\Admin\PingsBehavior
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
@@ -20,6 +19,7 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Mapper\ContentGroups;
 use Dotclear\Helper\Mapper\ContentItem;
 use Dotclear\Plugin\Pings\Common\PingsAPI;
+use Dotclear\Process\Admin\Help\HelpBlocks;
 
 /**
  * Amdin behaviors for plugin Pings.
@@ -36,19 +36,10 @@ class PingsBehavior
         App::core()->behavior('adminAfterPostUpdate')->add([$this, 'doPings']);
 
         // Admin help
-        App::core()->behavior('adminPageHelpBlock')->add(function (ArrayObject $blocks): void {
-            $found = false;
-            foreach ($blocks as $block) {
-                if ('core_post' == $block) {
-                    $found = true;
-
-                    break;
-                }
+        App::core()->behavior('adminBeforeGetPageHelpBlocks')->add(function (HelpBlocks $blocks): void {
+            if ($blocks->hasResource('core_post')) {
+                $blocks->addResource('pings_post');
             }
-            if (!$found) {
-                return;
-            }
-            $blocks[] = 'pings_post';
         });
     }
 

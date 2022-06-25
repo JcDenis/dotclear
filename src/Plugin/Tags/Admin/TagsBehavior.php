@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Tags\Admin;
 
 // Dotclear\Plugin\Tags\Admin\TagsBehavior
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Core\User\UserContainer;
 use Dotclear\Database\Cursor;
@@ -27,6 +26,7 @@ use Dotclear\Plugin\CKEditor\Admin\CKEditorPluginItem;
 use Dotclear\Plugin\CKEditor\Admin\CKEditorPluginItems;
 use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Action\ActionItem;
+use Dotclear\Process\Admin\Help\HelpBlocks;
 
 /**
  * Admin behaviors for plugin Tags.
@@ -47,7 +47,7 @@ class TagsBehavior
         App::core()->behavior('adminUserForm')->add([$this, 'adminUserForm']);
         App::core()->behavior('adminBeforeUserCreate')->add([$this, 'setTagListFormat']);
         App::core()->behavior('adminBeforeUserUpdate')->add([$this, 'setTagListFormat']);
-        App::core()->behavior('adminPageHelpBlock')->add([$this, 'adminPageHelpBlock']);
+        App::core()->behavior('adminBeforeGetPageHelpBlocks')->add([$this, 'adminBeforeGetPageHelpBlocks']);
         App::core()->behavior('adminPostEditor')->add([$this, 'adminPostEditor']);
         App::core()->behavior('adminBeforeAddCKEditorPlugins')->add([$this, 'adminBeforeAddCKEditorPlugins']);
     }
@@ -89,20 +89,11 @@ class TagsBehavior
         }
     }
 
-    public function adminPageHelpBlock(ArrayObject $blocks): void
+    public function adminBeforeGetPageHelpBlocks(HelpBlocks $blocks): void
     {
-        $found = false;
-        foreach ($blocks as $block) {
-            if ('core_post' == $block) {
-                $found = true;
-
-                break;
-            }
+        if ($blocks->hasResource('core_post')) {
+            $blocks->addResource('tag_post');
         }
-        if (!$found) {
-            return;
-        }
-        $blocks[] = 'tag_post';
     }
 
     public function tagsField(ContentGroups $groups, ?Record $post, string $type = null): void

@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Page;
 
 // Dotclear\Process\Admin\Page\AbstractPage
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Database\Param;
 use Dotclear\Exception\AdminException;
@@ -24,6 +23,7 @@ use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Statistic;
 use Dotclear\Process\Admin\Action\Action;
 use Dotclear\Process\Admin\Filter\Filters;
+use Dotclear\Process\Admin\Help\HelpBlocks;
 use Dotclear\Process\Admin\Inventory\Inventory;
 use Exception;
 
@@ -63,10 +63,10 @@ abstract class AbstractPage
     private $page_content = '';
 
     /**
-     * @var array<int,ArrayObject|string> $page_help
-     *                                    Help blocks names
+     * @var HelpBlocks $page_help
+     *                 Help blocks instance
      */
-    private $page_help = [];
+    private $page_help;
 
     /**
      * @var array<string,mixed> $page_breadcrumb
@@ -113,6 +113,8 @@ abstract class AbstractPage
      */
     public function __construct(protected string $handler = 'admin.home')
     {
+        $this->page_help = new HelpBlocks();
+
         $permissions = $this->getPermissions();
 
         // No permissions required for the page or user is Super Admin
@@ -300,7 +302,7 @@ abstract class AbstractPage
             }
         }
 
-        // --BEHAVIOR-- adminPageHTTPHeaders, ArrayObject
+        // --BEHAVIOR-- adminPageHTTPHeaders, Strings
         App::core()->behavior('adminPageHTTPHeaders')->call($headers);
 
         foreach ($headers->dump() as $header) {
@@ -515,26 +517,15 @@ abstract class AbstractPage
             return;
         }
 
-        $args = new ArrayObject($this->page_help);
+        // --BEHAVIOR-- adminBeforeGetPageHelpBlocks, HelpBlocks
+        App::core()->behavior('adminBeforeGetPageHelpBlocks')->call(blocks: $this->page_help);
 
-        // --BEHAVIOR-- adminPageHelpBlock, ArrayObject
-        App::core()->behavior('adminPageHelpBlock')->call($args);
-
-        if (!count($args)) {
+        if ($this->page_help->isEmpty()) {
             return;
         }
 
         $content = '';
-        foreach ($args as $v) {
-            if (empty($v)) {
-                continue;
-            }
-            if ($v instanceof ArrayObject && isset($v['content'])) {
-                $content .= $v['content'];
-
-                continue;
-            }
-
+        foreach ($this->page_help->getResources() as $v) {
             if (!($f = App::core()->help()->context($v))) {
                 continue;
             }
@@ -548,6 +539,9 @@ abstract class AbstractPage
             } else {
                 $content .= $fc;
             }
+        }
+        foreach ($this->page_help->getContents() as $v) {
+            $content .= $v;
         }
 
         if (trim($content) == '') {
@@ -798,11 +792,29 @@ abstract class AbstractPage
      *
      * This must be set before page opening
      *
-     * @param ArrayObject|string ...$page_help The help blocks names
+     * @param string ...$page_help The help blocks names
      */
-    final public function setPageHelp(string|ArrayObject ...$page_help): AbstractPage
+    final public function setPageHelp(string ...$page_help): AbstractPage
     {
-        $this->page_help = $page_help;
+        foreach ($page_help as $resource) {
+            $this->page_help->addResource($resource);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set Help block contents.
+     *
+     * This must be set before page opening
+     *
+     * @param string ...$page_help The help blocks contents
+     */
+    final public function setPageHelpContent(string ...$page_help): AbstractPage
+    {
+        foreach ($page_help as $content) {
+            $this->page_help->addContent($content);
+        }
 
         return $this;
     }
