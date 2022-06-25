@@ -10,14 +10,14 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Combo;
 
 // Dotclear\Process\Admin\Combo\Combo
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Core\User\UserContainer;
 use Dotclear\Database\Record;
+use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\FormSelectOption;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Helper\Clock;
 use Dotclear\Helper\L10n;
+use Dotclear\Helper\Mapper\NamedStrings;
 
 /**
  * Admin combo library.
@@ -61,7 +61,7 @@ class Combo
     /**
      * Return available post status combo.
      *
-     * @return array The post statuses combo
+     * @return array<string,string> The post statuses combo
      */
     public function getPostStatusesCombo(): array
     {
@@ -73,7 +73,7 @@ class Combo
      *
      * @param Record $users The users
      *
-     * @return array The users combo
+     * @return array<string,string> The users combo
      */
     public function getUsersCombo(Record $users): array
     {
@@ -101,7 +101,7 @@ class Combo
      *
      * @param Record $dates The dates
      *
-     * @return array The dates combo
+     * @return array<string,string> The dates combo
      */
     public function getDatesCombo(Record $dates): array
     {
@@ -212,7 +212,7 @@ class Combo
     /**
      * Get the blog statuses combo.
      *
-     * @return array The blog statuses combo
+     * @return array<string,string> The blog statuses combo
      */
     public function getBlogStatusesCombo(): array
     {
@@ -222,7 +222,7 @@ class Combo
     /**
      * Get the comment statuses combo.
      *
-     * @return array The comment statuses combo
+     * @return array<string,string> The comment statuses combo
      */
     public function getCommentStatusesCombo(): array
     {
@@ -232,7 +232,7 @@ class Combo
     /**
      * Get order combo.
      *
-     * @return array The order combo
+     * @return array<string,string> The order combo
      */
     public function getOrderCombo(): array
     {
@@ -245,11 +245,11 @@ class Combo
     /**
      * Get sort by combo for posts.
      *
-     * @return array The posts sort by combo
+     * @return array<string,string> The posts sort by combo
      */
     public function getPostsSortbyCombo(): array
     {
-        $sortby_combo = new ArrayObject([
+        $sortby_combo = new NamedStrings([
             __('Date')                 => 'post_dt',
             __('Title')                => 'post_title',
             __('Category')             => 'cat_title',
@@ -259,20 +259,20 @@ class Combo
             __('Number of comments')   => 'nb_comment',
             __('Number of trackbacks') => 'nb_trackback',
         ]);
-        // --BEHAVIOR-- adminPostsSortbyCombo , ArrayObject
-        App::core()->behavior('adminPostsSortbyCombo')->call($sortby_combo);
+        // --BEHAVIOR-- adminBeforeGetPostsSortbyCombo , NamedStrings
+        App::core()->behavior('adminBeforeGetPostsSortbyCombo')->call($sortby_combo);
 
-        return $sortby_combo->getArrayCopy();
+        return $sortby_combo->dump();
     }
 
     /**
      * Get sort by combo for comments.
      *
-     * @return array The comments sort by combo
+     * @return array<string,string> The comments sort by combo
      */
     public function getCommentsSortbyCombo(): array
     {
-        $sortby_combo = new ArrayObject([
+        $sortby_combo = new NamedStrings([
             __('Date')        => 'comment_dt',
             __('Entry title') => 'post_title',
             __('Entry date')  => 'post_dt',
@@ -281,51 +281,51 @@ class Combo
             __('IP')          => 'comment_ip',
             __('Spam filter') => 'comment_spam_filter',
         ]);
-        // --BEHAVIOR-- adminCommentsSortbyCombo , ArrayObject
-        App::core()->behavior('adminCommentsSortbyCombo')->call($sortby_combo);
+        // --BEHAVIOR-- adminBeforeGetCommentsSortbyCombo , NamedStrings
+        App::core()->behavior('adminBeforeGetCommentsSortbyCombo')->call($sortby_combo);
 
-        return $sortby_combo->getArrayCopy();
+        return $sortby_combo->dump();
     }
 
     /**
      * Get sort by combo for blogs.
      *
-     * @return array The blogs sort by combo
+     * @return array<string,string> The blogs sort by combo
      */
     public function getBlogsSortbyCombo(): array
     {
-        $sortby_combo = new ArrayObject([
+        $sortby_combo = new NamedStrings([
             __('Last update') => 'blog_upddt',
             __('Blog name')   => 'UPPER(blog_name)',
             __('Blog ID')     => 'B.blog_id',
             __('Status')      => 'blog_status',
         ]);
-        // --BEHAVIOR-- adminBlogsSortbyCombo , ArrayObject
-        App::core()->behavior('adminBlogsSortbyCombo')->call($sortby_combo);
+        // --BEHAVIOR-- adminBeforeGetBlogsSortbyCombo , NamedStrings
+        App::core()->behavior('adminBeforeGetBlogsSortbyCombo')->call($sortby_combo);
 
-        return $sortby_combo->getArrayCopy();
+        return $sortby_combo->dump();
     }
 
     /**
      * Get sort by combo for users.
      *
-     * @return array The users sort by combo
+     * @return array<string,string> The users sort by combo
      */
     public function getUsersSortbyCombo(): array
     {
-        $sortby_combo = new ArrayObject([]);
+        $sortby_combo = new NamedStrings();
         if (App::core()->user()->isSuperAdmin()) {
-            $sortby_combo = new ArrayObject([
+            $sortby_combo = new NamedStrings([
                 __('Username')          => 'user_id',
                 __('Last Name')         => 'user_name',
                 __('First Name')        => 'user_firstname',
                 __('Display name')      => 'user_displayname',
                 __('Number of entries') => 'nb_post',
             ]);
-            // --BEHAVIOR-- adminUsersSortbyCombo , ArrayObject
-            App::core()->behavior('adminUsersSortbyCombo')->call($sortby_combo);
+            // --BEHAVIOR-- adminBeforeGetUsersSortbyCombo , NamedStrings
+            App::core()->behavior('adminBeforeGetUsersSortbyCombo')->call($sortby_combo);
         }
 
-        return $sortby_combo->getArrayCopy();
+        return $sortby_combo->dump();
     }
 }
