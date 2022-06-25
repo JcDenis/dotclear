@@ -27,16 +27,15 @@ class Prepend extends ModulePrepend
         $this->addStandardFavorites();
 
         // ImportExport modules
-        App::core()->behavior()->add('importExportModules', function ($modules) {
-            $ns                = __NAMESPACE__ . '\\Lib\\Module\\';
-            $modules['import'] = array_merge($modules['import'], [$ns . 'ImportFlat']);
-            $modules['import'] = array_merge($modules['import'], [$ns . 'ImportFeed']);
-
-            $modules['export'] = array_merge($modules['export'], [$ns . 'ExportFlat']);
+        App::core()->behavior('adminBeforeAddImportExportModules')->add(function ($import, $export) {
+            $ns = __NAMESPACE__ . '\\Lib\\Module\\';
+            $import->add($ns . 'ImportFlat');
+            $import->add($ns . 'ImportFeed');
+            $export->add($ns . 'ExportFlat');
         });
 
         // Maintenance task
-        App::core()->behavior()->add('dcMaintenanceInit', function ($maintenance) {
+        App::core()->behavior('dcMaintenanceInit')->add(function ($maintenance) {
             $ns = __NAMESPACE__ . '\\MaintenanceTask\\';
             $maintenance
                 ->addTask($ns . 'ExportBlog')

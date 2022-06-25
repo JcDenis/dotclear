@@ -10,10 +10,10 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\ImportExport\Admin;
 
 // Dotclear\Plugin\ImportExport\Admin\Handler
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Mapper\Strings;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Exception;
 
@@ -31,10 +31,16 @@ class Handler extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        $modules = new ArrayObject(['import' => [], 'export' => []]);
+        $import = new Strings();
+        $export = new Strings();
 
         // --BEHAVIOR-- importExportModules
-        App::core()->behavior('importExportModules')->call($modules);
+        App::core()->behavior('adminBeforeAddImportExportModules')->call(import: $import, export: $export);
+
+        $modules = [
+            'import' => $import->dump(),
+            'export' => $export->dump(),
+        ];
 
         $type = null;
         if (in_array(GPC::request()->string('type'), ['export', 'import'])) {
