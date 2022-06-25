@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Pages\Common;
 
 // Dotclear\Plugin\Pages\Common\PagesUrl
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Core\PostType\PostTypeItem;
 use Dotclear\Core\Url\UrlItem;
@@ -69,15 +68,14 @@ class PagesUrl
 
             App::core()->context()->set('posts', App::core()->blog()->posts()->getPosts(param: $param));
 
-            /** @var ArrayObject<string, mixed> */
-            $cp               = new ArrayObject();
-            $cp['content']    = '';
-            $cp['rawcontent'] = '';
-            $cp['name']       = '';
-            $cp['mail']       = '';
-            $cp['site']       = '';
-            $cp['preview']    = false;
-            $cp['remember']   = false;
+            $cp = new Param();
+            $cp->set('content', '');
+            $cp->set('rawcontent', '');
+            $cp->set('name', '');
+            $cp->set('mail', '');
+            $cp->set('site', '');
+            $cp->set('preview', false);
+            $cp->set('remember', false);
             App::core()->context()->set('comment_preview', $cp);
 
             App::core()->blog()->setWithoutPassword();
@@ -155,17 +153,16 @@ class PagesUrl
                         $content = Html::filter($content);
                     }
 
-                    $cp = App::core()->context()->get('comment_preview')
-                        ->set('content', $content)
-                        ->set('rawcontent', GPC::post()->string('c_content'))
-                        ->set('name', $name)
-                        ->set('mail', $mail)
-                        ->set('site', $site)
-                    ;
+                    $cp = App::core()->context()->get('comment_preview');
+                    $cp->set('content', $content);
+                    $cp->set('rawcontent', GPC::post()->string('c_content'));
+                    $cp->set('name', $name);
+                    $cp->set('mail', $mail);
+                    $cp->set('site', $site);
 
                     if ($preview) {
                         // --BEHAVIOR-- publicBeforeCommentPreview
-                        App::core()->behavior('publicBeforeCommentPreview')->call($cp);
+                        App::core()->behavior('publicBeforeCommentPreview')->call(param: $cp);
 
                         $cp->set('preview', true);
                     } else {
