@@ -39,6 +39,8 @@ class NamedStrings
     /**
      * Get a key value.
      *
+     * If key does not exist, an empty string will be returned.
+     *
      * @param string $key The key
      *
      * @return string The key value
@@ -51,6 +53,8 @@ class NamedStrings
     /**
      * Set a new key value.
      *
+     * If key exists, it will be overwrited.
+     *
      * @param string $key   The key to add
      * @param string $value The value to add
      */
@@ -60,14 +64,16 @@ class NamedStrings
     }
 
     /**
-     * Update a key value.
+     * Concat a key value.
      *
-     * @param string $key   The key to add
-     * @param string $value The value to add to exissting value
+     * If key does not exist, it will be created.
+     *
+     * @param string $key   The key to modify
+     * @param string $value The value to add
      */
-    public function update(string $key, string $value): void
+    public function concat(string $key, string $value): void
     {
-        $this->stack[$key] = $this->get($key) . $value;
+        $this->set($key, $this->get($key) . $value);
     }
 
     /**
@@ -78,28 +84,6 @@ class NamedStrings
     public function remove(string $key): void
     {
         unset($this->stack[$key]);
-    }
-
-    /**
-     * Check if a value is set.
-     *
-     * @param string $key The value
-     *
-     * @return bool True if key exists
-     */
-    public function exists(string $key)
-    {
-        return array_key_exists($key, $this->stack);
-    }
-
-    /**
-     * Chek if a value is empty.
-     *
-     * @param string $key The key
-     */
-    public function empty(string $key): bool
-    {
-        return empty($this->get($key));
     }
 
     /**

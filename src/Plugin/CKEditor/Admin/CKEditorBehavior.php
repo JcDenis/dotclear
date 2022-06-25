@@ -106,13 +106,13 @@ class CKEditorBehavior
     {
         // add 'unsafe-inline' for CSS, add 'unsafe-eval' for scripts as far as CKEditor 4.x is used
         if (!str_contains($csp->get('style-src'), 'unsafe-inline')) {
-            $csp->update('style-src', " 'unsafe-inline'");
+            $csp->concat('style-src', " 'unsafe-inline'");
         }
         if (!str_contains($csp->get('script-src'), 'unsafe-inline')) {
-            $csp->update('script-src', " 'unsafe-inline'");
+            $csp->concat('script-src', " 'unsafe-inline'");
         }
         if (!str_contains($csp->get('script-src'), 'unsafe-eval')) {
-            $csp->update('script-src', " 'unsafe-eval'");
+            $csp->concat('script-src', " 'unsafe-eval'");
         }
     }
 }

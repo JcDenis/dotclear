@@ -269,16 +269,16 @@ abstract class AbstractPage
 
             // Cope with blog post preview (via public URL in iframe)
             if (!is_null(App::core()->blog()->host)) {
-                $csp->update('default-src', ' ' . parse_url(App::core()->blog()->host, PHP_URL_HOST));
-                $csp->update('script-src', ' ' . parse_url(App::core()->blog()->host, PHP_URL_HOST));
-                $csp->update('style-src', ' ' . parse_url(App::core()->blog()->host, PHP_URL_HOST));
+                $csp->concat('default-src', ' ' . parse_url(App::core()->blog()->host, PHP_URL_HOST));
+                $csp->concat('script-src', ' ' . parse_url(App::core()->blog()->host, PHP_URL_HOST));
+                $csp->concat('style-src', ' ' . parse_url(App::core()->blog()->host, PHP_URL_HOST));
             }
             // Cope with media display in media manager (via public URL)
             if (App::core()->media()) {
-                $csp->update('img-src', ' ' . parse_url(App::core()->media()->root_url, PHP_URL_HOST));
+                $csp->concat('img-src', ' ' . parse_url(App::core()->media()->root_url, PHP_URL_HOST));
             } elseif (!is_null(App::core()->blog()->host)) {
                 // Let's try with the blog URL
-                $csp->update('img-src', ' ' . parse_url(App::core()->blog()->host, PHP_URL_HOST));
+                $csp->concat('img-src', ' ' . parse_url(App::core()->blog()->host, PHP_URL_HOST));
             }
             // Allow everything in iframe (used by editors to preview public content)
             $csp->set('frame-src', '*');
