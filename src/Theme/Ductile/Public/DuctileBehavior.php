@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Theme\Ductile\Public;
 
 // Dotclear\Theme\Ductile\Public\DuctileBehavior
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Modules\ModuleHelper;
 
@@ -83,8 +82,8 @@ class DuctileBehavior
             return;
         }
 
+        $this->config->resetCss();
         $ret = '';
-        $css = new ArrayObject();
         $uri = [];
         if (!isset($s['body_font']) || ('' == $s['body_font'])) {
             // See if webfont defined for main font
@@ -104,7 +103,7 @@ class DuctileBehavior
                 }
                 // Main font
                 $selectors = 'body, .supranav li a span, #comments.me, a.comment-number';
-                $this->config->prop($css, $selectors, 'font-family', $s['body_webfont_family']);
+                $this->config->prop($selectors, 'font-family', $s['body_webfont_family']);
             }
         }
         if (!isset($s['alternate_font']) || ('' == $s['alternate_font'])) {
@@ -125,18 +124,11 @@ class DuctileBehavior
                 }
                 // Secondary font
                 $selectors = '#blogdesc, .supranav, #content-info, #subcategories, #comments-feed, #sidebar h2, #sidebar h3, #footer';
-                $this->config->prop($css, $selectors, 'font-family', $s['alternate_webfont_family']);
+                $this->config->prop($selectors, 'font-family', $s['alternate_webfont_family']);
             }
         }
         // Style directives
-        $res = '';
-        foreach ($css as $selector => $values) {
-            $res .= $selector . " {\n";
-            foreach ($values as $k => $v) {
-                $res .= $k . ':' . $v . ";\n";
-            }
-            $res .= "}\n";
-        }
+        $res = $this->config->parseCss();
         if ('' != $res) {
             $ret .= '<style type="text/css">' . "\n" . $res . '</style>' . "\n";
         }
@@ -157,164 +149,143 @@ class DuctileBehavior
             return;
         }
 
-        $css = new ArrayObject();
+        $this->config->resetCss();
 
         // Properties
 
         // Blog description
         $selectors = '#blogdesc';
         if (isset($s['subtitle_hidden'])) {
-            $this->config->prop($css, $selectors, 'display', ($s['subtitle_hidden'] ? 'none' : null));
+            $this->config->prop($selectors, 'display', ($s['subtitle_hidden'] ? 'none' : null));
         }
 
         // Main font
         $selectors = 'body, .supranav li a span, #comments.me, a.comment-number';
         if (isset($s['body_font'])) {
-            $this->config->prop($css, $selectors, 'font-family', $this->fontDef($s['body_font']));
+            $this->config->prop($selectors, 'font-family', $this->fontDef($s['body_font']));
         }
 
         // Secondary font
         $selectors = '#blogdesc, .supranav, #content-info, #subcategories, #comments-feed, #sidebar h2, #sidebar h3, #footer';
         if (isset($s['alternate_font'])) {
-            $this->config->prop($css, $selectors, 'font-family', $this->fontDef($s['alternate_font']));
+            $this->config->prop($selectors, 'font-family', $this->fontDef($s['alternate_font']));
         }
 
         // Inside posts links font weight
         $selectors = '.post-excerpt a, .post-content a';
         if (isset($s['post_link_w'])) {
-            $this->config->prop($css, $selectors, 'font-weight', ($s['post_link_w'] ? 'bold' : 'normal'));
+            $this->config->prop($selectors, 'font-weight', ($s['post_link_w'] ? 'bold' : 'normal'));
         }
 
         // Inside posts links colors (normal, visited)
         $selectors = '.post-excerpt a:link, .post-excerpt a:visited, .post-content a:link, .post-content a:visited';
         if (isset($s['post_link_v_c'])) {
-            $this->config->prop($css, $selectors, 'color', $s['post_link_v_c']);
+            $this->config->prop($selectors, 'color', $s['post_link_v_c']);
         }
 
         // Inside posts links colors (hover, active, focus)
         $selectors = '.post-excerpt a:hover, .post-excerpt a:active, .post-excerpt a:focus, .post-content a:hover, .post-content a:active, .post-content a:focus';
         if (isset($s['post_link_f_c'])) {
-            $this->config->prop($css, $selectors, 'color', $s['post_link_f_c']);
+            $this->config->prop($selectors, 'color', $s['post_link_f_c']);
         }
 
         // Style directives
-        $res = '';
-        foreach ($css as $selector => $values) {
-            $res .= $selector . " {\n";
-            foreach ($values as $k => $v) {
-                $res .= $k . ':' . $v . ";\n";
-            }
-            $res .= "}\n";
-        }
+        $res = $this->config->parseCss();
 
         // Large screens
-        $css_large = new ArrayObject();
+        $this->config->resetCss();
 
         // Blog title font weight
         $selectors = 'h1, h1 a:link, h1 a:visited, h1 a:hover, h1 a:visited, h1 a:focus';
         if (isset($s['blog_title_w'])) {
-            $this->config->prop($css_large, $selectors, 'font-weight', ($s['blog_title_w'] ? 'bold' : 'normal'));
+            $this->config->prop($selectors, 'font-weight', ($s['blog_title_w'] ? 'bold' : 'normal'));
         }
 
         // Blog title font size
         $selectors = 'h1';
         if (isset($s['blog_title_s'])) {
-            $this->config->prop($css_large, $selectors, 'font-size', $s['blog_title_s']);
+            $this->config->prop($selectors, 'font-size', $s['blog_title_s']);
         }
 
         // Blog title color
         $selectors = 'h1 a:link, h1 a:visited, h1 a:hover, h1 a:visited, h1 a:focus';
         if (isset($s['blog_title_c'])) {
-            $this->config->prop($css_large, $selectors, 'color', $s['blog_title_c']);
+            $this->config->prop($selectors, 'color', $s['blog_title_c']);
         }
 
         // Post title font weight
         $selectors = 'h2.post-title, h2.post-title a:link, h2.post-title a:visited, h2.post-title a:hover, h2.post-title a:visited, h2.post-title a:focus';
         if (isset($s['post_title_w'])) {
-            $this->config->prop($css_large, $selectors, 'font-weight', ($s['post_title_w'] ? 'bold' : 'normal'));
+            $this->config->prop($selectors, 'font-weight', ($s['post_title_w'] ? 'bold' : 'normal'));
         }
 
         // Post title font size
         $selectors = 'h2.post-title';
         if (isset($s['post_title_s'])) {
-            $this->config->prop($css_large, $selectors, 'font-size', $s['post_title_s']);
+            $this->config->prop($selectors, 'font-size', $s['post_title_s']);
         }
 
         // Post title color
         $selectors = 'h2.post-title a:link, h2.post-title a:visited, h2.post-title a:hover, h2.post-title a:visited, h2.post-title a:focus';
         if (isset($s['post_title_c'])) {
-            $this->config->prop($css_large, $selectors, 'color', $s['post_title_c']);
+            $this->config->prop($selectors, 'color', $s['post_title_c']);
         }
 
         // Simple title color (title without link)
         $selectors = '#content-info h2, .post-title, .post h3, .post h4, .post h5, .post h6, .arch-block h3';
         if (isset($s['post_simple_title_c'])) {
-            $this->config->prop($css_large, $selectors, 'color', $s['post_simple_title_c']);
+            $this->config->prop($selectors, 'color', $s['post_simple_title_c']);
         }
 
         // Style directives for large screens
-        if (count($css_large)) {
-            $res .= '@media only screen and (min-width: 481px) {' . "\n";
-            foreach ($css_large as $selector => $values) {
-                $res .= $selector . " {\n";
-                foreach ($values as $k => $v) {
-                    $res .= $k . ':' . $v . ";\n";
-                }
-                $res .= "}\n";
-            }
-            $res .= "}\n";
+        $large = $this->config->parseCss();
+        if ($large) {
+            $res .= '@media only screen and (min-width: 481px) {' . "\n" . $large . "}\n";
         }
 
         // Small screens
-        $css_small = new ArrayObject();
+        $this->config->resetCss();
 
         // Blog title font weight
         $selectors = 'h1, h1 a:link, h1 a:visited, h1 a:hover, h1 a:visited, h1 a:focus';
         if (isset($s['blog_title_w_m'])) {
-            $this->config->prop($css_small, $selectors, 'font-weight', ($s['blog_title_w_m'] ? 'bold' : 'normal'));
+            $this->config->prop($selectors, 'font-weight', ($s['blog_title_w_m'] ? 'bold' : 'normal'));
         }
 
         // Blog title font size
         $selectors = 'h1';
         if (isset($s['blog_title_s_m'])) {
-            $this->config->prop($css_small, $selectors, 'font-size', $s['blog_title_s_m']);
+            $this->config->prop($selectors, 'font-size', $s['blog_title_s_m']);
         }
 
         // Blog title color
         $selectors = 'h1 a:link, h1 a:visited, h1 a:hover, h1 a:visited, h1 a:focus';
         if (isset($s['blog_title_c_m'])) {
-            $this->config->prop($css_small, $selectors, 'color', $s['blog_title_c_m']);
+            $this->config->prop($selectors, 'color', $s['blog_title_c_m']);
         }
 
         // Post title font weight
         $selectors = 'h2.post-title, h2.post-title a:link, h2.post-title a:visited, h2.post-title a:hover, h2.post-title a:visited, h2.post-title a:focus';
         if (isset($s['post_title_w_m'])) {
-            $this->config->prop($css_small, $selectors, 'font-weight', ($s['post_title_w_m'] ? 'bold' : 'normal'));
+            $this->config->prop($selectors, 'font-weight', ($s['post_title_w_m'] ? 'bold' : 'normal'));
         }
 
         // Post title font size
         $selectors = 'h2.post-title';
         if (isset($s['post_title_s_m'])) {
-            $this->config->prop($css_small, $selectors, 'font-size', $s['post_title_s_m']);
+            $this->config->prop($selectors, 'font-size', $s['post_title_s_m']);
         }
 
         // Post title color
         $selectors = 'h2.post-title a:link, h2.post-title a:visited, h2.post-title a:hover, h2.post-title a:visited, h2.post-title a:focus';
         if (isset($s['post_title_c_m'])) {
-            $this->config->prop($css_small, $selectors, 'color', $s['post_title_c_m']);
+            $this->config->prop($selectors, 'color', $s['post_title_c_m']);
         }
 
         // Style directives for small screens
-        if (count($css_small)) {
-            $res .= '@media only screen and (max-width: 480px) {' . "\n";
-            foreach ($css_small as $selector => $values) {
-                $res .= $selector . " {\n";
-                foreach ($values as $k => $v) {
-                    $res .= $k . ':' . $v . ";\n";
-                }
-                $res .= "}\n";
-            }
-            $res .= "}\n";
+        $small = $this->config->parseCss();
+        if ($small) {
+            $res .= '@media only screen and (max-width: 480px) {' . "\n" . $small . "}\n";
         }
 
         return $res;
