@@ -18,7 +18,7 @@
         </tpl:IfWidgets>
       </tpl:Block>
       <tpl:Block name="_footer-behavior-inside">
-        {{tpl:SysBehavior behavior="publicInsideFooter"}}
+        {{tpl:SysBehavior behavior="templateBeforeGetFooter"}}
       </tpl:Block>
       <tpl:Block name="_footer-engine">
         <p>{{tpl:SysPoweredBy}}</p>
@@ -26,7 +26,7 @@
     </footer>
   </tpl:Block>
   <tpl:Block name="_footer-behavior">
-    {{tpl:SysBehavior behavior="publicFooterContent"}}
+    {{tpl:SysBehavior behavior="templateAfterGetFooter"}}
   </tpl:Block>
   <tpl:Block name="_footer-user-footer">
     {{tpl:include src="user_footer.html"}}

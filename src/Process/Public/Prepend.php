@@ -239,8 +239,8 @@ final class Prepend extends Core
         $this->themes()->loadModuleL10N(array_key_first($path), L10n::lang(), 'main');
         $this->themes()->loadModuleL10N(array_key_first($path), L10n::lang(), 'public');
 
-        // --BEHAVIOR-- publicPrepend
-        $this->behavior('publicPrepend')->call();
+        // --BEHAVIOR-- publicBeforeLoadPage
+        $this->behavior('publicBeforeLoadPage')->call();
 
         // Check templateset and add all path to tpl
         $tplset = $this->themes()->getModule(array_key_last($path))->templateset();

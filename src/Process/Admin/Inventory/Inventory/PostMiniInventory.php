@@ -48,7 +48,8 @@ class PostMiniInventory extends Inventory
                 'status' => '<th scope="col">' . __('Status') . '</th>',
             ]);
 
-            App::core()->behavior('adminPostMiniListHeader')->call($this->rs, $cols);
+            // --BEHAVIOR-- adminBeforeGetPostMiniListHeader, Record, NamedStrings
+            App::core()->behavior('adminBeforeGetPostMiniListHeader')->call(record: $this->rs, cols: $cols);
 
             App::core()->listoption()->column()->cleanColumns(id: 'posts', columns: $cols);
 
@@ -115,7 +116,8 @@ class PostMiniInventory extends Inventory
             'status' => '<td class="nowrap status">' . $img_status . ' ' . $selected . ' ' . $protected . ' ' . $attach . '</td>',
         ]);
 
-        App::core()->behavior('adminPostMiniListValue')->call($this->rs, $cols);
+        // --BEHAVIOR-- adminBeforeGetPostMiniListValue, Record, NamedStrings
+        App::core()->behavior('adminBeforeGetPostMiniListValue')->call(record: $this->rs, cols: $cols);
 
         App::core()->listoption()->column()->cleanColumns(id: 'posts', columns: $cols);
 

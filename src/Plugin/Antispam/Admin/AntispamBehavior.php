@@ -36,10 +36,10 @@ class AntispamBehavior
 
         // @phpstan-ignore-next-line (Failed to judge constant)
         if (false == DC_ANTISPAM_CONF_SUPER || App::core()->user()->isSuperAdmin()) {
-            App::core()->behavior('adminBlogPreferencesForm')->add([$this, 'behaviorAdminBlogPreferencesForm']);
-            App::core()->behavior('adminBeforeBlogSettingsUpdate')->add([$this, 'adminBeforeBlogSettingsUpdate']);
-            App::core()->behavior('adminCommentsSpamForm')->add([$this, 'behaviorAdminCommentsSpamForm']);
-            App::core()->behavior('adminBeforeGetPageHelpBlocks')->add([$this, 'behaviorAdminPageHelpBlock']);
+            App::core()->behavior('adminAfterGetBlogPreferencesForm')->add([$this, 'adminAfterGetBlogPreferencesForm']);
+            App::core()->behavior('adminBeforeUpdateBlogSettings')->add([$this, 'adminBeforeUpdateBlogSettings']);
+            App::core()->behavior('adminAfterGetCommentsSpamForm')->add([$this, 'adminAfterGetCommentsSpamForm']);
+            App::core()->behavior('adminBeforeGetPageHelpBlocks')->add([$this, 'adminBeforeGetPageHelpBlocks']);
         }
     }
 
@@ -60,14 +60,14 @@ class AntispamBehavior
         }
     }
 
-    public function behaviorAdminPageHelpBlock(HelpBlocks $blocks): void
+    public function adminBeforeGetPageHelpBlocks(HelpBlocks $blocks): void
     {
         if ($blocks->hasResource('core_comments')) {
             $blocks->addResource('attachantispam_commentsments');
         }
     }
 
-    public function behaviorAdminCommentsSpamForm(): void
+    public function adminAfterGetCommentsSpamForm(): void
     {
         $ttl = App::core()->blog()->settings()->getGroup('antispam')->getSetting('antispam_moderation_ttl');
         if (null != $ttl && 0 <= $ttl) {
@@ -78,7 +78,7 @@ class AntispamBehavior
         }
     }
 
-    public function behaviorAdminBlogPreferencesForm(Settings $settings): void
+    public function adminAfterGetBlogPreferencesForm(Settings $settings): void
     {
         echo '<div class="fieldset"><h4 id="antispam_params">Antispam</h4>' .
         '<p><label for="antispam_moderation_ttl" class="classic">' . __('Delete junk comments older than') . ' ' .
@@ -90,7 +90,7 @@ class AntispamBehavior
             '</div>';
     }
 
-    public function adminBeforeBlogSettingsUpdate(Settings $settings): void
+    public function adminBeforeUpdateBlogSettings(Settings $settings): void
     {
         $settings->getGroup('antispam')->putSetting('antispam_moderation_ttl', GPC::post()->int('antispam_moderation_ttl'));
     }

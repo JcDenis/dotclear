@@ -35,7 +35,7 @@ class Prepend extends ModulePrepend
 
         // Load widgets stack only on widget admin page
         if (App::core()->adminurl()->is('admin.plugin.Widgets')) {
-            App::core()->behavior('adminPrepend')->add(fn () => new WidgetsStack());
+            App::core()->behavior('adminBeforeLoadPage')->add(fn () => new WidgetsStack());
         }
     }
 

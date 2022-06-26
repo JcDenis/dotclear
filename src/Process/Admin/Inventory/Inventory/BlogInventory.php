@@ -61,7 +61,8 @@ class BlogInventory extends Inventory
                 'status' => '<th scope="col" class="txt-center">' . __('Status') . '</th>',
             ]);
 
-            App::core()->behavior('adminBlogListHeader')->call($this->rs, $cols);
+            // --BEHAVIOR-- adminBeforeGetBlogListHeader, Record, NamedStrings
+            App::core()->behavior('adminBeforeGetBlogListHeader')->call(record: $this->rs, cols: $cols);
 
             $html_block = '<div class="table-outer"><table>' .
             (
@@ -148,7 +149,8 @@ class BlogInventory extends Inventory
             '</td>',
         ]);
 
-        App::core()->behavior('adminBlogListValue')->call($this->rs, $cols);
+        // --BEHAVIOR-- adminBeforeGetBlogListValue, Record, NamedStrings
+        App::core()->behavior('adminBeforeGetBlogListValue')->call(record: $this->rs, cols: $cols);
 
         return
         '<tr class="line" id="b' . $blog_id . '">' .

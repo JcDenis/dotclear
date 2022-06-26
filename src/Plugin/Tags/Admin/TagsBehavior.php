@@ -48,11 +48,11 @@ class TagsBehavior
         App::core()->behavior('adminBeforeUserCreate')->add([$this, 'setTagListFormat']);
         App::core()->behavior('adminBeforeUserUpdate')->add([$this, 'setTagListFormat']);
         App::core()->behavior('adminBeforeGetPageHelpBlocks')->add([$this, 'adminBeforeGetPageHelpBlocks']);
-        App::core()->behavior('adminPostEditor')->add([$this, 'adminPostEditor']);
+        App::core()->behavior('adminBeforeGetPostEditorHead')->add([$this, 'adminBeforeGetPostEditorHead']);
         App::core()->behavior('adminBeforeAddCKEditorPlugins')->add([$this, 'adminBeforeAddCKEditorPlugins']);
     }
 
-    public function adminPostEditor(string $editor = '', string $context = '', array $tags = [], string $syntax = ''): string
+    public function adminBeforeGetPostEditorHead(string $editor = '', string $context = '', array $tags = [], string $syntax = ''): string
     {
         if (!in_array($editor, ['LegacyEditor', 'CKEditor']) || 'post' != $context) {
             return '';

@@ -119,7 +119,8 @@ class CommentInventory extends Inventory
             }
             $cols->set('entry', '<th scope="col" abbr="entry">' . __('Entry') . '</th>');
 
-            App::core()->behavior('adminCommentListHeader')->call($this->rs, $cols, $spam);
+            // --BEHAVIOR-- adminBeforeGetBlogListHeader, Record, NamedStrings, bool
+            App::core()->behavior('adminBeforeGetCommentListHeader')->call(record: $this->rs, cols: $cols, spam: $spam);
 
             $html_block .= '<tr>' . implode($cols->dump()) . '</tr>%s</table>%s</div>';
 
@@ -211,7 +212,8 @@ class CommentInventory extends Inventory
             ('post' != $this->rs->field('post_type') ? ' (' . Html::escapeHTML($this->rs->field('post_type')) . ')' : '') . '</td>'
         );
 
-        App::core()->behavior('adminCommentListValue')->call($this->rs, $cols, $spam);
+        // --BEHAVIOR-- adminBeforeGetBlogListHeader, Record, NamedStrings, bool
+        App::core()->behavior('adminBeforeGetCommentListValue')->call(record: $this->rs, cols: $cols, spam: $spam);
 
         $res .= implode($cols->dump());
         $res .= '</tr>';

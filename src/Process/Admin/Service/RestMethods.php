@@ -236,8 +236,8 @@ class RestMethods
 
         $upd = new NamedStrings();
 
-        // --BEHAVIOR-- restCheckStoreUpdate, string, NamedStrings
-        App::core()->behavior('restCheckStoreUpdate')->call($post['store'], $upd);
+        // --BEHAVIOR-- adminBeforeCheckStoreUpdate, string, NamedStrings
+        App::core()->behavior('adminBeforeCheckStoreUpdate')->call(type: $post['store'], update: $upd);
 
         if ($upd->count()) {
             $ret = sprintf(__('An update is available', '%s updates are available.', $upd->count()), $upd->count());

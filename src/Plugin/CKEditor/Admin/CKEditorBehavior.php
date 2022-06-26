@@ -26,23 +26,23 @@ class CKEditorBehavior
 {
     public function __construct()
     {
-        App::core()->behavior('adminPostEditor')->add([$this, 'adminPostEditor']);
+        App::core()->behavior('adminBeforeGetPostEditorHead')->add([$this, 'adminBeforeGetPostEditorHead']);
         App::core()->behavior('adminPopupMedia')->add([$this, 'adminPopupMedia']);
         App::core()->behavior('adminPopupLink')->add([$this, 'adminPopupLink']);
         App::core()->behavior('adminPopupPosts')->add([$this, 'adminPopupPosts']);
         App::core()->behavior('adminFiltersAddFilters')->add([$this, 'adminFiltersAddFilters']);
-        App::core()->behavior('adminPageHTTPHeaderCSP')->add([$this, 'adminPageHTTPHeaderCSP']);
+        App::core()->behavior('adminBeforeGetPageCSPHeaders')->add([$this, 'adminBeforeGetPageCSPHeaders']);
     }
 
     /**
-     * adminPostEditor add javascript to the DOM to load ckeditor depending on context.
+     * adminBeforeGetPostEditorHead add javascript to the DOM to load ckeditor depending on context.
      *
      * @param string $editor  The wanted editor
      * @param string $context The page context (post,page,comment,event,...)
      * @param array  $tags    The array of ids to inject editor
      * @param string $syntax  The wanted syntax (wiki,markdown,...)
      */
-    public function adminPostEditor(string $editor = '', string $context = '', array $tags = [], string $syntax = 'xhtml'): string
+    public function adminBeforeGetPostEditorHead(string $editor = '', string $context = '', array $tags = [], string $syntax = 'xhtml'): string
     {
         if (empty($editor) || 'CKEditor' != $editor || 'xhtml' != $syntax) {
             return '';
@@ -102,7 +102,7 @@ class CKEditorBehavior
         }
     }
 
-    public function adminPageHTTPHeaderCSP(NamedStrings $csp): void
+    public function adminBeforeGetPageCSPHeaders(NamedStrings $csp): void
     {
         // add 'unsafe-inline' for CSS, add 'unsafe-eval' for scripts as far as CKEditor 4.x is used
         if (!str_contains($csp->get('style-src'), 'unsafe-inline')) {

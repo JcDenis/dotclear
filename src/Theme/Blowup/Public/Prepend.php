@@ -22,7 +22,7 @@ class Prepend extends ModulePrepend
             return;
         }
 
-        App::core()->behavior('publicHeadContent')->add(function (): void {
+        App::core()->behavior('templateAfterGetHead')->add(function (): void {
             $url = (new BlowupConfig())->publicCssUrlHelper();
             if ($url) {
                 echo '<link rel="stylesheet" href="' . $url . '" type="text/css" />';

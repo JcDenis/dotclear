@@ -43,17 +43,16 @@ class Antispam
     public function __construct()
     {
         if (App::core()->isProcess('Public')) {
-            App::core()->behavior('publicBeforeCommentCreate')->add([$this, 'isSpam']);
-            App::core()->behavior('publicBeforeTrackbackCreate')->add([$this, 'isSpam']);
+            App::core()->behavior('coreBeforeCreateComment')->add([$this, 'isSpam']);
             App::core()->behavior('publicBeforeGetDocument')->add([$this, 'purgeOldSpam']);
         } elseif (App::core()->isProcess('Admin')) {
             App::core()->behavior('coreAfterUpdateComment')->add([$this, 'trainFilters']);
-            App::core()->behavior('adminAfterCommentDesc')->add([$this, 'statusMessage']);
+            App::core()->behavior('adminAfterGetComment')->add([$this, 'statusMessage']);
             App::core()->behavior('adminDashboardHeaders')->add([$this, 'dashboardHeaders']);
             App::core()->behavior('adminCommentsActionsPage')->add([$this, 'commentsActionsPage']);
             App::core()->behavior('coreAfterGetComments')->add([$this, 'blogGetComments']);
-            App::core()->behavior('adminCommentListHeader')->add([$this, 'commentListHeader']);
-            App::core()->behavior('adminCommentListValue')->add([$this, 'commentListValue']);
+            App::core()->behavior('adminBeforeGetCommentListHeader')->add([$this, 'commentListHeader']);
+            App::core()->behavior('adminBeforeGetCommentListValue')->add([$this, 'commentListValue']);
         }
     }
 
@@ -77,44 +76,44 @@ class Antispam
         $this->filters->init($spamfilters->dump());
     }
 
-    public function isSpam(Cursor $cur): void
+    public function isSpam(Cursor $cursor): void
     {
         $this->initFilters();
-        $this->filters->isSpam($cur);
+        $this->filters->isSpam($cursor);
     }
 
-    public function trainFilters(Cursor $cur, Record $rs): void
+    public function trainFilters(Cursor $cursor, Record $record): void
     {
         $status = null;
         // From ham to spam
-        if (-2 != $rs->integer('comment_status') && -2 == $cur->getField('comment_status')) {
+        if (-2 != $record->integer('comment_status') && -2 == $cursor->getField('comment_status')) {
             $status = 'spam';
         }
 
         // From spam to ham
-        if (-2 == $rs->field('comment_status') && 1 == $cur->getField('comment_status')) {
+        if (-2 == $record->field('comment_status') && 1 == $cursor->getField('comment_status')) {
             $status = 'ham';
         }
 
         // the status of this comment has changed
         if (null !== $status) {
-            $filter_name = $rs->call('spamFilter') ?: null;
+            $filter_name = $record->call('spamFilter') ?: null;
 
             $this->initFilters();
-            $this->filters->trainFilters($rs, $status, $filter_name);
+            $this->filters->trainFilters($record, $status, $filter_name);
         }
     }
 
-    public function statusMessage(Record $rs): string
+    public function statusMessage(Record $record): string
     {
-        if ($rs->exists('comment_status') && -2 == $rs->integer('comment_status')) {
-            $filter_name = $rs->call('spamFilter') ?: null;
+        if ($record->exists('comment_status') && -2 == $record->integer('comment_status')) {
+            $filter_name = $record->call('spamFilter') ?: null;
 
             $this->initFilters();
 
             return
             '<p><strong>' . __('This comment is a spam:') . '</strong> ' .
-            $this->filters->statusMessage($rs, $filter_name) . '</p>';
+            $this->filters->statusMessage($record, $filter_name) . '</p>';
         }
 
         return '';
@@ -258,22 +257,22 @@ class Antispam
         $record->extend(new RsExtComment());
     }
 
-    public function commentListHeader(Record $rs, NamedStrings $cols, bool $spam): void
+    public function commentListHeader(Record $record, NamedStrings $cols, bool $spam): void
     {
         if ($spam) {
             $cols->set('spam_filter', '<th scope="col">' . __('Spam filter') . '</th>');
         }
     }
 
-    public function commentListValue(Record $rs, NamedStrings $cols, bool $spam): void
+    public function commentListValue(Record $record, NamedStrings $cols, bool $spam): void
     {
         if ($spam) {
             $filter_name = '';
-            if ($rs->call('spamFilter')) {
+            if ($record->call('spamFilter')) {
                 if (!$this->filters) {
                     $this->initFilters();
                 }
-                $filter_name = (null !== ($f = $this->filters->getFilter($rs->call('spamFilter')))) ? $f->name : $rs->call('spamFilter');
+                $filter_name = (null !== ($f = $this->filters->getFilter($record->call('spamFilter')))) ? $f->name : $record->call('spamFilter');
             }
             $cols->set('spam_filter', '<td class="nowrap">' . $filter_name . '</td>');
         }

@@ -285,8 +285,8 @@ abstract class AbstractPage
             // Allow everything in iframe (used by editors to preview public content)
             $csp->set('frame-src', '*');
 
-            // --BEHAVIOR-- adminPageHTTPHeaderCSP, NamedStrings
-            App::core()->behavior('adminPageHTTPHeaderCSP')->call($csp);
+            // --BEHAVIOR-- adminBeforeGetPageCSPHeaders, NamedStrings
+            App::core()->behavior('adminBeforeGetPageCSPHeaders')->call(csp: $csp);
 
             // Construct CSP header
             $directives = [];
@@ -302,8 +302,8 @@ abstract class AbstractPage
             }
         }
 
-        // --BEHAVIOR-- adminPageHTTPHeaders, Strings
-        App::core()->behavior('adminPageHTTPHeaders')->call($headers);
+        // --BEHAVIOR-- adminBeforeGetPageHTTPHeaders, Strings
+        App::core()->behavior('adminBeforeGetPageHTTPHeaders')->call(headers: $headers);
 
         foreach ($headers->dump() as $header) {
             header($header);
@@ -350,8 +350,8 @@ abstract class AbstractPage
         App::core()->resource()->toggles() .
         $this->page_head;
 
-        // --BEHAVIOR-- adminPageHTMLHead, string, string
-        App::core()->behavior('adminPageHTMLHead')->call($this->handler, $this->page_type);
+        // --BEHAVIOR-- adminAfterGetPageHTMLHead, string, string
+        App::core()->behavior('adminAfterGetPageHTMLHead')->call(handler: $this->handler, type: $this->page_type);
 
         echo "</head>\n" .
         '<body id="dotclear-admin" class="no-js' .
@@ -452,8 +452,8 @@ abstract class AbstractPage
         App::core()->resource()->toggles() .
         $this->page_head;
 
-        // --BEHAVIOR-- adminPageHTMLHead, string, string
-        App::core()->behavior('adminPageHTMLHead')->call($this->handler, $this->page_type);
+        // --BEHAVIOR-- adminAfterGetPageHTMLHead, string, string
+        App::core()->behavior('adminAfterGetPageHTMLHead')->call(handler: $this->handler, type: $this->page_type);
 
         echo "</head>\n" .
             '<body id="dotclear-admin" class="popup' .
@@ -587,8 +587,8 @@ abstract class AbstractPage
 
         $text = sprintf(__('Thank you for using %s.'), 'Dotclear ' . App::core()->config()->get('core_version'));
 
-        // --BEHAVIOR-- adminPageFooter, string
-        $textAlt = App::core()->behavior('adminPageFooter')->call($text);
+        // --BEHAVIOR-- adminBeforeGetPageFooter, string
+        $textAlt = App::core()->behavior('adminBeforeGetPageFooter')->call(footer: $text);
         if ('' != $textAlt) {
             $text = $textAlt;
         }

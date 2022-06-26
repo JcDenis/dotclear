@@ -163,8 +163,8 @@ class Media extends Manager
             ->set('sq', 48, true, __('square'))
         ;
 
-        // --BEHAVIOR-- coreMediaConstruct
-        App::core()->behavior('coreMediaConstruct')->call($this);
+        // --BEHAVIOR-- coreAfterConstructMedia, Media
+        App::core()->behavior('coreAfterConstructMedia')->call(media: $this);
     }
 
     /**
@@ -1286,13 +1286,13 @@ class Media extends Manager
     /**
      * Create image meta.
      *
-     * @param Cursor $cur The cursor
-     * @param string $f   Image filename
+     * @param Cursor $cursor The cursor
+     * @param string $filename   Image filename
      * @param int    $id  The media identifier
      */
-    protected function imageMetaCreate(Cursor $cur, string $f, int $id): bool
+    protected function imageMetaCreate(Cursor $cursor, string $filename, int $id): bool
     {
-        $file = $this->pwd . '/' . $f;
+        $file = $this->pwd . '/' . $filename;
 
         if (!file_exists($file)) {
             return false;
@@ -1318,8 +1318,8 @@ class Media extends Manager
             }
         }
 
-        // --BEHAVIOR-- coreBeforeImageMetaCreate
-        App::core()->behavior('coreBeforeImageMetaCreate')->call($c);
+        // --BEHAVIOR-- coreBeforeCreateImageMeta, Cursor
+        App::core()->behavior('coreBeforeCreateImageMeta')->call(cursor: $c);
 
         $sql = new UpdateStatement();
         $sql->where('media_id = ' . $id);

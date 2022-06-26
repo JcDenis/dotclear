@@ -169,8 +169,8 @@ final class Notice
                 $cursor->setField('notice_format', 'text');
             }
 
-            // --BEHAVIOR-- coreBeforeNoticeCreate, Cursor
-            App::core()->behavior('adminBeforeNoticeCreate')->call($cursor);
+            // --BEHAVIOR-- adminBeforeCreateNotice, Cursor
+            App::core()->behavior('adminBeforeCreateNotice')->call(cursor: $cursor);
 
             $cursor->insert();
             App::core()->con()->unlock();
@@ -180,8 +180,8 @@ final class Notice
             throw $e;
         }
 
-        // --BEHAVIOR-- coreAfterNoticeCreate, Cursor
-        App::core()->behavior('adminAfterNoticeCreate')->call($cursor);
+        // --BEHAVIOR-- adminAfterCreateNotice, Cursor
+        App::core()->behavior('adminAfterCreateNotice')->call(cursor: $cursor);
 
         return $cursor->getField('notice_id');
     }
@@ -221,8 +221,8 @@ final class Notice
 
         // Return error messages if any
         if (App::core()->error()->flag() && !$this->error_displayed) {
-            // --BEHAVIOR-- adminPageNotificationError
-            $notice_error = App::core()->behavior('adminPageNotificationError')->call();
+            // --BEHAVIOR-- adminBeforeGetNotificationError
+            $notice_error = App::core()->behavior('adminBeforeGetNotificationError')->call();
 
             if (isset($notice_error) && !empty($notice_error)) {
                 $res .= $notice_error;
@@ -269,8 +269,8 @@ final class Notice
                     if (null !== $lines->field('notice_options')) {
                         $notifications = array_merge($notification, @json_decode($lines->field('notice_options'), true));
                     }
-                    // --BEHAVIOR-- adminPageNotification, array
-                    $notice = App::core()->behavior('adminPageNotification')->call($notification);
+                    // --BEHAVIOR-- adminBeforeGetNotification, array
+                    $notice = App::core()->behavior('adminBeforeGetNotification')->call(notification: $notification);
 
                     $res .= !empty($notice) ? $notice : $this->getNotification($notification);
                 }

@@ -36,11 +36,11 @@ class ModulesBehavior
     public function __construct(private Modules $modules)
     {
         if ($this->modules->hasModules()) {
-            App::core()->behavior('adminHomePagePrepend')->add([$this, 'adminHomePagePrepend']);
-            App::core()->behavior('adminHomePageContent')->add([$this, 'adminHomePageContent']);
+            App::core()->behavior('adminBeforeGetHomePage')->add([$this, 'adminBeforeGetHomePage']);
+            App::core()->behavior('adminBeforeGetHomePageContent')->add([$this, 'adminBeforeGetHomePageContent']);
         }
 
-        App::core()->behavior('restCheckStoreUpdate')->add([$this, 'restCheckStoreUpdate']);
+        App::core()->behavior('adminBeforeCheckStoreUpdate')->add([$this, 'adminBeforeCheckStoreUpdate']);
     }
 
     /**
@@ -48,7 +48,7 @@ class ModulesBehavior
      *
      * Check modules depedencies and try to install new modules
      */
-    public function adminHomePagePrepend(): void
+    public function adminBeforeGetHomePage(): void
     {
         if ($this->modules->disableDependencies(App::core()->adminurl()->get('admin.home'))) {
             exit;
@@ -60,7 +60,7 @@ class ModulesBehavior
     /**
      * Display admin home page modules check results.
      */
-    public function adminHomePageContent(): void
+    public function adminBeforeGetHomePageContent(): void
     {
         $type = '<strong>' . $this->modules->getName() . ':</strong> ';
 
@@ -92,14 +92,14 @@ class ModulesBehavior
     /**
      * Check modules manager repository update.
      *
-     * @param string       $type The modules type
-     * @param NamedStrings $upd  The list of updates
+     * @param string       $type   The modules type
+     * @param NamedStrings $update The list of updates
      */
-    public function restCheckStoreUpdate(string $type, NamedStrings $upd): void
+    public function adminBeforeCheckStoreUpdate(string $type, NamedStrings $update): void
     {
         if ($this->modules->getType() == $type) {
             foreach ($this->modules->store()->get(true) as $id => $module) {
-                $upd->set($id, $module->name());
+                $udpate->set($id, $module->name());
             }
         }
     }

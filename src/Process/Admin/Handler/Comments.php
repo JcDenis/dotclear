@@ -19,6 +19,7 @@ use Dotclear\Process\Admin\Filter\Filter\CommentFilters;
 use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Mapper\NamedStrings;
 use Exception;
 
 /**
@@ -48,15 +49,17 @@ class Comments extends AbstractPage
         $param = $this->filter->getParams();
 
         // lexical sort
-        $sortby_lex = [
+        $sortby_lex = new NamedStrings([
             // key in sorty_combo (see above) => field in SQL request
             'post_title'          => 'post_title',
             'comment_author'      => 'comment_author',
-            'comment_spam_filter' => 'comment_spam_filter', ];
+            'comment_spam_filter' => 'comment_spam_filter',
+        ]);
 
-        // --BEHAVIOR-- adminCommentsSortbyLexCombo
-        App::core()->behavior('adminCommentsSortbyLexCombo')->call([&$sortby_lex]);
+        // --BEHAVIOR-- adminBeforeGetCommentsSortbyLexCombo, NamedStrings
+        App::core()->behavior('adminBeforeGetCommentsSortbyLexCombo')->call(combo: $sortby_lex);
 
+        $sortby_lex = $sortby_lex->dump();
         $param->set('order', (
             array_key_exists($this->filter->getValue(id: 'sortby'), $sortby_lex) ?
                 App::core()->con()->lexFields($sortby_lex[$this->filter->getValue(id: 'sortby')]) :
@@ -144,8 +147,8 @@ class Comments extends AbstractPage
             App::core()->adminurl()->getHiddenFormFields('admin.comments', [], true) .
             '<input name="delete_all_spam" class="delete" type="submit" value="' . __('Delete all spams') . '" /></p>';
 
-            // --BEHAVIOR-- adminCommentsSpamForm
-            App::core()->behavior('adminCommentsSpamForm')->call();
+            // --BEHAVIOR-- adminAfterGetCommentsSpamForm
+            App::core()->behavior('adminAfterGetCommentsSpamForm')->call();
 
             echo '</form>';
         }

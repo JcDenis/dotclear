@@ -22,21 +22,21 @@ class LegacyEditorBehavior
 {
     public function __construct()
     {
-        App::core()->behavior('adminPostEditor')->add([$this, 'adminPostEditor']);
+        App::core()->behavior('adminBeforeGetPostEditorHead')->add([$this, 'adminBeforeGetPostEditorHead']);
         App::core()->behavior('adminPopupMedia')->add([$this, 'adminPopupMedia']);
         App::core()->behavior('adminPopupLink')->add([$this, 'adminPopupLink']);
         App::core()->behavior('adminPopupPosts')->add([$this, 'adminPopupPosts']);
     }
 
     /**
-     * adminPostEditor add javascript to the DOM to load legacy editor depending on context.
+     * adminBeforeGetPostEditorHead add javascript to the DOM to load legacy editor depending on context.
      *
      * @param string $editor  The wanted editor
      * @param string $context The page context (post,page,comment,event,...)
      * @param array  $tags    The array of ids to inject editor
      * @param string $syntax  The wanted syntax (wiki,markdown,...)
      */
-    public function adminPostEditor(string $editor = '', string $context = '', array $tags = [], string $syntax = ''): string
+    public function adminBeforeGetPostEditorHead(string $editor = '', string $context = '', array $tags = [], string $syntax = ''): string
     {
         if ('LegacyEditor' != $editor) {
             return '';

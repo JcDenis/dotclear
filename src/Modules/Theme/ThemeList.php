@@ -189,8 +189,8 @@ class ThemeList extends PluginList
                     $line .= '<p><a href="' . $this->modules()->getModulesURL($params) . '" class="button submit">' . __('Configure theme') . '</a></p>';
                 }
 
-                // --BEHAVIOR-- adminCurrentThemeDetails
-                $line .= App::core()->behavior('adminCurrentThemeDetails')->call($module);
+                // --BEHAVIOR-- adminAfterDetailCurrentTheme
+                $line .= App::core()->behavior('adminAfterDetailCurrentTheme')->call(module: $module);
 
                 $line .= '</div>';
             }

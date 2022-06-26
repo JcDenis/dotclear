@@ -37,10 +37,11 @@ class Comment extends AbstractPage
     private $comment_content         = '';
     private $comment_ip              = '';
     private $comment_status          = '';
-    private $commnet_post_url        = '';
-    private $commnet_can_edit        = false;
-    private $commnet_can_delete      = false;
-    private $commnet_can_publish     = false;
+    private $comment_post_url        = '';
+    private $comment_can_edit        = false;
+    private $comment_can_delete      = false;
+    private $comment_can_publish     = false;
+    private $comment_message         = '';
 
     protected function getPermissions(): string|bool
     {
@@ -69,13 +70,7 @@ class Comment extends AbstractPage
                 $cur->setField('comment_content', Html::filter(GPC::post()->string('comment_content')));
                 $cur->setField('post_id', GPC::post()->int('post_id'));
 
-                // --BEHAVIOR-- adminBeforeCommentCreate
-                App::core()->behavior('adminBeforeCommentCreate')->call($cur);
-
                 $this->comment_id = App::core()->blog()->comments()->createComment(cursor: $cur);
-
-                // --BEHAVIOR-- adminAfterCommentCreate
-                App::core()->behavior('adminAfterCommentCreate')->call($cur, $this->comment_id);
 
                 App::core()->notice()->addSuccessNotice(__('Comment has been successfully created.'));
             } catch (Exception $e) {
@@ -116,22 +111,22 @@ class Comment extends AbstractPage
             App::core()->error()->add(__('No comments'));
         }
 
-        $this->commnet_can_edit = $this->commnet_can_delete = $this->commnet_can_publish = false;
+        $this->comment_can_edit = $this->comment_can_delete = $this->comment_can_publish = false;
         if (!App::core()->error()->flag() && isset($rs)) {
-            $this->commnet_can_edit = $this->commnet_can_delete = $this->commnet_can_publish = App::core()->user()->check('contentadmin', App::core()->blog()->id);
+            $this->comment_can_edit = $this->comment_can_delete = $this->comment_can_publish = App::core()->user()->check('contentadmin', App::core()->blog()->id);
 
             if (!App::core()->user()->check('contentadmin', App::core()->blog()->id) && App::core()->user()->userID() == $rs->field('user_id')) {
-                $this->commnet_can_edit = true;
+                $this->comment_can_edit = true;
                 if (App::core()->user()->check('delete', App::core()->blog()->id)) {
-                    $this->commnet_can_delete = true;
+                    $this->comment_can_delete = true;
                 }
                 if (App::core()->user()->check('publish', App::core()->blog()->id)) {
-                    $this->commnet_can_publish = true;
+                    $this->comment_can_publish = true;
                 }
             }
 
             // update comment
-            if (!GPC::post()->empty('update') && $this->commnet_can_edit) {
+            if (!GPC::post()->empty('update') && $this->comment_can_edit) {
                 $cur = App::core()->con()->openCursor(App::core()->getPrefix() . 'comment');
 
                 $cur->setField('comment_author', GPC::post()->string('comment_author'));
@@ -144,13 +139,7 @@ class Comment extends AbstractPage
                 }
 
                 try {
-                    // --BEHAVIOR-- adminBeforeCommentUpdate
-                    App::core()->behavior('adminBeforeCommentUpdate')->call($cur, $this->comment_id);
-
                     App::core()->blog()->comments()->updateComment(id: $this->comment_id, cursor: $cur);
-
-                    // --BEHAVIOR-- adminAfterCommentUpdate
-                    App::core()->behavior('adminAfterCommentUpdate')->call($cur, $this->comment_id);
 
                     App::core()->notice()->addSuccessNotice(__('Comment has been successfully updated.'));
                     App::core()->adminurl()->redirect('admin.comment', ['id' => $this->comment_id]);
@@ -159,11 +148,8 @@ class Comment extends AbstractPage
                 }
             }
 
-            if (!GPC::post()->empty('delete') && $this->commnet_can_delete) {
+            if (!GPC::post()->empty('delete') && $this->comment_can_delete) {
                 try {
-                    // --BEHAVIOR-- adminBeforeCommentDelete
-                    App::core()->behavior('adminBeforeCommentDelete')->call($this->comment_id);
-
                     App::core()->blog()->comments()->deleteComments(ids: new Integers($this->comment_id));
 
                     App::core()->notice()->addSuccessNotice(__('Comment has been successfully deleted.'));
@@ -173,13 +159,16 @@ class Comment extends AbstractPage
                 }
             }
 
-            if (!$this->commnet_can_edit) {
+            if (!$this->comment_can_edit) {
                 App::core()->error()->add(__("You can't edit this comment."));
             }
         }
 
         if ($rs) {
-            $this->commnet_post_url = $rs->getPostURL();
+            $this->comment_post_url = $rs->getPostURL();
+
+            // --BEHAVIOR-- adminAfterGetComment, Record
+            $this->comment_message = App::core()->behavior('adminAfterGetComment')->call(record: $rs);
         }
 
         // Page setup
@@ -191,10 +180,17 @@ class Comment extends AbstractPage
             ->setPageHead(
                 App::core()->resource()->confirmClose('comment-form') .
                 App::core()->resource()->load('_comment.js') .
-                App::core()->behavior('adminPostEditor')->call($comment_editor['xhtml'], 'comment', ['#comment_content'], 'xhtml') .
 
-                // --BEHAVIOR-- adminCommentHeaders
-                App::core()->behavior('adminCommentHeaders')->call()
+                // --BEHAVIOR-- adminBeforeGetPostEditorHead, string, string, array, string
+                App::core()->behavior('adminBeforeGetPostEditorHead')->call(
+                    editor: $comment_editor['xhtml'],
+                    context: 'comment',
+                    tags: ['#comment_content'],
+                    syntax: 'xhtml'
+                ) .
+
+                // --BEHAVIOR-- adminAfterGetCommentHead
+                App::core()->behavior('adminAfterGetCommentHead')->call()
             )
             ->setPageBreadcrumb([
                 Html::escapeHTML(App::core()->blog()->name) => '',
@@ -224,7 +220,7 @@ class Comment extends AbstractPage
             $comment_mailto = '<a href="mailto:' . Html::escapeHTML($this->comment_email)
             . '?subject=' . rawurlencode(sprintf(__('Your comment on my blog %s'), App::core()->blog()->name))
             . '&amp;body='
-            . rawurlencode(sprintf(__("Hi!\n\nYou wrote a comment on:\n%s\n\n\n"), $this->commnet_post_url))
+            . rawurlencode(sprintf(__("Hi!\n\nYou wrote a comment on:\n%s\n\n\n"), $this->comment_post_url))
             . '">' . __('Send an e-mail') . '</a>';
         }
 
@@ -263,12 +259,11 @@ class Comment extends AbstractPage
         Form::combo(
             'comment_status',
             $status_combo,
-            ['default' => $this->comment_status, 'disabled' => !$this->commnet_can_publish]
+            ['default' => $this->comment_status, 'disabled' => !$this->comment_can_publish]
         ) .
         '</p>' .
 
-        // --BEHAVIOR-- adminAfterCommentDesc
-        // !App::core()->behavior('adminAfterCommentDesc')->call($rs) .
+        $this->comment_message .
 
         '<p class="area"><label for="comment_content">' . __('Comment:') . '</label> ' .
         Form::textarea(
@@ -287,7 +282,7 @@ class Comment extends AbstractPage
         '<input type="submit" accesskey="s" name="update" value="' . __('Save') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />';
 
-        if ($this->commnet_can_delete) {
+        if ($this->comment_can_delete) {
             echo ' <input type="submit" class="delete" name="delete" value="' . __('Delete') . '" />';
         }
         echo '</p>' .

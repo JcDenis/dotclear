@@ -24,11 +24,11 @@ class BreadcrumbBehavior
 {
     public function __construct()
     {
-        App::core()->behavior('adminBlogPreferencesForm')->add([$this, 'behaviorAdminBlogPreferencesForm']);
-        App::core()->behavior('adminBeforeBlogSettingsUpdate')->add([$this, 'behaviorAdminBeforeBlogSettingsUpdate']);
+        App::core()->behavior('adminAfterGetBlogPreferencesForm')->add([$this, 'adminAfterGetBlogPreferencesForm']);
+        App::core()->behavior('adminBeforeUpdateBlogSettings')->add([$this, 'adminBeforeUpdateBlogSettings']);
     }
 
-    public function behaviorAdminBlogPreferencesForm(Settings $settings): void
+    public function adminAfterGetBlogPreferencesForm(Settings $settings): void
     {
         echo '<div class="fieldset"><h4 id="breadcrumb_params">' . __('Breadcrumb') . '</h4>' .
         '<p><label class="classic">' .
@@ -40,7 +40,7 @@ class BreadcrumbBehavior
             '</div>';
     }
 
-    public function behaviorAdminBeforeBlogSettingsUpdate(Settings $settings): void
+    public function adminBeforeUpdateBlogSettings(Settings $settings): void
     {
         $settings->getGroup('breadcrumb')->putSetting('breadcrumb_enabled', !GPC::post()->empty('breadcrumb_enabled'), 'boolean');
         $settings->getGroup('breadcrumb')->putSetting('breadcrumb_alone', !GPC::post()->empty('breadcrumb_alone'), 'boolean');

@@ -499,13 +499,8 @@ class Trackback
         $cur->setField('comment_status', App::core()->blog()->settings()->getGroup('system')->getSetting('trackbacks_pub') ? 1 : -1);
         $cur->setField('comment_ip', Http::realIP());
 
-        // --BEHAVIOR-- publicBeforeTrackbackCreate
-        App::core()->behavior('publicBeforeTrackbackCreate')->call($cur);
         if ($cur->getField('post_id')) {
             $comment_id = App::core()->blog()->comments()->createComment(cursor: $cur);
-
-            // --BEHAVIOR-- publicAfterTrackbackCreate
-            App::core()->behavior('publicAfterTrackbackCreate')->call($cur, $comment_id);
         }
     }
 

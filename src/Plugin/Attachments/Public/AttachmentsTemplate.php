@@ -43,7 +43,7 @@ class AttachmentsTemplate
         App::core()->template()->addBlock('AttachmentIf', [$this, 'AttachmentIf']);
         App::core()->template()->addValue('EntryAttachmentCount', [$this, 'EntryAttachmentCount']);
 
-        App::core()->behavior('tplIfConditions')->add([$this, 'tplIfConditions']);
+        App::core()->behavior('templateBeforeGetIfConditions')->add([$this, 'templateBeforeGetIfConditions']);
     }
 
     /*dtd
@@ -237,7 +237,7 @@ class AttachmentsTemplate
         );
     }
 
-    public function tplIfConditions(string $tag, TplAttr $attr, string $content, Strings $if): void
+    public function templateBeforeGetIfConditions(string $tag, TplAttr $attr, string $content, Strings $if): void
     {
         if ('EntryIf' == $tag && $attr->isset('has_attachment')) {
             $if->add(((bool) $attr->get('has_attachment') ? '' : '!') . 'App::core()->context()->get("posts")->countMedia(\'attachment\')');

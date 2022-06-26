@@ -501,8 +501,8 @@ final class Prepend extends Core
 
         // Create page instance
         try {
-            // --BEHAVIOR-- adminPrepend
-            $this->behavior('adminPrepend')->call();
+            // --BEHAVIOR-- adminBeforeLoadPage
+            $this->behavior('adminBeforeLoadPage')->call();
 
             $class = $this->adminurl()->getBase($handler);
             if (!is_subclass_of($class, 'Dotclear\\Process\\Admin\\Page\\AbstractPage')) {

@@ -110,7 +110,8 @@ class PostInventory extends Inventory
                 'status' => '<th scope="col">' . __('Status') . '</th>',
             ]);
 
-            App::core()->behavior('adminPostListHeader')->call($this->rs, $cols);
+            // --BEHAVIOR-- adminBeforeGetPostListHeader, Record, NamedStrings
+            App::core()->behavior('adminBeforeGetPostListHeader')->call(record: $this->rs, cols: $cols);
 
             App::core()->listoption()->column()->cleanColumns(id: 'posts', columns: $cols);
 
@@ -223,7 +224,8 @@ class PostInventory extends Inventory
             'status'     => '<td class="nowrap status">' . $img_status . ' ' . $selected . ' ' . $protected . ' ' . $attach . '</td>',
         ]);
 
-        App::core()->behavior('adminPostListValue')->call($this->rs, $cols);
+        // --BEHAVIOR-- adminBeforeGetPostListValue, Record, NamedStrings
+        App::core()->behavior('adminBeforeGetPostListValue')->call(record: $this->rs, cols: $cols);
 
         App::core()->listoption()->column()->cleanColumns(id: 'posts', columns: $cols);
 

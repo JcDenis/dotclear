@@ -429,9 +429,9 @@ final class Template
 
     public function getData(string $________): string
     {
-        // --BEHAVIOR-- tplBeforeData
-        if (App::core()->behavior('tplBeforeData')->count()) {
-            self::$_r = App::core()->behavior('tplBeforeData')->call();
+        // --BEHAVIOR-- templateBeforeGetData
+        if (App::core()->behavior('templateBeforeGetData')->count()) {
+            self::$_r = App::core()->behavior('templateBeforeGetData')->call();
             if (self::$_r) {
                 return self::$_r;
             }
@@ -456,9 +456,9 @@ final class Template
         self::$_r = ob_get_contents();
         ob_end_clean();
 
-        // --BEHAVIOR-- tplAfterData
-        if (App::core()->behavior('tplAfterData')->count()) {
-            App::core()->behavior('tplAfterData')->call(self::$_r);
+        // --BEHAVIOR-- templateAfterGetData, string
+        if (App::core()->behavior('templateAfterGetData')->count()) {
+            App::core()->behavior('templateAfterGetData')->call(content: self::$_r);
         }
 
         return self::$_r;
@@ -591,10 +591,10 @@ final class Template
         $class->add('Dotclear\Database\Param');
         $class->add('Dotclear\Helper\GPC\GPC');
 
-        // --BEHAVIOR-- templateBeforeUseClass, string, Strings
-        App::core()->behavior('templateBeforeUseClass')->call($file, $class);
+        // --BEHAVIOR-- templateBeforeGetUseClass, string, Strings
+        App::core()->behavior('templateBeforeGetUseClass')->call(file: $file, class: $class);
 
-        $head = $class->count() ? self::$ton . "\n" . 'use ' . implode("; \nuse ", $class->dump()) . "; \n" . self::$toff . "\n" : '';
+        $head = $class->count() ? self::$ton . "\nuse " . implode(";\nuse ", $class->dump()) . ";\n" . self::$toff . "\n" : '';
         $tree = null;
         $err  = '';
         while (true) {
@@ -631,11 +631,11 @@ final class Template
     {
         $this->current_tag = $tag;
 
-        // --BEHAVIOR-- templateBeforeBlock
-        $res = App::core()->behavior('templateBeforeBlock')->call($this->current_tag, $attr);
+        // --BEHAVIOR-- templateBeforeCompileBlock, string, TplAttr
+        $res = App::core()->behavior('templateBeforeCompileBlock')->call(tag: $this->current_tag, attr: $attr);
 
-        // --BEHAVIOR-- templateInsideBlock
-        App::core()->behavior('templateInsideBlock')->call($this->current_tag, $attr, [&$content]);
+        // --BEHAVIOR-- templateBeforeGetBlock, string, TplAttr, array
+        App::core()->behavior('templateBeforeGetBlock')->call(tag: $this->current_tag, attr: $attr, content: [&$content]);
 
         if (isset($this->blocks[$this->current_tag])) {
             $res .= call_user_func($this->blocks[$this->current_tag], $attr, $content);
@@ -643,8 +643,8 @@ final class Template
             $res .= call_user_func($this->unknown_block_handler, $this->current_tag, $attr, $content);
         }
 
-        // --BEHAVIOR-- templateAfterBlock
-        $res .= App::core()->behavior('templateAfterBlock')->call($this->current_tag, $attr);
+        // --BEHAVIOR-- templateAfterCompileBlock, string, TplAttr
+        $res .= App::core()->behavior('templateAfterCompileBlock')->call(tag: $this->current_tag, attr: $attr);
 
         return $res;
     }
@@ -653,8 +653,8 @@ final class Template
     {
         $this->current_tag = $tag;
 
-        // --BEHAVIOR-- templateBeforeValue
-        $res = App::core()->behavior('templateBeforeValue')->call($this->current_tag, $attr);
+        // --BEHAVIOR-- templateBeforeCompileValue, string, TplAttr
+        $res = App::core()->behavior('templateBeforeCompileValue')->call(tag: $this->current_tag, attr: $attr);
 
         if (isset($this->values[$this->current_tag])) {
             $res .= call_user_func($this->values[$this->current_tag], $attr, ltrim((string) $str_attr));
@@ -662,8 +662,8 @@ final class Template
             $res .= call_user_func($this->unknown_value_handler, $this->current_tag, $attr, $str_attr);
         }
 
-        // --BEHAVIOR-- templateAfterValue
-        $res .= App::core()->behavior('templateAfterValue')->call($this->current_tag, $attr);
+        // --BEHAVIOR-- templateAfterCompileValue, string, TplAttr
+        $res .= App::core()->behavior('templateAfterCompileValue')->call(tag: $this->current_tag, attr: $attr);
 
         return $res;
     }
@@ -769,8 +769,8 @@ final class Template
         /** @var ArrayObject<string, array> */
         $alias = new ArrayObject();
 
-        // --BEHAVIOR-- templateCustomSortByAlias
-        App::core()->behavior('templateCustomSortByAlias')->call($alias);
+        // --BEHAVIOR-- templateBeforeGetSortByAlias, ArrayObject
+        App::core()->behavior('templateBeforeGetSortByAlias')->call(alias: $alias);
 
         $alias = $alias->getArrayCopy();
 
@@ -928,12 +928,14 @@ final class Template
             $p .= "\$param->set('order', '" . $attr->get('order') . "');\n ";
         }
 
-        $res = self::$ton . "\n";
-        $res .= $p;
-        $res .= App::core()->behavior('templatePrepareParams')->call(
-            ['tag' => 'Archives', 'method' => 'blog::getDates'],
-            $attr,
-            $content
+        $res = self::$ton . "\n" . $p;
+
+        // --BEHAVIOR-- templateAfterPrepareParams, string, string, TplAttr, string
+        $res .= App::core()->behavior('templateAfterPrepareParams')->call(
+            tag: 'Archives', 
+            method: 'blog::getDates',
+            attr: $attr,
+            content: $content,
         );
         $res .= 'App::core()->context()->set("archives", App::core()->blog()->posts()->getDates(param: $param)); unset($param);' . "\n";
         $res .= "?>\n";
@@ -1041,12 +1043,14 @@ final class Template
 
         $p .= "\$param->set('next', App::core()->context()->get('archives')->field('dt'));";
 
-        $res = self::$ton . "\n";
-        $res .= $p;
-        $res .= App::core()->behavior('templatePrepareParams')->call(
-            ['tag' => 'ArchiveNext', 'method' => 'blog::getDates'],
-            $attr,
-            $content
+        $res = self::$ton . "\n" . $p;
+
+        // --BEHAVIOR-- templateAfterPrepareParams, string, string, TplAttr, string
+        $res .= App::core()->behavior('templateAfterPrepareParams')->call(
+            tag: 'ArchiveNext',
+            method: 'blog::getDates',
+            attr: $attr,
+            content: $content,
         );
         $res .= 'App::core()->context()->set("archives", App::core()->blog()->posts()->getDates(param: $param)); unset($param);' . "\n";
         $res .= "?>\n";
@@ -1083,10 +1087,13 @@ final class Template
         $p .= "\$param->set('previous', App::core()->context()->get('archives')->field('dt'));";
 
         $res = self::$ton . "\n";
-        $res .= App::core()->behavior('templatePrepareParams')->call(
-            ['tag' => 'ArchivePrevious', 'method' => 'blog::getDates'],
-            $attr,
-            $content
+
+        // --BEHAVIOR-- templateAfterPrepareParams, string, string, TplAttr, string
+        $res .= App::core()->behavior('templateAfterPrepareParams')->call(
+            tag: 'ArchivePrevious',
+            method: 'blog::getDates',
+            attr: $attr,
+            content: $content,
         );
         $res .= $p;
         $res .= 'App::core()->context()->set("archives", App::core()->blog()->posts()->getDates(param: $param)); unset($param);' . "\n";
@@ -1363,12 +1370,13 @@ final class Template
             $p .= '$param->set(\'without_empty\', false);';
         }
 
-        $res = self::$ton . "\n";
-        $res .= $p;
-        $res .= App::core()->behavior('templatePrepareParams')->call(
-            ['tag' => 'Categories', 'method' => 'blog()->categories()->getCategories'],
-            $attr,
-            $content
+        $res = self::$ton . "\n" . $p;
+        // --BEHAVIOR-- templateAfterPrepareParams, string, string, TplAttr, string
+        $res .= App::core()->behavior('templateAfterPrepareParams')->call(
+            tag: 'Categories',
+            method: 'blog()->categories()->getCategories',
+            attr: $attr,
+            content: $content
         );
         $res .= 'App::core()->context()->set("categories", App::core()->blog()->categories()->getCategories(param: $param));' . "\n";
         $res .= "?>\n";
@@ -1466,7 +1474,8 @@ final class Template
             $if->add('App::core()->context()->get("categories")->field("cat_desc") ' . ((bool) $attr->get('has_description') ? '!=' : '==') . ' ""');
         }
 
-        App::core()->behavior('tplIfConditions')->call('CategoryIf', $attr, $content, $if);
+        // --BEHAVIOR-- templateBeforeGetIfConditions, string, TplAttr, string, Strings
+        App::core()->behavior('templateBeforeGetIfConditions')->call(tag: 'CategoryIf', attr: $attr, content: $content, if: $if);
 
         if ($if->count()) {
             return self::$ton . 'if(' . implode(' ' . $this->getOperator($attr->get('operator')) . ' ', $if->dump()) . ') :' . self::$toff . $content . self::$ton . 'endif;' . self::$toff;
@@ -1697,12 +1706,14 @@ final class Template
             $p .= !empty($age) ? "\$param->push('sql', ' AND P.post_dt > \\'" . $age . "\\'');\n" : '';
         }
 
-        $res = self::$ton . "\n";
-        $res .= $p;
-        $res .= App::core()->behavior('templatePrepareParams')->call(
-            ['tag' => 'Entries', 'method' => 'blog()->posts()->getPosts'],
-            $attr,
-            $content
+        $res = self::$ton . "\n" . $p;
+
+        // --BEHAVIOR-- templateAfterPrepareParams, string, string, TplAttr, string
+        $res .= App::core()->behavior('templateAfterPrepareParams')->call(
+            tag: 'Entries',
+            method: 'blog()->posts()->getPosts',
+            attr: $attr,
+            content: $content,
         );
         $res .= 'App::core()->context()->set("post_param", $param);' . "\n";
         $res .= 'App::core()->context()->set("posts", App::core()->blog()->posts()->getPosts(param: $param)); unset($param);' . "\n";
@@ -1888,7 +1899,8 @@ final class Template
             );
         }
 
-        App::core()->behavior('tplIfConditions')->call('EntryIf', $attr, $content, $if);
+        // --BEHAVIOR-- templateBeforeGetIfConditions, string, TplAttr, string, Strings
+        App::core()->behavior('templateBeforeGetIfConditions')->call(tag: 'EntryIf', attr: $attr, content: $content, if: $if);
 
         if ($if->count()) {
             return self::$ton . 'if(' . implode(' ' . $this->getOperator($attr->get('operator')) . ' ', $if->dump()) . ') :' . self::$toff . $content . self::$ton . 'endif;' . self::$toff;
@@ -2404,12 +2416,14 @@ final class Template
             $p .= "\$param->set('order', '" . $attr->get('order') . "');\n ";
         }
 
-        $res = self::$ton . "\n";
-        $res .= $p;
-        $res .= App::core()->behavior('templatePrepareParams')->call(
-            ['tag' => 'Languages', 'method' => 'blog()->posts()->getLangs'],
-            $attr,
-            $content
+        $res = self::$ton . "\n" . $p;
+
+        // --BEHAVIOR-- templateAfterPrepareParams, string, string, TplAttr, string
+        $res .= App::core()->behavior('templateAfterPrepareParams')->call(
+            tag: 'Languages',
+            method: 'blog()->posts()->getLangs',
+            attr: $attr,
+            content: $content,
         );
         $res .= 'App::core()->context()->set("langs", App::core()->blog()->posts()->getLangs(param: $param)); unset($param);' . "\n";
         $res .= "?>\n";
@@ -2498,10 +2512,13 @@ final class Template
     {
         $p = self::$ton . "\n";
         $p .= '$param = App::core()->context()->get("post_param");' . "\n";
-        $p .= App::core()->behavior('templatePrepareParams')->call(
-            ['tag' => 'Pagination', 'method' => 'blog()->posts()->getPosts'],
-            $attr,
-            $content
+
+        // --BEHAVIOR-- templateAfterPrepareParams, string, string, TplAttr, string
+        $p .= App::core()->behavior('templateAfterPrepareParams')->call(
+            tag: 'Pagination',
+            method: 'blog()->posts()->getPosts',
+            attr: $attr,
+            content: $content,
         );
         $p .= 'App::core()->context()->set("pagination", App::core()->blog()->posts()->countPosts(param: $param)); unset($param);' . "\n";
         $p .= self::$toff . "\n";
@@ -2552,7 +2569,8 @@ final class Template
             $if->add(((bool) $attr->get('end') ? '' : '!') . 'App::core()->context()->PaginationEnd()');
         }
 
-        App::core()->behavior('tplIfConditions')->call('PaginationIf', $attr, $content, $if);
+        // --BEHAVIOR-- templateBeforeGetIfConditions, string, TplAttr, string, Strings
+        App::core()->behavior('templateBeforeGetIfConditions')->call(tag: 'PaginationIf', attr: $attr, content: $content, if: $if);
 
         if ($if->count()) {
             return self::$ton . 'if(' . implode(' && ', $if->dump()) . ') :' . self::$toff . $content . self::$ton . 'endif;' . self::$toff;
@@ -2632,10 +2650,13 @@ final class Template
         }
 
         $res = self::$ton . "\n";
-        $res .= App::core()->behavior('templatePrepareParams')->call(
-            ['tag' => 'Comments', 'method' => 'blog()->comments()->getComments'],
-            $attr,
-            $content
+
+        // --BEHAVIOR-- templateAfterPrepareParams, string, string, TplAttr, string
+        $res .= App::core()->behavior('templateAfterPrepareParams')->call(
+            tag: 'Comments',
+            method: 'blog()->comments()->getComments',
+            attr: $attr,
+            content: $content,
         );
         $res .= $p;
         $res .= 'App::core()->context()->set("comments", App::core()->blog()->comments()->getComments(param: $param)); unset($param);' . "\n";
@@ -2789,7 +2810,8 @@ final class Template
             $if->add(((bool) $attr->get('is_ping') ? '' : '!') . 'App::core()->context()->get("comments")->integer("comment_trackback")');
         }
 
-        App::core()->behavior('tplIfConditions')->call('CommentIf', $attr, $content, $if);
+        // --BEHAVIOR-- templateBeforeGetIfConditions, string, TplAttr, string, Strings
+        App::core()->behavior('templateBeforeGetIfConditions')->call(tag: 'CommentIf', attr: $attr, content: $content, if: $if);
 
         if ($if->count()) {
             return self::$ton . 'if(' . implode(' && ', $if->dump()) . ') :' . self::$toff . $content . self::$ton . 'endif;' . self::$toff;
@@ -3164,12 +3186,14 @@ final class Template
             $p .= "\$param->set('no_content', true);\n";
         }
 
-        $res = self::$ton . "\n";
-        $res .= $p;
-        $res .= App::core()->behavior('templatePrepareParams')->call(
-            ['tag' => 'Pings', 'method' => 'blog()->comments()->getComments'],
-            $attr,
-            $content
+        $res = self::$ton . "\n" . $p;
+
+        // --BEHAVIOR-- templateAfterPrepareParams, string, string, TplAttr, string
+        $res .= App::core()->behavior('templateAfterPrepareParams')->call(
+            tag: 'Pings',
+            method: 'blog()->comments()->getComments',
+            attr: $attr,
+            content: $content,
         );
         $res .= 'App::core()->context()->set("pings", App::core()->blog()->comments()->getComments(param: $param)); unset($param);' . "\n";
         $res .= "if (App::core()->context()->get('posts') !== null) { App::core()->blog()->setWithoutPassword();}\n";
@@ -3229,6 +3253,7 @@ final class Template
     {
         return !$attr->isset('behavior') ? '' :
             self::$ton . 'if (App::core()->behavior(\'' . addslashes($attr->get('behavior')) . '\')->count()) { ' .
+            // --BEHAVIOR-- xxx, Context
             'App::core()->behavior(\'' . addslashes($attr->get('behavior')) . '\')->call(App::core()->context());' .
             '}' . self::$toff;
     }
@@ -3306,7 +3331,8 @@ final class Template
             $if->add(((bool) $attr->get('jquery_needed') ? '' : '!') . 'App::core()->blog()->settings()->getGroup("system")->getSetting("jquery_needed")');
         }
 
-        App::core()->behavior('tplIfConditions')->call('SysIf', $attr, $content, $if);
+        // --BEHAVIOR-- templateBeforeGetIfConditions, string, TplAttr, string, Strings
+        App::core()->behavior('templateBeforeGetIfConditions')->call(tag: 'SysIf', attr: $attr, content: $content, if: $if);
 
         if ($if->count()) {
             return self::$ton . 'if(' . implode(' ' . $this->getOperator($attr->get('operator')) . ' ', $if->dump()) . ') :' . self::$toff . $content . self::$ton . 'endif;' . self::$toff;

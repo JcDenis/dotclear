@@ -350,6 +350,9 @@ class Auth extends AbstractPage
 
     protected function getPageBegin(): void
     {
+        // --BEHAVIOR-- adminBeforeGetLoginPage
+        //App::core()->behavior('adminBeforeGetLoginPage')->call();
+
         header('Content-Type: text/html; charset=UTF-8');
 
         // Prevents Clickjacking as far as possible
@@ -377,8 +380,8 @@ class Auth extends AbstractPage
     <link rel="stylesheet" href="?df=css/default.css" type="text/css" media="screen" />
 
 <?php
-        // --BEHAVIOR-- loginPageHTMLHead
-        App::core()->behavior('loginPageHTMLHead')->call();
+        // --BEHAVIOR-- adminAfterGetLoginPageHTMLHead
+        App::core()->behavior('adminAfterGetLoginPageHTMLHead')->call();
 
         echo App::core()->resource()->json('pwstrength', [
             'min' => sprintf(__('Password strength: %s'), __('weak')),
@@ -533,7 +536,11 @@ class Auth extends AbstractPage
                 }
                 echo '</details>';
             }
-        } ?>
+        }
+
+        // --BEHAVIOR-- adminAfterGetLoginPageHTMLForm
+        //App::core()->behavior('adminAfterGetLoginPageHTMLForm')->call(); 
+        ?>
 </form>
 <?php
     }

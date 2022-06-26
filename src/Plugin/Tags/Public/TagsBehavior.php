@@ -22,10 +22,10 @@ class TagsBehavior
 {
     public function __construct()
     {
-        App::core()->behavior('templateBeforeBlock')->add([$this, 'templateBeforeBlock']);
+        App::core()->behavior('templateBeforeCompileBlock')->add([$this, 'templateBeforeCompileBlock']);
     }
 
-    public function templateBeforeBlock(string $tag, TplAttr $attr): string
+    public function templateBeforeCompileBlock(string $tag, TplAttr $attr): string
     {
         if (in_array($tag, ['Entries', 'Comments']) && $attr->isset('tag')) {
             return

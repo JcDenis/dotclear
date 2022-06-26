@@ -45,9 +45,6 @@ class Blogs extends AbstractPage
     {
         $param = $this->filter->getParams();
 
-        // --BEHAVIOR-- adminGetBlogs, Param
-        App::core()->behavior('adminGetBlogs')->call($param);
-
         $count = App::core()->blogs()->countBlogs(param: $param);
         $rs    = App::core()->blogs()->getBlogs(param: $param);
 

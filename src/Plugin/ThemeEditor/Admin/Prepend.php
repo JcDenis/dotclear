@@ -28,19 +28,19 @@ class Prepend extends ModulePrepend
 {
     public function loadModule(): void
     {
-        App::core()->behavior('adminCurrentThemeDetails')->add([$this, 'behaviorAdminCurrentThemeDetails']);
+        App::core()->behavior('adminAfterDetailCurrentTheme')->add([$this, 'behaviorAdminCurrentThemeDetails']);
         App::core()->behavior('adminBeforeUserOptionsUpdate')->add([$this, 'behaviorAdminBeforeUserOptionsUpdate']);
         App::core()->behavior('adminPreferencesForm')->add([$this, 'behaviorAdminPreferencesForm']);
     }
 
-    public function behaviorAdminCurrentThemeDetails(ModuleDefine $theme): string
+    public function behaviorAdminCurrentThemeDetails(ModuleDefine $module): string
     {
-        if ('default' != $theme->id() && App::core()->user()->isSuperAdmin()) {
+        if ('default' != $module->id() && App::core()->user()->isSuperAdmin()) {
             // Check if it's not an officially distributed theme
             $path = App::core()->themes()->getPaths();
             if (!App::core()->isProductionMode()
-                || !str_contains(Path::real($theme->root(), false), Path::real((string) array_pop($path), false))
-                || !App::core()->themes()->isDistributedModule($theme->id())
+                || !str_contains(Path::real($module->root(), false), Path::real((string) array_pop($path), false))
+                || !App::core()->themes()->isDistributedModule($module->id())
             ) {
                 return '<p><a href="' . App::core()->adminurl()->get('admin.plugin.ThemeEditor') . '" class="button">' . __('Edit theme files') . '</a></p>';
             }

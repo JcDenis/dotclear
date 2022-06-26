@@ -69,7 +69,8 @@ class Home extends AbstractPage
             'dragndrop_on'  => __("Dashboard area's drag and drop is enabled"),
         ];
 
-        App::core()->behavior('adminHomePagePrepend')->call();
+        // --BEHAVIOR-- adminBeforeGetHomePage
+        App::core()->behavior('adminBeforeGetHomePage')->call();
 
         // Check dashboard module prefs
         if (!App::core()->user()->preference()->get('dashboard')->prefExists('doclinks')) {
@@ -109,8 +110,14 @@ class Home extends AbstractPage
                 $post_format = App::core()->user()->getOption('post_format');
                 $post_editor = App::core()->user()->getOption('editor');
                 if ($post_editor && !empty($post_editor[$post_format])) {
-                    // context is not post because of tags not available
-                    $admin_post_behavior = App::core()->behavior('adminPostEditor')->call($post_editor[$post_format], 'quickentry', ['#post_content'], $post_format);
+
+                    // --BEHAVIOR-- adminBeforeGetPostEditorHead, string, string, array, string
+                    $admin_post_behavior = App::core()->behavior('adminBeforeGetPostEditorHead')->call(
+                        editor: $post_editor[$post_format],
+                        context: 'quickentry',
+                        tags: ['#post_content'],
+                        syntax: $post_format
+                    );
                 }
             }
         }
@@ -207,7 +214,8 @@ class Home extends AbstractPage
             '<ul><li>' . implode('</li><li>', $err) . '</li></ul></div>';
         }
 
-        App::core()->behavior('adminHomePageContent')->call();
+        // --BEHAVIOR-- adminBeforeGetHomePageContent
+        App::core()->behavior('adminBeforeGetHomePageContent')->call();
 
         // Dashboard groups
         $main     = new Strings();
@@ -231,6 +239,7 @@ class Home extends AbstractPage
                     call_user_func($item->dashboard, $icon);
                 }
 
+                // --BEHAVIOR-- adminBeforeAddDashboardIcon, DashboardIcon
                 App::core()->behavior('adminBeforeAddDashboardIcon')->call(icon: $icon);
 
                 if ($icon instanceof DashboardIcon) {
@@ -310,6 +319,7 @@ class Home extends AbstractPage
             }
         }
 
+        // --BEHAVIOR-- adminBeforeAddDashboardItems, Strings
         App::core()->behavior('adminBeforeAddDashboardItems')->call(items: $items);
 
         // Dashoboard items
@@ -317,6 +327,7 @@ class Home extends AbstractPage
             $boxes->add('<div class="db-items" id="db-items">' . $items . '</div>');
         }
 
+        // --BEHAVIOR-- adminBeforeAddDashboardContents, Strings
         App::core()->behavior('adminBeforeAddDashboardContents')->call(items: $contents);
 
         // Dashboard contents

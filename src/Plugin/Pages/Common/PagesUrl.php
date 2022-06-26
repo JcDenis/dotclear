@@ -63,8 +63,8 @@ class PagesUrl
             $param->set('post_type', 'page');
             $param->set('post_url', $args);
 
-            // --BEHAVIOR-- publicPagesBeforeGetPosts, Param, string
-            App::core()->behavior('publicPagesBeforeGetPosts')->call($param, $args);
+            // --BEHAVIOR-- publicBeforeGetPages, Param, string
+            App::core()->behavior('publicBeforeGetPages')->call(param: $param, args: $args);
 
             App::core()->context()->set('posts', App::core()->blog()->posts()->getPosts(param: $param));
 
@@ -138,8 +138,8 @@ class PagesUrl
                     $preview = !GPC::post()->empty('preview');
 
                     if ('' != $content) {
-                        // --BEHAVIOR-- publicBeforeCommentTransform
-                        $buffer = App::core()->behavior('publicBeforeCommentTransform')->call($content);
+                        // --BEHAVIOR-- publicBeforeTransformComment, string
+                        $buffer = App::core()->behavior('publicBeforeTransformComment')->call(content: $content);
                         if ('' != $buffer) {
                             $content = $buffer;
                         } else {
@@ -161,8 +161,8 @@ class PagesUrl
                     $cp->set('site', $site);
 
                     if ($preview) {
-                        // --BEHAVIOR-- publicBeforeCommentPreview
-                        App::core()->behavior('publicBeforeCommentPreview')->call(param: $cp);
+                        // --BEHAVIOR-- publicBeforePreviewComment, Param
+                        App::core()->behavior('publicBeforePreviewComment')->call(param: $cp);
 
                         $cp->set('preview', true);
                     } else {
@@ -184,13 +184,8 @@ class PagesUrl
                                 throw new AdminException(__('You must provide a valid email address.'));
                             }
 
-                            // --BEHAVIOR-- publicBeforeCommentCreate
-                            App::core()->behavior('publicBeforeCommentCreate')->call($cur);
                             if ($cur->getField('post_id')) {
                                 $comment_id = App::core()->blog()->comments()->createComment(cursor: $cur);
-
-                                // --BEHAVIOR-- publicAfterCommentCreate
-                                App::core()->behavior('publicAfterCommentCreate')->call($cur, $comment_id);
                             }
 
                             if (1 == $cur->getField('comment_status')) {

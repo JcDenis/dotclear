@@ -60,7 +60,8 @@ class UserInventory extends Inventory
                 'entries'      => '<th scope="col" class="nowrap">' . __('Entries (all types)') . '</th>',
             ]);
 
-            App::core()->behavior('adminUserListHeader')->call($this->rs, $cols);
+            // --BEHAVIOR-- adminBeforeGetUserListHeader, Record, NamedStrings
+            App::core()->behavior('adminBeforeGetUserListHeader')->call(record: $this->rs, cols: $cols);
 
             $html_block .= '<tr>' . implode($cols->dump()) . '</tr>%s</table>%s</div>';
             if ($enclose_block) {
@@ -124,7 +125,8 @@ class UserInventory extends Inventory
             $this->rs->field('nb_post') . '</a></td>',
         ]);
 
-        App::core()->behavior('adminUserListValue')->call($this->rs, $cols);
+        // --BEHAVIOR-- adminBeforeGetUserListValue, Record, NamedStrings
+        App::core()->behavior('adminBeforeGetUserListValue')->call(record: $this->rs, cols: $cols);
 
         $res .= implode($cols->dump());
         $res .= '</tr>';

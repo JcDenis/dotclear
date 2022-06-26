@@ -24,6 +24,6 @@ class Prepend extends ModulePrepend
     public function loadModule(): void
     {
         // Load Widgets stack on public prepend
-        App::core()->behavior('publicPrepend')->add(fn () => new WidgetsStack());
+        App::core()->behavior('publicBeforeLoadPage')->add(fn () => new WidgetsStack());
     }
 }

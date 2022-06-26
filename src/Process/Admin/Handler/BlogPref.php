@@ -233,8 +233,8 @@ class BlogPref extends AbstractPage
                 $system->putSetting('static_home', !GPC::post()->empty('static_home'));
                 $system->putSetting('static_home_url', GPC::post()->string('static_home_url'));
 
-                // --BEHAVIOR-- adminBeforeBlogSettingsUpdate
-                App::core()->behavior('adminBeforeBlogSettingsUpdate')->call($this->blog_settings);
+                // --BEHAVIOR-- adminBeforeUpdateBlogSettings, Settings
+                App::core()->behavior('adminBeforeUpdateBlogSettings')->call(settings: $this->blog_settings);
 
                 if (App::core()->user()->isSuperAdmin() && in_array(GPC::post()->string('url_scan'), $url_scan_combo)) {
                     $system->putSetting('url_scan', GPC::post()->string('url_scan'));
@@ -264,11 +264,19 @@ class BlogPref extends AbstractPage
                     'warning_query_string' => __('Warning: except for special configurations, it is generally advised to have a trailing "?" in your blog URL in QUERY_STRING mode.'),
                 ]) .
                 App::core()->resource()->confirmClose('blog-form') .
-                ($rte_flag ? App::core()->behavior('adminPostEditor')->call($desc_editor['xhtml'], 'blog_desc', ['#blog_desc'], 'xhtml') : '') .
+
+                // --BEHAVIOR-- adminBeforeGetPostEditorHead, string, string, array, string
+                ($rte_flag ? App::core()->behavior('adminBeforeGetPostEditorHead')->call(
+                    editor: $desc_editor['xhtml'], 
+                    context: 'blog_desc', 
+                    tags: ['#blog_desc'], 
+                    syntax: 'xhtml'
+                ) : '') .
+
                 App::core()->resource()->load('_blog_pref.js') .
 
-                // --BEHAVIOR-- adminBlogPreferencesHeaders
-                App::core()->behavior('adminBlogPreferencesHeaders')->call() .
+                // --BEHAVIOR-- adminAfterGetBlogPreferencesHead
+                App::core()->behavior('adminAfterGetBlogPreferencesHead')->call() .
 
                 App::core()->resource()->pageTabs()
             )
@@ -858,8 +866,8 @@ class BlogPref extends AbstractPage
 
         echo '<div id="plugins-pref"><h3>' . __('Plugins parameters') . '</h3>';
 
-        // --BEHAVIOR-- adminBlogPreferencesForm
-        App::core()->behavior('adminBlogPreferencesForm')->call($this->blog_settings);
+        // --BEHAVIOR-- adminAfterGetBlogPreferencesForm, Settings
+        App::core()->behavior('adminAfterGetBlogPreferencesForm')->call(settings: $this->blog_settings);
 
         echo '</div>'; // End 3rd party, aka plugins
 

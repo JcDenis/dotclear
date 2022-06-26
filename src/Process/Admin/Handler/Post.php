@@ -387,24 +387,27 @@ class Post extends AbstractPage
                 $c_edit = $this->post_editor['xhtml'];
             }
             if ($p_edit == $c_edit) {
-                $this->setPageHead(App::core()->behavior('adminPostEditor')->call(
-                    $p_edit,
-                    'post',
-                    ['#post_excerpt', '#post_content', '#comment_content'],
-                    $this->post_format
+                // --BEHAVIOR-- adminBeforeGetPostEditorHead, string, string, array, string
+                $this->setPageHead(App::core()->behavior('adminBeforeGetPostEditorHead')->call(
+                    editor: $p_edit,
+                    context: 'post',
+                    tags: ['#post_excerpt', '#post_content', '#comment_content'],
+                    syntax: $this->post_format
                 ));
             } else {
-                $this->setPageHead(App::core()->behavior('adminPostEditor')->call(
-                    $p_edit,
-                    'post',
-                    ['#post_excerpt', '#post_content'],
-                    $this->post_format
+                // --BEHAVIOR-- adminBeforeGetPostEditorHead, string, string, array, string
+                $this->setPageHead(App::core()->behavior('adminBeforeGetPostEditorHead')->call(
+                    editor: $p_edit,
+                    context: 'post',
+                    tags: ['#post_excerpt', '#post_content'],
+                    syntax: $this->post_format
                 ));
-                $this->setPageHead(App::core()->behavior('adminPostEditor')->call(
-                    $c_edit,
-                    'comment',
-                    ['#comment_content'],
-                    'xhtml'
+                // --BEHAVIOR-- adminBeforeGetPostEditorHead, string, string, array, string
+                $this->setPageHead(App::core()->behavior('adminBeforeGetPostEditorHead')->call(
+                    editor: $c_edit,
+                    context: 'comment',
+                    tags: ['#comment_content'],
+                    syntax: 'xhtml'
                 ));
             }
         }
