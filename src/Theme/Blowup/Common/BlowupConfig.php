@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Theme\Blowup\Common;
 
 // Dotclear\Theme\Blowup\Common\BlowupConfig
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\File\Files;
@@ -110,9 +109,9 @@ class BlowupConfig
         return $this->utils->canWriteCss($this->css_folder, $create);
     }
 
-    protected function backgroundImg($css, $selector, $value, $image)
+    protected function backgroundImg($selector, $value, $image)
     {
-        $this->utils->backgroundImg($this->img_folder, $css, $selector, $value, $image);
+        $this->utils->backgroundImg($this->img_folder, $selector, $value, $image);
     }
 
     private function writeCss($theme, $css)
@@ -161,141 +160,126 @@ class BlowupConfig
             return;
         }
 
-        /** @var ArrayObject<string, array> */
-        $css = new ArrayObject();
+        $this->utils->resetCss();
 
         /* Sidebar position
         ---------------------------------------------- */
         if ('left' == $s['sidebar_position']) {
-            $css['#wrapper']['background-position'] = '-300px 0';
-            $css['#main']['float']                  = 'right';
-            $css['#sidebar']['float']               = 'left';
+            $this->utils->prop('#wrapper', 'background-position', '-300px 0');
+            $this->utils->prop('#main', 'float', 'right');
+            $this->utils->prop('#sidebar', 'float', 'left');
         }
 
         /* Properties
         ---------------------------------------------- */
-        $this->utils->prop($css, 'body', 'background-color', $s['body_bg_c']);
+        $this->utils->prop('body', 'background-color', $s['body_bg_c']);
 
-        $this->utils->prop($css, 'body', 'color', $s['body_txt_c']);
-        $this->utils->prop($css, '.post-tags li a:link, .post-tags li a:visited, .post-info-co a:link, .post-info-co a:visited', 'color', $s['body_txt_c']);
-        $this->utils->prop($css, '#page', 'font-size', $s['body_txt_s']);
-        $this->utils->prop($css, 'body', 'font-family', $this->fontDef($s['body_txt_f']));
+        $this->utils->prop('body', 'color', $s['body_txt_c']);
+        $this->utils->prop('.post-tags li a:link, .post-tags li a:visited, .post-info-co a:link, .post-info-co a:visited', 'color', $s['body_txt_c']);
+        $this->utils->prop('#page', 'font-size', $s['body_txt_s']);
+        $this->utils->prop('body', 'font-family', $this->fontDef($s['body_txt_f']));
 
-        $this->utils->prop($css, '.post-content, .post-excerpt, #comments dd, #pings dd, dd.comment-preview', 'line-height', $s['body_line_height']);
+        $this->utils->prop('.post-content, .post-excerpt, #comments dd, #pings dd, dd.comment-preview', 'line-height', $s['body_line_height']);
 
         if (!$s['blog_title_hide']) {
-            $this->utils->prop($css, '#top h1 a', 'color', $s['blog_title_c']);
-            $this->utils->prop($css, '#top h1', 'font-size', $s['blog_title_s']);
-            $this->utils->prop($css, '#top h1', 'font-family', $this->fontDef($s['blog_title_f']));
+            $this->utils->prop('#top h1 a', 'color', $s['blog_title_c']);
+            $this->utils->prop('#top h1', 'font-size', $s['blog_title_s']);
+            $this->utils->prop('#top h1', 'font-family', $this->fontDef($s['blog_title_f']));
 
             if ('right' == $s['blog_title_a'] || 'left' == $s['blog_title_a']) {
-                $css['#top h1'][$s['blog_title_a']] = '0px';
-                $css['#top h1']['width']            = 'auto';
+                $this->utils->prop('#top h1', $s['blog_title_a'], '0px');
+                $this->utils->prop('#top h1', 'width', 'auto');
             }
 
             if ($s['blog_title_p']) {
-                $_p                    = explode(':', $s['blog_title_p']);
-                $css['#top h1']['top'] = $_p[1] . 'px';
+                $_p = explode(':', $s['blog_title_p']);
+                $this->utils->prop('#top h1', 'top', $_p[1] . 'px');
                 if ('center' != $s['blog_title_a']) {
-                    $_a                  = 'right' == $s['blog_title_a'] ? 'right' : 'left';
-                    $css['#top h1'][$_a] = $_p[0] . 'px';
+                    $this->utils->prop('#top h1', ('right' == $s['blog_title_a'] ? 'right' : 'left'), $_p[0] . 'px');
                 }
             }
         } else {
-            $this->utils->prop($css, '#top h1 span', 'text-indent', '-5000px');
-            $this->utils->prop($css, '#top h1', 'top', '0px');
-            $css['#top h1 a'] = [
-                'display' => 'block',
-                'height'  => $s['top_height'] ? ($s['top_height'] - 10) . 'px' : '120px',
-                'width'   => '800px',
-            ];
+            $this->utils->prop('#top h1 span', 'text-indent', '-5000px');
+            $this->utils->prop('#top h1', 'top', '0px');
+            $this->utils->prop('#top h1 a', 'display', 'block');
+            $this->utils->prop('#top h1 a', 'height', ($s['top_height'] ? ($s['top_height'] - 10) . 'px' : '120px'));
+            $this->utils->prop('#top h1 a', 'width', '800px');
         }
-        $this->utils->prop($css, '#top', 'height', $s['top_height']);
+        $this->utils->prop('#top', 'height', $s['top_height']);
 
-        $this->utils->prop($css, '.day-date', 'color', $s['date_title_c']);
-        $this->utils->prop($css, '.day-date', 'font-family', $this->fontDef($s['date_title_f']));
-        $this->utils->prop($css, '.day-date', 'font-size', $s['date_title_s']);
+        $this->utils->prop('.day-date', 'color', $s['date_title_c']);
+        $this->utils->prop('.day-date', 'font-family', $this->fontDef($s['date_title_f']));
+        $this->utils->prop('.day-date', 'font-size', $s['date_title_s']);
 
-        $this->utils->prop($css, 'a', 'color', $s['body_link_c']);
-        $this->utils->prop($css, 'a:visited', 'color', $s['body_link_v_c']);
-        $this->utils->prop($css, 'a:hover, a:focus, a:active', 'color', $s['body_link_f_c']);
+        $this->utils->prop('a', 'color', $s['body_link_c']);
+        $this->utils->prop('a:visited', 'color', $s['body_link_v_c']);
+        $this->utils->prop('a:hover, a:focus, a:active', 'color', $s['body_link_f_c']);
 
-        $this->utils->prop($css, '#comment-form input, #comment-form textarea', 'color', $s['body_link_c']);
-        $this->utils->prop($css, '#comment-form input.preview', 'color', $s['body_link_c']);
-        $this->utils->prop($css, '#comment-form input.preview:hover', 'background', $s['body_link_f_c']);
-        $this->utils->prop($css, '#comment-form input.preview:hover', 'border-color', $s['body_link_f_c']);
-        $this->utils->prop($css, '#comment-form input.submit', 'color', $s['body_link_c']);
-        $this->utils->prop($css, '#comment-form input.submit:hover', 'background', $s['body_link_f_c']);
-        $this->utils->prop($css, '#comment-form input.submit:hover', 'border-color', $s['body_link_f_c']);
+        $this->utils->prop('#comment-form input, #comment-form textarea', 'color', $s['body_link_c']);
+        $this->utils->prop('#comment-form input.preview', 'color', $s['body_link_c']);
+        $this->utils->prop('#comment-form input.preview:hover', 'background', $s['body_link_f_c']);
+        $this->utils->prop('#comment-form input.preview:hover', 'border-color', $s['body_link_f_c']);
+        $this->utils->prop('#comment-form input.submit', 'color', $s['body_link_c']);
+        $this->utils->prop('#comment-form input.submit:hover', 'background', $s['body_link_f_c']);
+        $this->utils->prop('#comment-form input.submit:hover', 'border-color', $s['body_link_f_c']);
 
-        $this->utils->prop($css, '#sidebar', 'font-family', $this->fontDef($s['sidebar_text_f']));
-        $this->utils->prop($css, '#sidebar', 'font-size', $s['sidebar_text_s']);
-        $this->utils->prop($css, '#sidebar', 'color', $s['sidebar_text_c']);
+        $this->utils->prop('#sidebar', 'font-family', $this->fontDef($s['sidebar_text_f']));
+        $this->utils->prop('#sidebar', 'font-size', $s['sidebar_text_s']);
+        $this->utils->prop('#sidebar', 'color', $s['sidebar_text_c']);
 
-        $this->utils->prop($css, '#sidebar h2', 'font-family', $this->fontDef($s['sidebar_title_f']));
-        $this->utils->prop($css, '#sidebar h2', 'font-size', $s['sidebar_title_s']);
-        $this->utils->prop($css, '#sidebar h2', 'color', $s['sidebar_title_c']);
+        $this->utils->prop('#sidebar h2', 'font-family', $this->fontDef($s['sidebar_title_f']));
+        $this->utils->prop('#sidebar h2', 'font-size', $s['sidebar_title_s']);
+        $this->utils->prop('#sidebar h2', 'color', $s['sidebar_title_c']);
 
-        $this->utils->prop($css, '#sidebar h3', 'font-family', $this->fontDef($s['sidebar_title2_f']));
-        $this->utils->prop($css, '#sidebar h3', 'font-size', $s['sidebar_title2_s']);
-        $this->utils->prop($css, '#sidebar h3', 'color', $s['sidebar_title2_c']);
+        $this->utils->prop('#sidebar h3', 'font-family', $this->fontDef($s['sidebar_title2_f']));
+        $this->utils->prop('#sidebar h3', 'font-size', $s['sidebar_title2_s']);
+        $this->utils->prop('#sidebar h3', 'color', $s['sidebar_title2_c']);
 
-        $this->utils->prop($css, '#sidebar ul', 'border-top-color', $s['sidebar_line_c']);
-        $this->utils->prop($css, '#sidebar li', 'border-bottom-color', $s['sidebar_line_c']);
-        $this->utils->prop($css, '#topnav ul', 'border-bottom-color', $s['sidebar_line_c']);
+        $this->utils->prop('#sidebar ul', 'border-top-color', $s['sidebar_line_c']);
+        $this->utils->prop('#sidebar li', 'border-bottom-color', $s['sidebar_line_c']);
+        $this->utils->prop('#topnav ul', 'border-bottom-color', $s['sidebar_line_c']);
 
-        $this->utils->prop($css, '#sidebar li a', 'color', $s['sidebar_link_c']);
-        $this->utils->prop($css, '#sidebar li a:visited', 'color', $s['sidebar_link_v_c']);
-        $this->utils->prop($css, '#sidebar li a:hover, #sidebar li a:focus, #sidebar li a:active', 'color', $s['sidebar_link_f_c']);
-        $this->utils->prop($css, '#search input', 'color', $s['sidebar_link_c']);
-        $this->utils->prop($css, '#search .submit', 'color', $s['sidebar_link_c']);
-        $this->utils->prop($css, '#search .submit:hover', 'background', $s['sidebar_link_f_c']);
-        $this->utils->prop($css, '#search .submit:hover', 'border-color', $s['sidebar_link_f_c']);
+        $this->utils->prop('#sidebar li a', 'color', $s['sidebar_link_c']);
+        $this->utils->prop('#sidebar li a:visited', 'color', $s['sidebar_link_v_c']);
+        $this->utils->prop('#sidebar li a:hover, #sidebar li a:focus, #sidebar li a:active', 'color', $s['sidebar_link_f_c']);
+        $this->utils->prop('#search input', 'color', $s['sidebar_link_c']);
+        $this->utils->prop('#search .submit', 'color', $s['sidebar_link_c']);
+        $this->utils->prop('#search .submit:hover', 'background', $s['sidebar_link_f_c']);
+        $this->utils->prop('#search .submit:hover', 'border-color', $s['sidebar_link_f_c']);
 
-        $this->utils->prop($css, '.post-title', 'color', $s['post_title_c']);
-        $this->utils->prop($css, '.post-title a, .post-title a:visited', 'color', $s['post_title_c']);
-        $this->utils->prop($css, '.post-title', 'font-family', $this->fontDef($s['post_title_f']));
-        $this->utils->prop($css, '.post-title', 'font-size', $s['post_title_s']);
+        $this->utils->prop('.post-title', 'color', $s['post_title_c']);
+        $this->utils->prop('.post-title a, .post-title a:visited', 'color', $s['post_title_c']);
+        $this->utils->prop('.post-title', 'font-family', $this->fontDef($s['post_title_f']));
+        $this->utils->prop('.post-title', 'font-size', $s['post_title_s']);
 
-        $this->utils->prop($css, '#comments dd', 'background-color', $s['post_comment_bg_c']);
-        $this->utils->prop($css, '#comments dd', 'color', $s['post_comment_c']);
-        $this->utils->prop($css, '#comments dd.me', 'background-color', $s['post_commentmy_bg_c']);
-        $this->utils->prop($css, '#comments dd.me', 'color', $s['post_commentmy_c']);
+        $this->utils->prop('#comments dd', 'background-color', $s['post_comment_bg_c']);
+        $this->utils->prop('#comments dd', 'color', $s['post_comment_c']);
+        $this->utils->prop('#comments dd.me', 'background-color', $s['post_commentmy_bg_c']);
+        $this->utils->prop('#comments dd.me', 'color', $s['post_commentmy_c']);
 
-        $this->utils->prop($css, '#prelude, #prelude a', 'color', $s['prelude_c']);
+        $this->utils->prop('#prelude, #prelude a', 'color', $s['prelude_c']);
 
-        $this->utils->prop($css, '#footer p', 'background-color', $s['footer_bg_c']);
-        $this->utils->prop($css, '#footer p', 'color', $s['footer_c']);
-        $this->utils->prop($css, '#footer p', 'font-size', $s['footer_s']);
-        $this->utils->prop($css, '#footer p', 'font-family', $this->fontDef($s['footer_f']));
-        $this->utils->prop($css, '#footer p a', 'color', $s['footer_l_c']);
+        $this->utils->prop('#footer p', 'background-color', $s['footer_bg_c']);
+        $this->utils->prop('#footer p', 'color', $s['footer_c']);
+        $this->utils->prop('#footer p', 'font-size', $s['footer_s']);
+        $this->utils->prop('#footer p', 'font-family', $this->fontDef($s['footer_f']));
+        $this->utils->prop('#footer p a', 'color', $s['footer_l_c']);
 
         /* Images
         ------------------------------------------------------ */
-        $this->backgroundImg($css, 'body', $s['body_bg_c'], 'body-bg.png');
-        $this->backgroundImg($css, 'body', 'light' != $s['body_bg_g'], 'body-bg.png');
-        $this->backgroundImg($css, 'body', $s['prelude_c'], 'body-bg.png');
-        $this->backgroundImg($css, '#top', $s['body_bg_c'], 'page-t.png');
-        $this->backgroundImg($css, '#top', 'light' != $s['body_bg_g'], 'page-t.png');
-        $this->backgroundImg($css, '#top', $s['uploaded'] || $s['top_image'], 'page-t.png');
-        $this->backgroundImg($css, '#footer', $s['body_bg_c'], 'page-b.png');
-        $this->backgroundImg($css, '#comments dt', $s['post_comment_bg_c'], 'comment-t.png');
-        $this->backgroundImg($css, '#comments dd', $s['post_comment_bg_c'], 'comment-b.png');
-        $this->backgroundImg($css, '#comments dt.me', $s['post_commentmy_bg_c'], 'commentmy-t.png');
-        $this->backgroundImg($css, '#comments dd.me', $s['post_commentmy_bg_c'], 'commentmy-b.png');
+        $this->backgroundImg('body', $s['body_bg_c'], 'body-bg.png');
+        $this->backgroundImg('body', 'light' != $s['body_bg_g'], 'body-bg.png');
+        $this->backgroundImg('body', $s['prelude_c'], 'body-bg.png');
+        $this->backgroundImg('#top', $s['body_bg_c'], 'page-t.png');
+        $this->backgroundImg('#top', 'light' != $s['body_bg_g'], 'page-t.png');
+        $this->backgroundImg('#top', $s['uploaded'] || $s['top_image'], 'page-t.png');
+        $this->backgroundImg('#footer', $s['body_bg_c'], 'page-b.png');
+        $this->backgroundImg('#comments dt', $s['post_comment_bg_c'], 'comment-t.png');
+        $this->backgroundImg('#comments dd', $s['post_comment_bg_c'], 'comment-b.png');
+        $this->backgroundImg('#comments dt.me', $s['post_commentmy_bg_c'], 'commentmy-t.png');
+        $this->backgroundImg('#comments dd.me', $s['post_commentmy_bg_c'], 'commentmy-b.png');
 
-        $res = '';
-        foreach ($css as $selector => $values) {
-            $res .= $selector . " {\n";
-            foreach ($values as $k => $v) {
-                if ($v) {
-                    $res .= $k . ':' . $v . ";\n";
-                }
-            }
-            $res .= "}\n";
-        }
-
-        $res .= $s['extra_css'];
+        $res = $this->utils->parseCss() . $s['extra_css'];
 
         if (!$this->canWriteCss(true)) {
             throw new ModuleException(__('Unable to create css file.'));

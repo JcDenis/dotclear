@@ -15,7 +15,6 @@ use Dotclear\Exception\ModuleException;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Files;
 use Exception;
-use ArrayObject;
 
 /**
  * Helper for theme configurators.
@@ -28,6 +27,12 @@ use ArrayObject;
  */
 class ModuleHelper
 {
+    /**
+     * @var array<string,array> $css
+     *                          The CSS properties
+     */
+    private $css = [];
+
     /**
      * Compute contrast ratio between two colors.
      *
@@ -213,6 +218,35 @@ class ModuleHelper
     }
 
     /**
+     * Reset CSS properties.
+     */
+    public function resetCss(): void
+    {
+        $this->css = [];
+    }
+
+    /**
+     * Parse CSS.
+     *
+     * @return string The CSS string
+     */
+    public function parseCss(): string
+    {
+        $res = '';
+        foreach ($this->css as $selector => $values) {
+            $res .= $selector . " {\n";
+            foreach ($values as $k => $v) {
+                if ($v) {
+                    $res .= $k . ':' . $v . ";\n";
+                }
+            }
+            $res .= "}\n";
+        }
+
+        return $res;
+    }
+
+    /**
      * Check and clean CSS.
      *
      * @param string $css CSS to be checked
@@ -293,31 +327,29 @@ class ModuleHelper
     /**
      * Store CSS property value in associated array.
      *
-     * @param ArrayObject $css      CSS associated array
      * @param string      $selector selector
      * @param string      $prop     property
      * @param null|string $value    value
      */
-    public function prop(ArrayObject $css, string $selector, string $prop, ?string $value): void
+    public function prop(string $selector, string $prop, ?string $value): void
     {
         if ('' != $value) {
-            $css[$selector][$prop] = $value;
+            $this->css[$selector][$prop] = $value;
         }
     }
 
     /**
      * Store background image property in CSS associated array.
      *
-     * @param string      $folder   image folder
-     * @param ArrayObject $css      CSS associated array
-     * @param string      $selector selector
-     * @param mixed       $value    false for default, true if image should be set
-     * @param string      $image    image filename
+     * @param string $folder   image folder
+     * @param string $selector selector
+     * @param mixed  $value    false for default, true if image should be set
+     * @param string $image    image filename
      */
-    public function backgroundImg(string $folder, ArrayObject $css, string $selector, mixed $value, string $image): void
+    public function backgroundImg(string $folder, string $selector, mixed $value, string $image): void
     {
         if ('' != $value && file_exists($this->imagesPath($folder) . '/' . $image)) {
-            $css[$selector]['background-image'] = 'url(' . $this->imagesURL($folder) . '/' . $image . ')';
+            $this->css[$selector]['background-image'] = 'url(' . $this->imagesURL($folder) . '/' . $image . ')';
         }
     }
 
