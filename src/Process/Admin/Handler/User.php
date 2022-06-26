@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\User
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Core\User\UserContainer;
 use Dotclear\Core\User\Preference\Preference;
@@ -125,7 +124,7 @@ class User extends AbstractPage
                 }
 
                 $cur = $this->user->parseToCursor(App::core()->con()->openCursor(App::core()->getPrefix() . 'user'));
-                $cur->setField('user_options', new ArrayObject($this->user->getOptions()));
+                $cur->setField('user_options', $this->user->getOptions());
 
                 // Udate user
                 if (!GPC::request()->empty('id')) {

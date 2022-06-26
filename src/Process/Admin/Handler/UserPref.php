@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\UserPref
-use ArrayObject;
 use Dotclear\App;
 use Dotclear\Core\User\UserContainer;
 use Dotclear\Core\User\Preference\RteFlags;
@@ -190,7 +189,7 @@ class UserPref extends AbstractPage
                 $cur->setField('user_url', $this->user->setProperty('user_url', GPC::post()->string('user_url')));
                 $cur->setField('user_lang', $this->user->setProperty('user_lang', GPC::post()->string('user_lang')));
                 $cur->setField('user_tz', $this->user->setProperty('user_tz', GPC::post()->string('user_tz')));
-                $cur->setField('user_options', new ArrayObject($this->user->getOptions()));
+                $cur->setField('user_options', $this->user->getOptions());
 
                 if (App::core()->user()->allowPassChange() && !GPC::post()->empty('new_pwd')) {
                     if (!$pwd_check) {
@@ -250,7 +249,7 @@ class UserPref extends AbstractPage
                 $this->user->setOption('enable_wysiwyg', !GPC::post()->empty('user_wysiwyg'));
                 $this->user->setOption('toolbar_bottom', !GPC::post()->empty('user_toolbar_bottom'));
 
-                $cur->setField('user_options', new ArrayObject($this->user->getOptions()));
+                $cur->setField('user_options', $this->user->getOptions());
 
                 // --BEHAVIOR-- adminBeforeUserOptionsUpdate
                 App::core()->behavior('adminBeforeUserOptionsUpdate')->call($cur, App::core()->user()->userID());
