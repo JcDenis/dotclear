@@ -10,8 +10,8 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\Widgets\Admin;
 
 // Dotclear\Plugin\Widgets\Admin\Prepend
-use ArrayObject;
 use Dotclear\App;
+use Dotclear\Core\User\Preference\RteFlags;
 use Dotclear\Modules\ModulePrepend;
 use Dotclear\Plugin\Widgets\Common\Widgets;
 use Dotclear\Plugin\Widgets\Common\WidgetsStack;
@@ -29,11 +29,12 @@ class Prepend extends ModulePrepend
         $this->addStandardMenu('Blog');
         $this->addStandardFavorites();
 
+        App::core()->behavior('adminAfterSetRteFlags')->add(function (RteFlags $rte): void {
+            $rte->setFlag('widgets_text', __('Widget\'s textareas'), true);
+        });
+
         // Load widgets stack only on widget admin page
         if (App::core()->adminurl()->is('admin.plugin.Widgets')) {
-            App::core()->behavior('adminRteFlags')->add(function (ArrayObject $rte): void {
-                $rte['widgets_text'] = [true, __('Widget\'s textareas')];
-            });
             App::core()->behavior('adminPrepend')->add(fn () => new WidgetsStack());
         }
     }

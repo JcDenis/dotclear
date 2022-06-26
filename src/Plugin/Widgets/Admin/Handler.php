@@ -292,7 +292,7 @@ class Handler extends AbstractPage
     {
         $widget_editor = App::core()->user()->getOption('editor');
         $rte_flag      = true;
-        $rte_flags     = @App::core()->user()->preference()->get('interface')->get('rte_flags');
+        $rte_flags     = App::core()->user()->preference()->get('interface')->get('rte_flags');
         if (is_array($rte_flags) && isset($rte_flags['widgets_text'])) {
             $rte_flag = $rte_flags['widgets_text'];
         }
@@ -303,7 +303,7 @@ class Handler extends AbstractPage
         App::core()->resource()->load('jquery/jquery-ui.custom.js') .
         App::core()->resource()->Load('jquery/jquery.ui.touch-punch.js') .
         App::core()->resource()->json('widgets', [
-            'widget_noeditor' => ($rte_flag ? 0 : 1),
+            'widget_noeditor' => ($rte_flag ? '0' : '1'),
             'msg'             => ['confirm_widgets_reset' => __('Are you sure you want to reset sidebars?')],
         ]) .
         App::core()->resource()->load('widgets.js', 'Plugin', 'Widgets') .

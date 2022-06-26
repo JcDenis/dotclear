@@ -13,6 +13,7 @@ namespace Dotclear\Process\Admin\Handler;
 use ArrayObject;
 use Dotclear\App;
 use Dotclear\Core\User\UserContainer;
+use Dotclear\Core\User\Preference\RteFlags;
 use Dotclear\Database\Param;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Clock;
@@ -159,12 +160,8 @@ class UserPref extends AbstractPage
         }
 
         // Get 3rd parts xhtml editor flags
-        $rte = [
-            'blog_descr' => [true, __('Blog description (in blog parameters)')],
-            'cat_descr'  => [true, __('Category description')],
-        ];
-        $this->rte = new ArrayObject($rte);
-        App::core()->behavior('adminRteFlags')->call($this->rte);
+        $this->rte = (new RteFlags())->getFlags();
+
         // Load user settings
         $rte_flags = @App::core()->user()->preference()->get('interface')->get('rte_flags');
         if (is_array($rte_flags)) {
