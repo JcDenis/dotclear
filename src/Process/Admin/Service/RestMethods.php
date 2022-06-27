@@ -111,7 +111,7 @@ class RestMethods
         $rsp->insertAttr('check', false);
         $ret = __('Dotclear news not available');
 
-        if (App::core()->user()->preference()->get('dashboard')->get('dcnews')) {
+        if (App::core()->user()->preferences()->getGroup('dashboard')->getPreference('dcnews')) {
             try {
                 if (!App::core()->help()->news()) {
                     throw new AdminException();
@@ -165,7 +165,7 @@ class RestMethods
         if (App::core()->user()->isSuperAdmin()
             && !App::core()->config()->get('core_update_noauto')
             && is_readable(App::core()->config()->get('digests_dir'))
-            && !App::core()->user()->preference()->get('dashboard')->get('nodcupdate')
+            && !App::core()->user()->preferences()->getGroup('dashboard')->getPreference('nodcupdate')
         ) {
             $updater      = new Updater(App::core()->config()->get('core_update_url'), 'dotclear', App::core()->config()->get('core_update_channel'), App::core()->config()->get('cache_dir') . '/versions');
             $new_v        = $updater->check(App::core()->config()->get('core_version'));
@@ -192,7 +192,7 @@ class RestMethods
                 $rsp->insertAttr('check', true);
             } else {
                 if (version_compare(phpversion(), App::core()->config()->get('php_next_required'), '<')) {
-                    if (!App::core()->user()->preference()->get('interface')->get('hidemoreinfo')) {
+                    if (!App::core()->user()->preferences()->getGroup('interface')->getPreference('hidemoreinfo')) {
                         $ret = '<p class="info">' .
                         sprintf(
                             __('The next versions of Dotclear will not support PHP version < %s, your\'s is currently %s'),
@@ -744,8 +744,8 @@ class RestMethods
 
         $section = $post['section'];
         $status  = isset($post['value']) && 0 != $post['value'];
-        if (App::core()->user()->preference()->get('toggles')->prefExists('unfolded_sections')) {
-            $toggles = explode(',', trim((string) App::core()->user()->preference()->get('toggles')->get('unfolded_sections')));
+        if (App::core()->user()->preferences()->getGroup('toggles')->hasLocalPreference('unfolded_sections')) {
+            $toggles = explode(',', trim((string) App::core()->user()->preferences()->getGroup('toggles')->getPreference('unfolded_sections')));
         } else {
             $toggles = [];
         }
@@ -761,7 +761,7 @@ class RestMethods
                 $toggles[] = $section;
             }
         }
-        App::core()->user()->preference()->get('toggles')->put('unfolded_sections', join(',', $toggles));
+        App::core()->user()->preferences()->getGroup('toggles')->putPreference('unfolded_sections', join(',', $toggles));
 
         return true;
     }
@@ -786,7 +786,7 @@ class RestMethods
         $zone  = $post['id'];
         $order = $post['list'];
 
-        App::core()->user()->preference()->get('dashboard')->put($zone, $order);
+        App::core()->user()->preferences()->getGroup('dashboard')->putPreference($zone, $order);
 
         return true;
     }
@@ -829,7 +829,7 @@ class RestMethods
             }
         }
 
-        App::core()->user()->preference()->get('interface')->put('sorts', $su, 'array');
+        App::core()->user()->preferences()->getGroup('interface')->putPreference('sorts', $su, 'array');
 
         $rsp->insertAttr('msg', __('List options saved'));
 

@@ -7,9 +7,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core\User\Preference;
+namespace Dotclear\Core\User\Preferences;
 
-// Dotclear\Core\User\Preference\RteFlags
+// Dotclear\Core\User\Preferences\RteFlags
 use Dotclear\App;
 
 /**

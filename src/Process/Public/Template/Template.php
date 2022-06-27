@@ -932,7 +932,7 @@ final class Template
 
         // --BEHAVIOR-- templateAfterPrepareParams, string, string, TplAttr, string
         $res .= App::core()->behavior('templateAfterPrepareParams')->call(
-            tag: 'Archives', 
+            tag: 'Archives',
             method: 'blog::getDates',
             attr: $attr,
             content: $content,

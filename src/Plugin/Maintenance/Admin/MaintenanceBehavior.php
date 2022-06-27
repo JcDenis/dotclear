@@ -103,7 +103,7 @@ class MaintenanceBehavior
     public function behaviorAdminDashboardFavoritesCallback(DashboardIcon $icon): void
     {
         // Check user option
-        if (!App::core()->user()->preference()->get('maintenance')->get('dashboard_icon')) {
+        if (!App::core()->user()->preferences()->getGroup('maintenance')->getPreference('dashboard_icon')) {
             return;
         }
 
@@ -131,7 +131,7 @@ class MaintenanceBehavior
      */
     public function behaviorAdminBeforeAddDashboardItems(Strings $items): void
     {
-        if (!App::core()->user()->preference()->get('maintenance')->get('dashboard_item')) {
+        if (!App::core()->user()->preferences()->getGroup('maintenance')->getPreference('dashboard_item')) {
             return;
         }
 
@@ -185,11 +185,11 @@ class MaintenanceBehavior
         '<h4>' . __('Maintenance') . '</h4>' .
 
         '<p><label for="maintenance_dashboard_icon" class="classic">' .
-        Form::checkbox('maintenance_dashboard_icon', 1, App::core()->user()->preference()->get('maintenance')->get('dashboard_icon')) .
+        Form::checkbox('maintenance_dashboard_icon', 1, App::core()->user()->preferences()->getGroup('maintenance')->getPreference('dashboard_icon')) .
         __('Display overdue tasks counter on maintenance dashboard icon') . '</label></p>' .
 
         '<p><label for="maintenance_dashboard_item" class="classic">' .
-        Form::checkbox('maintenance_dashboard_item', 1, App::core()->user()->preference()->get('maintenance')->get('dashboard_item')) .
+        Form::checkbox('maintenance_dashboard_item', 1, App::core()->user()->preferences()->getGroup('maintenance')->getPreference('dashboard_item')) .
         __('Display overdue tasks list on dashboard items') . '</label></p>' .
 
             '</div>';
@@ -206,8 +206,8 @@ class MaintenanceBehavior
             return;
         }
 
-        App::core()->user()->preference()->get('maintenance')->put('dashboard_icon', !GPC::post()->empty('maintenance_dashboard_icon'), 'boolean');
-        App::core()->user()->preference()->get('maintenance')->put('dashboard_item', !GPC::post()->empty('maintenance_dashboard_item'), 'boolean');
+        App::core()->user()->preferences()->getGroup('maintenance')->putPreference('dashboard_icon', !GPC::post()->empty('maintenance_dashboard_icon'), 'boolean');
+        App::core()->user()->preferences()->getGroup('maintenance')->putPreference('dashboard_item', !GPC::post()->empty('maintenance_dashboard_item'), 'boolean');
     }
 
     /**

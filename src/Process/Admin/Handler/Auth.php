@@ -351,7 +351,7 @@ class Auth extends AbstractPage
     protected function getPageBegin(): void
     {
         // --BEHAVIOR-- adminBeforeGetLoginPage
-        //App::core()->behavior('adminBeforeGetLoginPage')->call();
+        // App::core()->behavior('adminBeforeGetLoginPage')->call();
 
         header('Content-Type: text/html; charset=UTF-8');
 
@@ -539,7 +539,7 @@ class Auth extends AbstractPage
         }
 
         // --BEHAVIOR-- adminAfterGetLoginPageHTMLForm
-        //App::core()->behavior('adminAfterGetLoginPageHTMLForm')->call(); 
+        // App::core()->behavior('adminAfterGetLoginPageHTMLForm')->call();
         ?>
 </form>
 <?php

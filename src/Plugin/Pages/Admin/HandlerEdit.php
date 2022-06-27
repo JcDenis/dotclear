@@ -644,7 +644,7 @@ class HandlerEdit extends AbstractPage
                 // Prevent browser caching on preview
                 $preview_url .= (parse_url($preview_url, PHP_URL_QUERY) ? '&' : '?') . 'rand=' . md5((string) rand());
 
-                $blank_preview = App::core()->user()->preference()->get('interface')->get('blank_preview');
+                $blank_preview = App::core()->user()->preferences()->getGroup('interface')->getPreference('blank_preview');
 
                 $preview_class  = $blank_preview ? '' : ' modal';
                 $preview_target = $blank_preview ? '' : ' target="_blank"';

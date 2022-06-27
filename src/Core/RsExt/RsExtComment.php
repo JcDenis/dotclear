@@ -11,7 +11,7 @@ namespace Dotclear\Core\RsExt;
 
 // Dotclear\Core\RsExt\RsExtComment
 use Dotclear\App;
-use Dotclear\Core\User\Preference\Preference;
+use Dotclear\Core\User\Preferences\PreferencesGroup;
 use Dotclear\Helper\Clock;
 use Dotclear\Helper\Html\Html;
 
@@ -244,12 +244,12 @@ class RsExtComment extends RsExtend
      */
     public function isMe(): bool
     {
-        $user_prefs         = new Preference($this->rs->field('user_id'), 'profile');
-        $user_profile_mails = $user_prefs->get('profile')->get('mails') ?
-            array_map('trim', explode(',', $user_prefs->get('profile')->get('mails'))) :
+        $profile            = new PreferencesGroup(user: $this->rs->field('user_id'), group: 'profile');
+        $user_profile_mails = $profile->getPreference('mails') ?
+            array_map('trim', explode(',', $profile->getPreference('mails'))) :
             [];
-        $user_profile_urls = $user_prefs->get('profile')->get('urls') ?
-            array_map('trim', explode(',', $user_prefs->get('profile')->get('urls'))) :
+        $user_profile_urls = $profile->getPreference('urls') ?
+            array_map('trim', explode(',', $profile->getPreference('urls'))) :
             [];
 
         return $this->rs->field('comment_email')

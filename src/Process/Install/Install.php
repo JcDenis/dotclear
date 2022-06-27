@@ -262,16 +262,16 @@ class Install
                 App::core()->blog()->comments()->createComment(cursor: $cur);
 
                 // Add dashboard module options
-                App::core()->user()->preference()->get('dashboard')->put('doclinks', true, 'boolean', '', null, true);
-                App::core()->user()->preference()->get('dashboard')->put('dcnews', true, 'boolean', '', null, true);
-                App::core()->user()->preference()->get('dashboard')->put('quickentry', true, 'boolean', '', null, true);
-                App::core()->user()->preference()->get('dashboard')->put('nodcupdate', false, 'boolean', '', null, true);
+                App::core()->user()->preferences()->getGroup('dashboard')->putPreference('doclinks', true, 'boolean', '', null, true);
+                App::core()->user()->preferences()->getGroup('dashboard')->putPreference('dcnews', true, 'boolean', '', null, true);
+                App::core()->user()->preferences()->getGroup('dashboard')->putPreference('quickentry', true, 'boolean', '', null, true);
+                App::core()->user()->preferences()->getGroup('dashboard')->putPreference('nodcupdate', false, 'boolean', '', null, true);
 
                 // Add accessibility options
-                App::core()->user()->preference()->get('accessibility')->put('nodragdrop', false, 'boolean', '', null, true);
+                App::core()->user()->preferences()->getGroup('accessibility')->putPreference('nodragdrop', false, 'boolean', '', null, true);
 
                 // Add user interface options
-                App::core()->user()->preference()->get('interface')->put('enhanceduploader', true, 'boolean', '', null, true);
+                App::core()->user()->preferences()->getGroup('interface')->putPreference('enhanceduploader', true, 'boolean', '', null, true);
 
                 // Add default favorites
                 $init_favs = ['posts', 'new_post', 'newpage', 'comments', 'categories', 'media', 'blog_theme', 'widgets', 'simpleMenu', 'prefs', 'help'];

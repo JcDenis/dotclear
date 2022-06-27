@@ -53,7 +53,7 @@ class Handler extends AbstractPage
         $file_default = $this->te_file = ['c' => null, 'w' => false, 'type' => null, 'f' => null, 'default_file' => false];
 
         // Get interface setting
-        $user_ui_colorsyntax = App::core()->user()->preference()->get('interface')->get('colorsyntax');
+        $user_ui_colorsyntax = App::core()->user()->preferences()->getGroup('interface')->getPreference('colorsyntax');
 
         // Loading themes
         $this->te_theme  = App::core()->themes()->getModule((string) App::core()->blog()->settings()->getGroup('system')->getSetting('theme'));
@@ -123,7 +123,7 @@ class Handler extends AbstractPage
         );
         if ($user_ui_colorsyntax) {
             $this->setPageHead(
-                App::core()->resource()->loadCodeMirror(App::core()->user()->preference()->get('interface')->get('colorsyntax_theme'))
+                App::core()->resource()->loadCodeMirror(App::core()->user()->preferences()->getGroup('interface')->getPreference('colorsyntax_theme'))
             );
         }
         $this->setPageHead(
@@ -176,7 +176,7 @@ class Handler extends AbstractPage
 
             echo '</div></form>';
 
-            if (App::core()->user()->preference()->get('interface')->get('colorsyntax')) {
+            if (App::core()->user()->preferences()->getGroup('interface')->getPreference('colorsyntax')) {
                 $editorMode =
                     (!GPC::request()->empty('css') ? 'css' :
                     (!GPC::request()->empty('js') ? 'javascript' :
@@ -186,7 +186,7 @@ class Handler extends AbstractPage
                     ;
                 App::core()->resource()->json('theme_editor_mode', ['mode' => $editorMode]);
                 echo App::core()->resource()->load('mode.js', 'Plugin', 'themeEditor');
-                echo App::core()->resource()->runCodeMirror('editor', 'file_content', 'dotclear', App::core()->user()->preference()->get('interface')->get('colorsyntax_theme'));
+                echo App::core()->resource()->runCodeMirror('editor', 'file_content', 'dotclear', App::core()->user()->preferences()->getGroup('interface')->getPreference('colorsyntax_theme'));
             }
         }
 

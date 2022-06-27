@@ -51,7 +51,7 @@ class Handler extends AbstractPage
                         if ('array' == GPC::post()->array('s_type')[$ws][$k]) {
                             $v = json_decode($v, true);
                         }
-                        App::core()->user()->preference()->get($ws)->put($k, $v);
+                        App::core()->user()->preferences()->getGroup($ws)->putPreference($k, $v);
                     }
                 }
 
@@ -70,7 +70,7 @@ class Handler extends AbstractPage
                         if ('array' == GPC::post()->array('gs_type')[$ws][$k]) {
                             $v = json_decode($v, true);
                         }
-                        App::core()->user()->preference()->get($ws)->put($k, $v, null, null, true, true);
+                        App::core()->user()->preferences()->getGroup($ws)->putPreference($k, $v, null, null, true, true);
                     }
                 }
 
@@ -105,8 +105,8 @@ class Handler extends AbstractPage
         '<h3 class="out-of-screen-if-js">' . __('User preferences') . '</h3>';
 
         $prefs = [];
-        foreach (App::core()->user()->preference()->dump() as $ws => $workspace) {
-            foreach ($workspace->dumpPrefs() as $k => $v) {
+        foreach (App::core()->user()->preferences()->dumpGroup() as $ws => $workspace) {
+            foreach ($workspace->dumpPreferences() as $k => $v) {
                 $prefs[$ws][$k] = $v;
             }
         }
@@ -128,8 +128,8 @@ class Handler extends AbstractPage
         '<h3 class="out-of-screen-if-js">' . __('Global preferences') . '</h3>';
 
         $prefs = [];
-        foreach (App::core()->user()->preference()->dump() as $ws => $workspace) {
-            foreach ($workspace->dumpGlobalPrefs() as $k => $v) {
+        foreach (App::core()->user()->preferences()->dumpGroup() as $ws => $workspace) {
+            foreach ($workspace->dumpGlobalPreferences() as $k => $v) {
                 $prefs[$ws][$k] = $v;
             }
         }

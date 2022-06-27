@@ -73,44 +73,43 @@ class Home extends AbstractPage
         App::core()->behavior('adminBeforeGetHomePage')->call();
 
         // Check dashboard module prefs
-        if (!App::core()->user()->preference()->get('dashboard')->prefExists('doclinks')) {
-            if (!App::core()->user()->preference()->get('dashboard')->prefExists('doclinks', true)) {
-                App::core()->user()->preference()->get('dashboard')->put('doclinks', true, 'boolean', '', null, true);
+        if (!App::core()->user()->preferences()->getGroup('dashboard')->hasLocalPreference('doclinks')) {
+            if (!App::core()->user()->preferences()->getGroup('dashboard')->hasGlobalPreference('doclinks')) {
+                App::core()->user()->preferences()->getGroup('dashboard')->putPreference('doclinks', true, 'boolean', '', null, true);
             }
-            App::core()->user()->preference()->get('dashboard')->put('doclinks', true, 'boolean');
+            App::core()->user()->preferences()->getGroup('dashboard')->putPreference('doclinks', true, 'boolean');
         }
-        if (!App::core()->user()->preference()->get('dashboard')->prefExists('dcnews')) {
-            if (!App::core()->user()->preference()->get('dashboard')->prefExists('dcnews', true)) {
-                App::core()->user()->preference()->get('dashboard')->put('dcnews', true, 'boolean', '', null, true);
+        if (!App::core()->user()->preferences()->getGroup('dashboard')->hasLocalPreference('dcnews')) {
+            if (!App::core()->user()->preferences()->getGroup('dashboard')->hasGlobalPreference('dcnews')) {
+                App::core()->user()->preferences()->getGroup('dashboard')->putPreference('dcnews', true, 'boolean', '', null, true);
             }
-            App::core()->user()->preference()->get('dashboard')->put('dcnews', true, 'boolean');
+            App::core()->user()->preferences()->getGroup('dashboard')->putPreference('dcnews', true, 'boolean');
         }
-        if (!App::core()->user()->preference()->get('dashboard')->prefExists('quickentry')) {
-            if (!App::core()->user()->preference()->get('dashboard')->prefExists('quickentry', true)) {
-                App::core()->user()->preference()->get('dashboard')->put('quickentry', false, 'boolean', '', null, true);
+        if (!App::core()->user()->preferences()->getGroup('dashboard')->hasLocalPreference('quickentry')) {
+            if (!App::core()->user()->preferences()->getGroup('dashboard')->hasGlobalPreference('quickentry')) {
+                App::core()->user()->preferences()->getGroup('dashboard')->putPreference('quickentry', false, 'boolean', '', null, true);
             }
-            App::core()->user()->preference()->get('dashboard')->put('quickentry', false, 'boolean');
+            App::core()->user()->preferences()->getGroup('dashboard')->putPreference('quickentry', false, 'boolean');
         }
-        if (!App::core()->user()->preference()->get('dashboard')->prefExists('nodcupdate')) {
-            if (!App::core()->user()->preference()->get('dashboard')->prefExists('nodcupdate', true)) {
-                App::core()->user()->preference()->get('dashboard')->put('nodcupdate', false, 'boolean', '', null, true);
+        if (!App::core()->user()->preferences()->getGroup('dashboard')->hasLocalPreference('nodcupdate')) {
+            if (!App::core()->user()->preferences()->getGroup('dashboard')->hasGlobalPreference('nodcupdate')) {
+                App::core()->user()->preferences()->getGroup('dashboard')->putPreference('nodcupdate', false, 'boolean', '', null, true);
             }
-            App::core()->user()->preference()->get('dashboard')->put('nodcupdate', false, 'boolean');
+            App::core()->user()->preferences()->getGroup('dashboard')->putPreference('nodcupdate', false, 'boolean');
         }
 
         // Handle folded/unfolded sections in admin from user preferences
-        if (!App::core()->user()->preference()->get('toggles')->prefExists('unfolded_sections')) {
-            App::core()->user()->preference()->get('toggles')->put('unfolded_sections', '', 'string', 'Folded sections in admin', null, true);
+        if (!App::core()->user()->preferences()->getGroup('toggles')->hasLocalPreference('unfolded_sections')) {
+            App::core()->user()->preferences()->getGroup('toggles')->putPreference('unfolded_sections', '', 'string', 'Folded sections in admin', null, true);
         }
 
         // Editor stuff
         $admin_post_behavior = '';
-        if (App::core()->user()->preference()->get('dashboard')->get('quickentry')) {
+        if (App::core()->user()->preferences()->getGroup('dashboard')->getPreference('quickentry')) {
             if (App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)) {
                 $post_format = App::core()->user()->getOption('post_format');
                 $post_editor = App::core()->user()->getOption('editor');
                 if ($post_editor && !empty($post_editor[$post_format])) {
-
                     // --BEHAVIOR-- adminBeforeGetPostEditorHead, string, string, array, string
                     $admin_post_behavior = App::core()->behavior('adminBeforeGetPostEditorHead')->call(
                         editor: $post_editor[$post_format],
@@ -124,7 +123,7 @@ class Home extends AbstractPage
 
         // Dashboard drag'n'drop switch for its elements
         $dragndrop_head = '';
-        if (!App::core()->user()->preference()->get('accessibility')->get('nodragdrop')) {
+        if (!App::core()->user()->preferences()->getGroup('accessibility')->getPreference('nodragdrop')) {
             $dragndrop_head = App::core()->resource()->json('dotclear_dragndrop', $this->home_dragndrop_msg);
         }
 
@@ -224,7 +223,7 @@ class Home extends AbstractPage
         $items    = new Strings();
 
         // Dashboard icons
-        if (!App::core()->user()->preference()->get('dashboard')->get('nofavicons')) {
+        if (!App::core()->user()->preferences()->getGroup('dashboard')->getPreference('nofavicons')) {
             $icons = '';
             foreach (App::core()->favorite()->getUserItems() as $item) {
                 // Move favorites item to editable dashboard icon
@@ -253,7 +252,7 @@ class Home extends AbstractPage
         }
 
         // Dashboard quick entry
-        if (App::core()->user()->preference()->get('dashboard')->get('quickentry')
+        if (App::core()->user()->preferences()->getGroup('dashboard')->getPreference('quickentry')
             && App::core()->user()->check('usage,contentadmin', App::core()->blog()->id)
         ) {
             // Getting categories
@@ -306,7 +305,7 @@ class Home extends AbstractPage
         }
 
         // Documentation links
-        if (App::core()->user()->preference()->get('dashboard')->get('doclinks')) {
+        if (App::core()->user()->preferences()->getGroup('dashboard')->getPreference('doclinks')) {
             $docs = App::core()->help()->doc();
             if (!empty($docs)) {
                 $links = '';
@@ -341,7 +340,7 @@ class Home extends AbstractPage
         }
 
         // Drog n drop
-        if (!App::core()->user()->preference()->get('accessibility')->get('nodragdrop')) {
+        if (!App::core()->user()->preferences()->getGroup('accessibility')->getPreference('nodragdrop')) {
             echo '<input type="checkbox" id="dragndrop" class="sr-only" title="' . $this->home_dragndrop_msg['dragndrop_off'] . '" />' .
                 '<label for="dragndrop">' .
                 '<svg aria-hidden="true" focusable="false" class="dragndrop-svg">' .
@@ -414,7 +413,7 @@ class Home extends AbstractPage
      */
     private function getDashboardOrder(string $part): array
     {
-        $order = App::core()->user()->preference()->get('dashboard')->get($part);
+        $order = App::core()->user()->preferences()->getGroup('dashboard')->getPreference($part);
 
         return '' != $order ? explode(',', $order) : [];
     }

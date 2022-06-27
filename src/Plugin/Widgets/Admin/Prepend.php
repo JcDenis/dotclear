@@ -11,7 +11,7 @@ namespace Dotclear\Plugin\Widgets\Admin;
 
 // Dotclear\Plugin\Widgets\Admin\Prepend
 use Dotclear\App;
-use Dotclear\Core\User\Preference\RteFlags;
+use Dotclear\Core\User\Preferences\RteFlags;
 use Dotclear\Modules\ModulePrepend;
 use Dotclear\Plugin\Widgets\Common\Widgets;
 use Dotclear\Plugin\Widgets\Common\WidgetsStack;

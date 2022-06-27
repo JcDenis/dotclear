@@ -193,7 +193,7 @@ class Category extends AbstractPage
 
         $category_editor = App::core()->user()->getOption('editor');
         $rte_flag        = true;
-        $rte_flags       = App::core()->user()->preference()->get('interface')->get('rte_flags');
+        $rte_flags       = App::core()->user()->preferences()->getGroup('interface')->getPreference('rte_flags');
         if (is_array($rte_flags) && in_array('cat_descr', $rte_flags)) {
             $rte_flag = $rte_flags['cat_descr'];
         }
@@ -208,9 +208,9 @@ class Category extends AbstractPage
 
                 // --BEHAVIOR-- adminBeforeGetPostEditorHead, string, string, array, string
                 ($rte_flag ? App::core()->behavior('adminBeforeGetPostEditorHead')->call(
-                    editor: $category_editor['xhtml'], 
-                    context: 'category', 
-                    tags: ['#cat_desc'], 
+                    editor: $category_editor['xhtml'],
+                    context: 'category',
+                    tags: ['#cat_desc'],
                     syntax: 'xhtml'
                 ) : '')
             )

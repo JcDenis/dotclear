@@ -40,7 +40,7 @@ final class Menu
             id: 'dashboard-menu',
             title: ''
         ));
-        if (!App::core()->user()->preference()->get('interface')->get('nofavmenu')) {
+        if (!App::core()->user()->preferences()->getGroup('interface')->getPreference('nofavmenu')) {
             $this->addGroup(new MenuGroup(
                 section: 'Favorites',
                 id: 'favorites-menu',
@@ -214,7 +214,7 @@ final class Menu
         ));
 
         // Add default top menus (favorites)
-        if (!App::core()->user()->preference()->get('interface')->get('nofavmenu')) {
+        if (!App::core()->user()->preferences()->getGroup('interface')->getPreference('nofavmenu')) {
             foreach (App::core()->favorite()->getUserItems() as $item) {
                 $this->getGroup('Favorites')->addItem(new MenuItem(
                     title: $item->title,

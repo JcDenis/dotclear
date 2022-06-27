@@ -12,7 +12,7 @@ namespace Dotclear\Core\User;
 // Dotclear\Core\User\User
 use Dotclear\App;
 use Dotclear\Core\RsExt\RsExtUser;
-use Dotclear\Core\User\Preference\Preference;
+use Dotclear\Core\User\Preferences\Preferences;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Database\Cursor;
@@ -37,10 +37,10 @@ class User
     protected $user;
 
     /**
-     * @var Preference $preference
-     *                 Preference instance
+     * @var Preferences $preferences
+     *                  Preferences instance
      */
-    protected $preference;
+    protected $preferences;
 
     /**
      * @var string $user_table
@@ -171,7 +171,7 @@ class User
         }
 
         $this->user->parseFromRecord($record);
-        $this->preference = new Preference($this->user->getProperty('user_id'));
+        $this->preferences = new Preferences(user: $this->user->getProperty('user_id'));
 
         // Get permissions on blogs
         return !($check_blog && false === $this->findUserBlog());
@@ -180,11 +180,11 @@ class User
     /**
      * Get user preference instance.
      *
-     * @return null|Preference Preference instance
+     * @return null|Preferences Preference instance
      */
-    public function preference(): ?Preference
+    public function preferences(): ?Preferences
     {
-        return $this->preference;
+        return $this->preferences;
     }
 
     /**

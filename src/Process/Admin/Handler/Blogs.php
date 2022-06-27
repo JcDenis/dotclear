@@ -12,7 +12,6 @@ namespace Dotclear\Process\Admin\Handler;
 // Dotclear\Process\Admin\Handler\Blog
 use Dotclear\App;
 use Dotclear\Core\RsExt\RsExtUser;
-use Dotclear\Database\Param;
 use Dotclear\Process\Admin\Page\AbstractPage;
 use Dotclear\Process\Admin\Action\Action\BlogAction;
 use Dotclear\Process\Admin\Inventory\Inventory\BlogInventory;

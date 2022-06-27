@@ -12,7 +12,7 @@ namespace Dotclear\Process\Admin\Handler;
 // Dotclear\Process\Admin\Handler\User
 use Dotclear\App;
 use Dotclear\Core\User\UserContainer;
-use Dotclear\Core\User\Preference\Preference;
+use Dotclear\Core\User\Preferences\PreferencesGroup;
 use Dotclear\Database\Param;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Clock;
@@ -73,9 +73,9 @@ class User extends AbstractPage
 
                 unset($param, $record);
 
-                $user_prefs               = new Preference($this->user->getProperty('user_id'), 'profile');
-                $this->user_profile_mails = $user_prefs->get('profile')->get('mails');
-                $this->user_profile_urls  = $user_prefs->get('profile')->get('urls');
+                $user_prefs               = new PreferencesGroup(user: $this->user->getProperty('user_id'), group: 'profile');
+                $this->user_profile_mails = $user_prefs->getPreference('mails');
+                $this->user_profile_urls  = $user_prefs->getPreference('urls');
 
                 $page_title = $this->user->getProperty('user_id');
             } catch (Exception $e) {
@@ -139,9 +139,9 @@ class User extends AbstractPage
                     if (!GPC::post()->empty('user_profile_urls')) {
                         $urls = implode(',', array_filter(filter_var_array(array_map('trim', explode(',', GPC::post()->string('user_profile_urls'))), FILTER_VALIDATE_URL)));
                     }
-                    $user_prefs = new Preference($this->user->getProperty('user_id'), 'profile');
-                    $user_prefs->get('profile')->put('mails', $mails, 'string');
-                    $user_prefs->get('profile')->put('urls', $urls, 'string');
+                    $user_prefs = new PreferencesGroup(user: $this->user->getProperty('user_id'), group: 'profile');
+                    $user_prefs->putPreference('mails', $mails, 'string');
+                    $user_prefs->putPreference('urls', $urls, 'string');
 
                     if ($this->user->getProperty('user_id') == App::core()->user()->userID() && $this->user->getProperty('user_id') != $new_id) {
                         App::core()->session()->destroy();
@@ -169,9 +169,9 @@ class User extends AbstractPage
                     if (!GPC::post()->empty('user_profile_urls')) {
                         $urls = implode(',', array_filter(filter_var_array(array_map('trim', explode(',', GPC::post()->string('user_profile_urls'))), FILTER_VALIDATE_URL)));
                     }
-                    $user_prefs = new Preference($new_id, 'profile');
-                    $user_prefs->get('profile')->put('mails', $mails, 'string');
-                    $user_prefs->get('profile')->put('urls', $urls, 'string');
+                    $user_prefs = new PreferencesGroup(user: $new_id, group: 'profile');
+                    $user_prefs->putPreference('mails', $mails, 'string');
+                    $user_prefs->putPreference('urls', $urls, 'string');
 
                     App::core()->notice()->addSuccessNotice(__('User has been successfully created.'));
                     App::core()->notice()->addWarningNotice(__('User has no permission, he will not be able to login yet. See below to add some.'));

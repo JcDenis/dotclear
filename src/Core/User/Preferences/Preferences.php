@@ -7,14 +7,14 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core\User\Preference;
+namespace Dotclear\Core\User\Preferences;
 
-// Dotclear\Core\User\Preference\Preference
+// Dotclear\Core\User\Preferences\Preferences
 use Dotclear\App;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
-use Dotclear\Exception\CoreException;
+use Dotclear\Exception\InvalidValueFormat;
 use Exception;
 
 /**
@@ -22,129 +22,138 @@ use Exception;
  *
  * @ingroup  Core User Preference
  */
-class Preference
+class Preferences
 {
     /**
-     * @var array<string,Workspace> $workspaces
-     *                              Associative workspaces array
+     * @var array<string,PreferencesGroup> $groups
+     *                                     Associative groups array
      */
-    protected $workspaces = [];
-
-    /**
-     * @var string $ws
-     *             Current workspace
-     */
-    protected $ws;
+    protected $groups = [];
 
     protected const WS_NAME_SCHEMA = '/^[a-zA-Z][a-zA-Z0-9]+$/';
 
     /**
      * Constructor.
      *
-     * Retrieves user prefs and puts them in $workspaces
+     * Retrieves user prefs and puts them in $groups
      * array. Local (user) prefs have a highest priority than global prefs.
      *
-     * @param string      $user_id   The user identifier
-     * @param null|string $workspace The workspace to load
+     * @param string $user The user ID
      */
-    public function __construct(protected string $user_id, $workspace = null)
+    public function __construct(protected string $user)
     {
         try {
-            $this->loadPrefs($workspace);
-        } catch (\Exception) {
-            trigger_error(__('Unable to retrieve workspaces:') . ' ' . App::core()->con()->error(), E_USER_ERROR);
-        }
-    }
+            $sql = new SelectStatement();
+            $sql->columns([
+                'user_id',
+                'pref_id',
+                'pref_value',
+                'pref_type',
+                'pref_label',
+                'pref_ws',
+            ]);
+            $sql->from(App::core()->getPrefix() . 'pref');
+            $sql->where($sql->orGroup([
+                'user_id = ' . $sql->quote($this->user),
+                'user_id IS NULL',
+            ]));
+            $sql->order([
+                'pref_ws ASC',
+                'pref_id ASC',
+            ]);
 
-    /**
-     * Get all (or only one) workspaces (and their prefs) from database, with one query.
-     *
-     * @param string $workspace Workspace to load
-     */
-    private function loadPrefs($workspace = null): void
-    {
-        $sql = new SelectStatement();
-        $sql->columns([
-            'user_id',
-            'pref_id',
-            'pref_value',
-            'pref_type',
-            'pref_label',
-            'pref_ws',
-        ]);
-        $sql->from(App::core()->getPrefix() . 'pref');
-        $sql->where($sql->orGroup([
-            'user_id = ' . $sql->quote($this->user_id),
-            'user_id IS NULL',
-        ]));
-        $sql->order([
-            'pref_ws ASC',
-            'pref_id ASC',
-        ]);
-
-        if (null !== $workspace) {
-            $sql->and('pref_ws = ' . $sql->quote($workspace));
-        }
-
-        try {
-            $record = $sql->select();
-        } catch (Exception $e) {
-            throw $e;
-        }
-
-        // Prevent empty tables (install phase, for instance)
-        if ($record->isEmpty()) {
-            return;
-        }
-
-        do {
-            $ws = trim($record->field('pref_ws'));
-            if (!$record->isStart()) {
-                // we have to go up 1 step, since workspaces construction performs a fetch()
-                // at very first time
-                $record->movePrev();
+            try {
+                $record = $sql->select();
+            } catch (Exception $e) {
+                throw $e;
             }
-            $this->workspaces[$ws] = new Workspace($this->user_id, $ws, $record);
-        } while (!$record->isStart());
-    }
 
-    /**
-     * Create a new workspace. If the workspace already exists, return it without modification.
-     *
-     * @param string $ws Workspace name
-     */
-    public function addWorkspace(string $ws): Workspace
-    {
-        if (!$this->exists($ws)) {
-            $this->workspaces[$ws] = new Workspace($this->user_id, $ws);
+            // Prevent empty tables (install phase, for instance)
+            if ($record->isEmpty()) {
+                return;
+            }
+
+            do {
+                $group = trim($record->field('pref_ws'));
+                if (!$record->isStart()) {
+                    // we have to go up 1 step, since groups construction performs a fetch()
+                    // at very first time
+                    $record->movePrev();
+                }
+                $this->groups[$group] = new PreferencesGroup(user: $this->user, group: $group, record: $record);
+            } while (!$record->isStart());
+        } catch (\Exception) {
+            trigger_error(__('Unable to retrieve preferences group:') . ' ' . App::core()->con()->error(), E_USER_ERROR);
         }
-
-        return $this->workspaces[$ws];
     }
 
     /**
-     * Rename a workspace.
+     * Check if a group exists.
      *
-     * @param string $oldWs The old workspace name
-     * @param string $newWs The new workspace name
+     * @param string $group The preferences group name
      *
-     * @throws CoreException
+     * @return bool True if preferences group exists
      */
-    public function renWorkspace(string $oldWs, string $newWs): bool
+    public function hasGroup(string $group): bool
     {
-        if (!$this->exists($oldWs) || $this->exists($newWs)) {
+        return array_key_exists($group, $this->groups);
+    }
+
+    /**
+     * Get full group with all prefs pertaining to it.
+     *
+     * If group does not exist, it will be created on the fly.
+     *
+     * @param string $group The preferences group name
+     *
+     * @return PreferencesGroup The preference group instance
+     */
+    public function getGroup(string $group): PreferencesGroup
+    {
+        $this->addGroup($group);
+
+        return $this->groups[$group];
+    }
+
+    /**
+     * Create a new group.
+     *
+     * If the group already exists, return it without modification.
+     *
+     * @param string $group The preferences group name
+     */
+    public function addGroup(string $group): void
+    {
+        if (!$this->hasGroup($group)) {
+            $this->groups[$group] = new PreferencesGroup(user: $this->user, group: $group);
+        }
+    }
+
+    /**
+     * Rename a group.
+     *
+     * @param string $oldWs The old group name
+     * @param string $newWs The new group name
+     *
+     * @throws InvalidValueFormat
+     *
+     * @return bool True if group successfully renamed
+     */
+    public function renameGroup(string $oldWs, string $newWs): bool
+    {
+        if (!$this->hasGroup($oldWs) || $this->hasGroup($newWs)) {
             return false;
         }
 
         if (!preg_match(self::WS_NAME_SCHEMA, $newWs)) {
-            throw new CoreException(sprintf(__('Invalid dcWorkspace: %s'), $newWs));
+            throw new InvalidValueFormat(sprintf(__('Invalid preferences group name: %s'), $newWs));
         }
 
-        // Rename the workspace in the workspace array
-        $this->workspaces[$newWs] = $this->workspaces[$oldWs];
-        unset($this->workspaces[$oldWs]);
+        // Rename the group in the group array
+        $this->groups[$newWs] = $this->groups[$oldWs];
+        unset($this->groups[$oldWs]);
 
-        // Rename the workspace in the database
+        // Rename the group in the database
         $sql = new UpdateStatement();
         $sql->set('pref_ws = ' . $sql->quote($newWs));
         $sql->from(App::core()->getPrefix() . 'pref');
@@ -155,53 +164,37 @@ class Preference
     }
 
     /**
-     * Delete a whole workspace with all preferences pertaining to it.
+     * Delete a whole group with all preferences pertaining to it.
      *
-     * @param string $ws Workspace name
+     * @param string $group PreferencesGroup name
+     *
+     * @return bool True if group successfully deleted
      */
-    public function delWorkspace(string $ws): bool
+    public function deleteGroup(string $group): bool
     {
-        if (!$this->exists($ws)) {
+        if (!$this->hasGroup($group)) {
             return false;
         }
 
-        // Remove the workspace from the workspace array
-        unset($this->workspaces[$ws]);
+        // Remove the group from the group array
+        unset($this->groups[$group]);
 
-        // Delete all preferences from the workspace in the database
+        // Delete all preferences from the group in the database
         $sql = new DeleteStatement();
         $sql->from(App::core()->getPrefix() . 'pref');
-        $sql->where('pref_ws = ' . $sql->quote($ws));
+        $sql->where('pref_ws = ' . $sql->quote($group));
         $sql->delete();
 
         return true;
     }
 
     /**
-     * Get full workspace with all prefs pertaining to it.
+     * Dump groups.
      *
-     * @param string $ws Workspace name
+     * @return array<string,PreferencesGroup> The preferences groups
      */
-    public function get(string $ws): mixed
+    public function dumpGroup(): array
     {
-        return $this->exists($ws) ? $this->workspaces[$ws] : $this->addWorkspace($ws);
-    }
-
-    /**
-     * Check if a workspace exists.
-     *
-     * @param string $ws Workspace name
-     */
-    public function exists(string $ws): bool
-    {
-        return array_key_exists($ws, $this->workspaces);
-    }
-
-    /**
-     * Dump workspaces.
-     */
-    public function dump(): array
-    {
-        return $this->workspaces;
+        return $this->groups;
     }
 }

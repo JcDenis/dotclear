@@ -101,7 +101,7 @@ final class Sort
         App::core()->behavior('adminAfterConstructSort')->call(sort: $this);
 
         // Load user settings
-        $sorts_user = @App::core()->user()->preference()->get('interface')->get('sorts');
+        $sorts_user = @App::core()->user()->preferences()->getGroup('interface')->getPreference('sorts');
         if (is_array($sorts_user)) {
             foreach ($sorts_user as $stype => $sdata) {
                 $group = $this->getGroup(id: $stype);

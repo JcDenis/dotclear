@@ -7,48 +7,43 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core\User\Preference;
+namespace Dotclear\Core\User\Preferences;
 
-// Dotclear\Core\User\Preference\Workspace
+// Dotclear\Core\User\Preferences\PreferencesGroup
 use Dotclear\App;
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\InsertStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
-use Dotclear\Exception\CoreException;
+use Dotclear\Exception\InvalidValueFormat;
+use Dotclear\Exception\MissingOrEmptyValue;
 use Exception;
 
 /**
  * User preference workspace handling methods.
  *
- * @ingroup  Core User Preference
+ * @ingroup  Core User Preferences
  */
-class Workspace
+class PreferencesGroup
 {
     /**
-     * @var array<string,array> $global_prefs
-     *                          Global prefs array
+     * @var array<string,array> $global_preferences
+     *                          Global preferences array
      */
-    protected $global_prefs = [];
+    protected $global_preferences = [];
 
     /**
-     * @var array<string,array> $local_prefs
-     *                          Local prefs array
+     * @var array<string,array> $local_preferences
+     *                          Local preferences array
      */
-    protected $local_prefs = [];
+    protected $local_preferences = [];
 
     /**
-     * @var array<string,array> $prefs
-     *                          Associative prefs array
+     * @var array<string,array> $preferences
+     *                          Associative preferences array
      */
-    protected $prefs = [];
-
-    /**
-     * @var string $ws
-     *             Current workspace
-     */
-    protected $ws;
+    protected $preferences = [];
 
     protected const WS_NAME_SCHEMA = '/^[a-zA-Z][a-zA-Z0-9]+$/';
     protected const WS_ID_SCHEMA   = '/^[a-zA-Z][a-zA-Z0-9_]+$/';
@@ -56,159 +51,162 @@ class Workspace
     /**
      * Constructor.
      *
-     * Retrieves user prefs and puts them in $prefs
-     * array. Local (user) prefs have a highest priority than global prefs.
+     * Retrieves user preferences and puts them in $preferences
+     * array. Local (user) preferences have a highest priority than global preferences.
      *
-     * @param null|string $user_id The user identifier
-     * @param string      $name    The name
-     * @param null|Record $rs      The recordset
+     * @param null|string $user   The user ID
+     * @param string      $group  The preferences group name
+     * @param null|Record $record The recordset
      *
-     * @throws CoreException
+     * @throws InvalidValueFormat
      */
-    public function __construct(protected ?string $user_id, string $name, ?Record $rs = null)
+    public function __construct(protected ?string $user, public readonly string $group, ?Record $record = null)
     {
-        if (preg_match(self::WS_NAME_SCHEMA, $name)) {
-            $this->ws = $name;
-        } else {
-            throw new CoreException(sprintf(__('Invalid dcWorkspace: %s'), $name));
+        if (!preg_match(self::WS_NAME_SCHEMA, $this->group)) {
+            throw new InvalidValueFormat(sprintf(__('Invalid preferences group: %s'), $this->group));
         }
 
         try {
-            $this->getPrefs($rs);
-        } catch (\Exception) {
-            trigger_error(__('Unable to retrieve prefs:') . ' ' . App::core()->con()->error(), E_USER_ERROR);
-        }
-    }
-
-    /**
-     * Get preferences.
-     *
-     * @param null|Record $record Record instance
-     */
-    private function getPrefs(?Record $record = null): bool
-    {
-        if (null == $record) {
-            try {
-                $sql = new SelectStatement();
-                $sql->columns([
-                    'user_id',
-                    'pref_id',
-                    'pref_value',
-                    'pref_type',
-                    'pref_label',
-                    'pref_ws',
-                ]);
-                $sql->from(App::core()->getPrefix() . 'pref');
-                $sql->where($sql->orGroup([
-                    'user_id = ' . $sql->quote($this->user_id),
-                    'user_id IS NULL',
-                ]));
-                $sql->and('pref_ws = ' . $sql->quote($this->ws));
-                $sql->order('pref_id ASC');
-                $record = $sql->select();
-            } catch (Exception $e) {
-                throw $e;
-            }
-        }
-        while ($record->fetch()) {
-            if ($record->field('pref_ws') != $this->ws) {
-                break;
-            }
-            $id    = trim($record->field('pref_id'));
-            $value = $record->field('pref_value');
-            $type  = $record->field('pref_type');
-
-            if ('array' == $type) {
-                $value = @json_decode($value, true);
-            } else {
-                if ('float' == $type || 'double' == $type) {
-                    $type = 'float';
-                } elseif ('boolean' != $type && 'integer' != $type) {
-                    $type = 'string';
+            if (null == $record) {
+                try {
+                    $sql = new SelectStatement();
+                    $sql->columns([
+                        'user_id',
+                        'pref_id',
+                        'pref_value',
+                        'pref_type',
+                        'pref_label',
+                        'pref_ws',
+                    ]);
+                    $sql->from(App::core()->getPrefix() . 'pref');
+                    $sql->where($sql->orGroup([
+                        'user_id = ' . $sql->quote($this->user),
+                        'user_id IS NULL',
+                    ]));
+                    $sql->and('pref_ws = ' . $sql->quote($this->group));
+                    $sql->order('pref_id ASC');
+                    $record = $sql->select();
+                } catch (Exception $e) {
+                    throw $e;
                 }
             }
+            while ($record->fetch()) {
+                if ($record->field('pref_ws') != $this->group) {
+                    break;
+                }
+                $id    = trim($record->field('pref_id'));
+                $value = $record->field('pref_value');
+                $type  = $record->field('pref_type');
 
-            settype($value, $type);
+                if ('array' == $type) {
+                    $value = @json_decode($value, true);
+                } else {
+                    if ('float' == $type || 'double' == $type) {
+                        $type = 'float';
+                    } elseif ('boolean' != $type && 'integer' != $type) {
+                        $type = 'string';
+                    }
+                }
 
-            $array = $record->field('user_id') ? 'local' : 'global';
+                settype($value, $type);
 
-            $this->{$array . '_prefs'}[$id] = [
-                'ws'     => $this->ws,
-                'value'  => $value,
-                'type'   => $type,
-                'label'  => (string) $record->field('pref_label'),
-                'global' => $record->field('user_id') == '',
-            ];
+                $array = $record->field('user_id') ? 'local' : 'global';
+
+                $this->{$array . '_preferences'}[$id] = [
+                    'ws'     => $this->group,
+                    'value'  => $value,
+                    'type'   => $type,
+                    'label'  => (string) $record->field('pref_label'),
+                    'global' => $record->field('user_id') == '',
+                ];
+            }
+
+            $this->preferences = $this->global_preferences;
+
+            foreach ($this->local_preferences as $id => $v) {
+                $this->preferences[$id] = $v;
+            }
+        } catch (Exception) {
+            trigger_error(__('Unable to retrieve preferences:') . ' ' . App::core()->con()->error(), E_USER_ERROR);
         }
-
-        $this->prefs = $this->global_prefs;
-
-        foreach ($this->local_prefs as $id => $v) {
-            $this->prefs[$id] = $v;
-        }
-
-        return true;
     }
 
     /**
-     * Check if a pref exists.
+     * Check if a local preference exists.
      *
-     * @param string $id     The identifier
-     * @param bool   $global The global
+     * @param string $id The identifier
+     *
+     * @return bool True if local preference exists
      */
-    public function prefExists(string $id, bool $global = false): bool
+    public function hasLocalPreference(string $id): bool
     {
-        $array = $global ? 'global' : 'local';
-
-        return isset($this->{$array . '_prefs'}[$id]);
+        return isset($this->local_preferences[$id]);
     }
 
     /**
-     * Get pref value if exists.
+     * Check if a global preference exists.
      *
-     * @param string $n Pref name
+     * @param string $id The preferences ID
+     *
+     * @return bool True if global preference exists
      */
-    public function get(string $n): mixed
+    public function hasGlobalPreference(string $id): bool
     {
-        return isset($this->prefs[$n]) && isset($this->prefs[$n]['value']) ?
-            $this->prefs[$n]['value'] : null;
+        return isset($this->global_preferences[$id]);
     }
 
     /**
-     * Get global pref value if exists.
+     * Get preference value if exists.
      *
-     * @param string $n Pref name
+     * @param string $id The preference name
+     *
+     * @return mixed The user preference value
      */
-    public function getGlobal(string $n): mixed
+    public function getPreference(string $id): mixed
     {
-        return isset($this->global_prefs[$n]) && isset($this->global_prefs[$n]['value']) ?
-            $this->global_prefs[$n]['value'] : null;
+        return isset($this->preferences[$id]) && isset($this->preferences[$id]['value']) ?
+            $this->preferences[$id]['value'] : null;
     }
 
     /**
-     * Get local pref value if exists.
+     * Get global preference value if exists.
      *
-     * @param string $n Pref name
+     * @param string $id The preference name
+     *
+     * @return mixed The global preference value
      */
-    public function getLocal(string $n): mixed
+    public function getGlobalPreference(string $id): mixed
     {
-        return isset($this->local_prefs[$n]) && isset($this->local_prefs[$n]['value']) ?
-            $this->local_prefs[$n]['value'] : null;
+        return isset($this->global_preferences[$id]) && isset($this->global_preferences[$id]['value']) ?
+            $this->global_preferences[$id]['value'] : null;
     }
 
     /**
-     * Set a pref in $prefs property.
+     * Get local preference value if exists.
      *
-     * This sets the pref for script
-     * execution time only and if pref exists.
+     * @param string $id The preference name
      *
-     * @param string $n The pref name
-     * @param mixed  $v The pref value
+     * @return mixed The local preference value
      */
-    public function set(string $n, mixed $v): void
+    public function getLocalPreference(string $id): mixed
     {
-        if (isset($this->prefs[$n])) {
-            $this->prefs[$n]['value'] = $v;
+        return isset($this->local_preferences[$id]) && isset($this->local_preferences[$id]['value']) ?
+            $this->local_preferences[$id]['value'] : null;
+    }
+
+    /**
+     * Set a preference in $preferences property.
+     *
+     * This sets the preference for script
+     * execution time only and if preference exists.
+     *
+     * @param string $id    The preference name
+     * @param mixed  $value The preference value
+     */
+    public function setPreference(string $id, mixed $value): void
+    {
+        if (isset($this->preferences[$id])) {
+            $this->preferences[$id]['value'] = $value;
         }
     }
 
@@ -228,20 +226,20 @@ class Workspace
      * @param null|bool $value_change Change pref value or not
      * @param bool      $global       Pref is global
      *
-     * @throws CoreException
+     * @throws InvalidValueFormat
      */
-    public function put(string $id, mixed $value, ?string $type = null, ?string $label = null, ?bool $value_change = true, bool $global = false): void
+    public function putPreference(string $id, mixed $value, ?string $type = null, ?string $label = null, ?bool $value_change = true, bool $global = false): void
     {
         if (!preg_match(self::WS_ID_SCHEMA, $id)) {
-            throw new CoreException(sprintf(__('%s is not a valid pref id'), $id));
+            throw new InvalidValueFormat(sprintf(__('%s is not a valid pref id'), $id));
         }
 
         // We don't want to change pref value
         if (!$value_change) {
-            if (!$global && $this->prefExists($id, false)) {
-                $value = $this->local_prefs[$id]['value'];
-            } elseif ($this->prefExists($id, true)) {
-                $value = $this->global_prefs[$id]['value'];
+            if (!$global && $this->hasLocalPreference($id)) {
+                $value = $this->local_preferences[$id]['value'];
+            } elseif ($this->hasGlobalPreference($id)) {
+                $value = $this->global_preferences[$id]['value'];
             }
         }
 
@@ -249,10 +247,10 @@ class Workspace
         if ('double' == $type) {
             $type = 'float';
         } elseif (null === $type) {
-            if (!$global && $this->prefExists($id, false)) {
-                $type = $this->local_prefs[$id]['type'];
-            } elseif ($this->prefExists($id, true)) {
-                $type = $this->global_prefs[$id]['type'];
+            if (!$global && $this->hasLocalPreference($id)) {
+                $type = $this->local_preferences[$id]['type'];
+            } elseif ($this->hasGlobalPreference($id)) {
+                $type = $this->global_preferences[$id]['type'];
             } else {
                 $type = is_array($value) ? 'array' : 'string';
             }
@@ -262,10 +260,10 @@ class Workspace
 
         // We don't change label
         if (null == $label) {
-            if (!$global && $this->prefExists($id, false)) {
-                $label = $this->local_prefs[$id]['label'];
-            } elseif ($this->prefExists($id, true)) {
-                $label = $this->global_prefs[$id]['label'];
+            if (!$global && $this->hasLocalPreference($id)) {
+                $label = $this->local_preferences[$id]['label'];
+            } elseif ($this->hasGlobalPreference($id)) {
+                $label = $this->global_preferences[$id]['label'];
             }
         }
 
@@ -276,20 +274,22 @@ class Workspace
         }
 
         // If we are local, compare to global value
-        if (!$global && $this->prefExists($id, true)) {
-            $g         = $this->global_prefs[$id];
-            $same_pref = ($g['ws'] == $this->ws && $g['value'] == $value && $g['type'] == $type && $g['label'] == $label);
+        if (!$global && $this->hasGlobalPreference($id)) {
+            $g         = $this->global_preferences[$id];
+            $same_pref = ($g['ws'] == $this->group && $g['value'] == $value && $g['type'] == $type && $g['label'] == $label);
 
             // Drop pref if same value as global
-            if ($same_pref && $this->prefExists($id, false)) {
-                $this->drop($id);
+            if ($same_pref && $this->hasLocalPreference($id)) {
+                $this->dropPreference($id);
             } elseif ($same_pref) {
                 return;
             }
         }
 
         // Update
-        if ($this->prefExists($id, $global) && $this->ws == $this->prefs[$id]['ws']) {
+        if (($global && $this->hasGlobalPreference(id: $id) || !$global && $this->hasLocalPreference(id: $id))
+            && $this->group == $this->preferences[$id]['ws']
+        ) {
             $sql = new UpdateStatement();
             $sql->set([
                 'pref_value = ' . $sql->quote('boolean' == $type ? (string) (int) $value : (string) $value),
@@ -299,10 +299,10 @@ class Workspace
             $sql->where(
                 $global ?
                 'user_id IS NULL' :
-                'user_id = ' . $sql->quote($this->user_id)
+                'user_id = ' . $sql->quote($this->user)
             );
             $sql->and('pref_id = ' . $sql->quote($id));
-            $sql->and('pref_ws = ' . $sql->quote($this->ws));
+            $sql->and('pref_ws = ' . $sql->quote($this->group));
             $sql->from(App::core()->getPrefix() . 'pref');
             $sql->update();
         // Insert
@@ -321,8 +321,8 @@ class Workspace
                 $sql->quote($type),
                 $sql->quote($label),
                 $sql->quote($id),
-                $global ? 'NULL' : $sql->quote($this->user_id),
-                $sql->quote($this->ws),
+                $global ? 'NULL' : $sql->quote($this->user),
+                $sql->quote($this->group),
             ]]);
             $sql->from(App::core()->getPrefix() . 'pref');
             $sql->insert();
@@ -330,37 +330,38 @@ class Workspace
     }
 
     /**
-     * Rename an existing pref in a Workspace.
+     * Rename an existing preference in a group.
      *
-     * @param string $oldId The old identifier
-     * @param string $newId The new identifier
+     * @param string $oldId The old preference ID
+     * @param string $newId The new preference ID
      *
-     * @throws CoreException
+     * @throws MissingOrEmptyValue
+     * @throws InvalidValueFormat
      *
-     * @return bool false is error, true if renamed
+     * @return bool True if preference successfully renamed
      */
-    public function rename(string $oldId, string $newId): bool
+    public function renamePreference(string $oldId, string $newId): bool
     {
-        if (!$this->ws) {
-            throw new CoreException(__('No workspace specified'));
+        if (!$this->group) {
+            throw new MissingOrEmptyValue(__('No workspace specified'));
         }
 
-        if (!array_key_exists($oldId, $this->prefs) || array_key_exists($newId, $this->prefs)) {
+        if (!array_key_exists($oldId, $this->preferences) || array_key_exists($newId, $this->preferences)) {
             return false;
         }
 
         if (!preg_match(self::WS_ID_SCHEMA, $newId)) {
-            throw new CoreException(sprintf(__('%s is not a valid pref id'), $newId));
+            throw new InvalidValueFormat(sprintf(__('%s is not a valid pref id'), $newId));
         }
 
-        // Rename the pref in the prefs array
-        $this->prefs[$newId] = $this->prefs[$oldId];
-        unset($this->prefs[$oldId]);
+        // Rename the pref in the preferences array
+        $this->preferences[$newId] = $this->preferences[$oldId];
+        unset($this->preferences[$oldId]);
 
         // Rename the pref in the database
         $sql = new UpdateStatement();
         $sql->set('pref_id = ' . $sql->quote($newId));
-        $sql->where('pref_ws = ' . $sql->quote($this->ws));
+        $sql->where('pref_ws = ' . $sql->quote($this->group));
         $sql->and('pref_id = ' . $sql->quote($oldId));
         $sql->from(App::core()->getPrefix() . 'pref');
         $sql->update();
@@ -369,129 +370,148 @@ class Workspace
     }
 
     /**
-     * Remove an existing pref. Workspace.
+     * Remove an existing preference in a group.
      *
-     * @param string $id           The pref identifier
-     * @param bool   $force_global Force global pref drop
+     * Apply to current preference user,
+     * or global if user is not set.
      *
-     * @throws CoreException
+     * @param string $id The preference ID
      */
-    public function drop(string $id, bool $force_global = false): void
+    public function dropPreference(string $id): void
     {
-        if (!$this->ws) {
-            throw new CoreException(__('No workspace specified'));
+        unset($this->local_preferences[$id]);
+
+        if (null === $this->user) {
+            $this->dropGlobalPreference(id: $id);
+        } else {
+            $this->deletePreference(id: $id, where: "user_id = '" . App::core()->con()->escape($this->user) . "'");
+        }
+    }
+
+    /**
+     * Remove an existing global preference in a group.
+     *
+     * @param string $id The preference ID
+     */
+    public function dropGlobalPreference(string $id)
+    {
+        unset($this->global_preferences[$id]);
+
+        $this->deletePreference(id: $id, where: 'user_id IS NULL');
+    }
+
+    /**
+     * Remove an existing non global preference in a group.
+     *
+     * @param string $id The preference ID
+     */
+    public function dropNonGlobalPreference(string $id): void
+    {
+        $this->deletePreference(id: $id, where: 'user_id IS NOT NULL');
+    }
+
+    /**
+     * Remove an existing preference in a group.
+     *
+     * @param string $id    The preference ID
+     * @param string $where The user ID SQL where clause
+     *
+     * @throws MissingOrEmptyValue
+     */
+    private function deletePreference(string $id, string $where)
+    {
+        if (!$this->group) {
+            throw new MissingOrEmptyValue(__('No namespace specified'));
         }
 
-        $global = $force_global || null === $this->user_id;
-
         $sql = new DeleteStatement();
-        $sql->where(
-            $global ?
-            'user_id IS NULL' :
-            'user_id = ' . $sql->quote($this->user_id)
-        );
+        $sql->from(App::core()->getPrefix() . 'pref');
+        $sql->where($where);
         $sql->and('pref_id = ' . $sql->quote($id));
-        $sql->and('pref_ws = ' . $sql->quote($this->ws));
-        $sql->from(App::core()->getPrefix() . 'pref');
+        $sql->and('pref_ws = ' . $sql->quote($this->group));
         $sql->delete();
 
-        if ($this->prefExists($id, $global)) {
-            $array = $global ? 'global' : 'local';
-            unset($this->{$array . '_prefs'}[$id]);
-        }
-
-        $this->prefs = $this->global_prefs;
-        foreach ($this->local_prefs as $id => $v) {
-            $this->prefs[$id] = $v;
-        }
+        $this->preferences = $this->global_preferences;
+        $this->preferences = array_merge($this->preferences, $this->local_preferences);
     }
 
     /**
-     * Remove every existing specific pref. in a workspace.
+     * Remove all existing local preferences in a group.
      *
-     * @param string $id     Pref ID
-     * @param bool   $global Remove global pref too
+     * @throws MissingOrEmptyValue
      */
-    public function dropEvery(string $id, bool $global = false): void
+    public function dropPreferences(): void
     {
-        if (!$this->ws) {
-            throw new CoreException(__('No workspace specified'));
+        if (!$this->group) {
+            throw new MissingOrEmptyValue(__('No namespace specified'));
+        }
+
+        if (null === $this->user) {
+            $this->dropGlobalPreferences();
+
+            return;
         }
 
         $sql = new DeleteStatement();
-        $sql->where('pref_id = ' . $sql->quote($id));
-        $sql->and('pref_ws = ' . $sql->quote($this->ws));
-
-        if (!$global) {
-            $sql->and('user_id IS NOT NULL');
-        }
-
         $sql->from(App::core()->getPrefix() . 'pref');
+        $sql->where('user_id = ' . $sql->quote($this->user));
+        $sql->and('pref_ws = ' . $sql->quote($this->group));
         $sql->delete();
+
+        unset($this->local_preferences);
+        $this->local_preferences = [];
+        $this->preferences       = $this->global_preferences;
     }
 
     /**
-     * Remove all existing pref. in a Workspace.
+     * Remove all existing global preferences in a group.
      *
-     * @param bool $force_global Remove global prefs too
-     *
-     * @throws CoreException
+     * @throws MissingOrEmptyValue
      */
-    public function dropAll(bool $force_global = false): void
+    public function dropGlobalPreferences(): void
     {
-        if (!$this->ws) {
-            throw new CoreException(__('No workspace specified'));
+        if (!$this->group) {
+            throw new MissingOrEmptyValue(__('No namespace specified'));
         }
-
-        $global = $force_global || null === $this->user_id;
 
         $sql = new DeleteStatement();
-        $sql->where(
-            $global ?
-            'user_id IS NULL' :
-            'user_id = ' . $sql->quote($this->user_id)
-        );
-        $sql->and('pref_ws = ' . $sql->quote($this->ws));
         $sql->from(App::core()->getPrefix() . 'pref');
+        $sql->where('user_id IS NULL');
+        $sql->and('pref_ws = ' . $sql->quote($this->group));
         $sql->delete();
 
-        $array = $global ? 'global' : 'local';
-        unset($this->{$array . '_prefs'});
-        $this->{$array . '_prefs'} = [];
-
-        $array       = $global ? 'local' : 'global';
-        $this->prefs = $this->{$array . '_prefs'};
+        unset($this->global_preferences);
+        $this->global_preferences = [];
+        $this->preferences        = $this->local_preferences;
     }
 
     /**
-     * Dump a workspace.
+     * Dump group preferences.
+     *
+     * @return array<string,mixed> The user preferences
      */
-    public function dumpWorkspace(): string
+    public function dumpPreferences(): array
     {
-        return $this->ws;
+        return $this->preferences;
     }
 
     /**
-     * Dump preferences.
+     * Dump group local preferences.
+     *
+     * @return array<string,mixed> The local preferences
      */
-    public function dumpPrefs(): array
+    public function dumpLocalPreferences(): array
     {
-        return $this->prefs;
+        return $this->local_preferences;
     }
 
     /**
-     * Dump local preferences.
+     * Dump group global preferences.
+     *
+     * @return array<string,mixed> The global preferences
      */
-    public function dumpLocalPrefs(): array
+    public function dumpGlobalPreferences(): array
     {
-        return $this->local_prefs;
-    }
-
-    /**
-     * Dump global preferences.
-     */
-    public function dumpGlobalPrefs(): array
-    {
-        return $this->global_prefs;
+        return $this->global_preferences;
     }
 }

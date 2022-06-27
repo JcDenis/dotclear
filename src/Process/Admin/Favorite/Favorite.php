@@ -11,7 +11,7 @@ namespace Dotclear\Process\Admin\Favorite;
 
 // Dotclear\Process\Admin\Favorite\Favorite
 use Dotclear\App;
-use Dotclear\Core\User\Preference\Workspace;
+use Dotclear\Core\User\Preferences\PreferencesGroup;
 use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Mapper\Strings;
 
@@ -31,8 +31,8 @@ final class Favorite
     private $favorites = [];
 
     /**
-     * @var Workspace $ws
-     *                The current favorite landing workspace
+     * @var PreferencesGroup $ws
+     *                       The current favorite landing workspace
      */
     private $ws;
 
@@ -59,12 +59,12 @@ final class Favorite
      */
     public function __construct()
     {
-        $this->ws         = App::core()->user()->preference()->get('dashboard');
+        $this->ws         = App::core()->user()->preferences()->getGroup('dashboard');
         $this->user_prefs = [];
 
-        if ($this->ws->prefExists('favorites')) {
-            $this->local_prefs  = new Strings($this->ws->getLocal('favorites'));
-            $this->global_prefs = new Strings($this->ws->getGlobal('favorites'));
+        if ($this->ws->hasLocalPreference('favorites')) {
+            $this->local_prefs  = new Strings($this->ws->getLocalPreference('favorites'));
+            $this->global_prefs = new Strings($this->ws->getGlobalPreference('favorites'));
         } else {
             $this->local_prefs  = new Strings();
             $this->global_prefs = new Strings();
@@ -180,7 +180,7 @@ final class Favorite
      */
     public function setGlobalIds(Strings $ids): void
     {
-        $this->ws->put('favorites', $ids->dump(), 'array', null, true, true);
+        $this->ws->putPreference('favorites', $ids->dump(), 'array', null, true, true);
     }
 
     /**
@@ -206,7 +206,7 @@ final class Favorite
      */
     public function setLocalIds(Strings $ids): void
     {
-        $this->ws->put('favorites', $ids->dump(), 'array', null, true, false);
+        $this->ws->putPreference('favorites', $ids->dump(), 'array', null, true, false);
     }
 
     /**

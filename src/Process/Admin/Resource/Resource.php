@@ -254,8 +254,8 @@ class Resource
     public function common(): string
     {
         $nocheckadblocker = null;
-        if (App::core()->user()->preference()) {
-            $nocheckadblocker = App::core()->user()->preference()->get('interface')->get('nocheckadblocker');
+        if (App::core()->user()->preferences()) {
+            $nocheckadblocker = App::core()->user()->preferences()->getGroup('interface')->getPreference('nocheckadblocker');
         }
 
         $js = [
@@ -367,8 +367,8 @@ class Resource
     public function toggles(): string
     {
         $js = [];
-        if (App::core()->user()->preference()) {
-            $unfolded_sections = explode(',', (string) App::core()->user()->preference()->get('toggles')->get('unfolded_sections'));
+        if (App::core()->user()->preferences()) {
+            $unfolded_sections = explode(',', (string) App::core()->user()->preferences()->getGroup('toggles')->getPreference('unfolded_sections'));
             foreach ($unfolded_sections as $k => &$v) {
                 if ('' !== $v) {
                     $js[$unfolded_sections[$k]] = true;

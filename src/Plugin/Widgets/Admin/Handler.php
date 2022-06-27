@@ -292,11 +292,11 @@ class Handler extends AbstractPage
     {
         $widget_editor = App::core()->user()->getOption('editor');
         $rte_flag      = true;
-        $rte_flags     = App::core()->user()->preference()->get('interface')->get('rte_flags');
+        $rte_flags     = App::core()->user()->preferences()->getGroup('interface')->getPreference('rte_flags');
         if (is_array($rte_flags) && isset($rte_flags['widgets_text'])) {
             $rte_flag = $rte_flags['widgets_text'];
         }
-        $user_dm_nodragdrop = App::core()->user()->preference()->get('accessibility')->get('nodragdrop');
+        $user_dm_nodragdrop = App::core()->user()->preferences()->getGroup('accessibility')->getPreference('nodragdrop');
 
         return
         App::core()->resource()->load('style.css', 'Plugin', 'Widgets') .

@@ -99,7 +99,7 @@ class ModulesBehavior
     {
         if ($this->modules->getType() == $type) {
             foreach ($this->modules->store()->get(true) as $id => $module) {
-                $udpate->set($id, $module->name());
+                $update->set($id, $module->name());
             }
         }
     }

@@ -250,7 +250,7 @@ class BlogPref extends AbstractPage
         // Page setup
         $desc_editor = App::core()->user()->getOption('editor');
         $rte_flag    = true;
-        $rte_flags   = @App::core()->user()->preference()->get('interface')->get('rte_flags');
+        $rte_flags   = @App::core()->user()->preferences()->getGroup('interface')->getPreference('rte_flags');
         if (is_array($rte_flags) && in_array('blog_descr', $rte_flags)) {
             $rte_flag = $rte_flags['blog_descr'];
         }
@@ -267,9 +267,9 @@ class BlogPref extends AbstractPage
 
                 // --BEHAVIOR-- adminBeforeGetPostEditorHead, string, string, array, string
                 ($rte_flag ? App::core()->behavior('adminBeforeGetPostEditorHead')->call(
-                    editor: $desc_editor['xhtml'], 
-                    context: 'blog_desc', 
-                    tags: ['#blog_desc'], 
+                    editor: $desc_editor['xhtml'],
+                    context: 'blog_desc',
+                    tags: ['#blog_desc'],
                     syntax: 'xhtml'
                 ) : '') .
 

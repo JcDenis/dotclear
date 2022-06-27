@@ -1286,9 +1286,9 @@ class Media extends Manager
     /**
      * Create image meta.
      *
-     * @param Cursor $cursor The cursor
-     * @param string $filename   Image filename
-     * @param int    $id  The media identifier
+     * @param Cursor $cursor   The cursor
+     * @param string $filename Image filename
+     * @param int    $id       The media identifier
      */
     protected function imageMetaCreate(Cursor $cursor, string $filename, int $id): bool
     {
@@ -1305,13 +1305,13 @@ class Media extends Manager
         $c = App::core()->con()->openCursor(App::core()->getPrefix() . 'media');
         $c->setField('media_meta', $xml->toXML());
 
-        if (null !== $cur->getField('media_title') && basename($cur->getField('media_file')) == $cur->getField('media_title')) {
+        if (null !== $cursor->getField('media_title') && basename($cursor->getField('media_file')) == $cursor->getField('media_title')) {
             if ($meta['Title']) {
                 $c->setField('media_title', $meta['Title']);
             }
         }
 
-        if ($meta['DateTimeOriginal'] && '' === $cur->getField('media_dt')) {
+        if ($meta['DateTimeOriginal'] && '' === $cursor->getField('media_dt')) {
             $media_ts = Clock::ts(date: $meta['DateTimeOriginal']);
             if ($media_ts) {
                 $c->setField('media_dt', Clock::database(date: $media_ts));

@@ -16,7 +16,6 @@ use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\InsertStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
-use Dotclear\Exception\CoreException;
 use Dotclear\Exception\InvalidValueFormat;
 use Dotclear\Exception\MissingOrEmptyValue;
 
@@ -59,7 +58,7 @@ final class SettingsGroup
      * @param string      $group  The settings group ID
      * @param null|Record $record The record, if any
      *
-     * @throws CoreException
+     * @throws InvalidValueFormat
      */
     public function __construct(private string|null $blog, public readonly string $group, ?Record $record = null)
     {
