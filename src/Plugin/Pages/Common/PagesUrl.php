@@ -143,7 +143,7 @@ class PagesUrl
                         if ('' != $buffer) {
                             $content = $buffer;
                         } else {
-                            if (App::core()->blog()->settings()->getGroup('system')->getSetting('wiki_comments')) {
+                            if (App::core()->blog()->settings('system')->getSetting('wiki_comments')) {
                                 App::core()->wiki()->initWikiComment();
                             } else {
                                 App::core()->wiki()->initWikiSimpleComment();
@@ -173,11 +173,11 @@ class PagesUrl
                         $cur->setField('comment_email', Html::clean($mail));
                         $cur->setField('comment_content', $content);
                         $cur->setField('post_id', App::core()->context()->get('posts')->integer('post_id'));
-                        $cur->setField('comment_status', App::core()->blog()->settings()->getGroup('system')->getSetting('comments_pub') ? 1 : -1);
+                        $cur->setField('comment_status', App::core()->blog()->settings('system')->getSetting('comments_pub') ? 1 : -1);
                         $cur->setField('comment_ip', Http::realIP());
 
                         $redir = App::core()->context()->get('posts')->getURL();
-                        $redir .= App::core()->blog()->settings()->getGroup('system')->getSetting('url_scan') == 'query_string' ? '&' : '?';
+                        $redir .= App::core()->blog()->settings('system')->getSetting('url_scan') == 'query_string' ? '&' : '?';
 
                         try {
                             if (!Text::isEmail($cur->getField('comment_email'))) {

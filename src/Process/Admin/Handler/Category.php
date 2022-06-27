@@ -193,7 +193,7 @@ class Category extends AbstractPage
 
         $category_editor = App::core()->user()->getOption('editor');
         $rte_flag        = true;
-        $rte_flags       = App::core()->user()->preferences()->getGroup('interface')->getPreference('rte_flags');
+        $rte_flags       = App::core()->user()->preferences('interface')->getPreference('rte_flags');
         if (is_array($rte_flags) && in_array('cat_descr', $rte_flags)) {
             $rte_flag = $rte_flags['cat_descr'];
         }
@@ -230,7 +230,7 @@ class Category extends AbstractPage
         '<p><label class="required" for="cat_title"><abbr title="' . __('Required field') . '">*</abbr> ' . __('Name:') . '</label> ' .
         Form::field('cat_title', 40, 255, [
             'default'    => Html::escapeHTML($this->cat_title),
-            'extra_html' => 'required placeholder="' . __('Name') . '" lang="' . App::core()->blog()->settings()->getGroup('system')->getSetting('lang') . '" spellcheck="true"',
+            'extra_html' => 'required placeholder="' . __('Name') . '" lang="' . App::core()->blog()->settings('system')->getSetting('lang') . '" spellcheck="true"',
         ]) .
             '</p>';
         if (null === $this->cat_id) {
@@ -260,7 +260,7 @@ class Category extends AbstractPage
             8,
             [
                 'default'    => Html::escapeHTML($this->cat_desc),
-                'extra_html' => 'lang="' . App::core()->blog()->settings()->getGroup('system')->getSetting('lang') . '" spellcheck="true"',
+                'extra_html' => 'lang="' . App::core()->blog()->settings('system')->getSetting('lang') . '" spellcheck="true"',
             ]
         ) .
         '</p>' .

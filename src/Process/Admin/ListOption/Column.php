@@ -68,7 +68,7 @@ final class Column
         App::core()->behavior('adminAfterConstructColumn')->call(column: $this);
 
         // Load user settings
-        $column = @App::core()->user()->preferences()->getGroup('interface')->getPreference('cols');
+        $column = @App::core()->user()->preferences('interface')->getPreference('cols');
         if (is_array($column)) {
             foreach ($column as $column_type => $column_values) {
                 foreach ($column_values as $column_id => $column_active) {

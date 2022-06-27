@@ -53,10 +53,10 @@ class Handler extends AbstractPage
         $file_default = $this->te_file = ['c' => null, 'w' => false, 'type' => null, 'f' => null, 'default_file' => false];
 
         // Get interface setting
-        $user_ui_colorsyntax = App::core()->user()->preferences()->getGroup('interface')->getPreference('colorsyntax');
+        $user_ui_colorsyntax = App::core()->user()->preferences('interface')->getPreference('colorsyntax');
 
         // Loading themes
-        $this->te_theme  = App::core()->themes()->getModule((string) App::core()->blog()->settings()->getGroup('system')->getSetting('theme'));
+        $this->te_theme  = App::core()->themes()->getModule((string) App::core()->blog()->settings('system')->getSetting('theme'));
         $this->te_editor = new ThemeEditor();
 
         try {
@@ -123,7 +123,7 @@ class Handler extends AbstractPage
         );
         if ($user_ui_colorsyntax) {
             $this->setPageHead(
-                App::core()->resource()->loadCodeMirror(App::core()->user()->preferences()->getGroup('interface')->getPreference('colorsyntax_theme'))
+                App::core()->resource()->loadCodeMirror(App::core()->user()->preferences('interface')->getPreference('colorsyntax_theme'))
             );
         }
         $this->setPageHead(
@@ -143,7 +143,7 @@ class Handler extends AbstractPage
 
         echo '<p><strong>' . sprintf(__('Your current theme on this blog is "%s".'), Html::escapeHTML($this->te_theme->name())) . '</strong></p>';
 
-        if ('default' == App::core()->blog()->settings()->getGroup('system')->getSetting('theme')) {
+        if ('default' == App::core()->blog()->settings('system')->getSetting('theme')) {
             echo '<div class="error"><p>' . __("You can't edit default theme.") . '</p></div>';
 
             return;
@@ -176,7 +176,7 @@ class Handler extends AbstractPage
 
             echo '</div></form>';
 
-            if (App::core()->user()->preferences()->getGroup('interface')->getPreference('colorsyntax')) {
+            if (App::core()->user()->preferences('interface')->getPreference('colorsyntax')) {
                 $editorMode =
                     (!GPC::request()->empty('css') ? 'css' :
                     (!GPC::request()->empty('js') ? 'javascript' :
@@ -186,7 +186,7 @@ class Handler extends AbstractPage
                     ;
                 App::core()->resource()->json('theme_editor_mode', ['mode' => $editorMode]);
                 echo App::core()->resource()->load('mode.js', 'Plugin', 'themeEditor');
-                echo App::core()->resource()->runCodeMirror('editor', 'file_content', 'dotclear', App::core()->user()->preferences()->getGroup('interface')->getPreference('colorsyntax_theme'));
+                echo App::core()->resource()->runCodeMirror('editor', 'file_content', 'dotclear', App::core()->user()->preferences('interface')->getPreference('colorsyntax_theme'));
             }
         }
 
@@ -213,7 +213,7 @@ class Handler extends AbstractPage
 
     private function isEditableTheme(): bool
     {
-        $theme = App::core()->themes()->getModule((string) App::core()->blog()->settings()->getGroup('system')->getSetting('theme'));
+        $theme = App::core()->themes()->getModule((string) App::core()->blog()->settings('system')->getSetting('theme'));
         if ($theme && 'default' != $theme->id() && App::core()->user()->isSuperAdmin()) {
             $path = App::core()->themes()->getPaths();
 

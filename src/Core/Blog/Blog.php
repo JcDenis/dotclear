@@ -15,6 +15,7 @@ use Dotclear\Core\Blog\Categories\Categories;
 use Dotclear\Core\Blog\Comments\Comments;
 use Dotclear\Core\Blog\Posts\Posts;
 use Dotclear\Core\Blog\Settings\Settings;
+use Dotclear\Core\Blog\Settings\SettingsGroup;
 use Dotclear\Database\Param;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
@@ -154,7 +155,7 @@ final class Blog
         $this->status = $record->isEmpty() ? null : (int) $record->field('blog_status');
 
         $this->public_url  = $record->isEmpty() ? null : $this->getURLFor('resources'); // ! to enhance;
-        $this->public_path = $record->isEmpty() ? false : Path::real(Path::fullFromRoot($this->settings()->getGroup('system')->getSetting('public_path'), App::core()->config()->get('base_dir')));
+        $this->public_path = $record->isEmpty() ? false : Path::real(Path::fullFromRoot($this->settings('system')->getSetting('public_path'), App::core()->config()->get('base_dir')));
 
         // --BEHAVIOR-- coreAfterConstructBlog, Blog
         App::core()->behavior('coreAfterConstructBlog')->call(blog: $this);
@@ -214,17 +215,19 @@ final class Blog
     /**
      * Get settings instance.
      *
-     * Settings methods are accesible from App::core()->blog()->settings()
+     * Settings methods are accesible from App::core()->blog()->settings(group)
+     * 
+     * @param string $group The settings group name
      *
-     * @return Settings The settings instance
+     * @return SettingsGroup The settings group instance
      */
-    public function settings(): Settings
+    public function settings(string $group): SettingsGroup
     {
         if (!($this->settings instanceof Settings)) {
             $this->settings = new Settings(blog: $this->id);
         }
 
-        return $this->settings;
+        return $this->settings->getGroup($group);
     }
 
     // @}
@@ -263,12 +266,12 @@ final class Blog
      */
     public function getJsJQuery(): string
     {
-        $version = $this->settings()->getGroup('system')->getSetting('jquery_version');
+        $version = $this->settings('system')->getSetting('jquery_version');
         if ('' == $version) {
             // Version not set, use default one
             $version = App::core()->config()->get('jquery_default');
         } else {
-            if (true !== $this->settings()->getGroup('system')->getSetting('jquery_allow_old_version')) {
+            if (true !== $this->settings('system')->getSetting('jquery_allow_old_version')) {
                 // Use the blog defined version only if more recent than default
                 if (version_compare($version, App::core()->config()->get('jquery_default'), '<')) {
                     $version = App::core()->config()->get('jquery_default');

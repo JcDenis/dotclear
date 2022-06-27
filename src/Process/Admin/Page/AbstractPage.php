@@ -254,7 +254,7 @@ abstract class AbstractPage
         $this->setXFrameOptions($headers, $this->options['x-frame-allow'] ?? null);
 
         // Content-Security-Policy (only if safe mode if not active, it may help)
-        $system = App::core()->blog()->settings()->getGroup('system');
+        $system = App::core()->blog()->settings('system');
         if (!App::core()->isRescueMode() && $system->getSetting('csp_admin_on')) {
             // Get directives from settings if exist, else set defaults
             $csp = new NamedStrings();
@@ -309,7 +309,7 @@ abstract class AbstractPage
             header($header);
         }
 
-        $data_theme = App::core()->user()->preferences()->getGroup('interface')->getPreference('theme');
+        $data_theme = App::core()->user()->preferences('interface')->getPreference('theme');
 
         echo '<!DOCTYPE html>' .
         '<html lang="' . App::core()->user()->getInfo('user_lang') . '" data-theme="' . $data_theme . '">' . "\n" .
@@ -331,16 +331,16 @@ abstract class AbstractPage
             echo App::core()->resource()->load('default-rtl.css');
         }
 
-        if (!App::core()->user()->preferences()->getGroup('interface')->getPreference('hide_std_favicon')) {
+        if (!App::core()->user()->preferences('interface')->getPreference('hide_std_favicon')) {
             echo '<link rel="icon" type="image/png" href="?df=images/favicon96-login.png" />' . "\n" .
                 '<link rel="shortcut icon" href="?df=images/favicon.ico" type="image/x-icon" />' . "\n";
         }
-        if (App::core()->user()->preferences()->getGroup('interface')->getPreference('htmlfontsize')) {
-            $js['htmlFontSize'] = App::core()->user()->preferences()->getGroup('interface')->getPreference('htmlfontsize');
+        if (App::core()->user()->preferences('interface')->getPreference('htmlfontsize')) {
+            $js['htmlFontSize'] = App::core()->user()->preferences('interface')->getPreference('htmlfontsize');
         }
-        $js['hideMoreInfo']   = (bool) App::core()->user()->preferences()->getGroup('interface')->getPreference('hidemoreinfo');
-        $js['showAjaxLoader'] = (bool) App::core()->user()->preferences()->getGroup('interface')->getPreference('showajaxloader');
-        $js['noDragDrop']     = (bool) App::core()->user()->preferences()->getGroup('accessibility')->getPreference('nodragdrop');
+        $js['hideMoreInfo']   = (bool) App::core()->user()->preferences('interface')->getPreference('hidemoreinfo');
+        $js['showAjaxLoader'] = (bool) App::core()->user()->preferences('interface')->getPreference('showajaxloader');
+        $js['noDragDrop']     = (bool) App::core()->user()->preferences('accessibility')->getPreference('nodragdrop');
         $js['debug']          = !App::core()->isProductionMode();
         $js['showIp']         = App::core()->blog() && App::core()->blog()->id ? App::core()->user()->check('contentadmin', App::core()->blog()->id) : false;
 
@@ -421,7 +421,7 @@ abstract class AbstractPage
         // Prevents Clickjacking as far as possible
         header('X-Frame-Options: SAMEORIGIN'); // FF 3.6.9+ Chrome 4.1+ IE 8+ Safari 4+ Opera 10.5+
 
-        $data_theme = App::core()->user()->preferences()->getGroup('interface')->getPreference('theme');
+        $data_theme = App::core()->user()->preferences('interface')->getPreference('theme');
 
         echo '<!DOCTYPE html>' .
         '<html lang="' . App::core()->user()->getInfo('user_lang') . '" data-theme="' . $data_theme . '">' . "\n" .
@@ -438,12 +438,12 @@ abstract class AbstractPage
             echo App::core()->resource()->load('default-rtl.css');
         }
 
-        if (App::core()->user()->preferences()->getGroup('interface')->getPreference('htmlfontsize')) {
-            $js['htmlFontSize'] = App::core()->user()->preferences()->getGroup('interface')->getPreference('htmlfontsize');
+        if (App::core()->user()->preferences('interface')->getPreference('htmlfontsize')) {
+            $js['htmlFontSize'] = App::core()->user()->preferences('interface')->getPreference('htmlfontsize');
         }
-        $js['hideMoreInfo']   = (bool) App::core()->user()->preferences()->getGroup('interface')->getPreference('hidemoreinfo');
-        $js['showAjaxLoader'] = (bool) App::core()->user()->preferences()->getGroup('interface')->getPreference('showajaxloader');
-        $js['noDragDrop']     = (bool) App::core()->user()->preferences()->getGroup('accessibility')->getPreference('nodragdrop');
+        $js['hideMoreInfo']   = (bool) App::core()->user()->preferences('interface')->getPreference('hidemoreinfo');
+        $js['showAjaxLoader'] = (bool) App::core()->user()->preferences('interface')->getPreference('showajaxloader');
+        $js['noDragDrop']     = (bool) App::core()->user()->preferences('accessibility')->getPreference('nodragdrop');
         $js['debug']          = !App::core()->isProductionMode();
 
         // Set JSON data
@@ -510,10 +510,10 @@ abstract class AbstractPage
      */
     private function pageHelp(): void
     {
-        if (!App::core()->user()->preferences()) {
+        if (!App::core()->user()->preferences('interface')) {
             return;
         }
-        if (App::core()->user()->preferences()->getGroup('interface')->getPreference('hidehelpbutton')) {
+        if (App::core()->user()->preferences('interface')->getPreference('hidehelpbutton')) {
             return;
         }
 
@@ -563,7 +563,7 @@ abstract class AbstractPage
 
     private function pageClose(): void
     {
-        if (!App::core()->help()->flag() && !App::core()->user()->preferences()->getGroup('interface')->getPreference('hidehelpbutton')) {
+        if (!App::core()->help()->flag() && !App::core()->user()->preferences('interface')->getPreference('hidehelpbutton')) {
             echo sprintf(
                 '<p id="help-button"><a href="%1$s" class="outgoing" title="%2$s">%2$s</a></p>',
                 App::core()->adminurl()->get('admin.help'),

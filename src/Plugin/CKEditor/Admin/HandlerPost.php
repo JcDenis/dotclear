@@ -28,7 +28,7 @@ class HandlerPost extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        $s = App::core()->blog()->settings()->getGroup('dcckeditor');
+        $s = App::core()->blog()->settings('dcckeditor');
 
         header('Content-type: text/javascript');
 
@@ -260,7 +260,7 @@ if (!empty($extraPlugins)) {
         ],
 
 <?php // footnotes related
-    $tag = match (App::core()->blog()->settings()->getGroup('system')->getSetting('note_title_tag')) {
+    $tag = match (App::core()->blog()->settings('system')->getSetting('note_title_tag')) {
         1       => 'h3',
         2       => 'p',
         default => 'h4',

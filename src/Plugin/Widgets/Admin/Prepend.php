@@ -43,7 +43,7 @@ class Prepend extends ModulePrepend
     {
         new WidgetsStack();
         $widgets  = new Widgets();
-        $settings = App::core()->blog()->settings()->getGroup('widgets');
+        $settings = App::core()->blog()->settings('widgets');
         if (null != $settings->getSetting('widgets_nav')) {
             $settings->putSetting('widgets_nav', $widgets->load($settings->getSetting('widgets_nav'))->store());
         } else {

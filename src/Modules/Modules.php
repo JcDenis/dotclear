@@ -125,7 +125,7 @@ class Modules
     public function store(): Repository
     {
         if (!($this->store instanceof Repository)) {
-            $this->store = new Repository($this, (string) App::core()->blog()?->settings()->getGroup('system')->getSetting('store_' . $this->getType(true) . '_url'), !GPC::get()->empty('nocache'));
+            $this->store = new Repository($this, (string) App::core()->blog()?->settings('system')->getSetting('store_' . $this->getType(true) . '_url'), !GPC::get()->empty('nocache'));
         }
 
         return $this->store;
@@ -393,7 +393,7 @@ class Modules
         $paths = App::core()->config()->get($this->getType(true) . '_dirs');
 
         if (App::core()->blog()) {
-            $path = trim((string) App::core()->blog()->settings()->getGroup('system')->getSetting('module_' . $this->getType(true) . '_dir'));
+            $path = trim((string) App::core()->blog()->settings('system')->getSetting('module_' . $this->getType(true) . '_dir'));
             if (!empty($path) && false !== ($dir = Path::real(str_starts_with('\\', $path) ? $path : Path::implodeSrc($path), true))) {
                 $paths[] = $dir;
             }
@@ -1002,7 +1002,7 @@ class Modules
         $path   = [];
 
         if (null !== App::core()->blog()) {
-            $theme = $this->getModule((string) App::core()->blog()->settings()->getGroup('system')->getSetting('theme'));
+            $theme = $this->getModule((string) App::core()->blog()->settings('system')->getSetting('theme'));
             if (!$theme->root()) {
                 $theme = $this->getModule(App::core()->config()->get('theme_default'));
             }

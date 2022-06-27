@@ -336,7 +336,7 @@ class Filters
 
         return
             App::core()->resource()->json('filter_controls', $js) .
-            App::core()->resource()->json('filter_options', ['auto_filter' => App::core()->user()->preferences()->getGroup('interface')->getPreference('auto_filter')]) .
+            App::core()->resource()->json('filter_options', ['auto_filter' => App::core()->user()->preferences('interface')->getPreference('auto_filter')]) .
             App::core()->resource()->load('filter-controls.js');
     }
 

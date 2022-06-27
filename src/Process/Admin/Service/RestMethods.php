@@ -111,7 +111,7 @@ class RestMethods
         $rsp->insertAttr('check', false);
         $ret = __('Dotclear news not available');
 
-        if (App::core()->user()->preferences()->getGroup('dashboard')->getPreference('dcnews')) {
+        if (App::core()->user()->preferences('dashboard')->getPreference('dcnews')) {
             try {
                 if (!App::core()->help()->news()) {
                     throw new AdminException();
@@ -165,7 +165,7 @@ class RestMethods
         if (App::core()->user()->isSuperAdmin()
             && !App::core()->config()->get('core_update_noauto')
             && is_readable(App::core()->config()->get('digests_dir'))
-            && !App::core()->user()->preferences()->getGroup('dashboard')->getPreference('nodcupdate')
+            && !App::core()->user()->preferences('dashboard')->getPreference('nodcupdate')
         ) {
             $updater      = new Updater(App::core()->config()->get('core_update_url'), 'dotclear', App::core()->config()->get('core_update_channel'), App::core()->config()->get('cache_dir') . '/versions');
             $new_v        = $updater->check(App::core()->config()->get('core_version'));
@@ -192,7 +192,7 @@ class RestMethods
                 $rsp->insertAttr('check', true);
             } else {
                 if (version_compare(phpversion(), App::core()->config()->get('php_next_required'), '<')) {
-                    if (!App::core()->user()->preferences()->getGroup('interface')->getPreference('hidemoreinfo')) {
+                    if (!App::core()->user()->preferences('interface')->getPreference('hidemoreinfo')) {
                         $ret = '<p class="info">' .
                         sprintf(
                             __('The next versions of Dotclear will not support PHP version < %s, your\'s is currently %s'),
@@ -410,8 +410,8 @@ class RestMethods
         $cursor->setField('post_format', !empty($post['post_format']) ? $post['post_format'] : 'xhtml');
         $cursor->setField('post_lang', !empty($post['post_lang']) ? $post['post_lang'] : '');
         $cursor->setField('post_status', !empty($post['post_status']) ? (int) $post['post_status'] : 0);
-        $cursor->setField('post_open_comment', (int) App::core()->blog()->settings()->getGroup('system')->getSetting('allow_comments'));
-        $cursor->setField('post_open_tb', (int) App::core()->blog()->settings()->getGroup('system')->getSetting('allow_trackbacks'));
+        $cursor->setField('post_open_comment', (int) App::core()->blog()->settings('system')->getSetting('allow_comments'));
+        $cursor->setField('post_open_tb', (int) App::core()->blog()->settings('system')->getSetting('allow_trackbacks'));
 
         $return_id = App::core()->blog()->posts()->createPost(cursor: $cursor);
 
@@ -744,8 +744,8 @@ class RestMethods
 
         $section = $post['section'];
         $status  = isset($post['value']) && 0 != $post['value'];
-        if (App::core()->user()->preferences()->getGroup('toggles')->hasLocalPreference('unfolded_sections')) {
-            $toggles = explode(',', trim((string) App::core()->user()->preferences()->getGroup('toggles')->getPreference('unfolded_sections')));
+        if (App::core()->user()->preferences('toggles')->hasLocalPreference('unfolded_sections')) {
+            $toggles = explode(',', trim((string) App::core()->user()->preferences('toggles')->getPreference('unfolded_sections')));
         } else {
             $toggles = [];
         }
@@ -761,7 +761,7 @@ class RestMethods
                 $toggles[] = $section;
             }
         }
-        App::core()->user()->preferences()->getGroup('toggles')->putPreference('unfolded_sections', join(',', $toggles));
+        App::core()->user()->preferences('toggles')->putPreference('unfolded_sections', join(',', $toggles));
 
         return true;
     }
@@ -786,7 +786,7 @@ class RestMethods
         $zone  = $post['id'];
         $order = $post['list'];
 
-        App::core()->user()->preferences()->getGroup('dashboard')->putPreference($zone, $order);
+        App::core()->user()->preferences('dashboard')->putPreference($zone, $order);
 
         return true;
     }
@@ -829,7 +829,7 @@ class RestMethods
             }
         }
 
-        App::core()->user()->preferences()->getGroup('interface')->putPreference('sorts', $su, 'array');
+        App::core()->user()->preferences('interface')->putPreference('sorts', $su, 'array');
 
         $rsp->insertAttr('msg', __('List options saved'));
 
@@ -866,7 +866,7 @@ class RestMethods
         } elseif ('plugin-new' == $list) {
             $store = new Repository(
                 App::core()->plugins(),
-                App::core()->blog()->settings()->getGroup('system')->getSetting('store_plugin_url')
+                App::core()->blog()->settings('system')->getSetting('store_plugin_url')
             );
             $store->check();
 

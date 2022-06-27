@@ -32,7 +32,7 @@ class Prepend extends ModulePrepend
 
     public function installModule(): ?bool
     {
-        App::core()->blog()->settings()->getGroup('themes')->putSetting('Blowup_style', '', 'string', 'Blow Up  custom style', false);
+        App::core()->blog()->settings('themes')->putSetting('Blowup_style', '', 'string', 'Blow Up  custom style', false);
 
         return true;
     }

@@ -11,6 +11,7 @@ namespace Dotclear\Plugin\AboutConfig\Admin;
 
 // Dotclear\Plugin\AboutConfig\Admin\Handler
 use Dotclear\App;
+use Dotclear\Core\Blog\Settings\Settings;
 use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
@@ -51,7 +52,7 @@ class Handler extends AbstractPage
                         if ('array' == GPC::post()->array('s_type')[$ns][$k]) {
                             $v = json_decode($v, true);
                         }
-                        App::core()->blog()->settings()->getGroup($ns)->putSetting($k, $v);
+                        App::core()->blog()->settings($ns)->putSetting($k, $v);
                     }
                     App::core()->blog()->triggerBlog();
                 }
@@ -71,7 +72,7 @@ class Handler extends AbstractPage
                         if ('array' == GPC::post()->array('gs_type')[$ns][$k]) {
                             $v = json_decode($v, true);
                         }
-                        App::core()->blog()->settings()->getGroup($ns)->putSetting($k, $v, null, null, true, true);
+                        App::core()->blog()->settings($ns)->putSetting($k, $v, null, null, true, true);
                     }
                     App::core()->blog()->triggerBlog();
                 }
@@ -106,8 +107,10 @@ class Handler extends AbstractPage
         echo '<div id="local" class="multi-part" title="' . sprintf(__('Settings for %s'), Html::escapeHTML(App::core()->blog()->name)) . '">' .
         '<h3 class="out-of-screen-if-js">' . sprintf(__('Settings for %s'), Html::escapeHTML(App::core()->blog()->name)) . '</h3>';
 
+        $groups = (new Settings(App::core()->blog()->id))->dumpGroups();
+
         $settings = [];
-        foreach (App::core()->blog()->settings()->dumpGroups() as $ns => $namespace) {
+        foreach ($groups as $ns => $namespace) {
             foreach ($namespace->dumpSettings() as $k => $v) {
                 $settings[$ns][$k] = $v;
             }
@@ -130,7 +133,7 @@ class Handler extends AbstractPage
         '<h3 class="out-of-screen-if-js">' . __('Global settings') . '</h3>';
 
         $settings = [];
-        foreach (App::core()->blog()->settings()->dumpGroups() as $ns => $namespace) {
+        foreach ($groups as $ns => $namespace) {
             foreach ($namespace->dumpGlobalSettings() as $k => $v) {
                 $settings[$ns][$k] = $v;
             }

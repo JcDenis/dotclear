@@ -120,11 +120,11 @@ class RsExtPost extends RsExtend
     public function commentsActive(): bool
     {
         return
-            App::core()->blog()->settings()->getGroup('system')->getSetting('allow_comments')
+            App::core()->blog()->settings('system')->getSetting('allow_comments')
             && $this->rs->field('post_open_comment')
             && (
-                0 == App::core()->blog()->settings()->getGroup('system')->getSetting('comments_ttl')
-                || Clock::ts(to: App::core()->getTimezone()) - (App::core()->blog()->settings()->getGroup('system')->getSetting('comments_ttl') * 86400) < $this->getTS()
+                0 == App::core()->blog()->settings('system')->getSetting('comments_ttl')
+                || Clock::ts(to: App::core()->getTimezone()) - (App::core()->blog()->settings('system')->getSetting('comments_ttl') * 86400) < $this->getTS()
             );
     }
 
@@ -134,11 +134,11 @@ class RsExtPost extends RsExtend
     public function trackbacksActive(): bool
     {
         return
-            App::core()->blog()->settings()->getGroup('system')->getSetting('allow_trackbacks')
+            App::core()->blog()->settings('system')->getSetting('allow_trackbacks')
             && $this->rs->field('post_open_tb')
             && (
-                0 == App::core()->blog()->settings()->getGroup('system')->getSetting('trackbacks_ttl')
-                || Clock::ts(to: App::core()->getTimezone()) - (App::core()->blog()->settings()->getGroup('system')->getSetting('trackbacks_ttl') * 86400) < $this->getTS()
+                0 == App::core()->blog()->settings('system')->getSetting('trackbacks_ttl')
+                || Clock::ts(to: App::core()->getTimezone()) - (App::core()->blog()->settings('system')->getSetting('trackbacks_ttl') * 86400) < $this->getTS()
             );
     }
 
@@ -263,7 +263,7 @@ class RsExtPost extends RsExtend
     public function getDate(string $format, string $type = ''): string
     {
         return Clock::str(
-            format: ($format ?: App::core()->blog()->settings()->getGroup('system')->getSetting('date_format')),
+            format: ($format ?: App::core()->blog()->settings('system')->getSetting('date_format')),
             date: $this->getTS($type),
             from: App::core()->getTimezone(),
             to: App::core()->getTimezone()
@@ -282,7 +282,7 @@ class RsExtPost extends RsExtend
     public function getTime(string $format, string $type = ''): string
     {
         return Clock::str(
-            format: ($format ?: App::core()->blog()->settings()->getGroup('system')->getSetting('time_format')),
+            format: ($format ?: App::core()->blog()->settings('system')->getSetting('time_format')),
             date: $this->getTS($type),
             from: App::core()->getTimezone(),
             to: App::core()->getTimezone()

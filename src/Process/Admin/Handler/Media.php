@@ -137,7 +137,7 @@ class Media extends AbstractPage
 
         $this->filter->addFilter(filter: new Filter(id: 'handler', value: 'admin.media'));
 
-        $this->media_uploader = (bool) App::core()->user()->preferences()->getGroup('interface')->getPreference('enhanceduploader');
+        $this->media_uploader = (bool) App::core()->user()->preferences('interface')->getPreference('enhanceduploader');
 
         // Zip download
         if (!GPC::get()->empty('zipdl') && App::core()->user()->check('media_admin', App::core()->blog()->id)) {
@@ -767,7 +767,7 @@ class Media extends AbstractPage
      */
     public function showLast(): int
     {
-        return abs((int) App::core()->user()->preferences()->getGroup('interface')->getPreference('media_nb_last_dirs'));
+        return abs((int) App::core()->user()->preferences('interface')->getPreference('media_nb_last_dirs'));
     }
 
     /**
@@ -778,7 +778,7 @@ class Media extends AbstractPage
     public function getLast(): array
     {
         if (null === $this->media_last) {
-            $m = App::core()->user()->preferences()->getGroup('interface')->getPreference('media_last_dirs');
+            $m = App::core()->user()->preferences('interface')->getPreference('media_last_dirs');
             if (!is_array($m)) {
                 $m = [];
             }
@@ -834,7 +834,7 @@ class Media extends AbstractPage
 
         if ($done) {
             $this->media_last = $last_dirs;
-            App::core()->user()->preferences()->getGroup('interface')->putPreference('media_last_dirs', $last_dirs, 'array');
+            App::core()->user()->preferences('interface')->putPreference('media_last_dirs', $last_dirs, 'array');
         }
 
         return $done;
@@ -848,7 +848,7 @@ class Media extends AbstractPage
     public function getFav(): array
     {
         if (null === $this->media_fav) {
-            $m = App::core()->user()->preferences()->getGroup('interface')->getPreference('media_fav_dirs');
+            $m = App::core()->user()->preferences('interface')->getPreference('media_fav_dirs');
             if (!is_array($m)) {
                 $m = [];
             }
@@ -889,7 +889,7 @@ class Media extends AbstractPage
 
         if ($done) {
             $this->media_fav = $fav_dirs;
-            App::core()->user()->preferences()->getGroup('interface')->putPreference('media_fav_dirs', $fav_dirs, 'array');
+            App::core()->user()->preferences('interface')->putPreference('media_fav_dirs', $fav_dirs, 'array');
         }
 
         return $done;

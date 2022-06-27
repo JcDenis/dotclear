@@ -37,7 +37,7 @@ class Handler extends AbstractPage
 
     protected function getPagePrepend(): ?bool
     {
-        $s          = App::core()->blog()->settings()->getGroup('dcckeditor');
+        $s          = App::core()->blog()->settings('dcckeditor');
         $this->ckes = [
             'is_admin'                    => App::core()->user()->check('admin,contentadmin', App::core()->blog()->id) || App::core()->user()->isSuperAdmin(),
             'active'                      => $s->getSetting('active'),

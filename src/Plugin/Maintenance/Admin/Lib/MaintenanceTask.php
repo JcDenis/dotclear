@@ -155,7 +155,7 @@ class MaintenanceTask
             $this->success = __('Task successfully executed.');
         }
 
-        $this->ts = abs((int) App::core()->blog()->settings()->getGroup('maintenance')->getSetting('ts_' . $this->id));
+        $this->ts = abs((int) App::core()->blog()->settings('maintenance')->getSetting('ts_' . $this->id));
     }
 
     /**

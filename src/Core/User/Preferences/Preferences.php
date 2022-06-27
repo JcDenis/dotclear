@@ -193,7 +193,7 @@ class Preferences
      *
      * @return array<string,PreferencesGroup> The preferences groups
      */
-    public function dumpGroup(): array
+    public function dumpGroups(): array
     {
         return $this->groups;
     }

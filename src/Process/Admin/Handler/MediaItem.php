@@ -67,7 +67,7 @@ class MediaItem extends AbstractPage
             unset($post);
         }
 
-        $this->item_system                = App::core()->blog()->settings()->getGroup('system');
+        $this->item_system                = App::core()->blog()->settings('system');
         $this->item_file                  = null;
         $this->item_popup                 = GPC::request()->int('popup');
         $this->item_select                = GPC::request()->int('select'); // 0 : none, 1 : single media, >1 : multiple medias

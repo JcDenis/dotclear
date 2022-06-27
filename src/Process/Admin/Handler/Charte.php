@@ -30,7 +30,7 @@ class Charte extends AbstractPage
     protected function getPageContent(): void
     {
         $js         = [];
-        $data_theme = App::core()->user()->preferences()->getGroup('interface')->getPreference('theme'); ?>
+        $data_theme = App::core()->user()->preferences('interface')->getPreference('theme'); ?>
 <!DOCTYPE html>
 <html lang="fr" data-theme="<?php echo $data_theme; ?>">
 <head>
@@ -44,8 +44,8 @@ class Charte extends AbstractPage
 
 echo App::core()->resource()->load('default.css');
 
-        if (App::core()->user()->preferences()->getGroup('interface')->getPreference('htmlfontsize')) {
-            $js['htmlFontSize'] = App::core()->user()->preferences()->getGroup('interface')->getPreference('htmlfontsize');
+        if (App::core()->user()->preferences('interface')->getPreference('htmlfontsize')) {
+            $js['htmlFontSize'] = App::core()->user()->preferences('interface')->getPreference('htmlfontsize');
         }
         // Set some JSON data
         echo App::core()->resource()->json('dotclear_init', $js);

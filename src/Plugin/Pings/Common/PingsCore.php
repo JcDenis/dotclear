@@ -26,14 +26,14 @@ class PingsCore
 
     public function doPings($ids): void
     {
-        if (!App::core()->blog()->settings()->getGroup('pings')->getSetting('pings_active')) {
+        if (!App::core()->blog()->settings('pings')->getSetting('pings_active')) {
             return;
         }
-        if (!App::core()->blog()->settings()->getGroup('pings')->getSetting('pings_auto')) {
+        if (!App::core()->blog()->settings('pings')->getSetting('pings_auto')) {
             return;
         }
 
-        $pings_uris = App::core()->blog()->settings()->getGroup('pings')->getSetting('pings_uris');
+        $pings_uris = App::core()->blog()->settings('pings')->getSetting('pings_uris');
         if (empty($pings_uris) || !is_array($pings_uris)) {
             return;
         }

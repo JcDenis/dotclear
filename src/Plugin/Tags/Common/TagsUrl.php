@@ -131,10 +131,10 @@ class TagsUrl
                 $tpl = $type;
                 if ($comments) {
                     $tpl .= '-comments';
-                    App::core()->context()->set('nb_comment_per_page', (int) App::core()->blog()->settings()->getGroup('system')->getSetting('nb_comment_per_feed'));
+                    App::core()->context()->set('nb_comment_per_page', (int) App::core()->blog()->settings('system')->getSetting('nb_comment_per_feed'));
                 } else {
-                    App::core()->context()->set('nb_entry_per_page', (int) App::core()->blog()->settings()->getGroup('system')->getSetting('nb_post_per_feed'));
-                    App::core()->context()->set('short_feed_items', (bool) App::core()->blog()->settings()->getGroup('system')->getSetting('short_feed_items'));
+                    App::core()->context()->set('nb_entry_per_page', (int) App::core()->blog()->settings('system')->getSetting('nb_post_per_feed'));
+                    App::core()->context()->set('short_feed_items', (bool) App::core()->blog()->settings('system')->getSetting('short_feed_items'));
                 }
                 $tpl .= '.xml';
 

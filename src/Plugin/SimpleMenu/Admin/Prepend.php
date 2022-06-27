@@ -41,8 +41,8 @@ class Prepend extends ModulePrepend
             ['label' => 'Home', 'descr' => 'Recent posts', 'url' => $blog_url, 'targetBlank' => false],
             ['label' => 'Archives', 'descr' => '', 'url' => $blog_url . App::core()->url()->getURLFor('archive'), 'targetBlank' => false],
         ];
-        App::core()->blog()->settings()->getGroup('system')->putSetting('simpleMenu', $menu_default, 'array', 'simpleMenu default menu', false, true);
-        App::core()->blog()->settings()->getGroup('system')->putSetting('simpleMenu_active', true, 'boolean', 'Active', false, true);
+        App::core()->blog()->settings('system')->putSetting('simpleMenu', $menu_default, 'array', 'simpleMenu default menu', false, true);
+        App::core()->blog()->settings('system')->putSetting('simpleMenu_active', true, 'boolean', 'Active', false, true);
 
         return true;
     }

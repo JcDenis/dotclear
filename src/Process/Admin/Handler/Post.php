@@ -86,8 +86,8 @@ class Post extends AbstractPage
         $this->post_editor       = App::core()->user()->getOption('editor');
         $this->post_lang         = App::core()->user()->getInfo('user_lang');
         $this->post_status       = App::core()->user()->getInfo('user_post_status');
-        $this->post_open_comment = App::core()->blog()->settings()->getGroup('system')->getSetting('allow_comments');
-        $this->post_open_tb      = App::core()->blog()->settings()->getGroup('system')->getSetting('allow_trackbacks');
+        $this->post_open_comment = App::core()->blog()->settings('system')->getSetting('allow_comments');
+        $this->post_open_tb      = App::core()->blog()->settings('system')->getSetting('allow_trackbacks');
 
         $this->can_view_ip   = App::core()->user()->check('contentadmin', App::core()->blog()->id);
         $this->can_edit_post = App::core()->user()->check('usage,contentadmin', App::core()->blog()->id);
@@ -590,7 +590,7 @@ class Post extends AbstractPage
                 '<p><label for="post_open_comment" class="classic">' .
                 Form::checkbox('post_open_comment', 1, $this->post_open_comment) . ' ' .
                 __('Accept comments') . '</label></p>' .
-                (App::core()->blog()->settings()->getGroup('system')->getSetting('allow_comments') ?
+                (App::core()->blog()->settings('system')->getSetting('allow_comments') ?
                     ($this->isContributionAllowed($this->post_id, Clock::ts(date: $this->post_dt), true) ?
                         '' :
                         '<p class="form-note warn">' .
@@ -600,7 +600,7 @@ class Post extends AbstractPage
                 '<p><label for="post_open_tb" class="classic">' .
                 Form::checkbox('post_open_tb', 1, $this->post_open_tb) . ' ' .
                 __('Accept trackbacks') . '</label></p>' .
-                (App::core()->blog()->settings()->getGroup('system')->getSetting('allow_trackbacks') ?
+                (App::core()->blog()->settings('system')->getSetting('allow_trackbacks') ?
                     ($this->isContributionAllowed($this->post_id, Clock::ts(date: $this->post_dt), false) ?
                         '' :
                         '<p class="form-note warn">' .
@@ -712,7 +712,7 @@ class Post extends AbstractPage
                     '/' . $this->post->field('post_url'));
                 $preview_url .= (parse_url($preview_url, PHP_URL_QUERY) ? '&' : '?') . 'rand=' . md5((string) rand());
 
-                $blank_preview = App::core()->user()->preferences()->getGroup('interface')->getPreference('blank_preview');
+                $blank_preview = App::core()->user()->preferences('interface')->getPreference('blank_preview');
 
                 $preview_class  = $blank_preview ? '' : ' modal';
                 $preview_target = $blank_preview ? '' : ' target="_blank"';
@@ -940,11 +940,11 @@ class Post extends AbstractPage
             return true;
         }
         if ($com) {
-            if (0 == App::core()->blog()->settings()->getGroup('system')->getSetting('comments_ttl') || $dt > (Clock::ts() - App::core()->blog()->settings()->getGroup('system')->getSetting('comments_ttl') * 86400)) {
+            if (0 == App::core()->blog()->settings('system')->getSetting('comments_ttl') || $dt > (Clock::ts() - App::core()->blog()->settings('system')->getSetting('comments_ttl') * 86400)) {
                 return true;
             }
         } else {
-            if (0 == App::core()->blog()->settings()->getGroup('system')->getSetting('trackbacks_ttl') || $dt > (Clock::ts() - App::core()->blog()->settings()->getGroup('system')->getSetting('trackbacks_ttl') * 86400)) {
+            if (0 == App::core()->blog()->settings('system')->getSetting('trackbacks_ttl') || $dt > (Clock::ts() - App::core()->blog()->settings('system')->getSetting('trackbacks_ttl') * 86400)) {
                 return true;
             }
         }

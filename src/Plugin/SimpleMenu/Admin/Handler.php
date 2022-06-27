@@ -123,7 +123,7 @@ class Handler extends AbstractPage
         $this->sm_items         = new SimpleMenuTypes();
         $this->sm_items->addType(new SimpleMenuType(id: 'home', label: __('Home'), stepped: false));
 
-        if (App::core()->blog()->settings()->getGroup('system')->getSetting('static_home')) {
+        if (App::core()->blog()->settings('system')->getSetting('static_home')) {
             $this->sm_items->addType(new SimpleMenuType(id: 'posts', label: __('Posts'), stepped: false));
         }
 
@@ -153,7 +153,7 @@ class Handler extends AbstractPage
         $this->sm_items->addType(new SimpleMenuType(id: 'special', label: __('User defined'), stepped: false));
 
         // Lecture menu existant
-        $menu = App::core()->blog()->settings()->getGroup('system')->getSetting('simpleMenu');
+        $menu = App::core()->blog()->settings('system')->getSetting('simpleMenu');
         if (is_array($menu)) {
             $this->sm_menu = $menu;
         }
@@ -164,7 +164,7 @@ class Handler extends AbstractPage
         if (!GPC::post()->empty('saveconfig')) {
             try {
                 $menu_active = !GPC::post()->empty('active');
-                App::core()->blog()->settings()->getGroup('system')->putSetting('simpleMenu_active', $menu_active, 'boolean');
+                App::core()->blog()->settings('system')->putSetting('simpleMenu_active', $menu_active, 'boolean');
                 App::core()->blog()->triggerBlog();
 
                 // All done successfully, return to menu items list
@@ -216,7 +216,7 @@ class Handler extends AbstractPage
                         switch ($this->sm_item_type) {
                             case 'home':
                                 $this->sm_item_label = __('Home');
-                                $this->sm_item_descr = App::core()->blog()->settings()->getGroup('system')->getSetting('static_home') ? __('Home page') : __('Recent posts');
+                                $this->sm_item_descr = App::core()->blog()->settings('system')->getSetting('static_home') ? __('Home page') : __('Recent posts');
 
                                 break;
 
@@ -310,7 +310,7 @@ class Handler extends AbstractPage
                                 ];
 
                                 // Save menu in blog settings
-                                App::core()->blog()->settings()->getGroup('system')->putSetting('simpleMenu', $this->sm_menu);
+                                App::core()->blog()->settings('system')->putSetting('simpleMenu', $this->sm_menu);
                                 App::core()->blog()->triggerBlog();
 
                                 // All done successfully, return to menu items list
@@ -348,7 +348,7 @@ class Handler extends AbstractPage
                             }
                             $this->sm_menu = $newmenu;
                             // Save menu in blog settings
-                            App::core()->blog()->settings()->getGroup('system')->putSetting('simpleMenu', $this->sm_menu);
+                            App::core()->blog()->settings('system')->putSetting('simpleMenu', $this->sm_menu);
                             App::core()->blog()->triggerBlog();
 
                             // All done successfully, return to menu items list
@@ -386,7 +386,7 @@ class Handler extends AbstractPage
                         }
                         $this->sm_menu = $newmenu;
 
-                        if (App::core()->user()->preferences()->getGroup('accessibility')->getPreference('nodragdrop')) {
+                        if (App::core()->user()->preferences('accessibility')->getPreference('nodragdrop')) {
                             // Order menu items
                             $order = [];
                             if (GPC::post()->empty('im_order') && !GPC::post()->empty('order')) {
@@ -413,7 +413,7 @@ class Handler extends AbstractPage
                         }
 
                         // Save menu in blog settings
-                        App::core()->blog()->settings()->getGroup('system')->putSetting('simpleMenu', $this->sm_menu);
+                        App::core()->blog()->settings('system')->putSetting('simpleMenu', $this->sm_menu);
                         App::core()->blog()->triggerBlog();
 
                         // All done successfully, return to menu items list
@@ -432,7 +432,7 @@ class Handler extends AbstractPage
             ->setPageHelp('simpleMenu')
             ->setPageHead(App::core()->resource()->confirmClose('settings', 'menuitemsappend', 'additem', 'menuitems'))
         ;
-        if (!App::core()->user()->preferences()->getGroup('accessibility')->getPreference('nodragdrop')) {
+        if (!App::core()->user()->preferences('accessibility')->getPreference('nodragdrop')) {
             $this->setPageHead(
                 App::core()->resource()->load('jquery/jquery-ui.custom.js') .
                 App::core()->resource()->load('jquery/jquery.ui.touch-punch.js') .
@@ -592,7 +592,7 @@ class Handler extends AbstractPage
         // Formulaire d'activation
         if (!$this->sm_step) {
             echo '<form id="settings" action="' . App::core()->adminurl()->root() . '" method="post">' .
-            '<p>' . form::checkbox('active', 1, (bool) App::core()->blog()->settings()->getGroup('system')->getSetting('simpleMenu_active')) .
+            '<p>' . form::checkbox('active', 1, (bool) App::core()->blog()->settings('system')->getSetting('simpleMenu_active')) .
             '<label class="classic" for="active">' . __('Enable simple menu for this blog') . '</label>' . '</p>' .
             '<p>' . App::core()->adminurl()->getHiddenFormFields('admin.plugin.SimpleMenu', [], true) .
             '<input type="submit" name="saveconfig" value="' . __('Save configuration') . '" />' .

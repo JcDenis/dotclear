@@ -134,7 +134,7 @@ class RsExtDate extends RsExtend
     public function getDate(string $format = ''): string
     {
         return Clock::str(
-            format: $format ?: App::core()->blog()->settings()->getGroup('system')->getSetting('date_format'),
+            format: $format ?: App::core()->blog()->settings('system')->getSetting('date_format'),
             date: $this->rs->field('dt'),
             to: App::core()->getTimezone()
         );

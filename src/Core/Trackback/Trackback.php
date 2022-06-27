@@ -439,7 +439,7 @@ class Trackback
             $this->addBacklink($post_id, $from_url, $blog_name, $title, $excerpt, $comment);
 
             // All done, thanks
-            $code = App::core()->blog()->settings()->getGroup('system')->getSetting('trackbacks_pub') ? 200 : 202;
+            $code = App::core()->blog()->settings('system')->getSetting('trackbacks_pub') ? 200 : 202;
             Http::head($code);
 
             return;
@@ -496,7 +496,7 @@ class Trackback
         $cur->setField('comment_content', $comment);
         $cur->setField('post_id', $post_id);
         $cur->setField('comment_trackback', '1');
-        $cur->setField('comment_status', App::core()->blog()->settings()->getGroup('system')->getSetting('trackbacks_pub') ? 1 : -1);
+        $cur->setField('comment_status', App::core()->blog()->settings('system')->getSetting('trackbacks_pub') ? 1 : -1);
         $cur->setField('comment_ip', Http::realIP());
 
         if ($cur->getField('post_id')) {

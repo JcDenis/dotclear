@@ -1255,7 +1255,7 @@ final class Posts
         if ('wiki' == $format) {
             App::core()->wiki()->initWikiPost();
             App::core()->wiki()->setOpt('note_prefix', 'pnote-' . ($id ?? ''));
-            $tag = match (App::core()->blog()->settings()->getGroup('system')->getSetting('note_title_tag')) {
+            $tag = match (App::core()->blog()->settings('system')->getSetting('note_title_tag')) {
                 1       => 'h3',
                 2       => 'p',
                 default => 'h4',
@@ -1325,7 +1325,7 @@ final class Posts
             $url = str_replace(
                 array_keys($url_patterns),
                 array_values($url_patterns),
-                App::core()->blog()->settings()->getGroup('system')->getSetting('post_url_format')
+                App::core()->blog()->settings('system')->getSetting('post_url_format')
             );
         } else {
             $url = Text::tidyURL($url);

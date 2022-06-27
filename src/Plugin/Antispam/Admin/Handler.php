@@ -117,7 +117,7 @@ class Handler extends AbstractPage
             ->setPageHead(App::core()->resource()->pageTabs($this->a_tab))
         ;
 
-        if (!App::core()->user()->preferences()->getGroup('accessibility')->get('nodragdrop')) {
+        if (!App::core()->user()->preferences('accessibility')->getPreference('nodragdrop')) {
             $this->setPageHead(
                 App::core()->resource()->load('jquery/jquery-ui.custom.js') .
                 App::core()->resource()->load('jquery/jquery.ui.touch-punch.js')
@@ -162,7 +162,7 @@ class Handler extends AbstractPage
         // Information
         $spam_count      = $this->a_antispam->countSpam();
         $published_count = $this->a_antispam->countPublishedComments();
-        $moderationTTL   = App::core()->blog()->settings()->getGroup('antispam')->getSetting('antispam_moderation_ttl');
+        $moderationTTL   = App::core()->blog()->settings('antispam')->getSetting('antispam_moderation_ttl');
 
         echo '<form action="' . App::core()->adminurl()->root() . '" method="post" class="fieldset">' .
         '<h3>' . __('Information') . '</h3>';

@@ -13,6 +13,7 @@ namespace Dotclear\Core\User;
 use Dotclear\App;
 use Dotclear\Core\RsExt\RsExtUser;
 use Dotclear\Core\User\Preferences\Preferences;
+use Dotclear\Core\User\Preferences\PreferencesGroup;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Database\Cursor;
@@ -178,13 +179,15 @@ class User
     }
 
     /**
-     * Get user preference instance.
+     * Get user preferences group instance.
+     * 
+     * @param string $group The preferences group name
      *
-     * @return null|Preferences Preference instance
+     * @return null|PreferencesGroup Preferences group instance
      */
-    public function preferences(): ?Preferences
+    public function preferences(string $group): ?PreferencesGroup
     {
-        return $this->preferences;
+        return $this->preferences ? $this->preferences->getGroup($group) : null;
     }
 
     /**

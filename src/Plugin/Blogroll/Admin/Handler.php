@@ -193,7 +193,7 @@ class Handler extends AbstractPage
             )
         ;
 
-        if (!App::core()->user()->preferences()->getGroup('accessibility')->getPreference('nodragdrop')) {
+        if (!App::core()->user()->preferences('accessibility')->getPreference('nodragdrop')) {
             $this->setPageHead(
                 App::core()->resource()->load('jquery/jquery-ui.custom.js') .
                 App::core()->resource()->load('jquery/jquery.ui.touch-punch.js') .

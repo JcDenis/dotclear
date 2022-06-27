@@ -52,7 +52,7 @@ class Handler extends AbstractPage
     protected function getPagePrepend(): ?bool
     {
         $widgets  = new Widgets();
-        $settings = App::core()->blog()->settings()->getGroup('widgets');
+        $settings = App::core()->blog()->settings('widgets');
         // Loading navigation, extra widgets and custom widgets
         if ($settings->getSetting('widgets_nav')) {
             $this->widgets_nav = $widgets->load($settings->getSetting('widgets_nav'));
@@ -292,11 +292,11 @@ class Handler extends AbstractPage
     {
         $widget_editor = App::core()->user()->getOption('editor');
         $rte_flag      = true;
-        $rte_flags     = App::core()->user()->preferences()->getGroup('interface')->getPreference('rte_flags');
+        $rte_flags     = App::core()->user()->preferences('interface')->getPreference('rte_flags');
         if (is_array($rte_flags) && isset($rte_flags['widgets_text'])) {
             $rte_flag = $rte_flags['widgets_text'];
         }
-        $user_dm_nodragdrop = App::core()->user()->preferences()->getGroup('accessibility')->getPreference('nodragdrop');
+        $user_dm_nodragdrop = App::core()->user()->preferences('accessibility')->getPreference('nodragdrop');
 
         return
         App::core()->resource()->load('style.css', 'Plugin', 'Widgets') .

@@ -11,7 +11,7 @@ namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\BlogPref
 use Dotclear\App;
-use Dotclear\Core\Blog\Settings\Settings;
+use Dotclear\Core\Blog\Settings\SettingsGroup;
 use Dotclear\Database\Param;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Clock;
@@ -58,7 +58,7 @@ class BlogPref extends AbstractPage
             $this->blog_status   = App::core()->blog()->status;
             $this->blog_name     = App::core()->blog()->name;
             $this->blog_desc     = App::core()->blog()->desc;
-            $this->blog_settings = App::core()->blog()->settings();
+            $this->blog_settings = App::core()->blog()->settings('system');
             $this->blog_url      = App::core()->blog()->url;
 
             $this->blog_action = App::core()->adminurl()->get('admin.blog.pref');
@@ -80,7 +80,7 @@ class BlogPref extends AbstractPage
                 $this->blog_status   = $record->integer('blog_status');
                 $this->blog_name     = $record->field('blog_name');
                 $this->blog_desc     = $record->field('blog_desc');
-                $this->blog_settings = new Settings(blog: $this->blog_id);
+                $this->blog_settings = new SettingsGroup(blog: $this->blog_id, group: 'system');
                 $this->blog_url      = $record->field('blog_url');
             } catch (Exception $e) {
                 App::core()->error()->add($e->getMessage());
@@ -177,15 +177,15 @@ class BlogPref extends AbstractPage
                     if (App::core()->blog()->id == $this->blog_id) {
                         App::core()->setBlog($cur->getField('blog_id'));
                         $_SESSION['sess_blog_id'] = $cur->getField('blog_id');
-                        $this->blog_settings      = App::core()->blog()->settings();
+                        $this->blog_settings      = App::core()->blog()->settings('system');
                     } else {
-                        $this->blog_settings = new Settings(blog: $cur->getField('blog_id'));
+                        $this->blog_settings = new SettingsGroup(blog: $cur->getField('blog_id'), group: 'system');
                     }
 
                     $this->blog_id = $cur->getField('blog_id');
                 }
 
-                $system = $this->blog_settings->getGroup('system');
+                $system = $this->blog_settings;
                 $system->putSetting('editor', GPC::post()->string('editor'));
                 $system->putSetting('copyright_notice', GPC::post()->string('copyright_notice'));
                 $system->putSetting('post_url_format', GPC::post()->string('post_url_format'));
@@ -233,7 +233,7 @@ class BlogPref extends AbstractPage
                 $system->putSetting('static_home', !GPC::post()->empty('static_home'));
                 $system->putSetting('static_home_url', GPC::post()->string('static_home_url'));
 
-                // --BEHAVIOR-- adminBeforeUpdateBlogSettings, Settings
+                // --BEHAVIOR-- adminBeforeUpdateBlogSettings, SettingsGroup
                 App::core()->behavior('adminBeforeUpdateBlogSettings')->call(settings: $this->blog_settings);
 
                 if (App::core()->user()->isSuperAdmin() && in_array(GPC::post()->string('url_scan'), $url_scan_combo)) {
@@ -250,7 +250,7 @@ class BlogPref extends AbstractPage
         // Page setup
         $desc_editor = App::core()->user()->getOption('editor');
         $rte_flag    = true;
-        $rte_flags   = @App::core()->user()->preferences()->getGroup('interface')->getPreference('rte_flags');
+        $rte_flags   = @App::core()->user()->preferences('interface')->getPreference('rte_flags');
         if (is_array($rte_flags) && in_array('blog_descr', $rte_flags)) {
             $rte_flag = $rte_flags['blog_descr'];
         }
@@ -298,7 +298,7 @@ class BlogPref extends AbstractPage
         if (!$this->blog_id) {
             return;
         }
-        $system = $this->blog_settings->getGroup('system');
+        $system = $this->blog_settings;
 
         // Language codes
         $lang_combo = App::core()->combo()->getAdminLangsCombo();
@@ -866,7 +866,7 @@ class BlogPref extends AbstractPage
 
         echo '<div id="plugins-pref"><h3>' . __('Plugins parameters') . '</h3>';
 
-        // --BEHAVIOR-- adminAfterGetBlogPreferencesForm, Settings
+        // --BEHAVIOR-- adminAfterGetBlogPreferencesForm, SettingsGroup
         App::core()->behavior('adminAfterGetBlogPreferencesForm')->call(settings: $this->blog_settings);
 
         echo '</div>'; // End 3rd party, aka plugins

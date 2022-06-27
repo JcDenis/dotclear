@@ -103,7 +103,7 @@ class MaintenanceBehavior
     public function behaviorAdminDashboardFavoritesCallback(DashboardIcon $icon): void
     {
         // Check user option
-        if (!App::core()->user()->preferences()->getGroup('maintenance')->getPreference('dashboard_icon')) {
+        if (!App::core()->user()->preferences('maintenance')->getPreference('dashboard_icon')) {
             return;
         }
 
@@ -131,7 +131,7 @@ class MaintenanceBehavior
      */
     public function behaviorAdminBeforeAddDashboardItems(Strings $items): void
     {
-        if (!App::core()->user()->preferences()->getGroup('maintenance')->getPreference('dashboard_item')) {
+        if (!App::core()->user()->preferences('maintenance')->getPreference('dashboard_item')) {
             return;
         }
 
@@ -151,7 +151,7 @@ class MaintenanceBehavior
                 sprintf(
                     __('Last execution of this task was on %s.'),
                     Clock::str(
-                        format: App::core()->blog()->settings()->getGroup('system')->getSetting('date_format') . ' ' . App::core()->blog()->settings()->getGroup('system')->getSetting('time_format'),
+                        format: App::core()->blog()->settings('system')->getSetting('date_format') . ' ' . App::core()->blog()->settings('system')->getSetting('time_format'),
                         date: $ts,
                         to: App::core()->getTimezone()
                     )
@@ -185,11 +185,11 @@ class MaintenanceBehavior
         '<h4>' . __('Maintenance') . '</h4>' .
 
         '<p><label for="maintenance_dashboard_icon" class="classic">' .
-        Form::checkbox('maintenance_dashboard_icon', 1, App::core()->user()->preferences()->getGroup('maintenance')->getPreference('dashboard_icon')) .
+        Form::checkbox('maintenance_dashboard_icon', 1, App::core()->user()->preferences('maintenance')->getPreference('dashboard_icon')) .
         __('Display overdue tasks counter on maintenance dashboard icon') . '</label></p>' .
 
         '<p><label for="maintenance_dashboard_item" class="classic">' .
-        Form::checkbox('maintenance_dashboard_item', 1, App::core()->user()->preferences()->getGroup('maintenance')->getPreference('dashboard_item')) .
+        Form::checkbox('maintenance_dashboard_item', 1, App::core()->user()->preferences('maintenance')->getPreference('dashboard_item')) .
         __('Display overdue tasks list on dashboard items') . '</label></p>' .
 
             '</div>';
@@ -206,8 +206,8 @@ class MaintenanceBehavior
             return;
         }
 
-        App::core()->user()->preferences()->getGroup('maintenance')->putPreference('dashboard_icon', !GPC::post()->empty('maintenance_dashboard_icon'), 'boolean');
-        App::core()->user()->preferences()->getGroup('maintenance')->putPreference('dashboard_item', !GPC::post()->empty('maintenance_dashboard_item'), 'boolean');
+        App::core()->user()->preferences('maintenance')->putPreference('dashboard_icon', !GPC::post()->empty('maintenance_dashboard_icon'), 'boolean');
+        App::core()->user()->preferences('maintenance')->putPreference('dashboard_item', !GPC::post()->empty('maintenance_dashboard_item'), 'boolean');
     }
 
     /**

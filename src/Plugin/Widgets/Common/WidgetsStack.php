@@ -69,7 +69,7 @@ class WidgetsStack
      */
     public function search(Widget $widget): string
     {
-        if (App::core()->blog()->settings()->getGroup('system')->getSetting('no_search')
+        if (App::core()->blog()->settings('system')->getSetting('no_search')
             || $widget->isOffline()
             || !$widget->checkHomeOnly()
         ) {
@@ -110,14 +110,14 @@ class WidgetsStack
             // Not on home page (standard or static), add home link
             $res .= '<li class="topnav-home">' .
             '<a href="' . App::core()->blog()->url . '">' . __('Home') . '</a></li>';
-            if (App::core()->blog()->settings()->getGroup('system')->getSetting('static_home')) {
+            if (App::core()->blog()->settings('system')->getSetting('static_home')) {
                 // Static mode: add recent posts link
                 $res .= '<li class="topnav-posts">' .
                 '<a href="' . App::core()->blog()->getURLFor('posts') . '">' . __('Recent posts') . '</a></li>';
             }
         } else {
             // On home page (standard or static)
-            if (App::core()->blog()->settings()->getGroup('system')->getSetting('static_home')) {
+            if (App::core()->blog()->settings('system')->getSetting('static_home')) {
                 // Static mode: add recent posts link
                 $res .= '<li class="topnav-posts">' .
                 '<a href="' . App::core()->blog()->getURLFor('posts') . '">' . __('Recent posts') . '</a></li>';
@@ -293,7 +293,7 @@ class WidgetsStack
         'title="' . sprintf($p_title, ('atom' == $type ? 'Atom' : 'RSS')) . '" class="feed">' .
         __('Entries feed') . '</a></li>';
 
-        if (App::core()->blog()->settings()->getGroup('system')->getSetting('allow_comments') || App::core()->blog()->settings()->getGroup('system')->getSetting('allow_trackbacks')) {
+        if (App::core()->blog()->settings('system')->getSetting('allow_comments') || App::core()->blog()->settings('system')->getSetting('allow_trackbacks')) {
             $res .= '<li><a type="' . $mime . '" ' .
             'href="' . App::core()->blog()->getURLFor('feed', $type . '/comments') . '" ' .
             'title="' . sprintf($c_title, ('atom' == $type ? 'Atom' : 'RSS')) . '" class="feed">' .
@@ -635,7 +635,7 @@ class WidgetsStack
     public function widgetsHandler(string $type, string $disable = ''): void
     {
         $wtype   = 'widgets_' . $type;
-        $widgets = App::core()->blog()->settings()->getGroup('widgets')->getSetting($wtype);
+        $widgets = App::core()->blog()->settings('widgets')->getSetting($wtype);
 
         if (!$widgets) {
             // If widgets value is empty, get defaults
@@ -686,7 +686,7 @@ class WidgetsStack
     public function ifWidgetsHandler(string $type, string $disable = ''): bool
     {
         $wtype   = 'widgets_' . $type;
-        $widgets = App::core()->blog()->settings()->getGroup('widgets')->getSetting($wtype);
+        $widgets = App::core()->blog()->settings('widgets')->getSetting($wtype);
 
         if (!$widgets) {
             // If widgets value is empty, get defaults

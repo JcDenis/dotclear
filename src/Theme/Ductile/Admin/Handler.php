@@ -131,8 +131,8 @@ class Handler extends AbstractPage
                 }
             }
         }
-        $themes = App::core()->blog()->settings()->getGroup('themes');
-        $theme  = App::core()->blog()->settings()->getGroup('system')->getSetting('theme');
+        $themes = App::core()->blog()->settings('themes');
+        $theme  = App::core()->blog()->settings('system')->getSetting('theme');
 
         $ductile_user = (string) $themes->getSetting($theme . '_style');
         $ductile_user = @unserialize($ductile_user);
@@ -291,7 +291,7 @@ class Handler extends AbstractPage
             ])
         ;
 
-        if (!App::core()->user()->preferences()->getGroup('accessibility')->getPreference('nodragdrop')) {
+        if (!App::core()->user()->preferences('accessibility')->getPreference('nodragdrop')) {
             $this->setpageHead(
                 App::core()->resource()->load('jquery/jquery-ui.custom.js') .
                 App::core()->resource()->load('jquery/jquery.ui.touch-punch.js') .

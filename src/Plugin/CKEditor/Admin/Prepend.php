@@ -28,7 +28,7 @@ class Prepend extends ModulePrepend
         // $this->addStandardFavorites('admin');
 
         // Settings
-        if (!App::core()->blog()->settings()->getGroup('dcckeditor')->getSetting('active')) {
+        if (!App::core()->blog()->settings('dcckeditor')->getSetting('active')) {
             // return;
         }
 
@@ -47,7 +47,7 @@ class Prepend extends ModulePrepend
 
     public function installModule(): ?bool
     {
-        $s = App::core()->blog()->settings()->getGroup('dcckeditor');
+        $s = App::core()->blog()->settings('dcckeditor');
 
         $s->putSetting('active', true, 'boolean', 'CKEditor plugin activated?', false, true);
         $s->putSetting('alignment_buttons', true, 'boolean', 'Add alignment buttons?', false, true);

@@ -50,11 +50,11 @@ class PingsBehavior
 
     public function pingsFormItems(ContentGroups $groups, ?Record $post, string $type = null): void
     {
-        if (!App::core()->blog()->settings()->getGroup('pings')->getSetting('pings_active')) {
+        if (!App::core()->blog()->settings('pings')->getSetting('pings_active')) {
             return;
         }
 
-        $pings_uris = App::core()->blog()->settings()->getGroup('pings')->getSetting('pings_uris');
+        $pings_uris = App::core()->blog()->settings('pings')->getSetting('pings_uris');
         if (empty($pings_uris) || !is_array($pings_uris)) {
             return;
         }
@@ -78,11 +78,11 @@ class PingsBehavior
             return;
         }
 
-        if (!App::core()->blog()->settings()->getGroup('pings')->getSetting('pings_active')) {
+        if (!App::core()->blog()->settings('pings')->getSetting('pings_active')) {
             return;
         }
 
-        $pings_uris = App::core()->blog()->settings()->getGroup('pings')->getSetting('pings_uris');
+        $pings_uris = App::core()->blog()->settings('pings')->getSetting('pings_uris');
         if (empty($pings_uris) || !is_array($pings_uris)) {
             return;
         }

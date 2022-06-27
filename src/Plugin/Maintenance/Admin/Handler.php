@@ -76,7 +76,7 @@ class Handler extends AbstractPage
         // Save settings
         if (!GPC::post()->empty('save_settings')) {
             try {
-                App::core()->blog()->settings()->getGroup('maintenance')->putSetting(
+                App::core()->blog()->settings('maintenance')->putSetting(
                     'plugin_message',
                     !GPC::post()->empty('settings_plugin_message'),
                     'boolean',
@@ -95,7 +95,7 @@ class Handler extends AbstractPage
                     } else {
                         $ts = GPC::post()->int('settings_ts_' . $t->id());
                     }
-                    App::core()->blog()->settings()->getGroup('maintenance')->putSetting(
+                    App::core()->blog()->settings('maintenance')->putSetting(
                         'ts_' . $t->id(),
                         abs((int) $ts),
                         'integer',
@@ -116,17 +116,17 @@ class Handler extends AbstractPage
         if (!GPC::post()->empty('save_system')) {
             try {
                 // Default (global) settings
-                App::core()->blog()->settings()->getGroup('system')->putSetting('csp_admin_on', !GPC::post()->empty('system_csp_global'), null, null, true, true);
-                App::core()->blog()->settings()->getGroup('system')->putSetting('csp_admin_report_only', !GPC::post()->empty('system_csp_global_report_only'), null, null, true, true);
+                App::core()->blog()->settings('system')->putSetting('csp_admin_on', !GPC::post()->empty('system_csp_global'), null, null, true, true);
+                App::core()->blog()->settings('system')->putSetting('csp_admin_report_only', !GPC::post()->empty('system_csp_global_report_only'), null, null, true, true);
                 // Current blog settings
-                App::core()->blog()->settings()->getGroup('system')->putSetting('csp_admin_on', !GPC::post()->empty('system_csp'));
-                App::core()->blog()->settings()->getGroup('system')->putSetting('csp_admin_report_only', !GPC::post()->empty('system_csp_report_only'));
+                App::core()->blog()->settings('system')->putSetting('csp_admin_on', !GPC::post()->empty('system_csp'));
+                App::core()->blog()->settings('system')->putSetting('csp_admin_report_only', !GPC::post()->empty('system_csp_report_only'));
 
                 App::core()->notice()->addSuccessNotice(__('System settings have been saved.'));
 
                 if (!GPC::post()->empty('system_csp_reset')) {
-                    App::core()->blog()->settings()->getGroup('system')->dropNonGlobalSetting('csp_admin_on');
-                    App::core()->blog()->settings()->getGroup('system')->dropNonGlobalSetting('csp_admin_report_only');
+                    App::core()->blog()->settings('system')->dropNonGlobalSetting('csp_admin_on');
+                    App::core()->blog()->settings('system')->dropNonGlobalSetting('csp_admin_report_only');
                     App::core()->notice()->addSuccessNotice(__('All blog\'s Content-Security-Policy settings have been reset to default.'));
                 }
 
@@ -231,7 +231,7 @@ class Handler extends AbstractPage
 
                         // Expired task alert message
                         $ts = $t->expired();
-                        if (App::core()->blog()->settings()->getGroup('maintenance')->getSetting('plugin_message') && false !== $ts) {
+                        if (App::core()->blog()->settings('maintenance')->getSetting('plugin_message') && false !== $ts) {
                             if (null === $ts) {
                                 $res_task .= '<br /> <span class="warn">' .
                                 __('This task has never been executed.') . ' ' .
@@ -240,7 +240,7 @@ class Handler extends AbstractPage
                                 $res_task .= '<br /> <span class="warn">' . sprintf(
                                     __('Last execution of this task was on %s.'),
                                     Clock::str(
-                                        format: App::core()->blog()->settings()->getGroup('system')->getSetting('date_format') . ' ' . App::core()->blog()->settings()->getGroup('system')->getSetting('time_format'),
+                                        format: App::core()->blog()->settings('system')->getSetting('date_format') . ' ' . App::core()->blog()->settings('system')->getSetting('time_format'),
                                         date: $ts,
                                         to: App::core()->getTimezone()
                                     )
@@ -299,7 +299,7 @@ class Handler extends AbstractPage
 
             '<h4 class="pretty-title">' . __('Activation') . '</h4>' .
             '<p><label for="settings_plugin_message" class="classic">' .
-            Form::checkbox('settings_plugin_message', 1, App::core()->blog()->settings()->getGroup('maintenance')->getSetting('plugin_message')) .
+            Form::checkbox('settings_plugin_message', 1, App::core()->blog()->settings('maintenance')->getSetting('plugin_message')) .
             __('Display alert messages on late tasks') . '</label></p>' .
 
             '<p class="info">' . sprintf(
@@ -351,19 +351,19 @@ class Handler extends AbstractPage
 
                 '<div class="col">' .
                 '<p><label for="system_csp" class="classic">' .
-                Form::checkbox('system_csp', '1', App::core()->blog()->settings()->getGroup('system')->getSetting('csp_admin_on')) .
+                Form::checkbox('system_csp', '1', App::core()->blog()->settings('system')->getSetting('csp_admin_on')) .
                 __('Enable Content-Security-Policy system') . '</label></p>' .
                 '<p><label for="system_csp_report_only" class="classic">' .
-                Form::checkbox('system_csp_report_only', '1', App::core()->blog()->settings()->getGroup('system')->getSetting('csp_admin_report_only')) .
+                Form::checkbox('system_csp_report_only', '1', App::core()->blog()->settings('system')->getSetting('csp_admin_report_only')) .
                 __('Enable Content-Security-Policy report only') . '</label></p>' .
                 '</div>' .
 
                 '<div class="col">' .
                 '<p><label for="system_csp_global" class="classic">' .
-                Form::checkbox('system_csp_global', '1', App::core()->blog()->settings()->getGroup('system')->getGlobalSetting('csp_admin_on')) .
+                Form::checkbox('system_csp_global', '1', App::core()->blog()->settings('system')->getGlobalSetting('csp_admin_on')) .
                 __('Enable Content-Security-Policy system by default') . '</label></p>' .
                 '<p><label for="system_csp_global_report_only" class="classic">' .
-                Form::checkbox('system_csp_global_report_only', '1', App::core()->blog()->settings()->getGroup('system')->getGlobalSetting('csp_admin_report_only')) .
+                Form::checkbox('system_csp_global_report_only', '1', App::core()->blog()->settings('system')->getGlobalSetting('csp_admin_report_only')) .
                 __('Enable Content-Security-Policy report only by default') . '</label></p>' .
                 '<p><label for="system_csp_reset" class="classic">' .
                 Form::checkbox('system_csp_reset', '1', 0) .

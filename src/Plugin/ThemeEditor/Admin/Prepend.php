@@ -53,8 +53,8 @@ class Prepend extends ModulePrepend
     {
         // Get and store user's prefs for plugin options
         try {
-            App::core()->user()->preferences()->getGroup('interface')->putPreference('colorsyntax', !GPC::post()->empty('colorsyntax'), 'boolean');
-            App::core()->user()->preferences()->getGroup('interface')->putPreference('colorsyntax_theme', GPC::post()->string('colorsyntax_theme'));
+            App::core()->user()->preferences('interface')->putPreference('colorsyntax', !GPC::post()->empty('colorsyntax'), 'boolean');
+            App::core()->user()->preferences('interface')->putPreference('colorsyntax_theme', GPC::post()->string('colorsyntax_theme'));
         } catch (Exception $e) {
             App::core()->error()->add($e->getMessage());
         }
@@ -63,7 +63,7 @@ class Prepend extends ModulePrepend
     public function behaviorAdminPreferencesForm($user): void
     {
         // Add fieldset for plugin options
-        $current_theme = (string) App::core()->user()->preferences()->getGroup('interface')->getPreference('colorsyntax_theme') ?: 'default';
+        $current_theme = (string) App::core()->user()->preferences('interface')->getPreference('colorsyntax_theme') ?: 'default';
         $themes_list   = App::core()->resource()->getCodeMirrorThemes();
         $themes_combo  = [__('Default') => ''];
         foreach ($themes_list as $theme) {
@@ -74,7 +74,7 @@ class Prepend extends ModulePrepend
         '<h5 id="themeEditor_prefs">' . __('Syntax highlighting') . '</h5>';
         echo '<div class="col">' .
         '<p><label for="colorsyntax" class="classic">' .
-        Form::checkbox('colorsyntax', 1, (int) App::core()->user()->preferences()->getGroup('interface')->getPreference('colorsyntax')) . '</label>' .
+        Form::checkbox('colorsyntax', 1, (int) App::core()->user()->preferences('interface')->getPreference('colorsyntax')) . '</label>' .
         __('Syntax highlighting in theme editor') .
             '</p>';
         if (1 < count($themes_combo)) {

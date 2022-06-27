@@ -134,7 +134,7 @@ class Categories extends AbstractPage
         $this->categories = App::core()->blog()->categories()->getCategories();
 
         // Page setup
-        if (!App::core()->user()->preferences()->getGroup('accessibility')->getPreference('nodragdrop')
+        if (!App::core()->user()->preferences('accessibility')->getPreference('nodragdrop')
             && App::core()->user()->check('categories', App::core()->blog()->id)
             && 1 < $this->categories->count()) {
             $this->setPageHead(
@@ -234,7 +234,7 @@ class Categories extends AbstractPage
             echo '<div class="clear">';
 
             if (App::core()->user()->check('categories', App::core()->blog()->id) && 1 < $this->categories->count()) {
-                if (!App::core()->user()->preferences()->getGroup('accessibility')->getPreference('nodragdrop')) {
+                if (!App::core()->user()->preferences('accessibility')->getPreference('nodragdrop')) {
                     echo '<p class="form-note hidden-if-no-js">' . __('To rearrange categories order, move items by drag and drop, then click on “Save categories order” button.') . '</p>';
                 }
                 echo '<p><span class="hidden-if-no-js">' .

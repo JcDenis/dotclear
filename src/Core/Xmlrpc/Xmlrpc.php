@@ -448,7 +448,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             throw new CoreException('Blog does not exist.');
         }
 
-        if (!$bypass && (!App::core()->blog()->settings()->getGroup('system')->getSetting('enable_xmlrpc') || !App::core()->user()->check('usage,contentadmin', App::core()->blog()->id))) {
+        if (!$bypass && (!App::core()->blog()->settings('system')->getSetting('enable_xmlrpc') || !App::core()->user()->check('usage,contentadmin', App::core()->blog()->id))) {
             App::core()->unsetBlog();
 
             throw new CoreException('Not enough permissions on this blog.');
@@ -576,7 +576,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
                 $cur->setField('post_position', (int) $struct['wp_page_order']);
             }
 
-            App::core()->blog()->settings()->getGroup('system')->setSetting('post_url_format', '{t}');
+            App::core()->blog()->settings('system')->setSetting('post_url_format', '{t}');
 
             $post_id = App::core()->blog()->posts()->createPost(cursor: $cur);
         } else {
@@ -672,7 +672,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
                 $cur->setField('post_position', (int) $struct['wp_page_order']);
             }
 
-            App::core()->blog()->settings()->getGroup('system')->setSetting('post_url_format', '{t}');
+            App::core()->blog()->settings('system')->setSetting('post_url_format', '{t}');
 
             App::core()->blog()->posts()->updatePost(id: $post_id, cursor: $cur);
         } else {
@@ -1005,7 +1005,7 @@ class Xmlrpc extends XmlrpcIntrospectionServer
     private function translateWpOptions($options = [])
     {
         $timezone = 0;
-        if (App::core()->blog()->settings()->getGroup('system')->getSetting('blog_timezone')) {
+        if (App::core()->blog()->settings('system')->getSetting('blog_timezone')) {
             $timezone = Clock::getTimeOffset(to: App::core()->getTimezone()) / 3600;
         }
 
@@ -1043,12 +1043,12 @@ class Xmlrpc extends XmlrpcIntrospectionServer
             'date_format' => [
                 'desc'     => 'Date Format',
                 'readonly' => false,
-                'value'    => App::core()->blog()->settings()->getGroup('system')->getSetting('date_format'),
+                'value'    => App::core()->blog()->settings('system')->getSetting('date_format'),
             ],
             'time_format' => [
                 'desc'     => 'Time Format',
                 'readonly' => false,
-                'value'    => App::core()->blog()->settings()->getGroup('system')->getSetting('time_format'),
+                'value'    => App::core()->blog()->settings('system')->getSetting('time_format'),
             ],
         ];
 
@@ -1732,13 +1732,13 @@ class Xmlrpc extends XmlrpcIntrospectionServer
                     break;
 
                 case 'date_format':
-                    App::core()->blog()->settings()->getGroup('system')->putSetting('date_format', $value);
+                    App::core()->blog()->settings('system')->putSetting('date_format', $value);
                     $done[] = $name;
 
                     break;
 
                 case 'time_format':
-                    App::core()->blog()->settings()->getGroup('system')->putSetting('time_format', $value);
+                    App::core()->blog()->settings('system')->putSetting('time_format', $value);
                     $done[] = $name;
 
                     break;

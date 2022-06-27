@@ -59,7 +59,7 @@ final class Favorite
      */
     public function __construct()
     {
-        $this->ws         = App::core()->user()->preferences()->getGroup('dashboard');
+        $this->ws         = App::core()->user()->preferences('dashboard');
         $this->user_prefs = [];
 
         if ($this->ws->hasLocalPreference('favorites')) {

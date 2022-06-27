@@ -75,7 +75,7 @@ final class Prepend extends Core
     {
         if (!$this->timezone) {
             try {
-                $timezone = new DateTimeZone($this->blog() ? $this->blog()->settings()->getGroup('system')->getSetting('blog_timezone') : Clock::getTZ());
+                $timezone = new DateTimeZone($this->blog() ? $this->blog()->settings('system')->getSetting('blog_timezone') : Clock::getTZ());
                 $this->behavior('publicBeforeSetTimezone')->call(timezone: $timezone);
                 $this->timezone = $timezone->getName();
             } catch (Exception) {
@@ -187,11 +187,11 @@ final class Prepend extends Core
         // Cope with static home page option
         $this->url()->setDefaultHandler([
             'Dotclear\\Core\\Url\\Url',
-            (bool) $this->blog()->settings()->getGroup('system')->getSetting('static_home') ? 'static_home' : 'home',
+            (bool) $this->blog()->settings('system')->getSetting('static_home') ? 'static_home' : 'home',
         ]);
 
         // Load locales
-        L10n::lang($this->blog()->settings()->getGroup('system')->getSetting('lang'));
+        L10n::lang($this->blog()->settings('system')->getSetting('lang'));
 
         if (false === L10n::set(Path::implode($this->config()->get('l10n_dir'), L10n::lang(), 'date')) && 'en' != L10n::lang()) {
             L10n::set(Path::implode($this->config()->get('l10n_dir'), 'en', 'date'));
@@ -259,7 +259,7 @@ final class Prepend extends Core
         // Prepare the HTTP cache thing
         $this->url()->addModFiles(new Strings(get_included_files()));
         $this->url()->addModTimestamps(new Integers([Clock::ts(date: $this->blog()->upddt, from: $this->getTimezone(), to: 'UTC')]));
-        $this->url()->setMode((string) $this->blog()->settings()->getGroup('system')->getSetting('url_scan'));
+        $this->url()->setMode((string) $this->blog()->settings('system')->getSetting('url_scan'));
 
         try {
             $this->url()->getDocument();

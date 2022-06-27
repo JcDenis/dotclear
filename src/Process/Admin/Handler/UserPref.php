@@ -91,34 +91,34 @@ class UserPref extends AbstractPage
             $this->user->setOption('editor', []);
         }
 
-        $this->user_profile_mails = App::core()->user()->preferences()->getGroup('profile')->getPreference('mails');
-        $this->user_profile_urls  = App::core()->user()->preferences()->getGroup('profile')->getPreference('urls');
+        $this->user_profile_mails = App::core()->user()->preferences('profile')->getPreference('mails');
+        $this->user_profile_urls  = App::core()->user()->preferences('profile')->getPreference('urls');
 
-        $this->user_dm_doclinks   = App::core()->user()->preferences()->getGroup('dashboard')->getPreference('doclinks');
-        $this->user_dm_dcnews     = App::core()->user()->preferences()->getGroup('dashboard')->getPreference('dcnews');
-        $this->user_dm_quickentry = App::core()->user()->preferences()->getGroup('dashboard')->getPreference('quickentry');
-        $this->user_dm_nofavicons = App::core()->user()->preferences()->getGroup('dashboard')->getPreference('nofavicons');
+        $this->user_dm_doclinks   = App::core()->user()->preferences('dashboard')->getPreference('doclinks');
+        $this->user_dm_dcnews     = App::core()->user()->preferences('dashboard')->getPreference('dcnews');
+        $this->user_dm_quickentry = App::core()->user()->preferences('dashboard')->getPreference('quickentry');
+        $this->user_dm_nofavicons = App::core()->user()->preferences('dashboard')->getPreference('nofavicons');
         $this->user_dm_nodcupdate = false;
         if (App::core()->user()->isSuperAdmin()) {
-            $this->user_dm_nodcupdate = App::core()->user()->preferences()->getGroup('dashboard')->getPreference('nodcupdate');
+            $this->user_dm_nodcupdate = App::core()->user()->preferences('dashboard')->getPreference('nodcupdate');
         }
 
-        $this->user_acc_nodragdrop = App::core()->user()->preferences()->getGroup('accessibility')->getPreference('nodragdrop');
+        $this->user_acc_nodragdrop = App::core()->user()->preferences('accessibility')->getPreference('nodragdrop');
 
-        $this->user_ui_theme            = App::core()->user()->preferences()->getGroup('interface')->getPreference('theme');
-        $this->user_ui_enhanceduploader = App::core()->user()->preferences()->getGroup('interface')->getPreference('enhanceduploader');
-        $this->user_ui_blank_preview    = App::core()->user()->preferences()->getGroup('interface')->getPreference('blank_preview');
-        $this->user_ui_hidemoreinfo     = App::core()->user()->preferences()->getGroup('interface')->getPreference('hidemoreinfo');
-        $this->user_ui_hidehelpbutton   = App::core()->user()->preferences()->getGroup('interface')->getPreference('hidehelpbutton');
-        $this->user_ui_showajaxloader   = App::core()->user()->preferences()->getGroup('interface')->getPreference('showajaxloader');
-        $this->user_ui_htmlfontsize     = App::core()->user()->preferences()->getGroup('interface')->getPreference('htmlfontsize');
+        $this->user_ui_theme            = App::core()->user()->preferences('interface')->getPreference('theme');
+        $this->user_ui_enhanceduploader = App::core()->user()->preferences('interface')->getPreference('enhanceduploader');
+        $this->user_ui_blank_preview    = App::core()->user()->preferences('interface')->getPreference('blank_preview');
+        $this->user_ui_hidemoreinfo     = App::core()->user()->preferences('interface')->getPreference('hidemoreinfo');
+        $this->user_ui_hidehelpbutton   = App::core()->user()->preferences('interface')->getPreference('hidehelpbutton');
+        $this->user_ui_showajaxloader   = App::core()->user()->preferences('interface')->getPreference('showajaxloader');
+        $this->user_ui_htmlfontsize     = App::core()->user()->preferences('interface')->getPreference('htmlfontsize');
         $this->user_ui_hide_std_favicon = false;
         if (App::core()->user()->isSuperAdmin()) {
-            $this->user_ui_hide_std_favicon = App::core()->user()->preferences()->getGroup('interface')->getPreference('hide_std_favicon');
+            $this->user_ui_hide_std_favicon = App::core()->user()->preferences('interface')->getPreference('hide_std_favicon');
         }
-        $this->user_ui_nofavmenu          = App::core()->user()->preferences()->getGroup('interface')->getPreference('nofavmenu');
-        $this->user_ui_media_nb_last_dirs = App::core()->user()->preferences()->getGroup('interface')->getPreference('media_nb_last_dirs');
-        $this->user_ui_nocheckadblocker   = App::core()->user()->preferences()->getGroup('interface')->getPreference('nocheckadblocker');
+        $this->user_ui_nofavmenu          = App::core()->user()->preferences('interface')->getPreference('nofavmenu');
+        $this->user_ui_media_nb_last_dirs = App::core()->user()->preferences('interface')->getPreference('media_nb_last_dirs');
+        $this->user_ui_nocheckadblocker   = App::core()->user()->preferences('interface')->getPreference('nocheckadblocker');
 
         $default_tab = !GPC::get()->empty('tab') ? Html::escapeHTML(GPC::get()->string('tab')) : 'user-profile';
 
@@ -162,7 +162,7 @@ class UserPref extends AbstractPage
         $this->rte = (new RteFlags())->getFlags();
 
         // Load user settings
-        $rte_flags = @App::core()->user()->preferences()->getGroup('interface')->getPreference('rte_flags');
+        $rte_flags = @App::core()->user()->preferences('interface')->getPreference('rte_flags');
         if (is_array($rte_flags)) {
             foreach ($rte_flags as $fk => $fv) {
                 if (isset($this->rte[$fk])) {
@@ -215,8 +215,8 @@ class UserPref extends AbstractPage
                 if (!GPC::post()->empty('user_profile_urls')) {
                     $urls = implode(',', array_filter(filter_var_array(array_map('trim', explode(',', GPC::post()->string('user_profile_urls'))), FILTER_VALIDATE_URL)));
                 }
-                App::core()->user()->preferences()->getGroup('profile')->putPreference('mails', $mails, 'string');
-                App::core()->user()->preferences()->getGroup('profile')->putPreference('urls', $urls, 'string');
+                App::core()->user()->preferences('profile')->putPreference('mails', $mails, 'string');
+                App::core()->user()->preferences('profile')->putPreference('urls', $urls, 'string');
 
                 App::core()->notice()->addSuccessNotice(__('Personal information has been successfully updated.'));
 
@@ -255,22 +255,22 @@ class UserPref extends AbstractPage
                 App::core()->behavior('adminBeforeUserOptionsUpdate')->call($cur, App::core()->user()->userID());
 
                 // Update user prefs
-                App::core()->user()->preferences()->getGroup('accessibility')->putPreference('nodragdrop', !GPC::post()->empty('user_acc_nodragdrop'), 'boolean');
-                App::core()->user()->preferences()->getGroup('interface')->putPreference('theme', GPC::post()->string('user_ui_theme'), 'string');
-                App::core()->user()->preferences()->getGroup('interface')->putPreference('enhanceduploader', !GPC::post()->empty('user_ui_enhanceduploader'), 'boolean');
-                App::core()->user()->preferences()->getGroup('interface')->putPreference('blank_preview', !GPC::post()->empty('user_ui_blank_preview'), 'boolean');
-                App::core()->user()->preferences()->getGroup('interface')->putPreference('hidemoreinfo', !GPC::post()->empty('user_ui_hidemoreinfo'), 'boolean');
-                App::core()->user()->preferences()->getGroup('interface')->putPreference('hidehelpbutton', !GPC::post()->empty('user_ui_hidehelpbutton'), 'boolean');
-                App::core()->user()->preferences()->getGroup('interface')->putPreference('showajaxloader', !GPC::post()->empty('user_ui_showajaxloader'), 'boolean');
-                App::core()->user()->preferences()->getGroup('interface')->putPreference('htmlfontsize', GPC::post()->string('user_ui_htmlfontsize'), 'string');
+                App::core()->user()->preferences('accessibility')->putPreference('nodragdrop', !GPC::post()->empty('user_acc_nodragdrop'), 'boolean');
+                App::core()->user()->preferences('interface')->putPreference('theme', GPC::post()->string('user_ui_theme'), 'string');
+                App::core()->user()->preferences('interface')->putPreference('enhanceduploader', !GPC::post()->empty('user_ui_enhanceduploader'), 'boolean');
+                App::core()->user()->preferences('interface')->putPreference('blank_preview', !GPC::post()->empty('user_ui_blank_preview'), 'boolean');
+                App::core()->user()->preferences('interface')->putPreference('hidemoreinfo', !GPC::post()->empty('user_ui_hidemoreinfo'), 'boolean');
+                App::core()->user()->preferences('interface')->putPreference('hidehelpbutton', !GPC::post()->empty('user_ui_hidehelpbutton'), 'boolean');
+                App::core()->user()->preferences('interface')->putPreference('showajaxloader', !GPC::post()->empty('user_ui_showajaxloader'), 'boolean');
+                App::core()->user()->preferences('interface')->putPreference('htmlfontsize', GPC::post()->string('user_ui_htmlfontsize'), 'string');
                 if (App::core()->user()->isSuperAdmin()) {
                     // Applied to all users
-                    App::core()->user()->preferences()->getGroup('interface')->putPreference('hide_std_favicon', !GPC::post()->empty('user_ui_hide_std_favicon'), 'boolean', null, true, true);
+                    App::core()->user()->preferences('interface')->putPreference('hide_std_favicon', !GPC::post()->empty('user_ui_hide_std_favicon'), 'boolean', null, true, true);
                 }
-                App::core()->user()->preferences()->getGroup('interface')->putPreference('media_nb_last_dirs', GPC::post()->int('user_ui_media_nb_last_dirs'), 'integer');
-                App::core()->user()->preferences()->getGroup('interface')->putPreference('media_last_dirs', [], 'array', null, false);
-                App::core()->user()->preferences()->getGroup('interface')->putPreference('media_fav_dirs', [], 'array', null, false);
-                App::core()->user()->preferences()->getGroup('interface')->putPreference('nocheckadblocker', !GPC::post()->empty('user_ui_nocheckadblocker'), 'boolean');
+                App::core()->user()->preferences('interface')->putPreference('media_nb_last_dirs', GPC::post()->int('user_ui_media_nb_last_dirs'), 'integer');
+                App::core()->user()->preferences('interface')->putPreference('media_last_dirs', [], 'array', null, false);
+                App::core()->user()->preferences('interface')->putPreference('media_fav_dirs', [], 'array', null, false);
+                App::core()->user()->preferences('interface')->putPreference('nocheckadblocker', !GPC::post()->empty('user_ui_nocheckadblocker'), 'boolean');
 
                 // Update user columns (lists)
                 $cu = [];
@@ -283,7 +283,7 @@ class UserPref extends AbstractPage
                         $cu[$group->id] = $ct;
                     }
                 }
-                App::core()->user()->preferences()->getGroup('interface')->putPreference('cols', $cu, 'array');
+                App::core()->user()->preferences('interface')->putPreference('cols', $cu, 'array');
 
                 // Update user lists options
                 $su = [];
@@ -304,16 +304,16 @@ class UserPref extends AbstractPage
                         $su[$group->id][2] = GPC::post()->isset($k) ? abs(GPC::post()->int($k)) : $group->getSortLimit();
                     }
                 }
-                App::core()->user()->preferences()->getGroup('interface')->putPreference('sorts', $su, 'array');
+                App::core()->user()->preferences('interface')->putPreference('sorts', $su, 'array');
                 // All filters
-                App::core()->user()->preferences()->getGroup('interface')->putPreference('auto_filter', !GPC::post()->empty('user_ui_auto_filter'), 'boolean');
+                App::core()->user()->preferences('interface')->putPreference('auto_filter', !GPC::post()->empty('user_ui_auto_filter'), 'boolean');
 
                 // Update user xhtml editor flags
                 $rf = [];
                 foreach ($this->rte as $rk => $rv) {
                     $rf[$rk] = in_array($rk, GPC::post()->array('rte_flags'), true);
                 }
-                App::core()->user()->preferences()->getGroup('interface')->putPreference('rte_flags', $rf, 'array');
+                App::core()->user()->preferences('interface')->putPreference('rte_flags', $rf, 'array');
 
                 // Update user
                 App::core()->users()->updateUser(id: App::core()->user()->userID(), cursor: $cur);
@@ -335,14 +335,14 @@ class UserPref extends AbstractPage
                 App::core()->behavior('adminBeforeDashboardOptionsUpdate')->call(App::core()->user()->userID());
 
                 // Update user prefs
-                App::core()->user()->preferences()->getGroup('dashboard')->putPreference('doclinks', !GPC::post()->empty('user_dm_doclinks'), 'boolean');
-                App::core()->user()->preferences()->getGroup('dashboard')->putPreference('dcnews', !GPC::post()->empty('user_dm_dcnews'), 'boolean');
-                App::core()->user()->preferences()->getGroup('dashboard')->putPreference('quickentry', !GPC::post()->empty('user_dm_quickentry'), 'boolean');
-                App::core()->user()->preferences()->getGroup('dashboard')->putPreference('nofavicons', GPC::post()->empty('user_dm_nofavicons'), 'boolean');
+                App::core()->user()->preferences('dashboard')->putPreference('doclinks', !GPC::post()->empty('user_dm_doclinks'), 'boolean');
+                App::core()->user()->preferences('dashboard')->putPreference('dcnews', !GPC::post()->empty('user_dm_dcnews'), 'boolean');
+                App::core()->user()->preferences('dashboard')->putPreference('quickentry', !GPC::post()->empty('user_dm_quickentry'), 'boolean');
+                App::core()->user()->preferences('dashboard')->putPreference('nofavicons', GPC::post()->empty('user_dm_nofavicons'), 'boolean');
                 if (App::core()->user()->isSuperAdmin()) {
-                    App::core()->user()->preferences()->getGroup('dashboard')->putPreference('nodcupdate', !GPC::post()->empty('user_dm_nodcupdate'), 'boolean');
+                    App::core()->user()->preferences('dashboard')->putPreference('nodcupdate', !GPC::post()->empty('user_dm_nodcupdate'), 'boolean');
                 }
-                App::core()->user()->preferences()->getGroup('interface')->putPreference('nofavmenu', GPC::post()->empty('user_ui_nofavmenu'), 'boolean');
+                App::core()->user()->preferences('interface')->putPreference('nofavmenu', GPC::post()->empty('user_ui_nofavmenu'), 'boolean');
 
                 // --BEHAVIOR-- adminAfterUserOptionsUpdate
                 App::core()->behavior('adminAfterDashboardOptionsUpdate')->call(App::core()->user()->userID());
@@ -435,10 +435,10 @@ class UserPref extends AbstractPage
 
         // Reset dashboard items order
         if (!GPC::post()->empty('resetorder')) {
-            App::core()->user()->preferences()->getGroup('dashboard')->dropPreference('main_order');
-            App::core()->user()->preferences()->getGroup('dashboard')->dropPreference('boxes_order');
-            App::core()->user()->preferences()->getGroup('dashboard')->dropPreference('boxes_items_order');
-            App::core()->user()->preferences()->getGroup('dashboard')->dropPreference('boxes_contents_order');
+            App::core()->user()->preferences('dashboard')->dropPreference('main_order');
+            App::core()->user()->preferences('dashboard')->dropPreference('boxes_order');
+            App::core()->user()->preferences('dashboard')->dropPreference('boxes_items_order');
+            App::core()->user()->preferences('dashboard')->dropPreference('boxes_contents_order');
 
             if (!App::core()->error()->flag()) {
                 App::core()->notice()->addSuccessNotice(__('Dashboard items order have been successfully reset.'));
@@ -500,7 +500,7 @@ class UserPref extends AbstractPage
             __('Largest')  => '87.5%',
         ];
 
-        $auto_filter = App::core()->user()->preferences()->getGroup('interface')->getPreference('auto_filter');
+        $auto_filter = App::core()->user()->preferences('interface')->getPreference('auto_filter');
 
         // User profile
         echo '<div class="multi-part" id="user-profile" title="' . __('My profile') . '">';

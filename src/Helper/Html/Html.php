@@ -204,7 +204,7 @@ class Html
      */
     public static function filter(string $str): string
     {
-        if (!App::core()->blog()?->settings()->getGroup('system')->getSetting('enable_html_filter')) {
+        if (!App::core()->blog()?->settings('system')->getSetting('enable_html_filter')) {
             return $str;
         }
 

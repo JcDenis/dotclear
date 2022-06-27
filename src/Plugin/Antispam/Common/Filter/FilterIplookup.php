@@ -83,7 +83,7 @@ class FilterIplookup extends Spamfilter
 
         if (GPC::post()->isset('bls')) {
             try {
-                App::core()->blog()->settings()->getGroup('antispam')->putSetting('antispam_dnsbls', GPC::post()->string('bls'), 'string', 'Antispam DNSBL servers', true, false);
+                App::core()->blog()->settings('antispam')->putSetting('antispam_dnsbls', GPC::post()->string('bls'), 'string', 'Antispam DNSBL servers', true, false);
                 App::core()->notice()->addSuccessNotice(__('The list of DNSBL servers has been succesfully updated.'));
                 Http::redirect($url);
             } catch (Exception $e) {
@@ -105,9 +105,9 @@ class FilterIplookup extends Spamfilter
 
     private function getServers(): string
     {
-        $bls = App::core()->blog()->settings()->getGroup('antispam')->getSetting('antispam_dnsbls');
+        $bls = App::core()->blog()->settings('antispam')->getSetting('antispam_dnsbls');
         if (null === $bls) {
-            App::core()->blog()->settings()->getGroup('antispam')->putSetting('antispam_dnsbls', $this->default_bls, 'string', 'Antispam DNSBL servers', true, false);
+            App::core()->blog()->settings('antispam')->putSetting('antispam_dnsbls', $this->default_bls, 'string', 'Antispam DNSBL servers', true, false);
 
             return $this->default_bls;
         }
