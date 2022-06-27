@@ -38,8 +38,8 @@ class User
     protected $user;
 
     /**
-     * @var Preferences $preferences
-     *                  Preferences instance
+     * @var null|Preferences $preferences
+     *                       Preferences instance
      */
     protected $preferences;
 
@@ -180,7 +180,7 @@ class User
 
     /**
      * Get user preferences group instance.
-     * 
+     *
      * @param string $group The preferences group name
      *
      * @return null|PreferencesGroup Preferences group instance

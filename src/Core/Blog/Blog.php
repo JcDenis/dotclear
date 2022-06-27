@@ -216,7 +216,7 @@ final class Blog
      * Get settings instance.
      *
      * Settings methods are accesible from App::core()->blog()->settings(group)
-     * 
+     *
      * @param string $group The settings group name
      *
      * @return SettingsGroup The settings group instance
