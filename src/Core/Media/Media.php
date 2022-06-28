@@ -13,14 +13,13 @@ namespace Dotclear\Core\Media;
 use Dotclear\App;
 use Dotclear\Core\Media\Image\ImageTools;
 use Dotclear\Core\Media\Image\ImageMeta;
-use Dotclear\Core\Media\Manager\Manager;
-use Dotclear\Core\Media\Manager\Item;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Exception\CoreException;
+use Dotclear\Exception\FileException;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Zip\Unzip;
@@ -38,8 +37,32 @@ use Exception;
  *
  * @ingroup  Core Media
  */
-class Media extends Manager
+final class Media
 {
+    /**
+     * @var string $pwd
+     *             Working (current) director
+     */
+    private $pwd = '';
+
+    /**
+     * @var array<int,string> $exclude_list
+     *                        Array of regexps defining excluded items
+     */
+    private $exclude_list = [];
+
+    /**
+     * @var string $exclude_pattern
+     *             Files exclusion regexp pattern
+     */
+    private $exclude_pattern = '';
+
+    /**
+     * @var array<string,array> $dir
+     *                          Current directory content array
+     */
+    public $dir = ['dirs' => [], 'files' => []];
+
     /**
      * @var ThumbSize $thumbsize
      *                Thumb sizes definitions instance
@@ -50,25 +73,25 @@ class Media extends Manager
      * @var string $file_sort
      *             Sort field
      */
-    protected $file_sort = 'name-asc';
+    private $file_sort = 'name-asc';
 
     /**
      * @var string $path
      *             Media path
      */
-    protected $path = '';
+    private $path = '';
 
     /**
      * @var string $relpwd
      *             Relative path
      */
-    protected $relpwd = '';
+    private $relpwd = '';
 
     /**
      * @var array<string,array> $file_handler
      *                          File handler callback
      */
-    protected $file_handler = [];
+    private $file_handler = [];
 
     /**
      * @var string $thumb_tp
@@ -95,21 +118,30 @@ class Media extends Manager
     public $icon_img = '?df=images/media/%s.png';
 
     /**
+     * @var string $root
+     */
+    public $root = '';
+
+    /**
+     * @var string @root_url
+     */
+    public $root_url = '';
+
+    /**
      * Constructor.
      *
      * @param string $type The media type filter
      *
      * @throws CoreException
      */
-    public function __construct(protected string $type = '')
+    public function __construct(private string $type = '')
     {
         if (!App::core()->blog()) {
             throw new CoreException(__('No blog defined.'));
         }
 
-        $root        = App::core()->blog()->public_path;
-
-        if (!$root || !is_dir($root)) {
+        $this->root = $this->pwd = Path::real(App::core()->blog()->public_path);
+        if (!$this->root || !is_dir($this->root)) {
             // Check public directory
             if (App::core()->user()->isSuperAdmin()) {
                 throw new CoreException(__('There is no writable directory /public/ at the location set in about:config "public_path". You must create this directory with sufficient rights (or change this setting).'));
@@ -118,9 +150,10 @@ class Media extends Manager
             throw new CoreException(__('There is no writable root directory for the media manager. You should contact your administrator.'));
         }
 
-        $root_url = rawurldecode(App::core()->blog()->public_url);
-
-        parent::__construct($root, $root_url);
+        $this->root_url = rawurldecode(App::core()->blog()->public_url);
+        if (!preg_match('#/$#', (string) $this->root_url)) {
+            $this->root_url = $this->root_url . '/';
+        }
 
         $this->chdir('');
 
@@ -190,8 +223,126 @@ class Media extends Manager
      */
     public function chdir(?string $dir): void
     {
-        parent::chdir($dir);
+        $realdir = Path::real($this->root . '/' . Path::clean($dir));
+        if (!$realdir || !is_dir($realdir)) {
+            throw new FileException('Invalid directory.');
+        }
+
+        if ($this->isExclude($realdir)) {
+            throw new FileException('Directory is excluded.');
+        }
+
+        $this->pwd    = $realdir;
         $this->relpwd = preg_replace('/^' . preg_quote($this->root, '/') . '\/?/', '', $this->pwd);
+    }
+
+    /**
+     * Get working directory.
+     */
+    public function getPwd(): string
+    {
+        return $this->pwd;
+    }
+
+    /**
+     * Check if current directory is writable.
+     *
+     * @return bool True if working directory is writable
+     */
+    public function writable(): bool
+    {
+        return !$this->pwd ? false : is_writable($this->pwd);
+    }
+
+    /**
+     * Add exclusion.
+     *
+     * Appends an exclusion to exclusions list. $f should be a regexp.
+     *
+     * @see     self::$exclude_list
+     *
+     * @param array|string $f Exclusion regexp
+     */
+    public function addExclusion(array|string $f): void
+    {
+        if (is_array($f)) {
+            foreach ($f as $v) {
+                if (false !== ($V = Path::real($v))) {
+                    $this->exclude_list[] = $V;
+                }
+            }
+        } elseif (false !== ($F = Path::real($f))) {
+            $this->exclude_list[] = $F;
+        }
+    }
+
+    /**
+     * Path is excluded.
+     *
+     * Returns true if path (file or directory) $f is excluded. $f path is
+     * relative to $root path.
+     *
+     * @see self::$exclude_list
+     *
+     * @param string $f Path to match
+     */
+    private function isExclude(string $f): bool
+    {
+        foreach ($this->exclude_list as $v) {
+            if (str_starts_with($f, $v)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * File is excluded.
+     *
+     * Returns true if file $f is excluded. $f path is relative to
+     * $root path.
+     *
+     * @see self::$exclude_pattern
+     *
+     * @param string $f File to match
+     */
+    private function isFileExclude(string $f): bool
+    {
+        return !$this->exclude_pattern ? false : (bool) preg_match($this->exclude_pattern, (string) $f);
+    }
+
+    /**
+     * Item in jail.
+     *
+     * Returns true if file or directory $f is in jail.
+     * ie. not outside the $root directory.
+     *
+     * @param string $f Path to match
+     */
+    private function inJail(string $f): bool
+    {
+        $f = Path::real($f);
+
+        return false !== $f ? (bool) preg_match('|^' . preg_quote($this->root, '|') . '|', (string) $f) : false;
+    }
+
+    /**
+     * File in files.
+     *
+     * Returns true if file $f is in files array of $dir.
+     *
+     * @param string $f File to match
+     */
+    public function inFiles(string $f): bool
+    {
+        foreach ($this->dir['files'] as $v) {
+            if ($v->relname == $f) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -218,7 +369,7 @@ class Media extends Manager
      * @param string $event The event
      * @param mixed  $args  The callback
      */
-    protected function callFileHandler(string $type, string $event, mixed ...$args): void
+    private function callFileHandler(string $type, string $event, mixed ...$args): void
     {
         if (!empty($this->file_handler[$type][$event])) {
             foreach ($this->file_handler[$type][$event] as $f) {
@@ -260,15 +411,15 @@ class Media extends Manager
      *
      * @param Record $rs Media record
      *
-     * @return null|Item Media Item
+     * @return null|MediaItem Media Item
      */
-    protected function fileRecord(Record $rs): ?Item
+    private function fileRecord(Record $rs): ?MediaItem
     {
         if (!$rs->isEmpty()
             && !$this->isFileExclude($this->root . '/' . $rs->field('media_file'))
             && is_file($this->root . '/' . $rs->field('media_file'))
         ) {
-            $f = new Item($this->root . '/' . $rs->field('media_file'), $this->root, $this->root_url);
+            $f = new MediaItem($this->root . '/' . $rs->field('media_file'), $this->root, $this->root_url);
 
             if ($this->type && $f->type_prefix != $this->type) {
                 return null;
@@ -410,12 +561,12 @@ class Media extends Manager
     /**
      * Sort file handler.
      *
-     * @param null|Item $a First item
-     * @param null|Item $b Second item
+     * @param null|MediaItem $a First item
+     * @param null|MediaItem $b Second item
      *
      * @return int Comparison result
      */
-    protected function sortFileHandler(?Item $a, ?Item $b): int
+    private function sortFileHandler(?MediaItem $a, ?MediaItem $b): int
     {
         if (is_null($a) || is_null($b)) {
             return is_null($a) ? 1 : -1;
@@ -429,14 +580,6 @@ class Media extends Manager
             'name-desc' => strcasecmp($b->basename, $a->basename),
             default     => strcasecmp($a->basename, $b->basename),
         };
-    }
-
-    /**
-     * Get current working directory content (using filesystem).
-     */
-    public function getFSDir(): void
-    {
-        parent::getDir();
     }
 
     /**
@@ -509,8 +652,38 @@ class Media extends Manager
                 $privates[] = $f->relname;
             }
         }
+        $dir = Path::clean($this->pwd);
 
-        parent::getDir();
+        $dh = @opendir($dir);
+
+        if (false === $dh) {
+            throw new FileException('Unable to read directory.');
+        }
+
+        $d_res = $f_res = [];
+
+        while (false !== ($file = readdir($dh))) {
+            $fname = $dir . '/' . $file;
+
+            if ($this->inJail($fname) && !$this->isExclude($fname)) {
+                if (is_dir($fname) && '.' != $file) {
+                    $tmp = new MediaItem($fname, $this->root, $this->root_url);
+                    if ('..' == $file) {
+                        $tmp->parent = true;
+                    }
+                    $d_res[] = $tmp;
+                }
+
+                if (is_file($fname) && !str_starts_with($file, '.') && !$this->isFileExclude($file)) {
+                    $f_res[] = new MediaItem($fname, $this->root, $this->root_url);
+                }
+            }
+        }
+        closedir($dh);
+
+        $this->dir = ['dirs' => $d_res, 'files' => $f_res];
+        usort($this->dir['dirs'], [$this, 'sortHandler']);
+        usort($this->dir['files'], [$this, 'sortHandler']);
 
         $f_res = [];
         $p_dir = $this->dir;
@@ -585,13 +758,33 @@ class Media extends Manager
     }
 
     /**
+     * Root directories.
+     *
+     * Returns an array of directory under $root directory.
+     *
+     * @return array<int,MediaItem> The media items
+     */
+    public function getRootDirs(): array
+    {
+        $d = Files::getDirList($this->root);
+
+        $dir = [];
+
+        foreach ($d['dirs'] as $v) {
+            $dir[] = new MediaItem($v, $this->root, $this->root_url);
+        }
+
+        return $dir;
+    }
+
+    /**
      * Get file by its id.
      *
      * @param int $id The file identifier
      *
-     * @return null|Item The file
+     * @return null|MediaItem The file
      */
-    public function getFile(int $id): ?Item
+    public function getFile(int $id): ?MediaItem
     {
         $sql = new SelectStatement();
         $sql->from(App::core()->getPrefix() . 'media');
@@ -621,6 +814,99 @@ class Media extends Manager
         $record = $sql->select();
 
         return $this->fileRecord($record);
+    }
+
+    /**
+     * Upload file.
+     *
+     * Move <var>$tmp</var> file to its final destination <var>$dest</var> and
+     * returns the destination file path.
+     * <var>$dest</var> should be in jail. This method will throw exception
+     * if the file cannot be written.
+     *
+     * You should first verify upload status, with {@link Files::uploadStatus()}
+     * or PHP native functions.
+     *
+     * @see Files::uploadStatus()
+     *
+     * @param string $tmp       Temporary uploaded file path
+     * @param string $dest      Destination file
+     * @param bool   $overwrite Overwrite mode
+     *
+     * @throws FileException
+     *
+     * @return string Destination real path
+     */
+    public function uploadFile(string $tmp, string $dest, bool $overwrite = false): string
+    {
+        $dest = $this->pwd . '/' . Path::clean($dest);
+
+        if ($this->isFileExclude($dest)) {
+            throw new FileException(__('Uploading this file is not allowed.'));
+        }
+
+        if (!$this->inJail(dirname($dest))) {
+            throw new FileException(__('Destination directory is not in jail.'));
+        }
+
+        if (!$overwrite && file_exists($dest)) {
+            throw new FileException(__('File already exists.'));
+        }
+
+        if (!is_writable(dirname($dest))) {
+            throw new FileException(__('Cannot write in this directory.'));
+        }
+
+        if (false === @move_uploaded_file($tmp, $dest)) {
+            throw new FileException(__('An error occurred while writing the file.'));
+        }
+
+        Files::inheritChmod($dest);
+
+        return Path::real($dest);
+    }
+
+    /**
+     * Upload file by bits.
+     *
+     * Creates a new file <var>$name</var> with contents of <var>$bits</var> and
+     * return the destination file path.
+     * <var>$name</var> should be in jail. This method will throw exception
+     * if file cannot be written.
+     *
+     * @param string $bits Destination file content
+     * @param string $name Destination file
+     *
+     * @throws FileException
+     *
+     * @return string Destination real path
+     */
+    public function uploadBits(string $name, string $bits): string
+    {
+        $dest = $this->pwd . '/' . Path::clean($name);
+
+        if ($this->isFileExclude($dest)) {
+            throw new FileException(__('Uploading this file is not allowed.'));
+        }
+
+        if (!$this->inJail(dirname($dest))) {
+            throw new FileException(__('Destination directory is not in jail.'));
+        }
+
+        if (!is_writable(dirname($dest))) {
+            throw new FileException(__('Cannot write in this directory.'));
+        }
+
+        $fp = @fopen($dest, 'wb');
+        if (false === $fp) {
+            throw new FileException(__('An error occurred while writing the file.'));
+        }
+
+        fwrite($fp, $bits);
+        fclose($fp);
+        Files::inheritChmod($dest);
+
+        return Path::real($dest);
     }
 
     /**
@@ -688,13 +974,13 @@ class Media extends Manager
     /**
      * Return media items attached to a blog post.
      *
-     * Result is an array containing Item objects.
+     * Result is an array containing MediaItem objects.
      *
      * @param int         $post_id   The post identifier
      * @param null|int    $media_id  The media identifier
      * @param null|string $link_type The link type
      *
-     * @return array Array of Item
+     * @return array Array of MediaItem
      */
     public function getPostMedia(int $post_id, ?int $media_id = null, ?string $link_type = null): array
     {
@@ -740,7 +1026,7 @@ class Media extends Manager
         }
 
         $this->chdir($pwd);
-        parent::getDir();
+        $this->getDir();
 
         $dir = $this->dir;
 
@@ -755,16 +1041,6 @@ class Media extends Manager
             $this->createFile($f->basename);
         }
 
-        $this->rebuildDB($pwd);
-    }
-
-    /**
-     * Rebuild database.
-     *
-     * @param string $pwd The directory to rebuild
-     */
-    protected function rebuildDB(string $pwd): void
-    {
         $media_dir = $pwd ?: '.';
 
         $sql = new SelectStatement();
@@ -799,7 +1075,67 @@ class Media extends Manager
     public function makeDir(string $d): void
     {
         $d = Files::tidyFileName($d);
-        parent::makeDir($d);
+        Files::makeDir($this->pwd . '/' . Path::clean($d));
+    }
+
+    /**
+     * Move file.
+     *
+     * Moves a file <var>$s</var> to a new destination <var>$d</var>. Both
+     * <var>$s</var> and <var>$d</var> are relative to $root.
+     *
+     * @param string $s Source file
+     * @param string $d Destination file
+     *
+     * @throws FileException
+     */
+    public function moveFile(string $s, string $d): void
+    {
+        $s = $this->root . '/' . Path::clean($s);
+        $d = $this->root . '/' . Path::clean($d);
+
+        if (false === ($s = Path::real($s))) {
+            throw new FileException(__('Source file does not exist.'));
+        }
+
+        $dest_dir = Path::real(dirname($d));
+
+        if (!$this->inJail($s)) {
+            throw new FileException(__('File is not in jail.'));
+        }
+        if (!$this->inJail($dest_dir)) {
+            throw new FileException(__('File is not in jail.'));
+        }
+
+        if (!is_writable($dest_dir)) {
+            throw new FileException(__('Destination directory is not writable.'));
+        }
+
+        if (false === @rename($s, $d)) {
+            throw new FileException(__('Unable to rename file.'));
+        }
+    }
+
+    /**
+     * Remove item.
+     *
+     * Removes a file or directory <var>$f</var> which is relative to working
+     * directory.
+     *
+     * @param string $f Path to remove
+     */
+    public function removeItem(string $f): void
+    {
+        $file = Path::real($this->pwd . '/' . Path::clean($f));
+
+        if (false === $file) {
+            return;
+        }
+        if (is_file($file)) {
+            $this->removeFile($f);
+        } elseif (is_dir($file)) {
+            $this->removeDir($f);
+        }
     }
 
     /**
@@ -894,12 +1230,12 @@ class Media extends Manager
     /**
      * Update a file in database.
      *
-     * @param Item $file    The file
-     * @param Item $newFile The new file
+     * @param MediaItem $file    The file
+     * @param MediaItem $newFile The new file
      *
      * @throws CoreException
      */
-    public function updateFile(Item $file, Item $newFile): void
+    public function updateFile(MediaItem $file, MediaItem $newFile): void
     {
         if (!App::core()->user()->check('media,media_admin', App::core()->blog()->id)) {
             throw new CoreException(__('Permission denied.'));
@@ -979,7 +1315,7 @@ class Media extends Manager
 
         $name = Files::tidyFileName($name);
 
-        parent::uploadFile($tmp, $name, $overwrite);
+        $this->uploadFile($tmp, $name, $overwrite);
 
         return $this->createFile($name, $title, $private);
     }
@@ -1002,7 +1338,7 @@ class Media extends Manager
 
         $name = Files::tidyFileName($name);
 
-        parent::uploadBits($name, $bits);
+        $this->uploadBits($name, $bits);
 
         return $this->createFile($name, null, false);
     }
@@ -1037,9 +1373,55 @@ class Media extends Manager
             throw new CoreException(__('File does not exist in the database.'));
         }
 
-        parent::removeFile($f);
+        $f = Path::real($this->pwd . '/' . Path::clean($f));
+
+        if (false === $f) {
+            return;
+        }
+
+        if (!$this->inJail($f)) {
+            throw new FileException(__('File is not in jail.'));
+        }
+
+        if (!Files::isDeletable($f)) {
+            throw new FileException(__('File cannot be removed.'));
+        }
+
+        if (false === @unlink($f)) {
+            throw new FileException(__('File cannot be removed.'));
+        }
 
         $this->callFileHandler(Files::getMimeType($media_file), 'remove', $f);
+    }
+
+    /**
+     * Remove item.
+     *
+     * Removes a directory <var>$d</var> which is relative to working directory.
+     *
+     * @param string $d Directory to remove
+     *
+     * @throws FileException
+     */
+    public function removeDir(string $d): void
+    {
+        $d = Path::real($this->pwd . '/' . Path::clean($d));
+
+        if (false === $d) {
+            return;
+        }
+
+        if (!$this->inJail($d)) {
+            throw new FileException(__('Directory is not in jail.'));
+        }
+
+        if (!Files::isDeletable($d)) {
+            throw new FileException(__('Directory cannot be removed.'));
+        }
+
+        if (false === @rmdir($d)) {
+            throw new FileException(__('Directory cannot be removed.'));
+        }
     }
 
     /**
@@ -1047,7 +1429,7 @@ class Media extends Manager
      *
      * Returns an array of directory under $root directory.
      *
-     * @uses    Item
+     * @uses    MediaItem
      */
     public function getDBDirs(): array
     {
@@ -1072,14 +1454,14 @@ class Media extends Manager
     /**
      * Extract zip file in current location.
      *
-     * @param Item $f          Item object
-     * @param bool $create_dir Create dir
+     * @param MediaItem $f          Media item instance
+     * @param bool      $create_dir Create dir
      *
      * @throws CoreException
      *
      * @return string Destination
      */
-    public function inflateZipFile(Item $f, bool $create_dir = true): string
+    public function inflateZipFile(MediaItem $f, bool $create_dir = true): string
     {
         $zip = new Unzip($f->file);
         $zip->setExcludePattern($this->exclude_pattern);
@@ -1130,11 +1512,11 @@ class Media extends Manager
     /**
      * Get the zip content.
      *
-     * @param Item $f Item object
+     * @param MediaItem $f Media item instance
      *
      * @return array the zip content
      */
-    public function getZipContent(Item $f): array
+    public function getZipContent(MediaItem $f): array
     {
         $zip  = new Unzip($f->file);
         $list = $zip->getList(false, '#(^|/)(__MACOSX|\.svn|\.hg.*|\.git.*|\.DS_Store|\.directory|Thumbs\.db)(/|$)#');
@@ -1146,9 +1528,9 @@ class Media extends Manager
     /**
      * Call file handlers registered for recreate event.
      *
-     * @param Item $f Item object
+     * @param MediaItem $f Media item instance
      */
-    public function mediaFireRecreateEvent(Item $f)
+    public function mediaFireRecreateEvent(MediaItem $f)
     {
         $media_type = Files::getMimeType($f->basename);
         $this->callFileHandler($media_type, 'recreate', null, $f->basename); // Args list to be completed as necessary (Franck)
@@ -1217,10 +1599,10 @@ class Media extends Manager
     /**
      * Update image thumbnails.
      *
-     * @param Item $file    The file
-     * @param Item $newFile The new file
+     * @param MediaItem $file    The file
+     * @param MediaItem $newFile The new file
      */
-    protected function imageThumbUpdate(Item $file, Item $newFile): void
+    private function imageThumbUpdate(MediaItem $file, MediaItem $newFile): void
     {
         if ($file->relname != $newFile->relname) {
             $p         = Path::info($file->relname);
@@ -1249,7 +1631,7 @@ class Media extends Manager
 
             foreach ($this->thumbsize()->getCodes() as $code) {
                 try {
-                    parent::moveFile(sprintf($thumb_old, $code), sprintf($thumb_new, $code));
+                    $this->moveFile(sprintf($thumb_old, $code), sprintf($thumb_new, $code));
                 } catch (\Exception) {
                 }
             }
@@ -1277,7 +1659,7 @@ class Media extends Manager
 
         foreach ($this->thumbsize()->getCodes() as $code) {
             try {
-                parent::removeFile(sprintf($thumb, $code));
+                $this->removeFile(sprintf($thumb, $code));
             } catch (\Exception) {
             }
         }
@@ -1290,7 +1672,7 @@ class Media extends Manager
      * @param string $filename Image filename
      * @param int    $id       The media identifier
      */
-    protected function imageMetaCreate(Cursor $cursor, string $filename, int $id): bool
+    private function imageMetaCreate(Cursor $cursor, string $filename, int $id): bool
     {
         $file = $this->pwd . '/' . $filename;
 
@@ -1396,5 +1778,23 @@ class Media extends Manager
     public static function mp3player(string $url, ?string $player = null, ?array $args = null, bool $fallback = false, bool $preload = true): string
     {
         return self::audioPlayer('audio/mp3', $url, $player, $args, false, $preload);
+    }
+
+    /**
+     * SortHandler.
+     *
+     * This method is called by {@link getDir()} to sort files. Can be overrided
+     * in inherited classes.
+     *
+     * @param MediaItem $a Media item instance
+     * @param MediaItem $b Media item instance
+     */
+    private function sortHandler(MediaItem $a, MediaItem $b): int
+    {
+        if ($a->parent && !$b->parent || !$a->parent && $b->parent) {
+            return ($a->parent) ? -1 : 1;
+        }
+
+        return strcasecmp($a->basename, $b->basename);
     }
 }

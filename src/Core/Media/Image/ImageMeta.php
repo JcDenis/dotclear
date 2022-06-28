@@ -25,31 +25,31 @@ use Dotclear\Helper\Text;
  *
  * @ingroup  Core Media Image
  */
-class ImageMeta
+final class ImageMeta
 {
     /**
      * @var array<string,string> $xmp
      *                           Internal XMP array
      */
-    protected $xmp = [];
+    private $xmp = [];
 
     /**
      * @var array<string,null|string> $iptc
      *                                Internal IPTC array
      */
-    protected $iptc = [];
+    private $iptc = [];
 
     /**
      * @var array<string,null|string> $exif
      *                                Internal EXIF array
      */
-    protected $exif = [];
+    private $exif = [];
 
     /**
      * @var array<string,null|string> $properties
      *                                Final properties array
      */
-    protected $properties = [
+    private $properties = [
         'Title'             => null,
         'Description'       => null,
         'Creator'           => null,
@@ -77,7 +77,7 @@ class ImageMeta
      * @var array<string,array> $xmp_reg
      *                          XMP references
      */
-    protected $xmp_reg = [
+    private $xmp_reg = [
         'Title' => [
             '%<dc:title>\s*<rdf:Alt>\s*<rdf:li.*?>(.+?)</rdf:li>%msu',
         ],
@@ -159,7 +159,7 @@ class ImageMeta
      * @var array<string,string> $iptc_ref
      *                           IPTC references
      */
-    protected $iptc_ref = [
+    private $iptc_ref = [
         '1#090' => 'Iptc.Envelope.CharacterSet', // Character Set used (32 chars max)
         '2#005' => 'Iptc.ObjectName',            // Title (64 chars max)
         '2#015' => 'Iptc.Category',              // (3 chars max)
@@ -190,7 +190,7 @@ class ImageMeta
      * @var array<string,string> $iptc_to_property
      *                           IPTC properties
      */
-    protected $iptc_to_property = [
+    private $iptc_to_property = [
         'Iptc.ObjectName'    => 'Title',
         'Iptc.Caption'       => 'Description',
         'Iptc.ByLine'        => 'Creator',
@@ -206,7 +206,7 @@ class ImageMeta
      * @var array<string,string> $exif_to_property
      *                           EXIF properties
      */
-    protected $exif_to_property = [
+    private $exif_to_property = [
         // '' => 'Title',
         'ImageDescription'  => 'Description',
         'Artist'            => 'Creator',
@@ -292,7 +292,7 @@ class ImageMeta
 
         $this->readXMP($f);
         $this->readIPTC($f);
-        $this->readExif($f);
+        $this->readEXIF($f);
     }
 
     /**
@@ -302,7 +302,7 @@ class ImageMeta
      *
      * @param string $f Image file path
      */
-    protected function readXMP(string $f): void
+    private function readXMP(string $f): void
     {
         if (false === ($fp = @fopen($f, 'rb'))) {
             throw new HelperException('Unable to open image file');
@@ -369,7 +369,7 @@ class ImageMeta
      *
      * @param string $f Image file path
      */
-    protected function readIPTC(string $f): void
+    private function readIPTC(string $f): void
     {
         if (!function_exists('iptcparse')) {
             return;
@@ -402,7 +402,7 @@ class ImageMeta
      *
      * @param string $f Image file path
      */
-    protected function readEXIF(string $f): void
+    private function readEXIF(string $f): void
     {
         if (!function_exists('exif_read_data')) {
             return;

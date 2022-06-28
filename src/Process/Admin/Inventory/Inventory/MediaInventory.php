@@ -12,7 +12,7 @@ namespace Dotclear\Process\Admin\Inventory\Inventory;
 // Dotclear\Process\Admin\Inventory\Inventory\MediaInventory
 use Dotclear\App;
 use Dotclear\Core\Media\Media;
-use Dotclear\Core\Media\Manager\Item;
+use Dotclear\Core\Media\MediaItem;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\File\Files;
@@ -100,14 +100,14 @@ class MediaInventory extends Inventory
      * Get a media line.
      *
      * @param MediaFilters $filters       The filters
-     * @param Item         $f             The current media item
+     * @param MediaItem    $f             The current media item
      * @param int          $i             The current index
      * @param bool         $query         If it's a query or not
      * @param string       $page_adminurl Page URL
      *
      * @return string The line
      */
-    public function mediaLine(MediaFilters $filters, Item $f, int $i, bool $query = false, string $page_adminurl = 'admin.media'): string
+    public function mediaLine(MediaFilters $filters, MediaItem $f, int $i, bool $query = false, string $page_adminurl = 'admin.media'): string
     {
         $fname = $f->basename;
         $file  = $query ? $f->relname : $f->basename;

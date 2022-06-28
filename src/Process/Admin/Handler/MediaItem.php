@@ -12,7 +12,7 @@ namespace Dotclear\Process\Admin\Handler;
 // Dotclear\Process\Admin\Handler\MediaItem
 use Dotclear\App;
 use Dotclear\Core\Media\Media;
-use Dotclear\Core\Media\Manager\Item;
+use Dotclear\Core\Media\MediaItem as BaseItem;
 use Dotclear\Database\Param;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Clock;
@@ -39,8 +39,8 @@ class MediaItem extends AbstractPage
     private $item_id;
 
     /**
-     * @var null|Item $item_file
-     *                File info
+     * @var null|BaseItem $item_file
+     *                    File info
      */
     private $item_file;
     private $item_dirs_combo;
@@ -107,7 +107,7 @@ class MediaItem extends AbstractPage
                 $this->item_dirs_combo['/' . $v] = $v;
             }
             // Add parent and direct childs directories if any
-            App::core()->media()->getFSDir();
+            App::core()->media()->getDir();
             foreach (App::core()->media()->dir['dirs'] as $k => $v) {
                 $this->item_dirs_combo['/' . $v->relname] = $v->relname;
             }

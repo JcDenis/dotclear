@@ -22,7 +22,7 @@ use Dotclear\Helper\File\Files;
  *
  * @ingroup  Core Media Image
  */
-class ImageTools
+final class ImageTools
 {
     /**
      * @var false|GdImage $res

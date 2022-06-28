@@ -7,9 +7,9 @@
  */
 declare(strict_types=1);
 
-namespace Dotclear\Core\Media\Manager;
+namespace Dotclear\Core\Media;
 
-// Dotclear\Core\Media\Manager\Item
+// Dotclear\Core\Media\MediaItem
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Files;
 use SimpleXMLElement;
@@ -24,7 +24,7 @@ use SimpleXMLElement;
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-class Item
+final class MediaItem
 {
     /**
      * @var string $file
@@ -221,7 +221,7 @@ class Item
     /**
      * Constructor.
      *
-     * Creates an instance of fileItem object.
+     * Creates an instance of media item object.
      *
      * @param string $file     Absolute file or directory path
      * @param string $root     File root path
