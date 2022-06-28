@@ -31,7 +31,7 @@ use Exception;
  *
  * @ingroup  Core Network
  */
-class Xmlrpc extends XmlrpcIntrospectionServer
+final class Xmlrpc extends XmlrpcIntrospectionServer
 {
     private $blog_loaded    = false;
     private $debug          = false;

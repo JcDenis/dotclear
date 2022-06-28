@@ -11,7 +11,7 @@ namespace Dotclear\Process\Admin\Handler;
 
 // Dotclear\Process\Admin\Handler\PostMedia
 use Dotclear\App;
-use Dotclear\Core\Media\PostMedia as CoreMedia;
+use Dotclear\Core\Media\PostMedia as CorePostMedia;
 use Dotclear\Database\Param;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\GPC\GPC;
@@ -52,7 +52,7 @@ class PostMedia extends AbstractPage
         }
 
         try {
-            $postmedia = new CoreMedia();
+            $postmedia = new CorePostMedia();
 
             if (null !== $post_id && null !== $media_id && !GPC::request()->empty('attach')) {
                 $postmedia->addPostMedia($post_id, $media_id, $link_type);

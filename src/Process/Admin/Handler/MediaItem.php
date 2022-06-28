@@ -12,7 +12,7 @@ namespace Dotclear\Process\Admin\Handler;
 // Dotclear\Process\Admin\Handler\MediaItem
 use Dotclear\App;
 use Dotclear\Core\Media\Media;
-use Dotclear\Core\Media\MediaItem as BaseItem;
+use Dotclear\Core\Media\MediaItem as CoreMediaItem;
 use Dotclear\Database\Param;
 use Dotclear\Exception\AdminException;
 use Dotclear\Helper\Clock;
@@ -39,8 +39,8 @@ class MediaItem extends AbstractPage
     private $item_id;
 
     /**
-     * @var null|BaseItem $item_file
-     *                    File info
+     * @var null|CoreMediaItem $item_file
+     *                         File info
      */
     private $item_file;
     private $item_dirs_combo;

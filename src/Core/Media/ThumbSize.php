@@ -19,7 +19,7 @@ namespace Dotclear\Core\Media;
  *
  * @ingroup  Core Media
  */
-class ThumbSize
+final class ThumbSize
 {
     /**
      * @var array<string,string> $codes

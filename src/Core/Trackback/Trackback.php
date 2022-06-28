@@ -35,7 +35,7 @@ use Exception;
  *
  * @ingroup  Core Ping
  */
-class Trackback
+final class Trackback
 {
     // / @name Send
     // @{

@@ -25,28 +25,28 @@ use Exception;
  *
  * @ingroup  Core User Preferences
  */
-class PreferencesGroup
+final class PreferencesGroup
 {
     /**
      * @var array<string,array> $global_preferences
      *                          Global preferences array
      */
-    protected $global_preferences = [];
+    private $global_preferences = [];
 
     /**
      * @var array<string,array> $local_preferences
      *                          Local preferences array
      */
-    protected $local_preferences = [];
+    private $local_preferences = [];
 
     /**
      * @var array<string,array> $preferences
      *                          Associative preferences array
      */
-    protected $preferences = [];
+    private $preferences = [];
 
-    protected const WS_NAME_SCHEMA = '/^[a-zA-Z][a-zA-Z0-9]+$/';
-    protected const WS_ID_SCHEMA   = '/^[a-zA-Z][a-zA-Z0-9_]+$/';
+    private const WS_NAME_SCHEMA = '/^[a-zA-Z][a-zA-Z0-9]+$/';
+    private const WS_ID_SCHEMA   = '/^[a-zA-Z][a-zA-Z0-9_]+$/';
 
     /**
      * Constructor.

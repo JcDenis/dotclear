@@ -156,7 +156,7 @@ History :
  *
  * @ingroup  Core Text
  */
-class Wiki2xhtml
+final class Wiki2xhtml
 {
     public $__version__ = '3.2.23';
 

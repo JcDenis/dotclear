@@ -23,7 +23,7 @@ use Dotclear\Helper\Network\Http;
  *
  * @ingroup  Core Configuration
  */
-class Configuration extends ConfigurationHelper
+final class Configuration extends ConfigurationHelper
 {
     /**
      * Constructor.

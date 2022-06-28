@@ -18,7 +18,7 @@ use Dotclear\Core\User\UserContainer;
  *
  * @ingroup  Core Log Record
  */
-class LogRecordExtend extends RsExtend
+final class LogRecordExtend extends RsExtend
 {
     /**
      * Gets the user cn.

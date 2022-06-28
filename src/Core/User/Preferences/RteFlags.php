@@ -17,7 +17,7 @@ use Dotclear\App;
  *
  * @ingroup  Core User Preference Stack
  */
-class RteFlags
+final class RteFlags
 {
     /**
      * @var array<string,array> $flags

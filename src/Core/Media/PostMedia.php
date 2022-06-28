@@ -24,7 +24,7 @@ use Dotclear\Database\Statement\SelectStatement;
  *
  * @ingroup  Core Media Post
  */
-class PostMedia
+final class PostMedia
 {
     /**
      * Get media items attached to a blog post.

@@ -18,7 +18,7 @@ use Dotclear\Helper\AbstractContainer;
  *
  * @ingroup  Core User Container
  */
-class UserContainer extends AbstractContainer
+final class UserContainer extends AbstractContainer
 {
     protected function initDefaultProperties(): array
     {

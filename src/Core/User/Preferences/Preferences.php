@@ -22,15 +22,15 @@ use Exception;
  *
  * @ingroup  Core User Preference
  */
-class Preferences
+final class Preferences
 {
     /**
      * @var array<string,PreferencesGroup> $groups
      *                                     Associative groups array
      */
-    protected $groups = [];
+    private $groups = [];
 
-    protected const WS_NAME_SCHEMA = '/^[a-zA-Z][a-zA-Z0-9]+$/';
+    private const WS_NAME_SCHEMA = '/^[a-zA-Z][a-zA-Z0-9]+$/';
 
     /**
      * Constructor.
