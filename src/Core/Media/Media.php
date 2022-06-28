@@ -189,12 +189,10 @@ final class Media
         $this->addFileHandler('image/webp', 'recreate', [$this, 'imageThumbCreate']);
 
         // Thumbnails sizes
-        $this->thumbsize()
-            ->set('m', abs(App::core()->blog()->settings('system')->getSetting('media_img_m_size')), false, __('medium'))
-            ->set('s', abs(App::core()->blog()->settings('system')->getSetting('media_img_s_size')), false, __('small'))
-            ->set('t', abs(App::core()->blog()->settings('system')->getSetting('media_img_t_size')), false, __('thumbnail'))
-            ->set('sq', 48, true, __('square'))
-        ;
+        $this->thumbsize()->setCode('m', abs(App::core()->blog()->settings('system')->getSetting('media_img_m_size')), false, __('medium'));
+        $this->thumbsize()->setCode('s', abs(App::core()->blog()->settings('system')->getSetting('media_img_s_size')), false, __('small'));
+        $this->thumbsize()->setCode('t', abs(App::core()->blog()->settings('system')->getSetting('media_img_t_size')), false, __('thumbnail'));
+        $this->thumbsize()->setCode('sq', 48, true, __('square'));
 
         // --BEHAVIOR-- coreAfterConstructMedia, Media
         App::core()->behavior('coreAfterConstructMedia')->call(media: $this);

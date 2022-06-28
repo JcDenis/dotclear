@@ -52,12 +52,10 @@ final class ThumbSize
      * @param null|bool   $crop Ratio or crop
      * @param null|int    $size The size
      * @param null|string $name The name
-     *
-     * @return self
      */
-    public function set(string $code, ?int $size = null, ?bool $crop = null, ?string $name = null)
+    public function setCode(string $code, ?int $size = null, ?bool $crop = null, ?string $name = null): void
     {
-        if (!$this->exists($code)) {
+        if (!$this->hasCode($code)) {
             $this->codes[$code] = $code;
             $this->sizes[$code] = 0;
             $this->crops[$code] = false;
@@ -72,8 +70,6 @@ final class ThumbSize
         if (null !== $name) {
             $this->names[$code] = $name;
         }
-
-        return $this;
     }
 
     /**
@@ -83,7 +79,7 @@ final class ThumbSize
      *
      * @return bool True if code Exists
      */
-    public function exists(string $code): bool
+    public function hasCode(string $code): bool
     {
         return array_key_exists($code, $this->codes);
     }
@@ -107,7 +103,7 @@ final class ThumbSize
      */
     public function getSize(string $code): int
     {
-        return $this->exists($code) ? $this->sizes[$code] : 0;
+        return $this->hasCode($code) ? $this->sizes[$code] : 0;
     }
 
     /**
@@ -129,7 +125,7 @@ final class ThumbSize
      */
     public function isCrop(string $code): bool
     {
-        return $this->exists($code) ? $this->crops[$code] : false;
+        return $this->hasCode($code) ? $this->crops[$code] : false;
     }
 
     /**
@@ -164,7 +160,7 @@ final class ThumbSize
      */
     public function getName(string $code, $trans = true): string
     {
-        return $this->exists($code) ? ($trans ? __($this->names[$code]) : $this->names[$code]) : '';
+        return $this->hasCode($code) ? ($trans ? __($this->names[$code]) : $this->names[$code]) : '';
     }
 
     /**

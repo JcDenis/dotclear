@@ -609,7 +609,7 @@ class MediaItem extends AbstractPage
         if ($this->item_file->media_image) {
             $thumb_size = GPC::get()->string('size', 's');
 
-            if (!App::core()->media()->thumbsize()->exists($thumb_size) && 'o' != $thumb_size) {
+            if (!App::core()->media()->thumbsize()->hasCode($thumb_size) && 'o' != $thumb_size) {
                 $thumb_size = 's';
             }
 
