@@ -253,11 +253,12 @@ class Widget
             return '';
         }
 
-        $theme = App::core()->themes()->getModule((string) App::core()->blog()->settings('system')->getSetting('theme'));
-        if (!$theme) {
+        $id = (string) App::core()->blog()->settings('system')->getSetting('theme');
+        if (!App::core()->themes()->hasModule($id)) {
             return '';
         }
 
+        $theme    = App::core()->themes()->getModule($id);
         $wtscheme = $theme->options('widgettitleformat');
         if (empty($wtscheme)) {
             $tplset = $theme->templateset();
@@ -285,11 +286,12 @@ class Widget
             return '';
         }
 
-        $theme = App::core()->themes()->getModule((string) App::core()->blog()->settings('system')->getSetting('theme'));
-        if (!$theme) {
+        $id = (string) App::core()->blog()->settings('system')->getSetting('theme');
+        if (!App::core()->themes()->hasModule($id)) {
             return '';
         }
 
+        $theme    = App::core()->themes()->getModule($id);
         $wtscheme = $theme->options('widgetsubtitleformat');
         if (empty($wtscheme)) {
             $tplset = $theme->templateset();

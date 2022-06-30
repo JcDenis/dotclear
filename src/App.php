@@ -85,9 +85,9 @@ final class App
      *
      * App:core() is callable from everywhere in code.
      *
-     * @return null|object The core child instance
+     * @return null|\Dotclear\Process\Admin\Prepend|\Dotclear\Process\Distrib\Prepend|\Dotclear\Process\Install\Prepend|\Dotclear\Process\Public\Prepend The core child instance
      */
-    public static function core(): ?object
+    public static function core(): null|Process\Public\Prepend|Process\Admin\Prepend|Process\Install\Prepend|Process\Distrib\Prepend
     {
         return self::$class;
     }

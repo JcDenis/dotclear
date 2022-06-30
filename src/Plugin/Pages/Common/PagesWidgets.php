@@ -111,7 +111,7 @@ class PagesWidgets
             ) {
                 $class = ' class="page-current"';
             }
-            $res .= '<li' . $class . '><a href="' . $rs->getURL() . '">' .
+            $res .= '<li' . $class . '><a href="' . $rs->call('getURL') . '">' .
             Html::escapeHTML($rs->field('post_title')) . '</a></li>';
         }
 

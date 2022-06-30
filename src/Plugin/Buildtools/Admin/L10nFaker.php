@@ -40,11 +40,11 @@ class L10nFaker
     {
         $plugin = "<?php\n\n# Plugin names\n\n";
         foreach ($this->bundled_plugins as $id) {
-            $p = App::core()->plugins()?->getModule($id);
-            if (!$p) {
+            if (!App::core()->plugins()->hasModule($id)) {
                 continue; // cope with dev branch and maybe unknow plugins
             }
-            $plugin .= $this->fake_l10n($p->description(false));
+            $module = App::core()->plugins()->getModule($id);
+            $plugin .= $this->fake_l10n($module->description(false));
         }
         mkdir(Path::implode(__DIR__, '..', '..', '_fake_plugin'));
         file_put_contents(Path::implode(__DIR__, '..', '..', '_fake_plugin', '_fake_l10n.php'), $plugin);

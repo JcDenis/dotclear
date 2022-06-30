@@ -112,7 +112,7 @@ class AntispamUrl
             '  <title>' . html::escapeHTML($title) . '</title>' . "\n" .
             '  <link>' . $uri . '</link>' . "\n" .
             '  <guid>' . $id . '</guid>' . "\n" .
-            '  <pubDate>' . $rs->getRFC822Date() . '</pubDate>' . "\n" .
+            '  <pubDate>' . $rs->call('getRFC822Date') . '</pubDate>' . "\n" .
             '  <dc:creator>' . html::escapeHTML($author) . '</dc:creator>' . "\n" .
             '  <description>' . html::escapeHTML($content) . '</description>' . "\n" .
                 '</item>';

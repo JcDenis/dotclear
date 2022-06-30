@@ -165,7 +165,7 @@ class Comment extends AbstractPage
         }
 
         if ($rs) {
-            $this->comment_post_url = $rs->getPostURL();
+            $this->comment_post_url = $rs->call('getPostURL');
 
             // --BEHAVIOR-- adminAfterGetComment, Record
             $this->comment_message = App::core()->behavior('adminAfterGetComment')->call(record: $rs);

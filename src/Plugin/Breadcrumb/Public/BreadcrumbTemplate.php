@@ -149,7 +149,7 @@ class BreadcrumbTemplate
                 } else {
                     // Month archive
                     $ret .= $separator . '<a href="' . App::core()->blog()->getURLFor('archive') . '">' . __('Archives') . '</a>';
-                    $ret .= $separator . Clock::str(format: '%B %Y', date: App::core()->context()->get('archives')->field('dt'), to: App::core()->blog()->settings('system')->get('blog_timezone'));
+                    $ret .= $separator . Clock::str(format: '%B %Y', date: App::core()->context()->get('archives')->field('dt'), to: App::core()->blog()->settings('system')->getSetting('blog_timezone'));
                 }
 
                 break;

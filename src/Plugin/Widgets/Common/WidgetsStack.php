@@ -216,7 +216,7 @@ class WidgetsStack
             if ('post' == App::core()->url()->getCurrentType() && App::core()->context()->get('posts') instanceof Record && App::core()->context()->get('posts')->integer('post_id') === $rs->integer('post_id')) {
                 $class = ' class="post-current"';
             }
-            $res .= ' <li' . $class . '><a href="' . $rs->getURL() . '">' . Html::escapeHTML($rs->field('post_title')) . '</a></li> ';
+            $res .= ' <li' . $class . '><a href="' . $rs->call('getURL') . '">' . Html::escapeHTML($rs->field('post_title')) . '</a></li> ';
         }
 
         $res .= '</ul>';
@@ -420,7 +420,7 @@ class WidgetsStack
             if ('post' == App::core()->url()->getCurrentType() && App::core()->context()->get('posts') instanceof Record && App::core()->context()->get('posts')->integer('post_id') === $rs->integer('post_id')) {
                 $class = ' class="post-current"';
             }
-            $res .= '<li' . $class . '><a href="' . $rs->getURL() . '">' .
+            $res .= '<li' . $class . '><a href="' . $rs->call('getURL') . '">' .
             Html::escapeHTML($rs->field('post_title')) . '</a></li>';
         }
 
@@ -454,7 +454,7 @@ class WidgetsStack
         while ($rs->fetch()) {
             $res .= '<li class="' .
             ((bool) $rs->integer('comment_trackback') ? 'last-tb' : 'last-comment') .
-            '"><a href="' . $rs->getPostURL() . '#c' . $rs->field('comment_id') . '">' .
+            '"><a href="' . $rs->call('getPostURL') . '#c' . $rs->field('comment_id') . '">' .
             Html::escapeHTML($rs->field('post_title')) . ' - ' .
             Html::escapeHTML($rs->field('comment_author')) .
                 '</a></li>';

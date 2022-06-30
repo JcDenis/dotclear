@@ -21,7 +21,7 @@ class RsExtCommentPublic extends RsExtComment
 {
     public function getContent(bool $absolute_urls = false): string
     {
-        if (App::core()->context() && App::core()->blog()->settings('system')->getSetting('use_smilies')) {
+        if (App::core()->blog()->settings('system')->getSetting('use_smilies')) {
             $c = parent::getContent($absolute_urls);
 
             App::core()->context()->getSmilies();

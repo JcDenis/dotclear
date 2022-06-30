@@ -304,7 +304,7 @@ class ModuleHelper
 
         if (!is_dir($css)) {
             if (!is_writable($public)) {
-                App::core()->error(sprintf(__('The \'%s\' directory cannot be modified.'), 'public'));
+                App::core()->error()->add(sprintf(__('The \'%s\' directory cannot be modified.'), 'public'));
 
                 return false;
             }
@@ -316,7 +316,7 @@ class ModuleHelper
         }
 
         if (!is_writable($css)) {
-            App::core()->error(sprintf(__('The \'%s\' directory cannot be modified.'), 'public/' . $folder));
+            App::core()->error()->add(sprintf(__('The \'%s\' directory cannot be modified.'), 'public/' . $folder));
 
             return false;
         }
@@ -449,7 +449,7 @@ class ModuleHelper
 
         if (!is_dir($imgs)) {
             if (!is_writable($public)) {
-                App::core()->error(sprintf(__('The \'%s\' directory cannot be modified.'), 'public'));
+                App::core()->error()->add(sprintf(__('The \'%s\' directory cannot be modified.'), 'public'));
 
                 return false;
             }
@@ -461,7 +461,7 @@ class ModuleHelper
         }
 
         if (!is_writable($imgs)) {
-            App::core()->error(sprintf(__('The \'%s\' directory cannot be modified.'), 'public/' . $folder));
+            App::core()->error()->add(sprintf(__('The \'%s\' directory cannot be modified.'), 'public/' . $folder));
 
             return false;
         }

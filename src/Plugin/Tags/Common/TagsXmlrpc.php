@@ -41,7 +41,7 @@ class TagsXmlrpc
 
         $m = [];
         while ($rs->fetch()) {
-            $m[] = $rs->meta_id;
+            $m[] = $rs->field('meta_id');
         }
 
         $res['mt_keywords'] = implode(', ', $m);

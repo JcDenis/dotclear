@@ -63,7 +63,7 @@ class FilterFairtrackbacks extends Spamfilter
             $param = new Param();
             $param->set('post_id', $post_id);
             $post     = App::core()->blog()->posts()->getPosts(param: $param);
-            $post_url = $post->getURL();
+            $post_url = $post->call('getURL');
             $P        = array_merge($default_parse, parse_url($post_url));
 
             if ($post_url == $site) {

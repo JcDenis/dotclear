@@ -309,8 +309,8 @@ class RestMethods
             'cat_title'          => $rs->field('cat_title'),
             'cat_url'            => $rs->field('cat_url'),
 
-            'post_display_content' => $rs->getContent(true),
-            'post_display_excerpt' => $rs->getExcerpt(true),
+            'post_display_content' => $rs->call('getContent', true),
+            'post_display_excerpt' => $rs->call('etExcerpt', true),
         ]);
 
         $metaTag = new XmlTag('meta');
@@ -364,7 +364,7 @@ class RestMethods
             'post_dt'           => $rs->field('post_dt'),
             'user_id'           => $rs->field('user_id'),
 
-            'comment_display_content' => $rs->getContent(true),
+            'comment_display_content' => $rs->call('getContent', true),
         ]);
 
         if (App::core()->user()->userID()) {
@@ -423,7 +423,7 @@ class RestMethods
         $post = App::core()->blog()->posts()->getPosts(param: $param);
 
         $rsp->insertAttr('post_status', $post->field('post_status'));
-        $rsp->insertAttr('post_url', $post->getURL());
+        $rsp->insertAttr('post_url', $post->call('getURL'));
 
         return $rsp;
     }

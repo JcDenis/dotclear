@@ -226,9 +226,9 @@ class PagesUrl
                 // The user has no access to the entry.
                 App::core()->url()->p404();
             } else {
-                App::core()->user()->preview = true;
+                App::core()->context()->set('preview', true);
                 if (App::core()->isProcess('Admin')) {
-                    App::core()->user()->xframeoption = App::core()->config()->get('admin_url');
+                    App::core()->context()->set('xframeoption', App::core()->config()->get('admin_url'));
                 }
 
                 $this->pages($post_url);

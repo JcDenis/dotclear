@@ -36,11 +36,12 @@ class MaintenanceTaskZiptheme extends MaintenanceTask
     public function execute(): int|bool
     {
         // Get theme path
-        $theme = App::core()->themes()->getModule((string) App::core()->blog()->settings('system')->getSetting('theme'));
-        if (!$theme) {
+        $id = (string) App::core()->blog()->settings('system')->getSetting('theme');
+        if (!App::core()->themes()->hasModule($id)) {
             return false;
         }
-        $dir = $theme->root();
+        $theme = App::core()->themes()->getModule($id);
+        $dir   = $theme->root();
         if (!is_dir($dir)) {
             return false;
         }

@@ -288,7 +288,7 @@ final class Meta
         $params->unset('limit');
 
         if ($this->queryCommentsByMeta(param: $params, sql: $query)) {
-            return App::core()->blog()->posts()->countComments(param: $params, sql: $query);
+            return App::core()->blog()->comments()->countComments(param: $params, sql: $query);
         }
 
         return 0;
@@ -310,7 +310,7 @@ final class Meta
         $query  = $sql ? clone $sql : new SelectStatement();
 
         if ($this->queryCommentsByMeta(param: $params, sql: $query)) {
-            return App::core()->blog()->posts()->getComments(param: $params, sql: $query);
+            return App::core()->blog()->comments()->getComments(param: $params, sql: $query);
         }
 
         return null;

@@ -133,8 +133,8 @@ class Post extends AbstractPage
                 $this->post_open_comment  = (bool) $rs->integer('post_open_comment');
                 $this->post_open_tb       = (bool) $rs->integer('post_open_tb');
 
-                $this->can_edit_post = $rs->isEditable();
-                $this->can_delete    = $rs->isDeletable();
+                $this->can_edit_post = $rs->call('isEditable');
+                $this->can_delete    = $rs->call('isDeletable');
 
                 $next_rs = App::core()->blog()->posts()->getNextPost(record: $rs);
                 $prev_rs = App::core()->blog()->posts()->getPreviousPost(record: $rs);

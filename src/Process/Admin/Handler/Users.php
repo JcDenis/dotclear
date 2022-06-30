@@ -66,7 +66,7 @@ class Users extends AbstractPage
         if ('nb_post' != $this->filter->getValue(id: 'sortby')) {
             // Sort user list using lexical order if necessary
             $rsStatic->extend(new RsExtUser());
-            // $rsStatic = $rsStatic->toExtStatic();
+            // $rsStatic = $rsStatic->call('toExtStatic');
             $rsStatic->lexicalSort($this->filter->getValue(id: 'sortby'), $this->filter->getValue(id: 'order'));
         }
 

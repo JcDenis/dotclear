@@ -82,12 +82,12 @@ class Handler extends AbstractPage
 
         $first_year = $last_year = 0;
         while ($rs->fetch()) {
-            if (0 == $first_year || $rs->year() < $first_year) {
-                $first_year = $rs->year();
+            if (0 == $first_year || $rs->call('year') < $first_year) {
+                $first_year = $rs->call('year');
             }
 
-            if (0 == $last_year || $rs->year() > $last_year) {
-                $last_year = $rs->year();
+            if (0 == $last_year || $rs->call('year') > $last_year) {
+                $last_year = $rs->call('year');
             }
         }
         unset($rs);
@@ -99,7 +99,7 @@ class Handler extends AbstractPage
 
             $rs = App::core()->blog()->posts()->getPosts(param: $param);
             while ($rs->fetch()) {
-                $this->sm_pages_combo[$rs->field('post_title')] = $rs->getURL();
+                $this->sm_pages_combo[$rs->field('post_title')] = $rs->call('getURL');
             }
             unset($rs);
         } catch (\Exception) {

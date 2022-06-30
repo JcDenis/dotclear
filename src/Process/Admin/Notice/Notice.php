@@ -224,7 +224,7 @@ final class Notice
             // --BEHAVIOR-- adminBeforeGetNotificationError
             $notice_error = App::core()->behavior('adminBeforeGetNotificationError')->call();
 
-            if (isset($notice_error) && !empty($notice_error)) {
+            if (!empty($notice_error)) {
                 $res .= $notice_error;
             } else {
                 $res .= sprintf(

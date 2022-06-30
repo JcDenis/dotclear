@@ -274,7 +274,7 @@ class Install
                 App::core()->user()->preferences('interface')->putPreference('enhanceduploader', true, 'boolean', '', null, true);
 
                 // Add default favorites
-                $init_favs = ['posts', 'new_post', 'newpage', 'comments', 'categories', 'media', 'blog_theme', 'widgets', 'simpleMenu', 'prefs', 'help'];
+                $init_favs = new Strings(['posts', 'new_post', 'newpage', 'comments', 'categories', 'media', 'blog_theme', 'widgets', 'simpleMenu', 'prefs', 'help']);
                 App::core()->favorite()->setGlobalIds($init_favs);
 
                 // Check existence of default blog public directory (only on new install)

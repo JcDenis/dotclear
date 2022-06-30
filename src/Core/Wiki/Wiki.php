@@ -221,7 +221,7 @@ final class Wiki
             return [];
         }
 
-        $res = ['url' => $rs->getURL()];
+        $res = ['url' => $rs->call('getURL')];
 
         if ($url != $content) {
             $res['title'] = Html::escapeHTML($rs->field('post_title'));

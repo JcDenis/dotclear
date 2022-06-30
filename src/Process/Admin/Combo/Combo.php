@@ -195,7 +195,7 @@ class Combo
     {
         $formaters_combo = [];
         if (!empty($editor_id)) {
-            foreach (App::core()->formater()->getFormaters($editor_id) as $formater) {
+            foreach (App::core()->formater()->getEditorFormaters($editor_id) as $formater) {
                 $formaters_combo[$formater] = $formater;
             }
         } else {

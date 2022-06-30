@@ -454,10 +454,8 @@ final class Xmlrpc extends XmlrpcIntrospectionServer
             throw new CoreException('Not enough permissions on this blog.');
         }
 
-        if (App::core()->plugins()) {
-            foreach (App::core()->plugins()->getModules() as $module) {
-                App::core()->plugins()->loadModuleL10N($module->id(), L10n::lang(), 'xmlrpc');
-            }
+        foreach (App::core()->plugins()->getModules() as $module) {
+            App::core()->plugins()->loadModuleL10N($module->id(), L10n::lang(), 'xmlrpc');
         }
 
         return true;
@@ -754,7 +752,7 @@ final class Xmlrpc extends XmlrpcIntrospectionServer
         while ($posts->fetch()) {
             $tres = [];
 
-            $tres['dateCreated'] = new xmlrpcDate($posts->getTS());
+            $tres['dateCreated'] = new xmlrpcDate($posts->call('getTS'));
             $tres['userid']      = $posts->field('ser_id');
             $tres['postid']      = $posts->integer('post_id');
 
@@ -772,7 +770,7 @@ final class Xmlrpc extends XmlrpcIntrospectionServer
 
             if ('mw' == $type) {
                 $tres['description']       = $posts->field('post_content_xhtml');
-                $tres['link']              = $tres['permaLink']              = $posts->getURL();
+                $tres['link']              = $tres['permaLink']              = $posts->call('getURL');
                 $tres['mt_excerpt']        = $posts->field('post_excerpt_xhtml');
                 $tres['mt_text_more']      = '';
                 $tres['mt_allow_comments'] = (int) $posts->field('post_open_comment');
@@ -835,7 +833,7 @@ final class Xmlrpc extends XmlrpcIntrospectionServer
                 $parent = end($stack);
             } elseif (0 < $d) {
                 $parent = end($stack);
-            } elseif (0 > $d) {
+            } else {
                 $D = abs($d);
                 for ($i = 0; $i <= $D; ++$i) {
                     array_pop($stack);
@@ -1127,14 +1125,14 @@ final class Xmlrpc extends XmlrpcIntrospectionServer
         $res = [];
         while ($posts->fetch()) {
             $tres = [
-                'dateCreated'            => new xmlrpcDate($posts->getTS()),
+                'dateCreated'            => new xmlrpcDate($posts->call('getTS')),
                 'userid'                 => $posts->field('user_id'),
                 'page_id'                => $posts->integer('post_id'),
                 'page_status'            => $this->translateWpStatus($posts->integer('post_status')),
                 'description'            => $posts->field('post_content_xhtml'),
                 'title'                  => $posts->field('post_title'),
-                'link'                   => $posts->getURL(),
-                'permaLink'              => $posts->getURL(),
+                'link'                   => $posts->call('getURL'),
+                'permaLink'              => $posts->call('getURL'),
                 'categories'             => [],
                 'excerpt'                => $posts->field('post_excerpt_xhtml'),
                 'text_more'              => '',
@@ -1142,13 +1140,13 @@ final class Xmlrpc extends XmlrpcIntrospectionServer
                 'mt_allow_pings'         => (int) $posts->field('post_open_tb'),
                 'wp_slug'                => $posts->field('post_url'),
                 'wp_password'            => $posts->field('post_password'),
-                'wp_author'              => $posts->getAuthorCN(),
+                'wp_author'              => $posts->call('getAuthorCN'),
                 'wp_page_parent_id'      => 0,
                 'wp_page_parent_title'   => '',
                 'wp_page_order'          => $posts->field('post_position'),
                 'wp_author_id'           => $posts->field('user_id'),
-                'wp_author_display_name' => $posts->getAuthorCN(),
-                'date_created_gmt'       => new xmlrpcDate(Clock::iso8601(date: $posts->getTS(), from: App::core()->getTimezone(), to: 'UTC')),
+                'wp_author_display_name' => $posts->call('getAuthorCN'),
+                'date_created_gmt'       => new xmlrpcDate(Clock::iso8601(date: $posts->call('getTS'), from: App::core()->getTimezone(), to: 'UTC')),
                 'custom_fields'          => [],
                 'wp_page_template'       => 'default',
             ];
@@ -1379,13 +1377,13 @@ final class Xmlrpc extends XmlrpcIntrospectionServer
         $res = [];
         while ($rs->fetch()) {
             $res[] = [
-                'date_created_gmt' => new xmlrpcDate($rs->getTS()),
+                'date_created_gmt' => new xmlrpcDate($rs->call('getTS')),
                 'user_id'          => $rs->field('user_id'),
                 'comment_id'       => $rs->field('comment_id'),
                 'parent'           => 0,
                 'status'           => $this->translateWpCommentstatus($rs->integer('comment_status')),
                 'content'          => $rs->field('comment_content'),
-                'link'             => $rs->getPostURL() . '#c' . $rs->field('comment_id'),
+                'link'             => $rs->call('getPostURL') . '#c' . $rs->field('comment_id'),
                 'post_id'          => $rs->integer('post_id'),
                 'post_title'       => $rs->field('post_title'),
                 'author'           => $rs->field('comment_author'),

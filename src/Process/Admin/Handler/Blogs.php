@@ -51,7 +51,7 @@ class Blogs extends AbstractPage
         if ('blog_upddt' != $this->filter->getValue(id: 'sortby') && 'blog_status' != $this->filter->getValue(id: 'sortby')) {
             // Sort blog list using lexical order if necessary
             $rsStatic->extend(new RsExtUser());
-            // $rsStatic = $rsStatic->toExtStatic();
+            // $rsStatic = $rsStatic->call('toExtStatic');
             $rsStatic->lexicalSort(($this->filter->getValue(id: 'sortby') == 'UPPER(blog_name)' ? 'blog_name' : 'blog_id'), $this->filter->getValue(id: 'order'));
         }
 

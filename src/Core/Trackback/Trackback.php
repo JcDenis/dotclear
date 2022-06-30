@@ -236,7 +236,7 @@ final class Trackback
             if ($rs->isEmpty()) {
                 $err = true;
                 $msg = 'No such post.';
-            } elseif (!$rs->trackbacksActive()) {
+            } elseif (!$rs->call('trackbacksActive')) {
                 $err = true;
                 $msg = 'Trackbacks are not allowed for this post or weblog.';
             }
@@ -608,7 +608,7 @@ final class Trackback
         }
 
         // Nice try. But, sorry, no.
-        if (!$posts->trackbacksActive()) {
+        if (!$posts->call('trackbacksActive')) {
             throw new CoreException(__('Sorry, dude. This entry does not accept pingback at the moment.'), 33);
         }
 

@@ -273,7 +273,7 @@ abstract class DefaultPostAction extends Action
                 $rs       = App::core()->users()->getUsers(param: $param);
                 $rsStatic = $rs->toStatic();
                 $rsStatic->extend(new RsExtUser());
-                $rsStatic = $rsStatic->toExtStatic();
+                // $rsStatic = $rsStatic->call('toExtStatic');
                 $rsStatic->lexicalSort('user_id');
                 while ($rsStatic->fetch()) {
                     $usersList[] = $rsStatic->field('user_id');

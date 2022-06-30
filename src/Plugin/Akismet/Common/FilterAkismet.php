@@ -73,7 +73,7 @@ class FilterAkismet extends Spamfilter
                 $post = App::core()->blog()->posts()->getPosts(param: $param);
 
                 $c = $ak->comment_check(
-                    $post->getURL(),
+                    $post->call('getURL'),
                     $type,
                     $author,
                     $email,

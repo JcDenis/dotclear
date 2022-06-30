@@ -62,30 +62,37 @@ final class Formater
     /**
      * Get the formaters.
      *
-     * if $editor is empty:
      * return all formaters sorted by actives editors
      *
-     * if $editor is not empty
+     * @return array<string,array> The formaters
+     */
+    public function getFormaters(): array
+    {
+        $formaters_list = [];
+        foreach ($this->formaters as $editor => $formaters) {
+            $formaters_list[$editor] = array_keys($formaters);
+        }
+
+        return $formaters_list;
+    }
+
+    /**
+     * Get the editor formaters.
+     *
      * return formaters for an editor if editor is active
      * return empty() array if editor is not active.
      * It can happens when a user choose an editor and admin deactivate that editor later
      *
      * @param string $editor The editor identifier (LegacyEditor, CKEditor, ...)
      *
-     * @return array<string, array> The formaters
+     * @return array<int,string> The formaters
      */
-    public function getFormaters(string $editor = ''): array
+    public function getEditorFormaters(string $editor = ''): array
     {
         $formaters_list = [];
 
-        if (!empty($editor)) {
-            if (isset($this->formaters[$editor])) {
-                $formaters_list = array_keys($this->formaters[$editor]);
-            }
-        } else {
-            foreach ($this->formaters as $editor => $formaters) {
-                $formaters_list[$editor] = array_keys($formaters);
-            }
+        if (isset($this->formaters[$editor])) {
+            $formaters_list = array_keys($this->formaters[$editor]);
         }
 
         return $formaters_list;

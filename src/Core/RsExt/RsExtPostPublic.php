@@ -23,7 +23,7 @@ class RsExtPostPublic extends RsExtPost
     public function getContent(bool $absolute_urls = false): string
     {
         // Not very nice hack but it does the job :)
-        if (true === App::core()->context()?->get('short_feed_items')) {
+        if (true === App::core()->context()->get('short_feed_items')) {
             $c = parent::getContent($absolute_urls);
             $c = App::core()->context()->remove_html($c);
             $c = App::core()->context()->cut_string($c, 350);

@@ -213,8 +213,9 @@ class Handler extends AbstractPage
 
     private function isEditableTheme(): bool
     {
-        $theme = App::core()->themes()->getModule((string) App::core()->blog()->settings('system')->getSetting('theme'));
-        if ($theme && 'default' != $theme->id() && App::core()->user()->isSuperAdmin()) {
+        $id    = (string) App::core()->blog()->settings('system')->getSetting('theme');
+        $theme = App::core()->themes()->getModule($id);
+        if (App::core()->themes()->hasModule($id) && 'default' != $theme->id() && App::core()->user()->isSuperAdmin()) {
             $path = App::core()->themes()->getPaths();
 
             return !App::core()->isProductionMode()

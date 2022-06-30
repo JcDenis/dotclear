@@ -125,7 +125,7 @@ class Category extends AbstractPage
                 App::core()->blog()->categories()->setCategoryPosition(
                     id: $this->cat_id,
                     sibling: GPC::post()->int('cat_sibling'),
-                    move: GPC::post()->string('cat_move')
+                    position: GPC::post()->string('cat_move')
                 );
                 App::core()->notice()->addSuccessNotice(__('The category has been successfully moved'));
                 App::core()->adminurl()->redirect('admin.categories');
