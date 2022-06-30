@@ -55,7 +55,7 @@ class PostMedia extends AbstractPage
             $postmedia = new CorePostMedia();
 
             if (null !== $post_id && null !== $media_id && !GPC::request()->empty('attach')) {
-                $postmedia->addPostMedia($post_id, $media_id, $link_type);
+                $postmedia->addPostMedia(post: $post_id, media: $media_id, type: $link_type);
                 if (!empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
                     header('Content-type: application/json');
                     echo json_encode(['url' => App::core()->posttype()->getPostAdminURL(type: $rs->field('post_type'), id: $post_id)]);
@@ -65,7 +65,7 @@ class PostMedia extends AbstractPage
                 Http::redirect(App::core()->posttype()->getPostAdminURL(type: $rs->field('post_type'), id: $post_id));
             }
 
-            $f = App::core()->media()->getPostMedia($post_id, $media_id, $link_type);
+            $f = App::core()->media()->getPostMedia(post: $post_id, media: $media_id, type: $link_type);
             if (empty($f)) {
                 $post_id = $media_id = null;
 
@@ -79,7 +79,7 @@ class PostMedia extends AbstractPage
         // Remove a media from en
         if (($post_id && $media_id) || App::core()->error()->flag()) {
             if (!GPC::post()->empty('remove')) {
-                $postmedia->removePostMedia($post_id, $media_id, $link_type);
+                $postmedia->removePostMedia(post: $post_id, media: $media_id, type: $link_type);
 
                 App::core()->notice()->addSuccessNotice(__('Attachment has been successfully removed.'));
                 Http::redirect(App::core()->posttype()->getPostAdminURL(type: $rs->field('post_type'), id: $post_id));

@@ -53,7 +53,7 @@ class AttachmentsTemplate
     {
         return self::$ton . "\n" .
             'if (App::core()->context()->get("posts") !== null) {' . "\n" .
-            'App::core()->context()->set("attachments", new ArrayObject(App::core()->media()->getPostMedia(App::core()->context()->get("posts")->integer("post_id"),null,"attachment")));' . "\n" .
+            'App::core()->context()->set("attachments", new ArrayObject(App::core()->media()->getPostMedia(post: App::core()->context()->get("posts")->integer("post_id"), type: "attachment")));' . "\n" .
             "?>\n" .
 
             self::$ton . 'foreach (App::core()->context()->get("attachments") as $attach_i => $attach_f) : ' .

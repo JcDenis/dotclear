@@ -99,15 +99,15 @@ class MediaItem extends AbstractPage
                 throw new AdminException(__('Not a valid file'));
             }
 
-            App::core()->media()->chdir(dirname($this->item_file->relname));
-            $this->media_writable = App::core()->media()->writable();
+            App::core()->media()->changeDirectory(dirname($this->item_file->relname));
+            $this->media_writable = App::core()->media()->isWritableDirectory();
 
             // Prepare directories combo box
-            foreach (App::core()->media()->getDBDirs() as $v) {
+            foreach (App::core()->media()->getDBRootDirectories() as $v) {
                 $this->item_dirs_combo['/' . $v] = $v;
             }
             // Add parent and direct childs directories if any
-            App::core()->media()->getDir();
+            App::core()->media()->getDirectoryContent();
             foreach (App::core()->media()->dir['dirs'] as $k => $v) {
                 $this->item_dirs_combo['/' . $v->relname] = $v->relname;
             }
@@ -281,7 +281,7 @@ class MediaItem extends AbstractPage
 
         $temp_params      = $this->media_page_url_params;
         $temp_params['d'] = '%s';
-        $breadcrumb       = App::core()->media()->breadCrumb(App::core()->adminurl()->get('admin.media', $temp_params, '&amp;', true)) .
+        $breadcrumb       = App::core()->media()->getMediaBreadcrumb(App::core()->adminurl()->get('admin.media', $temp_params, '&amp;', true)) .
             (null === $this->item_file ? '' : '<span class="page-title">' . $this->item_file->basename . '</span>');
         $temp_params['d'] = '';
         $home_url         = App::core()->adminurl()->get('admin.media', $temp_params);

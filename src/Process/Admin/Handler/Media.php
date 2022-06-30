@@ -104,15 +104,15 @@ class Media extends AbstractPage
                 // Reset current dir
                 $this->filter->updateValue(id: 'd', value: null);
                 // Change directory (may cause an exception if directory doesn't exist)
-                App::core()->media()->chdir($try_d);
+                App::core()->media()->changeDirectory($try_d);
                 // Restore current dir variable
                 $this->filter->updateValue(id: 'd', value: $try_d);
-                App::core()->media()->getDir();
+                App::core()->media()->getDirectoryContent();
             } else {
                 $this->filter->updateValue(id: 'd', value: null);
-                App::core()->media()->chdir('');
+                App::core()->media()->changeDirectory('');
             }
-            $this->media_writable = App::core()->media()->writable();
+            $this->media_writable = App::core()->media()->isWritableDirectory();
             $this->media_dir      = App::core()->media()->dir;
 
             $rs = $this->getDirsRecord();
@@ -158,7 +158,7 @@ class Media extends AbstractPage
                     exit;
                 }
                 $this->filter->set(id: 'd', value: null);
-                App::core()->media()->chdir($this->filter->getValue(id: 'd'));
+                App::core()->media()->changeDirectory($this->filter->getValue(id: 'd'));
 
                 throw new AdminException(__('Not a valid directory'));
             } catch (Exception $e) {
@@ -282,7 +282,7 @@ class Media extends AbstractPage
             $forget = false;
 
             try {
-                if (is_dir(Path::real(App::core()->media()->getPwd() . '/' . Path::clean($remove), false))) {
+                if (is_dir(Path::real(App::core()->media()->getCurrentDirectory() . '/' . Path::clean($remove), false))) {
                     $msg = __('Directory has been successfully removed.');
                     // Remove dir from recents/favs if necessary
                     $forget = true;
@@ -304,7 +304,7 @@ class Media extends AbstractPage
         // Rebuild directory
         if ($this->getDirs() && App::core()->user()->isSuperAdmin() && !GPC::post()->empty('rebuild')) {
             try {
-                App::core()->media()->rebuild($this->filter->getValue(id: 'd'));
+                App::core()->media()->rebuildDBMedia($this->filter->getValue(id: 'd'));
 
                 App::core()->notice()->success(
                     sprintf(
@@ -642,7 +642,7 @@ class Media extends AbstractPage
                 $element[__('Search:') . ' ' . $this->filter->getValue(id: 'q') . ' (' . sprintf(__('%s file found', '%s files found', $count), $count) . ')'] = '';
             } else {
                 $bc_url   = App::core()->adminurl()->get('admin.media', array_merge($this->filter->getEscapeValues(), ['d' => '%s']), '&');
-                $bc_media = App::core()->media()->breadCrumb($bc_url, '<span class="page-title">%s</span>');
+                $bc_media = App::core()->media()->getMediaBreadcrumb($bc_url, '<span class="page-title">%s</span>');
                 if ('' != $bc_media) {
                     $element[$bc_media] = '';
                     $option['hl']       = true;

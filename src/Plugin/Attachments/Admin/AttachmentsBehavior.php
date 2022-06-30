@@ -50,7 +50,7 @@ class AttachmentsBehavior
     public function behaviorAdminBeforeDisplayPostFormItems(ContentGroups $groups, ?Record $post, ?string $type): void
     {
         if (null !== $post && App::core()->media()) {
-            $post_media = App::core()->media()->getPostMedia($post->integer('post_id'), null, 'attachment');
+            $post_media = App::core()->media()->getPostMedia(post: $post->integer('post_id'), type: 'attachment');
             $nb_media   = count($post_media);
             $title      = !$nb_media ? __('Attachments') : sprintf(__('Attachments (%d)'), $nb_media);
             $item       = '<h5 class="clear s-attachments">' . $title . '</h5>';
@@ -102,7 +102,7 @@ class AttachmentsBehavior
             App::core()->adminurl()->getHiddenFormFields('admin.post.media', [
                 'post_id'   => $post->field('post_id'),
                 'media_id'  => '',
-                'link_type' => 'attachement',
+                'link_type' => 'attachment',
                 'remove'    => 1,
             ], true) .
             '</div></form>';

@@ -41,8 +41,8 @@ class MaintenanceTaskZipmedia extends MaintenanceTask
         }
 
         // Instance media
-        App::core()->media()->chdir('');
-        App::core()->media()->getDir();
+        App::core()->media()->changeDirectory('');
+        App::core()->media()->getDirectoryContent();
 
         // Create zip
         @set_time_limit(300);

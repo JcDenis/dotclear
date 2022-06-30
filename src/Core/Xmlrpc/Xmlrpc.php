@@ -951,7 +951,7 @@ final class Xmlrpc extends XmlrpcIntrospectionServer
                 $v = Files::tidyFileName($v);
                 $cwd .= $v . '/';
                 App::core()->media()->makeDir($v);
-                App::core()->media()->chdir($cwd);
+                App::core()->media()->changeDirectory($cwd);
             }
         }
 

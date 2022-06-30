@@ -11,6 +11,7 @@ namespace Dotclear\Core\Media;
 
 // Dotclear\Core\Media\PostMedia
 use Dotclear\App;
+use Dotclear\Database\Param;
 use Dotclear\Database\Record;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\InsertStatement;
@@ -29,19 +30,22 @@ final class PostMedia
     /**
      * Get media items attached to a blog post.
      *
-     * @param array $params The parameters
+     * @param null|Param           $param The parameters
+     * @param null|SelectStatement $sql   The SQL statement
      *
      * @return Record The post media
      */
-    public function getPostMedia(array $params = []): Record
+    public function getPostMedia(?Param $param = null, ?SelectStatement $sql = null): Record
     {
+        $params = new Param($param);
+        $query  = $sql ? clone $sql : new SelectStatement();
+
         $join = new JoinStatement();
         $join->type('INNER');
         $join->from(App::core()->getPrefix() . 'post_media PM');
         $join->on('M.media_id = PM.media_id');
 
-        $sql = new SelectStatement();
-        $sql->columns([
+        $query->columns([
             'M.media_file',
             'M.media_id',
             'M.media_path',
@@ -54,52 +58,56 @@ final class PostMedia
             'M.user_id',
             'PM.post_id',
         ]);
-        $sql->from(App::core()->getPrefix() . 'media M');
-        $sql->join($join->statement());
+        $query->from(App::core()->getPrefix() . 'media M');
+        $query->join($join->statement());
 
-        if (!empty($params['columns']) && is_array($params['columns'])) {
-            $sql->columns($params['columns']);
+        if (!empty($params->columns())) {
+            $query->columns($params->columns());
         }
 
-        if (!empty($params['from'])) {
-            $sql->from($params['from']);
+        if (!empty($params->from())) {
+            $query->from($params->from());
         }
 
-        if (isset($params['link_type'])) {
-            $sql->where('PM.link_type' . $sql->in($params['link_type']));
+        if ($params->isset('link_type')) {
+            $query->where('PM.link_type' . $query->in($params->get('link_type')));
         } else {
-            $sql->where('PM.link_type = ' . $sql->quote('attachment'));
+            $query->where('PM.link_type = ' . $query->quote('attachment'));
         }
 
-        if (isset($params['post_id'])) {
-            $sql->and('PM.post_id' . $sql->in($params['post_id']));
+        if ($params->isset('post_id')) {
+            $query->and('PM.post_id' . $query->in($params->get('post_id')));
         }
-        if (isset($params['media_id'])) {
-            $sql->and('M.media_id' . $sql->in($params['media_id']));
+        if ($params->isset('media_id')) {
+            $query->and('M.media_id' . $query->in($params->get('media_id')));
         }
-        if (isset($params['media_path'])) {
-            $sql->and('M.media_path' . $sql->in($params['media_path']));
-        }
-
-        if (isset($params['sql'])) {
-            $sql->sql($params['sql']);
+        if ($params->isset('media_path')) {
+            $query->and('M.media_path' . $query->in($params->get('media_path')));
         }
 
-        return $sql->select();
+        if (!empty($params->sql())) {
+            $query->sql($params->sql());
+        }
+
+        return $query->select();
     }
 
     /**
      * Attache a media to a post.
      *
-     * @param int    $post_id   The post identifier
-     * @param int    $media_id  The media identifier
-     * @param string $link_type The link type (default: attachment)
+     * @param int    $post  The post ID
+     * @param int    $media The media ID
+     * @param string $type  The link type (default: attachment)
      */
-    public function addPostMedia(int $post_id, int $media_id, string $link_type = 'attachment'): void
+    public function addPostMedia(int $post, int $media, string $type = 'attachment'): void
     {
-        $f = $this->getPostMedia(['post_id' => $post_id, 'media_id' => $media_id, 'link_type' => $link_type]);
+        $param = new Param();
+        $param->set('post_id', $post);
+        $param->set('media_id', $media);
+        $param->set('link_type', $type);
 
-        if (!$f->isEmpty()) {
+        $items = $this->getPostMedia(param: $param);
+        if (!$items->isEmpty()) {
             return;
         }
 
@@ -111,9 +119,9 @@ final class PostMedia
             'link_type',
         ]);
         $sql->line([[
-            $post_id,
-            $media_id,
-            $sql->quote($link_type),
+            $post,
+            $media,
+            $sql->quote($type),
         ]]);
         $sql->insert();
 
@@ -123,19 +131,19 @@ final class PostMedia
     /**
      * Detache a media from a post.
      *
-     * @param int         $post_id   The post identifier
-     * @param int         $media_id  The media identifier
-     * @param null|string $link_type The link type
+     * @param int         $post  The post ID
+     * @param int         $media The media ID
+     * @param null|string $type  The link type
      */
-    public function removePostMedia(int $post_id, int $media_id, ?string $link_type = null): void
+    public function removePostMedia(int $post, int $media, ?string $type = null): void
     {
         $sql = new DeleteStatement();
         $sql->from(App::core()->getPrefix() . 'post_media');
-        $sql->where('post_id = ' . $post_id);
-        $sql->and('media_id = ' . $media_id);
+        $sql->where('post_id = ' . $post);
+        $sql->and('media_id = ' . $media);
 
-        if (null != $link_type) {
-            $sql->and('link_type = ' . $sql->quote($link_type, true));
+        if (null != $type) {
+            $sql->and('link_type = ' . $sql->quote($type));
         }
         $sql->delete();
 
