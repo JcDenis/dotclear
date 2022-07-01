@@ -15,6 +15,7 @@ use Dotclear\Helper\File\Files;
 use Dotclear\Helper\GPC\GPC;
 use Dotclear\Helper\Html\Form;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Mapper\Strings;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Exception\AdminException;
 use Dotclear\Modules\ModuleConfig;
@@ -910,8 +911,8 @@ class PluginList
                     break;
                 // Behavior
                 case 'behavior':
-                    // --BEHAVIOR-- adminModulesListGetActions
-                    $tmp = App::core()->behavior('adminModulesListGetActions')->call($this, $id, $module);
+                    // --BEHAVIOR-- adminModulesListGetActions, PluginList, string, ModuleDefine
+                    $tmp = App::core()->behavior('adminModulesListGetActions')->call(list: $this, id: $id, module: $module);
 
                     if (!empty($tmp)) {
                         $submits[] = $tmp;
@@ -1259,8 +1260,10 @@ class PluginList
 
         // Actions from behaviors
         } else {
-            // --BEHAVIOR-- adminModulesListDoActions
-            App::core()->behavior('adminModulesListDoActions')->call($this, $modules, 'plugin');
+            $modules = new Strings($modules);
+
+            // --BEHAVIOR-- adminModulesListDoActions, PluginList, Strings, string
+            App::core()->behavior('adminModulesListDoActions')->call(list: $this, ids: $modules, type: 'plugin');
         }
     }
 
