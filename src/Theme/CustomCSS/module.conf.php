@@ -21,4 +21,5 @@ return [
     'requires'   => [
         'core' => '3.0-dev',
     ],
+    'standalone_config' => true,
 ];

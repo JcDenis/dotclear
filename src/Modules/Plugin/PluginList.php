@@ -1336,7 +1336,7 @@ class PluginList
             return false;
         }
         if (!GPC::request()->empty('module') && empty($id)) {
-            $id = GPC::post()->string('module');
+            $id = GPC::request()->string('module');
         }
 
         // Check module and get its definition
