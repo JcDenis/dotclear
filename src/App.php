@@ -129,7 +129,7 @@ final class App
         } else {
             $title   = self::code($e->getCode());
             $trans   = function_exists('__') ? __($title) : $title;
-            $trace   = $production ? '' : self::trace($e);
+            $trace   = $production || 500 == $e->getCode() ? '' : self::trace($e);
             $message = str_replace("\n", '<br />', $e->getMessage() . $trace);
 
             header('Content-Type: text/html; charset=utf-8');
