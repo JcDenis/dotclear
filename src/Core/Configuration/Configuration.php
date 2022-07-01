@@ -31,18 +31,11 @@ final class Configuration extends ConfigurationHelper
      * Try to read and parse dotclear configuration,
      * according to default configuration.
      *
-     * @path string $path The path to configuration file
+     * @path null|string $path The path to configuration file
      */
-    public function __construct(string $path = null)
+    public function __construct(private ?string $path = null)
     {
-        if (is_null($path)) {
-            $path = [];
-        // No configuration ?
-        } elseif (!is_file($path)) {
-            throw new InvalidConfiguration('Application is not installed.');
-        }
-
-        // $path = is_file($path) ? $path : [];
+        $path = is_null($this->path) || !is_file($this->path) ? [] : $this->path;
 
         parent::__construct($this->getDefaultConfiguration(), $path);
 
@@ -75,6 +68,14 @@ final class Configuration extends ConfigurationHelper
      */
     public function checkConfiguration(): void
     {
+        // Check if configuration file exists
+        if (!is_file($this->path)) {
+            throw new InvalidConfiguration(
+                    __('Application is not installed or configuration file is unreachabled.'),
+                    500
+            );
+        }
+
         // Check master key
         if (32 > strlen($this->get('master_key'))) {
             throw new InvalidConfiguration(
@@ -183,7 +184,7 @@ final class Configuration extends ConfigurationHelper
             'plugin_dirs'           => [null, [Path::implodeSrc('Plugin')]],
             'plugin_official'       => [false, ['AboutConfig', 'Akismet', 'Antispam', 'Attachments', 'Blogroll', 'Dclegacy', 'FairTrackbacks', 'ImportExport', 'Maintenance', 'Pages', 'Pings', 'SimpleMenu', 'Tags', 'ThemeEditor', 'UserPref', 'Widgets', 'LegacyEditor', 'CKEditor', 'Breadcrumb']],
             'plugin_update_url'     => [null,  'https://update.dotaddict.org/dc2/plugins.xml'],
-            'production'            => [null, true],
+            'production'            => [null, false],
             'query_timeout'         => [null, 4],
             'reverse_proxy'         => [null, true],
             'session_name'          => [null, 'dcxd'],
