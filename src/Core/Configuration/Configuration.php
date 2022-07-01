@@ -31,7 +31,7 @@ final class Configuration extends ConfigurationHelper
      * Try to read and parse dotclear configuration,
      * according to default configuration.
      *
-     * @path null|string $path The path to configuration file
+     * @param null|string $path The path to configuration file
      */
     public function __construct(private ?string $path = null)
     {
@@ -71,8 +71,8 @@ final class Configuration extends ConfigurationHelper
         // Check if configuration file exists
         if (!is_file($this->path)) {
             throw new InvalidConfiguration(
-                    __('Application is not installed or configuration file is unreachabled.'),
-                    500
+                __('Application is not installed or configuration file is unreachabled.'),
+                500
             );
         }
 
