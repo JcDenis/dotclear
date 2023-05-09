@@ -20,7 +20,7 @@ use dcCore;
 use dcThemes;
 use dcModuleDefine;
 
-abstract class MyPlugin extends MyModule
+abstract class MyTheme extends MyModule
 {
     protected static function define(): dcModuleDefine
     {
