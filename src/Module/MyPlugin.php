@@ -1,14 +1,16 @@
 <?php
 /**
- * @brief Modules defined properties.
- *
- * Provides an object to handle modules properties (themes or plugins).
+ * @brief Plugin My module class.
+ * 
+ * A plugin My class must extend this class.
  *
  * @package Dotclear
  * @subpackage Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
+ *
+ * @since 2.27
  */
 declare(strict_types=1);
 
@@ -17,13 +19,6 @@ namespace Dotclear\Module;
 use dcCore;
 use dcModuleDefine;
 
-/**
- * Plugin My module class.
- * 
- * A plugin My class must extend this class.
- *
- * @since 2.27
- */
 abstract class MyPlugin extends MyModule
 {
     protected static function define(): dcModuleDefine

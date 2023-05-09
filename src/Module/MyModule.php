@@ -1,24 +1,6 @@
 <?php
 /**
- * @brief Modules defined properties.
- *
- * Provides an object to handle modules properties (themes or plugins).
- *
- * @package Dotclear
- * @subpackage Core
- *
- * @copyright Olivier Meunier & Association Dotclear
- * @copyright GPL-2.0-only
- */
-declare(strict_types=1);
-
-namespace Dotclear\Module;
-
-use dcCore;
-use dcModuleDefine;
-
-/**
- * Generic My module class.
+ * @brief Generic My module class.
  * 
  * This class is an helper to have short access to
  * module properties and common requiremets.
@@ -31,8 +13,21 @@ use dcModuleDefine;
  * (DEV: waiting php 8.1 to use final on context constants)
  * (DEV: maybe PHP_MIN should be defined in "requires" from _define.php file?)
  *
+ * @package Dotclear
+ * @subpackage Core
+ *
+ * @copyright Olivier Meunier & Association Dotclear
+ * @copyright GPL-2.0-only
+ *
  * @since 2.27
  */
+declare(strict_types=1);
+
+namespace Dotclear\Module;
+
+use dcCore;
+use dcModuleDefine;
+
 abstract class MyModule
 {
     /** @var    int     Install context */
