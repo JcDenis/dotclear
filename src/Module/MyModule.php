@@ -27,6 +27,8 @@ namespace Dotclear\Module;
 
 use dcCore;
 use dcModuleDefine;
+use dcModules;
+use Exception;
 
 abstract class MyModule
 {
@@ -114,26 +116,21 @@ abstract class MyModule
         switch ($context) {
             case self::INSTALL:    // Installation of module
                 return defined('DC_CONTEXT_ADMIN')
-                    && self::phpCompliant()
                     && dcCore::app()->auth->isSuperAdmin()   // Manageable only by super-admin
                     && dcCore::app()->newVersion(self::id(), dcCore::app()->plugins->moduleInfo(self::id(), 'version'));
 
             case self::UNINSTALL:  // Uninstallation of module
                 return defined('DC_RC_PATH')
-                    && self::phpCompliant()
                     && dcCore::app()->auth->isSuperAdmin();   // Manageable only by super-admin
 
             case self::PREPEND:    // Prepend context
-                return defined('DC_RC_PATH')
-                    && self::phpCompliant();
+                return defined('DC_RC_PATH');
 
             case self::FRONTEND:    // Frontend context
-                return defined('DC_RC_PATH')
-                    && self::phpCompliant();
+                return defined('DC_RC_PATH');
 
             case self::BACKEND:     // Backend context
                 return defined('DC_CONTEXT_ADMIN')
-                    && self::phpCompliant()
                     // Check specific permission
                     && dcCore::app()->blog && dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([
                         dcCore::app()->auth::PERMISSION_USAGE,
@@ -142,7 +139,6 @@ abstract class MyModule
 
             case self::MANAGE:      // Main page of module
                 return defined('DC_CONTEXT_ADMIN')
-                    && self::phpCompliant()
                     // Check specific permission
                     && dcCore::app()->blog && dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([
                         dcCore::app()->auth::PERMISSION_ADMIN,  // Admin+
@@ -150,12 +146,10 @@ abstract class MyModule
 
             case self::CONFIG:      // Config page of module
                 return defined('DC_CONTEXT_ADMIN')
-                    && self::phpCompliant()
                     && dcCore::app()->auth->isSuperAdmin();   // Manageable only by super-admin
 
             case self::MENU:        // Admin menu
                 return defined('DC_CONTEXT_ADMIN')
-                    && self::phpCompliant()
                     // Check specific permission
                     && dcCore::app()->blog && dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([
                         dcCore::app()->auth::PERMISSION_ADMIN,  // Admin+
@@ -163,7 +157,6 @@ abstract class MyModule
 
             case self::WIDGETS:     // Blog widgets
                 return defined('DC_CONTEXT_ADMIN')
-                    && self::phpCompliant()
                     // Check specific permission
                     && dcCore::app()->blog && dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([
                         dcCore::app()->auth::PERMISSION_ADMIN,  // Admin+
@@ -221,21 +214,24 @@ abstract class MyModule
     }
 
     /**
-     * Extract module ID from its namespace.
+     * get module define from its namespace.
      * 
      * This method is used to load module define.
      * see MyPlugin::define() and MyTheme::define()
      * 
-     * @return  string  The module id
+     * @return  dcModuleDefine  The module define
      */
-    final protected static function idFromNamespace(): string
+    final protected static function getDefineFromNamespace(dcModules $modules): dcModuleDefine
     {
-        $part = explode('\\', static::class);
-        if (count($part) != 4) {
+        // note: namespace from dcModules start with a backslash
+        $find = $modules->getDefines([
+            'namespace' => '\\' . (new \ReflectionClass(static::class))->getNamespaceName()
+        ]);
+        if (count($find) != 1) {
             static::exception();
         }
-        
-        return $part[2];
+
+        return $find[0];
     }
 
     /**
@@ -243,7 +239,7 @@ abstract class MyModule
      *
      * (DEV: should be more explicit in DC_DEV mode)
      */
-    final protected function exception()
+    final static protected function exception()
     {
         throw new Exception('Invalid module structure');
     }

@@ -31,7 +31,7 @@ abstract class MyTheme extends MyModule
                 dcCore::app()->themes->loadModules((string) dcCore::app()->blog?->themes_path, null);
             }
 
-            static::$define = dcCore::app()->themes->getDefine(static::idFromNamespace());
+            static::$define = static::getDefineFromNamespace(dcCore::app()->themes);
         }
 
         return static::$define;

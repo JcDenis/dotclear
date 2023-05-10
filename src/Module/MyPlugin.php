@@ -25,7 +25,7 @@ abstract class MyPlugin extends MyModule
     {
         if (!(static::$define instanceof dcModuleDefine)) {
 
-            static::$define = dcCore::app()->plugins->getDefine(static::idFromNamespace());
+            static::$define = static::getDefineFromNamespace(dcCore::app()->plugins);
         }
 
         return static::$define;
