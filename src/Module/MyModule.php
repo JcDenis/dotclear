@@ -8,10 +8,7 @@
  * A module My class must not extend this class 
  * but must extend MyPlugin or MyTheme class.
  * 
- * PHP_MIN could be override in module My class.
- * 
  * (DEV: waiting php 8.1 to use final on context constants)
- * (DEV: maybe PHP_MIN should be defined in "requires" from _define.php file?)
  *
  * @package Dotclear
  * @subpackage Core
@@ -58,9 +55,6 @@ abstract class MyModule
 
     /** @var    int     Uninstall context */
     public const UNINSTALL = 8;
-
-    /** @var    string  The default supported php version */
-    public const PHP_MIN = '7.4';
 
     /** @var    dcModuleDefine  The module define */
     protected static $define;
@@ -201,16 +195,6 @@ abstract class MyModule
         $value = static::define()->get('name');
 
         return __(is_string($value) ? $value : static::id());
-    }
-
-    /**
-     * Check php version.
-     *
-     * @return  bool    True if module work on current PHP version
-     */
-    final public static function phpCompliant(): bool
-    {
-        return version_compare(phpversion(), static::PHP_MIN, '>=');
     }
 
     /**
