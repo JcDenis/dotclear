@@ -7,8 +7,6 @@
  * 
  * A module My class must not extend this class 
  * but must extend MyPlugin or MyTheme class.
- * 
- * (DEV: waiting php 8.1 to use final on context constants)
  *
  * @package Dotclear
  * @subpackage Core
@@ -27,34 +25,40 @@ use dcModuleDefine;
 use dcModules;
 use Exception;
 
+/**
+ * Module helper.
+ *
+ * Module My class MUST NOT extend this class
+ * but MyPlugin or MyTheme.
+ */
 abstract class MyModule
 {
     /** @var    int     Install context */
-    public const INSTALL = 0;
+    final public const INSTALL = 0;
 
     /** @var    int     Prepend context */
-    public const PREPEND = 1;
+    final public const PREPEND = 1;
 
     /** @var    int     Frontend context */
-    public const FRONTEND = 2;
+    final public const FRONTEND = 2;
 
     /** @var    int     Backend context (usually when the connected user may access at least one functionnality of this module) */
-    public const BACKEND = 3;
+    final public const BACKEND = 3;
 
     /** @var    int     Manage context (main page of module) */
-    public const MANAGE = 4;
+    final public const MANAGE = 4;
 
     /** @var    int     Config context (config page of module) */
-    public const CONFIG = 5;
+    final public const CONFIG = 5;
 
     /** @var    int     Menu context (adding a admin menu item) */
-    public const MENU = 6;
+    final public const MENU = 6;
 
     /** @var    int     Widgets context (managing blog's widgets) */
-    public const WIDGETS = 7;
+    final public const WIDGETS = 7;
 
     /** @var    int     Uninstall context */
-    public const UNINSTALL = 8;
+    final public const UNINSTALL = 8;
 
     /** @var    dcModuleDefine  The module define */
     protected static $define;
@@ -97,7 +101,7 @@ abstract class MyModule
     {
         // nullsafe (should never happened)
         if (is_null(dcCore::app()->auth) || is_null(dcCore::app()->blog)) {
-            static::exception();
+            static::exception('Blog is not defined');
         }
 
         // module contextual permissions
@@ -107,57 +111,57 @@ abstract class MyModule
         }
 
         // else default permissions
-        switch ($context) {
-            case self::INSTALL:    // Installation of module
-                return defined('DC_CONTEXT_ADMIN')
+        return match($context) {
+            self::INSTALL =>    // Installation of module
+                defined('DC_CONTEXT_ADMIN')
                     && dcCore::app()->auth->isSuperAdmin()   // Manageable only by super-admin
-                    && dcCore::app()->newVersion(self::id(), dcCore::app()->plugins->moduleInfo(self::id(), 'version'));
+                    && dcCore::app()->newVersion(self::id(), dcCore::app()->plugins->moduleInfo(self::id(), 'version')),
 
-            case self::UNINSTALL:  // Uninstallation of module
-                return defined('DC_RC_PATH')
-                    && dcCore::app()->auth->isSuperAdmin();   // Manageable only by super-admin
+            self::UNINSTALL =>  // Uninstallation of module
+                defined('DC_RC_PATH')
+                    && dcCore::app()->auth->isSuperAdmin(),   // Manageable only by super-admin
 
-            case self::PREPEND:    // Prepend context
-                return defined('DC_RC_PATH');
+            self::PREPEND =>    // Prepend context
+                defined('DC_RC_PATH'),
 
-            case self::FRONTEND:    // Frontend context
-                return defined('DC_RC_PATH');
+            self::FRONTEND =>    // Frontend context
+                defined('DC_RC_PATH'),
 
-            case self::BACKEND:     // Backend context
-                return defined('DC_CONTEXT_ADMIN')
+            self::BACKEND =>     // Backend context
+                defined('DC_CONTEXT_ADMIN')
                     // Check specific permission
                     && dcCore::app()->blog && dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([
                         dcCore::app()->auth::PERMISSION_USAGE,
                         dcCore::app()->auth::PERMISSION_CONTENT_ADMIN,
-                    ]), dcCore::app()->blog->id);
+                    ]), dcCore::app()->blog->id),
 
-            case self::MANAGE:      // Main page of module
-                return defined('DC_CONTEXT_ADMIN')
+            self::MANAGE =>      // Main page of module
+                defined('DC_CONTEXT_ADMIN')
                     // Check specific permission
                     && dcCore::app()->blog && dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([
                         dcCore::app()->auth::PERMISSION_ADMIN,  // Admin+
-                    ]), dcCore::app()->blog->id);
+                    ]), dcCore::app()->blog->id),
 
-            case self::CONFIG:      // Config page of module
-                return defined('DC_CONTEXT_ADMIN')
-                    && dcCore::app()->auth->isSuperAdmin();   // Manageable only by super-admin
+            self::CONFIG =>      // Config page of module
+                defined('DC_CONTEXT_ADMIN')
+                    && dcCore::app()->auth->isSuperAdmin(),   // Manageable only by super-admin
 
-            case self::MENU:        // Admin menu
-                return defined('DC_CONTEXT_ADMIN')
+            self::MENU =>        // Admin menu
+                defined('DC_CONTEXT_ADMIN')
                     // Check specific permission
                     && dcCore::app()->blog && dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([
                         dcCore::app()->auth::PERMISSION_ADMIN,  // Admin+
-                    ]), dcCore::app()->blog->id);
+                    ]), dcCore::app()->blog->id),
 
-            case self::WIDGETS:     // Blog widgets
-                return defined('DC_CONTEXT_ADMIN')
+            self::WIDGETS =>     // Blog widgets
+                defined('DC_CONTEXT_ADMIN')
                     // Check specific permission
                     && dcCore::app()->blog && dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([
                         dcCore::app()->auth::PERMISSION_ADMIN,  // Admin+
-                    ]), dcCore::app()->blog->id);
-        }
+                    ]), dcCore::app()->blog->id),
 
-        return false;
+            default => false,
+        };
     }
 
     /**
@@ -167,12 +171,7 @@ abstract class MyModule
      */
     final public static function path(): string
     {
-        $value = static::define()->get('root');
-        if (!is_string($value)) {
-            static::exception();
-        }
-
-        return $value;
+        return static::define()->strict()->root;
     }
 
     /**
@@ -182,7 +181,7 @@ abstract class MyModule
      */
     final public static function id(): string
     {
-        return static::define()->getId();
+        return static::define()->strict()->id;
     }
 
     /**
@@ -192,17 +191,17 @@ abstract class MyModule
      */
     final public static function name(): string
     {
-        $value = static::define()->get('name');
-
-        return __(is_string($value) ? $value : static::id());
+        return static::define()->strict()->name;
     }
 
     /**
-     * get module define from its namespace.
-     * 
+     * Get module define from its namespace.
+     *
      * This method is used to load module define.
      * see MyPlugin::define() and MyTheme::define()
      * 
+     * @param   dcModules   $modules    The modules instance (dcThemes or dcPlugins)
+     *
      * @return  dcModuleDefine  The module define
      */
     final protected static function getDefineFromNamespace(dcModules $modules): dcModuleDefine
@@ -212,19 +211,19 @@ abstract class MyModule
             'namespace' => '\\' . (new \ReflectionClass(static::class))->getNamespaceName()
         ]);
         if (count($find) != 1) {
-            static::exception();
+            static::exception('Failed to find namespace from ' . static::class);
         }
 
         return $find[0];
     }
 
     /**
-     * Throw exception.
-     *
-     * (DEV: should be more explicit in DC_DEV mode)
+     * Throw exception on breaking script error.
      */
-    final static protected function exception()
+    final static protected function exception(string $msg = ''): void
     {
-        throw new Exception('Invalid module structure');
+        $msg = defined('DC_DEV') && DC_DEV && empty($msg) ? ': ' . $msg : '';
+
+        throw new Exception('Invalid module structure' . $msg);
     }
 }

@@ -22,6 +22,11 @@ use dcMenu;
 use dcModuleDefine;
 use dcPage;
 
+/**
+ * Plugin module helper.
+ *
+ * My class of module of type "plugin" SHOULD extedns this class.
+ */
 abstract class MyPlugin extends MyModule
 {
     protected static function define(): dcModuleDefine
@@ -37,7 +42,7 @@ abstract class MyPlugin extends MyModule
      * Register backend sidebar menu icon.
      *
      * @param   string                  $menu   The menu (from dcAdmin constant)
-     * @param   array<string,string>    $param  The URL params
+     * @param   array<string,string>    $params The URL params
      * @param   string                  $scheme the URL end scheme
      */
     public static function backendSidebarMenuIcon(string $menu = dcAdmin::MENU_PLUGINS, array $params = [], string $scheme = '(&.*)?$'): void
@@ -58,15 +63,15 @@ abstract class MyPlugin extends MyModule
     /**
      * Get modules icon URLs.
      *
-     * @return  array<string,string>    The module icons URLs
+     * @return  array<int,string>   The module icons URLs
      */
     protected static function icons(): array
     {
         $icons = [urldecode(dcPage::getPF(static::id() . '/icon.svg'))];
         if (file_exists(static::path() . DIRECTORY_SEPARATOR . 'icon-dark.svg')) {
-            $icons = [urldecode(dcPage::getPF(static::id() . '/icon-dark.svg'))];
+            $icons[] = urldecode(dcPage::getPF(static::id() . '/icon-dark.svg'));
         }
 
-        retunr $icons;
+        return $icons;
     }
 }

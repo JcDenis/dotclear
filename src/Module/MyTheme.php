@@ -20,6 +20,11 @@ use dcCore;
 use dcThemes;
 use dcModuleDefine;
 
+/**
+ * Theme module helper.
+ *
+ * My class of module of type "theme" SHOULD extedns this class.
+ */
 abstract class MyTheme extends MyModule
 {
     protected static function define(): dcModuleDefine

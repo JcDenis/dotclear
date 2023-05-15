@@ -12,10 +12,13 @@
  *
  * @since 2.25
  */
+
+use Dotclear\Module\DefineStrict;
+
 class dcModuleDefine
 {
     /**
-     * Disabled state
+     * Disabled state.
      *
      * @var        int
      */
@@ -55,7 +58,7 @@ class dcModuleDefine
     /**
      * Dependencies.
      *
-     * @var     array
+     * @var     array<int|string,string>
      */
     private array $implies = [];
     private array $missing = [];
@@ -71,7 +74,7 @@ class dcModuleDefine
     /**
      * Module default properties.
      *
-     * @var     array
+     * @var     array<string,mixed>
      */
     private array $default = [
         // set by dc
@@ -107,7 +110,7 @@ class dcModuleDefine
 
         // store specifics
         'file'            => '',
-        'current_version' => 0,
+        'current_version' => '0',
 
         // DA specifics
         'section' => '',
@@ -122,18 +125,45 @@ class dcModuleDefine
     ];
 
     /**
-     * Create a module definition
+     * Strict module properties representation.
+     *
+     * @var     DefineStrict
+     */
+    private DefineStrict $strict;
+
+    /**
+     * Create a module definition.
      *
      * @param   string  $id The module identifier (root path)
      */
-    public function __construct(string $id)
+    final public function __construct(string $id)
     {
         $this->id = $id;
         $this->init();
+
+        $this->renewStrict();
     }
 
     /**
-     * Initialize module's properties
+     * Get strict module properties representation.
+     *
+     * @return  DefineStrict    The strict properties
+     */
+    final public function strict(): DefineStrict
+    {
+        return $this->strict;
+    }
+
+    /**
+     * Reload strict properties (after a change).
+     */
+    private function renewStrict(): void
+    {
+        $this->strict = new DefineStrict($this);
+    }
+
+    /**
+     * Initialize module's properties.
      *
      * Module's define class must use this to set
      * their properties.
@@ -143,7 +173,7 @@ class dcModuleDefine
     }
 
     /**
-     * Check if module is defined
+     * Check if module is defined.
      *
      * @return  bool    True if module is defined
      */
@@ -155,6 +185,7 @@ class dcModuleDefine
     public function addImplies(string $dep): void
     {
         $this->implies[] = $dep;
+        $this->renewStrict();
     }
 
     public function getImplies(): array
@@ -165,6 +196,7 @@ class dcModuleDefine
     public function addMissing(string $dep, string $reason): void
     {
         $this->missing[$dep] = $reason;
+        $this->renewStrict();
     }
 
     public function getMissing(): array
@@ -175,6 +207,7 @@ class dcModuleDefine
     public function addUsing(string $dep): void
     {
         $this->using[] = $dep;
+        $this->renewStrict();
     }
 
     public function getUsing(): array
@@ -188,7 +221,7 @@ class dcModuleDefine
     }
 
     /**
-     * Gets array of properties
+     * Gets array of properties.
      *
      * Mainly used for backward compatibility.
      *
@@ -215,6 +248,7 @@ class dcModuleDefine
     {
         if (array_key_exists($identifier, $this->default)) {
             $this->properties[$identifier] = $value;
+            $this->renewStrict();
         }
 
         return $this;
@@ -284,6 +318,7 @@ class dcModuleDefine
     {
         if (array_key_exists($identifier, $this->default)) {
             $this->properties[$identifier] = $this->default[$identifier];
+            $this->renewStrict();
         }
     }
 }
