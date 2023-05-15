@@ -198,7 +198,7 @@ if (!defined('DC_DEBUG')) {
 
 # Constants
 define('DC_ROOT', Path::real(dcUtils::path([__DIR__, '..'])));
-define('DC_VERSION', '2.26-dev');
+define('DC_VERSION', '2.27-dev');
 define('DC_DIGESTS', dcUtils::path([__DIR__, 'digests']));
 define('DC_L10N_ROOT', dcUtils::path([__DIR__, '..', 'locales']));
 define('DC_L10N_UPDATE_URL', 'https://services.dotclear.net/dc2.l10n/?version=%s');
@@ -246,7 +246,7 @@ define('DC_DEFAULT_TPLSET', 'mustek');
 define('DC_DEFAULT_JQUERY', '3.6.0');
 
 if (!defined('DC_NEXT_REQUIRED_PHP')) {
-    define('DC_NEXT_REQUIRED_PHP', '8.0');
+    define('DC_NEXT_REQUIRED_PHP', '8.1');
 }
 
 if (!defined('DC_VENDOR_NAME')) {
