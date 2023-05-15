@@ -49,13 +49,6 @@ class dcModuleDefine
     public const DEFAULT_PRIORITY = 1000;
 
     /**
-     * Module id, must be module's root path.
-     *
-     * @var     string
-     */
-    private string $id;
-
-    /**
      * Dependencies.
      *
      * @var     array<int|string,string>
@@ -67,7 +60,7 @@ class dcModuleDefine
     /**
      * Module properties.
      *
-     * @var     array
+     * @var     array<string,mixed>
      */
     private array $properties = [];
 
@@ -136,11 +129,10 @@ class dcModuleDefine
      *
      * @param   string  $id The module identifier (root path)
      */
-    final public function __construct(string $id)
-    {
-        $this->id = $id;
+    final public function __construct(
+        public readonly string $id
+    ) {
         $this->init();
-
         $this->renewStrict();
     }
 
@@ -188,6 +180,9 @@ class dcModuleDefine
         $this->renewStrict();
     }
 
+    /**
+     * @return  array<int,string>
+     */
     public function getImplies(): array
     {
         return $this->implies;
@@ -199,6 +194,9 @@ class dcModuleDefine
         $this->renewStrict();
     }
 
+    /**
+     * @return  array<string,string>
+     */
     public function getMissing(): array
     {
         return $this->missing;
@@ -210,11 +208,17 @@ class dcModuleDefine
         $this->renewStrict();
     }
 
+    /**
+     * @return  array<int,string>
+     */
     public function getUsing(): array
     {
         return $this->using;
     }
 
+    /**
+     * @deprecated  2.27    Use Define::id
+     */
     public function getId(): string
     {
         return $this->id;
@@ -224,6 +228,8 @@ class dcModuleDefine
      * Gets array of properties.
      *
      * Mainly used for backward compatibility.
+     *
+     * @deprecated  2.27    Use Define::strict()->dump()
      *
      * @return array The properties
      */
@@ -239,7 +245,7 @@ class dcModuleDefine
     }
 
     /**
-     * Store a property and its value
+     * Store a property and its value.
      *
      * @param      string  $identifier  The identifier
      * @param      mixed   $value       The value
@@ -255,12 +261,12 @@ class dcModuleDefine
     }
 
     /**
-     * Magic function, store a property and its value
+     * Magic function, store a property and its value.
      *
      * @param      string  $identifier  The identifier
      * @param      mixed   $value       The value
      */
-    public function __set(string $identifier, $value = null)
+    public function __set(string $identifier, $value = null): void
     {
         $this->set($identifier, $value);
     }
@@ -272,7 +278,7 @@ class dcModuleDefine
      *
      * @return     mixed
      */
-    public function get(string $identifier)
+    public function get(string $identifier): mixed
     {
         if ($identifier == 'id') {
             return $this->id;
@@ -288,11 +294,13 @@ class dcModuleDefine
     /**
      * Gets the specified property value (null if does not exist).
      *
+     * @deprecated  2.27    Define::strict()->"identifier"
+     *
      * @param      string  $identifier  The identifier
      *
      * @return     mixed
      */
-    public function __get(string $identifier)
+    public function __get(string $identifier): mixed
     {
         return $this->get($identifier);
     }
@@ -314,7 +322,7 @@ class dcModuleDefine
      *
      * @param      string  $identifier  The identifier
      */
-    public function __unset(string $identifier)
+    public function __unset(string $identifier): void
     {
         if (array_key_exists($identifier, $this->default)) {
             $this->properties[$identifier] = $this->default[$identifier];
