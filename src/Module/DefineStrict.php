@@ -68,6 +68,7 @@ final class DefineStrict
     public readonly string $sid;
     public readonly string $sname;
 
+    public readonly bool $defined;
     public readonly bool $enabled;
     /** @var    array<int,string> */
     public readonly array $implies;
@@ -80,7 +81,7 @@ final class DefineStrict
      * Constructor sets properties.
      */
     public function __construct(dcModuleDefine $define) {
-        $this->id            = $define->getId();
+        $this->id            = $define->id;
 
         // set by dc
         $this->state         = is_numeric($define->get('state')) ? (int) $define->get('state') : dcModuleDefine::STATE_INIT_DISABLED;
@@ -147,29 +148,34 @@ final class DefineStrict
         $this->sid   = is_string($define->get('sid')) ? $define->get('sid') : '';
         $this->sname = is_string($define->get('sname')) ? $define->get('sname') : '';
 
-        // extra
+        // out of properties
+        $this->defined = $this->name != dcModuleDefine::DEFAULT_NAME;
         $this->enabled = $this->state == dcModuleDefine::STATE_ENABLED;
-        $implies       = [];
-        foreach ($define->getImplies() as $k => $v) {
-            if (is_int($k) && is_string($v)) {
-                $implies[$k] = $v;
-            }
-        }
-        $this->implies = $implies;
-        $missing       = [];
-        foreach ($define->getMissing() as $k => $v) {
-            if (is_string($k) && is_string($v)) {
-                $missing[$k] = $v;
-            }
-        }
-        $this->missing = $missing;
-        $using         = [];
-        foreach ($define->getUsing() as $k => $v) {
-            if (is_int($k) && is_string($v)) {
-                $using[$k] = $v;
-            }
-        }
-        $this->using = $using;
+        $this->implies = $define->getImplies();
+        $this->missing = $define->getMissing();
+        $this->using   = $define->getUsing();
+    }
+
+    /**
+     * Catch overloaded properties.
+     *
+     * @return  null
+     */
+    public function __get(string $property): null
+    {
+        return null;
+    }
+
+    /**
+     * Test if a property exists
+     *
+     * @param      string  $property  The property
+     *
+     * @return     bool     True on exists
+     */
+    public function __isset(string $property): bool
+    {
+        return property_exists($this, $property);
     }
 
     /**
