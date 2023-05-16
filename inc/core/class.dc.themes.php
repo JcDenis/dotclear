@@ -13,6 +13,7 @@
  */
 
 use Dotclear\Helper\File\Files;
+use Dotclear\Module\Define;
 
 class dcThemes extends dcModules
 {
@@ -40,7 +41,7 @@ class dcThemes extends dcModules
      */
     public function registerModule(string $name, string $desc, string $author, string $version, $properties = []): void
     {
-        $define = new dcModuleDefine($this->id);
+        $define = new Define($this->id);
 
         $define
             ->set('name', $name)
@@ -70,7 +71,7 @@ class dcThemes extends dcModules
         $this->defineModule($define);
     }
 
-    protected function defineModule(dcModuleDefine $define)
+    protected function defineModule(Define $define)
     {
         // Themes specifics properties
         $define->set('permissions', dcCore::app()->auth->makePermissions([
@@ -187,14 +188,14 @@ class dcThemes extends dcModules
      */
     public function loadNsFile(string $id, ?string $ns = null): void
     {
-        $define = $this->getDefine($id, ['state' => dcModuleDefine::STATE_ENABLED]);
+        $define = $this->getDefine($id, ['state' => Define::STATE_ENABLED]);
         if (!$define->isDefined()) {
             return;
         }
 
         switch ($ns) {
             case 'public':
-                $parent = $this->getDefine($id, ['state' => dcModuleDefine::STATE_ENABLED])->parent;
+                $parent = $this->getDefine($id, ['state' => Define::STATE_ENABLED])->parent;
                 if ($parent) {
                     // This is not a real cascade - since we don't call loadNsFile -,
                     // thus limiting inclusion process.

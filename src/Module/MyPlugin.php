@@ -19,7 +19,6 @@ namespace Dotclear\Module;
 use dcAdmin;
 use dcCore;
 use dcMenu;
-use dcModuleDefine;
 use dcPage;
 
 /**
@@ -29,9 +28,9 @@ use dcPage;
  */
 abstract class MyPlugin extends MyModule
 {
-    protected static function define(): dcModuleDefine
+    protected static function define(): Define
     {
-        if (!(static::$define instanceof dcModuleDefine)) {
+        if (!(static::$define instanceof Define)) {
             static::$define = static::getDefineFromNamespace(dcCore::app()->plugins);
         }
 

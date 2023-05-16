@@ -1349,6 +1349,21 @@ class dcUpgrade
             );
         }
 
+        if (version_compare($version, '2.27', '<')) {
+            // A bit of housecleaning for no longer needed folders
+            self::houseCleaning(
+                // Files
+                [
+                    // Core
+                    'inc/core/class.dc.module.define.php',
+                ],
+                // Folders
+                [
+                    DC_TPL_CACHE . DIRECTORY_SEPARATOR . 'dcrepo',
+                ],
+            );
+        }
+
         dcCore::app()->setVersion('core', DC_VERSION);
         dcCore::app()->blogDefaults();
 

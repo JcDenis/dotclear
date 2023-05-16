@@ -8,6 +8,7 @@
  */
 
 use Dotclear\Helper\Html\Html;
+use Dotclear\Module\Define;
 
 require __DIR__ . '/../inc/admin/prepend.php';
 
@@ -164,7 +165,7 @@ class adminPlugins
 
         # Activated modules
         $defines = dcCore::app()->admin->list->modules->getDefines(
-            ['state' => dcCore::app()->admin->list->modules->safeMode() ? dcModuleDefine::STATE_SOFT_DISABLED : dcModuleDefine::STATE_ENABLED]
+            ['state' => dcCore::app()->admin->list->modules->safeMode() ? Define::STATE_SOFT_DISABLED : Define::STATE_ENABLED]
         );
         if (!empty($defines)) {
             echo
@@ -188,7 +189,7 @@ class adminPlugins
 
         # Deactivated modules
         if (dcCore::app()->auth->isSuperAdmin()) {
-            $defines = dcCore::app()->admin->list->modules->getDefines(['state' => dcModuleDefine::STATE_HARD_DISABLED]);
+            $defines = dcCore::app()->admin->list->modules->getDefines(['state' => Define::STATE_HARD_DISABLED]);
             if (!empty($defines)) {
                 echo
                 '<h3>' . __('Deactivated plugins') . '</h3>' .

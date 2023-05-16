@@ -12,10 +12,11 @@
  *
  * @since 2.25
  */
+declare(strict_types=1);
 
-use Dotclear\Module\DefineStrict;
+namespace Dotclear\Module;
 
-class dcModuleDefine
+class Define
 {
     /**
      * Disabled state.
@@ -250,7 +251,7 @@ class dcModuleDefine
      * @param      string  $identifier  The identifier
      * @param      mixed   $value       The value
      */
-    public function set(string $identifier, $value = null): dcModuleDefine
+    public function set(string $identifier, $value = null): Define
     {
         if (array_key_exists($identifier, $this->default)) {
             $this->properties[$identifier] = $value;

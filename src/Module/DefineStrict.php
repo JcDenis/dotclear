@@ -16,8 +16,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
-use dcModuleDefine;
-
 /**
  * Define strict type hinting.
  * 
@@ -79,12 +77,14 @@ final class DefineStrict
 
     /**
      * Constructor sets properties.
+     * 
+     * @param   Define  The module define
      */
-    public function __construct(dcModuleDefine $define) {
+    public function __construct(Define $define) {
         $this->id            = $define->id;
 
         // set by dc
-        $this->state         = is_numeric($define->get('state')) ? (int) $define->get('state') : dcModuleDefine::STATE_INIT_DISABLED;
+        $this->state         = is_numeric($define->get('state')) ? (int) $define->get('state') : Define::STATE_INIT_DISABLED;
         $this->root          = is_string($define->get('root')) ? $define->get('root') : '';
         $this->namespace     = is_string($define->get('namespace')) ? $define->get('namespace') : '';
         $this->root_writable = !empty($define->get('root_writable'));
@@ -95,11 +95,11 @@ final class DefineStrict
         $this->desc    = is_string($define->get('desc')) ? $define->get('desc') : '';
         $this->author  = is_string($define->get('author')) ? $define->get('author') : 'unknown';
         $this->version = is_string($define->get('version')) ? $define->get('version') : '0';
-        $this->type    = is_string($define->get('type')) ? $define->get('type') : dcModuleDefine::DEFAULT_TYPE;
+        $this->type    = is_string($define->get('type')) ? $define->get('type') : Define::DEFAULT_TYPE;
 
         // optionnal
         $this->permissions       = is_string($define->get('permissions')) ? $define->get('permissions') : '';
-        $this->priority          = is_numeric($define->get('priority')) ? (int) $define->get('priority') : dcModuleDefine::DEFAULT_PRIORITY;
+        $this->priority          = is_numeric($define->get('priority')) ? (int) $define->get('priority') : Define::DEFAULT_PRIORITY;
         $this->standalone_config = !empty($define->get('standalone_config'));
         $requires                = is_array($define->get('requires')) ? $define->get('requires') : [];
         foreach ($requires as $k => $dep) {
@@ -149,8 +149,8 @@ final class DefineStrict
         $this->sname = is_string($define->get('sname')) ? $define->get('sname') : '';
 
         // out of properties
-        $this->defined = $this->name != dcModuleDefine::DEFAULT_NAME;
-        $this->enabled = $this->state == dcModuleDefine::STATE_ENABLED;
+        $this->defined = $this->name != Define::DEFAULT_NAME;
+        $this->enabled = $this->state == Define::STATE_ENABLED;
         $this->implies = $define->getImplies();
         $this->missing = $define->getMissing();
         $this->using   = $define->getUsing();

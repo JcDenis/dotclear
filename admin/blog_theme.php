@@ -15,6 +15,7 @@ use Dotclear\Helper\Html\Form\Para;
 use Dotclear\Helper\Html\Form\Submit;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
+use Dotclear\Module\Define;
 
 require __DIR__ . '/../inc/admin/prepend.php';
 
@@ -202,7 +203,7 @@ class adminBlogTheme
 
         // Activated themes
         $defines = dcCore::app()->admin->list->modules->getDefines(
-            ['state' => dcCore::app()->admin->list->modules->safeMode() ? dcModuleDefine::STATE_SOFT_DISABLED : dcModuleDefine::STATE_ENABLED]
+            ['state' => dcCore::app()->admin->list->modules->safeMode() ? Define::STATE_SOFT_DISABLED : Define::STATE_ENABLED]
         );
         if (!empty($defines)) {
             echo
@@ -229,7 +230,7 @@ class adminBlogTheme
         }
 
         // Deactivated modules
-        $defines = dcCore::app()->admin->list->modules->getDefines(['state' => dcModuleDefine::STATE_HARD_DISABLED]);
+        $defines = dcCore::app()->admin->list->modules->getDefines(['state' => Define::STATE_HARD_DISABLED]);
         if (!empty($defines)) {
             echo
             '<div class="multi-part" id="deactivate" title="' . __('Deactivated themes') . '">' .

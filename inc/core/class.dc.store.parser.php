@@ -12,6 +12,8 @@
  *
  * @since 2.6
  */
+use Dotclear\Module\Define;
+
 class dcStoreParser
 {
     /**
@@ -76,7 +78,7 @@ class dcStoreParser
                 continue;
             }
 
-            $define = new dcModuleDefine((string) $attrs['id']);
+            $define = new Define((string) $attrs['id']);
 
             # DC/DA shared markers
             $define->set('file', (string) $i->file);

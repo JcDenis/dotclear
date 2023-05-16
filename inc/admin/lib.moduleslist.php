@@ -18,6 +18,7 @@ use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Text;
+use Dotclear\Module\Define;
 
 class adminModulesList
 {
@@ -68,7 +69,7 @@ class adminModulesList
     /**
      * Module define to configure
      *
-     * @var        dcModuleDefine
+     * @var        Define
      */
     protected $config_define;
     /**
@@ -560,7 +561,7 @@ class adminModulesList
         $this->defines = [];
 
         foreach ($defines as $define) {
-            if (!($define instanceof dcModuleDefine)) {
+            if (!($define instanceof Define)) {
                 continue;
             }
             self::fillSanitizeModule($define);
@@ -595,7 +596,7 @@ class adminModulesList
 
         $defines = [];
         foreach ($modules as $id => $module) {
-            $define = new dcModuleDefine($id);
+            $define = new Define($id);
             foreach ($module as $k => $v) {
                 $define->set($k, $v);
             }
@@ -631,10 +632,10 @@ class adminModulesList
      * and clean some of them, sanitize module can safely
      * be used in lists.
      *
-     * @param      dcModuleDefine   $define The module definition
+     * @param      Define   $define The module definition
      * @param      array            $module  The module
      */
-    public static function fillSanitizeModule(dcModuleDefine $define, array $module = []): void
+    public static function fillSanitizeModule(Define $define, array $module = []): void
     {
         foreach ($module as $k => $v) {
             $define->set($k, $v);
@@ -667,7 +668,7 @@ class adminModulesList
     {
         dcDeprecated::set('adminModulesList::fillSanitizeModule()', '2.26');
 
-        $define = new dcModuleDefine($id);
+        $define = new Define($id);
         self::fillSanitizeModule($define, $module);
 
         return $define->dump();
@@ -919,14 +920,14 @@ class adminModulesList
             if (in_array('desc', $cols)) {
                 $tds++;
                 $note = '';
-                if (!empty($define->getUsing()) && $define->get('state') == dcModuleDefine::STATE_ENABLED) {
+                if (!empty($define->getUsing()) && $define->get('state') == Define::STATE_ENABLED) {
                     $note .= '<p><span class="info">' .
                     sprintf(
                         __('This module cannot be disabled nor deleted, since the following modules are also enabled : %s'),
                         join(',', $define->getUsing())
                     ) . '</span></p>';
                 }
-                if (!empty($define->getMissing()) && $define->get('state') != dcModuleDefine::STATE_ENABLED) {
+                if (!empty($define->getMissing()) && $define->get('state') != Define::STATE_ENABLED) {
                     $note .= '<p><span class="info">' .
                     __('This module cannot be enabled, because of the following reasons :') . '<ul>';
                     foreach ($define->getMissing() as $reason) {
@@ -1013,14 +1014,14 @@ class adminModulesList
                  || self::hasFileOrClass($id, dcModules::MODULE_CLASS_MANAGE, dcModules::MODULE_FILE_MANAGE)
                  || !empty($define->get('section'))
                  || !empty($define->get('tags'))
-                 || !empty($define->get('settings'))   && $define->get('state') == dcModuleDefine::STATE_ENABLED
+                 || !empty($define->get('settings'))   && $define->get('state') == Define::STATE_ENABLED
                  || !empty($define->get('repository')) && DC_DEBUG && DC_ALLOW_REPOSITORIES
                 ) {
                     echo
                         '<div><ul class="mod-more">';
 
                     $settings = static::getSettingsUrls($id);
-                    if (!empty($settings) && $define->get('state') == dcModuleDefine::STATE_ENABLED) {
+                    if (!empty($settings) && $define->get('state') == Define::STATE_ENABLED) {
                         echo '<li>' . implode(' - ', $settings) . '</li>';
                     }
 
@@ -1168,18 +1169,18 @@ class adminModulesList
     /**
      * Get action buttons to add to modules list.
      *
-     * @param    dcModuleDefine     $define     Module info
+     * @param    Define     $define     Module info
      * @param    array              $actions    Actions keys
      *
      * @return   array    Array of actions buttons
      */
-    protected function getActions(dcModuleDefine $define, array $actions): array
+    protected function getActions(Define $define, array $actions): array
     {
         $submits = [];
         $id      = $define->getId();
 
         // mark module state
-        if ($define->get('state') != dcModuleDefine::STATE_ENABLED) {
+        if ($define->get('state') != Define::STATE_ENABLED) {
             $submits[] = '<input type="hidden" name="disabled[' . Html::escapeHTML($id) . ']" value="1" />';
         }
 
@@ -1189,7 +1190,7 @@ class adminModulesList
                 # Deactivate
                 case 'activate':
                     // do not allow activation of duplciate modules already activated
-                    $multi = !self::$allow_multi_install && count($this->modules->getDefines(['id' => $id, 'state' => dcModuleDefine::STATE_ENABLED])) > 0;
+                    $multi = !self::$allow_multi_install && count($this->modules->getDefines(['id' => $id, 'state' => Define::STATE_ENABLED])) > 0;
                     if (dcCore::app()->auth->isSuperAdmin() && $define->get('root_writable') && empty($define->getMissing()) && !$multi) {
                         $submits[] = '<input type="submit" name="activate[' . Html::escapeHTML($id) . ']" value="' . __('Activate') . '" />';
                     }
@@ -1240,7 +1241,7 @@ class adminModulesList
                     # Behavior
                 case 'behavior':
 
-                    # --BEHAVIOR-- adminModulesListGetActions -- adminModulesList, dcModuleDefine
+                    # --BEHAVIOR-- adminModulesListGetActions -- adminModulesList, Define
                     $tmp = dcCore::app()->callBehavior('adminModulesListGetActionsV2', $this, $define);
 
                     if (!empty($tmp)) {
@@ -1347,7 +1348,7 @@ class adminModulesList
             $count  = 0;
             foreach ($modules as $id) {
                 $disabled = !empty($_POST['disabled'][$id]);
-                $define   = $this->modules->getDefine($id, ['state' => ($disabled ? '!' : '') . dcModuleDefine::STATE_ENABLED]);
+                $define   = $this->modules->getDefine($id, ['state' => ($disabled ? '!' : '') . Define::STATE_ENABLED]);
                 // module is not defined
                 if (!$define->isDefined()) {
                     throw new Exception(__('No such plugin.'));
@@ -1358,12 +1359,12 @@ class adminModulesList
                     continue;
                 }
 
-                # --BEHAVIOR-- moduleBeforeDelete -- dcModuleDefine
+                # --BEHAVIOR-- moduleBeforeDelete -- Define
                 dcCore::app()->callBehavior('pluginBeforeDeleteV2', $define);
 
                 $this->modules->deleteModule($define->getId(), $disabled);
 
-                # --BEHAVIOR-- moduleAfterDelete -- dcModuleDefine
+                # --BEHAVIOR-- moduleAfterDelete -- Define
                 dcCore::app()->callBehavior('pluginAfterDeleteV2', $define);
 
                 $count++;
@@ -1392,12 +1393,12 @@ class adminModulesList
 
                 $dest = $this->getPath() . DIRECTORY_SEPARATOR . basename($define->get('file'));
 
-                # --BEHAVIOR-- moduleBeforeAdd -- dcModuleDefine
+                # --BEHAVIOR-- moduleBeforeAdd -- Define
                 dcCore::app()->callBehavior('pluginBeforeAddV2', $define);
 
                 $this->store->process($define->get('file'), $dest);
 
-                # --BEHAVIOR-- moduleAfterAdd -- dcModuleDefine
+                # --BEHAVIOR-- moduleAfterAdd -- Define
                 dcCore::app()->callBehavior('pluginAfterAddV2', $define);
 
                 $count++;
@@ -1418,7 +1419,7 @@ class adminModulesList
 
             $count = 0;
             foreach ($modules as $id) {
-                $define = $this->modules->getDefine($id, ['state' => '!' . dcModuleDefine::STATE_ENABLED]);
+                $define = $this->modules->getDefine($id, ['state' => '!' . Define::STATE_ENABLED]);
                 if (!$define->isDefined()) {
                     continue;
                 }
@@ -1451,7 +1452,7 @@ class adminModulesList
             $count  = 0;
             foreach ($modules as $id) {
                 $define = $this->modules->getDefine($id);
-                if (!$define->isDefined() || $define->get('state') == dcModuleDefine::STATE_HARD_DISABLED) {
+                if (!$define->isDefined() || $define->get('state') == Define::STATE_HARD_DISABLED) {
                     continue;
                 }
 
@@ -1461,12 +1462,12 @@ class adminModulesList
                     continue;
                 }
 
-                # --BEHAVIOR-- moduleBeforeDeactivate -- dcModuleDefine
+                # --BEHAVIOR-- moduleBeforeDeactivate -- Define
                 dcCore::app()->callBehavior('pluginBeforeDeactivateV2', $define);
 
                 $this->modules->deactivateModule($define->getId());
 
-                # --BEHAVIOR-- moduleAfterDeactivate -- dcModuleDefine
+                # --BEHAVIOR-- moduleAfterDeactivate -- Define
                 dcCore::app()->callBehavior('pluginAfterDeactivateV2', $define);
 
                 $count++;
@@ -1505,12 +1506,12 @@ class adminModulesList
                     }
                 }
 
-                # --BEHAVIOR-- moduleBeforeUpdate -- dcModuleDefine
+                # --BEHAVIOR-- moduleBeforeUpdate -- Define
                 dcCore::app()->callBehavior('pluginBeforeUpdateV2', $define);
 
                 $this->store->process($define->get('file'), $dest);
 
-                # --BEHAVIOR-- moduleAfterUpdate -- dcModuleDefine
+                # --BEHAVIOR-- moduleAfterUpdate -- Define
                 dcCore::app()->callBehavior('pluginAfterUpdateV2', $define);
 
                 $count++;
@@ -1657,7 +1658,7 @@ class adminModulesList
             $id = $_REQUEST['module'];
         }
 
-        $define = $this->modules->getDefine($id, ['state' => dcModuleDefine::STATE_ENABLED]);
+        $define = $this->modules->getDefine($id, ['state' => Define::STATE_ENABLED]);
         if (!$define->isDefined()) {
             dcCore::app()->error->add(__('Unknown plugin ID'));
 
@@ -1747,7 +1748,7 @@ class adminModulesList
      */
     public function displayConfiguration(): adminModulesList
     {
-        if (($this->config_define instanceof dcModuleDefine) && (!empty($this->config_class) || !empty($this->config_file))) {
+        if (($this->config_define instanceof Define) && (!empty($this->config_class) || !empty($this->config_file))) {
             if (!$this->config_define->get('standalone_config')) {
                 echo
                 '<form id="module_config" action="' . $this->getURL('conf=1') . '" method="post" enctype="multipart/form-data">' .
@@ -2012,7 +2013,7 @@ class adminThemesList extends adminModulesList
                     $line .= '<p><a href="' . $this->getURL('module=' . $id . '&amp;conf=1', false) . '" class="button submit">' . __('Configure theme') . '</a></p>';
                 }
 
-                # --BEHAVIOR-- adminCurrentThemeDetails -- string, dcModuleDefine
+                # --BEHAVIOR-- adminCurrentThemeDetails -- string, Define
                 $line .= dcCore::app()->callBehavior('adminCurrentThemeDetailsV2', $define->getId(), $define);
 
                 $line .= '</div>';
@@ -2061,18 +2062,18 @@ class adminThemesList extends adminModulesList
     /**
      * Gets the actions.
      *
-     * @param      dcModuleDefine   $define   The module define
+     * @param      Define   $define   The module define
      * @param      array            $actions  The actions
      *
      * @return     array  The actions.
      */
-    protected function getActions(dcModuleDefine $define, array $actions): array
+    protected function getActions(Define $define, array $actions): array
     {
         $submits = [];
         $id      = $define->getId();
 
         // mark module state
-        if ($define->get('state') != dcModuleDefine::STATE_ENABLED) {
+        if ($define->get('state') != Define::STATE_ENABLED) {
             $submits[] = '<input type="hidden" name="disabled[' . Html::escapeHTML($id) . ']" value="1" />';
         }
 
@@ -2190,7 +2191,7 @@ class adminThemesList extends adminModulesList
                 $count = 0;
                 foreach ($modules as $id) {
                     $define = $this->modules->getDefine($id);
-                    if (!$define->isDefined() || $define->get('state') == dcModuleDefine::STATE_ENABLED) {
+                    if (!$define->isDefined() || $define->get('state') == Define::STATE_ENABLED) {
                         continue;
                     }
 
@@ -2222,7 +2223,7 @@ class adminThemesList extends adminModulesList
                 $count  = 0;
                 foreach ($modules as $id) {
                     $define = $this->modules->getDefine($id);
-                    if (!$define->isDefined() || $define->get('state') == dcModuleDefine::STATE_HARD_DISABLED) {
+                    if (!$define->isDefined() || $define->get('state') == Define::STATE_HARD_DISABLED) {
                         continue;
                     }
 
@@ -2232,12 +2233,12 @@ class adminThemesList extends adminModulesList
                         continue;
                     }
 
-                    # --BEHAVIOR-- themeBeforeDeactivate -- dcModuleDefine
+                    # --BEHAVIOR-- themeBeforeDeactivate -- Define
                     dcCore::app()->callBehavior('themeBeforeDeactivateV2', $define);
 
                     $this->modules->deactivateModule($define->getId());
 
-                    # --BEHAVIOR-- themeAfterDeactivate -- dcModuleDefine
+                    # --BEHAVIOR-- themeAfterDeactivate -- Define
                     dcCore::app()->callBehavior('themeAfterDeactivateV2', $define);
 
                     $count++;
@@ -2263,7 +2264,7 @@ class adminThemesList extends adminModulesList
                 $count = 0;
                 foreach ($modules as $id) {
                     $define = $this->modules->getDefine($id);
-                    if (!$define->isDefined() || $define->get('state') != dcModuleDefine::STATE_ENABLED) {
+                    if (!$define->isDefined() || $define->get('state') != Define::STATE_ENABLED) {
                         continue;
                     }
 
@@ -2295,7 +2296,7 @@ class adminThemesList extends adminModulesList
                 $count  = 0;
                 foreach ($modules as $id) {
                 $disabled = !empty($_POST['disabled'][$id]);;
-                $define   = $this->modules->getDefine($id, ['state' => ($disabled ? '!' : '') . dcModuleDefine::STATE_ENABLED]);
+                $define   = $this->modules->getDefine($id, ['state' => ($disabled ? '!' : '') . Define::STATE_ENABLED]);
                     if (!$define->isDefined()) {
                         continue;
                     }
@@ -2305,12 +2306,12 @@ class adminThemesList extends adminModulesList
                         continue;
                     }
 
-                    # --BEHAVIOR-- themeBeforeDelete -- dcModuleDefine
+                    # --BEHAVIOR-- themeBeforeDelete -- Define
                     dcCore::app()->callBehavior('themeBeforeDeleteV2', $define);
 
                     $this->modules->deleteModule($define->getId(), $disabled);
 
-                    # --BEHAVIOR-- themeAfterDelete -- dcModuleDefine
+                    # --BEHAVIOR-- themeAfterDelete -- Define
                     dcCore::app()->callBehavior('themeAfterDeleteV2', $define);
 
                     $count++;
@@ -2341,12 +2342,12 @@ class adminThemesList extends adminModulesList
 
                     $dest = $this->getPath() . DIRECTORY_SEPARATOR . basename($define->get('file'));
 
-                    # --BEHAVIOR-- themeBeforeAdd -- dcModuleDefine
+                    # --BEHAVIOR-- themeBeforeAdd -- Define
                     dcCore::app()->callBehavior('themeBeforeAddV2', $define);
 
                     $this->store->process($define->get('file'), $dest);
 
-                    # --BEHAVIOR-- themeAfterAdd -- dcModuleDefine
+                    # --BEHAVIOR-- themeAfterAdd -- Define
                     dcCore::app()->callBehavior('themeAfterAddV2', $define);
 
                     $count++;
@@ -2374,12 +2375,12 @@ class adminThemesList extends adminModulesList
 
                     $dest = implode(DIRECTORY_SEPARATOR, [$define->get('root'), '..', basename($define->get('file'))]);
 
-                    # --BEHAVIOR-- themeBeforeUpdate -- dcModuleDefine
+                    # --BEHAVIOR-- themeBeforeUpdate -- Define
                     dcCore::app()->callBehavior('themeBeforeUpdateV2', $define);
 
                     $this->store->process($define->get('file'), $dest);
 
-                    # --BEHAVIOR-- themeAfterUpdate -- dcModuleDefine
+                    # --BEHAVIOR-- themeAfterUpdate -- Define
                     dcCore::app()->callBehavior('themeAfterUpdateV2', $define);
 
                     $count++;

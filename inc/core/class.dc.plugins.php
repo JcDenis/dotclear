@@ -13,6 +13,8 @@
  *
  * @since 2.6
  */
+use Dotclear\Module\Define;
+
 class dcPlugins extends dcModules
 {
     protected $type = 'plugin';
@@ -35,7 +37,7 @@ class dcPlugins extends dcModules
      */
     public function registerModule(string $name, string $desc, string $author, string $version, $properties = [])
     {
-        $define = new dcModuleDefine($this->id);
+        $define = new Define($this->id);
 
         $define
             ->set('name', $name)

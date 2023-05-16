@@ -21,7 +21,6 @@ declare(strict_types=1);
 namespace Dotclear\Module;
 
 use dcCore;
-use dcModuleDefine;
 use dcModules;
 use Exception;
 
@@ -60,7 +59,7 @@ abstract class MyModule
     /** @var    int     Uninstall context */
     final public const UNINSTALL = 8;
 
-    /** @var    dcModuleDefine  The module define */
+    /** @var    Define  The module define */
     protected static $define;
 
     /**
@@ -68,9 +67,9 @@ abstract class MyModule
      * 
      * This method is defined in MyPlugin or MyTheme.
      *
-     * @return  dcModuleDefine  The module define
+     * @return  Define  The module define
      */
-    abstract protected static function define(): dcModuleDefine;
+    abstract protected static function define(): Define;
 
     /**
      * Check context permission.
@@ -202,9 +201,9 @@ abstract class MyModule
      * 
      * @param   dcModules   $modules    The modules instance (dcThemes or dcPlugins)
      *
-     * @return  dcModuleDefine  The module define
+     * @return  Define  The module define
      */
-    final protected static function getDefineFromNamespace(dcModules $modules): dcModuleDefine
+    final protected static function getDefineFromNamespace(dcModules $modules): Define
     {
         // note: namespace from dcModules start with a backslash
         $find = $modules->getDefines([

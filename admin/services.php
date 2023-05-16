@@ -13,6 +13,7 @@ use Dotclear\Helper\Html\HtmlValidator;
 use Dotclear\Helper\Html\XmlTag;
 use Dotclear\Helper\Network\Feed\Reader;
 use Dotclear\Helper\Text;
+use Dotclear\Module\Define;
 
 require __DIR__ . '/../inc/admin/prepend.php';
 
@@ -701,7 +702,7 @@ class dcRestMethods
 
         $id     = $get['id'];
         $list   = $get['list'];
-        $define = new dcModuleDefine($id);
+        $define = new Define($id);
 
         if ($list == 'plugin-activate') {
             $define = dcCore::app()->plugins->getDefine($id);

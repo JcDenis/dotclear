@@ -15,6 +15,7 @@ use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\Network\Http;
+use Dotclear\Module\Define;
 
 /* Start tick  */
 define('DC_START_TIME', microtime(true));
@@ -48,7 +49,7 @@ Clearbricks::lib()->autoload([
     'dcMedia'        => implode(DIRECTORY_SEPARATOR, [__DIR__, 'core', 'class.dc.media.php']),
     'dcPostMedia'    => implode(DIRECTORY_SEPARATOR, [__DIR__, 'core', 'class.dc.postmedia.php']),
     'dcNsProcess'    => implode(DIRECTORY_SEPARATOR, [__DIR__, 'core', 'class.dc.ns.process.php']),
-    'dcModuleDefine' => implode(DIRECTORY_SEPARATOR, [__DIR__, 'core', 'class.dc.module.define.php']),
+    //'Define' => implode(DIRECTORY_SEPARATOR, [__DIR__, 'core', 'class.dc.module.define.php']),
     'dcModules'      => implode(DIRECTORY_SEPARATOR, [__DIR__, 'core', 'class.dc.modules.php']),
     'dcPlugins'      => implode(DIRECTORY_SEPARATOR, [__DIR__, 'core', 'class.dc.plugins.php']),
     'dcThemes'       => implode(DIRECTORY_SEPARATOR, [__DIR__, 'core', 'class.dc.themes.php']),
