@@ -115,16 +115,16 @@ class dcStore
         if ($str_parser !== false) {
             foreach ($str_parser->getDefines() as $str_define) {
                 // is installed ?
-                $cur_define = $this->modules->getDefine($str_define->getId());
-                if ($cur_define->isDefined()) {
+                $cur_define = $this->modules->getDefine($str_define->id);
+                if ($cur_define->strict()->defined) {
                     // is update ?
-                    if (dcUtils::versionsCompare($str_define->get('version'), $cur_define->get('version'), '>')) {
-                        $str_define->set('root', $cur_define->get('root'));
-                        $str_define->set('root_writable', $cur_define->get('root_writable'));
-                        $str_define->set('current_version', $cur_define->get('version'));
+                    if (dcUtils::versionsCompare($str_define->strict()->version, $cur_define->strict()->version, '>')) {
+                        $str_define->set('root', $cur_define->strict()->root);
+                        $str_define->set('root_writable', $cur_define->strict()->root_writable);
+                        $str_define->set('current_version', $cur_define->strict()->version);
 
                         // set memo for third party updates
-                        $upd_versions[$str_define->getId()] = [count($upd_defines), $str_define->get('version')];
+                        $upd_versions[$str_define->id] = [count($upd_defines), $str_define->strict()->version];
 
                         $upd_defines[] = $str_define;
                     }
@@ -137,27 +137,27 @@ class dcStore
 
         // check update from third party repositories
         foreach ($this->modules->getDefines() as $cur_define) {
-            if ($cur_define->get('repository') != '' && DC_ALLOW_REPOSITORIES) {
+            if ($cur_define->strict()->repository != '' && DC_ALLOW_REPOSITORIES) {
                 try {
-                    $str_url    = substr($cur_define->get('repository'), -12, 12) == '/dcstore.xml' ? $cur_define->get('repository') : Http::concatURL($cur_define->get('repository'), 'dcstore.xml');
+                    $str_url    = substr($cur_define->strict()->repository, -12, 12) == '/dcstore.xml' ? $cur_define->strict()->repository : Http::concatURL($cur_define->strict()->repository, 'dcstore.xml');
                     $str_parser = dcStoreReader::quickParse($str_url, DC_TPL_CACHE, $force);
                     if ($str_parser === false) {
                         continue;
                     }
 
                     foreach ($str_parser->getDefines() as $str_define) {
-                        if ($str_define->getId() == $cur_define->getId() && dcUtils::versionsCompare($str_define->get('version'), $cur_define->get('version'), '>')) {
+                        if ($str_define->id == $cur_define->id && dcUtils::versionsCompare($str_define->strict()->version, $cur_define->strict()->version, '>')) {
                             $str_define->set('repository', true);
-                            $str_define->set('root', $cur_define->get('root'));
-                            $str_define->set('root_writable', $cur_define->get('root_writable'));
-                            $str_define->set('current_version', $cur_define->get('version'));
+                            $str_define->set('root', $cur_define->strict()->root);
+                            $str_define->set('root_writable', $cur_define->strict()->root_writable);
+                            $str_define->set('current_version', $cur_define->strict()->version);
 
                             // if no update from main repository, add third party update
-                            if (!isset($upd_versions[$str_define->getId()])) {
+                            if (!isset($upd_versions[$str_define->id])) {
                                 $upd_defines[] = $str_define;
                             // if update from third party repo is more recent than main repo, replace this last one
-                            } elseif (dcUtils::versionsCompare($str_define->get('version'), $upd_versions[$str_define->getID()][1], '>')) {
-                                $upd_defines[$upd_versions[$str_define->getId()][0]] = $str_define;
+                            } elseif (dcUtils::versionsCompare($str_define->strict()->version, $upd_versions[$str_define->id][1], '>')) {
+                                $upd_defines[$upd_versions[$str_define->id][0]] = $str_define;
                             }
                         }
                     }
@@ -168,8 +168,8 @@ class dcStore
         }
 
         // sort results by id
-        uasort($new_defines, fn ($a, $b) => strtolower($a->getId()) <=> strtolower($b->getId()));
-        uasort($upd_defines, fn ($a, $b) => strtolower($a->getId()) <=> strtolower($b->getId()));
+        uasort($new_defines, fn ($a, $b) => strtolower($a->id) <=> strtolower($b->id));
+        uasort($upd_defines, fn ($a, $b) => strtolower($a->id) <=> strtolower($b->id));
 
         $this->defines = [
             'new'    => $new_defines,
@@ -178,12 +178,12 @@ class dcStore
 
         // old style data
         foreach ($this->defines['new'] as $define) {
-            $this->data['new'][$define->getId()] = $define->dump();
+            $this->data['new'][$define->id] = $define->strict()->dump();
         }
         foreach ($this->defines['update'] as $define) {
             // keep only higher vesion
-            if (!isset($this->data['update'][$define->getId()]) || dcUtils::versionsCompare($define->get('version'), $this->data['update'][$define->getId()]['version'], '>')) {
-                $this->data['update'][$define->getId()] = $define->dump();
+            if (!isset($this->data['update'][$define->id]) || dcUtils::versionsCompare($define->strict()->version, $this->data['update'][$define->id]['version'], '>')) {
+                $this->data['update'][$define->id] = $define->strict()->dump();
             }
         }
 
@@ -246,12 +246,12 @@ class dcStore
             # Loop through required module fields
             foreach (self::$weighting as $field => $weight) {
                 # Skip fields which not exsist on module
-                if ($define->get($field) == '') {
+                if (!isset($define->strict()->{$field})) {
                     continue;
                 }
 
                 # Split field value into small clean word
-                if (!($subjects = self::patternize($define->get($field)))) {
+                if (!($subjects = self::patternize($define->strict()->{$field}))) {
                     continue;
                 }
 
@@ -261,15 +261,15 @@ class dcStore
                 }
 
                 # Increment score by matches count * field weight
-                $define->set('score', (int) $define->get('score') + $nb * $weight);
+                $define->set('score', $define->strict()->score + $nb * $weight);
             }
             // return only scored modules
-            if ($define->get('score')) {
+            if ($define->strict()->score) {
                 $defines[] = $define;
             }
         }
         # Sort response by matches count
-        usort($defines, fn ($a, $b) => (int) $b->get('score') <=> (int) $a->get('score'));
+        usort($defines, fn ($a, $b) => $b->strict()->score <=> $a->strict()->score);
 
         return $defines;
     }
@@ -289,7 +289,7 @@ class dcStore
 
         $result = [];
         foreach ($this->searchDefines($pattern) as $define) {
-            $result[$define->getId()] = $define->dump();
+            $result[$define->id] = $define->strict()->dump();
         }
 
         return $result;

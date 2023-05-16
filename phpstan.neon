@@ -185,10 +185,6 @@ parameters:
     - message: '#Access to an undefined property Dotclear\\Plugin\\widgets\\WidgetsElement::#'
       path: %currentWorkingDirectory%
 
-    # dcModuleDefine auto properties
-    - message: '#Access to an undefined property dcModuleDefine::#'
-      path: %currentWorkingDirectory%
-
     # 2.26+
 
     # Intensive use of magic __set/__get/__call/__invoke causes theses wrong warnings
@@ -230,12 +226,6 @@ parameters:
     # Structure object and auto properties
     - message: '#Access to an undefined property Dotclear\\Database\\Structure::#'
       path: %currentWorkingDirectory%
-
-    # getDefines() ambiguous return value
-    - message: '#Call to an undefined method object::addMissing\(\).#'
-      path: */*/inc/core/class.dc.modules.php
-    - message: '#Call to an undefined method object::getId\(\).#'
-      path: */*/inc/core/class.dc.modules.php
 
 # Notes:
 #

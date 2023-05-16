@@ -166,13 +166,19 @@ class Define
     }
 
     /**
-     * Check if module is defined.
+     * Gets the specified property value (null if does not exist).
      *
-     * @return  bool    True if module is defined
+     * @param      string  $identifier  The identifier
+     *
+     * @return     mixed
      */
-    public function isDefined(): bool
+    public function property(string $identifier): mixed
     {
-        return $this->get('name') != self::DEFAULT_NAME;
+        if (array_key_exists($identifier, $this->properties)) {
+            return $this->properties[$identifier];
+        }
+
+        return array_key_exists($identifier, $this->default) ? $this->default[$identifier] : null;
     }
 
     public function addImplies(string $dep): void
@@ -218,34 +224,6 @@ class Define
     }
 
     /**
-     * @deprecated  2.27    Use Define::id
-     */
-    public function getId(): string
-    {
-        return $this->id;
-    }
-
-    /**
-     * Gets array of properties.
-     *
-     * Mainly used for backward compatibility.
-     *
-     * @deprecated  2.27    Use Define::strict()->dump()
-     *
-     * @return array The properties
-     */
-    public function dump(): array
-    {
-        return array_merge($this->default, $this->properties, [
-            'id'             => $this->id,
-            'enabled'        => $this->state == self::STATE_ENABLED,
-            'implies'        => $this->implies,
-            'cannot_enable'  => $this->missing,
-            'cannot_disable' => $this->using,
-        ]);
-    }
-
-    /**
      * Store a property and its value.
      *
      * @param      string  $identifier  The identifier
@@ -273,40 +251,6 @@ class Define
     }
 
     /**
-     * Gets the specified property value (null if does not exist).
-     *
-     * @param      string  $identifier  The identifier
-     *
-     * @return     mixed
-     */
-    public function get(string $identifier): mixed
-    {
-        if ($identifier == 'id') {
-            return $this->id;
-        }
-
-        if (array_key_exists($identifier, $this->properties)) {
-            return $this->properties[$identifier];
-        }
-
-        return array_key_exists($identifier, $this->default) ? $this->default[$identifier] : null;
-    }
-
-    /**
-     * Gets the specified property value (null if does not exist).
-     *
-     * @deprecated  2.27    Define::strict()->"identifier"
-     *
-     * @param      string  $identifier  The identifier
-     *
-     * @return     mixed
-     */
-    public function __get(string $identifier): mixed
-    {
-        return $this->get($identifier);
-    }
-
-    /**
      * Test if a property exists
      *
      * @param      string  $identifier  The identifier
@@ -329,5 +273,67 @@ class Define
             $this->properties[$identifier] = $this->default[$identifier];
             $this->renewStrict();
         }
+    }
+
+    /**
+     * Check if module is defined.
+     *
+     * @deprecated  2.27    Use Define::strict()->defined
+     *
+     * @return  bool    True if module is defined
+     */
+    public function isDefined(): bool
+    {
+        return $this->strict()->defined;
+    }
+
+    /**
+     * @deprecated  2.27    Use Define::id
+     */
+    public function getId(): string
+    {
+        return $this->id;
+    }
+
+    /**
+     * Gets array of properties.
+     *
+     * Mainly used for backward compatibility.
+     *
+     * @deprecated  2.27    Use Define::strict()->dump()
+     *
+     * @return array The properties
+     */
+    public function dump(): array
+    {
+        return $this->strict()->dump();
+    }
+
+    /**
+     * Gets the specified property value (null if does not exist).
+     *
+     * @deprecated  2.27    Use Define::strict()->"identifier"
+     *
+     * @param      string  $identifier  The identifier
+     *
+     * @return     mixed
+     */
+    public function get(string $identifier): mixed
+    {
+        return $this->strict()->{$identifier};
+    }
+
+    /**
+     * Gets the specified property value (null if does not exist).
+     *
+     * @deprecated  2.27    Define::strict()->"identifier"
+     *
+     * @param      string  $identifier  The identifier
+     *
+     * @return     mixed
+     */
+    public function __get(string $identifier): mixed
+    {
+        return $this->get($identifier);
     }
 }

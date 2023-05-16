@@ -102,11 +102,11 @@ class dcThemes extends dcModules
         }
 
         $counter = 0;
-        $new_dir = sprintf('%s_copy', $module->root);
+        $new_dir = sprintf('%s_copy', $module->strict()->root);
         while (is_dir($new_dir)) {
-            $new_dir = sprintf('%s_copy_%s', $module->root, ++$counter);
+            $new_dir = sprintf('%s_copy_%s', $module->strict()->root, ++$counter);
         }
-        $new_name = $module->name . ($counter ? sprintf(__(' (copy #%s)'), $counter) : __(' (copy)'));
+        $new_name = $module->strict()->name . ($counter ? sprintf(__(' (copy #%s)'), $counter) : __(' (copy)'));
 
         if (!is_dir($new_dir)) {
             try {
@@ -115,11 +115,11 @@ class dcThemes extends dcModules
 
                 // Clone directories and files
 
-                $content = Files::getDirList($module->root);
+                $content = Files::getDirList($module->strict()->root);
 
                 // Create sub directories if necessary
                 foreach ($content['dirs'] as $dir) {
-                    $rel = substr($dir, strlen($module->root));
+                    $rel = substr($dir, strlen($module->strict()->root));
                     if ($rel !== '') {
                         Files::makeDir($new_dir . $rel);
                     }
@@ -128,7 +128,7 @@ class dcThemes extends dcModules
                 // Copy files from source to destination
                 foreach ($content['files'] as $file) {
                     // Copy file
-                    $rel = substr($file, strlen($module->root));
+                    $rel = substr($file, strlen($module->strict()->root));
                     copy($file, $new_dir . $rel);
 
                     if ($rel === (DIRECTORY_SEPARATOR . self::MODULE_FILE_DEFINE)) {
@@ -138,9 +138,9 @@ class dcThemes extends dcModules
                         // Change theme name to $new_name in _define.php
                         if (preg_match('/(\$this->registerModule\(\s*)((\s*|.*)+?)(\s*\);+)/m', $buf, $matches)) {
                             // Change only first occurence in registerModule parameters (should be the theme name)
-                            $matches[2] = preg_replace('/' . preg_quote($module->name) . '/', $new_name, $matches[2], 1);
+                            $matches[2] = preg_replace('/' . preg_quote($module->strict()->name) . '/', $new_name, $matches[2], 1);
                             $buf        = substr($buf, 0, $pos) . $matches[1] . $matches[2] . $matches[4];
-                            $buf .= sprintf("\n\n// Cloned on %s from %s theme.\n", date('c'), $module->name);
+                            $buf .= sprintf("\n\n// Cloned on %s from %s theme.\n", date('c'), $module->strict()->name);
                             file_put_contents($new_dir . $rel, $buf);
                         } else {
                             throw new Exception(__('Unable to modify _define.php'));
@@ -189,29 +189,29 @@ class dcThemes extends dcModules
     public function loadNsFile(string $id, ?string $ns = null): void
     {
         $define = $this->getDefine($id, ['state' => Define::STATE_ENABLED]);
-        if (!$define->isDefined()) {
+        if (!$define->strict()->defined) {
             return;
         }
 
         switch ($ns) {
             case 'public':
-                $parent = $this->getDefine($id, ['state' => Define::STATE_ENABLED])->parent;
-                if ($parent) {
+                $parent = $this->getDefine($define->strict()->parent, ['state' => Define::STATE_ENABLED]);
+                if ($parent->strict()->defined) {
                     // This is not a real cascade - since we don't call loadNsFile -,
                     // thus limiting inclusion process.
                     // TODO : See if we have to change this.
 
                     // by class name
-                    if ($this->loadNsClass($parent, self::MODULE_CLASS_PUPLIC) === '') {
+                    if ($this->loadNsClass($parent->id, self::MODULE_CLASS_PUPLIC) === '') {
                         // by file name
-                        $this->loadModuleFile($parent->root . DIRECTORY_SEPARATOR . self::MODULE_FILE_PUBLIC);
+                        $this->loadModuleFile($parent->strict()->root . DIRECTORY_SEPARATOR . self::MODULE_FILE_PUBLIC);
                     }
                 }
 
                 // by class name
                 if ($this->loadNsClass($id, self::MODULE_CLASS_PUPLIC) === '') {
                     // by file name
-                    $this->loadModuleFile($define->root . DIRECTORY_SEPARATOR . self::MODULE_FILE_PUBLIC);
+                    $this->loadModuleFile($define->strict()->root . DIRECTORY_SEPARATOR . self::MODULE_FILE_PUBLIC);
                 }
 
                 break;

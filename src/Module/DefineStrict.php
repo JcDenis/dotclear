@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Module;
 
+use Dotclear\Helper\Text;
+
 /**
  * Define strict type hinting.
  * 
@@ -40,9 +42,9 @@ final class DefineStrict
     public readonly string $permissions;
     public readonly int $priority;
     public readonly bool $standalone_config;
-    /** @var    array<int,array{int,string}> */
+    /** @var    array<int,array<int,string>> */
     public readonly array $requires;
-    /** @var    array<string,string> */
+    /** @var    array<string,string|false> */
     public readonly array $settings;
 
     public readonly string $label;
@@ -78,30 +80,30 @@ final class DefineStrict
     /**
      * Constructor sets properties.
      * 
-     * @param   Define  The module define
+     * @param   Define  $define     The module define
      */
     public function __construct(Define $define) {
         $this->id            = $define->id;
 
         // set by dc
-        $this->state         = is_numeric($define->get('state')) ? (int) $define->get('state') : Define::STATE_INIT_DISABLED;
-        $this->root          = is_string($define->get('root')) ? $define->get('root') : '';
-        $this->namespace     = is_string($define->get('namespace')) ? $define->get('namespace') : '';
-        $this->root_writable = !empty($define->get('root_writable'));
-        $this->distributed   = !empty($define->get('distributed'));
+        $this->state         = is_numeric($define->property('state')) ? (int) $define->property('state') : Define::STATE_INIT_DISABLED;
+        $this->root          = is_string($define->property('root')) ? $define->property('root') : '';
+        $this->namespace     = is_string($define->property('namespace')) ? $define->property('namespace') : '';
+        $this->root_writable = !empty($define->property('root_writable'));
+        $this->distributed   = !empty($define->property('distributed'));
 
         // required
-        $this->name    = is_string($define->get('name')) ? $define->get('name') : $this->id;
-        $this->desc    = is_string($define->get('desc')) ? $define->get('desc') : '';
-        $this->author  = is_string($define->get('author')) ? $define->get('author') : 'unknown';
-        $this->version = is_string($define->get('version')) ? $define->get('version') : '0';
-        $this->type    = is_string($define->get('type')) ? $define->get('type') : Define::DEFAULT_TYPE;
+        $this->name    = is_string($define->property('name')) ? $define->property('name') : $this->id;
+        $this->desc    = is_string($define->property('desc')) ? $define->property('desc') : '';
+        $this->author  = is_string($define->property('author')) ? $define->property('author') : 'unknown';
+        $this->version = is_string($define->property('version')) ? $define->property('version') : '0';
+        $this->type    = is_string($define->property('type')) ? $define->property('type') : Define::DEFAULT_TYPE;
 
         // optionnal
-        $this->permissions       = is_string($define->get('permissions')) ? $define->get('permissions') : '';
-        $this->priority          = is_numeric($define->get('priority')) ? (int) $define->get('priority') : Define::DEFAULT_PRIORITY;
-        $this->standalone_config = !empty($define->get('standalone_config'));
-        $requires                = is_array($define->get('requires')) ? $define->get('requires') : [];
+        $this->permissions       = is_string($define->property('permissions')) ? $define->property('permissions') : '';
+        $this->priority          = is_numeric($define->property('priority')) ? (int) $define->property('priority') : Define::DEFAULT_PRIORITY;
+        $this->standalone_config = !empty($define->property('standalone_config'));
+        $requires                = is_array($define->property('requires')) ? $define->property('requires') : [];
         foreach ($requires as $k => $dep) {
             if (!is_array($dep)) {
                 $dep = [$dep];
@@ -113,9 +115,9 @@ final class DefineStrict
             }
         }
         $this->requires = array_values($requires);
-        $settings       = is_array($define->get('settings')) ? $define->get('settings') : [];
+        $settings       = is_array($define->property('settings')) ? $define->property('settings') : [];
         foreach ($settings as $k => $v) {
-            if (is_string($k) && is_string($v)) {
+            if (is_string($k) && (is_string($v) || false === $v)) {
                 $settings[$k] = $v;
             } else {
                 unset($settings[$k]);
@@ -124,29 +126,29 @@ final class DefineStrict
         $this->settings = $settings;
 
         // optionnal++
-        $this->label      = is_string($define->get('label')) ? $define->get('label') : $this->name;
-        $this->support    = is_string($define->get('support')) ? $define->get('support') : '';
-        $this->details    = is_string($define->get('details')) ? $define->get('details') : '';
-        $this->repository = is_string($define->get('repository')) ? $define->get('repository') : '';
+        $this->label      = is_string($define->property('label')) ? $define->property('label') : $this->name;
+        $this->support    = is_string($define->property('support')) ? $define->property('support') : '';
+        $this->details    = is_string($define->property('details')) ? $define->property('details') : '';
+        $this->repository = is_string($define->property('repository')) ? $define->property('repository') : '';
 
         // theme specifics
-        $this->parent = is_string($define->get('parent')) ? $define->get('parent') : '';
-        $this->tplset = is_string($define->get('tplset')) ? $define->get('tplset') : DC_DEFAULT_TPLSET;
+        $this->parent = is_string($define->property('parent')) ? $define->property('parent') : '';
+        $this->tplset = is_string($define->property('tplset')) ? $define->property('tplset') : DC_DEFAULT_TPLSET;
 
         // store specifics
-        $this->file            = is_string($define->get('file')) ? $define->get('file') : '';
-        $this->current_version = is_string($define->get('current_version')) ? $define->get('current_version') : '0';
+        $this->file            = is_string($define->property('file')) ? $define->property('file') : '';
+        $this->current_version = is_string($define->property('current_version')) ? $define->property('current_version') : '0';
 
         // DA specifics
-        $this->section = is_string($define->get('version')) ? $define->get('version') : '0';
-        $this->tags    = is_string($define->get('tags')) ? explode(',', $define->get('tags')) : [];
-        $this->sshot   = is_string($define->get('sshot')) ? $define->get('sshot') : '';
-        $this->score   = is_numeric($define->get('score')) ? (int) $define->get('score') : 0;
-        $this->dc_min  = is_string($define->get('dc_min')) ? $define->get('dc_min') : '2.0';
+        $this->section = is_string($define->property('version')) ? $define->property('version') : '0';
+        $this->tags    = is_string($define->property('tags')) ? explode(',', $define->property('tags')) : [];
+        $this->sshot   = is_string($define->property('sshot')) ? $define->property('sshot') : '';
+        $this->score   = is_numeric($define->property('score')) ? (int) $define->property('score') : 0;
+        $this->dc_min  = is_string($define->property('dc_min')) ? $define->property('dc_min') : '2.0';
 
         // modules list specifics
-        $this->sid   = is_string($define->get('sid')) ? $define->get('sid') : '';
-        $this->sname = is_string($define->get('sname')) ? $define->get('sname') : '';
+        $this->sid   = self::sanitizeString($define->id);
+        $this->sname = self::sanitizeString(strtolower(Text::removeDiacritics($this->name)));
 
         // out of properties
         $this->defined = $this->name != Define::DEFAULT_NAME;
@@ -186,5 +188,19 @@ final class DefineStrict
     public function dump(): array
     {
         return get_object_vars($this);
+    }
+
+    /**
+     * Helper to sanitize a string.
+     *
+     * Used for search or id.
+     *
+     * @param    string    $str        String to sanitize
+     *
+     * @return   string     Sanitized string
+     */
+    public static function sanitizeString(string $str): string
+    {
+        return preg_replace('/[^A-Za-z0-9\@\#+_-]/', '', strtolower($str));
     }
 }

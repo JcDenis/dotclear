@@ -46,7 +46,7 @@ class adminModulesList
     /**
      * List of modules distributed with Dotclear
      *
-     * @deprecated 2.26 Use dcModules::getDefine($id)->distributed
+     * @deprecated 2.26 Use dcModules::getDefine($id)->strict()->distributed
      *
      * @var        array
      */
@@ -62,7 +62,7 @@ class adminModulesList
     /**
      * Current modules defines
      *
-     * @var        array
+     * @var        array<int,Define>
      */
     protected $defines = [];
 
@@ -465,10 +465,14 @@ class adminModulesList
         # Fetch modules required field
         $indexes = [];
         foreach ($this->defines as $define) {
-            if ($define->get($this->sort_field) === null) {
+            if (!isset($define->strict()->{$this->sort_field})) {
                 continue;
             }
-            $char = substr($define->get($this->sort_field), 0, 1);
+            $char = $define->strict()->{$this->sort_field};
+            if (!is_int($char) && !is_string($char)) {
+                continue;
+            }
+            $char = substr((string) $char, 0, 1);
             if (!in_array($char, $this->nav_list)) {
                 $char = $this->nav_special;
             }
@@ -619,7 +623,7 @@ class adminModulesList
 
         $res = [];
         foreach ($this->defines as $define) {
-            $res[$define->getId()] = $define->dump();
+            $res[$define->id] = $define->strict()->dump();
         }
 
         return $res;
@@ -641,11 +645,12 @@ class adminModulesList
             $define->set($k, $v);
         }
 
+        // synchronize define with their strict values !
         $define
-            ->set('sid', self::sanitizeString($define->getId()))
-            ->set('label', empty($define->get('label')) ? $define->getId() : $define->get('label'))
-            ->set('name', __(empty($define->get('name')) ? $define->label : $define->get('name')))
-            ->set('sname', self::sanitizeString(strtolower(Text::removeDiacritics($define->get('name')))));
+            ->set('sid', $define->strict()->sid)
+            ->set('label', $define->strict()->label)
+            ->set('name', $define->strict()->name)
+            ->set('sname', $define->strict()->sname);
     }
 
     /**
@@ -671,7 +676,7 @@ class adminModulesList
         $define = new Define($id);
         self::fillSanitizeModule($define, $module);
 
-        return $define->dump();
+        return $define->strict()->dump();
     }
 
     /**
@@ -695,13 +700,13 @@ class adminModulesList
         $define = $this->modules->getDefine($id);
         self::fillSanitizeModule($define, $module);
 
-        return $define->dump();
+        return $define->strict()->dump();
     }
 
     /**
      * Check if a module is part of the distribution.
      *
-     * @deprecated 2.26 Use dcModules::getDefine($id)->distributed
+     * @deprecated 2.27 Use dcModules::getDefine($id)->strict()->distributed
      *
      * @param    string    $id        Module root directory
      *
@@ -821,7 +826,7 @@ class adminModulesList
 
         $count = 0;
         foreach ($this->defines as $define) {
-            $id = $define->getId();
+            $id = $define->id;
 
             # Show only requested modules
             if ($nav_limit && $this->getSearch() === null) {
@@ -833,11 +838,11 @@ class adminModulesList
                     continue;
                 }
             }
-            $git = ((defined('DC_DEV') && DC_DEV) || (defined('DC_DEBUG') && DC_DEBUG)) && file_exists($define->get('root') . '/.git');
+            $git = ((defined('DC_DEV') && DC_DEV) || (defined('DC_DEBUG') && DC_DEBUG)) && file_exists($define->strict()->root . '/.git');
 
             echo
             '<tr class="line' . ($git ? ' module-git' : '') . '" id="' . Html::escapeHTML($this->list_id) . '_m_' . Html::escapeHTML($id) . '"' .
-                (in_array('desc', $cols) ? ' title="' . Html::escapeHTML(__($define->get('desc'))) . '" ' : '') .
+                (in_array('desc', $cols) ? ' title="' . Html::escapeHTML(__($define->strict()->desc)) . '" ' : '') .
                 '>';
 
             $tds = 0;
@@ -854,17 +859,17 @@ class adminModulesList
                 $tds++;
                 $default_icon = false;
 
-                if (file_exists($define->get('root') . DIRECTORY_SEPARATOR . 'icon.svg')) {
+                if (file_exists($define->strict()->root . DIRECTORY_SEPARATOR . 'icon.svg')) {
                     $icon = dcPage::getPF($id . '/icon.svg');
-                } elseif (file_exists($define->get('root') . DIRECTORY_SEPARATOR . 'icon.png')) {
+                } elseif (file_exists($define->strict()->root . DIRECTORY_SEPARATOR . 'icon.png')) {
                     $icon = dcPage::getPF($id . '/icon.png');
                 } else {
                     $icon         = 'images/module.svg';
                     $default_icon = true;
                 }
-                if (file_exists($define->get('root') . DIRECTORY_SEPARATOR . 'icon-dark.svg')) {
+                if (file_exists($define->strict()->root . DIRECTORY_SEPARATOR . 'icon-dark.svg')) {
                     $icon = [$icon, dcPage::getPF($id . '/icon-dark.svg')];
-                } elseif (file_exists($define->get('root') . DIRECTORY_SEPARATOR . 'icon-dark.png')) {
+                } elseif (file_exists($define->strict()->root . DIRECTORY_SEPARATOR . 'icon-dark.png')) {
                     $icon = [$icon, dcPage::getPF($id . '/icon-dark.png')];
                 } elseif ($default_icon) {
                     $icon = [$icon, 'images/module-dark.svg'];
@@ -882,16 +887,16 @@ class adminModulesList
             if (in_array('checkbox', $cols)) {
                 if (in_array('expander', $cols)) {
                     echo
-                    Html::escapeHTML($define->get('name')) . ($id != $define->get('name') ? sprintf(__(' (%s)'), $id) : '');
+                    Html::escapeHTML($define->strict()->name) . ($id != $define->strict()->name ? sprintf(__(' (%s)'), $id) : '');
                 } else {
                     echo
                     '<label for="' . Html::escapeHTML($this->list_id) . '_modules_' . Html::escapeHTML($id) . '">' .
-                    Html::escapeHTML($define->get('name')) . ($id != $define->get('name') ? sprintf(__(' (%s)'), $id) : '') .
+                    Html::escapeHTML($define->strict()->name) . ($id != $define->strict()->name ? sprintf(__(' (%s)'), $id) : '') .
                     '</label>';
                 }
             } else {
                 echo
-                Html::escapeHTML($define->get('name')) . ($id != $define->get('name') ? sprintf(__(' (%s)'), $id) : '') .
+                Html::escapeHTML($define->strict()->name) . ($id != $define->strict()->name ? sprintf(__(' (%s)'), $id) : '') .
                 form::hidden(['modules[' . $count . ']'], Html::escapeHTML($id));
             }
             echo
@@ -902,35 +907,35 @@ class adminModulesList
             if (in_array('score', $cols) && $this->getSearch() !== null && defined('DC_DEBUG') && DC_DEBUG) {
                 $tds++;
                 echo
-                '<td class="module-version nowrap count"><span class="debug">' . $define->get('score') . '</span></td>';
+                '<td class="module-version nowrap count"><span class="debug">' . $define->strict()->score . '</span></td>';
             }
 
             if (in_array('version', $cols)) {
                 $tds++;
                 echo
-                '<td class="module-version nowrap count">' . Html::escapeHTML($define->get('version')) . '</td>';
+                '<td class="module-version nowrap count">' . Html::escapeHTML($define->strict()->version) . '</td>';
             }
 
             if (in_array('current_version', $cols)) {
                 $tds++;
                 echo
-                '<td class="module-current-version nowrap count">' . Html::escapeHTML($define->get('current_version')) . '</td>';
+                '<td class="module-current-version nowrap count">' . Html::escapeHTML($define->strict()->current_version) . '</td>';
             }
 
             if (in_array('desc', $cols)) {
                 $tds++;
                 $note = '';
-                if (!empty($define->getUsing()) && $define->get('state') == Define::STATE_ENABLED) {
+                if (!empty($define->strict()->using) && $define->strict()->state == Define::STATE_ENABLED) {
                     $note .= '<p><span class="info">' .
                     sprintf(
                         __('This module cannot be disabled nor deleted, since the following modules are also enabled : %s'),
-                        join(',', $define->getUsing())
+                        join(',', $define->strict()->using)
                     ) . '</span></p>';
                 }
-                if (!empty($define->getMissing()) && $define->get('state') != Define::STATE_ENABLED) {
+                if (!empty($define->strict()->missing) && $define->strict()->state != Define::STATE_ENABLED) {
                     $note .= '<p><span class="info">' .
                     __('This module cannot be enabled, because of the following reasons :') . '<ul>';
-                    foreach ($define->getMissing() as $reason) {
+                    foreach ($define->strict()->missing as $reason) {
                         $note .= '<li>' . $reason . '</li>';
                     }
                     $note .= '</ul></span></p>';
@@ -938,7 +943,7 @@ class adminModulesList
                 echo
                 '<td class="module-desc maximal">' .
                 ($note !== '' ? '<details><summary>' : '') .
-                Html::escapeHTML(__($define->get('desc'))) .
+                Html::escapeHTML(__($define->strict()->desc)) .
                 ($note !== '' ? '</summary>' . $note . '</details>' : '') .
                 '</td>';
             }
@@ -946,13 +951,13 @@ class adminModulesList
             if (in_array('repository', $cols) && DC_ALLOW_REPOSITORIES) {
                 $tds++;
                 echo
-                '<td class="module-repository nowrap count">' . (!empty($define->get('repository')) ? __('Third-party repository') : __('Official repository')) . '</td>';
+                '<td class="module-repository nowrap count">' . (!empty($define->strict()->repository) ? __('Third-party repository') : __('Official repository')) . '</td>';
             }
 
             if (in_array('distrib', $cols)) {
                 $tds++;
                 echo
-                    '<td class="module-distrib">' . ($define->get('distributed') ?
+                    '<td class="module-distrib">' . ($define->strict()->distributed ?
                     '<img src="images/dotclear-leaf.svg" alt="' .
                     __('Plugin from official distribution') . '" title="' .
                     __('Plugin from official distribution') . '" />'
@@ -983,22 +988,22 @@ class adminModulesList
                 echo
                     '<tr class="module-more"><td colspan="' . $tds . '" class="expand">';
 
-                if (!empty($define->get('author')) || !empty($define->get('details')) || !empty($define->get('support'))) {
+                if (!empty($define->strict()->author) || !empty($define->strict()->details) || !empty($define->strict()->support)) {
                     echo
                         '<div><ul class="mod-more">';
 
-                    if (!empty($define->get('author'))) {
+                    if (!empty($define->strict()->author)) {
                         echo
-                        '<li class="module-author">' . __('Author:') . ' ' . Html::escapeHTML($define->get('author')) . '</li>';
+                        '<li class="module-author">' . __('Author:') . ' ' . Html::escapeHTML($define->strict()->author) . '</li>';
                     }
 
                     $more = [];
-                    if (!empty($define->get('details'))) {
-                        $more[] = '<a class="module-details" href="' . $define->get('details') . '">' . __('Details') . '</a>';
+                    if (!empty($define->strict()->details)) {
+                        $more[] = '<a class="module-details" href="' . $define->strict()->details . '">' . __('Details') . '</a>';
                     }
 
-                    if (!empty($define->get('support'))) {
-                        $more[] = '<a class="module-support" href="' . $define->get('support') . '">' . __('Support') . '</a>';
+                    if (!empty($define->strict()->support)) {
+                        $more[] = '<a class="module-support" href="' . $define->strict()->support . '">' . __('Support') . '</a>';
                     }
 
                     if (!empty($more)) {
@@ -1012,31 +1017,31 @@ class adminModulesList
 
                 if (self::hasFileOrClass($id, dcModules::MODULE_CLASS_CONFIG, dcModules::MODULE_FILE_CONFIG)
                  || self::hasFileOrClass($id, dcModules::MODULE_CLASS_MANAGE, dcModules::MODULE_FILE_MANAGE)
-                 || !empty($define->get('section'))
-                 || !empty($define->get('tags'))
-                 || !empty($define->get('settings'))   && $define->get('state') == Define::STATE_ENABLED
-                 || !empty($define->get('repository')) && DC_DEBUG && DC_ALLOW_REPOSITORIES
+                 || !empty($define->strict()->section)
+                 || !empty($define->strict()->tags)
+                 || !empty($define->strict()->settings)   && $define->strict()->state == Define::STATE_ENABLED
+                 || !empty($define->strict()->repository) && DC_DEBUG && DC_ALLOW_REPOSITORIES
                 ) {
                     echo
                         '<div><ul class="mod-more">';
 
                     $settings = static::getSettingsUrls($id);
-                    if (!empty($settings) && $define->get('state') == Define::STATE_ENABLED) {
+                    if (!empty($settings) && $define->strict()->state == Define::STATE_ENABLED) {
                         echo '<li>' . implode(' - ', $settings) . '</li>';
                     }
 
-                    if (!empty($define->get('repository')) && DC_DEBUG && DC_ALLOW_REPOSITORIES) {
-                        echo '<li class="modules-repository"><a href="' . $define->get('repository') . '">' . __('Third-party repository') . '</a></li>';
+                    if (!empty($define->strict()->repository) && DC_DEBUG && DC_ALLOW_REPOSITORIES) {
+                        echo '<li class="modules-repository"><a href="' . $define->strict()->repository . '">' . __('Third-party repository') . '</a></li>';
                     }
 
-                    if (!empty($define->get('section'))) {
+                    if (!empty($define->strict()->section)) {
                         echo
-                        '<li class="module-section">' . __('Section:') . ' ' . Html::escapeHTML($define->get('section')) . '</li>';
+                        '<li class="module-section">' . __('Section:') . ' ' . Html::escapeHTML($define->strict()->section) . '</li>';
                     }
 
-                    if (!empty($define->get('tags'))) {
+                    if (!empty($define->strict()->tags)) {
                         echo
-                        '<li class="module-tags">' . __('Tags:') . ' ' . Html::escapeHTML($define->get('tags')) . '</li>';
+                        '<li class="module-tags">' . __('Tags:') . ' ' . Html::escapeHTML(implode(',', $define->strict()->tags)) . '</li>';
                     }
 
                     echo
@@ -1089,7 +1094,8 @@ class adminModulesList
         $config = self::hasFileOrClass($id, dcModules::MODULE_CLASS_CONFIG, dcModules::MODULE_FILE_CONFIG);
         $index  = self::hasFileOrClass($id, dcModules::MODULE_CLASS_MANAGE, dcModules::MODULE_FILE_MANAGE);
 
-        $settings = dcCore::app()->plugins->moduleInfo($id, 'settings');
+        $info     = dcCore::app()->plugins->getDefine($id)->strict();
+        $settings = $info->settings;
         if ($self) {
             if (isset($settings['self']) && $settings['self'] === false) {
                 $self = false;
@@ -1097,9 +1103,9 @@ class adminModulesList
         }
         if ($config || $index || !empty($settings)) {
             if ($config) {
-                if (!$check || dcCore::app()->auth->isSuperAdmin() || dcCore::app()->auth->check(dcCore::app()->plugins->moduleInfo($id, 'permissions'), dcCore::app()->blog->id)) {
+                if (!$check || dcCore::app()->auth->isSuperAdmin() || dcCore::app()->auth->check($info->permissions, dcCore::app()->blog->id)) {
                     $params = ['module' => $id, 'conf' => '1'];
-                    if (!dcCore::app()->plugins->moduleInfo($id, 'standalone_config') && !$self) {
+                    if (!$info->standalone_config && !$self) {
                         $params['redir'] = dcCore::app()->adminurl->get('admin.plugin.' . $id);
                     }
                     $settings_urls[] = '<a class="module-config" href="' .
@@ -1133,7 +1139,7 @@ class adminModulesList
                             break;
                         case 'self':
                             if ($self) {
-                                if (!$check || dcCore::app()->auth->isSuperAdmin() || dcCore::app()->auth->check(dcCore::app()->plugins->moduleInfo($id, 'permissions'), dcCore::app()->blog->id)) {
+                                if (!$check || dcCore::app()->auth->isSuperAdmin() || dcCore::app()->auth->check($info->permissions, dcCore::app()->blog->id)) {
                                     $settings_urls[] = '<a class="module-config" href="' .
                                     dcCore::app()->adminurl->get('admin.plugin.' . $id) . $sv .
                                     '">' . __('Plugin settings') . '</a>';
@@ -1144,7 +1150,7 @@ class adminModulesList
 
                             break;
                         case 'other':
-                            if (!$check || dcCore::app()->auth->isSuperAdmin() || dcCore::app()->auth->check(dcCore::app()->plugins->moduleInfo($id, 'permissions'), dcCore::app()->blog->id)) {
+                            if (!$check || dcCore::app()->auth->isSuperAdmin() || dcCore::app()->auth->check($info->permissions, dcCore::app()->blog->id)) {
                                 $settings_urls[] = '<a class="module-config" href="' .
                                 $sv .
                                 '">' . __('Plugin settings') . '</a>';
@@ -1155,7 +1161,7 @@ class adminModulesList
                 }
             }
             if ($index && $self) {
-                if (!$check || dcCore::app()->auth->isSuperAdmin() || dcCore::app()->auth->check(dcCore::app()->plugins->moduleInfo($id, 'permissions'), dcCore::app()->blog->id)) {
+                if (!$check || dcCore::app()->auth->isSuperAdmin() || dcCore::app()->auth->check($info->permissions, dcCore::app()->blog->id)) {
                     $settings_urls[] = '<a class="module-config" href="' .
                     dcCore::app()->adminurl->get('admin.plugin.' . $id) .
                     '">' . __('Plugin main page') . '</a>';
@@ -1177,10 +1183,10 @@ class adminModulesList
     protected function getActions(Define $define, array $actions): array
     {
         $submits = [];
-        $id      = $define->getId();
+        $id      = $define->id;
 
         // mark module state
-        if ($define->get('state') != Define::STATE_ENABLED) {
+        if ($define->strict()->state != Define::STATE_ENABLED) {
             $submits[] = '<input type="hidden" name="disabled[' . Html::escapeHTML($id) . ']" value="1" />';
         }
 
@@ -1191,7 +1197,7 @@ class adminModulesList
                 case 'activate':
                     // do not allow activation of duplciate modules already activated
                     $multi = !self::$allow_multi_install && count($this->modules->getDefines(['id' => $id, 'state' => Define::STATE_ENABLED])) > 0;
-                    if (dcCore::app()->auth->isSuperAdmin() && $define->get('root_writable') && empty($define->getMissing()) && !$multi) {
+                    if (dcCore::app()->auth->isSuperAdmin() && $define->strict()->root_writable && empty($define->strict()->missing) && !$multi) {
                         $submits[] = '<input type="submit" name="activate[' . Html::escapeHTML($id) . ']" value="' . __('Activate') . '" />';
                     }
 
@@ -1199,7 +1205,7 @@ class adminModulesList
 
                     # Activate
                 case 'deactivate':
-                    if (dcCore::app()->auth->isSuperAdmin() && $define->get('root_writable') && empty($define->getUsing())) {
+                    if (dcCore::app()->auth->isSuperAdmin() && $define->strict()->root_writable && empty($define->strict()->using)) {
                         $submits[] = '<input type="submit" name="deactivate[' . Html::escapeHTML($id) . ']" value="' . __('Deactivate') . '" class="reset" />';
                     }
 
@@ -1207,8 +1213,8 @@ class adminModulesList
 
                     # Delete
                 case 'delete':
-                    if (dcCore::app()->auth->isSuperAdmin() && $this->isDeletablePath($define->get('root')) && empty($define->getUsing())) {
-                        $dev       = !preg_match('!^' . $this->path_pattern . '!', $define->get('root')) && defined('DC_DEV') && DC_DEV ? ' debug' : '';
+                    if (dcCore::app()->auth->isSuperAdmin() && $this->isDeletablePath($define->strict()->root) && empty($define->strict()->using)) {
+                        $dev       = !preg_match('!^' . $this->path_pattern . '!', $define->strict()->root) && defined('DC_DEV') && DC_DEV ? ' debug' : '';
                         $submits[] = '<input type="submit" class="delete ' . $dev . '" name="delete[' . Html::escapeHTML($id) . ']" value="' . __('Delete') . '" />';
                     }
 
@@ -1350,10 +1356,10 @@ class adminModulesList
                 $disabled = !empty($_POST['disabled'][$id]);
                 $define   = $this->modules->getDefine($id, ['state' => ($disabled ? '!' : '') . Define::STATE_ENABLED]);
                 // module is not defined
-                if (!$define->isDefined()) {
+                if (!$define->strict()->defined) {
                     throw new Exception(__('No such plugin.'));
                 }
-                if (!$this->isDeletablePath($define->get('root'))) {
+                if (!$this->isDeletablePath($define->strict()->root)) {
                     $failed = true;
 
                     continue;
@@ -1362,7 +1368,7 @@ class adminModulesList
                 # --BEHAVIOR-- moduleBeforeDelete -- Define
                 dcCore::app()->callBehavior('pluginBeforeDeleteV2', $define);
 
-                $this->modules->deleteModule($define->getId(), $disabled);
+                $this->modules->deleteModule($define->id, $disabled);
 
                 # --BEHAVIOR-- moduleAfterDelete -- Define
                 dcCore::app()->callBehavior('pluginAfterDeleteV2', $define);
@@ -1387,16 +1393,16 @@ class adminModulesList
 
             $count = 0;
             foreach ($this->store->getDefines() as $define) {
-                if (!in_array($define->getId(), $modules)) {
+                if (!in_array($define->id, $modules)) {
                     continue;
                 }
 
-                $dest = $this->getPath() . DIRECTORY_SEPARATOR . basename($define->get('file'));
+                $dest = $this->getPath() . DIRECTORY_SEPARATOR . basename($define->strict()->file);
 
                 # --BEHAVIOR-- moduleBeforeAdd -- Define
                 dcCore::app()->callBehavior('pluginBeforeAddV2', $define);
 
-                $this->store->process($define->get('file'), $dest);
+                $this->store->process($define->strict()->file, $dest);
 
                 # --BEHAVIOR-- moduleAfterAdd -- Define
                 dcCore::app()->callBehavior('pluginAfterAddV2', $define);
@@ -1420,17 +1426,17 @@ class adminModulesList
             $count = 0;
             foreach ($modules as $id) {
                 $define = $this->modules->getDefine($id, ['state' => '!' . Define::STATE_ENABLED]);
-                if (!$define->isDefined()) {
+                if (!$define->strict()->defined) {
                     continue;
                 }
 
                 # --BEHAVIOR-- moduleBeforeActivate -- string
-                dcCore::app()->callBehavior('pluginBeforeActivate', $define->getId());
+                dcCore::app()->callBehavior('pluginBeforeActivate', $define->id);
 
-                $this->modules->activateModule($define->getId());
+                $this->modules->activateModule($define->id);
 
                 # --BEHAVIOR-- moduleAfterActivate -- string
-                dcCore::app()->callBehavior('pluginAfterActivate', $define->getId());
+                dcCore::app()->callBehavior('pluginAfterActivate', $define->id);
 
                 $count++;
             }
@@ -1452,11 +1458,11 @@ class adminModulesList
             $count  = 0;
             foreach ($modules as $id) {
                 $define = $this->modules->getDefine($id);
-                if (!$define->isDefined() || $define->get('state') == Define::STATE_HARD_DISABLED) {
+                if (!$define->strict()->defined || $define->strict()->state == Define::STATE_HARD_DISABLED) {
                     continue;
                 }
 
-                if (!$define->get('root_writable')) {
+                if (!$define->strict()->root_writable) {
                     $failed = true;
 
                     continue;
@@ -1465,7 +1471,7 @@ class adminModulesList
                 # --BEHAVIOR-- moduleBeforeDeactivate -- Define
                 dcCore::app()->callBehavior('pluginBeforeDeactivateV2', $define);
 
-                $this->modules->deactivateModule($define->getId());
+                $this->modules->deactivateModule($define->id);
 
                 # --BEHAVIOR-- moduleAfterDeactivate -- Define
                 dcCore::app()->callBehavior('pluginAfterDeactivateV2', $define);
@@ -1493,23 +1499,23 @@ class adminModulesList
             $count   = 0;
             $defines = $this->store->getDefines(true);
             foreach ($defines as $define) {
-                if (!in_array($define->getId(), $modules)) {
+                if (!in_array($define->id, $modules)) {
                     continue;
                 }
 
                 if (!self::$allow_multi_install) {
-                    $dest = implode(DIRECTORY_SEPARATOR, [$define->get('root'), '..', basename($define->get('file'))]);
+                    $dest = implode(DIRECTORY_SEPARATOR, [$define->strict()->root, '..', basename($define->strict()->file)]);
                 } else {
-                    $dest = $this->getPath() . DIRECTORY_SEPARATOR . basename($define->get('file'));
-                    if ($define->get('root') != $dest) {
-                        @file_put_contents($define->get('root') . DIRECTORY_SEPARATOR . dcModules::MODULE_FILE_DISABLED, '');
+                    $dest = $this->getPath() . DIRECTORY_SEPARATOR . basename($define->strict()->file);
+                    if ($define->strict()->root != $dest) {
+                        @file_put_contents($define->strict()->root . DIRECTORY_SEPARATOR . dcModules::MODULE_FILE_DISABLED, '');
                     }
                 }
 
                 # --BEHAVIOR-- moduleBeforeUpdate -- Define
                 dcCore::app()->callBehavior('pluginBeforeUpdateV2', $define);
 
-                $this->store->process($define->get('file'), $dest);
+                $this->store->process($define->strict()->file, $dest);
 
                 # --BEHAVIOR-- moduleAfterUpdate -- Define
                 dcCore::app()->callBehavior('pluginAfterUpdateV2', $define);
@@ -1659,16 +1665,16 @@ class adminModulesList
         }
 
         $define = $this->modules->getDefine($id, ['state' => Define::STATE_ENABLED]);
-        if (!$define->isDefined()) {
+        if (!$define->strict()->defined) {
             dcCore::app()->error->add(__('Unknown plugin ID'));
 
             return false;
         }
 
         self::fillSanitizeModule($define);
-        $class = $define->get('namespace') . Autoloader::NS_SEP . dcModules::MODULE_CLASS_CONFIG;
-        $class = empty($define->get('namespace')) || !class_exists($class) ? '' : $class;
-        $file  = Path::real($define->get('root') . DIRECTORY_SEPARATOR . dcModules::MODULE_FILE_CONFIG);
+        $class = $define->strict()->namespace . Autoloader::NS_SEP . dcModules::MODULE_CLASS_CONFIG;
+        $class = empty($define->strict()->namespace) || !class_exists($class) ? '' : $class;
+        $file  = Path::real($define->strict()->root . DIRECTORY_SEPARATOR . dcModules::MODULE_FILE_CONFIG);
 
         if (empty($class) && !file_exists($file)) {
             dcCore::app()->error->add(__('This plugin has no configuration file.'));
@@ -1677,7 +1683,7 @@ class adminModulesList
         }
 
         if (!dcCore::app()->auth->isSuperAdmin()
-            && !dcCore::app()->auth->check(dcCore::app()->plugins->moduleInfo($id, 'permissions'), dcCore::app()->blog->id)
+            && !dcCore::app()->auth->check(dcCore::app()->plugins->getDefine($id)->strict()->permissions, dcCore::app()->blog->id)
         ) {
             dcCore::app()->error->add(__('Insufficient permissions'));
 
@@ -1749,19 +1755,19 @@ class adminModulesList
     public function displayConfiguration(): adminModulesList
     {
         if (($this->config_define instanceof Define) && (!empty($this->config_class) || !empty($this->config_file))) {
-            if (!$this->config_define->get('standalone_config')) {
+            if (!$this->config_define->strict()->standalone_config) {
                 echo
                 '<form id="module_config" action="' . $this->getURL('conf=1') . '" method="post" enctype="multipart/form-data">' .
-                '<h3>' . sprintf(__('Configure "%s"'), Html::escapeHTML($this->config_define->get('name'))) . '</h3>' .
+                '<h3>' . sprintf(__('Configure "%s"'), Html::escapeHTML($this->config_define->strict()->name)) . '</h3>' .
                 '<p><a class="back" href="' . $this->getRedir() . '">' . __('Back') . '</a></p>';
             }
 
             echo $this->config_content;
 
-            if (!$this->config_define->get('standalone_config')) {
+            if (!$this->config_define->strict()->standalone_config) {
                 echo
                 '<p class="clear"><input type="submit" name="save" value="' . __('Save') . '" />' .
-                form::hidden('module', $this->config_define->getId()) .
+                form::hidden('module', $this->config_define->id) .
                 form::hidden('redir', $this->getRedir()) .
                 dcCore::app()->formNonce() . '</p>' .
                     '</form>';
@@ -1799,13 +1805,13 @@ class adminModulesList
     private static function hasFileOrClass(string $id, string $class, string $file): bool
     {
         // by class name
-        $ns    = dcCore::app()->plugins->moduleInfo($id, 'namespace');
+        $ns    = dcCore::app()->plugins->getDefine($id)->strict()->namespace;
         $class = $ns . Autoloader::NS_SEP . $class;
         if (!empty($ns) && class_exists($class)) {
             $has = $class::init();
         // by file name
         } else {
-            $root = dcCore::app()->plugins->moduleInfo($id, 'root');
+            $root = dcCore::app()->plugins->getDefine($id)->strict()->root;
             $has  = !empty($root) && file_exists(Path::real($root . DIRECTORY_SEPARATOR . $file));
         }
 

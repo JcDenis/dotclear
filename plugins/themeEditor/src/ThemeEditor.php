@@ -453,11 +453,11 @@ class ThemeEditor
         # Then we look in dcPublic::TPL_ROOT plugins directory
         foreach (dcCore::app()->plugins->getDefines(['state' => Define::STATE_ENABLED]) as $define) {
             // Looking in dcPublic::TPL_ROOT directory
-            $this->tpl       = array_merge($this->getFilesInDir($define->get('root') . '/' . dcPublic::TPL_ROOT), $this->tpl);
-            $this->tpl_model = array_merge($this->getFilesInDir($define->get('root') . '/' . dcPublic::TPL_ROOT), $this->tpl_model);
+            $this->tpl       = array_merge($this->getFilesInDir($define->strict()->root . '/' . dcPublic::TPL_ROOT), $this->tpl);
+            $this->tpl_model = array_merge($this->getFilesInDir($define->strict()->root . '/' . dcPublic::TPL_ROOT), $this->tpl_model);
             // Looking in dcPublic::TPL_ROOT/tplset directory
-            $this->tpl       = array_merge($this->getFilesInDir($define->get('root') . '/' . dcPublic::TPL_ROOT . '/' . $this->tplset_name), $this->tpl);
-            $this->tpl_model = array_merge($this->getFilesInDir($define->get('root') . '/' . dcPublic::TPL_ROOT . '/' . $this->tplset_name), $this->tpl_model);
+            $this->tpl       = array_merge($this->getFilesInDir($define->strict()->root . '/' . dcPublic::TPL_ROOT . '/' . $this->tplset_name), $this->tpl);
+            $this->tpl_model = array_merge($this->getFilesInDir($define->strict()->root . '/' . dcPublic::TPL_ROOT . '/' . $this->tplset_name), $this->tpl_model);
         }
 
         uksort($this->tpl, [$this, 'sortFilesHelper']);
