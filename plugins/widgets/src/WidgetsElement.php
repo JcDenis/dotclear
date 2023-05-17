@@ -210,7 +210,7 @@ class WidgetsElement
 
         $wtscheme = dcCore::app()->themes->getDefine(dcCore::app()->blog->settings->system->theme)->strict()->widgettitleformat;
         if (empty($wtscheme)) {
-            $tplset = dcCore::app()->themes->getDefine((dcCore::app()->blog->settings->system->theme)->strict()->tplset;
+            $tplset = dcCore::app()->themes->getDefine(dcCore::app()->blog->settings->system->theme)->strict()->tplset;
             if (empty($tplset) || $tplset == DC_DEFAULT_TPLSET) {
                 // Use H2 for mustek based themes
                 $wtscheme = '<h2>%s</h2>';
