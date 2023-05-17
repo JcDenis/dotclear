@@ -518,8 +518,11 @@ class adminModulesList
      */
     public function setSort(string $field, bool $asc = true): adminModulesList
     {
-        $this->sort_field = $field;
-        $this->sort_asc   = $asc;
+        // create instance to check readonly properties existance
+        if (isset((new Define('setsortfiedcheck'))->strict()->{$field})) {
+            $this->sort_field = $field;
+            $this->sort_asc   = $asc;
+        }
 
         return $this;
     }
@@ -821,7 +824,7 @@ class adminModulesList
 
         # Sort modules by $sort_field (default sname)
         if ($this->getSearch() === null) {
-            uasort($this->defines, fn ($a, $b) => $a->get($sort_field) <=> $b->get($sort_field));
+            uasort($this->defines, fn ($a, $b) => $a->strict()->{$sort_field} <=> $b->strict()->{$sort_field});
         }
 
         $count = 0;
@@ -830,7 +833,7 @@ class adminModulesList
 
             # Show only requested modules
             if ($nav_limit && $this->getSearch() === null) {
-                $char = substr($define->get($sort_field), 0, 1);
+                $char = substr($define->strict()->{$sort_field}, 0, 1);
                 if (!in_array($char, $this->nav_list)) {
                     $char = $this->nav_special;
                 }
