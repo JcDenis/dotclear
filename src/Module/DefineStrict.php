@@ -83,6 +83,9 @@ final class DefineStrict
      * @param   Define  $define     The module define
      */
     public function __construct(Define $define) {
+
+        $sanitize = fn (string $str): string => (string) preg_replace('/[^A-Za-z0-9\@\#+_-]/', '', strtolower($str));
+
         $this->id            = $define->id;
 
         // set by dc
@@ -147,8 +150,8 @@ final class DefineStrict
         $this->dc_min  = is_string($define->property('dc_min')) ? $define->property('dc_min') : '2.0';
 
         // modules list specifics
-        $this->sid   = self::sanitizeString($define->id);
-        $this->sname = self::sanitizeString(strtolower(Text::removeDiacritics($this->name)));
+        $this->sid   = $sanitize($define->id);
+        $this->sname = $sanitize(strtolower(Text::removeDiacritics($this->name)));
 
         // out of properties
         $this->defined = $this->name != Define::DEFAULT_NAME;
@@ -188,19 +191,5 @@ final class DefineStrict
     public function dump(): array
     {
         return get_object_vars($this);
-    }
-
-    /**
-     * Helper to sanitize a string.
-     *
-     * Used for search or id.
-     *
-     * @param    string    $str        String to sanitize
-     *
-     * @return   string     Sanitized string
-     */
-    public static function sanitizeString(string $str): string
-    {
-        return preg_replace('/[^A-Za-z0-9\@\#+_-]/', '', strtolower($str));
     }
 }

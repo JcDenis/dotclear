@@ -52,10 +52,22 @@ class Define
     /**
      * Dependencies.
      *
-     * @var     array<int|string,string>
+     * @var     array<int,string>
      */
     private array $implies = [];
+
+    /**
+     * Dependencies.
+     *
+     * @var     array<string,string>
+     */
     private array $missing = [];
+
+    /**
+     * Dependencies.
+     *
+     * @var     array<int,string>
+     */
     private array $using   = [];
 
     /**
@@ -302,7 +314,7 @@ class Define
      *
      * @deprecated  2.27    Use Define::strict()->dump()
      *
-     * @return array The properties
+     * @return  array<string,mixed>     The properties
      */
     public function dump(): array
     {
@@ -314,9 +326,9 @@ class Define
      *
      * @deprecated  2.27    Use Define::strict()->"identifier"
      *
-     * @param      string  $identifier  The identifier
+     * @param   string  $identifier  The identifier
      *
-     * @return     mixed
+     * @return  mixed
      */
     public function get(string $identifier): mixed
     {

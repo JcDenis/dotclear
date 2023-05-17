@@ -98,11 +98,6 @@ abstract class MyModule
      */
     final public static function checkContext(int $context): bool
     {
-        // nullsafe (should never happened)
-        if (is_null(dcCore::app()->auth) || is_null(dcCore::app()->blog)) {
-            static::exception('Blog is not defined');
-        }
-
         // module contextual permissions
         $check = static::checkCustomContext($context);
         if (!is_null($check)) {
@@ -113,11 +108,13 @@ abstract class MyModule
         return match($context) {
             self::INSTALL =>    // Installation of module
                 defined('DC_CONTEXT_ADMIN')
+                    && !is_null(dcCore::app()->auth)
                     && dcCore::app()->auth->isSuperAdmin()   // Manageable only by super-admin
-                    && dcCore::app()->newVersion(self::id(), dcCore::app()->plugins->moduleInfo(self::id(), 'version')),
+                    && dcCore::app()->newVersion(self::id(), dcCore::app()->plugins->getDefine(self::id())->strict()->version),
 
             self::UNINSTALL =>  // Uninstallation of module
                 defined('DC_RC_PATH')
+                    && !is_null(dcCore::app()->auth)
                     && dcCore::app()->auth->isSuperAdmin(),   // Manageable only by super-admin
 
             self::PREPEND =>    // Prepend context
@@ -129,7 +126,8 @@ abstract class MyModule
             self::BACKEND =>     // Backend context
                 defined('DC_CONTEXT_ADMIN')
                     // Check specific permission
-                    && dcCore::app()->blog && dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([
+                    && !is_null(dcCore::app()->blog) && !is_null(dcCore::app()->auth)
+                    && dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([
                         dcCore::app()->auth::PERMISSION_USAGE,
                         dcCore::app()->auth::PERMISSION_CONTENT_ADMIN,
                     ]), dcCore::app()->blog->id),
@@ -137,25 +135,29 @@ abstract class MyModule
             self::MANAGE =>      // Main page of module
                 defined('DC_CONTEXT_ADMIN')
                     // Check specific permission
-                    && dcCore::app()->blog && dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([
+                    && !is_null(dcCore::app()->blog) && !is_null(dcCore::app()->auth)
+                    && dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([
                         dcCore::app()->auth::PERMISSION_ADMIN,  // Admin+
                     ]), dcCore::app()->blog->id),
 
             self::CONFIG =>      // Config page of module
                 defined('DC_CONTEXT_ADMIN')
+                    && !is_null(dcCore::app()->auth)
                     && dcCore::app()->auth->isSuperAdmin(),   // Manageable only by super-admin
 
             self::MENU =>        // Admin menu
                 defined('DC_CONTEXT_ADMIN')
                     // Check specific permission
-                    && dcCore::app()->blog && dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([
+                    && !is_null(dcCore::app()->blog) && !is_null(dcCore::app()->auth)
+                    && dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([
                         dcCore::app()->auth::PERMISSION_ADMIN,  // Admin+
                     ]), dcCore::app()->blog->id),
 
             self::WIDGETS =>     // Blog widgets
                 defined('DC_CONTEXT_ADMIN')
                     // Check specific permission
-                    && dcCore::app()->blog && dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([
+                    && !is_null(dcCore::app()->blog) && !is_null(dcCore::app()->auth)
+                    && dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([
                         dcCore::app()->auth::PERMISSION_ADMIN,  // Admin+
                     ]), dcCore::app()->blog->id),
 
@@ -211,6 +213,11 @@ abstract class MyModule
         ]);
         if (count($find) != 1) {
             static::exception('Failed to find namespace from ' . static::class);
+        }
+
+        // remove phpstan warnings that never chsould happend
+        if (is_array($find[0])) {
+            throw new Exception('Welcome to the fourth dimension');
         }
 
         return $find[0];
