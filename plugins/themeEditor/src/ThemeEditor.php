@@ -109,12 +109,12 @@ class ThemeEditor
         $this->tplset_theme = DC_ROOT . '/inc/public/' . dcPublic::TPL_ROOT . '/' . DC_DEFAULT_TPLSET;
         $this->tplset_name  = DC_DEFAULT_TPLSET;
         if (null !== dcCore::app()->themes) {
-            $parent_theme = dcCore::app()->themes->moduleInfo(dcCore::app()->blog->settings->system->theme, 'parent');
+            $parent_theme = dcCore::app()->themes->getDefine(dcCore::app()->blog->settings->system->theme)->strict()->parent;
             if ($parent_theme) {
                 $this->parent_theme = Path::real(dcCore::app()->blog->themes_path . '/' . $parent_theme);
                 $this->parent_name  = $parent_theme;
             }
-            $tplset = dcCore::app()->themes->moduleInfo(dcCore::app()->blog->settings->system->theme, 'tplset');
+            $tplset = dcCore::app()->themes->getDefine(dcCore::app()->blog->settings->system->theme)->strict()->tplset;
             if ($tplset) {
                 $this->tplset_theme = DC_ROOT . '/inc/public/' . dcPublic::TPL_ROOT . '/' . $tplset;
                 $this->tplset_name  = $tplset;

@@ -645,7 +645,7 @@ class dcModules
                 $this->modules_ids[$this->id] = $this->define->strict()->version;
                 $this->defines[]              = $this->define;
             } else {
-                $path1 = Path::real($this->moduleInfo($this->id, 'root') ?? '');
+                $path1 = Path::real($this->getDefine($this->id)->strict()->root);
                 $path2 = Path::real($this->mroot ?? '');
 
                 $this->errors[] = sprintf(
@@ -1009,7 +1009,7 @@ class dcModules
     /**
      * Returns all modules associative array or only one module if <var>$id</var> is present.
      *
-     * @deprecated since 2.26 Use self::getDefines()
+     * @deprecated since 2.26 Use self::getDefines($id)
      *
      * @param      string  $id     The optionnal module identifier
      *
@@ -1027,7 +1027,7 @@ class dcModules
     /**
      * Gets all modules (whatever are their statuses) or only one module if <var>$id</var> is present.
      *
-     * @deprecated since 2.26 Use self::getDefines()
+     * @deprecated since 2.26 Use self::getDefines($id)
      *
      * @param      string  $id     The optionnal module identifier
      *
@@ -1044,6 +1044,8 @@ class dcModules
 
     /**
      * Determines if module exists and is enabled.
+     *
+     * @deprecated since 2.27 Use self::getDefine($id)->strict()->defined
      *
      * @param      string  $id     The module identifier
      *
@@ -1099,7 +1101,7 @@ class dcModules
     /**
      * Returns root path for module with ID <var>$id</var>.
      *
-     * @deprecated since 2.26 Use self::moduleInfo()
+     * @deprecated since 2.27 Use self::getDefine($id)->strict()->root
      *
      * @param      string  $id     The module identifier
      *
@@ -1123,7 +1125,7 @@ class dcModules
      * - priority
      * - …
      * 
-     * For better type hint use dcModules::getDefine($id)->strict()->"info"
+     * @deprecated since 2.27 Use self::getDefine($id)->strict()->{$info}
      *
      * @param      string  $id     The module identifier
      * @param      string  $info   The information

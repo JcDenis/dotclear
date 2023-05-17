@@ -49,8 +49,8 @@ class adminPlugin
             $res = (string) ob_get_contents();
             ob_end_clean();
         // by file name
-        } elseif (dcCore::app()->plugins->moduleExists($plugin)) {
-            $p_file = dcCore::app()->plugins->moduleInfo($plugin, 'root') . DIRECTORY_SEPARATOR . dcModules::MODULE_FILE_MANAGE;
+        } elseif (dcCore::app()->plugins->getDefine($plugin)->strict()->defined) {
+            $p_file = dcCore::app()->plugins->getDefine($plugin)->strict()->root . DIRECTORY_SEPARATOR . dcModules::MODULE_FILE_MANAGE;
             if (file_exists($p_file)) {
                 ob_start();
                 include $p_file;

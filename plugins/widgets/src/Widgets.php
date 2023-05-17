@@ -128,7 +128,7 @@ class Widgets
         $w
             ->addTitle(__('Last entries'))
             ->setting('category', __('Category:'), '', 'combo', $categories);
-        if (dcCore::app()->plugins->moduleExists('tags')) {
+        if (dcCore::app()->plugins->getDefine('tags')->strict()->defined) {
             $w->setting('tag', __('Tag:'), '');
         }
         $w

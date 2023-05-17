@@ -1063,7 +1063,7 @@ class dcTemplate extends Template
      */
     public function BlogParentThemeURL(ArrayObject $attr): string
     {
-        $parent = 'dcCore::app()->themes->moduleInfo(dcCore::app()->blog->settings->system->theme,\'parent\')';
+        $parent = 'dcCore::app()->themes->getDefine(dcCore::app()->blog->settings->system->theme)->strict()->parent';
 
         return '<?php echo ' . sprintf($this->getFilters($attr), 'dcCore::app()->blog->settings->system->themes_url."/".(' . "$parent" . ' ? ' . "$parent" . ' : dcCore::app()->blog->settings->system->theme)') . '; ?>';
     }

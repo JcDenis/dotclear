@@ -172,7 +172,7 @@ class dcUpgrade
         if (version_compare($version, '2.2-alpha1-r3043', '<')) {
             # metadata has been integrated to the core.
             dcCore::app()->plugins->loadModules(DC_PLUGINS_ROOT);
-            if (dcCore::app()->plugins->moduleExists('metadata')) {
+            if (dcCore::app()->plugins->getDefine('metadata')->strict()->defined) {
                 dcCore::app()->plugins->deleteModule('metadata');
             }
 
