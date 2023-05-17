@@ -187,56 +187,89 @@ class dcModules
      * if module definition does not exist, it is created on the fly
      * with default properties.
      *
-     * @param   string  $id         The module identifier
-     * @param   array   $search     The search parameters
+     * @param   string                      $id         The module identifier
+     * @param   array<string,bool|int|string>    $search     The search parameters
      *
      * @return  Define   The first matching module define or properties
      */
     public function getDefine(string $id, array $search = []): Define
     {
-        $found = $this->getDefines(array_merge($search, ['id' => $id]));
+        $found = $this->searchDefines(array_merge($search, ['id' => $id]));
 
         return empty($found) ? new Define($id) : $found[0];
     }
 
     /**
-     * Get modules defined properties.
+     * Search modules defined properties.
      *
      * More than one module can have same id in this stack.
      *
-     * @param   array   $search     The search parameters
-     * @param   bool    $to_array   Return arrays of modules properties
+     * @param   array<string,bool|int|string>    $search     The search parameters
      *
-     * @return  array<int|string,array|Define>  The modules defines or properties
+     * @return  array<int,Define>    The modules defines or properties
      */
-    public function getDefines(array $search = [], bool $to_array = false): array
+    public function searchDefines(array $search = []): array
     {
+        // search engine supported types
+        $types = ['boolean', 'integer', 'string'];
         $list = [];
         foreach ($this->defines as $module) {
             $add_it = true;
             foreach ($search as $key => $value) {
-                if (!isset($module->strict()->{$key})) {
+                // check types
+                if (!is_string($key) || !in_array(gettype($value), $types) || !isset($module->strict()->{$key})) {
                     continue;
                 }
+                $source = $module->strict()->{$key};
+                if (!in_array(gettype($source), $types)) {
+                    continue;
+                }
+                // compare string format
+                $value  = (string) $value;
+                $source = (string) $source;
                 if (substr($value, 0, 1) === '!') {
-                    if ((string) $module->get($key) === (string) substr($value, 1)) {
+                    if ($source === substr($value, 1)) {
                         $add_it = false;
 
                         break;
                     }
-                } elseif ((string) $module->get($key) !== (string) $value) {
+                } elseif ($source !== $value) {
                     $add_it = false;
 
                     break;
                 }
             }
             if ($add_it) {
-                if ($to_array) {
-                    $list[$module->id] = $module->strict()->dump();
-                } else {
-                    $list[] = $module;
-                }
+                $list[] = $module;
             }
+        }
+
+        return $list;
+    }
+
+    /**
+     * Get modules defined properties.
+     *
+     * More than one module can have same id in this stack.
+     * 
+     * @deprecated since 2.27 Use searchDefines() and its DefineStrict properties
+     *
+     * @param   array<string,bool|int|string>    $search     The search parameters
+     * @param   bool                        $to_array   Return arrays of modules properties
+     *
+     * @return  array<int|string,array<string,mixed>|Define>  The modules defines or properties
+     */
+    public function getDefines(array $search = [], bool $to_array = false): array
+    {
+        $defines = $this->searchDefines($search);
+
+        if (!$to_array) {
+            return $defines;
+        }
+
+        $list    = [];
+        foreach($defines as $define) {
+            $list[$define->id] = $define->strict()->dump();
         }
 
         return $list;
@@ -261,7 +294,7 @@ class dcModules
             'php'  => phpversion(),
         ];
 
-        foreach ($this->getDefines() as $module) {
+        foreach ($this->searchDefines() as $module) {
             // module has required modules
             foreach ($module->strict()->requires as $dep) {
                 // optionnal minimum dependancy
@@ -301,10 +334,10 @@ class dcModules
             }
         }
         // Check modules that cannot be disabled
-        foreach ($this->getDefines() as $module) {
+        foreach ($this->searchDefines() as $module) {
             if ($module->strict()->state == Define::STATE_ENABLED) {
                 foreach ($module->strict()->implies as $im) {
-                    foreach ($this->getDefines(['id' => $im]) as $found) {
+                    foreach ($this->searchDefines(['id' => $im]) as $found) {
                         if ($found->strict()->state == Define::STATE_ENABLED) {
                             $module->addUsing($im);
                         }
@@ -331,7 +364,7 @@ class dcModules
             return false;
         }
         $reason = [];
-        foreach ($this->getDefines() as $module) {
+        foreach ($this->searchDefines() as $module) {
             if (empty($module->strict()->missing) || $module->strict()->state != Define::STATE_ENABLED) {
                 continue;
             }
@@ -488,7 +521,7 @@ class dcModules
         uasort($this->defines, fn ($a, $b) => $a->strict()->priority <=> $b->strict()->priority);
 
         // Context loop
-        foreach ($this->getDefines(['state' => Define::STATE_ENABLED]) as $module) {
+        foreach ($this->searchDefines(['state' => Define::STATE_ENABLED]) as $module) {
             # Load translation and _prepend
             $ret = '';
 
@@ -521,7 +554,7 @@ class dcModules
         dcCore::app()->callBehavior('coreBeforeLoadingNsFilesV2', $this, $lang);
 
         // Load module context
-        foreach ($this->getDefines(['state' => Define::STATE_ENABLED]) as $module) {
+        foreach ($this->searchDefines(['state' => Define::STATE_ENABLED]) as $module) {
             if (!in_array($module->id, $ignored)) {
                 // Load ns_file
                 $this->loadNsFile($module->id, $ns);
@@ -561,6 +594,10 @@ class dcModules
      */
     public function registerModule(string $name, string $desc, string $author, string $version, $properties = [])
     {
+        if (is_null($this->id)) {
+            return;
+        }
+
         $define = new Define($this->id);
 
         $define
@@ -774,7 +811,7 @@ class dcModules
 
             unlink($target . DIRECTORY_SEPARATOR . self::MODULE_FILE_DEFINE);
 
-            $new_defines = $sandbox->getDefines();
+            $new_defines = $sandbox->searchDefines();
 
             if (count($new_defines) == 1) {
                 // Check if module is disabled
@@ -831,7 +868,7 @@ class dcModules
             'failure' => [],
         ];
         $msg = '';
-        foreach ($this->getDefines(['state' => Define::STATE_ENABLED]) as $module) {
+        foreach ($this->searchDefines(['state' => Define::STATE_ENABLED]) as $module) {
             $ret = $this->installModule($module->id, $msg);
             if ($ret === true) {
                 $res['success'][$module->id] = true;
@@ -1009,7 +1046,7 @@ class dcModules
     /**
      * Returns all modules associative array or only one module if <var>$id</var> is present.
      *
-     * @deprecated since 2.26 Use self::getDefines($id)
+     * @deprecated since 2.27 Use self::searchDefines($id)
      *
      * @param      string  $id     The optionnal module identifier
      *
@@ -1017,7 +1054,7 @@ class dcModules
      */
     public function getModules(?string $id = null): array
     {
-        dcDeprecated::set('dcModules::getDefines()', '2.26');
+        dcDeprecated::set('dcModules::searchDefines()', '2.27');
 
         $modules = $this->getDefines(['state' => $this->safe_mode ? Define::STATE_SOFT_DISABLED : Define::STATE_ENABLED], true);
 
@@ -1027,7 +1064,7 @@ class dcModules
     /**
      * Gets all modules (whatever are their statuses) or only one module if <var>$id</var> is present.
      *
-     * @deprecated since 2.26 Use self::getDefines($id)
+     * @deprecated since 2.27 Use self::searchDefines($id)
      *
      * @param      string  $id     The optionnal module identifier
      *
@@ -1035,7 +1072,7 @@ class dcModules
      */
     public function getAnyModules(?string $id = null): array
     {
-        dcDeprecated::set('dcModules::getDefines()', '2.26');
+        dcDeprecated::set('dcModules::searchDefines()', '2.27');
 
         $modules = $this->getDefines([], true);
 
@@ -1059,13 +1096,13 @@ class dcModules
     /**
      * Gets the disabled modules.
      *
-     * @deprecated since 2.26 Use self::getDefines()
+     * @deprecated since 2.27 Use self::searchDefines(['state' => '!' . Define::STATE_ENABLED])
      *
      * @return     array  The disabled modules.
      */
     public function getDisabledModules(): array
     {
-        dcDeprecated::set('dcModules::getDefines()', '2.26');
+        dcDeprecated::set('dcModules::searchDefines()', '2.27');
 
         return $this->getDefines(['state' => '!' . Define::STATE_ENABLED], true);
     }
@@ -1073,13 +1110,13 @@ class dcModules
     /**
      * Gets the hard disabled modules.
      *
-     * @deprecated since 2.26 Use self::getDefines()
+     * @deprecated since 2.27 Use self::searchDefines(['state' => Define::STATE_HARD_DISABLED])
      *
      * @return     array  The hard disabled modules.
      */
     public function getHardDisabledModules(): array
     {
-        dcDeprecated::set('dcModules::getDefines()', '2.26');
+        dcDeprecated::set('dcModules::searchDefines()', '2.27');
 
         return $this->getDefines(['state' => Define::STATE_HARD_DISABLED], true);
     }
@@ -1087,13 +1124,13 @@ class dcModules
     /**
      * Gets the soft disabled modules (safe mode and not hard disabled).
      *
-     * @deprecated since 2.26 Use self::getDefines()
+     * @deprecated since 2.27 Use self::searchDefines(['state' => Define::STATE_SOFT_DISABLED])
      *
      * @return     array  The soft disabled modules.
      */
     public function getSoftDisabledModules(): array
     {
-        dcDeprecated::set('dcModules::getDefines()', '2.26');
+        dcDeprecated::set('dcModules::searchDefines()', '2.27');
 
         return $this->getDefines(['state' => Define::STATE_SOFT_DISABLED], true);
     }
@@ -1109,7 +1146,7 @@ class dcModules
      */
     public function moduleRoot(string $id)
     {
-        dcDeprecated::set('dcModules::moduleInfo()', '2.26');
+        dcDeprecated::set('dcModules::getDefine()', '2.27');
 
         return $this->moduleInfo($id, 'root');
     }
@@ -1134,6 +1171,8 @@ class dcModules
      */
     public function moduleInfo(string $id, string $info)
     {
+        dcDeprecated::set('dcModules::getDefine()', '2.27');
+
         return $this->getDefine($id, ['state' => Define::STATE_ENABLED])->get($info);
     }
 
@@ -1144,7 +1183,7 @@ class dcModules
      */
     public function loadNsFiles(?string $ns = null): void
     {
-        foreach ($this->getDefines(['state' => Define::STATE_ENABLED]) as $module) {
+        foreach ($this->searchDefines(['state' => Define::STATE_ENABLED]) as $module) {
             $this->loadNsFile($module->id, $ns);
         }
     }

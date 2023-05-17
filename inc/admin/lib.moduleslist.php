@@ -582,7 +582,7 @@ class adminModulesList
     /**
      * Get modules defines currently set.
      *
-     * @return    array        Array of modules
+     * @return    array<int,Define>     Array of modules
      */
     public function getDefines(): array
     {
@@ -1195,7 +1195,7 @@ class adminModulesList
                 # Deactivate
                 case 'activate':
                     // do not allow activation of duplciate modules already activated
-                    $multi = !self::$allow_multi_install && count($this->modules->getDefines(['id' => $id, 'state' => Define::STATE_ENABLED])) > 0;
+                    $multi = !self::$allow_multi_install && count($this->modules->searchDefines(['id' => $id, 'state' => Define::STATE_ENABLED])) > 0;
                     if (dcCore::app()->auth->isSuperAdmin() && $define->strict()->root_writable && empty($define->strict()->missing) && !$multi) {
                         $submits[] = '<input type="submit" name="activate[' . Html::escapeHTML($id) . ']" value="' . __('Activate') . '" />';
                     }

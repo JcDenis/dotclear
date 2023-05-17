@@ -208,14 +208,14 @@ abstract class MyModule
     final protected static function getDefineFromNamespace(dcModules $modules): Define
     {
         // note: namespace from dcModules start with a backslash
-        $find = $modules->getDefines([
+        $find = $modules->searchDefines([
             'namespace' => '\\' . (new \ReflectionClass(static::class))->getNamespaceName()
         ]);
         if (count($find) != 1) {
             static::exception('Failed to find namespace from ' . static::class);
         }
 
-        // remove phpstan warnings that never chsould happend
+        // remove phpstan warnings that should never happend
         if (is_array($find[0])) {
             throw new Exception('Welcome to the fourth dimension');
         }

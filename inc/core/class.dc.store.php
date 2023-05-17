@@ -65,7 +65,7 @@ class dcStore
     /**
      * Array of new/update modules Define from repository
      *
-     * @var    array
+     * @var    array{new|update:array<int,Define>}
      */
     protected $defines = [
         'new'    => [],

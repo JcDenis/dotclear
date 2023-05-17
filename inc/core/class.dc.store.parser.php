@@ -33,7 +33,7 @@ class dcStoreParser
     /**
      * Array of Define instances of feed contents
      *
-     * @var    array
+     * @var    array<int,Define>
      */
     protected $defines = [];
 
