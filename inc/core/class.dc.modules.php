@@ -215,7 +215,7 @@ class dcModules
         foreach ($this->defines as $module) {
             $add_it = true;
             foreach ($search as $key => $value) {
-                if (null === $module->strict()->{$key}) {
+                if (!isset($module->strict()->{$key})) {
                     continue;
                 }
                 if (substr($value, 0, 1) === '!') {
