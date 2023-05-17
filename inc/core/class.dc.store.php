@@ -367,15 +367,18 @@ class dcStore
     /**
      * Split and clean pattern.
      *
-     * @param    string    $str        String to sanitize
+     * @param    string|array<int,string>   $str        String to sanitize (or array for tags)
      *
      * @return    array|false    Array of cleaned pieces of string or false if none
      */
-    private static function patternize(string $str)
+    private static function patternize(string|array $str)
     {
         $arr = [];
+        if (!is_array($str)) {
+            $str = explode(' ', $str);
+        }
 
-        foreach (explode(' ', $str) as $_) {
+        foreach ($str as $_) {
             $_ = strtolower(preg_replace('/[^A-Za-z0-9]/', '', $_));
             if (strlen($_) >= 2) {
                 $arr[] = $_;

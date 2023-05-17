@@ -41,6 +41,10 @@ class dcThemes extends dcModules
      */
     public function registerModule(string $name, string $desc, string $author, string $version, $properties = []): void
     {
+        if (is_null($this->id)) {
+            return;
+        }
+
         $define = new Define($this->id);
 
         $define
@@ -60,10 +64,10 @@ class dcThemes extends dcModules
         if (!is_array($properties)) {
             $args       = func_get_args();
             $properties = [];
-            if (isset($args[4])) {
+            if (isset($args[4]) && is_string($args[4])) {
                 $define->set('parent', $args[4]);
             }
-            if (isset($args[5])) {
+            if (isset($args[5]) && is_numeric($args[5])) {
                 $define->set('priority', (int) $args[5]);
             }
         }
@@ -71,10 +75,10 @@ class dcThemes extends dcModules
         $this->defineModule($define);
     }
 
-    protected function defineModule(Define $define)
+    protected function defineModule(Define $define): void
     {
         // Themes specifics properties
-        $define->set('permissions', dcCore::app()->auth->makePermissions([
+        $define->set('permissions', dcCore::app()->auth?->makePermissions([
             dcAuth::PERMISSION_ADMIN,
         ]));
 
@@ -116,55 +120,62 @@ class dcThemes extends dcModules
                 // Clone directories and files
 
                 $content = Files::getDirList($module->strict()->root);
+                if (is_null($content)) {
+                    return;
+                }
 
                 // Create sub directories if necessary
-                foreach ($content['dirs'] as $dir) {
-                    $rel = substr($dir, strlen($module->strict()->root));
-                    if ($rel !== '') {
-                        Files::makeDir($new_dir . $rel);
+                if (is_array($content['dirs'])) {
+                    foreach ($content['dirs'] as $dir) {
+                        $rel = substr($dir, strlen($module->strict()->root));
+                        if ($rel !== '') {
+                            Files::makeDir($new_dir . $rel);
+                        }
                     }
                 }
 
                 // Copy files from source to destination
-                foreach ($content['files'] as $file) {
-                    // Copy file
-                    $rel = substr($file, strlen($module->strict()->root));
-                    copy($file, $new_dir . $rel);
+                if (is_array($content['files'])) {
+                    foreach ($content['files'] as $file) {
+                        // Copy file
+                        $rel = substr($file, strlen($module->strict()->root));
+                        copy($file, $new_dir . $rel);
 
-                    if ($rel === (DIRECTORY_SEPARATOR . self::MODULE_FILE_DEFINE)) {
-                        $buf = (string) file_get_contents($new_dir . $rel);
-                        // Find offset of registerModule function call
-                        $pos = strpos($buf, '$this->registerModule');
-                        // Change theme name to $new_name in _define.php
-                        if (preg_match('/(\$this->registerModule\(\s*)((\s*|.*)+?)(\s*\);+)/m', $buf, $matches)) {
-                            // Change only first occurence in registerModule parameters (should be the theme name)
-                            $matches[2] = preg_replace('/' . preg_quote($module->strict()->name) . '/', $new_name, $matches[2], 1);
-                            $buf        = substr($buf, 0, $pos) . $matches[1] . $matches[2] . $matches[4];
-                            $buf .= sprintf("\n\n// Cloned on %s from %s theme.\n", date('c'), $module->strict()->name);
-                            file_put_contents($new_dir . $rel, $buf);
-                        } else {
-                            throw new Exception(__('Unable to modify _define.php'));
-                        }
-                    }
-
-                    if (substr($rel, -4) === '.php') {
-                        // Change namespace in *.php
-                        $buf      = (string) file_get_contents($new_dir . $rel);
-                        $prefixes = [
-                            'themes\\',             // ex: namespace themes\berlin; → namespace themes\berlin_Copy; Dotclear <= 2.24
-                            'Dotclear\Theme\\',     // ex: namespace Dotclear\Theme\Berlin; → namespace Dotclear\Theme\Berlin_Copy;
-                        ];
-                        foreach ($prefixes as $prefix) {
-                            if (preg_match('/^namespace\s*' . preg_quote($prefix) . '([^;].*);$/m', $buf, $matches)) {
-                                $pos     = strpos($buf, $matches[0]);
-                                $rel_dir = substr($new_dir, strlen($root));
-                                $ns      = preg_replace('/\W/', '', str_replace(['-', '.'], '', ucwords($rel_dir, '_-.')));
-                                $buf     = substr($buf, 0, $pos) .
-                                    'namespace ' . $prefix . $ns . ';' .
-                                    substr($buf, $pos + strlen($matches[0]));
+                        if ($rel === (DIRECTORY_SEPARATOR . self::MODULE_FILE_DEFINE)) {
+                            $buf = (string) file_get_contents($new_dir . $rel);
+                            // Find offset of registerModule function call
+                            $pos = (int) strpos($buf, '$this->registerModule');
+                            // Change theme name to $new_name in _define.php
+                            if (preg_match('/(\$this->registerModule\(\s*)((\s*|.*)+?)(\s*\);+)/m', $buf, $matches)) {
+                                // Change only first occurence in registerModule parameters (should be the theme name)
+                                $matches[2] = preg_replace('/' . preg_quote($module->strict()->name) . '/', $new_name, $matches[2], 1);
+                                $buf        = substr($buf, 0, $pos) . $matches[1] . $matches[2] . $matches[4];
+                                $buf .= sprintf("\n\n// Cloned on %s from %s theme.\n", date('c'), $module->strict()->name);
                                 file_put_contents($new_dir . $rel, $buf);
+                            } else {
+                                throw new Exception(__('Unable to modify _define.php'));
+                            }
+                        }
 
-                                break;
+                        if (substr($rel, -4) === '.php') {
+                            // Change namespace in *.php
+                            $buf      = (string) file_get_contents($new_dir . $rel);
+                            $prefixes = [
+                                'themes\\',             // ex: namespace themes\berlin; → namespace themes\berlin_Copy; Dotclear <= 2.24
+                                'Dotclear\Theme\\',     // ex: namespace Dotclear\Theme\Berlin; → namespace Dotclear\Theme\Berlin_Copy;
+                            ];
+                            foreach ($prefixes as $prefix) {
+                                if (preg_match('/^namespace\s*' . preg_quote($prefix) . '([^;].*);$/m', $buf, $matches)) {
+                                    $pos     = (int) strpos($buf, $matches[0]);
+                                    $rel_dir = substr($new_dir, strlen($root));
+                                    $ns      = preg_replace('/\W/', '', str_replace(['-', '.'], '', ucwords($rel_dir, '_-.')));
+                                    $buf     = substr($buf, 0, $pos) .
+                                        'namespace ' . $prefix . $ns . ';' .
+                                        substr($buf, $pos + strlen($matches[0]));
+                                    file_put_contents($new_dir . $rel, $buf);
+
+                                    break;
+                                }
                             }
                         }
                     }
