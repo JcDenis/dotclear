@@ -22,6 +22,7 @@ namespace Dotclear\Module;
 
 use dcCore;
 use dcModules;
+use Dotclear\Helper\L10n;
 use Exception;
 
 /**
@@ -196,6 +197,16 @@ abstract class MyModule
     }
 
     /**
+     * Set module locales.
+     *
+     * @param   string  $process    The locales process
+     */
+    final public static function l10n(string $process): void
+    {
+        L10n::set(implode(DIRECTORY_SEPARATOR, [static::path(), 'locales', dcCore::app()->lang, $process]));
+    }
+
+    /**
      * Get module define from its namespace.
      *
      * This method is used to load module define.
@@ -228,7 +239,7 @@ abstract class MyModule
      */
     final static protected function exception(string $msg = ''): void
     {
-        $msg = defined('DC_DEV') && DC_DEV && empty($msg) ? ': ' . $msg : '';
+        $msg = defined('DC_DEV') && DC_DEV && !empty($msg) ? ': ' . $msg : '';
 
         throw new Exception('Invalid module structure' . $msg);
     }
