@@ -64,11 +64,16 @@ abstract class MyPlugin extends MyModule
      *
      * @return  array<int,string>   The module icons URLs
      */
-    protected static function icons(): array
+    public static function icons(): array
     {
-        $icons = [urldecode(dcPage::getPF(static::id() . '/icon.svg'))];
-        if (file_exists(static::path() . DIRECTORY_SEPARATOR . 'icon-dark.svg')) {
-            $icons[] = urldecode(dcPage::getPF(static::id() . '/icon-dark.svg'));
+        $icons = [];
+        if (defined('DC_CONTEXT_ADMIN')) {
+            if (file_exists(static::path() . DIRECTORY_SEPARATOR . 'icon.svg')) {
+                $icons[] = urldecode(dcPage::getPF(static::id() . '/icon.svg'));
+            }
+            if (file_exists(static::path() . DIRECTORY_SEPARATOR . 'icon-dark.svg')) {
+                $icons[] = urldecode(dcPage::getPF(static::id() . '/icon-dark.svg'));
+            }
         }
 
         return $icons;
