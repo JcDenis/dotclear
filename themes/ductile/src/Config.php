@@ -17,7 +17,6 @@ use dcPage;
 use dcThemeConfig;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Helper\L10n;
 use Dotclear\Helper\Network\Http;
 use Exception;
 use form;
@@ -26,13 +25,15 @@ class Config extends dcNsProcess
 {
     public static function init(): bool
     {
-        if (!defined('DC_CONTEXT_ADMIN')) {
+        // limit to backend permissions
+        static::$init = My::checkContext(My::BACKEND);
+
+        if (!static::$init) {
             return false;
         }
 
-        static::$init = true;
-
-        L10n::set(__DIR__ . '/../locales/' . dcCore::app()->lang . '/admin');
+        // load locales
+        My::l10n('admin');
 
         if (preg_match('#^http(s)?://#', (string) dcCore::app()->blog->settings->system->themes_url)) {
             dcCore::app()->admin->img_url = Http::concatURL(dcCore::app()->blog->settings->system->themes_url, '/' . dcCore::app()->blog->settings->system->theme . '/img/');
@@ -40,14 +41,14 @@ class Config extends dcNsProcess
             dcCore::app()->admin->img_url = Http::concatURL(dcCore::app()->blog->url, dcCore::app()->blog->settings->system->themes_url . '/' . dcCore::app()->blog->settings->system->theme . '/img/');
         }
 
-        $img_path = __DIR__ . '/../img/';
-        $tpl_path = __DIR__ . '/../tpl/';
+        $img_path = My::path() . '/img/';
+        $tpl_path = My::path() . '/tpl/';
 
-        dcCore::app()->admin->standalone_config = (bool) dcCore::app()->themes->getDefine(dcCore::app()->blog->settings->system->theme->strict()->standalone_config;
+        dcCore::app()->admin->standalone_config = dcCore::app()->themes->getDefine(dcCore::app()->blog->settings->system->theme)->strict()->standalone_config;
 
         // Load contextual help
-        if (file_exists(__DIR__ . '/../locales/' . dcCore::app()->lang . '/resources.php')) {
-            require __DIR__ . '/../locales/' . dcCore::app()->lang . '/resources.php';
+        if (file_exists(My::path() . '/locales/' . dcCore::app()->lang . '/resources.php')) {
+            require My::path() . '/locales/' . dcCore::app()->lang . '/resources.php';
         }
 
         $list_types = [

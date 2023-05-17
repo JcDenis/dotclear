@@ -19,7 +19,7 @@ class Prepend extends dcNsProcess
 {
     public static function init(): bool
     {
-        static::$init = defined('DC_CONTEXT_ADMIN');
+        static::$init = My::checkContext(My::PREPEND);
 
         return static::$init;
     }
@@ -31,7 +31,7 @@ class Prepend extends dcNsProcess
         }
 
         dcCore::app()->addBehavior('adminPageHTMLHead', function () {
-            if (dcCore::app()->blog->settings->system->theme !== basename(dirname(__DIR__))) {
+            if (dcCore::app()->blog->settings->system->theme !== My::id()) {
                 return;
             }
 

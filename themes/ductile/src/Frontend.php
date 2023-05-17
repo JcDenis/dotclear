@@ -16,13 +16,12 @@ use dcCore;
 use dcNsProcess;
 use dcThemeConfig;
 use Dotclear\Helper\File\Files;
-use Dotclear\Helper\L10n;
 
 class Frontend extends dcNsProcess
 {
     public static function init(): bool
     {
-        static::$init = defined('DC_RC_PATH');
+        static::$init = My::checkContext(My::FRONTEND);
 
         return static::$init;
     }
@@ -33,7 +32,8 @@ class Frontend extends dcNsProcess
             return false;
         }
 
-        L10n::set(__DIR__ . '/../locales/' . dcCore::app()->lang . '/main');
+        # load locales
+        My::l10n('main');
 
         # Behaviors
         dcCore::app()->addBehaviors([
@@ -126,7 +126,7 @@ class Frontend extends dcNsProcess
 
     public static function ductileEntriesList(ArrayObject $attr): string
     {
-        $tpl_path   = __DIR__ . '/../tpl/';
+        $tpl_path   = My::path() . DIRECTORY_SEPARATOR . 'tpl';
         $list_types = ['title', 'short', 'full'];
 
         // Get all _entry-*.html in tpl folder of theme
