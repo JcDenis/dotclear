@@ -714,14 +714,14 @@ class dcRestMethods
             $store->check();
 
             foreach ($store->getDefines() as $str_define) {
-                if ($str_define->getId() != $id) {
+                if ($str_define->id != $id) {
                     continue;
                 }
                 $define = $str_define;
             }
         }
 
-        if (!$define->isDefined() || !$define->get('enabled')) {
+        if (!$define->strict()->defined || !$define->strict()->enabled) {
             throw new Exception('Unknown module ID');
         }
 
@@ -730,7 +730,14 @@ class dcRestMethods
         $rsp     = new XmlTag('module');
         $rsp->id = $id;
 
-        foreach ($define->dump() as $k => $v) {
+        foreach ($define->strict()->dump() as $k => $v) {
+            if (is_array($v)) {
+                $res = '';
+                foreach($v as $vk => $vv) {
+                    $res .= $vk . ':' . (string) $vv;
+                }
+                $v = $res;
+            }
             $rsp->{$k}((string) $v);
         }
 
