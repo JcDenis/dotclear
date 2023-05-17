@@ -19,7 +19,7 @@ class Frontend extends dcNsProcess
 {
     public static function init(): bool
     {
-        static::$init = defined('DC_RC_PATH');
+        static::$init = My::checkContext(My::FRONTEND);
 
         return static::$init;
     }
@@ -42,19 +42,6 @@ class Frontend extends dcNsProcess
         dcCore::app()->tpl->addValue('TagURL', [FrontendTemplate::class, 'TagURL']);
         dcCore::app()->tpl->addValue('TagCloudURL', [FrontendTemplate::class, 'TagCloudURL']);
         dcCore::app()->tpl->addValue('TagFeedURL', [FrontendTemplate::class, 'TagFeedURL']);
-
-        /*
-        # Kept for backward compatibility (for now)
-        dcCore::app()->tpl->addBlock('MetaData', [FrontendTemplate::class, 'Tags']);
-        dcCore::app()->tpl->addBlock('MetaDataHeader', [FrontendTemplate::class, 'TagsHeader']);
-        dcCore::app()->tpl->addBlock('MetaDataFooter', [FrontendTemplate::class, 'TagsFooter']);
-        dcCore::app()->tpl->addValue('MetaID', [FrontendTemplate::class, 'TagID']);
-        dcCore::app()->tpl->addValue('MetaPercent', [FrontendTemplate::class, 'TagPercent']);
-        dcCore::app()->tpl->addValue('MetaRoundPercent', [FrontendTemplate::class, 'TagRoundPercent']);
-        dcCore::app()->tpl->addValue('MetaURL', [FrontendTemplate::class, 'TagURL']);
-        dcCore::app()->tpl->addValue('MetaAllURL', [FrontendTemplate::class, 'TagCloudURL']);
-        dcCore::app()->tpl->addBlock('EntryMetaData', [FrontendTemplate::class, 'EntryTags']);
-        */
 
         dcCore::app()->addBehaviors([
             'publicPrependV2'        => [FrontendBehaviors::class, 'publicPrepend'],

@@ -103,8 +103,8 @@ class BackendBehaviors
         $favs->register('tags', [
             'title'       => __('Tags'),
             'url'         => dcCore::app()->adminurl->get('admin.plugin.tags', ['m' => 'tags']),
-            'small-icon'  => [dcPage::getPF('tags/icon.svg'), dcPage::getPF('tags/icon-dark.svg')],
-            'large-icon'  => [dcPage::getPF('tags/icon.svg'), dcPage::getPF('tags/icon-dark.svg')],
+            'small-icon'  => My::icons(),
+            'large-icon'  => My::icons(),
             'permissions' => dcCore::app()->auth->makePermissions([
                 dcCore::app()->auth::PERMISSION_USAGE,
                 dcCore::app()->auth::PERMISSION_CONTENT_ADMIN,
