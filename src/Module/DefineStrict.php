@@ -68,6 +68,10 @@ final class DefineStrict
     public readonly string $sid;
     public readonly string $sname;
 
+    public readonly string $widgetcontainerformat;
+    public readonly string $widgettitleformat;
+    public readonly string $widgetsubtitleformat;
+
     public readonly bool $defined;
     public readonly bool $enabled;
     /** @var    array<int,string> */
@@ -152,6 +156,11 @@ final class DefineStrict
         // modules list specifics
         $this->sid   = $sanitize($define->id);
         $this->sname = $sanitize(strtolower(Text::removeDiacritics($this->name)));
+
+        // special modules
+        $this->widgetcontainerformat = is_string($define->property('widgetcontainerformat')) ? $define->property('widgetcontainerformat') : '';
+        $this->widgettitleformat     = is_string($define->property('widgettitleformat')) ? $define->property('widgettitleformat') : '';
+        $this->widgetsubtitleformat  = is_string($define->property('widgetsubtitleformat')) ? $define->property('widgetsubtitleformat') : '';
 
         // out of properties
         $this->defined = $this->name != Define::DEFAULT_NAME;

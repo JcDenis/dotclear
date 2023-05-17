@@ -128,6 +128,11 @@ class Define
         // modules list specifics
         'sid'   => '',
         'sname' => '',
+
+        // special modules
+        'widgetcontainerformat' => '',
+        'widgettitleformat'     => '',
+        'widgetsubtitleformat'  => '',
     ];
 
     /**
