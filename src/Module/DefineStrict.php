@@ -100,8 +100,8 @@ final class DefineStrict
         $this->distributed   = !empty($define->property('distributed'));
 
         // required
-        $this->name    = is_string($define->property('name')) ? $define->property('name') : $this->id;
-        $this->desc    = is_string($define->property('desc')) ? $define->property('desc') : '';
+        $this->name    = is_string($define->property('name')) ? __($define->property('name')) : $this->id;
+        $this->desc    = is_string($define->property('desc')) ? __($define->property('desc')) : '';
         $this->author  = is_string($define->property('author')) ? $define->property('author') : 'unknown';
         $this->version = is_string($define->property('version')) ? $define->property('version') : '0';
         $this->type    = is_string($define->property('type')) ? $define->property('type') : Define::DEFAULT_TYPE;
