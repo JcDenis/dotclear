@@ -140,7 +140,7 @@ final class DefineStrict
 
         // theme specifics
         $this->parent = is_string($define->property('parent')) ? $define->property('parent') : '';
-        $this->tplset = is_string($define->property('tplset')) ? $define->property('tplset') : DC_DEFAULT_TPLSET;
+        $this->tplset = is_string($define->property('tplset')) ? $define->property('tplset') : (defined('DC_DEFAULT_TPLSET') ? DC_DEFAULT_TPLSET : '');
 
         // store specifics
         $this->file            = is_string($define->property('file')) ? $define->property('file') : '';

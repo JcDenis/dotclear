@@ -112,7 +112,7 @@ class Define
 
         // theme specifics
         'parent' => null,
-        'tplset' => DC_DEFAULT_TPLSET,
+        'tplset' => '',//DC_DEFAULT_TPLSET,
 
         // store specifics
         'file'            => '',
