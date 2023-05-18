@@ -92,6 +92,13 @@ final class DefineStrict
 
         $this->id            = $define->id;
 
+        // out of properties
+        $this->defined = is_string($define->property('name')) && $define->property('name') != Define::DEFAULT_NAME;
+        $this->enabled = is_numeric($define->property('state')) && $define->property('state') == Define::STATE_ENABLED;
+        $this->implies = $define->getImplies();
+        $this->missing = $define->getMissing();
+        $this->using   = $define->getUsing();
+
         // set by dc
         $this->state         = is_numeric($define->property('state')) ? (int) $define->property('state') : Define::STATE_INIT_DISABLED;
         $this->root          = is_string($define->property('root')) ? $define->property('root') : '';
@@ -161,13 +168,6 @@ final class DefineStrict
         $this->widgetcontainerformat = is_string($define->property('widgetcontainerformat')) ? $define->property('widgetcontainerformat') : '';
         $this->widgettitleformat     = is_string($define->property('widgettitleformat')) ? $define->property('widgettitleformat') : '';
         $this->widgetsubtitleformat  = is_string($define->property('widgetsubtitleformat')) ? $define->property('widgetsubtitleformat') : '';
-
-        // out of properties
-        $this->defined = $this->name != Define::DEFAULT_NAME;
-        $this->enabled = $this->state == Define::STATE_ENABLED;
-        $this->implies = $define->getImplies();
-        $this->missing = $define->getMissing();
-        $this->using   = $define->getUsing();
     }
 
     /**
