@@ -1,9 +1,9 @@
 <?php
 /**
- * @brief Theme My module class.
+ * @brief Theme custom CSS My module class.
  *
  * @package Dotclear
- * @subpackage Core
+ * @subpackage Themes
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only

@@ -3,7 +3,7 @@
  * @brief Plugin widgets My module class.
  *
  * @package Dotclear
- * @subpackage Core
+ * @subpackage Plugins
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only

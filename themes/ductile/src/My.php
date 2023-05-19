@@ -1,11 +1,11 @@
 <?php
 /**
- * @brief Theme My module class.
+ * @brief Theme ductile My module class.
  * 
  * A theme My class must extend this class.
  *
  * @package Dotclear
- * @subpackage Core
+ * @subpackage Themes
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
