@@ -90,8 +90,6 @@ abstract class MyModule
 
     /**
      * Check permission depending on given context.
-     * 
-     * (DEV: waiting php 8.0 to use match synthax)
      *
      * @param   int     $context     context
      *
@@ -224,11 +222,6 @@ abstract class MyModule
         ]);
         if (count($find) != 1) {
             static::exception('Failed to find namespace from ' . static::class);
-        }
-
-        // remove phpstan warnings that should never happend
-        if (is_array($find[0])) {
-            throw new Exception('Welcome to the fourth dimension');
         }
 
         return $find[0];
