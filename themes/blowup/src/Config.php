@@ -25,9 +25,7 @@ class Config extends dcNsProcess
 {
     public static function init(): bool
     {
-        static::$init = My::checkContext(My::CONFIG);
-
-        return static::$init;
+        return (static::$init = My::checkContext(My::CONFIG));
     }
 
     public static function process(): bool

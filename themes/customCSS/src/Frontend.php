@@ -18,21 +18,21 @@ class Frontend extends dcNsProcess
 {
     public static function init(): bool
     {
-        static::$init = My::checkContext(My::FRONTEND);
-
-        return static::$init;
+        return (static::$init = My::checkContext(My::FRONTEND));
     }
 
     public static function process(): bool
     {
-        if (!static::$init) {
-            return false;
+        if (static::$init) {
+            dcCore::app()->addBehavior('publicHeadContent', function () {
+                echo 
+                '<link rel="stylesheet" type="text/css" href="' . 
+                dcCore::app()->blog->settings->system->public_url . 
+                '/custom_style.css" media="screen">' . 
+                "\n";
+            });
         }
 
-        dcCore::app()->addBehavior('publicHeadContent', function () {
-            echo '<link rel="stylesheet" type="text/css" href="' . dcCore::app()->blog->settings->system->public_url . '/custom_style.css" media="screen">' . "\n";
-        });
-
-        return true;
+        return static::$init;
     }
 }

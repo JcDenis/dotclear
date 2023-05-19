@@ -20,9 +20,7 @@ class Install extends dcNsProcess
 {
     public static function init(): bool
     {
-        static::$init = My::checkContext(My::INSTALL);
-
-        return static::$init;
+        return (static::$init = My::checkContext(My::INSTALL));
     }
 
     public static function process(): bool

@@ -21,9 +21,7 @@ class Frontend extends dcNsProcess
 {
     public static function init(): bool
     {
-        static::$init = My::checkContext(My::FRONTEND);
-
-        return static::$init;
+        return (static::$init = My::checkContext(My::FRONTEND));
     }
 
     public static function process(): bool

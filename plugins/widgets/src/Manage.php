@@ -25,9 +25,7 @@ class Manage extends dcNsProcess
 {
     public static function init(): bool
     {
-        static::$init = My::checkContext(My::MANAGE);
-
-        return static::$init;
+        return (static::$init = My::checkContext(My::MANAGE));
     }
 
     public static function process(): bool
