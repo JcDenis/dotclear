@@ -35,7 +35,7 @@ class Backend extends dcNsProcess
         dcCore::app()->addBehaviors([
             'adminDashboardFavoritesV2' => function (dcFavorites $favs) {
                 $favs->register(My::id(), [
-                    'title'      => __('Presentation widgets'),
+                    'title'      => My::name(),
                     'url'        => My::backendUrl(),
                     'small-icon' => My::icons(),
                     'large-icon' => My::icons(),

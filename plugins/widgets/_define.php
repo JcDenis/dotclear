@@ -9,7 +9,7 @@
  * @copyright GPL-2.0-only
  */
 $this->registerModule(
-    'Widgets',                         // Name
+    'Presentation widgets',            // Name
     'Widgets for your blog sidebars',  // Description
     'Olivier Meunier & Dotclear Team', // Author
     '4.0',                             // Version
