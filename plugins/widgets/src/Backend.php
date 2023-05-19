@@ -34,11 +34,11 @@ class Backend extends dcNsProcess
 
         dcCore::app()->addBehaviors([
             'adminDashboardFavoritesV2' => function (dcFavorites $favs) {
-                $favs->register('widgets', [
+                $favs->register(My::id(), [
                     'title'      => __('Presentation widgets'),
-                    'url'        => dcCore::app()->adminurl->get('admin.plugin.widgets'),
-                    'small-icon' => [dcPage::getPF('widgets/icon.svg'), dcPage::getPF('widgets/icon-dark.svg')],
-                    'large-icon' => [dcPage::getPF('widgets/icon.svg'), dcPage::getPF('widgets/icon-dark.svg')],
+                    'url'        => My::backendUrl(),
+                    'small-icon' => My::icons(),
+                    'large-icon' => My::icons(),
                 ]);
             },
             'adminRteFlagsV2' => function (ArrayObject $rte) {
