@@ -1,11 +1,11 @@
 <?php
 /**
- * @brief Theme My module class.
+ * @brief Plugin tags My module class.
  * 
  * A theme My class must extend this class.
  *
  * @package Dotclear
- * @subpackage Core
+ * @subpackage Plugins
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
@@ -24,7 +24,7 @@ class My extends MyPlugin
     public static function checkCustomContext(int $context): ?bool
     {
         return match($context) {
-            self::MENU =>
+            self::MANAGE, self::MENU =>
                 defined('DC_CONTEXT_ADMIN')
                     && !is_null(dcCore::app()->blog) && !is_null(dcCore::app()->auth)
                     && dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([

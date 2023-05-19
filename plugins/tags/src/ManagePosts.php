@@ -27,7 +27,7 @@ class ManagePosts extends dcNsProcess
     public static function init(): bool
     {
         // limit to backend permissions
-        if (My::checkContext(My::BACKEND)) {
+        if (My::checkContext(My::MANAGE)) {
             static::$init = ($_REQUEST['m'] ?? 'tags') === 'tag_posts';
         }
 
