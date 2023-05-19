@@ -26,7 +26,7 @@ class Config extends dcNsProcess
     public static function init(): bool
     {
         // limit to backend permissions
-        static::$init = My::checkContext(My::BACKEND);
+        static::$init = My::checkContext(My::CONFIG);
 
         if (!static::$init) {
             return false;

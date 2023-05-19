@@ -25,7 +25,7 @@ class Config extends dcNsProcess
 {
     public static function init(): bool
     {
-        static::$init = defined('DC_CONTEXT_ADMIN');
+        static::$init = My::checkContext(My::CONFIG);
 
         return static::$init;
     }

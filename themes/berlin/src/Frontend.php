@@ -21,7 +21,7 @@ class Frontend extends dcNsProcess
 {
     public static function init(): bool
     {
-        static::$init = defined('DC_RC_PATH');
+        static::$init = My::checkContext(My::FRONTEND);
 
         return static::$init;
     }
@@ -32,7 +32,7 @@ class Frontend extends dcNsProcess
             return false;
         }
 
-        L10n::set(__DIR__ . '/../locales/' . dcCore::app()->lang . '/main');
+        My::l10n('main');
 
         dcCore::app()->addBehavior('publicHeadContent', function () {
             echo
