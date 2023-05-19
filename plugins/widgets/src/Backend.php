@@ -23,9 +23,7 @@ class Backend extends dcNsProcess
 {
     public static function init(): bool
     {
-        if (defined('DC_CONTEXT_ADMIN')) {
-            static::$init = true;
-        }
+        static::$init = My::checkContext(My::BACKEND);
 
         return static::$init;
     }
@@ -50,15 +48,7 @@ class Backend extends dcNsProcess
             },
         ]);
 
-        dcCore::app()->menu[dcAdmin::MENU_BLOG]->addItem(
-            __('Presentation widgets'),
-            dcCore::app()->adminurl->get('admin.plugin.widgets'),
-            [dcPage::getPF('widgets/icon.svg'), dcPage::getPF('widgets/icon-dark.svg')],
-            preg_match('/' . preg_quote(dcCore::app()->adminurl->get('admin.plugin.widgets')) . '(&.*)?$/', $_SERVER['REQUEST_URI']),
-            dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([
-                dcCore::app()->auth::PERMISSION_ADMIN,
-            ]), dcCore::app()->blog->id)
-        );
+        My::backendSidebarMenuIcon(dcAdmin::MENU_BLOG);
 
         return true;
     }

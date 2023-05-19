@@ -25,13 +25,7 @@ class Manage extends dcNsProcess
 {
     public static function init(): bool
     {
-        if (defined('DC_CONTEXT_ADMIN')) {
-            dcPage::check(dcCore::app()->auth->makePermissions([
-                dcCore::app()->auth::PERMISSION_ADMIN,
-            ]));
-
-            static::$init = true;
-        }
+        static::$init = My::checkContext(My::MANAGE);
 
         return static::$init;
     }
@@ -242,18 +236,18 @@ class Manage extends dcNsProcess
             $rte_flag = $rte_flags['widgets_text'];
         }
 
-        $head = dcPage::cssModuleLoad('widgets/css/style.css') .
+        $head = dcPage::cssModuleLoad(My::id() . '/css/style.css') .
             dcPage::jsLoad('js/jquery/jquery-ui.custom.js') .
             dcPage::jsLoad('js/jquery/jquery.ui.touch-punch.js') .
             dcPage::jsJson('widgets', [
                 'widget_noeditor' => ($rte_flag ? 0 : 1),
                 'msg'             => ['confirm_widgets_reset' => __('Are you sure you want to reset sidebars?')],
             ]) .
-            dcPage::jsModuleLoad('widgets/js/widgets.js');
+            dcPage::jsModuleLoad(My::id() . '/js/widgets.js');
 
         $user_dm_nodragdrop = dcCore::app()->auth->user_prefs->accessibility->nodragdrop;
         if (!$user_dm_nodragdrop) {
-            $head .= dcPage::jsModuleLoad('widgets/js/dragdrop.js');
+            $head .= dcPage::jsModuleLoad(My::id() . '/js/dragdrop.js');
         }
         if ($rte_flag) {
             # --BEHAVIOR-- adminPostEditor -- string, string, string, array<int,string>, string
@@ -267,13 +261,13 @@ class Manage extends dcNsProcess
         }
         $head .= dcPage::jsConfirmClose('sidebarsWidgets');
 
-        dcPage::openModule(__('Widgets'), $head);
+        dcPage::openModule(My::name(), $head);
 
         echo
         dcPage::breadcrumb(
             [
                 Html::escapeHTML(dcCore::app()->blog->name) => '',
-                __('Widgets')                               => '',
+                My::name()                               => '',
             ]
         ) .
         dcPage::notices() .
