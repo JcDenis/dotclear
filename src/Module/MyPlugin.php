@@ -30,11 +30,7 @@ abstract class MyPlugin extends MyModule
 {
     protected static function define(): Define
     {
-        if (!(static::$define instanceof Define)) {
-            static::$define = static::getDefineFromNamespace(dcCore::app()->plugins);
-        }
-
-        return static::$define;
+        return static::getDefineFromNamespace(dcCore::app()->plugins);
     }
 
     /**

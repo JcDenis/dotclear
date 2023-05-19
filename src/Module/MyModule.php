@@ -60,8 +60,8 @@ abstract class MyModule
     /** @var    int     Uninstall context */
     final public const UNINSTALL = 8;
 
-    /** @var    Define  The module define */
-    protected static $define;
+    /** @var    array<string,Define>    The know modules defines */
+    protected static $defines = [];
 
     /**
      * Load (once) the module define.
@@ -216,15 +216,20 @@ abstract class MyModule
      */
     final protected static function getDefineFromNamespace(dcModules $modules): Define
     {
-        // note: namespace from dcModules start with a backslash
-        $find = $modules->searchDefines([
-            'namespace' => '\\' . (new \ReflectionClass(static::class))->getNamespaceName()
-        ]);
-        if (count($find) != 1) {
-            static::exception('Failed to find namespace from ' . static::class);
+        // check if Define is already known
+        if (!isset(static::$defines[static::class])) {
+            // note: namespace from dcModules start with a backslash
+            $find = $modules->searchDefines([
+                'namespace' => '\\' . (new \ReflectionClass(static::class))->getNamespaceName()
+            ]);
+            if (count($find) != 1) {
+                static::exception('Failed to find namespace from ' . static::class);
+            }
+
+            static::$defines[static::class] = $find[0];
         }
 
-        return $find[0];
+        return static::$defines[static::class];
     }
 
     /**

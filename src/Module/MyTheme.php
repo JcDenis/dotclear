@@ -28,17 +28,13 @@ abstract class MyTheme extends MyModule
 {
     protected static function define(): Define
     {
-        if (!(static::$define instanceof Define)) {
-            // should never happend but hey.
-            if (!(dcCore::app()->themes instanceof dcThemes)) {
-                dcCore::app()->themes = new dcThemes();
-                dcCore::app()->themes->loadModules((string) dcCore::app()->blog?->themes_path, null);
-            }
-
-            static::$define = static::getDefineFromNamespace(dcCore::app()->themes);
+        // should never happend but hey.
+        if (!(dcCore::app()->themes instanceof dcThemes)) {
+            dcCore::app()->themes = new dcThemes();
+            dcCore::app()->themes->loadModules((string) dcCore::app()->blog?->themes_path, null);
         }
 
-        return static::$define;
+        return static::getDefineFromNamespace(dcCore::app()->themes);
     }
 
     protected static function checkCustomContext(int $context): ?bool
