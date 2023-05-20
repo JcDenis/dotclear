@@ -21,9 +21,7 @@ class Prepend extends dcNsProcess
 {
     public static function init(): bool
     {
-        static::$init = defined('DC_RC_PATH');
-
-        return static::$init;
+        return (static::$init = My::checkContext(My::PREPEND));
     }
 
     public static function process(): bool
@@ -33,10 +31,9 @@ class Prepend extends dcNsProcess
         }
 
         dcCore::app()->addBehavior('coreFirstPublicationEntries', function (dcBlog $blog) {
-            if (!$blog->settings->pings->pings_active) {
-                return;
-            }
-            if (!$blog->settings->pings->pings_auto) {
+            if (!$blog->settings->pings->pings_active
+                || !$blog->settings->pings->pings_auto
+            ) {
                 return;
             }
 

@@ -18,10 +18,6 @@ use Dotclear\Helper\Html\Html;
 use Exception;
 use form;
 
-if (!defined('DC_CONTEXT_ADMIN')) {
-    return false;
-}
-
 class BackendBehaviors
 {
     /**
@@ -32,7 +28,7 @@ class BackendBehaviors
      */
     public static function pingsFormItems(ArrayObject $main, ArrayObject $sidebar)
     {
-        if (!dcCore::app()->blog->settings->pings->pings_active) {
+        if (!defined('DC_CONTEXT_ADMIN') || !dcCore::app()->blog->settings->pings->pings_active) {
             return;
         }
 
@@ -47,7 +43,7 @@ class BackendBehaviors
             $pings_do = [];
         }
 
-        $item = '<h5 class="ping-services">' . __('Pings') . '</h5>';
+        $item = '<h5 class="ping-services">' . My::name() . '</h5>';
         $i    = 0;
         foreach ($pings_uris as $k => $v) {
             $item .= '<p class="ping-services"><label for="pings_do-' . $i . '" class="classic">' .
@@ -63,11 +59,11 @@ class BackendBehaviors
      */
     public static function doPings()
     {
-        if (empty($_POST['pings_do']) || !is_array($_POST['pings_do'])) {
-            return;
-        }
-
-        if (!dcCore::app()->blog->settings->pings->pings_active) {
+        if (!defined('DC_CONTEXT_ADMIN') 
+            || empty($_POST['pings_do']) 
+            || !is_array($_POST['pings_do'])
+            || !dcCore::app()->blog->settings->pings->pings_active
+        ) {
             return;
         }
 
