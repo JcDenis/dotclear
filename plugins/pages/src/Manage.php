@@ -25,12 +25,7 @@ class Manage extends dcNsProcess
 {
     public static function init(): bool
     {
-        if (defined('DC_CONTEXT_ADMIN')) {
-            dcPage::check(dcCore::app()->auth->makePermissions([
-                initPages::PERMISSION_PAGES,
-                dcCore::app()->auth::PERMISSION_CONTENT_ADMIN,
-            ]));
-
+        if (My::checkContext(My::MANAGE)) {
             static::$init = ($_REQUEST['act'] ?? 'list') === 'page' ? ManagePage::init() : true;
         }
 
@@ -110,14 +105,14 @@ class Manage extends dcNsProcess
             dcPage::jsLoad('js/jquery/jquery-ui.custom.js') .
             dcPage::jsLoad('js/jquery/jquery.ui.touch-punch.js') .
             dcPage::jsJson('pages_list', ['confirm_delete_posts' => __('Are you sure you want to delete selected pages?')]) .
-            dcPage::jsModuleLoad('pages/js/list.js')
+            dcPage::jsModuleLoad(My::id() . '/js/list.js')
         );
 
         echo
         dcPage::breadcrumb(
             [
                 Html::escapeHTML(dcCore::app()->blog->name) => '',
-                __('Pages')                                 => '',
+                My::name()                                  => '',
             ]
         ) .
         dcPage::notices();
