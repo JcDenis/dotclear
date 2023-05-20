@@ -116,10 +116,7 @@ abstract class MyModule
                     && !is_null(dcCore::app()->auth)
                     && dcCore::app()->auth->isSuperAdmin(),   // Manageable only by super-admin
 
-            self::PREPEND =>    // Prepend context
-                defined('DC_RC_PATH'),
-
-            self::FRONTEND =>    // Frontend context
+            self::PREPEND, self::FRONTEND =>    // Prpend and Frontend context
                 defined('DC_RC_PATH'),
 
             self::BACKEND =>     // Backend context
@@ -131,7 +128,7 @@ abstract class MyModule
                         dcCore::app()->auth::PERMISSION_CONTENT_ADMIN,
                     ]), dcCore::app()->blog->id),
 
-            self::MANAGE =>      // Main page of module
+            self::MANAGE, self::MENU, self::WIDGETS =>  // Main page of module, Admin menu, Blog widgets
                 defined('DC_CONTEXT_ADMIN')
                     // Check specific permission
                     && !is_null(dcCore::app()->blog) && !is_null(dcCore::app()->auth)
@@ -143,22 +140,6 @@ abstract class MyModule
                 defined('DC_CONTEXT_ADMIN')
                     && !is_null(dcCore::app()->auth)
                     && dcCore::app()->auth->isSuperAdmin(),   // Manageable only by super-admin
-
-            self::MENU =>        // Admin menu
-                defined('DC_CONTEXT_ADMIN')
-                    // Check specific permission
-                    && !is_null(dcCore::app()->blog) && !is_null(dcCore::app()->auth)
-                    && dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([
-                        dcCore::app()->auth::PERMISSION_ADMIN,  // Admin+
-                    ]), dcCore::app()->blog->id),
-
-            self::WIDGETS =>     // Blog widgets
-                defined('DC_CONTEXT_ADMIN')
-                    // Check specific permission
-                    && !is_null(dcCore::app()->blog) && !is_null(dcCore::app()->auth)
-                    && dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([
-                        dcCore::app()->auth::PERMISSION_ADMIN,  // Admin+
-                    ]), dcCore::app()->blog->id),
 
             default => false,
         };
