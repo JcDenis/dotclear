@@ -721,7 +721,7 @@ class dcRestMethods
             }
         }
 
-        if (!$define->strict()->defined || !$define->strict()->enabled) {
+        if (!$define->isDefined() || !$define->isEnabled()) {
             throw new Exception('Unknown module ID');
         }
 

@@ -109,7 +109,7 @@ abstract class MyModule
                 defined('DC_CONTEXT_ADMIN')
                     && !is_null(dcCore::app()->auth)
                     && dcCore::app()->auth->isSuperAdmin()   // Manageable only by super-admin
-                    && dcCore::app()->newVersion(self::id(), dcCore::app()->plugins->getDefine(self::id())->strict()->version),
+                    && dcCore::app()->newVersion(self::id(), dcCore::app()->plugins->getDefine(self::id())->version),
 
             self::UNINSTALL =>  // Uninstallation of module
                 defined('DC_RC_PATH')
@@ -152,7 +152,7 @@ abstract class MyModule
      */
     final public static function path(): string
     {
-        return static::define()->strict()->root;
+        return static::define()->root;
     }
 
     /**
@@ -162,7 +162,7 @@ abstract class MyModule
      */
     final public static function id(): string
     {
-        return static::define()->strict()->id;
+        return static::define()->id;
     }
 
     /**
@@ -172,7 +172,7 @@ abstract class MyModule
      */
     final public static function name(): string
     {
-        return static::define()->strict()->name;
+        return static::define()->name;
     }
 
     /**

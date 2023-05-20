@@ -39,7 +39,7 @@ class Config extends dcNsProcess
             require __DIR__ . '/../locales/' . dcCore::app()->lang . '/resources.php';
         }
 
-        dcCore::app()->admin->standalone_config = (bool) dcCore::app()->themes->getDefine(dcCore::app()->blog->settings->system->theme->strict()->standalone_config;
+        dcCore::app()->admin->standalone_config = (bool) dcCore::app()->themes->getDefine(dcCore::app()->blog->settings->system->theme)->standalone_config;
 
         dcCore::app()->admin->can_write_images = Blowup::canWriteImages();
         dcCore::app()->admin->can_write_css    = Blowup::canWriteCss();

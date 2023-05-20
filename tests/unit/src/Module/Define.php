@@ -53,16 +53,16 @@ class Define extends atoum
         $define->set('priority', 10000);
 
         $this
-            ->variable($define->property('name'))
+            ->variable($define->get('name'))
             ->isEqualTo(\Dotclear\Module\Define::DEFAULT_NAME)
 
-            ->variable($define->property('distributed'))
+            ->variable($define->get('distributed'))
             ->isEqualTo(false)
 
-            ->variable($define->property('undefined'))
+            ->variable($define->get('undefined'))
             ->isEqualTo(null)
 
-            ->variable($define->property('priority'))
+            ->variable($define->get('priority'))
             ->isEqualTo(10000)
         ;
     }
@@ -135,6 +135,20 @@ class Define extends atoum
         ;
     }
 
+    public function testIsEnabled()
+    {
+        $define = self::getDefine();
+
+        $this
+            ->variable($define->isEnabled())
+            ->isEqualTo(false)
+
+            ->and($define->set('state', \Dotclear\Module\Define::STATE_ENABLED))
+            ->variable($define->isEnabled())
+            ->isEqualTo(true)
+        ;
+    }
+
     public function testGetId()
     {
         $define = self::getDefine();
@@ -160,21 +174,20 @@ class Define extends atoum
         ;
     }
 
-    public function testIssetUnset()
+    public function testMagic()
     {
         $define = self::getDefine();
 
         $this
-            ->variable($define->__isset('name'))
-            ->isEqualTo(false)
+            ->variable($define->undefined)
+            ->isNull()
+            ->variable($define->__get('undefined'))
+            ->isNull()
 
-            ->and($define->set('name', 'myname'))
-            ->variable($define->__isset('name'))
-            ->isEqualTo(true)
-
-            ->and($define->__unset('name'))
-            ->variable($define->__isset('name'))
-            ->isEqualTo($define::DEFAULT_NAME)
+            ->variable($define->id)
+            ->isEqualTo('test')
+            ->variable($define->__get('id'))
+            ->isEqualTo('test')
         ;
     }
 
@@ -183,18 +196,44 @@ class Define extends atoum
         $define = self::getDefine();
 
         $this
+            ->and($define->addImplies('imply'))
             ->given($dump = $define->dump())
             ->variable($dump['id'])
             ->isEqualTo('test')
-            // as dump come from DefineStrict, root should not be null but empty string
             ->variable($dump['root'])
             ->isEqualTo('')
-            // as dump come from DefineStrict, tags should not be string but array
-            ->variable($dump['tags'])
-            ->isEqualTo([0 => ''])
-            // as dump come from DefineStrict, defined should exist
             ->variable($dump['defined'])
             ->isEqualTo(false)
+            ->variable($dump['implies'])
+            ->isEqualTo(['imply'])
+        ;
+    }
+
+    public function testSanitizeProperties()
+    {
+        $define = self::getDefine();
+
+        $this
+            ->and($define->set('name', 'Aàéîo!'))
+            ->variable($define->get('sname'))
+            ->isEqualTo('undefined')
+
+            ->and($define->sanitizeProperties())
+            ->variable($define->get('sname'))
+            ->isEqualTo('aaeio')
+
+            ->and($define->set('name', 'abcd'))
+            ->and($define->sanitizeProperties())
+            ->variable($define->get('sname'))
+            ->isEqualTo('abcd')
+
+            ->and($define->set('priority', -1000))
+            ->variable($define->get('priority'))
+            ->isEqualTo(-1000)
+
+            ->and($define->sanitizeProperties())
+            ->variable($define->get('priority'))
+            ->isEqualTo(1)
         ;
     }
 }

@@ -194,18 +194,18 @@ class dcPublic
             $this->theme = dcCore::app()->blog->settings->system->theme;
         }
 
-        if (!dcCore::app()->themes->getDefine($this->theme)->strict()->defined) {
+        if (!dcCore::app()->themes->getDefine($this->theme)->isDefined()) {
             $this->theme = dcCore::app()->blog->settings->system->theme = DC_DEFAULT_THEME;
         }
 
-        $this->parent_theme = dcCore::app()->themes->getDefine($this->theme)->strict()->parent;
-        if ($this->parent_theme && !dcCore::app()->themes->getDefine($this->parent_theme)->strict()->defined) {
+        $this->parent_theme = dcCore::app()->themes->getDefine($this->theme)->parent;
+        if ($this->parent_theme && !dcCore::app()->themes->getDefine($this->parent_theme)->isDefined()) {
             $this->theme        = dcCore::app()->blog->settings->system->theme = DC_DEFAULT_THEME;
             $this->parent_theme = null;
         }
 
         # If theme doesn't exist, stop everything
-        if (!dcCore::app()->themes->getDefine($this->theme)->strict()->defined) {
+        if (!dcCore::app()->themes->getDefine($this->theme)->isDefined()) {
             __error(__('Default theme not found.'), __('This either means you removed your default theme or set a wrong theme ' .
             'path in your blog configuration. Please check theme_path value in ' .
             'about:config module or reinstall default theme. (' . dcCore::app()->public->theme . ')'), 650);
@@ -247,7 +247,7 @@ class dcPublic
         if ($this->parent_theme) {
             $tpl_path[] = dcCore::app()->blog->themes_path . '/' . $this->parent_theme . '/tpl';
         }
-        $tplset = dcCore::app()->themes->getDefine(dcCore::app()->blog->settings->system->theme)->strict()->tplset;
+        $tplset = dcCore::app()->themes->getDefine(dcCore::app()->blog->settings->system->theme)->tplset;
         if (!empty($tplset) && is_dir(__DIR__ . DIRECTORY_SEPARATOR . self::TPL_ROOT . DIRECTORY_SEPARATOR . $tplset)) {
             dcCore::app()->tpl->setPath(
                 $tpl_path,

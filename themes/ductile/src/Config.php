@@ -44,7 +44,7 @@ class Config extends dcNsProcess
         $img_path = My::path() . '/img/';
         $tpl_path = My::path() . '/tpl/';
 
-        dcCore::app()->admin->standalone_config = dcCore::app()->themes->getDefine(dcCore::app()->blog->settings->system->theme)->strict()->standalone_config;
+        dcCore::app()->admin->standalone_config = dcCore::app()->themes->getDefine(dcCore::app()->blog->settings->system->theme)->standalone_config;
 
         // Load contextual help
         if (file_exists(My::path() . '/locales/' . dcCore::app()->lang . '/resources.php')) {
@@ -383,7 +383,7 @@ class Config extends dcNsProcess
         '<p class="field"><label for="logo_src">' . __('Logo URL:') . '</label> ' .
         form::field('logo_src', 40, 255, dcCore::app()->admin->ductile_user['logo_src']) . '</p>';
 
-        if (dcCore::app()->plugins->getDefine('simpleMenu')->strict()->defined) {
+        if (dcCore::app()->plugins->getDefine('simpleMenu')->isDefined()) {
             echo
             '<p>' .
             sprintf(

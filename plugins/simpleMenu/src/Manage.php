@@ -126,10 +126,10 @@ class Manage extends dcNsProcess
         if (count(dcCore::app()->admin->months_combo) > 1) {
             $items['archive'] = new ArrayObject([__('Archive'), true]);
         }
-        if (dcCore::app()->plugins->getDefine('pages')->strict()->defined && count(dcCore::app()->admin->pages_combo)) {
+        if (dcCore::app()->plugins->getDefine('pages')->isDefined() && count(dcCore::app()->admin->pages_combo)) {
             $items['pages'] = new ArrayObject([__('Page'), true]);
         }
-        if (dcCore::app()->plugins->getDefine('tags')->strict()->defined && count(dcCore::app()->admin->tags_combo) > 1) {
+        if (dcCore::app()->plugins->getDefine('tags')->isDefined() && count(dcCore::app()->admin->tags_combo) > 1) {
             $items['tags'] = new ArrayObject([__('Tags'), true]);
         }
 

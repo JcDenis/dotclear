@@ -184,7 +184,7 @@ class WidgetsElement
          *
          * Don't forget to set widgettitleformat and widgetsubtitleformat if necessary (see default rendering below)
         */
-        $wtscheme = dcCore::app()->themes->getDefine(dcCore::app()->blog->settings->system->theme)->strict()->widgetcontainerformat;
+        $wtscheme = dcCore::app()->themes->getDefine(dcCore::app()->blog->settings->system->theme)->widgetcontainerformat;
         if (empty($wtscheme)) {
             $wtscheme = '<div class="%1$s" %2$s>%3$s</div>';
         }
@@ -208,9 +208,9 @@ class WidgetsElement
             return '';
         }
 
-        $wtscheme = dcCore::app()->themes->getDefine(dcCore::app()->blog->settings->system->theme)->strict()->widgettitleformat;
+        $wtscheme = dcCore::app()->themes->getDefine(dcCore::app()->blog->settings->system->theme)->widgettitleformat;
         if (empty($wtscheme)) {
-            $tplset = dcCore::app()->themes->getDefine(dcCore::app()->blog->settings->system->theme)->strict()->tplset;
+            $tplset = dcCore::app()->themes->getDefine(dcCore::app()->blog->settings->system->theme)->tplset;
             if (empty($tplset) || $tplset == DC_DEFAULT_TPLSET) {
                 // Use H2 for mustek based themes
                 $wtscheme = '<h2>%s</h2>';
@@ -237,9 +237,9 @@ class WidgetsElement
             return '';
         }
 
-        $wtscheme = dcCore::app()->themes->getDefine(dcCore::app()->blog->settings->system->theme)->strict()->widgetsubtitleformat;
+        $wtscheme = dcCore::app()->themes->getDefine(dcCore::app()->blog->settings->system->theme)->widgetsubtitleformat;
         if (empty($wtscheme)) {
-            $tplset = dcCore::app()->themes->getDefine(dcCore::app()->blog->settings->system->theme)->strict()->tplset;
+            $tplset = dcCore::app()->themes->getDefine(dcCore::app()->blog->settings->system->theme)->tplset;
             if (empty($tplset) || $tplset == DC_DEFAULT_TPLSET) {
                 // Use H2 for mustek based themes
                 $wtscheme = '<h3>%s</h3>';

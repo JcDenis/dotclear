@@ -102,7 +102,7 @@ class dcStoreParser
             $define->set('tags', implode(', ', $tags));
 
             # First filter right now. If DC_DEV is set all modules are parse
-            if (defined('DC_DEV') && DC_DEV === true || dcUtils::versionsCompare(DC_VERSION, $define->strict()->dc_min, '>=', false)) {
+            if (defined('DC_DEV') && DC_DEV === true || dcUtils::versionsCompare(DC_VERSION, $define->dc_min, '>=', false)) {
                 $this->defines[] = $define;
             }
         }
@@ -132,7 +132,7 @@ class dcStoreParser
         // fill property once on demand
         if (empty($this->items) && !empty($this->defines)) {
             foreach ($this->defines as $define) {
-                $this->items[$define->id] = $define->strict()->dump();
+                $this->items[$define->id] = $define->dump();
             }
         }
 

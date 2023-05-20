@@ -628,7 +628,7 @@ final class dcCore
         $editors = [];
 
         foreach (array_keys($this->formaters) as $editor_id) {
-            $editors[$editor_id] = $this->plugins->getDefine($editor_id)->strict()->name;
+            $editors[$editor_id] = __($this->plugins->getDefine($editor_id)->name);
         }
 
         return $editors;

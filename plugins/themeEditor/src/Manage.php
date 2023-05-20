@@ -157,7 +157,7 @@ class Manage extends dcNsProcess
         '<p><strong>' . sprintf(__('Your current theme on this blog is "%s".'), Html::escapeHTML(dcCore::app()->admin->theme->get('name'))) . '</strong></p>';
 
         if (dcCore::app()->blog->settings->system->themes_path !== dcCore::app()->blog->settings->system->getGlobal('themes_path') 
-            || !dcCore::app()->themes->getDefine(dcCore::app()->blog->settings->system->theme)->strict()->distributed
+            || !dcCore::app()->themes->getDefine(dcCore::app()->blog->settings->system->theme)->distributed
         ) {
             echo
             '<div id="file-box">' .

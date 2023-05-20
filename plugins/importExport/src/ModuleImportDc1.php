@@ -134,7 +134,7 @@ class ModuleImportDc1 extends Module
             case 'step3':
                 $this->step = 3;
                 $this->importCategories();
-                if (dcCore::app()->plugins->getDefine('blogroll')->strict()->defined) {
+                if (dcCore::app()->plugins->getDefine('blogroll')->isDefined()) {
                     $this->step = 4;
                     echo $this->progressBar(5);
                 } else {
