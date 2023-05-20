@@ -17,10 +17,6 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\XmlTag;
 use Exception;
 
-if (!defined('DC_CONTEXT_ADMIN')) {
-    return;
-}
-
 /**
 @ingroup PLUGIN_MAINTENANCE
 @nosubgrouping
@@ -43,6 +39,9 @@ class Rest
      */
     public static function step(dcCore $core, array $get, array $post): XmlTag
     {
+        if (!defined('DC_CONTEXT_ADMIN')) {
+            throw new Exception('Not in admin context');
+        }
         if (!isset($post['task'])) {
             throw new Exception('No task ID');
         }

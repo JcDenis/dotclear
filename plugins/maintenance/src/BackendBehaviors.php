@@ -65,11 +65,11 @@ class BackendBehaviors
      */
     public static function adminDashboardFavorites(dcFavorites $favs): void
     {
-        $favs->register('maintenance', [
-            'title'       => __('Maintenance'),
-            'url'         => dcCore::app()->adminurl->get('admin.plugin.maintenance'),
-            'small-icon'  => [dcPage::getPF('maintenance/icon.svg'),dcPage::getPF('maintenance/icon-dark.svg')],
-            'large-icon'  => [dcPage::getPF('maintenance/icon.svg'),dcPage::getPF('maintenance/icon-dark.svg')],
+        $favs->register(My::id(), [
+            'title'       => My::name(),
+            'url'         => My::backendUrl(),
+            'small-icon'  => My::icons(),
+            'large-icon'  => My::icons(),
             'permissions' => dcCore::app()->auth->makePermissions([
                 dcCore::app()->auth::PERMISSION_ADMIN,
             ]),
@@ -161,8 +161,8 @@ class BackendBehaviors
 
         $items[] = new ArrayObject([
             '<div id="maintenance-expired" class="box small"><h3>' .
-            dcAdminHelper::adminIcon([dcPage::getPF('maintenance/icon.svg'),dcPage::getPF('maintenance/icon-dark.svg')], true, '', '', 'icon-small') . ' ' .
-            __('Maintenance') . '</h3>' .
+            dcAdminHelper::adminIcon(My::icons(), true, '', '', 'icon-small') . ' ' .
+            My::name() . '</h3>' .
             '<p class="warning no-margin">' . sprintf(__('There is a task to execute.', 'There are %s tasks to execute.', count($lines)), count($lines)) . '</p>' .
             '<ul>' . implode('', $lines) . '</ul>' .
             '<p><a href="' . dcCore::app()->adminurl->get('admin.plugin.maintenance') . '">' . __('Manage tasks') . '</a></p>' .
@@ -180,7 +180,7 @@ class BackendBehaviors
     {
         echo
         '<div class="fieldset">' .
-        '<h4>' . __('Maintenance') . '</h4>' .
+        '<h4>' . My::name() . '</h4>' .
 
         '<p><label for="maintenance_dashboard_icon" class="classic">' .
         form::checkbox('maintenance_dashboard_icon', 1, dcCore::app()->auth->user_prefs->maintenance->dashboard_icon) .
@@ -272,8 +272,8 @@ class BackendBehaviors
      */
     public static function pluginsToolsHeaders(string $module): string
     {
-        if ($module === 'maintenance') {
-            return dcPage::jsModuleLoad('maintenance/js/settings.js');
+        if ($module === My::id()) {
+            return dcPage::jsModuleLoad(My::id() . '/js/settings.js');
         }
 
         return '';
