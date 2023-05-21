@@ -16,6 +16,7 @@ use Dotclear\Helper\Html\Form\Submit;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Module\Define;
+use Dotclear\Module\Themes;
 
 require __DIR__ . '/../inc/admin/prepend.php';
 
@@ -33,7 +34,7 @@ class adminBlogTheme
         ]));
 
         // Loading themes
-        dcCore::app()->themes = new dcThemes();
+        dcCore::app()->themes = new Themes();
         dcCore::app()->themes->loadModules(dcCore::app()->blog->themes_path, null);
 
         // Page helper

@@ -32,6 +32,7 @@ use Dotclear\Helper\Html\Template\Template;
 use Dotclear\Helper\Html\WikiToHtml;
 use Dotclear\Helper\Text;
 use Dotclear\Module\Plugins;
+use Dotclear\Module\Themes;
 
 final class dcCore
 {
@@ -137,7 +138,7 @@ final class dcCore
     /**
      * Themes
      *
-     * @var dcThemes
+     * @var Themes
      */
     public $themes;
 

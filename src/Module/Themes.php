@@ -11,12 +11,16 @@
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
+declare(strict_types=1);
 
-use Dotclear\Module\Modules;
+namespace Dotclear\Module;
+
+use dcAuth;
+use dcCore;
 use Dotclear\Helper\File\Files;
-use Dotclear\Module\Define;
+use Exception;
 
-class dcThemes extends Modules
+class Themes extends Modules
 {
     /**
      * Module type

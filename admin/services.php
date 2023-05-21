@@ -14,6 +14,7 @@ use Dotclear\Helper\Html\XmlTag;
 use Dotclear\Helper\Network\Feed\Reader;
 use Dotclear\Helper\Text;
 use Dotclear\Module\Define;
+use Dotclear\Module\Themes;
 
 require __DIR__ . '/../inc/admin/prepend.php';
 
@@ -186,7 +187,7 @@ class dcRestMethods
         }
 
         if ($post['store'] == 'themes') {
-            $mod = new dcThemes();
+            $mod = new Themes();
             $mod->loadModules(dcCore::app()->blog->themes_path, null);
             $url = dcCore::app()->blog->settings->system->store_theme_url;
         } elseif ($post['store'] == 'plugins') {

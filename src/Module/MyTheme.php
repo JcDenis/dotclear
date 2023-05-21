@@ -17,7 +17,6 @@ declare(strict_types=1);
 namespace Dotclear\Module;
 
 use dcCore;
-use dcThemes;
 
 /**
  * Theme module helper.
@@ -29,8 +28,8 @@ abstract class MyTheme extends MyModule
     protected static function define(): Define
     {
         // should never happend but hey.
-        if (!(dcCore::app()->themes instanceof dcThemes)) {
-            dcCore::app()->themes = new dcThemes();
+        if (!(dcCore::app()->themes instanceof Themes)) {
+            dcCore::app()->themes = new Themes();
             dcCore::app()->themes->loadModules((string) dcCore::app()->blog?->themes_path, null);
         }
 

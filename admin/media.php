@@ -13,6 +13,7 @@ use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\File\Zip\Zip;
 use Dotclear\Helper\Html\Html;
+use Dotclear\Module\Themes;
 
 require __DIR__ . '/../inc/admin/prepend.php';
 
@@ -629,7 +630,7 @@ class adminMediaPage extends adminMediaFilter
 
             if (dcCore::app()->themes === null) {
                 # -- Loading themes, may be useful for some configurable theme --
-                dcCore::app()->themes = new dcThemes();
+                dcCore::app()->themes = new Themes();
                 dcCore::app()->themes->loadModules(dcCore::app()->blog->themes_path, null);
             }
         } catch (Exception $e) {
