@@ -730,7 +730,7 @@ class dcRestMethods
         $rsp     = new XmlTag('module');
         $rsp->id = $id;
 
-        foreach ($define->strict()->dump() as $k => $v) {
+        foreach ($define->dump() as $k => $v) {
             if (is_array($v)) {
                 $res = '';
                 foreach($v as $vk => $vv) {

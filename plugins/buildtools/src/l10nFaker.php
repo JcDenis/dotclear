@@ -62,7 +62,7 @@ class l10nFaker
 
         $plugin .= "\n// Plugin names\n\n";
         foreach (dcCore::app()->plugins->searchDefines() as $define) {
-            if ($define->strict()->distributed) {
+            if ($define->distributed) {
                 $plugin .= $this->fake_l10n($define->desc);
             }
         }
