@@ -17,6 +17,8 @@ namespace Dotclear\Module;
 use Autoloader;
 use dcCore;
 use dcDeprecated;
+use dcPage;
+use dcUtils;
 use Dotclear\App;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
@@ -24,134 +26,111 @@ use Dotclear\Helper\File\Zip\Unzip;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\Network\Http;
+use Exception;
 
 class Modules
 {
     // Constants
 
-    /**
-     * Return code for package installation
-     *
-     * @var        int
-     */
+    /** @var    int     Return code for package installation */
     public const PACKAGE_INSTALLED = 1;
+
+    /** @var    int     Return code for package update */
     public const PACKAGE_UPDATED   = 2;
 
-    /**
-     * Module's files
-     *
-     * @var        string
-     */
+    /** @var    string  Name of module old style installation file */
     public const MODULE_FILE_INSTALL  = '_install.php';
+
+    /** @var    string  Name of module old style initialization file */
     public const MODULE_FILE_INIT     = '_init.php';
+
+    /** @var    string  Name of module define file */
     public const MODULE_FILE_DEFINE   = '_define.php';
+
+    /** @var    string  Name of module old style prepend file */
     public const MODULE_FILE_PREPEND  = '_prepend.php';
+
+    /** @var    string  Name of module old style backend file */
     public const MODULE_FILE_ADMIN    = '_admin.php';
+
+    /** @var    string  Name of module old style configuration file */
     public const MODULE_FILE_CONFIG   = '_config.php';
+
+    /** @var    string  Name of module old style manage file */
     public const MODULE_FILE_MANAGE   = 'index.php';
+
+    /** @var    string  Name of module old style frontend file */
     public const MODULE_FILE_PUBLIC   = '_public.php';
+
+    /** @var    string  Name of module old style xmlrpc file */
     public const MODULE_FILE_XMLRPC   = '_xmlrpc.php';
+
+    /** @var    string  Name of module hard deactivation file */
     public const MODULE_FILE_DISABLED = '_disabled';
 
-    /**
-     * Module's class
-     *
-     * @var        string
-     */
+    /** @var    string  Directory for module namespace */
     public const MODULE_CLASS_DIR     = 'src';
-    public const MODULE_CLASS_PREPEND = 'Prepend';      // Common (ex _prepend.php)
-    public const MODULE_CLASS_INSTALL = 'Install';      // Installation (ex _install.php)
-    public const MODULE_CLASS_ADMIN   = 'Backend';      // Backend common (ex _admin.php)
-    public const MODULE_CLASS_CONFIG  = 'Config';       // Module configuration (ex _config.php)
-    public const MODULE_CLASS_MANAGE  = 'Manage';       // Module backend (ex index.php)
-    public const MODULE_CLASS_PUPLIC  = 'Frontend';     // Module frontend (ex _public.php)
-    public const MODULE_CLASS_XMLRPC  = 'Xmlrpc';       // Module XMLRPC services (ex _xmlrpc.php) - obsolete since 2.24
+
+    /** @var    string  Name of module prepend class (ex _prepend.php) */
+    public const MODULE_CLASS_PREPEND = 'Prepend';
+
+    /** @var    string  Name of module installation class (ex _install.php) */
+    public const MODULE_CLASS_INSTALL = 'Install';
+
+    /** @var    string  Name of module backend class (ex _admin.php) */
+    public const MODULE_CLASS_ADMIN   = 'Backend';
+
+    /** @var    string  Name of module configuration class (ex _config.php) */
+    public const MODULE_CLASS_CONFIG  = 'Config';
+
+    /** @var    string  Name of module manage class (ex index.php) */
+    public const MODULE_CLASS_MANAGE  = 'Manage';
+
+    /** @var    string  Name of module frontend class (ex _public.php) */
+    public const MODULE_CLASS_PUPLIC  = 'Frontend';
+
+    /** @var    string  Name of module XMLRPC serevices class (ex _xmlrpc.php) - obsolete since 2.24 */
+    public const MODULE_CLASS_XMLRPC  = 'Xmlrpc';
 
     // Properties
 
-    /**
-     * Safe mode activated?
-     *
-     * @var bool
-     */
+    /** @var    bool    Safe mode execution */
     protected $safe_mode = false;
 
-    /**
-     * Stack of modules paths
-     *
-     * @var array
-     */
-    protected $path;
+    /** @var    array<int,string>   Stack of modules paths */
+    protected $path = [];
 
-    /**
-     * Stack of modules
-     *
-     * @var        array<int,Define>
-     */
+    /** @var    array<int,Define>   Stack of modules */
     protected $defines = [];
 
-    /**
-     * Stack of error messages
-     *
-     * @var        array<string>
-     */
+    /** @var    array<int,string>   Stack of error messages */
     protected $errors = [];
 
-    /**
-     * Stack of modules ids
-     *
-     * @var        array
-     */
-    protected $modules_ids          = [];
-    protected static $modules_files = ['init' => []];
+    /** @var    array<string,string>   Stack of modules id|version pairs */
+    protected $modules_ids = [];
 
-    /**
-     * Current deactivation mode
-     *
-     * @var        bool
-     */
+    /** @var    array<int,string>   Stack of modules _init */
+    protected static $modules_init = [];
+
+    /** @var    bool    Current deactivation mode */
     protected $disabled_mode = false;
 
-    /**
-     * Current dc namespace
-     *
-     * @var string
-     */
-    protected $ns;
+    /** @var    string|null     Current dc namespace */
+    protected $ns = null;
 
-    /**
-     * Current module
-     *
-     * @var Define
-     */
+    /** @var    Define  Current module Define */
     protected $define;
 
-    /**
-     * Current module identifier
-     *
-     * @var string|null
-     */
-    protected $id;
+    /** @var    string|null     Current module identifier */
+    protected $id = null;
 
-    /**
-     * Module root path (where _define.php is located)
-     *
-     * @var string|null
-     */
-    protected $mroot;
+    /** @var    string|null     Current module root path (where _define.php is located) */
+    protected $mroot = null;
 
-    /**
-     * Current module php namespace
-     *
-     * @var string|null
-     */
-    protected $namespace;
+    /** @var    string|null     Current module php namespace */
+    protected $namespace = null;
 
-    /**
-     * Inclusion variables
-     *
-     * @var        array<int,string>
-     */
+    /** @var    array<int,string>   Inclusion variables */
     protected static $superglobals = [
         'GLOBALS',
         '_SERVER',
@@ -164,25 +143,13 @@ class Modules
         '_SESSION',
     ];
 
-    /**
-     * Superglobals array keys
-     *
-     * @var        array<string>
-     */
+    /** @var    array<int,string>   Superglobals array keys */
     protected static $_k;
 
-    /**
-     * Superglobals key name
-     *
-     * @var        string
-     */
+    /** @var    string  Superglobals key name */
     protected static $_n;
 
-    /**
-     * Module type to work with
-     *
-     * @var string|null
-     */
+    /** @var    string|null     Module type to work with */
     protected $type = null;
 
     /**
@@ -192,10 +159,10 @@ class Modules
      * if module definition does not exist, it is created on the fly
      * with default properties.
      *
-     * @param   string                      $id         The module identifier
-     * @param   array<string,bool|int|string>    $search     The search parameters
+     * @param   string                          $id         The module identifier
+     * @param   array<string,bool|int|string>   $search     The search parameters
      *
-     * @return  Define   The first matching module define or properties
+     * @return  Define  The first matching module define or properties
      */
     public function getDefine(string $id, array $search = []): Define
     {
@@ -209,24 +176,24 @@ class Modules
      *
      * More than one module can have same id in this stack.
      *
-     * @param   array<string,bool|int|string>    $search     The search parameters
+     * @param   array<string,mixed>     $search     The search parameters
      *
-     * @return  array<int,Define>    The modules defines or properties
+     * @return  array<int,Define>   The modules defines or properties
      */
     public function searchDefines(array $search = []): array
     {
-        // search engine supported types
-        $types = ['boolean', 'integer', 'string'];
         $list = [];
         foreach ($this->defines as $module) {
             $add_it = true;
             foreach ($search as $key => $value) {
                 // check types
-                if (!is_string($key) || !in_array(gettype($value), $types) || !$module->has($key)) {
+                if (!is_string($key) || !$module->has($key)
+                    || !is_int($value) && !is_string($value) && !is_bool($value)
+                ) {
                     continue;
                 }
                 $source = $module->get($key);
-                if (!in_array(gettype($source), $types)) {
+                if (!is_int($source) && !is_string($source) && !is_bool($source)) {
                     continue;
                 }
                 // compare string format
@@ -257,12 +224,12 @@ class Modules
      *
      * More than one module can have same id in this stack.
      * 
-     * @deprecated since 2.27 Use searchDefines() and its DefineStrict properties
+     * @deprecated  since 2.27 Use searchDefines() and its DefineStrict properties
      *
-     * @param   array<string,bool|int|string>    $search     The search parameters
-     * @param   bool                        $to_array   Return arrays of modules properties
+     * @param   array<string,bool|int|string>   $search     The search parameters
+     * @param   bool                            $to_array   Return arrays of modules properties
      *
-     * @return  array<int|string,array<string,mixed>|Define>  The modules defines or properties
+     * @return  array<int|string,array<string,mixed>|Define>    The modules defines or properties
      */
     public function getDefines(array $search = [], bool $to_array = false): array
     {
@@ -281,14 +248,11 @@ class Modules
     }
 
     /**
-     * Checks all modules dependencies
+     * Check all modules dependencies.
      *
      * Fills in the following information in module :
-     *
      *  - missing : list reasons why module cannot be enabled. Not set if module can be enabled
-     *
      *  - using : list reasons why module cannot be disabled. Not set if module can be disabled
-     *
      *  - implies : reverse dependencies
      */
     public function checkDependencies(): void
@@ -353,14 +317,11 @@ class Modules
     }
 
     /**
-     * Checks all modules dependencies, and disable unmet dependencies
-     */
-    /**
-     * Disables the dep modules.
+     * Check all modules dependencies, and disable unmet dependencies
      *
-     * @param  string $redirect_url URL to redirect if modules are to disable
+     * @param   string  $redirect_url   URL to redirect if modules are to disable
      *
-     * @return bool  true if a redirection has been performed
+     * @return  bool    True if a redirection has been performed
      */
     public function disableDepModules(string $redirect_url): bool
     {
@@ -398,11 +359,11 @@ class Modules
     }
 
     /**
-     * Should run in safe mode?
+     * Set\Get safe mode script exectution.
      *
-     * @param      null|bool   $mode   Mode, null to read current mode
+     * @param   null|bool   $mode   Mode, null to read current mode
      *
-     * @return     bool
+     * @return  bool
      */
     public function safeMode(?bool $mode = null): bool
     {
@@ -414,11 +375,11 @@ class Modules
     }
 
     /**
-     * Get list of modules in a directory
+     * Get list of modules in a directory.
      *
-     * @param      string  $root   The root modules directory to parse
+     * @param   string  $root   The root modules directory to parse
      *
-     * @return     array   List of modules, may be an empty array
+     * @return  array<int,string>   List of modules, may be an empty array
      */
     protected function parsePathModules(string $root): array
     {
@@ -445,7 +406,9 @@ class Modules
     }
 
     /**
-     * Loads modules. <var>$path</var> could be a separated list of paths
+     * Loads modules. 
+     *
+     * <var>$path</var> could be a separated list of paths
      * (path separator depends on your OS).
      *
      * <var>$ns</var> indicates if an additionnal file needs to be loaded on plugin
@@ -457,9 +420,9 @@ class Modules
      * <var>$lang</var> indicates if we need to load a lang file on plugin
      * loading.
      *
-     * @param      string   $path   The path
-     * @param      string   $ns     The namespace (context as 'public', 'admin', ...)
-     * @param      string   $lang   The language
+     * @param   string  $path   The path
+     * @param   string  $ns     The namespace (context as 'public', 'admin', ...)
+     * @param   string  $lang   The language
      */
     public function loadModules(string $path, ?string $ns = null, ?string $lang = null): void
     {
@@ -477,8 +440,8 @@ class Modules
             $root = rtrim($root, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
             foreach ($stack as $entry) {
                 $full_entry = $root . $entry;
-                if (!in_array($entry, self::$modules_files['init']) && file_exists($full_entry . DIRECTORY_SEPARATOR . self::MODULE_FILE_INIT)) {
-                    self::$modules_files['init'][] = $entry;
+                if (!in_array($entry, self::$modules_init) && file_exists($full_entry . DIRECTORY_SEPARATOR . self::MODULE_FILE_INIT)) {
+                    self::$modules_init[] = $entry;
                     ob_start();
                     require $full_entry . DIRECTORY_SEPARATOR . self::MODULE_FILE_INIT;
                     ob_end_clean();
@@ -548,7 +511,7 @@ class Modules
             unset($ret);
 
             $this->loadModuleL10N($module->id, $lang, 'main');
-            if ($ns == 'admin') {
+            if ($ns == 'admin' && !is_null(dcCore::app()->adminurl)) {
                 $this->loadModuleL10Nresources($module->id, $lang);
                 dcCore::app()->adminurl->register('admin.plugin.' . $module->id, 'plugin.php', ['p' => $module->id]);
             }
@@ -568,18 +531,18 @@ class Modules
     }
 
     /**
-     * Load the _define.php file of the given module
+     * Load the _define.php file of the given module.
      *
-     * @param      string  $dir    The dir
-     * @param      string  $id     The module identifier
+     * @param   string  $dir    The dir
+     * @param   string  $id     The module identifier
      */
     public function requireDefine(string $dir, string $id): void
     {
         $this->id = $id;
         if (file_exists($dir . DIRECTORY_SEPARATOR . self::MODULE_FILE_DEFINE)) {
             ob_start();
-            if (!in_array($id, self::$modules_files['init']) && file_exists($dir . DIRECTORY_SEPARATOR . self::MODULE_FILE_INIT)) {
-                self::$modules_files['init'][] = $id;
+            if (!in_array($id, self::$modules_init) && file_exists($dir . DIRECTORY_SEPARATOR . self::MODULE_FILE_INIT)) {
+                self::$modules_init[] = $id;
                 require $dir . DIRECTORY_SEPARATOR . self::MODULE_FILE_INIT;
             }
             require $dir . DIRECTORY_SEPARATOR . self::MODULE_FILE_DEFINE;
@@ -591,11 +554,13 @@ class Modules
     /**
      * This method registers a module in modules list.
      *
-     * @param      string  $name        The module name
-     * @param      string  $desc        The module description
-     * @param      string  $author      The module author
-     * @param      string  $version     The module version
-     * @param      mixed   $properties  The properties
+     * @param   string  $name           The module name
+     * @param   string  $desc           The module description
+     * @param   string  $author         The module author
+     * @param   string  $version        The module version
+     * @param   mixed   $properties     The properties
+     *
+     * @return  void
      */
     public function registerModule(string $name, string $desc, string $author, string $version, $properties = [])
     {
@@ -621,6 +586,11 @@ class Modules
         $this->defineModule($define);
     }
 
+    /**
+     * Fix and complete module definition.
+     *
+     * @param   Define  $define     The module Define instacne
+     */
     protected function defineModule(Define $define): void
     {
         $this->define = $define;
@@ -671,7 +641,10 @@ class Modules
         // Check module perms on admin side
         $permissions = $this->define->permissions;
         if ($this->ns === 'admin') {
-            if (($permissions == '' && !dcCore::app()->auth->isSuperAdmin()) || (!dcCore::app()->auth->check($permissions, dcCore::app()->blog->id))) {
+            if (is_null(dcCore::app()->auth) || is_null(dcCore::app()->blog)
+                || ($permissions == '' && !dcCore::app()->auth->isSuperAdmin())
+                || (!dcCore::app()->auth->check($permissions, dcCore::app()->blog->id))
+            ) {
                 return;
             }
         }
@@ -708,16 +681,16 @@ class Modules
     }
 
     /**
-     * Install a Package
+     * Install a Package.
      *
-     * @param      string     $zip_file  The zip file
-     * @param      Modules    $modules   The modules
+     * @param   string      $zip_file   The zip file
+     * @param   Modules     $modules    The Modules instance
      *
-     * @throws     Exception
+     * @throws  Exception
      *
-     * @return     int
+     * @return  int     The installation code (see constants self::PACKAGE_XXX)
      */
-    public static function installPackage(string $zip_file, Modules &$modules): int
+    public static function installPackage(string $zip_file, Modules $modules): int
     {
         $zip = new Unzip($zip_file);
         $zip->getList(false, '#(^|/)(__MACOSX|\.svn|\.hg.*|\.git.*|\.DS_Store|\.directory|Thumbs\.db)(/|$)#');
@@ -859,9 +832,9 @@ class Modules
     /**
      * This method installs all modules having a _install file.
      *
-     * @see Modules::installModule
+     * @see     Modules::installModule
      *
-     * @return     array
+     * @return  array{success:array<string,bool>,failure:array<string,string>}
      */
     public function installModules(): array
     {
@@ -883,23 +856,25 @@ class Modules
     }
 
     /**
-     * This method installs module with ID <var>$id</var> and having a _install
+     * This method installs a module.
+     * 
+     * This method installs a module with ID <var>$id</var> and having a _install
      * file. This file should throw exception on failure or true if it installs
      * successfully.
      *
      * <var>$msg</var> is an out parameter that handle installer message.
      *
-     * @param      string  $id     The identifier
-     * @param      string  $msg    The message
+     * @param   string  $id     The identifier
+     * @param   string  $msg    The message
      *
-     * @return     mixed
+     * @return  bool|null
      */
-    public function installModule(string $id, string &$msg)
+    protected function installModule(string $id, string &$msg): ?bool
     {
         $module = $this->getDefine($id, ['state' => Define::STATE_ENABLED]);
 
         if (!$module->isDefined()) {
-            return;
+            return null;
         }
 
         try {
@@ -913,10 +888,9 @@ class Modules
             if ($install === true || $install === null) {
                 // Register new version if necessary
                 $old_version = dcCore::app()->getVersion($id);
-                $new_version = $module->version;
-                if (version_compare((string) $old_version, $new_version, '<')) {
+                if (version_compare(is_string($old_version) ? $old_version : '', $module->version, '<')) {
                     // Register new version
-                    dcCore::app()->setVersion($id, $new_version);
+                    dcCore::app()->setVersion($id, $module->version);
                 }
 
                 if ($install === true) {
@@ -928,15 +902,17 @@ class Modules
 
             return false;
         }
+
+        return null;
     }
 
     /**
-     * Delete a module
+     * Delete a module.
      *
-     * @param      string     $id        The module identifier
-     * @param      bool       $disabled  Is module disabled
+     * @param   string  $id         The module identifier
+     * @param   bool    $disabled   Is module disabled
      *
-     * @throws     Exception
+     * @throws  Exception
      */
     public function deleteModule(string $id, bool $disabled = false): void
     {
@@ -952,11 +928,13 @@ class Modules
     }
 
     /**
-     * Deactivate a module
+     * Deactivate a module.
+     * 
+     * The module goes to Define::STATE_HARD_DISABLED state.
      *
-     * @param      string     $id     The identifier
+     * @param   string  $id     The identifier
      *
-     * @throws     Exception
+     * @throws  Exception
      */
     public function deactivateModule(string $id): void
     {
@@ -976,11 +954,11 @@ class Modules
     }
 
     /**
-     * Activate a module
+     * Activate a module.
      *
-     * @param      string     $id     The identifier
+     * @param   string  $id     The identifier
      *
-     * @throws     Exception
+     * @throws  Exception
      */
     public function activateModule(string $id): void
     {
@@ -1000,9 +978,9 @@ class Modules
     }
 
     /**
-     * Clone a module
+     * Clone a module.
      *
-     * @param      string  $id     The module identifier
+     * @param   string  $id     The module identifier
      */
     public function cloneModule(string $id): void
     {
@@ -1014,9 +992,9 @@ class Modules
      *
      * <var>$file</var> should not have any extension.
      *
-     * @param      string  $id     The module identifier
-     * @param      string  $lang   The language code
-     * @param      string  $file   The filename (without extension)
+     * @param   string  $id     The module identifier
+     * @param   string  $lang   The language code
+     * @param   string  $file   The filename (without extension)
      */
     public function loadModuleL10N(string $id, ?string $lang, string $file): void
     {
@@ -1032,8 +1010,8 @@ class Modules
     /**
      * Loads module l10n resources.
      *
-     * @param      string  $id     The module identifier
-     * @param      string  $lang   The language code
+     * @param   string  $id     The module identifier
+     * @param   string  $lang   The language code
      */
     public function loadModuleL10Nresources(string $id, ?string $lang): void
     {
@@ -1048,13 +1026,13 @@ class Modules
     /**
      * Returns all modules associative array or only one module if <var>$id</var> is present.
      *
-     * @deprecated since 2.27 Use self::searchDefines($id)
+     * @deprecated  since 2.27 Use self::searchDefines($id)
      *
-     * @param      string  $id     The optionnal module identifier
+     * @param   string  $id     The optionnal module identifier
      *
-     * @return     array  The module(s).
+     * @return  mixed   The module(s).
      */
-    public function getModules(?string $id = null): array
+    public function getModules(?string $id = null): mixed
     {
         dcDeprecated::set('Modules::searchDefines()', '2.27');
 
@@ -1066,13 +1044,13 @@ class Modules
     /**
      * Gets all modules (whatever are their statuses) or only one module if <var>$id</var> is present.
      *
-     * @deprecated since 2.27 Use self::searchDefines($id)
+     * @deprecated  since 2.27 Use self::searchDefines($id)
      *
-     * @param      string  $id     The optionnal module identifier
+     * @param   string  $id     The optionnal module identifier
      *
-     * @return     array  The module(s).
+     * @return  mixed   The module(s).
      */
-    public function getAnyModules(?string $id = null): array
+    public function getAnyModules(?string $id = null): mixed
     {
         dcDeprecated::set('Modules::searchDefines()', '2.27');
 
@@ -1084,11 +1062,11 @@ class Modules
     /**
      * Determines if module exists and is enabled.
      *
-     * @deprecated since 2.27 Use self::getDefine($id)->isDefined()
+     * @deprecated  since 2.27 Use self::getDefine($id)->isDefined()
      *
-     * @param      string  $id     The module identifier
+     * @param   string  $id     The module identifier
      *
-     * @return     bool  True if module exists, False otherwise.
+     * @return  bool    True if module exists, False otherwise.
      */
     public function moduleExists(string $id): bool
     {
@@ -1098,9 +1076,9 @@ class Modules
     /**
      * Gets the disabled modules.
      *
-     * @deprecated since 2.27 Use self::searchDefines(['state' => '!' . Define::STATE_ENABLED])
+     * @deprecated  since 2.27 Use self::searchDefines(['state' => '!' . Define::STATE_ENABLED])
      *
-     * @return     array  The disabled modules.
+     * @return  array<mixed,mixed>  The disabled modules.
      */
     public function getDisabledModules(): array
     {
@@ -1112,9 +1090,9 @@ class Modules
     /**
      * Gets the hard disabled modules.
      *
-     * @deprecated since 2.27 Use self::searchDefines(['state' => Define::STATE_HARD_DISABLED])
+     * @deprecated  since 2.27 Use self::searchDefines(['state' => Define::STATE_HARD_DISABLED])
      *
-     * @return     array  The hard disabled modules.
+     * @return  array<mixed,mixed>  The hard disabled modules.
      */
     public function getHardDisabledModules(): array
     {
@@ -1126,9 +1104,9 @@ class Modules
     /**
      * Gets the soft disabled modules (safe mode and not hard disabled).
      *
-     * @deprecated since 2.27 Use self::searchDefines(['state' => Define::STATE_SOFT_DISABLED])
+     * @deprecated  since 2.27 Use self::searchDefines(['state' => Define::STATE_SOFT_DISABLED])
      *
-     * @return     array  The soft disabled modules.
+     * @return  array<mixed,mixed>  The soft disabled modules.
      */
     public function getSoftDisabledModules(): array
     {
@@ -1140,11 +1118,11 @@ class Modules
     /**
      * Returns root path for module with ID <var>$id</var>.
      *
-     * @deprecated since 2.27 Use self::getDefine($id)->root
+     * @deprecated  since 2.27 Use self::getDefine($id)->root
      *
-     * @param      string  $id     The module identifier
+     * @param   string  $id     The module identifier
      *
-     * @return     mixed
+     * @return  mixed
      */
     public function moduleRoot(string $id)
     {
@@ -1154,7 +1132,9 @@ class Modules
     }
 
     /**
-     * Returns a module information that could be:
+     * Returns a module information.
+     * 
+     * Information could be:
      * - root
      * - name
      * - desc
@@ -1164,12 +1144,12 @@ class Modules
      * - priority
      * - …
      * 
-     * @deprecated since 2.27 Use self::getDefine($id)->{$info}
+     * @deprecated  since 2.27 Use self::getDefine($id)->{$info}
      *
-     * @param      string  $id     The module identifier
-     * @param      string  $info   The information
+     * @param   string  $id     The module identifier
+     * @param   string  $info   The information
      *
-     * @return     mixed
+     * @return  mixed
      */
     public function moduleInfo(string $id, string $info)
     {
@@ -1179,9 +1159,9 @@ class Modules
     }
 
     /**
-     * Loads namespace <var>$ns</var> specific files for all modules.
+     * Loads dc namespace <var>$ns</var> specific files for all modules.
      *
-     * @param      string  $ns
+     * @param   string  $ns
      */
     public function loadNsFiles(?string $ns = null): void
     {
@@ -1191,11 +1171,11 @@ class Modules
     }
 
     /**
-     * Loads namespace <var>$ns</var> specific file for module with ID
-     * <var>$id</var>
+     * Loads dc namespace <var>$ns</var> specific file for module with ID
+     * <var>$id</var>.
      *
-     * @param      string  $id     The module identifier
-     * @param      string  $ns     Namespace name
+     * @param   string  $id     The module identifier
+     * @param   string  $ns     Namespace name
      */
     public function loadNsFile(string $id, ?string $ns = null): void
     {
@@ -1233,13 +1213,13 @@ class Modules
 
     /**
      * Initialise <var>$ns</var> specific namespace for module with ID
-     * <var>$id</var>
+     * <var>$id</var>.
      *
-     * @param      string  $id      The module identifier
-     * @param      string  $ns      Process name
-     * @param      bool    $process Execute process
+     * @param   string  $id         The module identifier
+     * @param   string  $ns         Process name
+     * @param   bool    $process    Execute process
      *
-     * @return     string  The fully qualified class name on success. Empty string on fail.
+     * @return  string  The fully qualified class name on success. Empty string on fail.
      */
     public function loadNsClass(string $id, string $ns, bool $process = true): string
     {
@@ -1273,7 +1253,7 @@ class Modules
     /**
      * Gets the errors.
      *
-     * @return     array  The errors.
+     * @return  array<int,string>   The errors.
      */
     public function getErrors(): array
     {
@@ -1283,10 +1263,10 @@ class Modules
     /**
      * Loads a module file.
      *
-     * @param      string  $________  Module filename
-     * @param      bool    $catch     Should catch output to prevent hacked/corrupted modules
+     * @param   string  $________   Module filename
+     * @param   bool    $catch      Should catch output to prevent hacked/corrupted modules
      *
-     * @return     mixed
+     * @return  mixed
      */
     protected function loadModuleFile(string $________, bool $catch = true)
     {
