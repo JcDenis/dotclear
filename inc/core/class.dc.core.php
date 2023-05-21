@@ -31,6 +31,7 @@ use Dotclear\Helper\Html\HtmlFilter;
 use Dotclear\Helper\Html\Template\Template;
 use Dotclear\Helper\Html\WikiToHtml;
 use Dotclear\Helper\Text;
+use Dotclear\Module\Plugins;
 
 final class dcCore
 {
@@ -129,7 +130,7 @@ final class dcCore
     /**
      * Plugins
      *
-     * @var dcPlugins
+     * @var Plugins
      */
     public $plugins;
 
@@ -397,7 +398,7 @@ final class dcCore
         $this->auth    = $this->authInstance();
         $this->session = new Session($this->con, $this->prefix . self::SESSION_TABLE_NAME, DC_SESSION_NAME, '', null, DC_ADMIN_SSL, $ttl);
         $this->url     = new dcUrlHandlers();
-        $this->plugins = new dcPlugins();
+        $this->plugins = new Plugins();
         $this->rest    = new dcRestServer();
         $this->meta    = new dcMeta();
         $this->log     = new dcLog();

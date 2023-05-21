@@ -190,7 +190,7 @@ abstract class MyModule
      * This method is used to load module define.
      * see MyPlugin::define() and MyTheme::define()
      * 
-     * @param   Modules     $modules    The modules instance (dcThemes or dcPlugins)
+     * @param   Modules     $modules    The modules instance (dcThemes or Plugins)
      *
      * @return  Define  The module define
      */

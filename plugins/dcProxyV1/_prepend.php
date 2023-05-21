@@ -181,4 +181,5 @@ dcProxyV1::classAliases([
     'dcRecord'       => 'Dotclear\Database\MetaRecord',
     'dcModuleDefine' => 'Dotclear\Module\Define',
     'dcModules'      => 'Dotclear\Module\Modules',
+    'dcPlugins'      => 'Dotclear\Module\Plugins',
 ]);

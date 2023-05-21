@@ -13,10 +13,11 @@
  *
  * @since 2.6
  */
-use Dotclear\Module\Define;
-use Dotclear\Module\Modules;
+declare(strict_types=1);
 
-class dcPlugins extends Modules
+namespace Dotclear\Module;
+
+class Plugins extends Modules
 {
     protected $type = 'plugin';
 

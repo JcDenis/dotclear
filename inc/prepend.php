@@ -51,7 +51,7 @@ Clearbricks::lib()->autoload([
     'dcNsProcess'    => implode(DIRECTORY_SEPARATOR, [__DIR__, 'core', 'class.dc.ns.process.php']),
     //'Define' => implode(DIRECTORY_SEPARATOR, [__DIR__, 'core', 'class.dc.module.define.php']),
     //'dcModules'      => implode(DIRECTORY_SEPARATOR, [__DIR__, 'core', 'class.dc.modules.php']),
-    'dcPlugins'      => implode(DIRECTORY_SEPARATOR, [__DIR__, 'core', 'class.dc.plugins.php']),
+    //'dcPlugins'      => implode(DIRECTORY_SEPARATOR, [__DIR__, 'core', 'class.dc.plugins.php']),
     'dcThemes'       => implode(DIRECTORY_SEPARATOR, [__DIR__, 'core', 'class.dc.themes.php']),
     'dcRestServer'   => implode(DIRECTORY_SEPARATOR, [__DIR__, 'core', 'class.dc.rest.php']),
     'dcNamespace'    => implode(DIRECTORY_SEPARATOR, [__DIR__, 'core', 'class.dc.namespace.php']),
