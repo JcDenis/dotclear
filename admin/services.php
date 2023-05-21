@@ -193,7 +193,7 @@ class dcRestMethods
             $mod = dcCore::app()->plugins;
             $url = dcCore::app()->blog->settings->system->store_plugin_url;
         } else {
-            # --BEHAVIOR-- restCheckStoreUpdate -- string, array<int,dcModules>, array<int,string>
+            # --BEHAVIOR-- restCheckStoreUpdate -- string, array<int,Modules>, array<int,string>
             dcCore::app()->callBehavior('restCheckStoreUpdateV2', $post['store'], [& $mod], [& $url]);
 
             if (empty($mod) || empty($url)) {   // @phpstan-ignore-line

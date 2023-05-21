@@ -12,10 +12,11 @@
  * @copyright GPL-2.0-only
  */
 
+use Dotclear\Module\Modules;
 use Dotclear\Helper\File\Files;
 use Dotclear\Module\Define;
 
-class dcThemes extends dcModules
+class dcThemes extends Modules
 {
     /**
      * Module type

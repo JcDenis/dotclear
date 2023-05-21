@@ -3,7 +3,7 @@
  * @brief Modules handler
  *
  * Provides an object to handle modules class (themes or plugins).
- * (Before as modules file in dcModules::loadNsFile)
+ * (Before as modules file in Modules::loadNsFile)
  *
  * @package Dotclear
  * @subpackage Core

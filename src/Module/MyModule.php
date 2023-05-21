@@ -21,7 +21,6 @@ declare(strict_types=1);
 namespace Dotclear\Module;
 
 use dcCore;
-use dcModules;
 use Dotclear\Helper\L10n;
 use Exception;
 
@@ -191,15 +190,15 @@ abstract class MyModule
      * This method is used to load module define.
      * see MyPlugin::define() and MyTheme::define()
      * 
-     * @param   dcModules   $modules    The modules instance (dcThemes or dcPlugins)
+     * @param   Modules     $modules    The modules instance (dcThemes or dcPlugins)
      *
      * @return  Define  The module define
      */
-    final protected static function getDefineFromNamespace(dcModules $modules): Define
+    final protected static function getDefineFromNamespace(Modules $modules): Define
     {
         // check if Define is already known
         if (!isset(static::$defines[static::class])) {
-            // note: namespace from dcModules start with a backslash
+            // note: namespace from Modules start with a backslash
             $find = $modules->searchDefines([
                 'namespace' => '\\' . (new \ReflectionClass(static::class))->getNamespaceName()
             ]);

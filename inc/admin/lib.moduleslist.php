@@ -13,6 +13,7 @@
  * @copyright GPL-2.0-only
  */
 
+use Dotclear\Module\Modules;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Html;
@@ -25,7 +26,7 @@ class adminModulesList
     /**
      * Stack of known modules
      *
-     * @var dcModules
+     * @var Modules
      */
     public $modules;
 
@@ -46,7 +47,7 @@ class adminModulesList
     /**
      * List of modules distributed with Dotclear
      *
-     * @deprecated 2.26 Use dcModules::getDefine($id)->distributed
+     * @deprecated 2.26 Use Modules::getDefine($id)->distributed
      *
      * @var        array
      */
@@ -173,12 +174,12 @@ class adminModulesList
      *
      * Note that this creates dcStore instance.
      *
-     * @param    dcModules    $modules        dcModules instance
+     * @param    Modules      $modules        Modules instance
      * @param    string       $modules_root   Modules root directories
      * @param    string       $xml_url        URL of modules feed from repository
      * @param    boolean      $force          Force query repository
      */
-    public function __construct(dcModules $modules, string $modules_root, string $xml_url, bool $force = false)
+    public function __construct(Modules $modules, string $modules_root, string $xml_url, bool $force = false)
     {
         $this->modules = $modules;
         $this->store   = new dcStore($modules, $xml_url, $force);
@@ -705,7 +706,7 @@ class adminModulesList
     /**
      * Check if a module is part of the distribution.
      *
-     * @deprecated 2.27 Use dcModules::getDefine($id)->distributed
+     * @deprecated 2.27 Use Modules::getDefine($id)->distributed
      *
      * @param    string    $id        Module root directory
      *
@@ -713,7 +714,7 @@ class adminModulesList
      */
     public static function isDistributedModule(string $id): bool
     {
-        dcDeprecated::set('dcModules::getDefine($id)->distributed', '2.26');
+        dcDeprecated::set('Modules::getDefine($id)->distributed', '2.26');
 
         return in_array($id, self::$distributed_modules);
     }
@@ -1009,8 +1010,8 @@ class adminModulesList
                         '</ul></div>';
                 }
 
-                if (self::hasFileOrClass($id, dcModules::MODULE_CLASS_CONFIG, dcModules::MODULE_FILE_CONFIG)
-                 || self::hasFileOrClass($id, dcModules::MODULE_CLASS_MANAGE, dcModules::MODULE_FILE_MANAGE)
+                if (self::hasFileOrClass($id, Modules::MODULE_CLASS_CONFIG, Modules::MODULE_FILE_CONFIG)
+                 || self::hasFileOrClass($id, Modules::MODULE_CLASS_MANAGE, Modules::MODULE_FILE_MANAGE)
                  || !empty($define->section)
                  || !empty($define->tags)
                  || !empty($define->settings)   && $define->isEnabled()
@@ -1085,8 +1086,8 @@ class adminModulesList
     {
         $settings_urls = [];
 
-        $config = self::hasFileOrClass($id, dcModules::MODULE_CLASS_CONFIG, dcModules::MODULE_FILE_CONFIG);
-        $index  = self::hasFileOrClass($id, dcModules::MODULE_CLASS_MANAGE, dcModules::MODULE_FILE_MANAGE);
+        $config = self::hasFileOrClass($id, Modules::MODULE_CLASS_CONFIG, Modules::MODULE_FILE_CONFIG);
+        $index  = self::hasFileOrClass($id, Modules::MODULE_CLASS_MANAGE, Modules::MODULE_FILE_MANAGE);
 
         $define   = dcCore::app()->plugins->getDefine($id);
         $settings = $define->settings;
@@ -1502,7 +1503,7 @@ class adminModulesList
                 } else {
                     $dest = $this->getPath() . DIRECTORY_SEPARATOR . basename($define->file);
                     if ($define->root != $dest) {
-                        @file_put_contents($define->root . DIRECTORY_SEPARATOR . dcModules::MODULE_FILE_DISABLED, '');
+                        @file_put_contents($define->root . DIRECTORY_SEPARATOR . Modules::MODULE_FILE_DISABLED, '');
                     }
                 }
 
@@ -1558,7 +1559,7 @@ class adminModulesList
             dcCore::app()->callBehavior('pluginAfterAdd', null);
 
             dcPage::addSuccessNotice(
-                $ret_code === dcModules::PACKAGE_UPDATED ?
+                $ret_code === Modules::PACKAGE_UPDATED ?
                 __('The plugin has been successfully updated.') :
                 __('The plugin has been successfully installed.')
             );
@@ -1666,9 +1667,9 @@ class adminModulesList
         }
 
         self::fillSanitizeModule($define);
-        $class = $define->namespace . Autoloader::NS_SEP . dcModules::MODULE_CLASS_CONFIG;
+        $class = $define->namespace . Autoloader::NS_SEP . Modules::MODULE_CLASS_CONFIG;
         $class = empty($define->namespace) || !class_exists($class) ? '' : $class;
-        $file  = Path::real($define->root . DIRECTORY_SEPARATOR . dcModules::MODULE_FILE_CONFIG);
+        $file  = Path::real($define->root . DIRECTORY_SEPARATOR . Modules::MODULE_FILE_CONFIG);
 
         if (empty($class) && !file_exists($file)) {
             dcCore::app()->error->add(__('This plugin has no configuration file.'));
@@ -1847,12 +1848,12 @@ class adminThemesList extends adminModulesList
      *
      * Note that this creates dcStore instance.
      *
-     * @param    dcModules    $modules        dcModules instance
+     * @param    Modules      $modules        Modules instance
      * @param    string       $modules_root   Modules root directories
      * @param    string       $xml_url        URL of modules feed from repository
      * @param    boolean      $force          Force query repository
      */
-    public function __construct(dcModules $modules, string $modules_root, string $xml_url, bool $force = false)
+    public function __construct(Modules $modules, string $modules_root, string $xml_url, bool $force = false)
     {
         parent::__construct($modules, $modules_root, $xml_url, $force);
         $this->page_url = dcCore::app()->adminurl->get('admin.blog.theme');
@@ -2017,12 +2018,12 @@ class adminThemesList extends adminModulesList
                 $line .= '<div class="current-actions">';
 
                 // by class name
-                $class = $define->namespace . Autoloader::NS_SEP . dcModules::MODULE_CLASS_CONFIG;
+                $class = $define->namespace . Autoloader::NS_SEP . Modules::MODULE_CLASS_CONFIG;
                 if (!empty($define->namespace) && class_exists($class)) {
                     $config = $class::init();
                 // by file name
                 } else {
-                    $config = file_exists(Path::real(dcCore::app()->blog->themes_path . DIRECTORY_SEPARATOR . $id) . DIRECTORY_SEPARATOR . dcModules::MODULE_FILE_CONFIG);
+                    $config = file_exists(Path::real(dcCore::app()->blog->themes_path . DIRECTORY_SEPARATOR . $id) . DIRECTORY_SEPARATOR . Modules::MODULE_FILE_CONFIG);
                 }
 
                 if ($config) {
@@ -2443,7 +2444,7 @@ class adminThemesList extends adminModulesList
                 dcCore::app()->callBehavior('themeAfterAdd', null);
 
                 dcPage::addSuccessNotice(
-                    $ret_code == dcModules::PACKAGE_UPDATED ?
+                    $ret_code == Modules::PACKAGE_UPDATED ?
                     __('The theme has been successfully updated.') :
                     __('The theme has been successfully installed.')
                 );

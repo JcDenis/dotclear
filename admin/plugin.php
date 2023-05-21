@@ -6,6 +6,8 @@
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
+use Dotclear\Module\Modules;
+
 require __DIR__ . '/../inc/admin/prepend.php';
 
 class adminPlugin
@@ -42,7 +44,7 @@ class adminPlugin
         dcCore::app()->admin->setPageURL('plugin.php?p=' . $plugin);
 
         // by class name
-        $class = dcCore::app()->plugins->loadNsClass($plugin, dcModules::MODULE_CLASS_MANAGE);
+        $class = dcCore::app()->plugins->loadNsClass($plugin, Modules::MODULE_CLASS_MANAGE);
         if (!empty($class)) {
             ob_start();
             $class::render();
@@ -50,7 +52,7 @@ class adminPlugin
             ob_end_clean();
         // by file name
         } elseif (dcCore::app()->plugins->getDefine($plugin)->isDefined()) {
-            $p_file = dcCore::app()->plugins->getDefine($plugin)->root . DIRECTORY_SEPARATOR . dcModules::MODULE_FILE_MANAGE;
+            $p_file = dcCore::app()->plugins->getDefine($plugin)->root . DIRECTORY_SEPARATOR . Modules::MODULE_FILE_MANAGE;
             if (file_exists($p_file)) {
                 ob_start();
                 include $p_file;

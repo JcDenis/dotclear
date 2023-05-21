@@ -10,7 +10,13 @@
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
+declare(strict_types=1);
 
+namespace Dotclear\Module;
+
+use Autoloader;
+use dcCore;
+use dcDeprecated;
 use Dotclear\App;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\File\Path;
@@ -18,9 +24,8 @@ use Dotclear\Helper\File\Zip\Unzip;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\Network\Http;
-use Dotclear\Module\Define;
 
-class dcModules
+class Modules
 {
     // Constants
 
@@ -550,7 +555,7 @@ class dcModules
         }
 
         // Give opportunity to do something before loading context (admin,public,xmlrpc) files
-        # --BEHAVIOR-- coreBeforeLoadingNsFilesV2 -- dcModules, string|null
+        # --BEHAVIOR-- coreBeforeLoadingNsFilesV2 -- Modules, string|null
         dcCore::app()->callBehavior('coreBeforeLoadingNsFilesV2', $this, $lang);
 
         // Load module context
@@ -706,13 +711,13 @@ class dcModules
      * Install a Package
      *
      * @param      string     $zip_file  The zip file
-     * @param      dcModules  $modules   The modules
+     * @param      Modules    $modules   The modules
      *
      * @throws     Exception
      *
      * @return     int
      */
-    public static function installPackage(string $zip_file, dcModules &$modules): int
+    public static function installPackage(string $zip_file, Modules &$modules): int
     {
         $zip = new Unzip($zip_file);
         $zip->getList(false, '#(^|/)(__MACOSX|\.svn|\.hg.*|\.git.*|\.DS_Store|\.directory|Thumbs\.db)(/|$)#');
@@ -854,7 +859,7 @@ class dcModules
     /**
      * This method installs all modules having a _install file.
      *
-     * @see dcModules::installModule
+     * @see Modules::installModule
      *
      * @return     array
      */
@@ -1051,7 +1056,7 @@ class dcModules
      */
     public function getModules(?string $id = null): array
     {
-        dcDeprecated::set('dcModules::searchDefines()', '2.27');
+        dcDeprecated::set('Modules::searchDefines()', '2.27');
 
         $modules = $this->getDefines(['state' => $this->safe_mode ? Define::STATE_SOFT_DISABLED : Define::STATE_ENABLED], true);
 
@@ -1069,7 +1074,7 @@ class dcModules
      */
     public function getAnyModules(?string $id = null): array
     {
-        dcDeprecated::set('dcModules::searchDefines()', '2.27');
+        dcDeprecated::set('Modules::searchDefines()', '2.27');
 
         $modules = $this->getDefines([], true);
 
@@ -1099,7 +1104,7 @@ class dcModules
      */
     public function getDisabledModules(): array
     {
-        dcDeprecated::set('dcModules::searchDefines()', '2.27');
+        dcDeprecated::set('Modules::searchDefines()', '2.27');
 
         return $this->getDefines(['state' => '!' . Define::STATE_ENABLED], true);
     }
@@ -1113,7 +1118,7 @@ class dcModules
      */
     public function getHardDisabledModules(): array
     {
-        dcDeprecated::set('dcModules::searchDefines()', '2.27');
+        dcDeprecated::set('Modules::searchDefines()', '2.27');
 
         return $this->getDefines(['state' => Define::STATE_HARD_DISABLED], true);
     }
@@ -1127,7 +1132,7 @@ class dcModules
      */
     public function getSoftDisabledModules(): array
     {
-        dcDeprecated::set('dcModules::searchDefines()', '2.27');
+        dcDeprecated::set('Modules::searchDefines()', '2.27');
 
         return $this->getDefines(['state' => Define::STATE_SOFT_DISABLED], true);
     }
@@ -1143,7 +1148,7 @@ class dcModules
      */
     public function moduleRoot(string $id)
     {
-        dcDeprecated::set('dcModules::getDefine()', '2.27');
+        dcDeprecated::set('Modules::getDefine()', '2.27');
 
         return $this->moduleInfo($id, 'root');
     }
@@ -1168,7 +1173,7 @@ class dcModules
      */
     public function moduleInfo(string $id, string $info)
     {
-        dcDeprecated::set('dcModules::getDefine()', '2.27');
+        dcDeprecated::set('Modules::getDefine()', '2.27');
 
         return $this->getDefine($id, ['state' => Define::STATE_ENABLED])->get($info);
     }

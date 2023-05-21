@@ -14,8 +14,9 @@
  * @since 2.6
  */
 use Dotclear\Module\Define;
+use Dotclear\Module\Modules;
 
-class dcPlugins extends dcModules
+class dcPlugins extends Modules
 {
     protected $type = 'plugin';
 

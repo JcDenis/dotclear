@@ -13,13 +13,14 @@
  * @since 2.6
  */
 
+use Dotclear\Module\Modules;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Network\HttpClient;
 
 class dcStore
 {
     /**
-     * dcModules instance
+     * Modules instance
      *
      * @var    object
      */
@@ -75,11 +76,11 @@ class dcStore
     /**
      * Constructor.
      *
-     * @param    dcModules $modules        dcModules instance
+     * @param    Modules   $modules        Modules instance
      * @param    string    $xml_url        XML feed URL
      * @param    bool      $force          Force query repository
      */
-    public function __construct(dcModules $modules, string $xml_url, bool $force = false)
+    public function __construct(Modules $modules, string $xml_url, bool $force = false)
     {
         $this->modules    = $modules;
         $this->xml_url    = $xml_url;
@@ -301,7 +302,7 @@ class dcStore
      * @param    string    $url    Module package URL
      * @param    string    $dest    Path to install module
      *
-     * @return    int      dcModules::PACKAGE_INSTALLED (1), dcModules::PACKAGE_UPDATED (2)
+     * @return    int      Modules::PACKAGE_INSTALLED (1), Modules::PACKAGE_UPDATED (2)
      */
     public function process(string $url, string $dest): int
     {
@@ -351,7 +352,7 @@ class dcStore
      */
     public function install(string $path): int
     {
-        return dcModules::installPackage($path, $this->modules);
+        return Modules::installPackage($path, $this->modules);
     }
 
     /**
