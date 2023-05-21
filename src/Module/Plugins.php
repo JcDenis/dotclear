@@ -31,14 +31,20 @@ class Plugins extends Modules
      * <var>$priority</var> is an integer. Modules are sorted by priority and name.
      * Lowest priority comes first.
      *
-     * @param      string  $name        The module name
-     * @param      string  $desc        The module description
-     * @param      string  $author      The module author
-     * @param      string  $version     The module version
-     * @param      mixed   $properties  The properties
+     * @param   string  $name           The module name
+     * @param   string  $desc           The module description
+     * @param   string  $author         The module author
+     * @param   string  $version        The module version
+     * @param   mixed   $properties     The properties
+     * 
+     * @return  void
      */
     public function registerModule(string $name, string $desc, string $author, string $version, $properties = [])
     {
+        if (is_null($this->id)) {
+            return;
+        }
+
         $define = new Define($this->id);
 
         $define
@@ -61,7 +67,7 @@ class Plugins extends Modules
             if (isset($args[4])) {
                 $define->set('permissions', $args[4]);
             }
-            if (isset($args[5])) {
+            if (isset($args[5]) && is_numeric($args[5])) {
                 $define->set('priority', (int) $args[5]);
             }
         }
