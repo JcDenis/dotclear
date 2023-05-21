@@ -38,11 +38,13 @@ class Themes extends Modules
      * Lowest priority comes first. This property is currently ignored when dealing
      * with themes.
      *
-     * @param      string  $name        The name
-     * @param      string  $desc        The description
-     * @param      string  $author      The author
-     * @param      string  $version     The version
-     * @param      mixed   $properties  The properties
+     * @param   string  $name           The name
+     * @param   string  $desc           The description
+     * @param   string  $author         The author
+     * @param   string  $version        The version
+     * @param   mixed   $properties     The properties
+     *
+     * @return void
      */
     public function registerModule(string $name, string $desc, string $author, string $version, $properties = []): void
     {
@@ -91,18 +93,18 @@ class Themes extends Modules
     }
 
     /**
-     * Clone a theme module
+     * Clone a theme module.
      *
-     * @param      string     $id     The identifier
+     * @param   string  $id     The identifier
      *
-     * @throws     Exception
+     * @throws  Exception
      */
     public function cloneModule(string $id): void
     {
         $module = $this->getDefine($id);
 
         $root = end($this->path); // Use last folder set in folders list (should be only one for theme)
-        if (!is_dir($root) || !is_readable($root)) {
+        if (!$root || !is_dir($root) || !is_readable($root)) {
             throw new Exception(__('Themes folder unreachable'));
         }
         $root = rtrim($root, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
@@ -199,8 +201,8 @@ class Themes extends Modules
      * Loads namespace <var>$ns</var> specific file for module with ID <var>$id</var>
      * Note: currently, only 'public' namespace is supported with themes.
      *
-     * @param      string  $id     Module ID
-     * @param      string  $ns     Namespace name
+     * @param   string  $id     Module ID
+     * @param   string  $ns     Namespace name
      */
     public function loadNsFile(string $id, ?string $ns = null): void
     {
