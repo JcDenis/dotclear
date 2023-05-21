@@ -55,7 +55,7 @@ class Backend extends dcNsProcess
             'adminDashboardFavoritesV2' => function (dcFavorites $favs) {
                 $favs->register('pages', [
                     'title'       => My::name(),
-                    'url'         => My::backendUrl(),
+                    'url'         => My::manageUrl(),
                     'small-icon'  => My::icons(),
                     'large-icon'  => My::icons(),
                     'permissions' => dcCore::app()->auth->makePermissions([
@@ -75,7 +75,7 @@ class Backend extends dcNsProcess
                 ]);
                 $favs->register('newpage', [
                     'title'       => __('New page'),
-                    'url'         => My::backendUrl(['act' => 'page']),
+                    'url'         => My::manageUrl(['act' => 'page']),
                     'small-icon'  => My::icons(),
                     'large-icon'  => My::icons(),
                     'permissions' => dcCore::app()->auth->makePermissions([
@@ -92,7 +92,7 @@ class Backend extends dcNsProcess
 
         dcCore::app()->menu[dcAdmin::MENU_BLOG]->addItem(
             My::name(),
-            My::backendUrl(),
+            My::manageUrl(),
             My::icons(),
             preg_match('/plugin.php(.*)$/', $_SERVER['REQUEST_URI']) && !empty($_REQUEST['p']) && $_REQUEST['p'] == 'pages',
             My::checkContext(My::MENU)

@@ -67,7 +67,7 @@ class BackendBehaviors
     {
         $favs->register(My::id(), [
             'title'       => My::name(),
-            'url'         => My::backendUrl(),
+            'url'         => My::manageUrl(),
             'small-icon'  => My::icons(),
             'large-icon'  => My::icons(),
             'permissions' => dcCore::app()->auth->makePermissions([

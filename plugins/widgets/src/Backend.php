@@ -36,7 +36,7 @@ class Backend extends dcNsProcess
             'adminDashboardFavoritesV2' => function (dcFavorites $favs) {
                 $favs->register(My::id(), [
                     'title'      => My::name(),
-                    'url'        => My::backendUrl(),
+                    'url'        => My::manageUrl(),
                     'small-icon' => My::icons(),
                     'large-icon' => My::icons(),
                 ]);

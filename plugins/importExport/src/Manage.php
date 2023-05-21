@@ -114,7 +114,7 @@ class Manage extends dcNsProcess
             '<h3>' . __('Export') . '</h3>' .
             '<p class="info">' . sprintf(
                 __('Export functions are in the page %s.'),
-                '<a href="' . My::backendUrl(['tab' => 'backup']) . '#backup">' .
+                '<a href="' . My::manageUrl(['tab' => 'backup']) . '#backup">' .
                 __('Maintenance') . '</a>'
             ) . '</p>';
         }

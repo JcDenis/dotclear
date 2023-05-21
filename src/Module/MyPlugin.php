@@ -82,7 +82,7 @@ abstract class MyPlugin extends MyModule
      *
      * @return  string
      */
-    public static function backendUrl(array $params = []): string
+    public static function manageUrl(array $params = []): string
     {
         return defined('DC_CONTEXT_ADMIN') ? dcCore::app()->adminurl->get('admin.plugin.' . static::id(), $params) : '';
     }
