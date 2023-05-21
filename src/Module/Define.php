@@ -23,7 +23,7 @@ class Define
     /** @var    int     Enabled state. */
     public const STATE_ENABLED       = 0;
 
-    /** @var    int     Default init disabled stat. */
+    /** @var    int     Default init disabled state. */
     public const STATE_INIT_DISABLED = 1;
 
     /** @var    int     Soft disabled state. */
@@ -32,7 +32,7 @@ class Define
     /** @var    int     Hard disabled state. */
     public const STATE_HARD_DISABLED = 4;
 
-    /** @var    string  Default (undeifned) module name. */
+    /** @var    string  Default (undefined) module name. */
     public const DEFAULT_NAME = 'undefined';
 
     /** @var    string  Default (undefined) module type. */
@@ -173,7 +173,7 @@ class Define
     final public function __construct(
         public readonly string $id
     ) {
-        $this->sid   = $this->sanitizeProperty($this->id);
+        $this->sid = $this->sanitizeProperty($this->id);
         $this->init();
         $this->sanitizeProperties();
     }
@@ -344,8 +344,10 @@ class Define
     /**
      * Store a property and its value.
      *
-     * @param      string  $property    The property
-     * @param      mixed   $value       The value
+     * @param   string  $property   The property
+     * @param   mixed   $value      The value
+     * 
+     * @return  Define  Self instance
      */
     public function set(string $property, $value = null): Define
     {
@@ -373,9 +375,9 @@ class Define
      *
      * @deprecated  2.27    Use public property.
      *
-     * @param      string  $property    The property
+     * @param   string  $property   The property
      *
-     * @return     mixed
+     * @return  mixed
      */
     public function __get(string $property): mixed
     {
