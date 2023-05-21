@@ -17,15 +17,12 @@ use dcCore;
 use dcFavorites;
 use dcPage;
 use dcNsProcess;
-use initBlogroll;
 
 class Backend extends dcNsProcess
 {
     public static function init(): bool
     {
-        static::$init = defined('DC_CONTEXT_ADMIN');
-
-        return static::$init;
+        return (static::$init = My::checkContext(My::BACKEND));
     }
 
     public static function process(): bool
@@ -34,37 +31,29 @@ class Backend extends dcNsProcess
             return false;
         }
 
-        dcCore::app()->auth->setPermissionType(initBlogroll::PERMISSION_BLOGROLL, __('manage blogroll'));
+        dcCore::app()->auth->setPermissionType(Blogroll::PERMISSION_BLOGROLL, __('manage blogroll'));
 
         dcCore::app()->addBehaviors([
             'adminDashboardFavoritesV2' => function (dcFavorites $favs) {
-                $favs->register('blogroll', [
-                    'title'       => __('Blogroll'),
-                    'url'         => dcCore::app()->adminurl->get('admin.plugin.blogroll'),
-                    'small-icon'  => [dcPage::getPF('blogroll/icon.svg'), dcPage::getPF('blogroll/icon-dark.svg')],
-                    'large-icon'  => [dcPage::getPF('blogroll/icon.svg'), dcPage::getPF('blogroll/icon-dark.svg')],
+                $favs->register(My::id(), [
+                    'title'       => My::name(),
+                    'url'         => My::backendUrl(),
+                    'small-icon'  => My::icons(),
+                    'large-icon'  => My::icons(),
                     'permissions' => dcCore::app()->auth->makePermissions([
+                        Blogroll::PERMISSION_BLOGROLL,
                         dcCore::app()->auth::PERMISSION_USAGE,
                         dcCore::app()->auth::PERMISSION_CONTENT_ADMIN,
                     ]),
                 ]);
             },
-            'adminUsersActionsHeaders' => fn () => dcPage::jsModuleLoad('blogroll/js/_users_actions.js'),
+            'adminUsersActionsHeaders' => fn () => dcPage::jsModuleLoad(My::id() . '/js/_users_actions.js'),
 
             'initWidgets'        => [Widgets::class, 'initWidgets'],
             'initDefaultWidgets' => [Widgets::class, 'initDefaultWidgets'],
         ]);
 
-        dcCore::app()->menu[dcAdmin::MENU_BLOG]->addItem(
-            __('Blogroll'),
-            dcCore::app()->adminurl->get('admin.plugin.blogroll'),
-            [dcPage::getPF('blogroll/icon.svg'), dcPage::getPF('blogroll/icon-dark.svg')],
-            preg_match('/' . preg_quote(dcCore::app()->adminurl->get('admin.plugin.blogroll')) . '(&.*)?$/', $_SERVER['REQUEST_URI']),
-            dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([
-                dcCore::app()->auth::PERMISSION_USAGE,
-                dcCore::app()->auth::PERMISSION_CONTENT_ADMIN,
-            ]), dcCore::app()->blog->id)
-        );
+        My::backendSidebarMenuIcon(dcAdmin::MENU_BLOG);
 
         return true;
     }

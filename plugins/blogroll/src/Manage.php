@@ -19,7 +19,6 @@ use dcNsProcess;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
-use initBlogroll;
 use form;
 
 class Manage extends dcNsProcess
@@ -28,11 +27,9 @@ class Manage extends dcNsProcess
 
     public static function init(): bool
     {
-        if (defined('DC_CONTEXT_ADMIN')) {
-            dcPage::check(dcCore::app()->auth->makePermissions([
-                initBlogroll::PERMISSION_BLOGROLL,
-            ]));
+        static::$init = My::checkContext(My::MANAGE);
 
+        if (static::$init) {
             dcCore::app()->admin->blogroll = new Blogroll(dcCore::app()->blog);
 
             if (!empty($_REQUEST['edit']) && !empty($_REQUEST['id'])) {
@@ -45,8 +42,6 @@ class Manage extends dcNsProcess
                 dcCore::app()->admin->link_lang   = '';
                 dcCore::app()->admin->cat_title   = '';
             }
-
-            static::$init = true;
         }
 
         return static::$init;
@@ -231,22 +226,22 @@ class Manage extends dcNsProcess
         if (!dcCore::app()->auth->user_prefs->accessibility->nodragdrop) {
             $head .= dcPage::jsLoad('js/jquery/jquery-ui.custom.js') .
                 dcPage::jsLoad('js/jquery/jquery.ui.touch-punch.js') .
-                dcPage::jsModuleLoad('blogroll/js/blogroll.js');
+                dcPage::jsModuleLoad(My::id() . '/js/blogroll.js');
         }
         $head .= dcPage::jsPageTabs(dcCore::app()->admin->default_tab);
 
-        dcPage::openModule(__('Blogroll'), $head);
+        dcPage::openModule(My::name(), $head);
 
         echo
         dcPage::breadcrumb(
             [
                 Html::escapeHTML(dcCore::app()->blog->name) => '',
-                __('Blogroll')                              => '',
+                My::name()                                  => '',
             ]
         ) .
         dcPage::notices() .
 
-        '<div class="multi-part" id="main-list" title="' . __('Blogroll') . '">';
+        '<div class="multi-part" id="main-list" title="' . My::name() . '">';
 
         if (!$rs->isEmpty()) {
             echo
@@ -308,7 +303,7 @@ class Manage extends dcNsProcess
             '<p class="col">' .
 
             form::hidden('links_order', '') .
-            form::hidden(['p'], 'blogroll') .
+            form::hidden(['p'], My::id()) .
             dcCore::app()->formNonce() .
 
             '<input type="submit" name="saveorder" value="' . __('Save order') . '" />' .
@@ -425,7 +420,7 @@ class Manage extends dcNsProcess
                 '<p class="col checkboxes-helpers"></p>' .
 
                 '<p class="col right">' .
-                form::hidden(['p'], 'blogroll') .
+                form::hidden(['p'], My::id()) .
                 dcCore::app()->formNonce() .
                 '<input type="submit" name="cancel_import" value="' . __('Cancel') . '" />&nbsp;' .
                 '<input type="submit" name="import_links_do" value="' . __('Import') . '" /></p>' .
