@@ -19,19 +19,15 @@ class Prepend extends dcNsProcess
 {
     public static function init(): bool
     {
-        static::$init = defined('DC_RC_PATH');
-
-        return static::$init;
+        return (static::$init = defined('DC_RC_PATH'));
     }
 
     public static function process(): bool
     {
-        if (!static::$init) {
-            return false;
+        if (static::$init) {
+            dcCore::app()->spamfilters[] = AntispamFilterAkismet::class;
         }
 
-        dcCore::app()->spamfilters[] = AntispamFilterAkismet::class;
-
-        return true;
+        return static::$init;
     }
 }

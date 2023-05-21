@@ -15,7 +15,6 @@ namespace Dotclear\Plugin\antispam;
 use dcCore;
 use dcNsProcess;
 use Dotclear\Database\Structure;
-use initAntispam;
 
 class Install extends dcNsProcess
 {
@@ -23,10 +22,7 @@ class Install extends dcNsProcess
 
     public static function init(): bool
     {
-        self::$module = basename(dirname(__DIR__));
-        static::$init = defined('DC_CONTEXT_ADMIN') && dcCore::app()->newVersion(self::$module, dcCore::app()->plugins->moduleInfo(self::$module, 'version'));
-
-        return static::$init;
+        return (static::$init = My::checkContext(My::INSTALL));
     }
 
     public static function process(): bool
@@ -39,7 +35,7 @@ class Install extends dcNsProcess
         -------------------------------------------------------- */
         $schema = new Structure(dcCore::app()->con, dcCore::app()->prefix);
 
-        $schema->{initAntispam::SPAMRULE_TABLE_NAME}
+        $schema->{Antispam::SPAMRULE_TABLE_NAME}
             ->rule_id('bigint', 0, false)
             ->blog_id('varchar', 32, true)
             ->rule_type('varchar', 16, false, "'word'")
@@ -52,7 +48,7 @@ class Install extends dcNsProcess
         ;
 
         if ($schema->driver() === 'pgsql') {
-            $schema->{initAntispam::SPAMRULE_TABLE_NAME}->index('idx_spamrule_blog_id_null', 'btree', '(blog_id IS NULL)');
+            $schema->{Antispam::SPAMRULE_TABLE_NAME}->index('idx_spamrule_blog_id_null', 'btree', '(blog_id IS NULL)');
         }
 
         // Schema installation

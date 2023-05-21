@@ -28,10 +28,10 @@ class Manage extends dcNsProcess
      */
     public static function init(): bool
     {
-        if (defined('DC_CONTEXT_ADMIN')) {
-            dcPage::checkSuper();
+        static::$init = My::checkContext(My::MANAGE);
+
+        if (static::$init) {
             dcCore::app()->admin->part = !empty($_GET['part']) && $_GET['part'] === 'global' ? 'global' : 'local';
-            static::$init              = true;
         }
 
         return static::$init;
@@ -109,9 +109,9 @@ class Manage extends dcNsProcess
         }
 
         dcPage::openModule(
-            'about:config',
+            My::name(),
             dcPage::jsPageTabs(dcCore::app()->admin->part) .
-            dcPage::jsModuleLoad('aboutConfig/js/index.js')
+            dcPage::jsModuleLoad(My::id() . '/js/index.js')
         );
 
         echo
@@ -119,7 +119,7 @@ class Manage extends dcNsProcess
             [
                 __('System')                                => '',
                 Html::escapeHTML(dcCore::app()->blog->name) => '',
-                __('about:config')                          => '',
+                My::name()                                  => '',
             ]
         ) .
         dcPage::notices() .
