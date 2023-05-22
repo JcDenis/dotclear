@@ -24,18 +24,10 @@ use Exception;
 
 class Store
 {
-    /**
-     * Modules instance
-     *
-     * @var    object
-     */
+    /** @var    Modules     Modules instance */
     public $modules;
 
-    /**
-     * Modules fields to search on and their weight
-     *
-     * @var    array
-     */
+    /** @var    array<string,int>   Modules fields to search on and their weight */
     public static $weighting = [
         'id'     => 10,
         'name'   => 8,
@@ -44,35 +36,19 @@ class Store
         'author' => 2,
     ];
 
-    /**
-     * User agent used to query repository
-     *
-     * @var    string
-     */
+    /** @var    string  User agent used to query repository */
     protected $user_agent = 'DotClear.org RepoBrowser/0.1';
 
-    /**
-     * XML feed URL
-     *
-     * @var    string
-     */
+    /** @var    string  XML feed URL */
     protected $xml_url;
 
-    /**
-     * Array of new/update modules from repository
-     *
-     * @var    array
-     */
+    /** @var    array{new:array<int|string,mixed>,update:array<int|string,mixed>}   Deprecated array of new/update modules from repository */
     protected $data = [
         'new'    => [],
         'update' => [],
     ];
 
-    /**
-     * Array of new/update modules Define from repository
-     *
-     * @var    array{new|update:array<int,Define>}
-     */
+    /** @var    array{new:array<int,Define>,update:array<int,Define>}     Array of new/update modules Define from repository */
     protected $defines = [
         'new'    => [],
         'update' => [],
@@ -81,9 +57,9 @@ class Store
     /**
      * Constructor.
      *
-     * @param    Modules   $modules        Modules instance
-     * @param    string    $xml_url        XML feed URL
-     * @param    bool      $force          Force query repository
+     * @param   Modules     $modules    Modules instance
+     * @param   string      $xml_url    XML feed URL
+     * @param   bool        $force      Force query repository
      */
     public function __construct(Modules $modules, string $xml_url, bool $force = false)
     {
@@ -97,9 +73,9 @@ class Store
     /**
      * Check repository.
      *
-     * @param    bool    $force        Force query repository
+     * @param   bool    $force  Force query repository
      *
-     * @return    bool    True if get feed or cache
+     * @return  bool    True if get feed or cache
      */
     public function check(bool $force = false): bool
     {
@@ -142,7 +118,7 @@ class Store
         }
 
         // check update from third party repositories
-        foreach ($this->modules->getDefines() as $cur_define) {
+        foreach ($this->modules->searchDefines() as $cur_define) {
             if ($cur_define->repository != '' && DC_ALLOW_REPOSITORIES) {
                 try {
                     $str_url    = substr($cur_define->repository, -12, 12) == '/dcstore.xml' ? $cur_define->repository : Http::concatURL($cur_define->repository, 'dcstore.xml');
@@ -188,7 +164,9 @@ class Store
         }
         foreach ($this->defines['update'] as $define) {
             // keep only higher vesion
-            if (!isset($this->data['update'][$define->id]) || dcUtils::versionsCompare($define->version, $this->data['update'][$define->id]['version'], '>')) {
+            if (!isset($this->data['update'][$define->id]) || !is_array($this->data['update'][$define->id]) || !is_string($this->data['update'][$define->id]['version'])
+                || dcUtils::versionsCompare($define->version, $this->data['update'][$define->id]['version'], '>')
+            ) {
                 $this->data['update'][$define->id] = $define->dump();
             }
         }
@@ -199,9 +177,9 @@ class Store
     /**
      * Get a list of modules.
      *
-     * @param    bool    $update    True to get update modules, false for new ones
+     * @param   bool    $update     True to get update modules, false for new ones
      *
-     * @return    array    List of update/new modules defines
+     * @return  array<int,Define>   List of update/new modules defines
      */
     public function getDefines(bool $update = false): array
     {
@@ -211,11 +189,11 @@ class Store
     /**
      * Get a list of modules.
      *
-     * @deprecated since 2.26 Use self::getDefines()
+     * @deprecated  since 2.26 Use self::getDefines()
      *
-     * @param    bool    $update    True to get update modules, false for new ones
+     * @param   bool    $update     True to get update modules, false for new ones
      *
-     * @return    array    List of update/new modules
+     * @return  array<int|string,mixed>     List of update/new modules
      */
     public function get(bool $update = false): array
     {
@@ -235,9 +213,9 @@ class Store
      * Every time a part of query is find on module,
      * result accuracy grow. Result is sorted by accuracy.
      *
-     * @param    string    $pattern    String to search
+     * @param   string  $pattern    String to search
      *
-     * @return    array    Match modules defines
+     * @return  array<int,Define>   Match modules defines
      */
     public function searchDefines(string $pattern): array
     {
@@ -283,11 +261,11 @@ class Store
     /**
      * Search a module.
      *
-     * @deprecated since 2.26 Use self::searchDefines()
+     * @deprecated  since 2.26 Use self::searchDefines()
      *
-     * @param    string    $pattern    String to search
+     * @param   string  $pattern    String to search
      *
-     * @return    array    Match modules
+     * @return  array<int|string,mixed>     Match modules
      */
     public function search(string $pattern): array
     {
@@ -304,10 +282,10 @@ class Store
     /**
      * Quick download and install module.
      *
-     * @param    string    $url    Module package URL
-     * @param    string    $dest    Path to install module
+     * @param   string  $url    Module package URL
+     * @param   string  $dest   Path to install module
      *
-     * @return    int      Modules::PACKAGE_INSTALLED (1), Modules::PACKAGE_UPDATED (2)
+     * @return  int     Modules::PACKAGE_INSTALLED (1), Modules::PACKAGE_UPDATED (2)
      */
     public function process(string $url, string $dest): int
     {
@@ -319,8 +297,8 @@ class Store
     /**
      * Download a module.
      *
-     * @param    string    $url    Module package URL
-     * @param    string    $dest    Path to put module package
+     * @param   string  $url    Module package URL
+     * @param   string  $dest   Path to put module package
      */
     public function download(string $url, string $dest): void
     {
@@ -350,10 +328,12 @@ class Store
 
     /**
      * Install a previously downloaded module.
+     * 
+     * @see     Constants Modules::PACKAGE_XXX for returned code
      *
-     * @param    string    $path    Path to module package
+     * @param   string  $path   Path to module package
      *
-     * @return    int        1 = installed, 2 = update
+     * @return  int
      */
     public function install(string $path): int
     {
@@ -361,11 +341,11 @@ class Store
     }
 
     /**
-     * User Agent String.
+     * Set User Agent String.
      *
-     * @param    string    $str        User agent string
+     * @param   string  $str    User agent string
      */
-    public function agent(string $str)
+    public function agent(string $str): void
     {
         $this->user_agent = $str;
     }
@@ -373,9 +353,9 @@ class Store
     /**
      * Split and clean pattern.
      *
-     * @param    string|array<int,string>   $str        String to sanitize (or array for tags)
+     * @param   string|array<int,string>    $str    String to sanitize (or array for tags)
      *
-     * @return    array|false    Array of cleaned pieces of string or false if none
+     * @return  false|array<int,string>     Array of cleaned pieces of string or false if none
      */
     private static function patternize(string|array $str)
     {
@@ -385,7 +365,7 @@ class Store
         }
 
         foreach ($str as $_) {
-            $_ = strtolower(preg_replace('/[^A-Za-z0-9]/', '', $_));
+            $_ = strtolower((string) preg_replace('/[^A-Za-z0-9]/', '', $_));
             if (strlen($_) >= 2) {
                 $arr[] = $_;
             }

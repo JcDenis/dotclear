@@ -19,41 +19,26 @@ namespace Dotclear\Module;
 use dcDeprecated;
 use dcUtils;
 use Exception;
+use SimpleXMLElement;
 
 class StoreParser
 {
-    /**
-     * XML object of feed contents
-     *
-     * @var    false|SimpleXMLElement
-     */
+    /** @var    false|SimpleXMLElement  XML object of feed contents */
     protected $xml;
 
-    /**
-     * Array of feed contents
-     *
-     * @var    array
-     */
+    /** @var    array<string,array<string,mixed>>   Array of feed contents */
     protected $items = [];
 
-    /**
-     * Array of Define instances of feed contents
-     *
-     * @var    array<int,Define>
-     */
+    /** @var    array<int,Define>   Array of Define instances of feed contents  */
     protected $defines = [];
 
-    /**
-     * XML bloc tag
-     *
-     * @var    string
-     */
+    /** @var    string  XML bloc tag */
     protected static $bloc = 'http://dotaddict.org/da/';
 
     /**
      * Constructor.
      *
-     * @param    string    $data        Feed content
+     * @param   string  $data   Feed content
      */
     public function __construct(string $data)
     {
@@ -70,9 +55,9 @@ class StoreParser
     }
 
     /**
-     * Parse XML into array
+     * Parse XML into array.
      */
-    protected function _parse()
+    protected function _parse(): void
     {
         if (empty($this->xml->module)) {
             return;
@@ -117,7 +102,7 @@ class StoreParser
     /**
      * Get modules Defines.
      *
-     * @return    array        Modules Define list
+     * @return  array<int,Define>   Modules Define list
      */
     public function getDefines(): array
     {
@@ -127,9 +112,9 @@ class StoreParser
     /**
      * Get modules.
      *
-     * @deprecated since 2.26 Use self::getDefines()
+     * @deprecated  since 2.26 Use self::getDefines()
      *
-     * @return    array        Modules list
+     * @return  array<string,array<string,mixed>>   Modules list
      */
     public function getModules(): array
     {
