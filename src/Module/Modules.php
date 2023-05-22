@@ -224,7 +224,7 @@ class Modules
      *
      * More than one module can have same id in this stack.
      * 
-     * @deprecated  since 2.27 Use searchDefines() and its DefineStrict properties
+     * @deprecated  since 2.27 Use searchDefines() and its Define properties
      *
      * @param   array<string,bool|int|string>   $search     The search parameters
      * @param   bool                            $to_array   Return arrays of modules properties
@@ -255,7 +255,7 @@ class Modules
      *  - using : list reasons why module cannot be disabled. Not set if module can be disabled
      *  - implies : reverse dependencies
      */
-    public function checkDependencies(): void
+    protected function checkDependencies(): void
     {
         // Grab current Dotclear and PHP version
         $special  = [
