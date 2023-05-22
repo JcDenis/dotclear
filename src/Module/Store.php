@@ -12,12 +12,17 @@
  *
  * @since 2.6
  */
+declare(strict_types=1);
 
-use Dotclear\Module\Modules;
+namespace Dotclear\Module;
+
+use dcDeprecated;
+use dcUtils;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Network\HttpClient;
+use Exception;
 
-class dcStore
+class Store
 {
     /**
      * Modules instance
@@ -103,7 +108,7 @@ class dcStore
         }
 
         try {
-            $str_parser = DC_STORE_NOT_UPDATE ? false : dcStoreReader::quickParse($this->xml_url, DC_TPL_CACHE, $force);
+            $str_parser = DC_STORE_NOT_UPDATE ? false : StoreReader::quickParse($this->xml_url, DC_TPL_CACHE, $force);
         } catch (Exception $e) {
             return false;
         }
@@ -141,7 +146,7 @@ class dcStore
             if ($cur_define->repository != '' && DC_ALLOW_REPOSITORIES) {
                 try {
                     $str_url    = substr($cur_define->repository, -12, 12) == '/dcstore.xml' ? $cur_define->repository : Http::concatURL($cur_define->repository, 'dcstore.xml');
-                    $str_parser = dcStoreReader::quickParse($str_url, DC_TPL_CACHE, $force);
+                    $str_parser = StoreReader::quickParse($str_url, DC_TPL_CACHE, $force);
                     if ($str_parser === false) {
                         continue;
                     }
@@ -214,7 +219,7 @@ class dcStore
      */
     public function get(bool $update = false): array
     {
-        dcDeprecated::set('dcStore::getDefines()', '2.26');
+        dcDeprecated::set('Store::getDefines()', '2.26');
 
         return $this->data[$update ? 'update' : 'new'];
     }
@@ -286,7 +291,7 @@ class dcStore
      */
     public function search(string $pattern): array
     {
-        dcDeprecated::set('dcStore::searchDefines()', '2.26');
+        dcDeprecated::set('Store::searchDefines()', '2.26');
 
         $result = [];
         foreach ($this->searchDefines($pattern) as $define) {

@@ -20,6 +20,7 @@ use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Text;
 use Dotclear\Module\Define;
+use Dotclear\Module\Store;
 
 class adminModulesList
 {
@@ -33,7 +34,7 @@ class adminModulesList
     /**
      * Store instance
      *
-     * @var dcStore
+     * @var Store
      */
     public $store;
 
@@ -172,7 +173,7 @@ class adminModulesList
     /**
      * Constructor.
      *
-     * Note that this creates dcStore instance.
+     * Note that this creates Store instance.
      *
      * @param    Modules      $modules        Modules instance
      * @param    string       $modules_root   Modules root directories
@@ -182,7 +183,7 @@ class adminModulesList
     public function __construct(Modules $modules, string $modules_root, string $xml_url, bool $force = false)
     {
         $this->modules = $modules;
-        $this->store   = new dcStore($modules, $xml_url, $force);
+        $this->store   = new Store($modules, $xml_url, $force);
 
         $this->page_url = dcCore::app()->adminurl->get('admin.plugins');
 
@@ -1846,7 +1847,7 @@ class adminThemesList extends adminModulesList
     /**
      * Constructor.
      *
-     * Note that this creates dcStore instance.
+     * Note that this creates Store instance.
      *
      * @param    Modules      $modules        Modules instance
      * @param    string       $modules_root   Modules root directories

@@ -14,6 +14,7 @@ use Dotclear\Helper\Html\XmlTag;
 use Dotclear\Helper\Network\Feed\Reader;
 use Dotclear\Helper\Text;
 use Dotclear\Module\Define;
+use Dotclear\Module\Store;
 use Dotclear\Module\Themes;
 
 require __DIR__ . '/../inc/admin/prepend.php';
@@ -202,7 +203,7 @@ class dcRestMethods
             }
         }
 
-        $repo = new dcStore($mod, $url);
+        $repo = new Store($mod, $url);
         $upd  = $repo->getDefines(true);
         if (!empty($upd)) {
             $ret = sprintf(__('An update is available', '%s updates are available.', count($upd)), count($upd));   // @phpstan-ignore-line
@@ -708,7 +709,7 @@ class dcRestMethods
         if ($list == 'plugin-activate') {
             $define = dcCore::app()->plugins->getDefine($id);
         } elseif ($list == 'plugin-new') {
-            $store = new dcStore(
+            $store = new Store(
                 dcCore::app()->plugins,
                 dcCore::app()->blog->settings->system->store_plugin_url
             );

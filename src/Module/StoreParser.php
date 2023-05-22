@@ -12,9 +12,15 @@
  *
  * @since 2.6
  */
-use Dotclear\Module\Define;
+declare(strict_types=1);
 
-class dcStoreParser
+namespace Dotclear\Module;
+
+use dcDeprecated;
+use dcUtils;
+use Exception;
+
+class StoreParser
 {
     /**
      * XML object of feed contents
@@ -127,7 +133,7 @@ class dcStoreParser
      */
     public function getModules(): array
     {
-        dcDeprecated::set('dcStoreParser::getDefines()', '2.26');
+        dcDeprecated::set('StoreParser::getDefines()', '2.26');
 
         // fill property once on demand
         if (empty($this->items) && !empty($this->defines)) {

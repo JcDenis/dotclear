@@ -84,6 +84,6 @@ abstract class MyPlugin extends MyModule
      */
     public static function manageUrl(array $params = []): string
     {
-        return defined('DC_CONTEXT_ADMIN') ? dcCore::app()->adminurl->get('admin.plugin.' . static::id(), $params) : '';
+        return defined('DC_CONTEXT_ADMIN') && !is_null(dcCore::app()->adminurl) ? dcCore::app()->adminurl->get('admin.plugin.' . static::id(), $params) : '';
     }
 }

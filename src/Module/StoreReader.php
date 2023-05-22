@@ -12,11 +12,15 @@
  *
  * @since 2.6
  */
+declare(strict_types=1);
+
+namespace Dotclear\Module;
 
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Network\HttpClient;
+use Exception;
 
-class dcStoreReader extends HttpClient
+class StoreReader extends HttpClient
 {
     /**
      * User agent used to query repository
@@ -83,7 +87,7 @@ class dcStoreReader extends HttpClient
      *
      * @param    string    $url        XML feed URL
      *
-     * @return   mixed     Feed content, dcStoreParser instance or false
+     * @return   mixed     Feed content, StoreParser instance or false
      */
     public function parse(string $url)
     {
@@ -95,7 +99,7 @@ class dcStoreReader extends HttpClient
             return false;
         }
 
-        return new dcStoreParser($this->getContent());
+        return new StoreParser($this->getContent());
     }
 
     /**
@@ -105,7 +109,7 @@ class dcStoreReader extends HttpClient
      * @param    string    $cache_dir    Cache directoy or null for no cache
      * @param    bool      $force        Force query repository
      *
-     * @return   mixed     Feed content, dcStoreParser instance or false
+     * @return   mixed     Feed content, StoreParser instance or false
      */
     public static function quickParse(string $url, ?string $cache_dir = null, bool $force = false)
     {
@@ -250,7 +254,7 @@ class dcStoreReader extends HttpClient
                 return unserialize(file_get_contents($cached_file));
                 # Ok, parse feed
             case '200':
-                $modules = new dcStoreParser($this->getContent());
+                $modules = new StoreParser($this->getContent());
 
                 try {
                     Files::makeDir(dirname($cached_file), true);

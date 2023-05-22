@@ -182,4 +182,8 @@ dcProxyV1::classAliases([
     'dcModuleDefine' => 'Dotclear\Module\Define',
     'dcModules'      => 'Dotclear\Module\Modules',
     'dcPlugins'      => 'Dotclear\Module\Plugins',
+    'dcThemes'       => 'Dotclear\Module\Themes',
+    'dcStore'        => 'Dotclear\Module\Store',
+    'dcStoreParser'  => 'Dotclear\Module\StoreParser',
+    'dcStoreReader'  => 'Dotclear\Module\StoreReader',
 ]);
