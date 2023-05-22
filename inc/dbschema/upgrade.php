@@ -1356,10 +1356,16 @@ class dcUpgrade
                 [
                     // Core
                     'inc/core/class.dc.module.define.php',
+                    'inc/core/class.dc.modules.php',
+                    'inc/core/class.dc.plugins.php',
+                    'inc/core/class.dc.store.php',
+                    'inc/core/class.dc.store.parser.php',
+                    'inc/core/class.dc.store.reader.php',
+                    'inc/core/class.dc.themes.php',
                 ],
                 // Folders
                 [
-                    DC_TPL_CACHE . DIRECTORY_SEPARATOR . 'dcrepo',
+                    DC_TPL_CACHE . DIRECTORY_SEPARATOR . 'dcrepo', // prevent unserialize old store object
                 ],
             );
         }
