@@ -50,7 +50,7 @@ class Manage extends dcNsProcess
 
         if (!is_a(dcCore::app()->themes, 'Dotclear\Module\Themes')) {
             dcCore::app()->themes = new Themes();
-            dcCore::app()->themes->loadModules(dcCore::app()->blog->themes_path, null);
+            dcCore::app()->themes->loadModules(dcCore::app()->blog->themes_path);
         }
 
         dcCore::app()->admin->theme  = dcCore::app()->themes->getDefine(dcCore::app()->blog->settings->system->theme);

@@ -30,7 +30,7 @@ abstract class MyTheme extends MyModule
         // should never happend but hey.
         if (!(dcCore::app()->themes instanceof Themes)) {
             dcCore::app()->themes = new Themes();
-            dcCore::app()->themes->loadModules((string) dcCore::app()->blog?->themes_path, null);
+            dcCore::app()->themes->loadModules((string) dcCore::app()->blog?->themes_path);
         }
 
         return static::getDefineFromNamespace(dcCore::app()->themes);

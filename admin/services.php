@@ -189,7 +189,7 @@ class dcRestMethods
 
         if ($post['store'] == 'themes') {
             $mod = new Themes();
-            $mod->loadModules(dcCore::app()->blog->themes_path, null);
+            $mod->loadModules(dcCore::app()->blog->themes_path);
             $url = dcCore::app()->blog->settings->system->store_theme_url;
         } elseif ($post['store'] == 'plugins') {
             $mod = dcCore::app()->plugins;

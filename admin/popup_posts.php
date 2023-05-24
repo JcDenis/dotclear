@@ -61,7 +61,7 @@ class adminPopupPosts
         if (dcCore::app()->themes === null) {
             // Loading themes, may be useful for some configurable theme --
             dcCore::app()->themes = new Themes();
-            dcCore::app()->themes->loadModules(dcCore::app()->blog->themes_path, null);
+            dcCore::app()->themes->loadModules(dcCore::app()->blog->themes_path);
         }
     }
 

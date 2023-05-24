@@ -35,7 +35,7 @@ class adminBlogTheme
 
         // Loading themes
         dcCore::app()->themes = new Themes();
-        dcCore::app()->themes->loadModules(dcCore::app()->blog->themes_path, null);
+        dcCore::app()->themes->loadModules(dcCore::app()->blog->themes_path);
 
         // Page helper
         dcCore::app()->admin->list = new adminThemesList(
