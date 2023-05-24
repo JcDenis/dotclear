@@ -1778,7 +1778,7 @@ class adminModulesList
     protected function hasRequestedChar(Define $define, string $sort_field, bool $nav_limit): bool
     {
         if ($nav_limit && $this->getSearch() === null) {
-            if ($define->has($sort_field)) {
+            if (!$define->has($sort_field)) {
                 return false;
             }
             $char = $define->{$sort_field};
