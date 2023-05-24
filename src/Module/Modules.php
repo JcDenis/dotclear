@@ -118,6 +118,9 @@ class Modules
     /** @var    string|null     Current dc namespace */
     protected $ns = null;
 
+    /** @var    string|null     Current lang */
+    protected $lang = null;
+
     /** @var    Define  Current module Define */
     protected $define;
 
@@ -248,75 +251,6 @@ class Modules
     }
 
     /**
-     * Check all modules dependencies.
-     *
-     * Fills in the following information in module :
-     *  - missing : list reasons why module cannot be enabled. Not set if module can be enabled
-     *  - using : list reasons why module cannot be disabled. Not set if module can be disabled
-     *  - implies : reverse dependencies
-     */
-    protected function checkDependencies(): void
-    {
-        // Grab current Dotclear and PHP version
-        $special  = [
-            'core' => preg_replace('/\-dev.*$/', '', DC_VERSION),
-            'php'  => phpversion(),
-        ];
-
-        foreach ($this->searchDefines() as $module) {
-            // module has required modules
-            foreach ($module->requires as $dep) {
-                // optionnal minimum dependancy
-                $optionnal = false;
-                if (substr($dep[0], -1) == '?') {
-                    $optionnal = true;
-                    $dep[0] = substr($dep[0], 0, -1);
-                }
-                // search required module 
-                $found = $this->getDefine($dep[0]);
-                // grab missing dependencies
-                if (!$found->isDefined() && !isset($special[$dep[0]]) && !$optionnal) {
-                    // module not present, nor php or dotclear, nor optionnal
-                    $module->addMissing($dep[0], sprintf(__('Requires %s module which is not installed'), $dep[0]));
-                } elseif ((count($dep) > 1) && version_compare((isset($special[$dep[0]]) ? $special[$dep[0]] : $found->version), $dep[1]) == -1) {
-                    // module present, but version missing
-                    if ($dep[0] == 'php') {
-                        $dep[0] = 'PHP';
-                        $dep_v = $special['php'];
-                    } elseif ($dep[0] == 'core') {
-                        $dep[0] = 'Dotclear';
-                        $dep_v = $special['core'];
-                    } else {
-                        $dep_v = $found->version;
-                    }
-                    $module->addMissing($dep[0], sprintf(
-                        __('Requires %s version %s, but version %s is installed'),
-                        $dep[0],
-                        $dep[1],
-                        $dep_v
-                    ));
-                } elseif (!isset($special[$dep[0]]) && !$found->isEnabled()) {
-                    // module disabled
-                    $module->addMissing($dep[0], sprintf(__('Requires %s module which is disabled'), $dep[0]));
-                }
-                $found->addImplies($module->id);
-            }
-        }
-        // Check modules that cannot be disabled
-        foreach ($this->searchDefines() as $module) {
-            if ($module->isEnabled()) {
-                foreach ($module->getImplies() as $im) {
-                    foreach ($this->searchDefines(['id' => $im]) as $found) {
-                        if ($found->isEnabled()) {
-                            $module->addUsing($im);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /**
      * Check all modules dependencies, and disable unmet dependencies
      *
      * @param   string  $redirect_url   URL to redirect if modules are to disable
@@ -428,11 +362,21 @@ class Modules
     {
         $this->path      = explode(PATH_SEPARATOR, $path);
         $this->ns        = $ns;
+        $this->lang      = $lang;
         $this->safe_mode = isset($_SESSION['sess_safe_mode']) && $_SESSION['sess_safe_mode'];
 
-        $ignored = [];
+        $this->loopModulesInit();
+        $this->loopModulesDefine();
+        $this->loopModulesDependencies();
+        uasort($this->defines, fn ($a, $b) => $a->priority <=> $b->priority);
+        $this->loopModulesContext();
+    }
 
-        // First loop to init
+    /**
+     * Load modules: first loop to load init file.
+     */
+    protected function loopModulesInit(): void
+    {
         foreach ($this->path as $root) {
             $stack = $this->parsePathModules($root);
 
@@ -448,8 +392,13 @@ class Modules
                 }
             }
         }
+    }
 
-        // Second loop to register
+    /**
+     * Load modules: second loop to load Define.
+     */
+    protected function loopModulesDefine(): void
+    {
         foreach ($this->path as $root) {
             $stack = $this->parsePathModules($root);
 
@@ -483,12 +432,78 @@ class Modules
                 $this->namespace = null;
             }
         }
-        $this->checkDependencies();
+    }
 
-        // Sort plugins by priority
-        uasort($this->defines, fn ($a, $b) => $a->priority <=> $b->priority);
+    /**
+     * Load modules: third loop to check dependencies.
+     */
+    protected function loopModulesDependencies(): void
+    {
+        $special  = [
+            'core' => preg_replace('/\-dev.*$/', '', DC_VERSION),
+            'php'  => phpversion(),
+        ];
 
-        // Context loop
+        foreach ($this->searchDefines() as $module) {
+            // module has required modules
+            foreach ($module->requires as $dep) {
+                // optionnal minimum dependancy
+                $optionnal = false;
+                if (substr($dep[0], -1) == '?') {
+                    $optionnal = true;
+                    $dep[0] = substr($dep[0], 0, -1);
+                }
+                // search required module 
+                $found = $this->getDefine($dep[0]);
+                // grab missing dependencies
+                if (!$found->isDefined() && !isset($special[$dep[0]]) && !$optionnal) {
+                    // module not present, nor php or dotclear, nor optionnal
+                    $module->addMissing($dep[0], sprintf(__('Requires %s module which is not installed'), $dep[0]));
+                } elseif ((count($dep) > 1) && version_compare((isset($special[$dep[0]]) ? $special[$dep[0]] : $found->version), $dep[1]) == -1) {
+                    // module present, but version missing
+                    if ($dep[0] == 'php') {
+                        $dep[0] = 'PHP';
+                        $dep_v = $special['php'];
+                    } elseif ($dep[0] == 'core') {
+                        $dep[0] = 'Dotclear';
+                        $dep_v = $special['core'];
+                    } else {
+                        $dep_v = $found->version;
+                    }
+                    $module->addMissing($dep[0], sprintf(
+                        __('Requires %s version %s, but version %s is installed'),
+                        $dep[0],
+                        $dep[1],
+                        $dep_v
+                    ));
+                } elseif (!isset($special[$dep[0]]) && !$found->isEnabled()) {
+                    // module disabled
+                    $module->addMissing($dep[0], sprintf(__('Requires %s module which is disabled'), $dep[0]));
+                }
+                $found->addImplies($module->id);
+            }
+        }
+        // Check modules that cannot be disabled
+        foreach ($this->searchDefines() as $module) {
+            if ($module->isEnabled()) {
+                foreach ($module->getImplies() as $im) {
+                    foreach ($this->searchDefines(['id' => $im]) as $found) {
+                        if ($found->isEnabled()) {
+                            $module->addUsing($im);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Load modules: fourth loop to load context.
+     */
+    protected function loopModulesContext(): void
+    {
+        $ignored = [];
+
         foreach ($this->searchDefines(['state' => Define::STATE_ENABLED]) as $module) {
             # Load translation and _prepend
             $ret = '';
@@ -510,22 +525,22 @@ class Modules
             }
             unset($ret);
 
-            $this->loadModuleL10N($module->id, $lang, 'main');
-            if ($ns == 'admin' && !is_null(dcCore::app()->adminurl)) {
-                $this->loadModuleL10Nresources($module->id, $lang);
+            $this->loadModuleL10N($module->id, $this->lang, 'main');
+            if ($this->ns == 'admin' && !is_null(dcCore::app()->adminurl)) {
+                $this->loadModuleL10Nresources($module->id, $this->lang);
                 dcCore::app()->adminurl->register('admin.plugin.' . $module->id, 'plugin.php', ['p' => $module->id]);
             }
         }
 
         // Give opportunity to do something before loading context (admin,public,xmlrpc) files
         # --BEHAVIOR-- coreBeforeLoadingNsFilesV2 -- Modules, string|null
-        dcCore::app()->callBehavior('coreBeforeLoadingNsFilesV2', $this, $lang);
+        dcCore::app()->callBehavior('coreBeforeLoadingNsFilesV2', $this, $this->lang);
 
         // Load module context
         foreach ($this->searchDefines(['state' => Define::STATE_ENABLED]) as $module) {
             if (!in_array($module->id, $ignored)) {
                 // Load ns_file
-                $this->loadNsFile($module->id, $ns);
+                $this->loadNsFile($module->id, $this->ns);
             }
         }
     }
