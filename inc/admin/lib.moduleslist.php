@@ -1021,9 +1021,11 @@ class adminModulesList
                     echo
                         '<div><ul class="mod-more">';
 
-                    $settings = static::getSettingsUrls($id);
-                    if (!empty($settings) && $define->isEnabled()) {
-                        echo '<li>' . implode(' - ', $settings) . '</li>';
+                    if ($define->isEnabled()) {
+                        $settings = static::getSettingsUrls($id);
+                        if (!empty($settings)) {
+                            echo '<li>' . implode(' - ', $settings) . '</li>';
+                        }
                     }
 
                     if (!empty($define->repository) && DC_DEBUG && DC_ALLOW_REPOSITORIES) {
