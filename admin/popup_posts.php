@@ -8,7 +8,6 @@
  */
 
 use Dotclear\Helper\Html\Html;
-use Dotclear\Module\Themes;
 
 require __DIR__ . '/../inc/admin/prepend.php';
 
@@ -57,12 +56,6 @@ class adminPopupPosts
         }
 
         dcCore::app()->admin->params = $params;
-
-        if (dcCore::app()->themes === null) {
-            // Loading themes, may be useful for some configurable theme --
-            dcCore::app()->themes = new Themes();
-            dcCore::app()->themes->loadModules(dcCore::app()->blog->themes_path);
-        }
     }
 
     /**

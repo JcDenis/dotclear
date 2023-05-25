@@ -11,7 +11,6 @@
 
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\Network\Http;
-use Dotclear\Module\Themes;
 
 class dcPublic
 {
@@ -185,10 +184,6 @@ class dcPublic
         } catch (Exception $e) {
             // Ignore
         }
-
-        # Loading themes
-        dcCore::app()->themes = new Themes();
-        dcCore::app()->themes->loadModules(dcCore::app()->blog->themes_path);
 
         # Defining theme if not defined
         if (!isset($this->theme)) {

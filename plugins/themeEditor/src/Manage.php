@@ -20,7 +20,6 @@ use dcNsProcess;
 use dcPage;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
-use Dotclear\Module\Themes;
 use form;
 
 class Manage extends dcNsProcess
@@ -47,11 +46,6 @@ class Manage extends dcNsProcess
 
         # Loading themes // deprecated since 2.26
         adminThemesList::$distributed_modules = explode(',', DC_DISTRIB_THEMES);
-
-        if (!is_a(dcCore::app()->themes, 'Dotclear\Module\Themes')) {
-            dcCore::app()->themes = new Themes();
-            dcCore::app()->themes->loadModules(dcCore::app()->blog->themes_path);
-        }
 
         dcCore::app()->admin->theme  = dcCore::app()->themes->getDefine(dcCore::app()->blog->settings->system->theme);
         dcCore::app()->admin->editor = new ThemeEditor();

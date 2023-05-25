@@ -133,14 +133,14 @@ final class dcCore
      *
      * @var Plugins
      */
-    public $plugins;
+    public readonly Plugins $plugins;
 
     /**
      * Themes
      *
      * @var Themes
      */
-    public $themes;
+    public readonly Themes $themes;
 
     /**
      * dcMedia instance
@@ -400,6 +400,7 @@ final class dcCore
         $this->session = new Session($this->con, $this->prefix . self::SESSION_TABLE_NAME, DC_SESSION_NAME, '', null, DC_ADMIN_SSL, $ttl);
         $this->url     = new dcUrlHandlers();
         $this->plugins = new Plugins();
+        $this->themes  = new Themes();
         $this->rest    = new dcRestServer();
         $this->meta    = new dcMeta();
         $this->log     = new dcLog();
@@ -471,6 +472,9 @@ final class dcCore
     public function setBlog($id): void
     {
         $this->blog = new dcBlog($id);
+
+        // once blog is set, we can load their related themes
+        $this->themes->loadModules($this->blog->themes_path);
     }
 
     /**
@@ -479,6 +483,9 @@ final class dcCore
     public function unsetBlog(): void
     {
         $this->blog = null;
+
+        // reset themes instance
+        $this->themes->reset();
     }
     //@}
 
