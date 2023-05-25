@@ -59,30 +59,30 @@ final class dcCore
     /**
      * dcCore singleton instance
      *
-     * @var dcCore|null
+     * @var dcCore
      */
-    private static $instance = null;
+    private static $instance;
 
     /**
      * Database connection
      *
      * @var AbstractHandler
      */
-    public $con;
+    public readonly AbstractHandler $con;
 
     /**
      * Database tables prefix
      *
      * @var string
      */
-    public $prefix;
+    public readonly string $prefix;
 
     /**
      * dcBlog instance
      *
      * @var dcBlog|null
      */
-    public $blog;
+    public $blog = null;
 
     /**
      * dcAuth instance
@@ -96,21 +96,21 @@ final class dcCore
      *
      * @var Session
      */
-    public $session;
+    public readonly Session $session;
 
     /**
      * dcUrlHandlers instance
      *
      * @var dcUrlHandlers
      */
-    public $url;
+    public readonly dcUrlHandlers $url;
 
     /**
      * dcRestServer instance
      *
      * @var dcRestServer
      */
-    public $rest;
+    public readonly dcRestServer $rest;
 
     /**
      * WikiToHtml instance
@@ -161,14 +161,14 @@ final class dcCore
      *
      * @var dcMeta
      */
-    public $meta;
+    public readonly dcMeta $meta;
 
     /**
      * dcError instance
      *
      * @var dcError
      */
-    public $error;
+    public readonly dcError $error;
 
     /**
      * dcNotices instance
@@ -182,7 +182,7 @@ final class dcCore
      *
      * @var dcLog
      */
-    public $log;
+    public readonly dcLog $log;
 
     /**
      * Starting time
@@ -352,7 +352,7 @@ final class dcCore
     public function __construct(string $driver, string $host, string $db, string $user, string $password, string $prefix, bool $persist)
     {
         // Singleton mode
-        if (self::$instance) {
+        if (is_a(self::$instance, self::class)) {
             throw new Exception('Application can not be started twice.', 500);
         }
         self::$instance = $this;
@@ -369,14 +369,14 @@ final class dcCore
         $this->con = AbstractHandler::init($driver, $host, $db, $user, $password, $persist);
 
         // Define weak_locks for mysql
-        if ($this->con instanceof Mysqlimb4Handler) {
+        if (is_a($this->con, Mysqlimb4Handler::class)) {
             Mysqlimb4Handler::$weak_locks = true;
-        } elseif ($this->con instanceof MysqliHandler) {
+        } elseif (is_a($this->con, MysqliHandler::class)) {
             MysqliHandler::$weak_locks = true;
         }
 
         # define searchpath for postgresql
-        if ($this->con instanceof PgsqlHandler) {
+        if (is_a($this->con, PgsqlHandler::class)) {
             $searchpath = explode('.', $prefix, 2);
             if (count($searchpath) > 1) {
                 $prefix = $searchpath[1];
@@ -420,6 +420,11 @@ final class dcCore
      */
     public static function app(): dcCore
     {
+        // throw Exception in order to return only dcCore (not null)
+        if (!is_a(self::$instance, self::class)) {
+            throw new Exception('Application is not started.', 500);
+        }
+
         return self::$instance;
     }
 
