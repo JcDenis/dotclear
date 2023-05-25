@@ -87,9 +87,9 @@ final class dcCore
     /**
      * dcAuth instance
      *
-     * @var dcAuth|null
+     * @var dcAuth
      */
-    public $auth;
+    public readonly dcAuth $auth;
 
     /**
      * Session in database instance
@@ -428,7 +428,7 @@ final class dcCore
      *
      * @throws     Exception
      *
-     * @return     dcAuth|mixed
+     * @return     dcAuth
      */
     private function authInstance()
     {

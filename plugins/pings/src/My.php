@@ -24,7 +24,6 @@ class My extends MyPlugin
         return match($context) {
             self::MANAGE, self::MENU => // only super admin can manage pings
                 defined('DC_CONTEXT_ADMIN')
-                    && !is_null(dcCore::app()->auth)
                     && dcCore::app()->auth->isSuperAdmin(),
 
             default => null,

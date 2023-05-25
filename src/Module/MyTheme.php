@@ -37,14 +37,14 @@ abstract class MyTheme extends MyModule
             self::BACKEND =>     // Backend context
                 defined('DC_CONTEXT_ADMIN')
                     // Check specific permission, limited to blog admin for themes
-                    && !is_null(dcCore::app()->blog) && !is_null(dcCore::app()->auth)
+                    && !is_null(dcCore::app()->blog)
                     && dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([
                         dcCore::app()->auth::PERMISSION_ADMIN,
                     ]), dcCore::app()->blog->id),
             self::CONFIG =>      // Config page of module
                 defined('DC_CONTEXT_ADMIN')
                     // Check specific permission, allowed to blog admin for themes
-                    && !is_null(dcCore::app()->blog) && !is_null(dcCore::app()->auth)
+                    && !is_null(dcCore::app()->blog)
                     && dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([
                         dcCore::app()->auth::PERMISSION_ADMIN,
                     ]), dcCore::app()->blog->id),

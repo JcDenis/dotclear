@@ -22,7 +22,6 @@ class My extends MyPlugin
     protected static function checkCustomContext(int $context): ?bool
     {
         return defined('DC_CONTEXT_ADMIN')
-            && !is_null(dcCore::app()->auth)
             && dcCore::app()->auth->isSuperAdmin();
     }
 }

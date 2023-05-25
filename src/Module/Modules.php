@@ -669,7 +669,7 @@ class Modules
         // Check module perms on admin side
         $permissions = $this->define->permissions;
         if ($this->ns === 'admin') {
-            if (is_null(dcCore::app()->auth) || is_null(dcCore::app()->blog)
+            if (is_null(dcCore::app()->blog)
                 || ($permissions == '' && !dcCore::app()->auth->isSuperAdmin())
                 || (!dcCore::app()->auth->check($permissions, dcCore::app()->blog->id))
             ) {

@@ -106,13 +106,11 @@ abstract class MyModule
         return match($context) {
             self::INSTALL =>    // Installation of module
                 defined('DC_CONTEXT_ADMIN')
-                    && !is_null(dcCore::app()->auth)
                     && dcCore::app()->auth->isSuperAdmin()   // Manageable only by super-admin
                     && dcCore::app()->newVersion(self::id(), dcCore::app()->plugins->getDefine(self::id())->version),
 
             self::UNINSTALL =>  // Uninstallation of module
                 defined('DC_RC_PATH')
-                    && !is_null(dcCore::app()->auth)
                     && dcCore::app()->auth->isSuperAdmin(),   // Manageable only by super-admin
 
             self::PREPEND, self::FRONTEND =>    // Prpend and Frontend context
@@ -121,7 +119,7 @@ abstract class MyModule
             self::BACKEND =>     // Backend context
                 defined('DC_CONTEXT_ADMIN')
                     // Check specific permission
-                    && !is_null(dcCore::app()->blog) && !is_null(dcCore::app()->auth)
+                    && !is_null(dcCore::app()->blog)
                     && dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([
                         dcCore::app()->auth::PERMISSION_USAGE,
                         dcCore::app()->auth::PERMISSION_CONTENT_ADMIN,
@@ -130,14 +128,13 @@ abstract class MyModule
             self::MANAGE, self::MENU, self::WIDGETS =>  // Main page of module, Admin menu, Blog widgets
                 defined('DC_CONTEXT_ADMIN')
                     // Check specific permission
-                    && !is_null(dcCore::app()->blog) && !is_null(dcCore::app()->auth)
+                    && !is_null(dcCore::app()->blog)
                     && dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([
                         dcCore::app()->auth::PERMISSION_ADMIN,  // Admin+
                     ]), dcCore::app()->blog->id),
 
             self::CONFIG =>      // Config page of module
                 defined('DC_CONTEXT_ADMIN')
-                    && !is_null(dcCore::app()->auth)
                     && dcCore::app()->auth->isSuperAdmin(),   // Manageable only by super-admin
 
             default => false,
