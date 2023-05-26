@@ -915,10 +915,10 @@ class Modules
 
             if ($install === true || $install === null) {
                 // Register new version if necessary
-                $old_version = dcCore::app()->getVersion($id);
-                if (version_compare(is_string($old_version) ? $old_version : '', $module->version, '<')) {
+                $old_version = dcCore::app()->version->get($id);
+                if (is_string($old_version) && version_compare($old_version, $module->version, '<')) {
                     // Register new version
-                    dcCore::app()->setVersion($id, $module->version);
+                    dcCore::app()->version->set($id, $module->version);
                 }
 
                 if ($install === true) {

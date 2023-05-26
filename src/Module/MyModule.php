@@ -107,7 +107,7 @@ abstract class MyModule
             self::INSTALL =>    // Installation of module
                 defined('DC_CONTEXT_ADMIN')
                     && dcCore::app()->auth->isSuperAdmin()   // Manageable only by super-admin
-                    && dcCore::app()->newVersion(self::id(), dcCore::app()->plugins->getDefine(self::id())->version),
+                    && dcCore::app()->version->newer(self::id(), dcCore::app()->plugins->getDefine(self::id())->version),
 
             self::UNINSTALL =>  // Uninstallation of module
                 defined('DC_RC_PATH')

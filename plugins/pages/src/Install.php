@@ -29,7 +29,7 @@ class Install extends dcNsProcess
             return false;
         }
 
-        if (dcCore::app()->getVersion('pages') == null) {
+        if (dcCore::app()->version->get('pages') == null) {
             // Create a first pending page, only on a new installation of this plugin
             $params = [
                 'post_type'  => 'page',

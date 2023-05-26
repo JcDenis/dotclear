@@ -27,8 +27,7 @@ class dcUpgrade
      */
     public static function dotclearUpgrade()
     {
-        $version = dcCore::app()->getVersion('core');
-
+        $version = dcCore::app()->version->get('core');
         if ($version === null) {
             return false;
         }
@@ -1370,7 +1369,7 @@ class dcUpgrade
             );
         }
 
-        dcCore::app()->setVersion('core', DC_VERSION);
+        dcCore::app()->version->set('core', DC_VERSION);
         dcCore::app()->blogDefaults();
 
         return $cleanup_sessions;

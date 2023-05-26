@@ -55,7 +55,7 @@ class Install extends dcNsProcess
         (new Structure(dcCore::app()->con, dcCore::app()->prefix))->synchronize($schema);
 
         // Creating default wordslist
-        if (dcCore::app()->getVersion(self::$module) === null) {
+        if (dcCore::app()->version->get(self::$module) === null) {
             (new Filters\Words())->defaultWordsList();
         }
 
