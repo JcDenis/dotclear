@@ -234,7 +234,7 @@ class SelectStatement extends SqlStatement
     {
         # --BEHAVIOR-- coreBeforeSelectStatement -- SqlStatement
         if (class_exists('dcCore')) {
-            dcCore::app()->callBehavior('coreBeforeSelectStatement', $this);
+            dcCore::app()->behavior->call('coreBeforeSelectStatement', $this);
         }
 
         // Check if source given
@@ -319,7 +319,7 @@ class SelectStatement extends SqlStatement
 
         # --BEHAVIOR-- coreAfertSelectStatement -- SqlStatement, string
         if (class_exists('dcCore')) {
-            dcCore::app()->callBehavior('coreAfterSelectStatement', $this, $query);
+            dcCore::app()->behavior->call('coreAfterSelectStatement', $this, $query);
         }
 
         return $query;

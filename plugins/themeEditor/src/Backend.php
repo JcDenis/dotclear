@@ -25,7 +25,7 @@ class Backend extends dcNsProcess
     public static function process(): bool
     {
         if (static::$init) {
-            dcCore::app()->addBehaviors([
+            dcCore::app()->behavior->add([
                 'adminCurrentThemeDetailsV2'   => [BackendBehaviors::class, 'adminCurrentThemeDetails'],
                 'adminBeforeUserOptionsUpdate' => [BackendBehaviors::class, 'adminBeforeUserUpdate'],
                 'adminPreferencesFormV2'       => [BackendBehaviors::class, 'adminPreferencesForm'],

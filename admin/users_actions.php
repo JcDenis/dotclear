@@ -70,7 +70,7 @@ class adminUsersActions
             }
 
             # --BEHAVIOR-- adminUsersActions -- array<int,string>, array<int,string>, string, string
-            dcCore::app()->callBehavior('adminUsersActions', dcCore::app()->admin->users, dcCore::app()->admin->blogs, dcCore::app()->admin->action, dcCore::app()->admin->redir);
+            dcCore::app()->behavior->call('adminUsersActions', dcCore::app()->admin->users, dcCore::app()->admin->blogs, dcCore::app()->admin->action, dcCore::app()->admin->redir);
 
             if (dcCore::app()->admin->action == 'deleteuser' && !empty(dcCore::app()->admin->users)) {
                 // Delete users
@@ -81,7 +81,7 @@ class adminUsersActions
                         }
 
                         # --BEHAVIOR-- adminBeforeUserDelete -- string
-                        dcCore::app()->callBehavior('adminBeforeUserDelete', $u);
+                        dcCore::app()->behavior->call('adminBeforeUserDelete', $u);
 
                         dcCore::app()->delUser($u);
                     } catch (Exception $e) {
@@ -154,7 +154,7 @@ class adminUsersActions
             __('Users'),
             dcPage::jsLoad('js/_users_actions.js') .
             # --BEHAVIOR-- adminUsersActionsHeaders --
-            dcCore::app()->callBehavior('adminUsersActionsHeaders'),
+            dcCore::app()->behavior->call('adminUsersActionsHeaders'),
             $breadcrumb
         );
 
@@ -182,7 +182,7 @@ class adminUsersActions
         '<p><a class="back" href="' . Html::escapeURL(dcCore::app()->admin->redir) . '">' . __('Back to user profile') . '</a></p>';
 
         # --BEHAVIOR-- adminUsersActionsContent -- string, string
-        dcCore::app()->callBehavior('adminUsersActionsContentV2', dcCore::app()->admin->action, $hidden_fields);
+        dcCore::app()->behavior->call('adminUsersActionsContentV2', dcCore::app()->admin->action, $hidden_fields);
 
         if (!empty(dcCore::app()->admin->users) && empty(dcCore::app()->admin->blogs) && dcCore::app()->admin->action == 'blogs') {
             // Blog list where to set permissions

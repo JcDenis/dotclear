@@ -65,7 +65,7 @@ class adminBlogTheme
                 dcPage::jsPageTabs() .
 
                 # --BEHAVIOR-- themesToolsHeaders -- bool
-                dcCore::app()->callBehavior('themesToolsHeadersV2', true),
+                dcCore::app()->behavior->call('themesToolsHeadersV2', true),
                 dcPage::breadcrumb(
                     [
                         // Active links
@@ -137,7 +137,7 @@ class adminBlogTheme
             dcPage::jsPageTabs() .
 
             # --BEHAVIOR-- themesToolsHeaders -- bool
-            dcCore::app()->callBehavior('themesToolsHeadersV2', false),
+            dcCore::app()->behavior->call('themesToolsHeadersV2', false),
             dcPage::breadcrumb(
                 [
                     Html::escapeHTML(dcCore::app()->blog->name)                     => '',
@@ -295,7 +295,7 @@ class adminBlogTheme
         }
 
         # --BEHAVIOR-- themesToolsTabs --
-        dcCore::app()->callBehavior('themesToolsTabsV2');
+        dcCore::app()->behavior->call('themesToolsTabsV2');
 
         // Notice for super admin
         if (dcCore::app()->auth->isSuperAdmin() && !dcCore::app()->admin->list->isWritablePath()) {

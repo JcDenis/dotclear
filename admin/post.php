@@ -241,7 +241,7 @@ class adminPost
                 foreach (explode("\n", dcCore::app()->admin->tb_urls) as $tb_url) {
                     try {
                         # --BEHAVIOR-- adminBeforePingTrackback -- string, string, string, string, string
-                        dcCore::app()->callBehavior(
+                        dcCore::app()->behavior->call(
                             'adminBeforePingTrackback',
                             $tb_url,
                             dcCore::app()->admin->post_id,
@@ -347,7 +347,7 @@ class adminPost
 
             try {
                 # --BEHAVIOR-- adminBeforePostDelete -- string|int
-                dcCore::app()->callBehavior('adminBeforePostDelete', dcCore::app()->admin->post_id);
+                dcCore::app()->behavior->call('adminBeforePostDelete', dcCore::app()->admin->post_id);
                 dcCore::app()->blog->delPost(dcCore::app()->admin->post_id);
                 dcCore::app()->adminurl->redirect('admin.posts');
             } catch (Exception $e) {
@@ -371,12 +371,12 @@ class adminPost
                 $parent_cat = !empty($_POST['new_cat_parent']) ? $_POST['new_cat_parent'] : '';
 
                 # --BEHAVIOR-- adminBeforeCategoryCreate -- Cursor
-                dcCore::app()->callBehavior('adminBeforeCategoryCreate', $cur_cat);
+                dcCore::app()->behavior->call('adminBeforeCategoryCreate', $cur_cat);
 
                 dcCore::app()->admin->cat_id = dcCore::app()->blog->addCategory($cur_cat, (int) $parent_cat);
 
                 # --BEHAVIOR-- adminAfterCategoryCreate -- Cursor, string|int
-                dcCore::app()->callBehavior('adminAfterCategoryCreate', $cur_cat, dcCore::app()->admin->cat_id);
+                dcCore::app()->behavior->call('adminAfterCategoryCreate', $cur_cat, dcCore::app()->admin->cat_id);
             }
 
             $cur = dcCore::app()->con->openCursor(dcCore::app()->prefix . dcBlog::POST_TABLE_NAME);
@@ -411,12 +411,12 @@ class adminPost
 
                 try {
                     # --BEHAVIOR-- adminBeforePostUpdate -- Cursor, string|int
-                    dcCore::app()->callBehavior('adminBeforePostUpdate', $cur, dcCore::app()->admin->post_id);
+                    dcCore::app()->behavior->call('adminBeforePostUpdate', $cur, dcCore::app()->admin->post_id);
 
                     dcCore::app()->blog->updPost(dcCore::app()->admin->post_id, $cur);
 
                     # --BEHAVIOR-- adminAfterPostUpdate -- Cursor, string|int
-                    dcCore::app()->callBehavior('adminAfterPostUpdate', $cur, dcCore::app()->admin->post_id);
+                    dcCore::app()->behavior->call('adminAfterPostUpdate', $cur, dcCore::app()->admin->post_id);
                     dcPage::addSuccessNotice(sprintf(__('The post "%s" has been successfully updated'), Html::escapeHTML(trim(Html::clean($cur->post_title)))));
                     dcCore::app()->adminurl->redirect(
                         'admin.post',
@@ -430,12 +430,12 @@ class adminPost
 
                 try {
                     # --BEHAVIOR-- adminBeforePostCreate -- Cursor
-                    dcCore::app()->callBehavior('adminBeforePostCreate', $cur);
+                    dcCore::app()->behavior->call('adminBeforePostCreate', $cur);
 
                     $return_id = dcCore::app()->blog->addPost($cur);
 
                     # --BEHAVIOR-- adminAfterPostCreate -- Cursor, int
-                    dcCore::app()->callBehavior('adminAfterPostCreate', $cur, $return_id);
+                    dcCore::app()->behavior->call('adminAfterPostCreate', $cur, $return_id);
 
                     dcPage::addSuccessNotice(__('Entry has been successfully created.'));
                     dcCore::app()->adminurl->redirect(
@@ -510,7 +510,7 @@ class adminPost
             }
             if ($p_edit == $c_edit) {
                 # --BEHAVIOR-- adminPostEditor -- string, string, array<int,string>, string
-                $admin_post_behavior .= dcCore::app()->callBehavior(
+                $admin_post_behavior .= dcCore::app()->behavior->call(
                     'adminPostEditor',
                     $p_edit,
                     'post',
@@ -519,7 +519,7 @@ class adminPost
                 );
             } else {
                 # --BEHAVIOR-- adminPostEditor -- string, string, array<int,string>, string
-                $admin_post_behavior .= dcCore::app()->callBehavior(
+                $admin_post_behavior .= dcCore::app()->behavior->call(
                     'adminPostEditor',
                     $p_edit,
                     'post',
@@ -527,7 +527,7 @@ class adminPost
                     dcCore::app()->admin->post_format
                 );
                 # --BEHAVIOR-- adminPostEditor -- string, string, array<int,string>, string
-                $admin_post_behavior .= dcCore::app()->callBehavior(
+                $admin_post_behavior .= dcCore::app()->behavior->call(
                     'adminPostEditor',
                     $c_edit,
                     'comment',
@@ -545,7 +545,7 @@ class adminPost
             dcPage::jsLoad('js/_post.js') .
             dcPage::jsConfirmClose('entry-form', 'comment-form') .
             # --BEHAVIOR-- adminPostHeaders --
-            dcCore::app()->callBehavior('adminPostHeaders') .
+            dcCore::app()->behavior->call('adminPostHeaders') .
             dcPage::jsPageTabs(dcCore::app()->admin->default_tab) .
             dcCore::app()->admin->next_headlink . "\n" . dcCore::app()->admin->prev_headlink,
             dcPage::breadcrumb(
@@ -609,7 +609,7 @@ class adminPost
             }
 
             # --BEHAVIOR-- adminPostNavLinks -- MetaRecord|null, string
-            dcCore::app()->callBehavior('adminPostNavLinks', dcCore::app()->admin->post ?? null, 'post');
+            dcCore::app()->behavior->call('adminPostNavLinks', dcCore::app()->admin->post ?? null, 'post');
 
             echo
             '</p>';
@@ -769,7 +769,7 @@ class adminPost
             );
 
             # --BEHAVIOR-- adminPostFormItems -- ArrayObject, ArrayObject, MetaRecord|null, string
-            dcCore::app()->callBehavior('adminPostFormItems', $main_items, $sidebar_items, dcCore::app()->admin->post ?? null, 'post');
+            dcCore::app()->behavior->call('adminPostFormItems', $main_items, $sidebar_items, dcCore::app()->admin->post ?? null, 'post');
 
             echo
             '<div class="multi-part" title="' . (dcCore::app()->admin->post_id ? __('Edit post') : __('New post')) .
@@ -784,7 +784,7 @@ class adminPost
             }
 
             # --BEHAVIOR-- adminPostForm (may be deprecated) -- MetaRecord|null, string
-            dcCore::app()->callBehavior('adminPostForm', dcCore::app()->admin->post ?? null, 'post');
+            dcCore::app()->behavior->call('adminPostForm', dcCore::app()->admin->post ?? null, 'post');
 
             echo
             '<p class="border-top">' .
@@ -833,14 +833,14 @@ class adminPost
             }
 
             # --BEHAVIOR-- adminPostFormSidebar (may be deprecated) -- MetaRecord|null, string
-            dcCore::app()->callBehavior('adminPostFormSidebar', dcCore::app()->admin->post ?? null, 'post');
+            dcCore::app()->behavior->call('adminPostFormSidebar', dcCore::app()->admin->post ?? null, 'post');
 
             echo
             '</div>' . // End #entry-sidebar
             '</form>';
 
             # --BEHAVIOR-- adminPostAfterForm -- MetaRecord|null, string
-            dcCore::app()->callBehavior('adminPostAfterForm', dcCore::app()->admin->post ?? null, 'post');
+            dcCore::app()->behavior->call('adminPostAfterForm', dcCore::app()->admin->post ?? null, 'post');
 
             echo
             '</div>';

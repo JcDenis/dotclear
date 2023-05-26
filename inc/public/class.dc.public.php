@@ -217,7 +217,7 @@ class dcPublic
         dcCore::app()->themes->loadModuleL10N($this->theme, dcCore::app()->lang, 'main');
 
         # --BEHAVIOR-- publicPrepend --
-        dcCore::app()->callBehavior('publicPrependV2');
+        dcCore::app()->behavior->call('publicPrependV2');
 
         # Prepare the HTTP cache thing
         dcCore::app()->cache['mod_files'] = get_included_files();
@@ -260,12 +260,12 @@ class dcPublic
 
         try {
             # --BEHAVIOR-- publicBeforeDocument --
-            dcCore::app()->callBehavior('publicBeforeDocumentV2');
+            dcCore::app()->behavior->call('publicBeforeDocumentV2');
 
             dcCore::app()->url->getDocument();
 
             # --BEHAVIOR-- publicAfterDocument --
-            dcCore::app()->callBehavior('publicAfterDocumentV2');
+            dcCore::app()->behavior->call('publicAfterDocumentV2');
         } catch (Exception $e) {
             __error($e->getMessage(), __('Something went wrong while loading template file for your blog.'), 660);
         }

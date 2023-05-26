@@ -52,7 +52,7 @@ class adminComments
             'comment_spam_filter' => 'comment_spam_filter', ];
 
         # --BEHAVIOR-- adminCommentsSortbyLexCombo -- array<int,array<string,string>>
-        dcCore::app()->callBehavior('adminCommentsSortbyLexCombo', [& $sortby_lex]);
+        dcCore::app()->behavior->call('adminCommentsSortbyLexCombo', [& $sortby_lex]);
 
         $params['order'] = (array_key_exists(dcCore::app()->admin->comment_filter->sortby, $sortby_lex) ?
             dcCore::app()->con->lexFields($sortby_lex[dcCore::app()->admin->comment_filter->sortby]) :
@@ -144,7 +144,7 @@ class adminComments
                 '<input name="delete_all_spam" class="delete" type="submit" value="' . __('Delete all spams') . '" /></p>';
 
                 # --BEHAVIOR-- adminCommentsSpamForm --
-                dcCore::app()->callBehavior('adminCommentsSpamForm');
+                dcCore::app()->behavior->call('adminCommentsSpamForm');
 
                 echo
                 '</form>';

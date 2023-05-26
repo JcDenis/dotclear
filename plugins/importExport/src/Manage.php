@@ -30,7 +30,7 @@ class Manage extends dcNsProcess
         $modules = new ArrayObject(['import' => [], 'export' => []]);
 
         # --BEHAVIOR-- importExportModules -- ArrayObject
-        dcCore::app()->callBehavior('importExportModulesV2', $modules);
+        dcCore::app()->behavior->call('importExportModulesV2', $modules);
 
         dcCore::app()->admin->type = null;
         if (!empty($_REQUEST['type']) && in_array($_REQUEST['type'], ['export', 'import'])) {

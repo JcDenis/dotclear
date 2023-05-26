@@ -31,7 +31,7 @@ class Frontend extends dcNsProcess
         dcCore::app()->tpl->addValue('Blogroll', [FrontendTemplate::class, 'blogroll']);
         dcCore::app()->tpl->addValue('BlogrollXbelLink', [FrontendTemplate::class, 'blogrollXbelLink']);
 
-        dcCore::app()->addBehaviors([
+        dcCore::app()->behavior->add([
             'initWidgets'        => [Widgets::class, 'initWidgets'],
             'initDefaultWidgets' => [Widgets::class, 'initDefaultWidgets'],
         ]);

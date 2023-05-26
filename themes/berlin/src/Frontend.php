@@ -32,7 +32,7 @@ class Frontend extends dcNsProcess
 
         My::l10n('main');
 
-        dcCore::app()->addBehavior('publicHeadContent', function () {
+        dcCore::app()->behavior->add('publicHeadContent', function () {
             echo
             dcUtils::jsJson('dotclear_berlin', [
                 'show_menu'  => __('Show menu'),

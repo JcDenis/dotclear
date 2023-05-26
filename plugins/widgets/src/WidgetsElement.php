@@ -93,7 +93,7 @@ class WidgetsElement
         if (!is_callable($callback)) {
             $widget = new ArrayObject(['id' => $id, 'callback' => $callback]);
             # --BEHAVIOR-- widgetGetCallback -- ArrayObject
-            dcCore::app()->callBehavior('widgetGetCallback', $widget);
+            dcCore::app()->behavior->call('widgetGetCallback', $widget);
             $callback = is_callable($widget['callback']) ? $widget['callback'] : null;
         }
 

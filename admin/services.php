@@ -195,7 +195,7 @@ class dcRestMethods
             $url = dcCore::app()->blog->settings->system->store_plugin_url;
         } else {
             # --BEHAVIOR-- restCheckStoreUpdate -- string, array<int,Modules>, array<int,string>
-            dcCore::app()->callBehavior('restCheckStoreUpdateV2', $post['store'], [& $mod], [& $url]);
+            dcCore::app()->behavior->call('restCheckStoreUpdateV2', $post['store'], [& $mod], [& $url]);
 
             if (empty($mod) || empty($url)) {   // @phpstan-ignore-line
                 throw new Exception('Unknown store type');
@@ -336,12 +336,12 @@ class dcRestMethods
             $parent_cat = !empty($post['new_cat_parent']) ? $post['new_cat_parent'] : '';
 
             # --BEHAVIOR-- adminBeforeCategoryCreate -- Cursor
-            dcCore::app()->callBehavior('adminBeforeCategoryCreate', $cur_cat);
+            dcCore::app()->behavior->call('adminBeforeCategoryCreate', $cur_cat);
 
             $post['cat_id'] = dcCore::app()->blog->addCategory($cur_cat, (int) $parent_cat);
 
             # --BEHAVIOR-- adminAfterCategoryCreate -- Cursor, int
-            dcCore::app()->callBehavior('adminAfterCategoryCreate', $cur_cat, $post['cat_id']);
+            dcCore::app()->behavior->call('adminAfterCategoryCreate', $cur_cat, $post['cat_id']);
         }
 
         $cur = dcCore::app()->con->openCursor(dcCore::app()->prefix . dcBlog::POST_TABLE_NAME);
@@ -357,12 +357,12 @@ class dcRestMethods
         $cur->post_open_tb      = (int) dcCore::app()->blog->settings->system->allow_trackbacks;
 
         # --BEHAVIOR-- adminBeforePostCreate -- Cursor
-        dcCore::app()->callBehavior('adminBeforePostCreate', $cur);
+        dcCore::app()->behavior->call('adminBeforePostCreate', $cur);
 
         $return_id = dcCore::app()->blog->addPost($cur);
 
         # --BEHAVIOR-- adminAfterPostCreate -- Cursor, int
-        dcCore::app()->callBehavior('adminAfterPostCreate', $cur, $return_id);
+        dcCore::app()->behavior->call('adminAfterPostCreate', $cur, $return_id);
 
         $rsp     = new XmlTag('post');
         $rsp->id = $return_id;

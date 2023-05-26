@@ -126,12 +126,12 @@ class adminIndex
         }
 
         # --BEHAVIOR-- adminDashboardItemsV2 -- ArrayObject
-        dcCore::app()->callBehavior('adminDashboardItemsV2', $__dashboard_items);
+        dcCore::app()->behavior->call('adminDashboardItemsV2', $__dashboard_items);
 
         // Dashboard content
         $__dashboard_contents = new ArrayObject([new ArrayObject(), new ArrayObject()]);
         # --BEHAVIOR-- adminDashboardContentsV2 -- ArrayObject
-        dcCore::app()->callBehavior('adminDashboardContentsV2', $__dashboard_contents);
+        dcCore::app()->behavior->call('adminDashboardContentsV2', $__dashboard_contents);
 
         // Editor stuff
         $quickentry          = '';
@@ -145,7 +145,7 @@ class adminIndex
                 $post_editor = dcCore::app()->auth->getOption('editor');
                 if ($post_editor && !empty($post_editor[$post_format])) {
                     # --BEHAVIOR-- adminPostEditor -- string, string, array<int,string>, string
-                    $admin_post_behavior = dcCore::app()->callBehavior('adminPostEditor', $post_editor[$post_format], 'quickentry', ['#post_content'], $post_format);
+                    $admin_post_behavior = dcCore::app()->behavior->call('adminPostEditor', $post_editor[$post_format], 'quickentry', ['#post_content'], $post_format);
                 }
             }
             $quickentry = dcPage::jsJson('dotclear_quickentry', [
@@ -183,7 +183,7 @@ class adminIndex
             dcPage::jsAdsBlockCheck() .
 
             # --BEHAVIOR-- adminDashboardHeaders --
-            dcCore::app()->callBehavior('adminDashboardHeaders'),
+            dcCore::app()->behavior->call('adminDashboardHeaders'),
             dcPage::breadcrumb(
                 [
                     __('Dashboard') . ' : ' . Html::escapeHTML(dcCore::app()->blog->name) => '',

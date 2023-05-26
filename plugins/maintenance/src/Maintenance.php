@@ -59,7 +59,7 @@ class Maintenance
     protected function init(): void
     {
         # --BEHAVIOR-- dcMaintenanceInit -- Maintenance
-        dcCore::app()->callBehavior('dcMaintenanceInit', $this);
+        dcCore::app()->behavior->call('dcMaintenanceInit', $this);
     }
 
     /// @name Tab methods

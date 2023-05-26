@@ -13,6 +13,7 @@
  */
 
 use Dotclear\App;
+use Dotclear\Core\Behavior;
 use Dotclear\Core\Version;
 use Dotclear\Database\AbstractHandler;
 use Dotclear\Database\Cursor;
@@ -100,6 +101,13 @@ final class dcCore
      * @var Session
      */
     public readonly Session $session;
+
+    /**
+     * Behavior instance
+     *
+     * @var Behavior
+     */
+    public readonly Behavior $behavior;
 
     /**
      * Version instance
@@ -327,13 +335,6 @@ final class dcCore
     private $formaters_names = [];
 
     /**
-     * Stack of registered behaviors
-     *
-     * @var        array
-     */
-    private $behaviors = [];
-
-    /**
      * List of known post types
      *
      * @var        array
@@ -398,16 +399,17 @@ final class dcCore
             }
         }
 
-        $this->error   = new dcError();
-        $this->auth    = $this->authInstance();
-        $this->session = new Session($this->con, $this->prefix . self::SESSION_TABLE_NAME, DC_SESSION_NAME, '', null, DC_ADMIN_SSL, $ttl);
-        $this->version = new Version();
-        $this->url     = new dcUrlHandlers();
-        $this->plugins = new Plugins();
-        $this->themes  = new Themes();
-        $this->rest    = new dcRestServer();
-        $this->meta    = new dcMeta();
-        $this->log     = new dcLog();
+        $this->behavior = new Behavior();
+        $this->error    = new dcError();
+        $this->auth     = $this->authInstance();
+        $this->session  = new Session($this->con, $this->prefix . self::SESSION_TABLE_NAME, DC_SESSION_NAME, '', null, DC_ADMIN_SSL, $ttl);
+        $this->version  = new Version();
+        $this->url      = new dcUrlHandlers();
+        $this->plugins  = new Plugins();
+        $this->themes   = new Themes();
+        $this->rest     = new dcRestServer();
+        $this->meta     = new dcMeta();
+        $this->log      = new dcLog();
 
         if (defined('DC_CONTEXT_ADMIN')) {
             /*
@@ -727,147 +729,123 @@ final class dcCore
     /// @name Behaviors methods
     //@{
     /**
-     * Adds a new behavior to behaviors stack. <var>$func</var> must be a valid
-     * and callable callback.
+     * Adds a new behavior to behaviors stack.
      *
-     * @param      string           $behavior  The behavior
-     * @param      callable|array   $func      The function
+     * @deprecated since 2.27, use dcCore::app()->behavior->add() instead
      */
-    public function addBehavior(string $behavior, $func): void
+    public function addBehavior(string $behavior, mixed $func): void
     {
-        if (is_callable($func)) {
-            $this->behaviors[$behavior][] = $func;
-        }
+        $this->behavior->add($behavior, $func);
     }
 
     /**
      * Adds a behaviour (alias).
      *
-     * @param      string           $behaviour  The behaviour
-     * @param      callable|array   $func       The function
+     * @deprecated since 2.27, use dcCore::app()->behavior->add() instead
      */
-    public function addBehaviour(string $behaviour, $func): void
+    public function addBehaviour(string $behaviour, mixed $func): void
     {
-        $this->addBehavior($behaviour, $func);
+        $this->behavior->add($behaviour, $func);
     }
 
     /**
-     * Adds new behaviors to behaviors stack. Each row must
-     * contains the behavior and a valid callable callback.
+     * Adds new behaviors to behaviors stack.
      *
-     * @param      array    $behaviors  The behaviors
+     * @deprecated since 2.27, use dcCore::app()->behavior->add() instead
+     *
+     * @param   array<string,mixed>     $behaviors
      */
     public function addBehaviors(array $behaviors): void
     {
-        foreach ($behaviors as $behavior => $func) {
-            $this->addBehavior($behavior, $func);
-        }
+        $this->behavior->add($behaviors);
     }
 
     /**
-     * Adds behaviours (alias).
+     * Adds behaviours.
      *
-     * @param      array    $behaviours  The behaviours
+     * @deprecated since 2.27, use dcCore::app()->behavior->add() instead
+     *
+     * @param   array<string,mixed>     $behaviours
      */
     public function addBehaviours(array $behaviours): void
     {
-        $this->addBehaviors($behaviours);
+        $this->behavior->add($behaviours);
     }
 
     /**
      * Determines if behavior exists in behaviors stack.
      *
-     * @param      string  $behavior  The behavior
+     * @deprecated since 2.27, use dcCore::app()->behavior->has() instead
      *
-     * @return     bool    True if behavior exists, False otherwise.
+     * @return  bool
      */
     public function hasBehavior(string $behavior): bool
     {
-        return isset($this->behaviors[$behavior]);
+        return $this->behavior->has($behavior);
     }
 
     /**
-     * Determines if behaviour exists (alias).
+     * Determines if behaviour exists.
      *
-     * @param      string  $behaviour  The behavior
+     * @deprecated since 2.27, use dcCore::app()->behavior->has() instead
      *
-     * @return     bool    True if behaviour, False otherwise.
+     * @return  bool
      */
     public function hasBehaviour(string $behaviour): bool
     {
-        return $this->hasBehavior($behaviour);
+        return $this->behavior->has($behaviour);
     }
 
     /**
-     * Gets the behaviors stack (or part of).
+     * Gets the behaviors stack.
      *
-     * @param      string  $behavior  The behavior
+     * @deprecated since 2.27, use dcCore::app()->behavior->get() instead
      *
-     * @return     mixed   The behaviors.
+     * @return  mixed
      */
-    public function getBehaviors(string $behavior = '')
+    public function getBehaviors(string $behavior = ''): mixed
     {
-        if (empty($this->behaviors)) {
-            return;
-        }
-
-        if ($behavior == '') {
-            return $this->behaviors;
-        } elseif (isset($this->behaviors[$behavior])) {
-            return $this->behaviors[$behavior];
-        }
-
-        return [];
+        return empty($behavior) ? $this->behavior->dump() : $this->behavior->get($behavior);
     }
 
     /**
-     * Gets the behaviours stack (alias).
+     * Gets the behaviours stack.
      *
-     * @param      string  $behaviour  The behaviour
+     * @deprecated since 2.27, use dcCore::app()->behavior->get() instead
      *
-     * @return     mixed  The behaviours.
+     * @return  mixed
      */
-    public function getBehaviours(string $behaviour = '')
+    public function getBehaviours(string $behaviour = ''): mixed
     {
-        return $this->getBehaviors($behaviour);
+        return empty($behaviour) ? $this->behavior->dump() : $this->behavior->get($behaviour);
     }
 
     /**
-     * Calls every function in behaviors stack for a given behavior and returns
-     * concatened result of each function.
+     * Calls every function in behaviors stack.
      *
-     * Every parameters added after <var>$behavior</var> will be pass to
-     * behavior calls.
+     * @deprecated since 2.27, use dcCore::app()->behavior->call() instead
      *
-     * @param      string  $behavior  The behavior
-     * @param      mixed   ...$args   The arguments
+     * @param   mixed   ...$args
      *
-     * @return     mixed   Behavior concatened result
+     * @return  string
      */
-    public function callBehavior(string $behavior, ...$args)
+    public function callBehavior(string $behavior, ...$args): string
     {
-        if (isset($this->behaviors[$behavior])) {
-            $res = '';
-
-            foreach ($this->behaviors[$behavior] as $f) {
-                $res .= $f(...$args);
-            }
-
-            return $res;
-        }
+        return $this->behavior->call($behavior, ...$args);
     }
 
     /**
-     * Calls every function in behaviours stack (alias of self::callBehavior)
+     * Calls every function in behaviours stack.
      *
-     * @param      string  $behaviour  The behaviour
-     * @param      mixed   ...$args    The arguments
+     * @deprecated since 2.27, use dcCore::app()->behavior->call() instead
      *
-     * @return     mixed
+     * @param   mixed   ...$args
+     *
+     * @return  string
      */
-    public function callBehaviour(string $behaviour, ...$args)
+    public function callBehaviour(string $behaviour, ...$args): string
     {
-        return $this->callBehavior($behaviour, ...$args);
+        return $this->behavior->call($behaviour, ...$args);
     }
     //@}
 

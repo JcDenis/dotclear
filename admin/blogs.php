@@ -58,7 +58,7 @@ class adminBlogs
             # --BEHAVIOR-- adminGetBlogs
             $params = new ArrayObject($params);
             # --BEHAVIOR-- adminGetBlogs -- ArrayObject
-            dcCore::app()->callBehavior('adminGetBlogs', $params);
+            dcCore::app()->behavior->call('adminGetBlogs', $params);
 
             $counter  = dcCore::app()->getBlogs($params, true);
             $rs       = dcCore::app()->getBlogs($params);

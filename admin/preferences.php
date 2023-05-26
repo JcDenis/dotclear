@@ -132,7 +132,7 @@ class adminUserPrefs
         ];
         $rte = new ArrayObject($rte);
         # --BEHAVIOR-- adminRteFlagsV2 -- ArrayObject
-        dcCore::app()->callBehavior('adminRteFlagsV2', $rte);
+        dcCore::app()->behavior->call('adminRteFlagsV2', $rte);
         // Load user settings
         $rte_flags = @dcCore::app()->auth->user_prefs->interface->rte_flags;
         if (is_array($rte_flags)) {
@@ -198,7 +198,7 @@ class adminUserPrefs
                 }
 
                 # --BEHAVIOR-- adminBeforeUserUpdate -- Cursor, string
-                dcCore::app()->callBehavior('adminBeforeUserProfileUpdate', $cur, dcCore::app()->auth->userID());
+                dcCore::app()->behavior->call('adminBeforeUserProfileUpdate', $cur, dcCore::app()->auth->userID());
 
                 // Update user
                 dcCore::app()->updUser(dcCore::app()->auth->userID(), $cur);
@@ -216,7 +216,7 @@ class adminUserPrefs
                 dcCore::app()->auth->user_prefs->profile->put('urls', $urls, 'string');
 
                 # --BEHAVIOR-- adminAfterUserUpdate -- Cursor, string
-                dcCore::app()->callBehavior('adminAfterUserProfileUpdate', $cur, dcCore::app()->auth->userID());
+                dcCore::app()->behavior->call('adminAfterUserProfileUpdate', $cur, dcCore::app()->auth->userID());
 
                 dcPage::addSuccessNotice(__('Personal information has been successfully updated.'));
 
@@ -259,7 +259,7 @@ class adminUserPrefs
                 $cur->user_options = new ArrayObject(dcCore::app()->admin->user_options);
 
                 # --BEHAVIOR-- adminBeforeUserOptionsUpdate -- Cursor, string
-                dcCore::app()->callBehavior('adminBeforeUserOptionsUpdate', $cur, dcCore::app()->auth->userID());
+                dcCore::app()->behavior->call('adminBeforeUserOptionsUpdate', $cur, dcCore::app()->auth->userID());
 
                 // Update user prefs
                 dcCore::app()->auth->user_prefs->accessibility->put('nodragdrop', !empty($_POST['user_acc_nodragdrop']), 'boolean');
@@ -327,7 +327,7 @@ class adminUserPrefs
                 dcCore::app()->updUser(dcCore::app()->auth->userID(), $cur);
 
                 # --BEHAVIOR-- adminAfterUserOptionsUpdate -- Cursor, string
-                dcCore::app()->callBehavior('adminAfterUserOptionsUpdate', $cur, dcCore::app()->auth->userID());
+                dcCore::app()->behavior->call('adminAfterUserOptionsUpdate', $cur, dcCore::app()->auth->userID());
 
                 dcPage::addSuccessNotice(__('Personal options has been successfully updated.'));
                 dcCore::app()->adminurl->redirect('admin.user.preferences', [], '#user-options');
@@ -341,7 +341,7 @@ class adminUserPrefs
 
             try {
                 # --BEHAVIOR-- adminBeforeUserOptionsUpdate -- string
-                dcCore::app()->callBehavior('adminBeforeDashboardOptionsUpdate', dcCore::app()->auth->userID());
+                dcCore::app()->behavior->call('adminBeforeDashboardOptionsUpdate', dcCore::app()->auth->userID());
 
                 // Update user prefs
                 dcCore::app()->auth->user_prefs->dashboard->put('doclinks', !empty($_POST['user_dm_doclinks']), 'boolean');
@@ -354,7 +354,7 @@ class adminUserPrefs
                 dcCore::app()->auth->user_prefs->interface->put('nofavmenu', empty($_POST['user_ui_nofavmenu']), 'boolean');
 
                 # --BEHAVIOR-- adminAfterUserOptionsUpdate -- string
-                dcCore::app()->callBehavior('adminAfterDashboardOptionsUpdate', dcCore::app()->auth->userID());
+                dcCore::app()->behavior->call('adminAfterDashboardOptionsUpdate', dcCore::app()->auth->userID());
 
                 dcPage::addSuccessNotice(__('Dashboard options has been successfully updated.'));
                 dcCore::app()->adminurl->redirect('admin.user.preferences', [], '#user-favorites');
@@ -489,7 +489,7 @@ class adminUserPrefs
             dcPage::jsAdsBlockCheck() .
 
             # --BEHAVIOR-- adminPreferencesHeaders --
-            dcCore::app()->callBehavior('adminPreferencesHeaders'),
+            dcCore::app()->behavior->call('adminPreferencesHeaders'),
             dcPage::breadcrumb(
                 [
                     Html::escapeHTML(dcCore::app()->auth->userID()) => '',
@@ -775,7 +775,7 @@ class adminUserPrefs
         '<h4 class="pretty-title">' . __('Other options') . '</h4>';
 
         # --BEHAVIOR-- adminPreferencesForm --
-        dcCore::app()->callBehavior('adminPreferencesFormV2');
+        dcCore::app()->behavior->call('adminPreferencesFormV2');
 
         echo
         '<p class="clear vertical-separator">' .
@@ -953,7 +953,7 @@ class adminUserPrefs
         '</div>';
 
         # --BEHAVIOR-- adminDashboardOptionsForm --
-        dcCore::app()->callBehavior('adminDashboardOptionsFormV2');
+        dcCore::app()->behavior->call('adminDashboardOptionsFormV2');
 
         echo
         '<p>' .

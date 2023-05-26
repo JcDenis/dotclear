@@ -28,7 +28,7 @@ class Frontend extends dcNsProcess
             return false;
         }
 
-        dcCore::app()->addBehaviors([
+        dcCore::app()->behavior->add([
             'publicBeforeCommentCreate'   => [Antispam::class, 'isSpam'],
             'publicBeforeTrackbackCreate' => [Antispam::class, 'isSpam'],
             'publicBeforeDocumentV2'      => [Antispam::class, 'purgeOldSpam'],

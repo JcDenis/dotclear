@@ -24,7 +24,7 @@ class adminUsers
         ];
 
         # --BEHAVIOR-- adminUsersActionsCombo -- array<int,array<string,string>>
-        dcCore::app()->callBehavior('adminUsersActionsCombo', [& $combo_action]);
+        dcCore::app()->behavior->call('adminUsersActionsCombo', [& $combo_action]);
 
         dcCore::app()->admin->combo_action = $combo_action;
 
@@ -43,7 +43,7 @@ class adminUsers
             'user_displayname' => 'user_displayname', ];
 
         # --BEHAVIOR-- adminUsersSortbyLexCombo -- array<int,array<string,string>>
-        dcCore::app()->callBehavior('adminUsersSortbyLexCombo', [& $sortby_lex]);
+        dcCore::app()->behavior->call('adminUsersSortbyLexCombo', [& $sortby_lex]);
 
         $params['order'] = (array_key_exists(dcCore::app()->admin->user_filter->sortby, $sortby_lex) ?
             dcCore::app()->con->lexFields($sortby_lex[dcCore::app()->admin->user_filter->sortby]) :
@@ -56,7 +56,7 @@ class adminUsers
             # --BEHAVIOR-- adminGetUsers
             $params = new ArrayObject($params);
             # --BEHAVIOR-- adminGetUsers -- ArrayObject
-            dcCore::app()->callBehavior('adminGetUsers', $params);
+            dcCore::app()->behavior->call('adminGetUsers', $params);
 
             $rs       = dcCore::app()->getUsers($params);
             $counter  = dcCore::app()->getUsers($params, true);

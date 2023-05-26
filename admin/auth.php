@@ -313,7 +313,7 @@ class adminAuth
         $buffer . dcPage::jsCommon();
 
         # --BEHAVIOR-- loginPageHTMLHead --
-        dcCore::app()->callBehavior('loginPageHTMLHead');
+        dcCore::app()->behavior->call('loginPageHTMLHead');
 
         echo
         dcPage::jsJson('pwstrength', [

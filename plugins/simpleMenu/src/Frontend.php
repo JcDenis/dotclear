@@ -28,7 +28,7 @@ class Frontend extends dcNsProcess
             return false;
         }
 
-        dcCore::app()->addBehavior('initWidgets', [Widgets::class, 'initWidgets']);
+        dcCore::app()->behavior->add('initWidgets', [Widgets::class, 'initWidgets']);
 
         // Simple menu template functions
         dcCore::app()->tpl->addValue('SimpleMenu', [FrontendTemplate::class, 'simpleMenu']);

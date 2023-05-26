@@ -29,7 +29,7 @@ class Backend extends dcNsProcess
             return false;
         }
 
-        dcCore::app()->addBehaviors([
+        dcCore::app()->behavior->add([
             'adminPostFormItems' => [BackendBehaviors::class, 'adminPostFormItems'],
             'adminPostAfterForm' => [BackendBehaviors::class, 'adminPostAfterForm'],
             'adminPostHeaders'   => fn () => dcPage::jsModuleLoad('attachments/js/post.js'),

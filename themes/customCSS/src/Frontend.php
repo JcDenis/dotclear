@@ -24,7 +24,7 @@ class Frontend extends dcNsProcess
     public static function process(): bool
     {
         if (static::$init) {
-            dcCore::app()->addBehavior('publicHeadContent', function () {
+            dcCore::app()->behavior->add('publicHeadContent', function () {
                 echo 
                 '<link rel="stylesheet" type="text/css" href="' . 
                 dcCore::app()->blog->settings->system->public_url . 

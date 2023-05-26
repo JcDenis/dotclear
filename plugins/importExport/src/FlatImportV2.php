@@ -123,7 +123,7 @@ class FlatImportV2 extends FlatBackup
         $this->cur_spamrule    = $this->con->openCursor($this->prefix . initAntispam::SPAMRULE_TABLE_NAME);
 
         # --BEHAVIOR-- importInit -- FlatBackup
-        dcCore::app()->callBehavior('importInitV2', $this);
+        dcCore::app()->behavior->call('importInitV2', $this);
     }
 
     public function getMode()
@@ -255,7 +255,7 @@ class FlatImportV2 extends FlatBackup
                 }
 
                 # --BEHAVIOR-- importSingle -- string, FlatBackup
-                dcCore::app()->callBehavior('importSingleV2', $line, $this);
+                dcCore::app()->behavior->call('importSingleV2', $line, $this);
             }
 
             if ($this->con->syntax() == 'mysql') {
@@ -359,7 +359,7 @@ class FlatImportV2 extends FlatBackup
                         break;
                 }
                 # --BEHAVIOR-- importFull -- line, FlatBackup
-                dcCore::app()->callBehavior('importFullV2', $line, $this);
+                dcCore::app()->behavior->call('importFullV2', $line, $this);
             }
         } catch (Exception $e) {
             @fclose($this->fp);
@@ -934,6 +934,6 @@ class FlatImportV2 extends FlatBackup
         }
 
         # --BEHAVIOR-- importPrepareDC12 -- line, FlatBackup
-        dcCore::app()->callBehavior('importPrepareDC12V2', $line, $this);
+        dcCore::app()->behavior->call('importPrepareDC12V2', $line, $this);
     }
 }

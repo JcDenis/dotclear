@@ -206,7 +206,7 @@ class adminUpdate
                 dcCore::app()->error->add($msg);
 
                 # --BEHAVIOR-- adminDCUpdateException -- Exception
-                dcCore::app()->callBehavior('adminDCUpdateException', $e);
+                dcCore::app()->behavior->call('adminDCUpdateException', $e);
             }
         }
     }

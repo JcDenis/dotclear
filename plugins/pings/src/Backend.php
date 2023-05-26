@@ -34,7 +34,7 @@ class Backend extends dcNsProcess
 
         My::backendSidebarMenuIcon(dcAdmin::MENU_BLOG, [], '');
 
-        dcCore::app()->addBehaviors([
+        dcCore::app()->behavior->add([
             'adminPostHeaders'     => fn () => dcPage::jsModuleLoad(My::id() . '/js/post.js'),
             'adminPostFormItems'   => [BackendBehaviors::class, 'pingsFormItems'],
             'adminAfterPostCreate' => [BackendBehaviors::class, 'doPings'],

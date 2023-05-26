@@ -355,7 +355,7 @@ class dcAdmin
             }
 
             # Admin behaviors
-            dcCore::app()->addBehavior('adminPopupPosts', [dcAdminBlogPref::class, 'adminPopupPosts']);
+            dcCore::app()->behavior->add('adminPopupPosts', [dcAdminBlogPref::class, 'adminPopupPosts']);
         }
     }
 

@@ -249,7 +249,7 @@ class Manage extends dcNsProcess
         }
         if ($rte_flag) {
             # --BEHAVIOR-- adminPostEditor -- string, string, string, array<int,string>, string
-            $head .= dcCore::app()->callBehavior(
+            $head .= dcCore::app()->behavior->call(
                 'adminPostEditor',
                 $widget_editor['xhtml'],
                 'widget',

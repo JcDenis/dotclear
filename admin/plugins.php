@@ -79,7 +79,7 @@ class adminPlugins
             dcPage::jsPageTabs() .
 
             # --BEHAVIOR-- pluginsToolsHeaders -- bool
-            dcCore::app()->callBehavior('pluginsToolsHeadersV2', false),
+            dcCore::app()->behavior->call('pluginsToolsHeadersV2', false),
             dcPage::breadcrumb(
                 [
                     __('System')             => '',
@@ -259,7 +259,7 @@ class adminPlugins
         }
 
         # --BEHAVIOR-- pluginsToolsTabs --
-        dcCore::app()->callBehavior('pluginsToolsTabsV2');
+        dcCore::app()->behavior->call('pluginsToolsTabsV2');
 
         # -- Notice for super admin --
         if (dcCore::app()->auth->isSuperAdmin() && !dcCore::app()->admin->list->isWritablePath()) {
@@ -290,7 +290,7 @@ class adminPlugins
             __('Plugins management'),
 
             # --BEHAVIOR-- pluginsToolsHeaders -- bool
-            dcCore::app()->callBehavior('pluginsToolsHeadersV2', true),
+            dcCore::app()->behavior->call('pluginsToolsHeadersV2', true),
             dcPage::breadcrumb(
                 [
                     Html::escapeHTML(dcCore::app()->blog->name)                          => '',

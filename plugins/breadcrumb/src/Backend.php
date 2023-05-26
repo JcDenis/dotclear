@@ -31,7 +31,7 @@ class Backend extends dcNsProcess
             return false;
         }
 
-        dcCore::app()->addBehaviors([
+        dcCore::app()->behavior->add([
             'adminBlogPreferencesFormV2'    => [BackendBehaviors::class, 'adminBlogPreferencesForm'],
             'adminBeforeBlogSettingsUpdate' => [BackendBehaviors::class, 'adminBeforeBlogSettingsUpdate'],
         ]);

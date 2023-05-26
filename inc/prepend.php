@@ -417,7 +417,7 @@ try {
 (function () {
     if (isset($GLOBALS['__top_behaviors']) && is_array($GLOBALS['__top_behaviors'])) {
         foreach ($GLOBALS['__top_behaviors'] as $b) {
-            dcCore::app()->addBehavior($b[0], $b[1]);
+            dcCore::app()->behavior->add($b[0], $b[1]);
         }
         unset($GLOBALS['__top_behaviors'], $b);
     }

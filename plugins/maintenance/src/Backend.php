@@ -33,14 +33,13 @@ class Backend extends dcNsProcess
         My::backendSidebarMenuIcon();
 
         // Admin behaviors
-        dcCore::app()->addBehaviors([
+        dcCore::app()->behavior->add([
             'dcMaintenanceInit'                => [BackendBehaviors::class, 'dcMaintenanceInit'],
             'adminDashboardFavoritesV2'        => [BackendBehaviors::class, 'adminDashboardFavorites'],
             'adminDashboardContentsV2'         => [BackendBehaviors::class, 'adminDashboardItems'],
             'adminDashboardOptionsFormV2'      => [BackendBehaviors::class, 'adminDashboardOptionsForm'],
             'adminAfterDashboardOptionsUpdate' => [BackendBehaviors::class, 'adminAfterDashboardOptionsUpdate'],
             'adminPageHelpBlock'               => [BackendBehaviors::class, 'adminPageHelpBlock'],
-            'pluginsToolsHeadersV2'            => [BackendBehaviors::class, 'pluginsToolsHeaders'],
         ]);
 
         // Rest method

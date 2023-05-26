@@ -442,7 +442,7 @@ class adminPostFilter extends adminGenericFilterV2
         ]);
 
         # --BEHAVIOR-- adminPostFilter -- ArrayObject
-        dcCore::app()->callBehavior('adminPostFilterV2', $filters);
+        dcCore::app()->behavior->call('adminPostFilterV2', $filters);
 
         $filters = $filters->getArrayCopy();
 
@@ -708,7 +708,7 @@ class adminCommentFilter extends adminGenericFilterV2
         ]);
 
         # --BEHAVIOR-- adminCommentFilter -- ArrayObject
-        dcCore::app()->callBehavior('adminCommentFilterV2', $filters);
+        dcCore::app()->behavior->call('adminCommentFilterV2', $filters);
 
         $filters = $filters->getArrayCopy();
 
@@ -787,7 +787,7 @@ class adminUserFilter extends adminGenericFilterV2
         ]);
 
         # --BEHAVIOR-- adminUserFilter -- ArrayObject
-        dcCore::app()->callBehavior('adminUserFilterV2', $filters);
+        dcCore::app()->behavior->call('adminUserFilterV2', $filters);
 
         $filters = $filters->getArrayCopy();
 
@@ -808,7 +808,7 @@ class adminBlogFilter extends adminGenericFilterV2
         ]);
 
         # --BEHAVIOR-- adminBlogFilter -- ArrayObject
-        dcCore::app()->callBehavior('adminBlogFilterV2', $filters);
+        dcCore::app()->behavior->call('adminBlogFilterV2', $filters);
 
         $filters = $filters->getArrayCopy();
 
@@ -855,7 +855,7 @@ class adminMediaFilter extends adminGenericFilterV2
         ]);
 
         # --BEHAVIOR-- adminMediaFilter -- ArrayObject
-        dcCore::app()->callBehavior('adminMediaFilterV2', $filters);
+        dcCore::app()->behavior->call('adminMediaFilterV2', $filters);
 
         $filters = $filters->getArrayCopy();
 
@@ -872,7 +872,7 @@ class adminMediaFilter extends adminGenericFilterV2
         $values = new ArrayObject($this->values());
 
         # --BEHAVIOR-- adminMediaURLParams -- ArrayObject
-        dcCore::app()->callBehavior('adminMediaURLParams', $values);
+        dcCore::app()->behavior->call('adminMediaURLParams', $values);
 
         foreach ($values->getArrayCopy() as $filter => $new_value) {
             if (isset($this->filters[$filter])) {

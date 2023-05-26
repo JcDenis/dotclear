@@ -41,7 +41,7 @@ class Frontend extends dcNsProcess
         dcCore::app()->tpl->addValue('TagCloudURL', [FrontendTemplate::class, 'TagCloudURL']);
         dcCore::app()->tpl->addValue('TagFeedURL', [FrontendTemplate::class, 'TagFeedURL']);
 
-        dcCore::app()->addBehaviors([
+        dcCore::app()->behavior->add([
             'publicPrependV2'        => [FrontendBehaviors::class, 'publicPrepend'],
             'templateBeforeBlockV2'  => [FrontendBehaviors::class, 'templateBeforeBlock'],
             'publicBeforeDocumentV2' => [FrontendBehaviors::class, 'addTplPath'],

@@ -29,14 +29,14 @@ class adminSearch
             dcAuth::PERMISSION_CONTENT_ADMIN,
         ]));
 
-        dcCore::app()->addBehaviors([
+        dcCore::app()->behavior->add([
             'adminSearchPageComboV2' => [adminSearch::class,'typeCombo'],
             'adminSearchPageHeadV2'  => [adminSearch::class,'pageHead'],
             // posts search
             'adminSearchPageProcessV2' => [adminSearch::class,'processPosts'],
             'adminSearchPageDisplayV2' => [adminSearch::class,'displayPosts'],
         ]);
-        dcCore::app()->addBehaviors([
+        dcCore::app()->behavior->add([
             // comments search
             'adminSearchPageProcessV2' => [adminSearch::class,'processComments'],
             'adminSearchPageDisplayV2' => [adminSearch::class,'displayComments'],
@@ -44,7 +44,7 @@ class adminSearch
 
         $qtype_combo = [];
         # --BEHAVIOR-- adminSearchPageCombo -- array<int,array>
-        dcCore::app()->callBehavior('adminSearchPageComboV2', [& $qtype_combo]);
+        dcCore::app()->behavior->call('adminSearchPageComboV2', [& $qtype_combo]);
         dcCore::app()->admin->qtype_combo = $qtype_combo;
     }
 
@@ -75,11 +75,11 @@ class adminSearch
         $args = ['q' => dcCore::app()->admin->q, 'qtype' => dcCore::app()->admin->qtype, 'page' => dcCore::app()->admin->page, 'nb' => dcCore::app()->admin->nb];
 
         # --BEHAVIOR-- adminSearchPageHead -- array<string,string>
-        $starting_scripts = dcCore::app()->admin->q ? dcCore::app()->callBehavior('adminSearchPageHeadV2', $args) : '';
+        $starting_scripts = dcCore::app()->admin->q ? dcCore::app()->behavior->call('adminSearchPageHeadV2', $args) : '';
 
         if (dcCore::app()->admin->q) {
             # --BEHAVIOR-- adminSearchPageProcess -- array<string,string>
-            dcCore::app()->callBehavior('adminSearchPageProcessV2', $args);
+            dcCore::app()->behavior->call('adminSearchPageProcessV2', $args);
         }
 
         dcPage::open(
@@ -110,7 +110,7 @@ class adminSearch
             ob_start();
 
             # --BEHAVIOR-- adminSearchPageDisplay -- array<string,string>
-            dcCore::app()->callBehavior('adminSearchPageDisplayV2', $args);
+            dcCore::app()->behavior->call('adminSearchPageDisplayV2', $args);
 
             $res = ob_get_contents();
             ob_end_clean();

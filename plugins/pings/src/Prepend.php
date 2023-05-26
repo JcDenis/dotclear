@@ -30,7 +30,7 @@ class Prepend extends dcNsProcess
             return false;
         }
 
-        dcCore::app()->addBehavior('coreFirstPublicationEntries', function (dcBlog $blog) {
+        dcCore::app()->behavior->add('coreFirstPublicationEntries', function (dcBlog $blog) {
             if (!$blog->settings->pings->pings_active
                 || !$blog->settings->pings->pings_auto
             ) {

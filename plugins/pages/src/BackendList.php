@@ -58,7 +58,7 @@ class BackendList extends adminGenericListV2
 
             $cols = new ArrayObject($cols);
             # --BEHAVIOR-- adminPagesListHeaderV2 -- MetaRecord, ArrayObject
-            dcCore::app()->callBehavior('adminPagesListHeaderV2', $this->rs, $cols);
+            dcCore::app()->behavior->call('adminPagesListHeaderV2', $this->rs, $cols);
 
             // Cope with optional columns
             $this->userColumns('pages', $cols);
@@ -192,7 +192,7 @@ class BackendList extends adminGenericListV2
 
         $cols = new ArrayObject($cols);
         # --BEHAVIOR-- adminPagesListValueV2 -- MetaRecord, ArrayObject
-        dcCore::app()->callBehavior('adminPagesListValueV2', $this->rs, $cols);
+        dcCore::app()->behavior->call('adminPagesListValueV2', $this->rs, $cols);
 
         // Cope with optional columns
         $this->userColumns('pages', $cols);

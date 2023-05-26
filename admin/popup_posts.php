@@ -67,7 +67,7 @@ class adminPopupPosts
             __('Add a link to an entry'),
             dcPage::jsLoad('js/_posts_list.js') .
             dcPage::jsLoad('js/_popup_posts.js') .
-            dcCore::app()->callBehavior('adminPopupPosts', dcCore::app()->admin->plugin_id)
+            dcCore::app()->behavior->call('adminPopupPosts', dcCore::app()->admin->plugin_id)
         );
 
         echo

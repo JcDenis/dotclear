@@ -150,12 +150,12 @@ class adminCategory
                     // Update category
 
                     # --BEHAVIOR-- adminBeforeCategoryUpdate -- Cursor, string|int
-                    dcCore::app()->callBehavior('adminBeforeCategoryUpdate', $cur, dcCore::app()->admin->cat_id);
+                    dcCore::app()->behavior->call('adminBeforeCategoryUpdate', $cur, dcCore::app()->admin->cat_id);
 
                     dcCore::app()->blog->updCategory($_POST['id'], $cur);
 
                     # --BEHAVIOR-- adminAfterCategoryUpdate -- Cursor, string|int
-                    dcCore::app()->callBehavior('adminAfterCategoryUpdate', $cur, dcCore::app()->admin->cat_id);
+                    dcCore::app()->behavior->call('adminAfterCategoryUpdate', $cur, dcCore::app()->admin->cat_id);
 
                     dcPage::addSuccessNotice(__('The category has been successfully updated.'));
 
@@ -164,12 +164,12 @@ class adminCategory
                     // Create category
 
                     # --BEHAVIOR-- adminBeforeCategoryCreate -- Cursor
-                    dcCore::app()->callBehavior('adminBeforeCategoryCreate', $cur);
+                    dcCore::app()->behavior->call('adminBeforeCategoryCreate', $cur);
 
                     $id = dcCore::app()->blog->addCategory($cur, (int) $_POST['new_cat_parent']);
 
                     # --BEHAVIOR-- adminAfterCategoryCreate -- Cursor, string
-                    dcCore::app()->callBehavior('adminAfterCategoryCreate', $cur, $id);
+                    dcCore::app()->behavior->call('adminAfterCategoryCreate', $cur, $id);
 
                     dcPage::addSuccessNotice(sprintf(
                         __('The category "%s" has been successfully created.'),
@@ -213,7 +213,7 @@ class adminCategory
             dcPage::jsConfirmClose('category-form') .
             dcPage::jsLoad('js/_category.js') .
             # --BEHAVIOR-- adminPostEditor -- string, string, string, array<int,string>, string
-            ($rte_flag ? dcCore::app()->callBehavior('adminPostEditor', $category_editor['xhtml'], 'category', ['#cat_desc'], 'xhtml') : ''),
+            ($rte_flag ? dcCore::app()->behavior->call('adminPostEditor', $category_editor['xhtml'], 'category', ['#cat_desc'], 'xhtml') : ''),
             dcPage::breadcrumb($elements)
         );
 

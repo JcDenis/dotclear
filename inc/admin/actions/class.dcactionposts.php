@@ -37,7 +37,7 @@ class dcPostsActions extends dcActions
         // We could have added a behavior here, but we want default action to be setup first
         dcDefaultPostActions::adminPostsActionsPage($this);
         # --BEHAVIOR-- adminPostsActions -- dcActions
-        dcCore::app()->callBehavior('adminPostsActions', $this);
+        dcCore::app()->behavior->call('adminPostsActions', $this);
     }
 
     /**
@@ -324,11 +324,11 @@ class dcDefaultPostActions
         // Backward compatibility
         foreach ($ids as $id) {
             # --BEHAVIOR-- adminBeforePostDelete -- int
-            dcCore::app()->callBehavior('adminBeforePostDelete', (int) $id);
+            dcCore::app()->behavior->call('adminBeforePostDelete', (int) $id);
         }
 
         # --BEHAVIOR-- adminBeforePostsDelete -- array<int,string>
-        dcCore::app()->callBehavior('adminBeforePostsDelete', $ids);
+        dcCore::app()->behavior->call('adminBeforePostsDelete', $ids);
 
         dcCore::app()->blog->delPosts($ids);
         dcPage::addSuccessNotice(
@@ -372,12 +372,12 @@ class dcDefaultPostActions
                 $parent_cat = !empty($post['new_cat_parent']) ? $post['new_cat_parent'] : '';
 
                 # --BEHAVIOR-- adminBeforeCategoryCreate -- Cursor
-                dcCore::app()->callBehavior('adminBeforeCategoryCreate', $cur_cat);
+                dcCore::app()->behavior->call('adminBeforeCategoryCreate', $cur_cat);
 
                 $new_cat_id = dcCore::app()->blog->addCategory($cur_cat, (int) $parent_cat);
 
                 # --BEHAVIOR-- adminAfterCategoryCreate -- Cursor, string
-                dcCore::app()->callBehavior('adminAfterCategoryCreate', $cur_cat, $new_cat_id);
+                dcCore::app()->behavior->call('adminAfterCategoryCreate', $cur_cat, $new_cat_id);
             }
 
             dcCore::app()->blog->updPostsCategory($ids, $new_cat_id);

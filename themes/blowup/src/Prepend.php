@@ -32,7 +32,7 @@ class Prepend extends dcNsProcess
             return false;
         }
 
-        dcCore::app()->addBehavior('publicHeadContent', function () {
+        dcCore::app()->behavior->add('publicHeadContent', function () {
             $url = Blowup::publicCssUrlHelper();
             if ($url) {
                 echo '<link rel="stylesheet" href="' . $url . '" type="text/css" />';
@@ -43,7 +43,7 @@ class Prepend extends dcNsProcess
             return true;
         }
 
-        dcCore::app()->addBehavior('adminPageHTMLHead', function () {
+        dcCore::app()->behavior->add('adminPageHTMLHead', function () {
             echo "\n" . '<!-- Header directives for Blowup configuration -->' . "\n" .
             dcPage::jsJson('blowup', [
                 'blowup_public_url' => Blowup::imagesURL(),

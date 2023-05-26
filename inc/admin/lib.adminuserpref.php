@@ -58,7 +58,7 @@ class adminUserPref
         $cols = new ArrayObject($cols);
 
         # --BEHAVIOR-- adminColumnsLists -- ArrayObject
-        dcCore::app()->callBehavior('adminColumnsListsV2', $cols);
+        dcCore::app()->behavior->call('adminColumnsListsV2', $cols);
 
         # Load user settings
         $cols_user = @dcCore::app()->auth->user_prefs->interface->cols;
@@ -166,7 +166,7 @@ class adminUserPref
             $sorts = new ArrayObject($sorts);
 
             # --BEHAVIOR-- adminFiltersLists -- ArrayObject
-            dcCore::app()->callBehavior('adminFiltersListsV2', $sorts);
+            dcCore::app()->behavior->call('adminFiltersListsV2', $sorts);
 
             $sorts_user = dcCore::app()->auth->user_prefs->interface->sorts;
             if (is_array($sorts_user)) {

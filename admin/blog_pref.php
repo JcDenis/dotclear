@@ -290,7 +290,7 @@ class adminBlogPref
                 }
 
                 # --BEHAVIOR-- adminBeforeBlogUpdate -- Cursor, string
-                dcCore::app()->callBehavior('adminBeforeBlogUpdate', $cur, $da->blog_id);
+                dcCore::app()->behavior->call('adminBeforeBlogUpdate', $cur, $da->blog_id);
 
                 if (!preg_match('/^[a-z]{2}(-[a-z]{2})?$/', (string) $_POST['lang'])) {
                     throw new Exception(__('Invalid language code'));
@@ -304,7 +304,7 @@ class adminBlogPref
                 }
 
                 # --BEHAVIOR-- adminAfterBlogUpdate -- Cursor, string
-                dcCore::app()->callBehavior('adminAfterBlogUpdate', $cur, $da->blog_id);
+                dcCore::app()->behavior->call('adminAfterBlogUpdate', $cur, $da->blog_id);
 
                 if ($cur->blog_id != null && $cur->blog_id != $da->blog_id) {
                     if ($da->blog_id == dcCore::app()->blog->id) {
@@ -367,7 +367,7 @@ class adminBlogPref
                 $da->blog_settings->system->put('sleepmode_timeout', $_POST['sleepmode_timeout']);
 
                 # --BEHAVIOR-- adminBeforeBlogSettingsUpdate -- dcSettings
-                dcCore::app()->callBehavior('adminBeforeBlogSettingsUpdate', $da->blog_settings);
+                dcCore::app()->behavior->call('adminBeforeBlogSettingsUpdate', $da->blog_settings);
 
                 if (dcCore::app()->auth->isSuperAdmin() && in_array($_POST['url_scan'], $da->url_scan_combo)) {
                     $da->blog_settings->system->put('url_scan', $_POST['url_scan']);
@@ -426,11 +426,11 @@ class adminBlogPref
             ]) .
             dcPage::jsConfirmClose('blog-form') .
             # --BEHAVIOR-- adminPostEditor -- string, string, string, array<int,string>, string
-            ($rte_flag ? dcCore::app()->callBehavior('adminPostEditor', $desc_editor['xhtml'], 'blog_desc', ['#blog_desc'], 'xhtml') : '') .
+            ($rte_flag ? dcCore::app()->behavior->call('adminPostEditor', $desc_editor['xhtml'], 'blog_desc', ['#blog_desc'], 'xhtml') : '') .
             dcPage::jsLoad('js/_blog_pref.js') .
 
             # --BEHAVIOR-- adminBlogPreferencesHeaders --
-            dcCore::app()->callBehavior('adminBlogPreferencesHeaders') .
+            dcCore::app()->behavior->call('adminBlogPreferencesHeaders') .
 
             dcPage::jsPageTabs(),
             $breadcrumb
@@ -882,7 +882,7 @@ class adminBlogPref
             '<div id="plugins-pref"><h3>' . __('Plugins parameters') . '</h3>';
 
             # --BEHAVIOR-- adminBlogPreferencesForm -- dcSettings
-            dcCore::app()->callBehavior('adminBlogPreferencesFormV2', $da->blog_settings);
+            dcCore::app()->behavior->call('adminBlogPreferencesFormV2', $da->blog_settings);
 
             echo '</div>' . // End 3rd party, aka plugins
 

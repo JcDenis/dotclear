@@ -46,7 +46,7 @@ class adminPopupLink
     public static function render()
     {
         # --BEHAVIOR-- adminPopupLink -- string
-        dcPage::openPopup(__('Add a link'), dcPage::jsLoad('js/_popup_link.js') . dcCore::app()->callBehavior('adminPopupLink', dcCore::app()->admin->plugin_id));
+        dcPage::openPopup(__('Add a link'), dcPage::jsLoad('js/_popup_link.js') . dcCore::app()->behavior->call('adminPopupLink', dcCore::app()->admin->plugin_id));
 
         echo '<h2 class="page-title">' . __('Add a link') . '</h2>';
 

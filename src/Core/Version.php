@@ -25,7 +25,7 @@ class Version
     public const VERSION_TABLE_NAME = 'version';
 
     /** @var    array<string,string>   Stack of registered versions (core, modules) */
-    private $versions = [];
+    private $stack = [];
 
     /**
      * Gets the version of a module.
@@ -39,7 +39,7 @@ class Version
         # Fetch versions if needed
         $this->dump();
 
-        return $this->versions[$module] ?? null;
+        return $this->stack[$module] ?? null;
     }
 
     /**
@@ -50,7 +50,7 @@ class Version
     public function dump(): array
     {
         // Fetch versions if needed
-        if (empty($this->versions)) {
+        if (empty($this->stack)) {
             $rs = (new SelectStatement())
                 ->columns([
                     'module',
@@ -61,12 +61,12 @@ class Version
 
             while ($rs->fetch()) {
                 if (is_string($rs->f('module')) && is_string($rs->f('version'))) {
-                    $this->versions[$rs->f('module')] = $rs->f('version');
+                    $this->stack[$rs->f('module')] = $rs->f('version');
                 }
             }
         }
 
-        return $this->versions;
+        return $this->stack;
     }
 
     /**
@@ -92,7 +92,7 @@ class Version
             $sql->update($cur);
         }
 
-        $this->versions[$module] = $version;
+        $this->stack[$module] = $version;
     }
 
     /**
@@ -141,8 +141,6 @@ class Version
 
         $sql->delete();
 
-        if (is_array($this->versions)) {
-            unset($this->versions[$module]);
-        }
+        unset($this->stack[$module]);
     }
 }

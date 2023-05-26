@@ -34,7 +34,7 @@ class Backend extends dcNsProcess
 
         dcCore::app()->auth->setPermissionType(My::PERMISSION_PAGES, __('manage pages'));
 
-        dcCore::app()->addBehaviors([
+        dcCore::app()->behavior->add([
             'adminColumnsListsV2' => function (ArrayObject $cols) {
                 $cols['pages'] = [My::name(), [
                     'date'       => [true, __('Date')],

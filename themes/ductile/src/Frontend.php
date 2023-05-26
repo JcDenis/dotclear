@@ -36,7 +36,7 @@ class Frontend extends dcNsProcess
         My::l10n('main');
 
         # Behaviors
-        dcCore::app()->addBehaviors([
+        dcCore::app()->behavior->add([
             'publicHeadContent'  => [self::class, 'publicHeadContent'],
             'publicInsideFooter' => [self::class, 'publicInsideFooter'],
         ]);
