@@ -83,7 +83,7 @@ class adminUserPrefs
         }
 
         // Format by editors
-        $formaters         = dcCore::app()->getFormaters();
+        $formaters         = dcCore::app()->formater->getFormaters();
         $format_by_editors = [];
         foreach ($formaters as $editor => $formats) {
             foreach ($formats as $format) {
@@ -92,7 +92,7 @@ class adminUserPrefs
         }
         $available_formats = ['' => ''];
         foreach (array_keys($format_by_editors) as $format) {
-            $available_formats[dcCore::app()->getFormaterName($format)] = $format;
+            $available_formats[dcCore::app()->formater->getName($format)] = $format;
             if (!isset($user_options['editor'][$format])) {
                 $user_options['editor'][$format] = '';
             }
@@ -732,7 +732,7 @@ class adminUserPrefs
         '<div class="two-boxes odd">';
         foreach (dcCore::app()->admin->format_by_editors as $format => $editors) {
             echo
-            '<p class="field"><label for="user_editor_' . $format . '">' . sprintf(__('Preferred editor for %s:'), dcCore::app()->getFormaterName($format)) . '</label>' .
+            '<p class="field"><label for="user_editor_' . $format . '">' . sprintf(__('Preferred editor for %s:'), dcCore::app()->formater->getName($format)) . '</label>' .
             form::combo(
                 ['user_editor[' . $format . ']', 'user_editor_' . $format],
                 array_merge([__('Choose an editor') => ''], $editors),

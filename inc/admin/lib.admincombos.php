@@ -174,7 +174,7 @@ class dcAdminCombos
     {
         $editors_combo = [];
 
-        foreach (dcCore::app()->getEditors() as $v) {
+        foreach (dcCore::app()->formater->getEditors() as $v) {
             $editors_combo[$v] = $v;
         }
 
@@ -193,11 +193,11 @@ class dcAdminCombos
         $formaters_combo = [];
 
         if (!empty($editor_id)) {
-            foreach (dcCore::app()->getFormaters($editor_id) as $formater) {
+            foreach (dcCore::app()->formater->getEditorFormaters($editor_id) as $formater) {
                 $formaters_combo[$formater] = $formater;
             }
         } else {
-            foreach (dcCore::app()->getFormaters() as $editor => $formaters) {
+            foreach (dcCore::app()->formater->getFormaters() as $editor => $formaters) {
                 foreach ($formaters as $formater) {
                     $formaters_combo[$editor][$formater] = $formater;
                 }

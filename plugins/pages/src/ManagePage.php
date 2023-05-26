@@ -102,11 +102,11 @@ class ManagePage extends dcNsProcess
         dcCore::app()->admin->status_combo = dcAdminCombos::getPostStatusesCombo();
 
         // Formaters combo
-        $core_formaters    = dcCore::app()->getFormaters();
+        $core_formaters    = dcCore::app()->formater->getFormaters();
         $available_formats = ['' => ''];
         foreach ($core_formaters as $formats) {
             foreach ($formats as $format) {
-                $available_formats[dcCore::app()->getFormaterName($format)] = $format;
+                $available_formats[dcCore::app()->formater->getName($format)] = $format;
             }
         }
         dcCore::app()->admin->available_formats = $available_formats;
@@ -641,7 +641,7 @@ class ManagePage extends dcNsProcess
 
             echo
             '<div class="multi-part" title="' . (dcCore::app()->admin->post_id ? __('Edit page') : __('New page')) .
-            sprintf(' &rsaquo; %s', dcCore::app()->getFormaterName(dcCore::app()->admin->post_format)) . '" id="edit-entry">' .
+            sprintf(' &rsaquo; %s', dcCore::app()->formater->getName(dcCore::app()->admin->post_format)) . '" id="edit-entry">' .
             '<form action="' . Html::escapeURL(dcCore::app()->admin->redir_url) . '" method="post" id="entry-form">' .
             '<div id="entry-wrapper">' .
             '<div id="entry-content"><div class="constrained">' .

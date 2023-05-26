@@ -536,11 +536,11 @@ class adminPostFilter extends adminGenericFilterV2
      */
     public function getPostFormatFilter(): dcAdminFilter
     {
-        $core_formaters    = dcCore::app()->getFormaters();
+        $core_formaters    = dcCore::app()->formater->getFormaters();
         $available_formats = [];
         foreach ($core_formaters as $formats) {
             foreach ($formats as $format) {
-                $available_formats[dcCore::app()->getFormaterName($format)] = $format;
+                $available_formats[dcCore::app()->formater->getName($format)] = $format;
             }
         }
 

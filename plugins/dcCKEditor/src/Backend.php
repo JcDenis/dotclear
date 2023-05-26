@@ -33,8 +33,8 @@ class Backend extends dcNsProcess
         My::backendSidebarMenuIcon();
 
         if (dcCore::app()->blog->settings->dcckeditor->active) {
-            dcCore::app()->addEditorFormater('dcCKEditor', 'xhtml', fn ($s) => $s);
-            dcCore::app()->addFormaterName('xhtml', __('HTML'));
+            dcCore::app()->formater->add('dcCKEditor', 'xhtml', fn ($s) => $s);
+            dcCore::app()->formater->setName('xhtml', __('HTML'));
 
             dcCore::app()->behavior->add([
                 'adminPostEditor'        => [BackendBehaviors::class, 'adminPostEditor'],
