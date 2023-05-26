@@ -187,7 +187,7 @@ class adminSearch
             '<p class="col right"><label for="action" class="classic">' . __('Selected entries action:') . '</label> ' .
             form::combo('action', self::$actions->getCombo()) .
             '<input id="do-action" type="submit" value="' . __('ok') . '" /></p>' .
-            dcCore::app()->formNonce() .
+            dcCore::app()->nonce->form()->render() .
             str_replace('%', '%%', self::$actions->getHiddenFields()) .
             '</div>' .
             '</form>'
@@ -242,7 +242,7 @@ class adminSearch
             '<p class="col right"><label for="action" class="classic">' . __('Selected comments action:') . '</label> ' .
             form::combo('action', self::$actions->getCombo()) .
             '<input id="do-action" type="submit" value="' . __('ok') . '" /></p>' .
-            dcCore::app()->formNonce() .
+            dcCore::app()->nonce->form()->render() .
             str_replace('%', '%%', self::$actions->getHiddenFields()) .
             '</div>' .
             '</form>'

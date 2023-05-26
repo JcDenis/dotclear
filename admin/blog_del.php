@@ -108,7 +108,7 @@ class adminBlogDel
             ->action(dcCore::app()->adminurl->get('admin.blog.del'))
             ->method('post')
             ->fields([
-                dcCore::app()->formNonce(false),
+                dcCore::app()->nonce->form(),
                 (new Para())
                     ->items([
                         (new Password('pwd'))

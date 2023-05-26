@@ -297,7 +297,7 @@ class adminComment
             '</p>' .
 
             '<p>' . form::hidden('id', dcCore::app()->admin->comment_id) .
-            dcCore::app()->formNonce() .
+            dcCore::app()->nonce->form()->render() .
             '<input type="submit" accesskey="s" name="update" value="' . __('Save') . '" />' .
             ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />';
 

@@ -118,7 +118,7 @@ class adminUsers
                 '</label> ' .
                 '<input id="do-action" type="submit" value="' . __('ok') . '" />' .
                 dcCore::app()->adminurl->getHiddenFormFields('admin.users', dcCore::app()->admin->user_filter->values(true)) .
-                dcCore::app()->formNonce() .
+                dcCore::app()->nonce->form()->render() .
                 '</p>' .
                 '</div>' .
                 '</form>',

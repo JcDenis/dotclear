@@ -115,7 +115,7 @@ class dcPage
                 $blogs[Html::escapeHTML($rs_blogs->blog_name . ' - ' . $rs_blogs->blog_url)] = $rs_blogs->blog_id;
             }
             $blog_box = '<p><label for="switchblog" class="classic">' . __('Blogs:') . '</label> ' .
-            dcCore::app()->formNonce() . form::combo('switchblog', $blogs, dcCore::app()->blog->id) .
+            dcCore::app()->nonce->form()->render() . form::combo('switchblog', $blogs, dcCore::app()->blog->id) .
             form::hidden(['redir'], $_SERVER['REQUEST_URI']) .
             '<input type="submit" value="' . __('ok') . '" class="hidden-if-js" /></p>';
         }
@@ -941,7 +941,7 @@ class dcPage
     public static function jsCommon(): string
     {
         $js = [
-            'nonce' => dcCore::app()->getNonce(),
+            'nonce' => dcCore::app()->nonce->get(),
 
             'img_plus_src' => 'images/expand.svg',
             'img_plus_txt' => '▶',
@@ -1126,7 +1126,7 @@ class dcPage
         $params = array_merge($params, [
             'sess_id=' . session_id(),
             'sess_uid=' . $_SESSION['sess_browser_uid'],
-            'xd_check=' . dcCore::app()->getNonce(),
+            'xd_check=' . dcCore::app()->nonce->get(),
         ]);
 
         $js_msg = [

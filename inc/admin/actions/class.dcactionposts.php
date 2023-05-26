@@ -434,7 +434,7 @@ class dcDefaultPostActions
             }
 
             echo
-            dcCore::app()->formNonce() .
+            dcCore::app()->nonce->form()->render() .
             $ap->getHiddenFields() .
             form::hidden(['action'], 'category') .
             '<input type="submit" value="' . __('Save') . '" /></p>' .
@@ -517,7 +517,7 @@ class dcDefaultPostActions
             form::field('new_auth_id', 20, 255);
 
             echo
-            dcCore::app()->formNonce() . $ap->getHiddenFields() .
+            dcCore::app()->nonce->form()->render() . $ap->getHiddenFields() .
             form::hidden(['action'], 'author') .
             '<input type="submit" value="' . __('Save') . '" /></p>' .
                 '</form>';
@@ -589,7 +589,7 @@ class dcDefaultPostActions
             form::combo('new_lang', $lang_combo);
 
             echo
-            dcCore::app()->formNonce() . $ap->getHiddenFields() .
+            dcCore::app()->nonce->form()->render() . $ap->getHiddenFields() .
             form::hidden(['action'], 'lang') .
             '<input type="submit" value="' . __('Save') . '" /></p>' .
                 '</form>';

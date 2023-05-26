@@ -228,7 +228,7 @@ class Manage extends dcNsProcess
             '<input type="submit" value="' . dcCore::app()->admin->task->task() . '" /> ' .
             form::hidden(['task'], dcCore::app()->admin->task->id()) .
             form::hidden(['code'], (int) dcCore::app()->admin->code) .
-            dcCore::app()->formNonce() .
+            dcCore::app()->nonce->form()->render() .
             '</p>' .
             '</form>' .
             '</div>';
@@ -300,7 +300,7 @@ class Manage extends dcNsProcess
                     '<p><input type="submit" value="' . __('Execute task') . '" /> ' .
                     ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
                     form::hidden(['tab'], $tab_obj->id()) .
-                    dcCore::app()->formNonce() . '</p>' .
+                    dcCore::app()->nonce->form()->render() . '</p>' .
                     '<p class="form-note info">' . __('This may take a very long time.') . '</p>' .
                     '</form>' .
                     '</div>';
@@ -323,7 +323,7 @@ class Manage extends dcNsProcess
                 ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
                 form::hidden(['task'], $t->id()) .
                 form::hidden(['tab'], $t->id()) .
-                dcCore::app()->formNonce() . '</p>' .
+                dcCore::app()->nonce->form()->render() . '</p>' .
                 '</form>' .
                 '</div>';
             }
@@ -377,7 +377,7 @@ class Manage extends dcNsProcess
             ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
             form::hidden(['tab'], 'settings') .
             form::hidden(['save_settings'], 1) .
-            dcCore::app()->formNonce() . '</p>' .
+            dcCore::app()->nonce->form()->render() . '</p>' .
             '</form>' .
             '</div>';
 
@@ -419,7 +419,7 @@ class Manage extends dcNsProcess
                 ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
                 form::hidden(['tab'], 'system') .
                 form::hidden(['save_system'], 1) .
-                dcCore::app()->formNonce() . '</p>' .
+                dcCore::app()->nonce->form()->render() . '</p>' .
                 '</form>' .
                 '</div>';
             }

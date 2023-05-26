@@ -72,7 +72,7 @@ class dcAdmin
 
             # Check nonce from POST requests
             if (!empty($_POST)) {
-                if (empty($_POST['xd_check']) || !dcCore::app()->checkNonce($_POST['xd_check'])) {
+                if (empty($_POST['xd_check']) || !dcCore::app()->nonce->check($_POST['xd_check'])) {
                     Http::head(412);
                     header('Content-Type: text/plain');
                     echo 'Precondition Failed';

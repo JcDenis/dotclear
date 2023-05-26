@@ -206,7 +206,7 @@ class Manage extends dcNsProcess
             form::combo($nav_id, $ns_combo, ['class' => 'navigation']) .
             ' <input type="submit" value="' . __('Ok') . '" id="' . $submit_id . '" />' .
             '<input type="hidden" name="p" value="aboutConfig" />' .
-            dcCore::app()->formNonce() .
+            dcCore::app()->nonce->form()->render() .
             '</p></form>';
         }
 
@@ -226,7 +226,7 @@ class Manage extends dcNsProcess
         '<p><input type="submit" value="' . __('Save') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
         '<input type="hidden" name="p" value="aboutConfig" />' .
-        dcCore::app()->formNonce() .
+        dcCore::app()->nonce->form()->render() .
         '</p>' .
         '</form>';
     }

@@ -1,8 +1,8 @@
 <?php
 /**
- * @brief Versions manager
+ * @brief Behavior core class.
  *
- * Provides an object to manage version in db
+ * Provides an object to manage behaviors stack
  *
  * @package Dotclear
  * @subpackage Core

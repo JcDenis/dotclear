@@ -223,7 +223,7 @@ class adminMedia
             '<p><input type="submit" value="' . __('Cancel') . '" /> ' .
             ' &nbsp; <input type="submit" name="rmyes" value="' . __('Yes') . '" />' .
             dcCore::app()->adminurl->getHiddenFormFields('admin.media', dcCore::app()->admin->page->values()) .
-            dcCore::app()->formNonce() .
+            dcCore::app()->nonce->form()->render() .
             form::hidden('remove', Html::escapeHTML($_GET['remove'])) . '</p>' .
             '</form>';
 
@@ -392,7 +392,7 @@ class adminMedia
         $fmt_form_media = '<form action="' . dcCore::app()->adminurl->get('admin.media') . '" method="post" id="form-medias">' .
             '<div class="files-group">%s</div>' .
             '<p class="hidden">' .
-            dcCore::app()->formNonce() .
+            dcCore::app()->nonce->form()->render() .
             dcCore::app()->adminurl->getHiddenFormFields('admin.media', dcCore::app()->admin->page->values()) .
             '</p>';
 
@@ -445,7 +445,7 @@ class adminMedia
                 '<form action="' . dcCore::app()->adminurl->getBase('admin.media') . '" method="post" class="fieldset">' .
                 '<div id="new-dir-f">' .
                 '<h4 class="pretty-title">' . __('Create new directory') . '</h4>' .
-                dcCore::app()->formNonce() .
+                dcCore::app()->nonce->form()->render() .
                 '<p><label for="newdir">' . __('Directory Name:') . '</label>' .
                 form::field('newdir', 35, 255) . '</p>' .
                 '<p><input type="submit" value="' . __('Create') . '" />' .
@@ -460,7 +460,7 @@ class adminMedia
                 echo
                 '<form action="' . dcCore::app()->adminurl->getBase('admin.media') . '" method="post" class="fieldset">' .
                 '<h4 class="pretty-title">' . __('Build missing thumbnails in directory') . '</h4>' .
-                dcCore::app()->formNonce() .
+                dcCore::app()->nonce->form()->render() .
                 '<p><input type="submit" value="' . __('Build') . '" />' .
                 dcCore::app()->adminurl->getHiddenFormFields('admin.media', array_merge(dcCore::app()->admin->page->values(), ['complete' => 1])) .
                 '</p>' .
@@ -499,7 +499,7 @@ class adminMedia
             '<p class="more-info">' . __('Please take care to publish media that you own and that are not protected by copyright.') . '</p>' .
             '<form id="fileupload" action="' . Html::escapeURL(dcCore::app()->adminurl->get('admin.media', dcCore::app()->admin->page->values())) . '" method="post" enctype="multipart/form-data" aria-disabled="false">' .
             '<p>' . form::hidden(['MAX_FILE_SIZE'], DC_MAX_UPLOAD_SIZE) .
-            dcCore::app()->formNonce() . '</p>' .
+            dcCore::app()->nonce->form()->render() . '</p>' .
                 '<div class="fileupload-ctrl"><p class="queue-message"></p><ul class="files"></ul></div>' .
 
             '<div class="fileupload-buttonbar clear">' .
@@ -542,7 +542,7 @@ class adminMedia
         form::hidden('rmyes', 1) .
         dcCore::app()->adminurl->getHiddenFormFields('admin.media', dcCore::app()->admin->page->values()) .
         form::hidden('remove', '') .
-        dcCore::app()->formNonce() .
+        dcCore::app()->nonce->form()->render() .
         '</div>' .
         '</form>';
 

@@ -529,7 +529,7 @@ class Manage extends dcNsProcess
                     '<fieldset><legend>' . __('Select type') . '</legend>' .
                     '<p class="field"><label for="item_type" class="classic">' . __('Type of item menu:') . '</label>' .
                     form::combo('item_type', dcCore::app()->admin->items_combo) . '</p>' .
-                    '<p>' . dcCore::app()->formNonce() .
+                    '<p>' . dcCore::app()->nonce->form()->render() .
                     '<input type="submit" name="appendaction" value="' . __('Continue...') . '" />' . '</p>' .
                     '</fieldset>' .
                     '</form>';
@@ -588,7 +588,7 @@ class Manage extends dcNsProcess
                         }
                         echo
                         form::hidden('item_type', dcCore::app()->admin->item_type) .
-                        '<p>' . dcCore::app()->formNonce() .
+                        '<p>' . dcCore::app()->nonce->form()->render() .
                         '<input type="submit" name="appendaction" value="' . __('Continue...') . '" /></p>' .
                         '</fieldset>' .
                         '</form>';
@@ -632,7 +632,7 @@ class Manage extends dcNsProcess
                     form::hidden('item_select', dcCore::app()->admin->item_select) .
                     '<p class="field"><label for="item_descr" class="classic">' .
                     __('Open URL on a new tab') . ':</label>' . form::checkbox('item_targetBlank', 'blank') . '</p>' .
-                    '<p>' . dcCore::app()->formNonce() .
+                    '<p>' . dcCore::app()->nonce->form()->render() .
                     '<input type="submit" name="appendaction" value="' . __('Add this item') . '" /></p>' .
                     '</fieldset>' .
                     '</form>';
@@ -648,7 +648,7 @@ class Manage extends dcNsProcess
             '<form id="settings" action="' . dcCore::app()->admin->getPageURL() . '" method="post">' .
             '<p>' . form::checkbox('active', 1, dcCore::app()->admin->menu_active) .
             '<label class="classic" for="active">' . __('Enable simple menu for this blog') . '</label>' . '</p>' .
-            '<p>' . dcCore::app()->formNonce() .
+            '<p>' . dcCore::app()->nonce->form()->render() .
             '<input type="submit" name="saveconfig" value="' . __('Save configuration') . '" />' .
             ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
             '</p>' .
@@ -659,7 +659,7 @@ class Manage extends dcNsProcess
             echo
             '<form id="menuitemsappend" action="' . dcCore::app()->admin->getPageURL() .
             '&amp;add=' . trim((string) self::STEP_TYPE) . '" method="post">' .
-            '<p class="top-add">' . dcCore::app()->formNonce() .
+            '<p class="top-add">' . dcCore::app()->nonce->form()->render() .
             '<input class="button add" type="submit" name="appendaction" value="' . __('Add an item') . '" /></p>' .
             '</form>';
         }
@@ -756,7 +756,7 @@ class Manage extends dcNsProcess
             if (dcCore::app()->admin->step === self::STEP_LIST) {
                 echo
                 '<div class="two-cols">' .
-                '<p class="col">' . form::hidden('im_order', '') . dcCore::app()->formNonce() .
+                '<p class="col">' . form::hidden('im_order', '') . dcCore::app()->nonce->form()->render() .
                 '<input type="submit" name="updateaction" value="' . __('Update menu') . '" />' . '</p>' .
                 '<p class="col right">' . '<input id="remove-action" type="submit" class="delete" name="removeaction" ' .
                 'value="' . __('Delete selected menu items') . '" ' .

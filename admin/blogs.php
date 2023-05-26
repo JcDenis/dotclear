@@ -134,7 +134,7 @@ class adminBlogs
                                                 ->class('classic')
                                             )
                                             ->items(dcCore::app()->admin->blogs_actions_page->getCombo()),
-                                        dcCore::app()->formNonce(false),
+                                        dcCore::app()->nonce->form(),
                                         (new Submit('do-action'))
                                             ->value(__('ok')),
                                     ]),

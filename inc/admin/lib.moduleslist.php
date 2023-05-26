@@ -896,7 +896,7 @@ class adminModulesList
                 form::hidden(['modules[' . $count . ']'], Html::escapeHTML($id));
             }
             echo
-            dcCore::app()->formNonce() .
+            dcCore::app()->nonce->form()->render() .
             '</td>';
 
             # Display score only for debug purpose
@@ -1601,7 +1601,7 @@ class adminModulesList
             ]
         ) . '</p>' .
         '<p><input type="submit" name="upload_pkg" value="' . __('Upload') . '" />' .
-        dcCore::app()->formNonce() . '</p>' .
+        dcCore::app()->nonce->form()->render() . '</p>' .
             '</form>';
 
         # 'Fetch module' form
@@ -1624,7 +1624,7 @@ class adminModulesList
             ]
         ) . '</p>' .
         '<p><input type="submit" name="fetch_pkg" value="' . __('Download') . '" />' .
-        dcCore::app()->formNonce() . '</p>' .
+        dcCore::app()->nonce->form()->render() . '</p>' .
             '</form>';
 
         return $this;
@@ -1767,7 +1767,7 @@ class adminModulesList
                 '<p class="clear"><input type="submit" name="save" value="' . __('Save') . '" />' .
                 form::hidden('module', $this->config_define->id) .
                 form::hidden('redir', $this->getRedir()) .
-                dcCore::app()->formNonce() . '</p>' .
+                dcCore::app()->nonce->form()->render() . '</p>' .
                     '</form>';
             }
         }
@@ -1912,7 +1912,7 @@ class adminThemesList extends adminModulesList
                     Html::escapeHTML($define->name);
                 }
 
-                $line .= dcCore::app()->formNonce() .
+                $line .= dcCore::app()->nonce->form()->render() .
                 '</h4>';
             }
 
@@ -2147,7 +2147,7 @@ class adminThemesList extends adminModulesList
                             $with_selection ?
                             __('Update selected themes') :
                             __('Update all themes from this list')
-                        ) . '" />' . dcCore::app()->formNonce();
+                        ) . '" />' . dcCore::app()->nonce->form()->render();
                     }
 
                     break;

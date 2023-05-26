@@ -687,7 +687,7 @@ class ManagePage extends dcNsProcess
             echo(dcCore::app()->admin->can_delete ?
                 ' <input type="submit" class="delete" value="' . __('Delete') . '" name="delete" />' :
                 '') .
-            dcCore::app()->formNonce() .
+            dcCore::app()->nonce->form()->render() .
             '</p>';
 
             echo
@@ -727,7 +727,7 @@ class ManagePage extends dcNsProcess
                 form::hidden(['post_id'], dcCore::app()->admin->post_id) .
                 form::hidden(['media_id'], '') .
                 form::hidden(['remove'], 1) .
-                dcCore::app()->formNonce() .
+                dcCore::app()->nonce->form()->render() .
                 '</div>' .
                 '</form>';
             }
@@ -798,7 +798,7 @@ class ManagePage extends dcNsProcess
                 '<p class="col right"><label for="action" class="classic">' . __('Selected comments action:') . '</label> ' .
                 form::combo('action', $combo_action) .
                 form::hidden('redir', Html::escapeURL(dcCore::app()->admin->redir_url) . '&amp;id=' . dcCore::app()->admin->post_id . '&amp;co=1') .
-                dcCore::app()->formNonce() .
+                dcCore::app()->nonce->form()->render() .
                 '<input type="submit" value="' . __('ok') . '" /></p>' .
                 '</div>' .
                 '</form>';
@@ -841,7 +841,7 @@ class ManagePage extends dcNsProcess
             '</p>' .
 
             '<p>' . form::hidden('post_id', dcCore::app()->admin->post_id) .
-            dcCore::app()->formNonce() .
+            dcCore::app()->nonce->form()->render() .
             '<input type="submit" name="add" value="' . __('Save') . '" /></p>' .
             '</div>' . #constrained
 

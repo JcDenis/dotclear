@@ -253,7 +253,7 @@ class adminUsersActions
                 '<p><input id="do-action" type="submit" value="' . __('Set permissions') . '" />' .
                 $hidden_fields .
                 form::hidden(['action'], 'perms') .
-                dcCore::app()->formNonce() . '</p>' .
+                dcCore::app()->nonce->form()->render() . '</p>' .
                 '</form>';
             }
         } elseif (!empty(dcCore::app()->admin->blogs) && !empty(dcCore::app()->admin->users) && dcCore::app()->admin->action == 'perms') {
@@ -333,7 +333,7 @@ class adminUsersActions
             '<p><input type="submit" accesskey="s" value="' . __('Save') . '" />' .
             $hidden_fields .
             form::hidden(['action'], 'updateperm') .
-            dcCore::app()->formNonce() . '</p>' .
+            dcCore::app()->nonce->form()->render() . '</p>' .
             '</div>' .
             '</form>';
         }

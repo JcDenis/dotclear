@@ -596,7 +596,7 @@ class adminUserPrefs
 
         echo
         '<p class="clear vertical-separator">' .
-        dcCore::app()->formNonce() .
+        dcCore::app()->nonce->form()->render() .
         '<input type="submit" accesskey="s" value="' . __('Update my profile') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
         '</p>' .
@@ -779,7 +779,7 @@ class adminUserPrefs
 
         echo
         '<p class="clear vertical-separator">' .
-        dcCore::app()->formNonce() .
+        dcCore::app()->nonce->form()->render() .
         '<input type="submit" name="user_options_submit" accesskey="s" value="' . __('Save my options') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
         '</p>' .
@@ -834,7 +834,7 @@ class adminUserPrefs
             echo
             '<div class="clear">' .
             '<p>' . form::hidden('favs_order', '') .
-            dcCore::app()->formNonce() .
+            dcCore::app()->nonce->form()->render() .
             '<input type="submit" name="saveorder" value="' . __('Save order') . '" /> ' .
 
             '<input type="submit" class="delete" name="removeaction" ' .
@@ -905,7 +905,7 @@ class adminUserPrefs
 
         echo
         '<p>' .
-        dcCore::app()->formNonce() .
+        dcCore::app()->nonce->form()->render() .
         '<input type="submit" name="appendaction" value="' . __('Add to my favorites') . '" /></p>' .
         '</div>' . // /available favorites
 
@@ -958,7 +958,7 @@ class adminUserPrefs
         echo
         '<p>' .
         form::hidden('db-options', '-') .
-        dcCore::app()->formNonce() .
+        dcCore::app()->nonce->form()->render() .
         '<input type="submit" accesskey="s" value="' . __('Save my dashboard options') . '" />' .
         ' <input type="button" value="' . __('Cancel') . '" class="go-back reset hidden-if-no-js" />' .
         '</p>' .
@@ -968,7 +968,7 @@ class adminUserPrefs
         '<form action="' . dcCore::app()->adminurl->get('admin.user.preferences') . '" method="post" id="order-reset" class="two-boxes even">' .
         '<div class="fieldset"><h4>' . __('Dashboard items order') . '</h4>' .
         '<p>' .
-        dcCore::app()->formNonce() .
+        dcCore::app()->nonce->form()->render() .
         '<input type="submit" name="resetorder" value="' . __('Reset dashboard items order') . '" /></p>' .
         '</div>' .
         '</form>' .

@@ -140,7 +140,7 @@ class adminComments
 
                 echo
                 '<p>' .
-                dcCore::app()->formNonce() .
+                dcCore::app()->nonce->form()->render() .
                 '<input name="delete_all_spam" class="delete" type="submit" value="' . __('Delete all spams') . '" /></p>';
 
                 # --BEHAVIOR-- adminCommentsSpamForm --
@@ -170,7 +170,7 @@ class adminComments
                     dcCore::app()->admin->comments_actions_page->getCombo(),
                     ['default' => dcCore::app()->admin->default_action, 'extra_html' => 'title="' . __('Actions') . '"']
                 ) .
-                dcCore::app()->formNonce() .
+                dcCore::app()->nonce->form()->render() .
                 '<input id="do-action" type="submit" value="' . __('ok') . '" /></p>' .
                 dcCore::app()->adminurl->getHiddenFormFields('admin.comments', dcCore::app()->admin->comment_filter->values(true)) .
                 '</div>' .

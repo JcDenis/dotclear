@@ -235,7 +235,7 @@ class adminCategories
 
             echo
             '<input type="submit" class="reset" name="reset" value="' . __('Reorder all categories on the top level') . '" />' .
-            dcCore::app()->formNonce() .
+            dcCore::app()->nonce->form()->render() .
             '</p>' .
             '</div></form>';
         }

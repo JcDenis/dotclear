@@ -14,6 +14,7 @@
 
 use Dotclear\App;
 use Dotclear\Core\Behavior;
+use Dotclear\Core\Nonce;
 use Dotclear\Core\Version;
 use Dotclear\Database\AbstractHandler;
 use Dotclear\Database\Cursor;
@@ -27,7 +28,6 @@ use Dotclear\Database\Statement\JoinStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Helper\File\Files;
-use Dotclear\Helper\Html\Form\Hidden;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\HtmlFilter;
 use Dotclear\Helper\Html\Template\Template;
@@ -115,6 +115,13 @@ final class dcCore
      * @var Version
      */
     public readonly Version $version;
+
+    /**
+     * Nonce instance
+     *
+     * @var Nonce
+     */
+    public readonly Nonce $nonce;
 
     /**
      * dcUrlHandlers instance
@@ -404,6 +411,7 @@ final class dcCore
         $this->auth     = $this->authInstance();
         $this->session  = new Session($this->con, $this->prefix . self::SESSION_TABLE_NAME, DC_SESSION_NAME, '', null, DC_ADMIN_SSL, $ttl);
         $this->version  = new Version();
+        $this->nonce    = new Nonce();
         $this->url      = new dcUrlHandlers();
         $this->plugins  = new Plugins();
         $this->themes   = new Themes();
@@ -541,46 +549,31 @@ final class dcCore
     /**
      * Gets the nonce.
      *
-     * @return     string  The nonce.
+     * @deprecated since 2.27, use dcCore::app()->nonce->get() instead
      */
     public function getNonce(): string
     {
-        return $this->auth->cryptLegacy(session_id());
+        return $this->nonce->get();
     }
 
     /**
-     * Check the nonce
+     * Check the nonce.
      *
-     * @param      string  $secret  The nonce
-     *
-     * @return     bool
+     * @deprecated since 2.27, use dcCore::app()->nonce->check() instead
      */
     public function checkNonce(string $secret): bool
     {
-        // 40 alphanumeric characters min
-        if (!preg_match('/^([0-9a-f]{40,})$/i', $secret)) {
-            return false;
-        }
-
-        return $secret == $this->auth->cryptLegacy(session_id());
+        return $this->nonce->check($secret);
     }
 
     /**
-     * Get the nonce HTML code
+     * Get the nonce HTML code.
      *
-     * @param bool  $render     Should render element?
-     *
-     * @return     mixed
+     * @deprecated since 2.27, use dcCore::app()->nonce->form() instead
      */
-    public function formNonce(bool $render = true)
+    public function formNonce(bool $render = true): mixed
     {
-        if (!session_id()) {
-            return;
-        }
-
-        $element = new Hidden(['xd_check'], $this->getNonce());
-
-        return $render ? $element->render() : $element;
+        return $render ? $this->nonce->form()->render() : $this->nonce->form();
     }
     //@}
 

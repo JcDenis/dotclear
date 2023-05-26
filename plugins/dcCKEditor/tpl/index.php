@@ -122,7 +122,7 @@ echo dcPage::breadcrumb([__('Plugins') => '', __('dcCKEditor') => '']) . dcPage:
   <?php endif;?>
   <p>
     <input name="p" type="hidden" value="dcCKEditor"/>
-    <?php echo dcCore::app()->formNonce(); ?>
+    <?php echo dcCore::app()->nonce->form()->render(); ?>
     <input name="saveconfig" type="submit" value="<?php echo __('Save configuration'); ?>"/>
     <input type="button" value="<?php echo  __('Cancel'); ?>" class="go-back reset hidden-if-no-js" />
   </p>

@@ -429,7 +429,7 @@ class adminIndex
                 ]), dcCore::app()->blog->id)
                     ? '<input type="hidden" value="' . __('Save and publish') . '" name="save-publish" />'
                     : '') .
-                dcCore::app()->formNonce() .
+                dcCore::app()->nonce->form()->render() .
                 form::hidden('post_status', dcBlog::POST_PENDING) .
                 form::hidden('post_format', dcCore::app()->auth->getOption('post_format')) .
                 form::hidden('post_excerpt', '') .

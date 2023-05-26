@@ -175,7 +175,7 @@ class Manage extends dcNsProcess
                     echo
                     '<p><input type="submit" name="write" value="' . __('Save') . ' (s)" accesskey="s" /> ' .
                     (dcCore::app()->admin->editor->deletableFile(dcCore::app()->admin->file['type'], dcCore::app()->admin->file['f']) ? '<input type="submit" name="delete" class="delete" value="' . __('Reset') . '" />' : '') .
-                    dcCore::app()->formNonce() .
+                    dcCore::app()->nonce->form()->render() .
                         (dcCore::app()->admin->file['type'] ? form::hidden([dcCore::app()->admin->file['type']], dcCore::app()->admin->file['f']) : '') .
                         '</p>';
                 } else {

@@ -109,7 +109,7 @@ class adminPostMedia
                         ]),
                     (new Hidden('post_id', (string) dcCore::app()->admin->post_id)),
                     (new Hidden('media_id', (string) dcCore::app()->admin->media_id)),
-                    dcCore::app()->formNonce(false),
+                    dcCore::app()->nonce->form(),
                 ])
                 ->render();
 

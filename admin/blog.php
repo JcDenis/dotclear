@@ -104,7 +104,7 @@ class adminBlog
                 ->method('post')
                 ->fields([
                     // Form Nonce
-                    dcCore::app()->formNonce(false),
+                    dcCore::app()->nonce->form(),
                     // Blog ID
                     (new Para())
                         ->items([
