@@ -29,7 +29,7 @@ class Nonce
      */
     public function get(): string
     {
-        return dcCore::app()->auth->cryptLegacy(session_id());
+        return dcCore::app()->auth->cryptLegacy((string) session_id());
     }
 
     /**
@@ -46,13 +46,11 @@ class Nonce
             return false;
         }
 
-        return $secret == dcCore::app()->auth->cryptLegacy(session_id());
+        return $secret == dcCore::app()->auth->cryptLegacy((string) session_id());
     }
 
     /**
      * Get the nonce Form element.
-     *
-     * @param   bool    $render     Should render element?
      *
      * @return  Hidden  The form element
      */
