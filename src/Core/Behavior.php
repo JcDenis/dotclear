@@ -16,7 +16,7 @@ namespace Dotclear\Core;
 
 class Behavior
 {
-    /** @var    array<string,callable>   Stack of behaviors */
+    /** @var    array<string,array<int,callable>>   Stack of behaviors */
     private $stack = [];
 
     /**
@@ -26,7 +26,7 @@ class Behavior
      * For multiple, the first argument if an array on which
      * each row must contains the behavior and a valid callable callback.
      *
-     * @param   string|array<string,mixed>  $behavior   The behaviors or the behavior name (for one)
+     * @param   string|array<string,mixed>  $behaviors  The behaviors or the behavior name (for one)
      * @param   mixed                       $callback   The callback (only for one)
      */
     public function add(string|array $behaviors, mixed $callback = null): void
@@ -45,7 +45,7 @@ class Behavior
     /**
      * Check if behavior exists.
      *
-     * @param   string  behavior    The behavior
+     * @param   string  $behavior   The behavior
      *
      * @return  bool    True if behavior exists, False otherwise.
      */
@@ -57,9 +57,7 @@ class Behavior
     /**
      * Get the behaviors stack.
      *
-     * @param   string  $behavior   The behavior
-     *
-     * @return  array<string,callable>  The behaviors.
+     * @return  array<string,array<int,callable>>   The behaviors.
      */
     public function dump(): array
     {
@@ -69,13 +67,13 @@ class Behavior
     /**
      * Get a behavior.
      *
-     * @param   string  $behaviour  The behaviour
+     * @param   string  $behavior  The behavior
      *
-     * @return  mixed   The behaviours.
+     * @return  array<int,callable>     The behavior callbacks.
      */
-    public function get(string $behavior = ''): ?callable
+    public function get(string $behavior): array
     {
-        return isset($this->stack[$behavior]) ? $this->stack[$behavior] : null;
+        return isset($this->stack[$behavior]) ? $this->stack[$behavior] : [];
     }
 
     /**
