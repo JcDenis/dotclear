@@ -31,7 +31,7 @@ class Prepend extends dcNsProcess
         dcCore::app()->url->register('pages', 'pages', '^pages/(.+)$', [FrontendUrl::class, 'pages']);
         dcCore::app()->url->register('pagespreview', 'pagespreview', '^pagespreview/(.+)$', [FrontendUrl::class, 'pagespreview']);
 
-        dcCore::app()->setPostType('page', 'plugin.php?p=pages&act=page&id=%d', dcCore::app()->url->getURLFor('pages', '%s'), 'Pages');
+        dcCore::app()->post_type->set('page', 'plugin.php?p=pages&act=page&id=%d', dcCore::app()->url->getURLFor('pages', '%s'), 'Pages');
 
         return true;
     }

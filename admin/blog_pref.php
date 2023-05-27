@@ -934,7 +934,7 @@ class adminBlogPref
                     $da->blog_users = $blog_users;
                 }
 
-                $post_type       = dcCore::app()->getPostTypes();
+                $post_types      = dcCore::app()->post_type->dump();
                 $current_blog_id = dcCore::app()->blog->id;
                 if ($da->blog_id != dcCore::app()->blog->id) {
                     dcCore::app()->setBlog($da->blog_id);
@@ -963,12 +963,12 @@ class adminBlogPref
                         echo
                         '<h5>' . __('Publications on this blog:') . '</h5>' .
                         '<ul>';
-                        foreach ($post_type as $type => $pt_info) {
+                        foreach ($post_types as $post_type) {
                             $params = [
-                                'post_type' => $type,
+                                'post_type' => $post_type->type,
                                 'user_id'   => $k,
                             ];
-                            echo '<li>' . sprintf(__('%1$s: %2$s'), __($pt_info['label']), dcCore::app()->blog->getPosts($params, true)->f(0)) . '</li>';
+                            echo '<li>' . sprintf(__('%1$s: %2$s'), $post_type->name(), dcCore::app()->blog->getPosts($params, true)->f(0)) . '</li>';
                         }
                         echo
                         '</ul>' .

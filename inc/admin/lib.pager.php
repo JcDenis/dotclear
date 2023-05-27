@@ -416,7 +416,7 @@ class adminPostList extends adminGenericListV2
             ) .
             '</td>',
             'title' => '<td class="maximal" scope="row"><a href="' .
-            dcCore::app()->getPostAdminURL($this->rs->post_type, $this->rs->post_id) . '">' .
+            dcCore::app()->post_type->backend($this->rs->post_type, $this->rs->post_id) . '">' .
             Html::escapeHTML(trim(Html::clean($this->rs->post_title))) . '</a></td>',
             'date' => '<td class="nowrap count">' .
                 '<time datetime="' . Date::iso8601(strtotime($this->rs->post_dt), dcCore::app()->auth->getInfo('user_tz')) . '">' .
@@ -552,7 +552,7 @@ class adminPostMiniList extends adminGenericListV2
 
         $cols = [
             'title' => '<td scope="row" class="maximal"><a href="' .
-            dcCore::app()->getPostAdminURL($this->rs->post_type, $this->rs->post_id) . '" ' .
+            dcCore::app()->post_type->backend($this->rs->post_type, $this->rs->post_id) . '" ' .
             'title="' . Html::escapeHTML($this->rs->getURL()) . '">' .
             Html::escapeHTML(trim(Html::clean($this->rs->post_title))) . '</a></td>',
             'date' => '<td class="nowrap count">' .
@@ -729,7 +729,7 @@ class adminCommentList extends adminGenericListV2
             'author' => $this->rs->comment_author,
         ]);
 
-        $post_url = dcCore::app()->getPostAdminURL($this->rs->post_type, $this->rs->post_id);
+        $post_url = dcCore::app()->post_type->backend($this->rs->post_type, $this->rs->post_id);
 
         $comment_url = dcCore::app()->adminurl->get('admin.comment', ['id' => $this->rs->comment_id]);
 

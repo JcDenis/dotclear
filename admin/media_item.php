@@ -925,7 +925,7 @@ class adminMediaItem
                             break;
                     }
                     echo
-                    '<li>' . $img_status . ' ' . '<a href="' . dcCore::app()->getPostAdminURL($rs->post_type, $rs->post_id) . '">' .
+                    '<li>' . $img_status . ' ' . '<a href="' . dcCore::app()->post_type->backend($rs->post_type, $rs->post_id) . '">' .
                     $rs->post_title . '</a>' .
                     ($rs->post_type != 'post' ? ' (' . Html::escapeHTML($rs->post_type) . ')' : '') .
                     ' - ' . Date::dt2str(__('%Y-%m-%d %H:%M'), $rs->post_dt) . '</li>';

@@ -31,10 +31,9 @@ class adminPopupPosts
 
         dcCore::app()->admin->type = !empty($_GET['type']) ? $_GET['type'] : null;
 
-        $post_types = dcCore::app()->getPostTypes();
         $type_combo = [];
-        foreach (array_keys($post_types) as $k) {
-            $type_combo[__($k)] = (string) $k;
+        foreach (dcCore::app()->post_type->dump() as $pt) {
+            $type_combo[$pt->name()] = $pt->type;
         }
         if (!in_array(dcCore::app()->admin->type, $type_combo)) {
             dcCore::app()->admin->type = null;

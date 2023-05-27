@@ -204,7 +204,7 @@ class rsExtPost
      */
     public static function getURL(MetaRecord $rs): string
     {
-        return dcCore::app()->blog->url . dcCore::app()->getPostPublicURL(
+        return dcCore::app()->blog->url . dcCore::app()->post_type->frontend(
             $rs->post_type,
             Html::sanitizeURL($rs->post_url)
         );
@@ -697,7 +697,7 @@ class rsExtComment
      */
     public static function getPostURL(MetaRecord $rs): string
     {
-        return dcCore::app()->blog->url . dcCore::app()->getPostPublicURL(
+        return dcCore::app()->blog->url . dcCore::app()->post_type->frontend(
             $rs->post_type,
             Html::sanitizeURL($rs->post_url)
         );
