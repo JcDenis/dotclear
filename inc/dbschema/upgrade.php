@@ -1168,7 +1168,7 @@ class dcUpgrade
                 $ids[] = $rs->blog_id;
             }
             if (count($ids)) {
-                dcCore::app()->removeUsersDefaultBlogs($ids);
+                dcCore::app()->users->removeUsersDefaultBlogs($ids);
             }
 
             // A bit of housecleaning for no longer needed folders

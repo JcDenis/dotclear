@@ -30,7 +30,7 @@ class adminIndex
     {
         if (!empty($_GET['default_blog'])) {
             try {
-                dcCore::app()->setUserDefaultBlog(dcCore::app()->auth->userID(), dcCore::app()->blog->id);
+                dcCore::app()->users->setUserDefaultBlog(dcCore::app()->auth->userID(), dcCore::app()->blog->id);
                 dcCore::app()->adminurl->redirect('admin.home');
             } catch (Exception $e) {
                 dcCore::app()->error->add($e->getMessage());

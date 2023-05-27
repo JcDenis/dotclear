@@ -15,8 +15,9 @@
 use Dotclear\App;
 use Dotclear\Core\Behavior;
 use Dotclear\Core\Formater;
-use Dotclear\Core\PostType;
 use Dotclear\Core\Nonce;
+use Dotclear\Core\PostType;
+use Dotclear\Core\Users;
 use Dotclear\Core\Version;
 use Dotclear\Database\AbstractHandler;
 use Dotclear\Database\Cursor;
@@ -89,6 +90,13 @@ final class dcCore
      * @var dcBlog|null
      */
     public $blog = null;
+
+    /**
+     * Users instance
+     *
+     * @var Users
+     */
+    public readonly Users $users;
 
     /**
      * dcAuth instance
@@ -403,6 +411,7 @@ final class dcCore
 
         $this->behavior  = new Behavior();
         $this->error     = new dcError();
+        $this->users     = new Users();
         $this->auth      = $this->authInstance();
         $this->session   = new Session($this->con, $this->prefix . self::SESSION_TABLE_NAME, DC_SESSION_NAME, '', null, DC_ADMIN_SSL, $ttl);
         $this->version   = new Version();
@@ -907,482 +916,133 @@ final class dcCore
     /**
      * Gets the user by its ID.
      *
-     * @param      string  $id     The identifier
-     *
-     * @return     MetaRecord  The user.
+     * @deprecated since 2.27, use dcCore::app()->users->get() instead
      */
     public function getUser(string $id): MetaRecord
     {
-        $params['user_id'] = $id;
-
-        return $this->getUsers($params);
+        return $this->users->get($id);
     }
 
     /**
-     * Returns a users list. <b>$params</b> is an array with the following
-     * optionnal parameters:
+     * Returns a users list.
      *
-     * - <var>q</var>: search string (on user_id, user_name, user_firstname)
-     * - <var>user_id</var>: user ID
-     * - <var>order</var>: ORDER BY clause (default: user_id ASC)
-     * - <var>limit</var>: LIMIT clause (should be an array ![limit,offset])
+     * @deprecated since 2.27, use dcCore::app()->users->search() instead
      *
-     * @param      array|ArrayObject    $params      The parameters
-     * @param      bool                 $count_only  Count only results
-     *
-     * @return     MetaRecord  The users.
+     * @param   array<string,mixed>|ArrayObject     $params         The parameters
      */
     public function getUsers($params = [], bool $count_only = false): MetaRecord
     {
-        $sql = new SelectStatement();
-
-        if ($count_only) {
-            $sql
-                ->column($sql->count('U.user_id'))
-                ->from($sql->as($this->prefix . dcAuth::USER_TABLE_NAME, 'U'))
-                ->where('NULL IS NULL');
-        } else {
-            $sql
-                ->columns([
-                    'U.user_id',
-                    'user_super',
-                    'user_status',
-                    'user_pwd',
-                    'user_change_pwd',
-                    'user_name',
-                    'user_firstname',
-                    'user_displayname',
-                    'user_email',
-                    'user_url',
-                    'user_desc',
-                    'user_lang',
-                    'user_tz',
-                    'user_post_status',
-                    'user_options',
-                    $sql->count('P.post_id', 'nb_post'),
-                ])
-                ->from($sql->as($this->prefix . dcAuth::USER_TABLE_NAME, 'U'));
-
-            if (!empty($params['columns'])) {
-                $sql->columns($params['columns']);
-            }
-            $sql
-                ->join(
-                    (new JoinStatement())
-                        ->left()
-                        ->from($sql->as($this->prefix . dcBlog::POST_TABLE_NAME, 'P'))
-                        ->on('U.user_id = P.user_id')
-                        ->statement()
-                )
-                ->where('NULL IS NULL');
-        }
-
-        if (!empty($params['q'])) {
-            $q = $sql->escape(str_replace('*', '%', strtolower($params['q'])));
-            $sql->andGroup([
-                $sql->or($sql->like('LOWER(U.user_id)', $q)),
-                $sql->or($sql->like('LOWER(user_name)', $q)),
-                $sql->or($sql->like('LOWER(user_firstname)', $q)),
-            ]);
-        }
-
-        if (!empty($params['user_id'])) {
-            $sql->and('U.user_id = ' . $sql->quote($params['user_id']));
-        }
-
-        if (!$count_only) {
-            $sql->group([
-                'U.user_id',
-                'user_super',
-                'user_status',
-                'user_pwd',
-                'user_change_pwd',
-                'user_name',
-                'user_firstname',
-                'user_displayname',
-                'user_email',
-                'user_url',
-                'user_desc',
-                'user_lang',
-                'user_tz',
-                'user_post_status',
-                'user_options',
-            ]);
-
-            if (!empty($params['order'])) {
-                if (preg_match('`^([^. ]+) (?:asc|desc)`i', $params['order'], $matches)) {
-                    if (in_array($matches[1], ['user_id', 'user_name', 'user_firstname', 'user_displayname'])) {
-                        $table_prefix = 'U.';
-                    } else {
-                        $table_prefix = ''; // order = nb_post (asc|desc)
-                    }
-                    $sql->order($table_prefix . $sql->escape($params['order']));
-                } else {
-                    $sql->order($sql->escape($params['order']));
-                }
-            } else {
-                $sql->order('U.user_id ASC');
-            }
-        }
-
-        if (!$count_only && !empty($params['limit'])) {
-            $sql->limit($params['limit']);
-        }
-
-        $rs = $sql->select();
-        $rs->extend('rsExtUser');
-
-        return $rs;
+        return $this->users->search($params, $count_only);
     }
 
     /**
-     * Adds a new user. Takes a Cursor as input and returns the new user ID.
+     * Adds a new user.
      *
-     * @param      Cursor     $cur    The user Cursor
-     *
-     * @throws     Exception
-     *
-     * @return     string
+     * @deprecated since 2.27, use dcCore::app()->users->add() instead
      */
     public function addUser(Cursor $cur): string
     {
-        if (!$this->auth->isSuperAdmin()) {
-            throw new Exception(__('You are not an administrator'));
-        }
-
-        if ($cur->user_id == '') {
-            throw new Exception(__('No user ID given'));
-        }
-
-        if ($cur->user_pwd == '') {
-            throw new Exception(__('No password given'));
-        }
-
-        $this->fillUserCursor($cur);
-
-        if ($cur->user_creadt === null) {
-            $cur->user_creadt = date('Y-m-d H:i:s');
-        }
-
-        $cur->insert();
-
-        # --BEHAVIOR-- coreAfterAddUser -- Cursor
-        $this->callBehavior('coreAfterAddUser', $cur);
-
-        return $cur->user_id;
+        return $this->users->add($cur);
     }
 
     /**
-     * Updates an existing user. Returns the user ID.
+     * Updates an existing user.
      *
-     * @param      string     $id     The user identifier
-     * @param      Cursor     $cur    The Cursor
-     *
-     * @throws     Exception
-     *
-     * @return     string
+     * @deprecated since 2.27, use dcCore::app()->users->update() instead
      */
     public function updUser(string $id, Cursor $cur): string
     {
-        $this->fillUserCursor($cur);
-
-        if (($cur->user_id !== null || $id != $this->auth->userID()) && !$this->auth->isSuperAdmin()) {
-            throw new Exception(__('You are not an administrator'));
-        }
-
-        $sql = new UpdateStatement();
-        $sql->where('user_id = ' . $sql->quote($id));
-
-        $sql->update($cur);
-
-        # --BEHAVIOR-- coreAfterUpdUser -- Cursor
-        $this->callBehavior('coreAfterUpdUser', $cur);
-
-        if ($cur->user_id !== null) {
-            $id = $cur->user_id;
-        }
-
-        # Updating all user's blogs
-        $sql = new SelectStatement();
-        $sql
-            ->distinct()
-            ->column('blog_id')
-            ->from($this->prefix . dcBlog::POST_TABLE_NAME)
-            ->where('user_id = ' . $sql->quote($id));
-
-        $rs = $sql->select();
-
-        while ($rs->fetch()) {
-            $b = new dcBlog($rs->blog_id);
-            $b->triggerBlog();
-            unset($b);
-        }
-
-        return $id;
+        return $this->users->update($id, $cur);
     }
 
     /**
      * Deletes a user.
      *
-     * @param      string     $id     The user identifier
-     *
-     * @throws     Exception
+     * @deprecated since 2.27, use dcCore::app()->users->delete() instead
      */
     public function delUser(string $id): void
     {
-        if (!$this->auth->isSuperAdmin()) {
-            throw new Exception(__('You are not an administrator'));
-        }
-
-        if ($id == $this->auth->userID()) {
-            return;
-        }
-
-        $rs = $this->getUser($id);
-
-        if ($rs->nb_post > 0) {
-            return;
-        }
-
-        $sql = new DeleteStatement();
-        $sql
-            ->from($this->prefix . dcAuth::USER_TABLE_NAME)
-            ->where('user_id = ' . $sql->quote($id));
-
-        $sql->delete();
-
-        # --BEHAVIOR-- coreAfterDelUser -- string
-        $this->callBehavior('coreAfterDelUser', $id);
+        $this->users->delete($id);
     }
 
     /**
      * Determines if user exists.
      *
-     * @param      string  $id     The identifier
-     *
-     * @return      bool  True if user exists, False otherwise.
+     * @deprecated since 2.27, use dcCore::app()->users->has() instead
      */
     public function userExists(string $id): bool
     {
-        $sql = new SelectStatement();
-        $sql
-            ->column('user_id')
-            ->from($this->prefix . dcAuth::USER_TABLE_NAME)
-            ->where('user_id = ' . $sql->quote($id));
-
-        $rs = $sql->select();
-
-        return !$rs->isEmpty();
+        return $this->users->has($id);
     }
 
     /**
-     * Returns all user permissions as an array which looks like:
+     * Returns all user permissions as an array.
      *
-     * - [blog_id]
-     * - [name] => Blog name
-     * - [url] => Blog URL
-     * - [p]
-     * - [permission] => true
-     * - ...
+     * @deprecated since 2.27, use dcCore::app()->users->getUserPermissions() instead
      *
-     * @param      string  $id     The user identifier
-     *
-     * @return     array   The user permissions.
+     * @return  array<string,array<string,string|array<string,bool>>>    The user permissions.
      */
     public function getUserPermissions(string $id): array
     {
-        $sql = new SelectStatement();
-        $sql
-            ->columns([
-                'B.blog_id',
-                'blog_name',
-                'blog_url',
-                'permissions',
-            ])
-            ->from($sql->as($this->prefix . dcAuth::PERMISSIONS_TABLE_NAME, 'P'))
-            ->join(
-                (new JoinStatement())
-                ->inner()
-                ->from($sql->as($this->prefix . dcBlog::BLOG_TABLE_NAME, 'B'))
-                ->on('P.blog_id = B.blog_id')
-                ->statement()
-            )
-            ->where('user_id = ' . $sql->quote($id));
-
-        $rs = $sql->select();
-
-        $res = [];
-
-        while ($rs->fetch()) {
-            $res[$rs->blog_id] = [
-                'name' => $rs->blog_name,
-                'url'  => $rs->blog_url,
-                'p'    => $this->auth->parsePermissions($rs->permissions),
-            ];
-        }
-
-        return $res;
+        return $this->users->getUserPermissions($id);
     }
 
     /**
-     * Sets user permissions. The <var>$perms</var> array looks like:
+     * Sets user permissions.
      *
-     * - [blog_id] => '|perm1|perm2|'
-     * - ...
-     *
-     * @param      string     $id     The user identifier
-     * @param      array      $perms  The permissions
-     *
-     * @throws     Exception
+     * @deprecated since 2.27, use dcCore::app()->users->setUserPermissions() instead
+     * 
+     * @param   array<string,array<string,bool>>    $perms  The permissions
      */
     public function setUserPermissions(string $id, array $perms): void
     {
-        if (!$this->auth->isSuperAdmin()) {
-            throw new Exception(__('You are not an administrator'));
-        }
-
-        $sql = new DeleteStatement();
-        $sql
-            ->from($this->prefix . dcAuth::PERMISSIONS_TABLE_NAME)
-            ->where('user_id = ' . $sql->quote($id));
-
-        $sql->delete();
-
-        foreach ($perms as $blog_id => $p) {
-            $this->setUserBlogPermissions($id, $blog_id, $p, false);
-        }
+        $this->users->setUserPermissions($id, $perms);
     }
 
     /**
      * Sets the user blog permissions.
      *
-     * @param      string     $id            The user identifier
-     * @param      string     $blog_id       The blog identifier
-     * @param      array      $perms         The permissions
-     * @param      bool       $delete_first  Delete permissions first
+     * @deprecated since 2.27, use dcCore::app()->users->setUserBlogPermissions() instead
      *
-     * @throws     Exception  (description)
+     * @param   array<string,mixed>     $perms  The permissions
      */
     public function setUserBlogPermissions(string $id, string $blog_id, array $perms, bool $delete_first = true): void
     {
-        if (!$this->auth->isSuperAdmin()) {
-            throw new Exception(__('You are not an administrator'));
-        }
-
-        $no_perm = empty($perms);
-
-        $perms = '|' . implode('|', array_keys($perms)) . '|';
-
-        $cur = $this->con->openCursor($this->prefix . dcAuth::PERMISSIONS_TABLE_NAME);
-
-        $cur->user_id     = (string) $id;
-        $cur->blog_id     = (string) $blog_id;
-        $cur->permissions = $perms;
-
-        if ($delete_first || $no_perm) {
-            $sql = new DeleteStatement();
-            $sql
-                ->from($this->prefix . dcAuth::PERMISSIONS_TABLE_NAME)
-                ->where('blog_id = ' . $sql->quote($blog_id))
-                ->and('user_id = ' . $sql->quote($id));
-
-            $sql->delete();
-        }
-
-        if (!$no_perm) {
-            $cur->insert();
-        }
+        $this->users->setUserBlogPermissions($id, $blog_id, $perms, $delete_first);
     }
 
     /**
-     * Sets the user default blog. This blog will be selected when user log in.
+     * Sets the user default blog.
      *
-     * @param      string  $id       The user identifier
-     * @param      string  $blog_id  The blog identifier
+     * @deprecated since 2.27, use dcCore::app()->users->setUserDefaultBlog() instead
      */
     public function setUserDefaultBlog(string $id, string $blog_id): void
     {
-        $cur = $this->con->openCursor($this->prefix . dcAuth::USER_TABLE_NAME);
-
-        $cur->user_default_blog = (string) $blog_id;
-
-        $sql = new UpdateStatement();
-        $sql->where('user_id = ' . $sql->quote($id));
-
-        $sql->update($cur);
+        $this->users->setUserDefaultBlog($id, $blog_id);
     }
 
     /**
      * Removes users default blogs.
      *
-     * @param      array  $ids    The blogs to remove
-     */
-    public function removeUsersDefaultBlogs(array $ids)
-    {
-        $cur = $this->con->openCursor($this->prefix . dcAuth::USER_TABLE_NAME);
-
-        $cur->user_default_blog = null;
-
-        $sql = new UpdateStatement();
-        $sql->where('user_default_blog' . $sql->in($ids));
-
-        $sql->update($cur);
-    }
-
-    /**
-     * Fills the user Cursor.
+     * @deprecated since 2.27, use dcCore::app()->users->removeUsersDefaultBlogs() instead
      *
-     * @param      Cursor     $cur    The user Cursor
-     *
-     * @throws     Exception
+     * @param   array<int,string>   $ids    The blogs to remove
      */
-    private function fillUserCursor(Cursor $cur)
+    public function removeUsersDefaultBlogs(array $ids): void
     {
-        if ($cur->isField('user_id')
-            && !preg_match('/^[A-Za-z0-9@._-]{2,}$/', (string) $cur->user_id)) {
-            throw new Exception(__('User ID must contain at least 2 characters using letters, numbers or symbols.'));
-        }
-
-        if ($cur->user_url !== null && $cur->user_url != '') {
-            if (!preg_match('|^https?://|', (string) $cur->user_url)) {
-                $cur->user_url = 'http://' . $cur->user_url;
-            }
-        }
-
-        if ($cur->isField('user_pwd')) {
-            if (strlen($cur->user_pwd) < 6) {
-                throw new Exception(__('Password must contain at least 6 characters.'));
-            }
-            $cur->user_pwd = $this->auth->crypt($cur->user_pwd);
-        }
-
-        if ($cur->user_lang !== null && !preg_match('/^[a-z]{2}(-[a-z]{2})?$/', (string) $cur->user_lang)) {
-            throw new Exception(__('Invalid user language code'));
-        }
-
-        if ($cur->user_upddt === null) {
-            $cur->user_upddt = date('Y-m-d H:i:s');
-        }
-
-        if ($cur->user_options !== null) {
-            $cur->user_options = serialize((array) $cur->user_options);
-        }
+        $this->usre->removeUsersDefaultBlogs($ids);;
     }
 
     /**
      * Returns user default settings in an associative array with setting names in keys.
      *
-     * @return     array
+     * @deprecated since 2.27, use dcCore::app()->users::USER_DEFAULT_OPTIONS instead
+     *
+     * @return  array<string,mixed>
      */
     public function userDefaults(): array
     {
-        return [
-            'edit_size'      => 24,
-            'enable_wysiwyg' => true,
-            'toolbar_bottom' => false,
-            'editor'         => ['xhtml' => 'dcCKEditor', 'wiki' => 'dcLegacyEditor'],
-            'post_format'    => 'xhtml',
-        ];
+        return User::USER_DEFAULT_OPTIONS;
     }
     //@}
 

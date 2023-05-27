@@ -24,7 +24,7 @@ class adminUsersActions
         $users = [];
         if (!empty($_POST['users']) && is_array($_POST['users'])) {
             foreach ($_POST['users'] as $u) {
-                if (dcCore::app()->userExists($u)) {
+                if (dcCore::app()->users->has($u)) {
                     $users[] = $u;
                 }
             }
@@ -113,7 +113,7 @@ class adminUsersActions
                                 }
                             }
 
-                            dcCore::app()->setUserBlogPermissions($u, $b, $set_perms, true);
+                            dcCore::app()->users->setUserBlogPermissions($u, $b, $set_perms, true);
                         }
                     }
                 } catch (Exception $e) {
@@ -261,7 +261,7 @@ class adminUsersActions
 
             $user_perm = [];
             if ((is_countable(dcCore::app()->admin->users) ? count(dcCore::app()->admin->users) : 0) == 1) {
-                $user_perm = dcCore::app()->getUserPermissions(dcCore::app()->admin->users[0]);
+                $user_perm = dcCore::app()->users->getUserPermissions(dcCore::app()->admin->users[0]);
             }
 
             $user_list = [];

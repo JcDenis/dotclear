@@ -58,8 +58,8 @@ class adminUsers
             # --BEHAVIOR-- adminGetUsers -- ArrayObject
             dcCore::app()->behavior->call('adminGetUsers', $params);
 
-            $rs       = dcCore::app()->getUsers($params);
-            $counter  = dcCore::app()->getUsers($params, true);
+            $rs       = dcCore::app()->users->search($params);
+            $counter  = dcCore::app()->users->search($params, true);
             $rsStatic = $rs->toStatic();
             if (dcCore::app()->admin->user_filter->sortby != 'nb_post') {
                 // Sort user list using lexical order if necessary

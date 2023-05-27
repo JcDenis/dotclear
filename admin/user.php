@@ -35,7 +35,7 @@ class adminUser
         dcCore::app()->admin->user_tz          = dcCore::app()->auth->getInfo('user_tz');
         dcCore::app()->admin->user_post_status = dcBlog::POST_PENDING; // Pending
 
-        dcCore::app()->admin->user_options = dcCore::app()->userDefaults();
+        dcCore::app()->admin->user_options = dcCore::app()->users::USER_DEFAULT_OPTIONS;
 
         dcCore::app()->admin->user_profile_mails = '';
         dcCore::app()->admin->user_profile_urls  = '';
@@ -51,7 +51,7 @@ class adminUser
         # Get user if we have an ID
         if (!empty($_REQUEST['id'])) {
             try {
-                dcCore::app()->admin->rs = dcCore::app()->getUser($_REQUEST['id']);
+                dcCore::app()->admin->rs = dcCore::app()->users->get($_REQUEST['id']);
 
                 dcCore::app()->admin->user_id          = dcCore::app()->admin->rs->user_id;
                 dcCore::app()->admin->user_super       = dcCore::app()->admin->rs->user_super;
@@ -135,7 +135,7 @@ class adminUser
                     # --BEHAVIOR-- adminBeforeUserUpdate -- Cursor, string
                     dcCore::app()->behavior->call('adminBeforeUserUpdate', $cur, dcCore::app()->admin->user_id);
 
-                    $new_id = dcCore::app()->updUser(dcCore::app()->admin->user_id, $cur);
+                    $new_id = dcCore::app()->users->update(dcCore::app()->admin->user_id, $cur);
 
                     // Update profile
                     // Sanitize list of secondary mails and urls if any
@@ -162,14 +162,14 @@ class adminUser
                 } else {
                     // Add user
 
-                    if (dcCore::app()->getUsers(['user_id' => $cur->user_id], true)->f(0) > 0) {
+                    if (dcCore::app()->users->search(['user_id' => $cur->user_id], true)->f(0) > 0) {
                         throw new Exception(sprintf(__('User "%s" already exists.'), Html::escapeHTML($cur->user_id)));
                     }
 
                     # --BEHAVIOR-- adminBeforeUserCreate -- Cursor
                     dcCore::app()->behavior->call('adminBeforeUserCreate', $cur);
 
-                    $new_id = dcCore::app()->addUser($cur);
+                    $new_id = dcCore::app()->users->add($cur);
 
                     // Update profile
                     // Sanitize list of secondary mails and urls if any
@@ -431,7 +431,7 @@ class adminUser
                 '</p>' .
                 '</form>';
 
-                $permissions = dcCore::app()->getUserPermissions(dcCore::app()->admin->user_id);
+                $permissions = dcCore::app()->users->getUserPermissions(dcCore::app()->admin->user_id);
                 $perm_types  = dcCore::app()->auth->getPermissionsTypes();
 
                 if ((is_countable($permissions) ? count($permissions) : 0) == 0) {  // @phpstan-ignore-line

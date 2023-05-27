@@ -129,7 +129,7 @@ if ($can_install && !empty($_POST)) {
         $cur->user_tz        = $default_tz;
         $cur->user_creadt    = date('Y-m-d H:i:s');
         $cur->user_upddt     = date('Y-m-d H:i:s');
-        $cur->user_options   = serialize(dcCore::app()->userDefaults());
+        $cur->user_options   = serialize(dcCore::app()->users::USER_DEFAULT_OPTIONS);
         $cur->insert();
 
         dcCore::app()->auth->checkUser($u_login);

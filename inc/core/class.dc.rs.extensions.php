@@ -940,7 +940,7 @@ class rsExtDates
 
 This class adds new methods to database dates results.
 You can call them on every record comming from dcAuth::checkUser and
-dcCore::getUsers.
+dcCore::$user->search.
 
 @warning You should not give the first argument (usualy $rs) of every described
 function.
