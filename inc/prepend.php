@@ -44,7 +44,6 @@ Clearbricks::lib()->autoload([
     'dcAuth'         => implode(DIRECTORY_SEPARATOR, [__DIR__, 'core', 'class.dc.auth.php']),
     'dcBlog'         => implode(DIRECTORY_SEPARATOR, [__DIR__, 'core', 'class.dc.blog.php']),
     'dcCategories'   => implode(DIRECTORY_SEPARATOR, [__DIR__, 'core', 'class.dc.categories.php']),
-    'dcError'        => implode(DIRECTORY_SEPARATOR, [__DIR__, 'core', 'class.dc.error.php']),
     'dcMeta'         => implode(DIRECTORY_SEPARATOR, [__DIR__, 'core', 'class.dc.meta.php']),
     'dcMedia'        => implode(DIRECTORY_SEPARATOR, [__DIR__, 'core', 'class.dc.media.php']),
     'dcPostMedia'    => implode(DIRECTORY_SEPARATOR, [__DIR__, 'core', 'class.dc.postmedia.php']),

@@ -55,7 +55,7 @@ class dcAdminNotices
 
         // return error messages if any
         if ($core->error->flag() && !self::$error_displayed) {
-            # --BEHAVIOR-- adminPageNotificationError -- dcCore, dcError
+            # --BEHAVIOR-- adminPageNotificationError -- dcCore, Error
             $notice_error = $core->behavior->call('adminPageNotificationError', $core, $core->error);
 
             if (isset($notice_error) && !empty($notice_error)) {

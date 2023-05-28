@@ -1,6 +1,6 @@
 <?php
 /**
- * @brief Error class
+ * @brief Error core class
  *
  * dcError is a very simple error class, with a stack. Call dcError::add to
  * add an error in stack. In administration area, errors are automatically
@@ -12,37 +12,37 @@
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-class dcError
-{
-    /**
-     * Errors stack
-     *
-     * @var        array
-     */
-    protected $errors = [];
+declare(strict_types=1);
 
-    /**
-     * True if stack is not empty
-     *
-     * @var        bool
-     */
+namespace Dotclear\Core;
+
+use dcAdminNotices;
+
+class Error
+{
+    /** @var    array<int,string>   Errors stack */
+    protected $stack = [];
+
+    /** @var    bool    True if stack is not empty */
     protected $flag = false;
 
     /**
      * Adds an error to stack.
      *
-     * @param string    $msg            Error message
+     * @param   string  $msg    Error message
      */
     public function add(string $msg): void
     {
         $this->flag     = true;
-        $this->errors[] = $msg;
+        $this->stack[] = $msg;
     }
 
     /**
-     * Returns the value of <var>flag</var> property. True if errors stack is not empty
+     * Returns the value of <var>flag</var> property. 
      *
-     * @return bool
+     * True if errors stack is not empty
+     *
+     * @return  bool
      */
     public function flag(): bool
     {
@@ -52,33 +52,33 @@ class dcError
     /**
      * Resets errors stack.
      */
-    private function reset()
+    private function reset(): void
     {
         $this->flag   = false;
-        $this->errors = [];
+        $this->stack = [];
     }
 
     /**
-     * Return number of stacked errors
+     * Return number of stacked errors.
      *
-     * @return     int
+     * @return  int
      */
     public function count(): int
     {
-        return count($this->errors);
+        return count($this->stack);
     }
 
     /**
      * Returns errors stack as HTML and reset it.
      *
-     * @return string
+     * @return  string
      */
     public function toHTML(): string
     {
         $res = '';
 
         if ($this->flag) {
-            foreach ($this->errors as $msg) {
+            foreach ($this->stack as $msg) {
                 $res .= dcAdminNotices::error($msg, true, false, false);
             }
             $this->reset();

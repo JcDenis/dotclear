@@ -17,6 +17,7 @@ declare(strict_types=1);
 use Dotclear\App;
 use Dotclear\Core\Behavior;
 use Dotclear\Core\Blogs;
+use Dotclear\Core\Error;
 use Dotclear\Core\Formater;
 use Dotclear\Core\Nonce;
 use Dotclear\Core\PostType;
@@ -223,11 +224,11 @@ final class dcCore
     public readonly dcMeta $meta;
 
     /**
-     * dcError instance
+     * Error instance
      *
-     * @var dcError
+     * @var Error
      */
-    public readonly dcError $error;
+    public readonly Error $error;
 
     /**
      * dcNotices instance
@@ -420,7 +421,7 @@ final class dcCore
         }
 
         $this->behavior   = new Behavior();
-        $this->error      = new dcError();
+        $this->error      = new Error();
         $this->users      = new Users();
         $this->blogs      = new Blogs();
         $this->wiki       = new Wiki();

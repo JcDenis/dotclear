@@ -178,12 +178,13 @@ dcProxyV1::classAliases([
 
     // Core -----------------------
 
+    'dcCore'         => 'Dotclear\Core\Error',
     'dcRecord'       => 'Dotclear\Database\MetaRecord',
     'dcModuleDefine' => 'Dotclear\Module\Define',
     'dcModules'      => 'Dotclear\Module\Modules',
     'dcPlugins'      => 'Dotclear\Module\Plugins',
-    'dcThemes'       => 'Dotclear\Module\Themes',
     'dcStore'        => 'Dotclear\Module\Store',
     'dcStoreParser'  => 'Dotclear\Module\StoreParser',
     'dcStoreReader'  => 'Dotclear\Module\StoreReader',
+    'dcThemes'       => 'Dotclear\Module\Themes',
 ]);
