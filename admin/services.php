@@ -430,8 +430,8 @@ class dcRestMethods
         $file = null;
 
         try {
-            dcCore::app()->media = new dcMedia();
-            $file                = dcCore::app()->media->getFile((int) $id);
+            //dcCore::app()->media = new dcMedia();
+            $file                = dcCore::app()->blog->media->getFile((int) $id);
         } catch (Exception $e) {
             // Ignore exceptions
         }
@@ -441,7 +441,7 @@ class dcRestMethods
         }
 
         $rsp     = new XmlTag('result');
-        $content = dcCore::app()->media->getZipContent($file);
+        $content = dcCore::app()->blog->media->getZipContent($file);
 
         foreach ($content as $k => $v) {
             $rsp->file($k);

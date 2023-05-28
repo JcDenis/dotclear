@@ -197,6 +197,13 @@ class dcBlog
     public $without_password = true;
 
     /**
+     * Media instance
+     *
+     * @var dcMedia|null
+     */
+    public ?dcMedia $media = null;
+
+    /**
      * Constructs a new instance.
      *
      * @param      string  $id     The blog identifier

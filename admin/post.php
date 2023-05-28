@@ -184,9 +184,9 @@ class adminPost
                 }
 
                 try {
-                    dcCore::app()->media = new dcMedia();
+                    //dcCore::app()->media = new dcMedia();
                 } catch (Exception $e) {
-                    dcCore::app()->error->add($e->getMessage());
+                    //dcCore::app()->error->add($e->getMessage());
                 }
 
                 // Sanitize trackbacks excerpt

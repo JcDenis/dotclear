@@ -190,8 +190,8 @@ class ManagePage extends dcNsProcess
                 }
 
                 try {
-                    dcCore::app()->media             = new dcMedia();
-                    dcCore::app()->admin->post_media = dcCore::app()->media->getPostMedia(dcCore::app()->admin->post_id);
+                    //dcCore::app()->media             = new dcMedia();
+                    dcCore::app()->admin->post_media = dcCore::app()->blog->media->getPostMedia(dcCore::app()->admin->post_id);
                 } catch (Exception $e) {
                     dcCore::app()->error->add($e->getMessage());
                 }

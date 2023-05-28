@@ -95,7 +95,7 @@ final class dcCore
      *
      * @var dcBlog|null
      */
-    public $blog = null;
+    public ?dcBlog $blog = null;
 
     /**
      * Users instance
@@ -209,16 +209,11 @@ final class dcCore
     /**
      * dcMedia instance
      *
+     * @deprecated since 2.27 Use dcCore::app()->blog->media instead
+     *
      * @var dcMedia|null
      */
-    public $media;
-
-    /**
-     * dcPostMedia instance
-     *
-     * @var dcPostMedia
-     */
-    public $postmedia;
+    public ?dcMedia $media = null;
 
     /**
      * dcMeta instance
@@ -253,14 +248,14 @@ final class dcCore
      *
      * @var float
      */
-    public $stime;
+    public readonly float $stime;
 
     /**
      * Current language
      *
      * @var string
      */
-    public $lang;
+    public ?string $lang = null;
 
     /**
      * Php namespace autoloader
@@ -276,9 +271,9 @@ final class dcCore
     /**
      * dcAdmin instance
      *
-     * @var dcAdmin
+     * @var dcAdmin|null
      */
-    public $admin;
+    public ?dcAdmin $admin = null;
 
     /**
      * dcAdminURL instance
@@ -321,9 +316,9 @@ final class dcCore
     /**
      * dcPublic instance
      *
-     * @var dcPublic
+     * @var dcPublic|null
      */
-    public $public;
+    public ?dcPublic $public = null;
 
     /**
      * dcTemplate instance
@@ -386,11 +381,7 @@ final class dcCore
         }
         self::$instance = $this;
 
-        if (defined('DC_START_TIME')) {
-            $this->stime = DC_START_TIME;
-        } else {
-            $this->stime = microtime(true);
-        }
+        $this->stime = defined('DC_START_TIME') ? DC_START_TIME : microtime(true);
 
         // Deprecated since 2.26
         $this->autoload = App::autoload();
@@ -516,6 +507,12 @@ final class dcCore
     {
         $this->blog = new dcBlog($id);
 
+        // load media
+        $this->blog->media = new dcMedia();
+
+        // for compatibility only
+        $this->media = $this->blog->media;
+
         // once blog is set, we can load their related themes
         $this->themes->loadModules($this->blog->themes_path);
     }
@@ -526,6 +523,9 @@ final class dcCore
     public function unsetBlog(): void
     {
         $this->blog = null;
+
+        // for compatibility only
+        $this->media = null;
 
         // reset themes instance
         $this->themes->resetModulesList();

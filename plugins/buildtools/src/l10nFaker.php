@@ -23,7 +23,7 @@ class l10nFaker
      */
     public function __construct()
     {
-        dcCore::app()->media = new dcMedia();
+        //dcCore::app()->media = new dcMedia();
     }
 
     /**
@@ -49,7 +49,7 @@ class l10nFaker
         $main = $plugin = "<?php\n" . '// Generated on ' . Date::dt2str('%Y-%m-%d %H:%M %z', (string) time(), dcCore::app()->auth->getInfo('user_tz')) . "\n";
 
         $main .= "\n// Media sizes\n\n";
-        foreach (dcCore::app()->media->thumb_sizes as $v) {
+        foreach (dcCore::app()->blog->media->thumb_sizes as $v) {
             $main .= $this->fake_l10n($v[3]);
         }
 

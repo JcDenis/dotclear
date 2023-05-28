@@ -134,7 +134,7 @@ class dcPublic
 
         # Loading media
         try {
-            dcCore::app()->media = new dcMedia();
+            //dcCore::app()->media = new dcMedia();
         } catch (Exception $e) {
             // Ignore
         }

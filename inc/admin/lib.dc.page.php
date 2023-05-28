@@ -164,8 +164,8 @@ class dcPage
                 $csp['style-src']   .= ' ' . parse_url(dcCore::app()->blog->host, PHP_URL_HOST);
             }
             # Cope with media display in media manager (via public URL)
-            if (!is_null(dcCore::app()->media)) {
-                $csp['img-src'] .= ' ' . parse_url(dcCore::app()->media->root_url, PHP_URL_HOST);
+            if (!is_null(dcCore::app()->blog->media)) {
+                $csp['img-src'] .= ' ' . parse_url(dcCore::app()->blog->media->root_url, PHP_URL_HOST);
             } elseif (!is_null(dcCore::app()->blog->host)) {
                 // Let's try with the blog URL
                 $csp['img-src'] .= ' ' . parse_url(dcCore::app()->blog->host, PHP_URL_HOST);

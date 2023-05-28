@@ -96,26 +96,25 @@ class adminMediaItem
         $dirs_combo = [];
 
         try {
-            dcCore::app()->media = new dcMedia();
-
+            //dcCore::app()->media = new dcMedia();
             if (dcCore::app()->admin->id) {
-                dcCore::app()->admin->file = dcCore::app()->media->getFile((int) dcCore::app()->admin->id);
+                dcCore::app()->admin->file = dcCore::app()->blog->media->getFile((int) dcCore::app()->admin->id);
             }
 
             if (dcCore::app()->admin->file === null) {
                 throw new Exception(__('Not a valid file'));
             }
 
-            dcCore::app()->media->chdir(dirname(dcCore::app()->admin->file->relname));
-            dcCore::app()->admin->is_media_writable = dcCore::app()->media->writable();
+            dcCore::app()->blog->media->chdir(dirname(dcCore::app()->admin->file->relname));
+            dcCore::app()->admin->is_media_writable = dcCore::app()->blog->media->writable();
 
             # Prepare directories combo box
-            foreach (dcCore::app()->media->getDBDirs() as $v) {
+            foreach (dcCore::app()->blog->media->getDBDirs() as $v) {
                 $dirs_combo['/' . $v] = $v;
             }
             # Add parent and direct childs directories if any
-            dcCore::app()->media->getFSDir();
-            foreach (dcCore::app()->media->dir['dirs'] as $v) {
+            dcCore::app()->blog->media->getFSDir();
+            foreach (dcCore::app()->blog->media->dir['dirs'] as $v) {
                 $dirs_combo['/' . $v->relname] = $v->relname;
             }
             ksort($dirs_combo);
@@ -135,7 +134,7 @@ class adminMediaItem
 
             try {
                 Files::uploadStatus($_FILES['upfile']);
-                dcCore::app()->media->uploadFile($_FILES['upfile']['tmp_name'], dcCore::app()->admin->file->basename, true, null, false);
+                dcCore::app()->blog->media->uploadFile($_FILES['upfile']['tmp_name'], dcCore::app()->admin->file->basename, true, null, false);
 
                 dcPage::addSuccessNotice(__('File has been successfully updated.'));
                 dcCore::app()->adminurl->redirect('admin.media.item', dcCore::app()->admin->page_url_params);
@@ -190,7 +189,7 @@ class adminMediaItem
             }
 
             try {
-                dcCore::app()->media->updateFile(dcCore::app()->admin->file, $newFile);
+                dcCore::app()->blog->media->updateFile(dcCore::app()->admin->file, $newFile);
 
                 dcPage::addSuccessNotice(__('File has been successfully updated.'));
                 dcCore::app()->admin->page_url_params = array_merge(
@@ -207,7 +206,7 @@ class adminMediaItem
             // Update thumbnails
 
             try {
-                dcCore::app()->media->mediaFireRecreateEvent(dcCore::app()->admin->file);
+                dcCore::app()->blog->media->mediaFireRecreateEvent(dcCore::app()->admin->file);
 
                 dcPage::addSuccessNotice(__('Thumbnails have been successfully updated.'));
                 dcCore::app()->admin->page_url_params = array_merge(
@@ -224,7 +223,7 @@ class adminMediaItem
             // Unzip file
 
             try {
-                $unzip_dir = dcCore::app()->media->inflateZipFile(dcCore::app()->admin->file, $_POST['inflate_mode'] == 'new');
+                $unzip_dir = dcCore::app()->blog->media->inflateZipFile(dcCore::app()->admin->file, $_POST['inflate_mode'] == 'new');
 
                 dcPage::addSuccessNotice(__('Zip file has been successfully extracted.'));
                 dcCore::app()->admin->media_page_url_params = array_merge(
@@ -280,7 +279,7 @@ class adminMediaItem
                 $prefs['legend'] = $_POST['pref_legend'];
             }
 
-            $local = dcCore::app()->media->root . '/' . dirname(dcCore::app()->admin->file->relname) . '/' . '.mediadef.json';
+            $local = dcCore::app()->blog->media->root . '/' . dirname(dcCore::app()->admin->file->relname) . '/' . '.mediadef.json';
             if (file_put_contents($local, json_encode($prefs, JSON_PRETTY_PRINT))) {
                 dcPage::addSuccessNotice(__('Media insertion settings have been successfully registered for this folder.'));
             }
@@ -290,7 +289,7 @@ class adminMediaItem
         if (!empty($_POST['remove_folder_prefs'])) {
             // Delete media insertion settings for the folder (.mediadef and .mediadef.json)
 
-            $local      = dcCore::app()->media->root . '/' . dirname(dcCore::app()->admin->file->relname) . '/' . '.mediadef';
+            $local      = dcCore::app()->blog->media->root . '/' . dirname(dcCore::app()->admin->file->relname) . '/' . '.mediadef';
             $local_json = $local . '.json';
             if ((file_exists($local) && unlink($local)) || (file_exists($local_json) && unlink($local_json))) {
                 dcPage::addSuccessNotice(__('Media insertion settings have been successfully removed for this folder.'));
@@ -383,7 +382,7 @@ class adminMediaItem
             }
 
             try {
-                $local = dcCore::app()->media->root . '/' . dirname($file->relname) . '/' . '.mediadef';
+                $local = dcCore::app()->blog->media->root . '/' . dirname($file->relname) . '/' . '.mediadef';
                 if (!file_exists($local)) {
                     $local .= '.json';
                 }
@@ -409,7 +408,7 @@ class adminMediaItem
         }
         $temp_params      = dcCore::app()->admin->media_page_url_params;
         $temp_params['d'] = '%s';
-        $breadcrumb       = dcCore::app()->media->breadCrumb(dcCore::app()->adminurl->get('admin.media', $temp_params, '&amp;', true)) . (dcCore::app()->admin->file === null ?
+        $breadcrumb       = dcCore::app()->blog->media->breadCrumb(dcCore::app()->adminurl->get('admin.media', $temp_params, '&amp;', true)) . (dcCore::app()->admin->file === null ?
             '' :
             '<span class="page-title">' . dcCore::app()->admin->file->basename . '</span>');
         $temp_params['d'] = '';
@@ -495,7 +494,7 @@ class adminMediaItem
                     echo
                     '<label class="classic">' .
                     form::radio(['src'], Html::escapeHTML($v), $s_checked) . ' ' .
-                    dcCore::app()->media->thumb_sizes[$s][2] . '</label><br /> ';
+                    dcCore::app()->blog->media->thumb_sizes[$s][2] . '</label><br /> ';
                 }
                 $s_checked = (!isset(dcCore::app()->admin->file->media_thumb[$defaults['size']]));
                 echo
@@ -563,7 +562,7 @@ class adminMediaItem
                     echo
                     '<label class="classic">' .
                     form::radio(['src'], Html::escapeHTML($v), $s_checked) . ' ' .
-                    dcCore::app()->media->thumb_sizes[$s][2] . '</label><br /> ';
+                    dcCore::app()->blog->media->thumb_sizes[$s][2] . '</label><br /> ';
                 }
                 $s_checked = (!isset(dcCore::app()->admin->file->media_thumb[$defaults['size']]));
                 echo
@@ -731,7 +730,7 @@ class adminMediaItem
                 '<input class="reset" type="submit" name="save_blog_prefs" value="' . __('For the blog') . '" /> ' . __('or') . ' ' .
                 '<input class="reset" type="submit" name="save_folder_prefs" value="' . __('For this folder only') . '" />';
 
-                $local = dcCore::app()->media->root . '/' . dirname(dcCore::app()->admin->file->relname) . '/' . '.mediadef';
+                $local = dcCore::app()->blog->media->root . '/' . dirname(dcCore::app()->admin->file->relname) . '/' . '.mediadef';
                 if (!file_exists($local)) {
                     $local .= '.json';
                 }
@@ -773,7 +772,7 @@ class adminMediaItem
         if (dcCore::app()->admin->file->media_image) {
             $thumb_size = !empty($_GET['size']) ? (string) $_GET['size'] : 's';
 
-            if (!isset(dcCore::app()->media->thumb_sizes[$thumb_size]) && $thumb_size !== 'o') {
+            if (!isset(dcCore::app()->blog->media->thumb_sizes[$thumb_size]) && $thumb_size !== 'o') {
                 $thumb_size = 's';
             }
 
@@ -800,7 +799,7 @@ class adminMediaItem
                 sprintf($strong_link, '<a href="' . dcCore::app()->adminurl->get('admin.media.item', array_merge(
                     dcCore::app()->admin->page_url_params,
                     ['size' => $s, 'tab' => 'media-details-tab']
-                )) . '">' . dcCore::app()->media->thumb_sizes[$s][2] . '</a> | ');
+                )) . '">' . dcCore::app()->blog->media->thumb_sizes[$s][2] . '</a> | ');
             }
 
             echo
@@ -813,10 +812,10 @@ class adminMediaItem
                 $alpha     = strtolower($path_info['extension']) === 'png';
                 $webp      = strtolower($path_info['extension']) === 'webp';
                 $thumb_tp  = ($alpha ?
-                    dcCore::app()->media->thumb_tp_alpha :
+                    dcCore::app()->blog->media->thumb_tp_alpha :
                     ($webp ?
-                        dcCore::app()->media->thumb_tp_webp :
-                        dcCore::app()->media->thumb_tp));
+                        dcCore::app()->blog->media->thumb_tp_webp :
+                        dcCore::app()->blog->media->thumb_tp));
                 $thumb      = sprintf($thumb_tp, $path_info['dirname'], $path_info['base'], '%s');
                 $thumb_file = sprintf($thumb, $thumb_size);
                 $image_size = getimagesize($thumb_file);

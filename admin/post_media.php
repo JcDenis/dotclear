@@ -61,9 +61,9 @@ class adminPostMedia
                 Http::redirect(dcCore::app()->post_type->backend($rs->post_type, dcCore::app()->admin->post_id, false));
             }
 
-            dcCore::app()->media = new dcMedia();
+            //dcCore::app()->media = new dcMedia();
 
-            $f = dcCore::app()->media->getPostMedia(dcCore::app()->admin->post_id, dcCore::app()->admin->media_id, dcCore::app()->admin->link_type);
+            $f = dcCore::app()->blog->media->getPostMedia(dcCore::app()->admin->post_id, dcCore::app()->admin->media_id, dcCore::app()->admin->link_type);
             if (empty($f)) {
                 dcCore::app()->admin->post_id = dcCore::app()->admin->media_id = null;
 

@@ -41,13 +41,13 @@ class adminMedia
             dcAuth::PERMISSION_MEDIA_ADMIN,
         ]), dcCore::app()->blog->id)) {
             try {
-                if (strpos(realpath(dcCore::app()->media->root . '/' . dcCore::app()->admin->page->d), (string) realpath(dcCore::app()->media->root)) === 0) {
+                if (strpos(realpath(dcCore::app()->blog->media->root . '/' . dcCore::app()->admin->page->d), (string) realpath(dcCore::app()->blog->media->root)) === 0) {
                     // Media folder or one of it's sub-folder(s)
                     @set_time_limit(300);
                     $fp  = fopen('php://output', 'wb');
                     $zip = new Zip($fp);
                     $zip->addExclusion('/(^|\/).(.*?)_(m|s|sq|t).(jpg|jpeg|png|webp)$/');
-                    $zip->addDirectory(dcCore::app()->media->root . '/' . dcCore::app()->admin->page->d, '', true);
+                    $zip->addDirectory(dcCore::app()->blog->media->root . '/' . dcCore::app()->admin->page->d, '', true);
                     header('Content-Disposition: attachment;filename=' . date('Y-m-d') . '-' . dcCore::app()->blog->id . '-' . (dcCore::app()->admin->page->d ?: 'media') . '.zip');
                     header('Content-Type: application/x-zip');
                     $zip->write();
@@ -55,7 +55,7 @@ class adminMedia
                     exit;
                 }
                 dcCore::app()->admin->page->d = null;
-                dcCore::app()->media->chdir(dcCore::app()->admin->page->d);
+                dcCore::app()->blog->media->chdir(dcCore::app()->admin->page->d);
 
                 throw new Exception(__('Not a valid directory'));
             } catch (Exception $e) {
@@ -83,7 +83,7 @@ class adminMedia
                 ));
             } else {
                 try {
-                    dcCore::app()->media->makeDir($_POST['newdir']);
+                    dcCore::app()->blog->media->makeDir($_POST['newdir']);
                     dcPage::addSuccessNotice(sprintf(
                         __('Directory "%s" has been successfully created.'),
                         Html::escapeHTML($nd)
@@ -113,7 +113,7 @@ class adminMedia
 
                 try {
                     Files::uploadStatus($upfile);
-                    $new_file_id = dcCore::app()->media->uploadFile($upfile['tmp_name'], $upfile['name'], false, $upfile['title']);
+                    $new_file_id = dcCore::app()->blog->media->uploadFile($upfile['tmp_name'], $upfile['name'], false, $upfile['title']);
 
                     $message['files'][] = [
                         'name' => $upfile['name'],
@@ -137,7 +137,7 @@ class adminMedia
                 $f_title   = (isset($_POST['upfiletitle']) ? Html::escapeHTML($_POST['upfiletitle']) : '');
                 $f_private = ($_POST['upfilepriv'] ?? false);
 
-                dcCore::app()->media->uploadFile($upfile['tmp_name'], $upfile['name'], false, $f_title, $f_private);
+                dcCore::app()->blog->media->uploadFile($upfile['tmp_name'], $upfile['name'], false, $f_title, $f_private);
 
                 dcPage::addSuccessNotice(__('Files have been successfully uploaded.'));
                 dcCore::app()->adminurl->redirect('admin.media', dcCore::app()->admin->page->values());
@@ -150,7 +150,7 @@ class adminMedia
         if (dcCore::app()->admin->page->getDirs() && !empty($_POST['medias']) && !empty($_POST['delete_medias'])) {
             try {
                 foreach ($_POST['medias'] as $media) {
-                    dcCore::app()->media->removeItem(rawurldecode($media));
+                    dcCore::app()->blog->media->removeItem(rawurldecode($media));
                 }
                 dcPage::addSuccessNotice(
                     sprintf(
@@ -174,14 +174,14 @@ class adminMedia
             $forget          = false;
 
             try {
-                if (is_dir(Path::real(dcCore::app()->media->getPwd() . '/' . Path::clean($_POST['remove'])))) {
+                if (is_dir(Path::real(dcCore::app()->blog->media->getPwd() . '/' . Path::clean($_POST['remove'])))) {
                     $msg = __('Directory has been successfully removed.');
                     # Remove dir from recents/favs if necessary
                     $forget = true;
                 } else {
                     $msg = __('File has been successfully removed.');
                 }
-                dcCore::app()->media->removeItem($_POST['remove']);
+                dcCore::app()->blog->media->removeItem($_POST['remove']);
                 if ($forget) {
                     dcCore::app()->admin->page->updateLast(dcCore::app()->admin->page->d . '/' . Path::clean($_POST['remove']), true);
                     dcCore::app()->admin->page->updateFav(dcCore::app()->admin->page->d . '/' . Path::clean($_POST['remove']), true);
@@ -196,7 +196,7 @@ class adminMedia
         # Build missing directory thumbnails
         if (dcCore::app()->admin->page->getDirs() && dcCore::app()->auth->isSuperAdmin() && !empty($_POST['complete'])) {
             try {
-                dcCore::app()->media->rebuildThumbnails(dcCore::app()->admin->page->d);
+                dcCore::app()->blog->media->rebuildThumbnails(dcCore::app()->admin->page->d);
 
                 dcPage::addSuccessNotice(
                     sprintf(
@@ -605,27 +605,27 @@ class adminMediaPage extends adminMediaFilter
 
         // try to load core media and themes
         try {
-            dcCore::app()->media = new dcMedia($this->file_type ?? '');
-            dcCore::app()->media->setFileSort($this->sortby . '-' . $this->order);
+            dcCore::app()->blog->media = new dcMedia($this->file_type ?? '');
+            dcCore::app()->blog->media->setFileSort($this->sortby . '-' . $this->order);
 
             if ($this->q != '') {
-                $this->media_has_query = dcCore::app()->media->searchMedia($this->q);
+                $this->media_has_query = dcCore::app()->blog->media->searchMedia($this->q);
             }
             if (!$this->media_has_query) {
                 $try_d = $this->d;
                 // Reset current dir
                 $this->d = null;
                 // Change directory (may cause an exception if directory doesn't exist)
-                dcCore::app()->media->chdir($try_d);
+                dcCore::app()->blog->media->chdir($try_d);
                 // Restore current dir variable
                 $this->d = $try_d;
-                dcCore::app()->media->getDir();
+                dcCore::app()->blog->media->getDir();
             } else {
                 $this->d = null;
-                dcCore::app()->media->chdir('');
+                dcCore::app()->blog->media->chdir('');
             }
-            $this->media_writable = dcCore::app()->media->writable();
-            $this->media_dir      = &dcCore::app()->media->dir;
+            $this->media_writable = dcCore::app()->blog->media->writable();
+            $this->media_dir      = &dcCore::app()->blog->media->dir;
         } catch (Exception $e) {
             dcCore::app()->error->add($e->getMessage());
         }
@@ -719,7 +719,7 @@ class adminMediaPage extends adminMediaFilter
      */
     public function mediaLine(string $file_id): string
     {
-        return adminMediaList::mediaLine($this, dcCore::app()->media->getFile((int) $file_id), 1, $this->media_has_query);
+        return adminMediaList::mediaLine($this, dcCore::app()->blog->media->getFile((int) $file_id), 1, $this->media_has_query);
     }
 
     /**
@@ -906,7 +906,7 @@ class adminMediaPage extends adminMediaFilter
     {
         $option = $param = [];
 
-        if (empty($element) && isset(dcCore::app()->media)) {
+        if (empty($element) && isset(dcCore::app()->blog->media)) {
             $param = [
                 'd' => '',
                 'q' => '',
@@ -918,7 +918,7 @@ class adminMediaPage extends adminMediaFilter
                 $element[__('Search:') . ' ' . $this->q . ' (' . sprintf(__('%s file found', '%s files found', $count), $count) . ')'] = '';
             } else {
                 $bc_url   = dcCore::app()->adminurl->get('admin.media', array_merge($this->values(), ['d' => '%s']), '&amp;', true);
-                $bc_media = dcCore::app()->media->breadCrumb($bc_url, '<span class="page-title">%s</span>');
+                $bc_media = dcCore::app()->blog->media->breadCrumb($bc_url, '<span class="page-title">%s</span>');
                 if ($bc_media != '') {
                     $element[$bc_media] = '';
                     $option['hl']       = true;
