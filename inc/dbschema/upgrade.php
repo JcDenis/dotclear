@@ -1370,7 +1370,7 @@ class dcUpgrade
         }
 
         dcCore::app()->version->set('core', DC_VERSION);
-        dcCore::app()->blogDefaults();
+        dcCore::app()->blogs->setDefaultSettings();
 
         return $cleanup_sessions;
     }

@@ -145,7 +145,7 @@ if ($can_install && !empty($_POST)) {
         dcCore::app()->blogs->add($cur);
 
         # Create global blog settings
-        dcCore::app()->blogDefaults();
+        dcCore::app()->blogs->setDefaultSettings();
 
         $blog_settings = new dcSettings('default');
         $blog_settings->system->put('blog_timezone', $default_tz);
