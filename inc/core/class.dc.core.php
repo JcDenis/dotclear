@@ -1261,26 +1261,39 @@ final class dcCore
     /**
      * Recreates entries search engine index.
      *
-     * @param      mixed   $start  The start entry index
-     * @param      mixed   $limit  The limit of entry to index
+     * @param   mixed   $start  The start entry index
+     * @param   mixed   $limit  The limit of entry to index
      *
-     * @return     mixed   sum of <var>$start</var> and <var>$limit</var>
+     * @return  null|int    sum of <var>$start</var> and <var>$limit</var>
      */
-    public function indexAllPosts($start = null, $limit = null)
+    public function indexAllPosts($start = null, $limit = null): ?int
     {
-        $strReq = 'SELECT COUNT(post_id) ' .
-        'FROM ' . $this->prefix . dcBlog::POST_TABLE_NAME;
-        $rs    = new MetaRecord($this->con->select($strReq));
-        $count = $rs->f(0);
+        $sql = new SelectStatement();
+        $rs = $sql
+            ->from($this->prefix . dcBlog::POST_TABLE_NAME)
+            ->column($sql->count('post_id'))
+            ->select();
 
-        $strReq = 'SELECT post_id, post_title, post_excerpt_xhtml, post_content_xhtml ' .
-        'FROM ' . $this->prefix . dcBlog::POST_TABLE_NAME . ' ';
+        $count = is_null($rs) || !is_numeric($rs->f(0)) ? 0 : (int) $rs->f(0);
+
+        $sql = new SelectStatement();
+        $sql
+            ->from($this->prefix . dcBlog::POST_TABLE_NAME)
+            ->columns([
+                'post_id',
+                'post_title',
+                'post_excerpt_xhtml',
+                'post_content_xhtml',
+            ]);
 
         if ($start !== null && $limit !== null) {
-            $strReq .= $this->con->limit($start, $limit);
+            $sql->limit([$start, $limit]);
         }
 
-        $rs = new MetaRecord($this->con->select($strReq));
+        $rs = $sql->select();
+        if (is_null($rs) || $rs->isEmpty()) {
+            return null;
+        }
 
         $cur = $this->con->openCursor($this->prefix . dcBlog::POST_TABLE_NAME);
 
@@ -1293,36 +1306,43 @@ final class dcCore
             $cur->clean();
         }
 
-        if ($start + $limit > $count) {
-            return;
-        }
-
-        return $start + $limit;
+        return $start + $limit > $count ? null : $start + $limit;
     }
 
     /**
      * Recreates comments search engine index.
      *
-     * @param      int   $start  The start comment index
-     * @param      int   $limit  The limit of comment to index
+     * @param   null|int    $start  The start comment index
+     * @param   null|int    $limit  The limit of comment to index
      *
-     * @return     mixed   sum of <var>$start</var> and <var>$limit</var>
+     * @return  null|int    sum of <var>$start</var> and <var>$limit</var>
      */
-    public function indexAllComments(?int $start = null, ?int $limit = null)
+    public function indexAllComments(?int $start = null, ?int $limit = null): ?int
     {
-        $strReq = 'SELECT COUNT(comment_id) ' .
-        'FROM ' . $this->prefix . dcBlog::COMMENT_TABLE_NAME;
-        $rs    = new MetaRecord($this->con->select($strReq));
-        $count = $rs->f(0);
+        $sql = new SelectStatement();
+        $rs = $sql
+            ->from($this->prefix . dcBlog::COMMENT_TABLE_NAME)
+            ->column($sql->count('comment_id'))
+            ->select();
 
-        $strReq = 'SELECT comment_id, comment_content ' .
-        'FROM ' . $this->prefix . dcBlog::COMMENT_TABLE_NAME . ' ';
+        $count = is_null($rs) || !is_numeric($rs->f(0)) ? 0 : (int) $rs->f(0);
+
+        $sql = new SelectStatement();
+        $sql
+            ->from($this->prefix . dcBlog::COMMENT_TABLE_NAME)
+            ->columns([
+                'comment_id',
+                'comment_content',
+            ]);
 
         if ($start !== null && $limit !== null) {
-            $strReq .= $this->con->limit($start, $limit);
+            $sql->limit([$start, $limit]);
         }
 
-        $rs = new MetaRecord($this->con->select($strReq));
+        $rs = $sql->select();
+        if (is_null($rs) || $rs->isEmpty()) {
+            return null;
+        }
 
         $cur = $this->con->openCursor($this->prefix . dcBlog::COMMENT_TABLE_NAME);
 
@@ -1332,11 +1352,7 @@ final class dcCore
             $cur->clean();
         }
 
-        if ($start + $limit > $count) {
-            return;
-        }
-
-        return $start + $limit;
+        return $start + $limit > $count ? null : $start + $limit;
     }
 
     /**
