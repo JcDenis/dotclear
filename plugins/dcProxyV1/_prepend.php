@@ -179,6 +179,8 @@ dcProxyV1::classAliases([
     // Core -----------------------
 
     'dcCore'         => 'Dotclear\Core\Error',
+    'dcLog'          => 'Dotclear\Core\Log',
+    'rsExtLog'       => 'Dotclear\Core\RecordExtension\Log',
     'dcRecord'       => 'Dotclear\Database\MetaRecord',
     'dcModuleDefine' => 'Dotclear\Module\Define',
     'dcModules'      => 'Dotclear\Module\Modules',

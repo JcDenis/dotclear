@@ -13,12 +13,12 @@
  */
 declare(strict_types=1);
 
-
 use Dotclear\App;
 use Dotclear\Core\Behavior;
 use Dotclear\Core\Blogs;
 use Dotclear\Core\Error;
 use Dotclear\Core\Formater;
+use Dotclear\Core\Log;
 use Dotclear\Core\Nonce;
 use Dotclear\Core\PostType;
 use Dotclear\Core\Users;
@@ -238,11 +238,11 @@ final class dcCore
     public $notices;
 
     /**
-     * dcLog instance
+     * Log instance
      *
-     * @var dcLog
+     * @var Log
      */
-    public readonly dcLog $log;
+    public readonly Log $log;
 
     /**
      * Starting time
@@ -437,7 +437,7 @@ final class dcCore
         $this->themes     = new Themes();
         $this->rest       = new dcRestServer();
         $this->meta       = new dcMeta();
-        $this->log        = new dcLog();
+        $this->log        = new Log();
 
         if (defined('DC_CONTEXT_ADMIN')) {
             /*

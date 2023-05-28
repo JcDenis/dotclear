@@ -1,12 +1,21 @@
 <?php
 /**
+ * @brief Log core class
+ *
  * @package Dotclear
  * @subpackage Core
  *
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
+declare(strict_types=1);
 
+namespace Dotclear\Core;
+
+use ArrayObject;
+use dcAuth;
+use dcCore;
+use Dotclear\Core\RecordExtension\Log as rsExtLog;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\MetaRecord;
 use Dotclear\Database\Statement\DeleteStatement;
@@ -14,15 +23,16 @@ use Dotclear\Database\Statement\JoinStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\TruncateStatement;
 use Dotclear\Helper\Network\Http;
+use Exception;
 
-class dcLog
+class Log
 {
     // Constants
 
     /**
      * Table name
      *
-     * @var        string
+     * @var     string
      */
     public const LOG_TABLE_NAME = 'log';
 
@@ -31,14 +41,14 @@ class dcLog
     /**
      * Full log table name (including db prefix)
      *
-     * @var        string
+     * @var     string
      */
     protected $log_table;
 
     /**
      * Full user table name (including db prefix)
      *
-     * @var        string
+     * @var     string
      */
     protected $user_table;
 
@@ -63,12 +73,12 @@ class dcLog
      * - order: Order of results (default "ORDER BY log_dt DESC")
      * - limit: Limit parameter
      *
-     * @param      array   $params      The parameters
-     * @param      bool    $count_only  Count only resultats
+     * @param   array<string,mixed>|ArrayObject     $params         The parameters
+     * @param   bool                                $count_only     Count only resultats
      *
-     * @return     MetaRecord  The logs.
+     * @return  MetaRecord  The logs.
      */
-    public function getLogs(array $params = [], bool $count_only = false): MetaRecord
+    public function getLogs(array|ArrayObject $params = [], bool $count_only = false): MetaRecord
     {
         $sql = new SelectStatement();
 
@@ -109,7 +119,7 @@ class dcLog
                 $sql->where('L.blog_id = ' . $sql->quote($params['blog_id']));
             }
         } else {
-            $sql->where('L.blog_id = ' . $sql->quote(dcCore::app()->blog->id));
+            $sql->where('L.blog_id = ' . $sql->quote((string) dcCore::app()->blog?->id));
         }
 
         if (!empty($params['user_id'])) {
@@ -135,7 +145,11 @@ class dcLog
         }
 
         $rs = $sql->select();
-        $rs->extend('rsExtLog');
+        if (is_null($rs)) {
+            $rs = MetaRecord::newFromArray([]);
+        }
+
+        $rs->extend(rsExtLog::class);
 
         return $rs;
     }
@@ -143,9 +157,9 @@ class dcLog
     /**
      * Creates a new log. Takes a Cursor as input and returns the new log ID.
      *
-     * @param      Cursor  $cur    The current
+     * @param   Cursor  $cur    The current
      *
-     * @return     integer
+     * @return  int
      */
     public function addLog(Cursor $cur): int
     {
@@ -160,13 +174,13 @@ class dcLog
 
             $rs = $sql->select();
 
-            $cur->log_id  = (int) $rs->f(0) + 1;
-            $cur->blog_id = (string) dcCore::app()->blog->id;
-            $cur->log_dt  = date('Y-m-d H:i:s');
+            $cur->setField('log_id', is_null($rs) || !is_numeric($rs->f(0)) ? 1 : (int) $rs->f(0) + 1);
+            $cur->setField('blog_id', (string) dcCore::app()->blog?->id);
+            $cur->setField('log_dt', date('Y-m-d H:i:s'));
 
             $this->fillLogCursor($cur);
 
-            # --BEHAVIOR-- coreBeforeLogCreate -- dcLog, Cursor
+            # --BEHAVIOR-- coreBeforeLogCreate -- Log, Cursor
             dcCore::app()->behavior->call('coreBeforeLogCreate', $this, $cur);
 
             $cur->insert();
@@ -177,49 +191,49 @@ class dcLog
             throw $e;
         }
 
-        # --BEHAVIOR-- coreAfterLogCreate -- dcLog, Cursor
+        # --BEHAVIOR-- coreAfterLogCreate -- Log, Cursor
         dcCore::app()->behavior->call('coreAfterLogCreate', $this, $cur);
 
-        return $cur->log_id;
+        return is_numeric($cur->getField('log_id')) ? (int) $cur->getField('log_id') : 0;
     }
 
     /**
      * Fills the log Cursor.
      *
-     * @param      Cursor   $cur     The current
+     * @param   Cursor  $cur    The current
      *
-     * @throws     Exception
+     * @throws  Exception
      */
-    private function fillLogCursor(Cursor $cur)
+    private function fillLogCursor(Cursor $cur): void
     {
-        if ($cur->log_msg === '') {
+        if ($cur->getField('log_msg') === '') {
             throw new Exception(__('No log message'));
         }
 
-        if ($cur->log_table === null) {
-            $cur->log_table = 'none';
+        if ($cur->getField('log_table') === null) {
+            $cur->setField('log_table', 'none');
         }
 
-        if ($cur->user_id === null) {
-            $cur->user_id = 'unknown';
+        if ($cur->getField('user_id') === null) {
+            $cur->setField('user_id', 'unknown');
         }
 
-        if ($cur->log_dt === '' || $cur->log_dt === null) {
-            $cur->log_dt = date('Y-m-d H:i:s');
+        if ($cur->getField('log_dt') === '' || $cur->getField('log_dt') === null) {
+            $cur->setField('log_dt', date('Y-m-d H:i:s'));
         }
 
-        if ($cur->log_ip === null) {
-            $cur->log_ip = Http::realIP();
+        if ($cur->getField('log_ip') === null) {
+            $cur->setField('log_ip', Http::realIP());
         }
     }
 
     /**
      * Deletes a log.
      *
-     * @param      mixed    $id     The identifier
-     * @param      bool     $all    Remove all logs
+     * @param   mixed   $id     The identifier
+     * @param   bool    $all    Remove all logs
      */
-    public function delLogs($id, bool $all = false)
+    public function delLogs($id, bool $all = false): void
     {
         if ($all) {
             $sql = new TruncateStatement();
@@ -233,34 +247,5 @@ class dcLog
         }
 
         $sql->run();
-    }
-}
-
-/**
- * Extent log Record class.
- */
-class rsExtLog
-{
-    /**
-     * Gets the user common name.
-     *
-     * @param      MetaRecord  $rs     Invisible parameter
-     *
-     * @return     string  The user common name.
-     */
-    public static function getUserCN(MetaRecord $rs): string
-    {
-        $user = dcUtils::getUserCN(
-            $rs->user_id,
-            $rs->user_name,
-            $rs->user_firstname,
-            $rs->user_displayname
-        );
-
-        if ($user === 'unknown') {
-            $user = __('unknown');
-        }
-
-        return $user;
     }
 }
