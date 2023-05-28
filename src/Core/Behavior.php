@@ -10,7 +10,8 @@
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
-declare(strict_types=1);
+// strict_type breaks behaviors properties types for now
+//declare(strict_types=1);
 
 namespace Dotclear\Core;
 
