@@ -536,34 +536,23 @@ final class dcCore
     /**
      * Gets all blog status.
      *
-     * @return     array  An array of available blog status codes and names.
+     * @deprecated since 2.27, use dcBlog::getAllBlogStatus() instead
+     *
+     * @return  array<int,string>    An array of available blog status codes and names.
      */
     public function getAllBlogStatus(): array
     {
-        return [
-            dcBlog::BLOG_ONLINE  => __('online'),
-            dcBlog::BLOG_OFFLINE => __('offline'),
-            dcBlog::BLOG_REMOVED => __('removed'),
-        ];
+        return dcBlog::getAllBlogStatus();
     }
 
     /**
-     * Returns a blog status name given to a code. This is intended to be
-     * human-readable and will be translated, so never use it for tests.
-     * If status code does not exist, returns <i>offline</i>.
+     * Returns a blog status name given to a code.
      *
-     * @param      int      $s      Status code
-     *
-     * @return     string   The blog status name.
+     * @deprecated since 2.27, use dcBlog::getAllBlogStatus() instead
      */
     public function getBlogStatus(int $s): string
     {
-        $r = $this->getAllBlogStatus();
-        if (isset($r[$s])) {
-            return $r[$s];
-        }
-
-        return $r[0];
+        return dcBlog::getBlogStatus($s);
     }
     //@}
 

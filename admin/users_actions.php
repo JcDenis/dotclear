@@ -224,7 +224,7 @@ class adminUsersActions
 
                 while ($rs->fetch()) {
                     $img_status = $rs->blog_status == dcBlog::BLOG_ONLINE ? 'check-on' : ($rs->blog_status == dcBlog::BLOG_OFFLINE ? 'check-off' : 'check-wrn');
-                    $txt_status = dcCore::app()->getBlogStatus($rs->blog_status);
+                    $txt_status = dcBlog::getBlogStatus($rs->blog_status);
                     $img_status = sprintf('<img src="images/%1$s.png" alt="%2$s" title="%2$s" />', $img_status, $txt_status);
 
                     echo

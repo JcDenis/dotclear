@@ -312,6 +312,41 @@ class dcBlog
     }
 
     /**
+     * Gets all blog status.
+     *
+     * @return  array<int,string>   An array of available blog status codes and names.
+     */
+    public static function getAllBlogStatus(): array
+    {
+        return [
+            self::BLOG_ONLINE  => __('online'),
+            self::BLOG_OFFLINE => __('offline'),
+            self::BLOG_REMOVED => __('removed'),
+        ];
+    }
+
+    /**
+     * Returns a blog status name given to a code.
+     *
+     * This is intended to be
+     * human-readable and will be translated, so never use it for tests.
+     * If status code does not exist, returns <i>offline</i>.
+     *
+     * @param   int     $code   Status code
+     *
+     * @return  string  The blog status name.
+     */
+    public static function getBlogStatus(int $code): string
+    {
+        $r = self::getAllBlogStatus();
+        if (isset($r[$code])) {
+            return $r[$code];
+        }
+
+        return $r[0];
+    }
+
+    /**
      * Returns an entry status name given to a code. Status are translated, never
      * use it for tests. If status code does not exist, returns <i>unpublished</i>.
      *

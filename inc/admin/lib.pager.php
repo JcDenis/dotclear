@@ -950,7 +950,7 @@ class adminBlogList extends adminGenericListV2
             sprintf(
                 '<img src="images/%1$s.png" alt="%2$s" title="%2$s" />',
                 ($this->rs->blog_status == dcBlog::BLOG_ONLINE ? 'check-on' : ($this->rs->blog_status == dcBlog::BLOG_OFFLINE ? 'check-off' : 'check-wrn')),
-                dcCore::app()->getBlogStatus($this->rs->blog_status)
+                dcBlog::getBlogStatus($this->rs->blog_status)
             ) .
             '</td>',
         ];
