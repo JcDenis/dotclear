@@ -12,7 +12,11 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\maintenance\Task;
 
+use dcBlog;
 use dcCore;
+use Dotclear\Database\Statement\SelectStatement;
+use Dotclear\Database\Statement\UpdateStatement;
+use Dotclear\Helper\Text;
 use Dotclear\Plugin\maintenance\MaintenanceTask;
 
 class CountComments extends MaintenanceTask
@@ -48,8 +52,38 @@ class CountComments extends MaintenanceTask
      */
     public function execute()
     {
-        dcCore::app()->countAllComments();
+        self::countAllComments();
 
         return true;
+    }
+
+    /**
+     * Reinits nb_comment and nb_trackback in post table.
+     */
+    public static function countAllComments(): void
+    {
+        $sql_com = new UpdateStatement();
+        $sql_com
+            ->ref($sql_com->alias(dcCore::app()->prefix . dcBlog::POST_TABLE_NAME, 'P'));
+
+        $sql_tb = clone $sql_com;
+
+        $sql_count_com = new SelectStatement();
+        $sql_count_com
+            ->field($sql_count_com->count('C.comment_id'))
+            ->from($sql_count_com->alias(dcCore::app()->prefix . dcBlog::COMMENT_TABLE_NAME, 'C'))
+            ->where('C.post_id = P.post_id')
+            ->and('C.comment_status = ' . (string) dcBlog::COMMENT_PUBLISHED);
+
+        $sql_count_tb = clone $sql_count_com;
+
+        $sql_count_com->and('C.comment_trackback <> 1');    // Count comment only
+        $sql_count_tb->and('C.comment_trackback = 1');      // Count trackback only
+
+        $sql_com->set('nb_comment = (' . $sql_count_com->statement() . ')');
+        $sql_com->update();
+
+        $sql_tb->set('nb_trackback = (' . $sql_count_tb->statement() . ')');
+        $sql_tb->update();
     }
 }

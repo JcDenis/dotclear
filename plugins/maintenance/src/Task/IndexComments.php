@@ -12,7 +12,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\maintenance\Task;
 
+use dcBlog;
 use dcCore;
+use Dotclear\Database\Statement\SelectStatement;
+use Dotclear\Helper\Text;
 use Dotclear\Plugin\maintenance\MaintenanceTask;
 
 class IndexComments extends MaintenanceTask
@@ -74,7 +77,7 @@ class IndexComments extends MaintenanceTask
      */
     public function execute()
     {
-        $this->code = dcCore::app()->indexAllComments($this->code, $this->limit);
+        $this->code = self::indexAllComments($this->code, $this->limit);
 
         return $this->code ?: true;
     }
@@ -113,5 +116,51 @@ class IndexComments extends MaintenanceTask
     public function success(): string
     {
         return $this->code ? sprintf($this->step, $this->code - $this->limit, $this->code) : $this->success;
+    }
+
+    /**
+     * Recreates comments search engine index.
+     *
+     * @param   null|int    $start  The start comment index
+     * @param   null|int    $limit  The limit of comment to index
+     *
+     * @return  null|int    sum of <var>$start</var> and <var>$limit</var>
+     */
+    public static function indexAllComments(?int $start = null, ?int $limit = null): ?int
+    {
+        $sql = new SelectStatement();
+        $rs = $sql
+            ->from(dcCore::app()->prefix . dcBlog::COMMENT_TABLE_NAME)
+            ->column($sql->count('comment_id'))
+            ->select();
+
+        $count = is_null($rs) || !is_numeric($rs->f(0)) ? 0 : (int) $rs->f(0);
+
+        $sql = new SelectStatement();
+        $sql
+            ->from(dcCore::app()->prefix . dcBlog::COMMENT_TABLE_NAME)
+            ->columns([
+                'comment_id',
+                'comment_content',
+            ]);
+
+        if ($start !== null && $limit !== null) {
+            $sql->limit([$start, $limit]);
+        }
+
+        $rs = $sql->select();
+        if (is_null($rs) || $rs->isEmpty()) {
+            return null;
+        }
+
+        $cur = dcCore::app()->con->openCursor(dcCore::app()->prefix . dcBlog::COMMENT_TABLE_NAME);
+
+        while ($rs->fetch()) {
+            $cur->comment_words = implode(' ', Text::splitWords($rs->comment_content));
+            $cur->update('WHERE comment_id = ' . (int) $rs->comment_id);
+            $cur->clean();
+        }
+
+        return $start + $limit > $count ? null : $start + $limit;
     }
 }

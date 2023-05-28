@@ -40,6 +40,9 @@ use Dotclear\Helper\Html\WikiToHtml;
 use Dotclear\Helper\Text;
 use Dotclear\Module\Plugins;
 use Dotclear\Module\Themes;
+use Dotclear\Plugin\maintenance\Task\CountComments;
+use Dotclear\Plugin\maintenance\Task\IndexPosts;
+use Dotclear\Plugin\maintenance\Task\IndexComments;
 
 final class dcCore
 {
@@ -1261,128 +1264,31 @@ final class dcCore
     /**
      * Recreates entries search engine index.
      *
-     * @param   mixed   $start  The start entry index
-     * @param   mixed   $limit  The limit of entry to index
-     *
-     * @return  null|int    sum of <var>$start</var> and <var>$limit</var>
+     * @deprecated since 2.27, use Dotclear\Plugin\maintenance\Task\IndexPosts::IndexAllPosts() instead
      */
-    public function indexAllPosts($start = null, $limit = null): ?int
+    public function indexAllPosts(?int $start = null, ?int $limit = null): ?int
     {
-        $sql = new SelectStatement();
-        $rs = $sql
-            ->from($this->prefix . dcBlog::POST_TABLE_NAME)
-            ->column($sql->count('post_id'))
-            ->select();
-
-        $count = is_null($rs) || !is_numeric($rs->f(0)) ? 0 : (int) $rs->f(0);
-
-        $sql = new SelectStatement();
-        $sql
-            ->from($this->prefix . dcBlog::POST_TABLE_NAME)
-            ->columns([
-                'post_id',
-                'post_title',
-                'post_excerpt_xhtml',
-                'post_content_xhtml',
-            ]);
-
-        if ($start !== null && $limit !== null) {
-            $sql->limit([$start, $limit]);
-        }
-
-        $rs = $sql->select();
-        if (is_null($rs) || $rs->isEmpty()) {
-            return null;
-        }
-
-        $cur = $this->con->openCursor($this->prefix . dcBlog::POST_TABLE_NAME);
-
-        while ($rs->fetch()) {
-            $words = $rs->post_title . ' ' . $rs->post_excerpt_xhtml . ' ' .
-            $rs->post_content_xhtml;
-
-            $cur->post_words = implode(' ', Text::splitWords($words));
-            $cur->update('WHERE post_id = ' . (int) $rs->post_id);
-            $cur->clean();
-        }
-
-        return $start + $limit > $count ? null : $start + $limit;
+        return IndexPosts::indexAllPosts($start, $limit);
     }
 
     /**
      * Recreates comments search engine index.
      *
-     * @param   null|int    $start  The start comment index
-     * @param   null|int    $limit  The limit of comment to index
-     *
-     * @return  null|int    sum of <var>$start</var> and <var>$limit</var>
+     * @deprecated since 2.27, use Dotclear\Plugin\maintenance\Task\IndexComments::indexAllComments() instead
      */
     public function indexAllComments(?int $start = null, ?int $limit = null): ?int
     {
-        $sql = new SelectStatement();
-        $rs = $sql
-            ->from($this->prefix . dcBlog::COMMENT_TABLE_NAME)
-            ->column($sql->count('comment_id'))
-            ->select();
-
-        $count = is_null($rs) || !is_numeric($rs->f(0)) ? 0 : (int) $rs->f(0);
-
-        $sql = new SelectStatement();
-        $sql
-            ->from($this->prefix . dcBlog::COMMENT_TABLE_NAME)
-            ->columns([
-                'comment_id',
-                'comment_content',
-            ]);
-
-        if ($start !== null && $limit !== null) {
-            $sql->limit([$start, $limit]);
-        }
-
-        $rs = $sql->select();
-        if (is_null($rs) || $rs->isEmpty()) {
-            return null;
-        }
-
-        $cur = $this->con->openCursor($this->prefix . dcBlog::COMMENT_TABLE_NAME);
-
-        while ($rs->fetch()) {
-            $cur->comment_words = implode(' ', Text::splitWords($rs->comment_content));
-            $cur->update('WHERE comment_id = ' . (int) $rs->comment_id);
-            $cur->clean();
-        }
-
-        return $start + $limit > $count ? null : $start + $limit;
+        return IndexComments::indexAllComments($start, $limit);
     }
 
     /**
      * Reinits nb_comment and nb_trackback in post table.
+     *
+     * @deprecated since 2.27, use Dotclear\Plugin\maintenance\Task\CountComments::countAllComments() instead
      */
     public function countAllComments(): void
     {
-        $sql_com = new UpdateStatement();
-        $sql_com
-            ->ref($sql_com->alias($this->prefix . dcBlog::POST_TABLE_NAME, 'P'));
-
-        $sql_tb = clone $sql_com;
-
-        $sql_count_com = new SelectStatement();
-        $sql_count_com
-            ->field($sql_count_com->count('C.comment_id'))
-            ->from($sql_count_com->alias($this->prefix . dcBlog::COMMENT_TABLE_NAME, 'C'))
-            ->where('C.post_id = P.post_id')
-            ->and('C.comment_status = ' . (string) dcBlog::COMMENT_PUBLISHED);
-
-        $sql_count_tb = clone $sql_count_com;
-
-        $sql_count_com->and('C.comment_trackback <> 1');    // Count comment only
-        $sql_count_tb->and('C.comment_trackback = 1');      // Count trackback only
-
-        $sql_com->set('nb_comment = (' . $sql_count_com->statement() . ')');
-        $sql_com->update();
-
-        $sql_tb->set('nb_trackback = (' . $sql_count_tb->statement() . ')');
-        $sql_tb->update();
+        CountComments::countAllComments();
     }
 
     /**
