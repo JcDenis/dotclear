@@ -2258,7 +2258,7 @@ class dcBlog
     public function setPostContent($post_id, $format, $lang, &$excerpt, &$excerpt_xhtml, &$content, &$content_xhtml): void
     {
         if ($format == 'wiki') {
-            dcCore::app()->initWikiPost();
+            dcCore::app()->wiki->initWikiPost();
             dcCore::app()->wiki->setOpt('note_prefix', 'pnote-' . $post_id);
             switch ($this->settings->system->note_title_tag) {
                 case 1:

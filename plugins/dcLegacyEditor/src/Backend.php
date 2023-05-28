@@ -34,9 +34,7 @@ class Backend extends dcNsProcess
         My::backendSidebarMenuIcon(scheme: '');
 
         if (dcCore::app()->blog->settings->dclegacyeditor->active) {
-            if (!(dcCore::app()->wiki instanceof WikiToHtml)) {
-                dcCore::app()->initWikiPost();
-            }
+            dcCore::app()->wiki->initWikiPost();
 
             dcCore::app()->formater->add('dcLegacyEditor', 'xhtml', fn ($s) => $s);
             dcCore::app()->formater->setName('xhtml', __('HTML'));

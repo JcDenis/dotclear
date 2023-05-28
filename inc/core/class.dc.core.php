@@ -20,6 +20,7 @@ use Dotclear\Core\Nonce;
 use Dotclear\Core\PostType;
 use Dotclear\Core\Users;
 use Dotclear\Core\Version;
+use Dotclear\Core\Wiki;
 use Dotclear\Database\AbstractHandler;
 use Dotclear\Database\Cursor;
 use Dotclear\Database\Driver\Mysqli\Handler as MysqliHandler;
@@ -172,18 +173,20 @@ final class dcCore
     /**
      * WikiToHtml instance
      *
-     * @var WikiToHtml
+     * @var Wiki
      */
-    public $wiki;
+    public readonly Wiki $wiki;
 
     /**
      * WikiToHtml instance
      *
      * alias of $this->wiki
      *
-     * @var WikiToHtml
+     * @deprecated since 2.27 Use self::$wiki instead
+     *
+     * @var Wiki
      */
-    public $wiki2xhtml;
+    public readonly Wiki $wiki2xhtml;
 
     /**
      * Plugins
@@ -417,22 +420,24 @@ final class dcCore
             }
         }
 
-        $this->behavior  = new Behavior();
-        $this->error     = new dcError();
-        $this->users     = new Users();
-        $this->blogs     = new Blogs();
-        $this->auth      = $this->authInstance();
-        $this->session   = new Session($this->con, $this->prefix . self::SESSION_TABLE_NAME, DC_SESSION_NAME, '', null, DC_ADMIN_SSL, $ttl);
-        $this->version   = new Version();
-        $this->nonce     = new Nonce();
-        $this->formater  = new Formater();
-        $this->post_type = new PostType();
-        $this->url       = new dcUrlHandlers();
-        $this->plugins   = new Plugins();
-        $this->themes    = new Themes();
-        $this->rest      = new dcRestServer();
-        $this->meta      = new dcMeta();
-        $this->log       = new dcLog();
+        $this->behavior   = new Behavior();
+        $this->error      = new dcError();
+        $this->users      = new Users();
+        $this->blogs      = new Blogs();
+        $this->wiki       = new Wiki();
+        $this->wiki2xhtml = $this->wiki; // deprecated
+        $this->auth       = $this->authInstance();
+        $this->session    = new Session($this->con, $this->prefix . self::SESSION_TABLE_NAME, DC_SESSION_NAME, '', null, DC_ADMIN_SSL, $ttl);
+        $this->version    = new Version();
+        $this->nonce      = new Nonce();
+        $this->formater   = new Formater();
+        $this->post_type  = new PostType();
+        $this->url        = new dcUrlHandlers();
+        $this->plugins    = new Plugins();
+        $this->themes     = new Themes();
+        $this->rest       = new dcRestServer();
+        $this->meta       = new dcMeta();
+        $this->log        = new dcLog();
 
         if (defined('DC_CONTEXT_ADMIN')) {
             /*
@@ -1199,222 +1204,55 @@ final class dcCore
     /// @name WikiToHtml methods
     //@{
     /**
-     * Initializes the WikiToHtml methods.
-     */
-    private function initWiki(): void
-    {
-        $this->wiki       = new WikiToHtml();
-        $this->wiki2xhtml = $this->wiki;
-    }
-
-    /**
      * Returns a transformed string with WikiToHtml.
      *
-     * @param      string  $str    The string
-     *
-     * @return     string
+     * @deprecated since 2.27, use dcCore::app()->wiki->transform() instead
      */
     public function wikiTransform(string $str): string
     {
-        if (!($this->wiki instanceof WikiToHtml)) {
-            $this->initWiki();
-        }
-
         return $this->wiki->transform($str);
     }
 
     /**
      * Inits <var>wiki</var> property for blog post.
+     *
+     * @deprecated since 2.27, use dcCore::app()->wiki->initWikiPost() instead
      */
     public function initWikiPost(): void
     {
-        $this->initWiki();
-
-        $this->wiki->setOpts([
-            'active_title'        => 1,
-            'active_setext_title' => 0,
-            'active_hr'           => 1,
-            'active_lists'        => 1,
-            'active_defl'         => 1,
-            'active_quote'        => 1,
-            'active_pre'          => 1,
-            'active_empty'        => 1,
-            'active_auto_urls'    => 0,
-            'active_auto_br'      => 0,
-            'active_antispam'     => 1,
-            'active_urls'         => 1,
-            'active_auto_img'     => 0,
-            'active_img'          => 1,
-            'active_anchor'       => 1,
-            'active_em'           => 1,
-            'active_strong'       => 1,
-            'active_br'           => 1,
-            'active_q'            => 1,
-            'active_code'         => 1,
-            'active_acronym'      => 1,
-            'active_ins'          => 1,
-            'active_del'          => 1,
-            'active_footnotes'    => 1,
-            'active_wikiwords'    => 0,
-            'active_macros'       => 1,
-            'active_mark'         => 1,
-            'active_aside'        => 1,
-            'active_sup'          => 1,
-            'active_sub'          => 1,
-            'active_i'            => 1,
-            'active_span'         => 1,
-            'parse_pre'           => 1,
-            'active_fr_syntax'    => 0,
-            'first_title_level'   => 3,
-            'note_prefix'         => 'wiki-footnote',
-            'note_str'            => '<div class="footnotes"><h4>Notes</h4>%s</div>',
-            'img_style_center'    => 'display:table; margin:0 auto;',
-        ]);
-
-        $this->wiki->registerFunction('url:post', [$this, 'wikiPostLink']);
-
-        # --BEHAVIOR-- coreWikiPostInit -- WikiToHtml
-        $this->callBehavior('coreInitWikiPost', $this->wiki);
+        $this->wiki->initWikiPost();
     }
 
     /**
      * Inits <var>wiki</var> property for simple blog comment (basic syntax).
+     *
+     * @deprecated since 2.27, use dcCore::app()->wiki->initWikiSimpleComment() instead
      */
     public function initWikiSimpleComment(): void
     {
-        $this->initWiki();
-
-        $this->wiki->setOpts([
-            'active_title'        => 0,
-            'active_setext_title' => 0,
-            'active_hr'           => 0,
-            'active_lists'        => 0,
-            'active_defl'         => 0,
-            'active_quote'        => 0,
-            'active_pre'          => 0,
-            'active_empty'        => 0,
-            'active_auto_urls'    => 1,
-            'active_auto_br'      => 1,
-            'active_antispam'     => 1,
-            'active_urls'         => 0,
-            'active_auto_img'     => 0,
-            'active_img'          => 0,
-            'active_anchor'       => 0,
-            'active_em'           => 0,
-            'active_strong'       => 0,
-            'active_br'           => 0,
-            'active_q'            => 0,
-            'active_code'         => 0,
-            'active_acronym'      => 0,
-            'active_ins'          => 0,
-            'active_del'          => 0,
-            'active_inline_html'  => 0,
-            'active_footnotes'    => 0,
-            'active_wikiwords'    => 0,
-            'active_macros'       => 0,
-            'active_mark'         => 0,
-            'active_aside'        => 0,
-            'active_sup'          => 0,
-            'active_sub'          => 0,
-            'active_i'            => 0,
-            'active_span'         => 0,
-            'parse_pre'           => 0,
-            'active_fr_syntax'    => 0,
-        ]);
-
-        # --BEHAVIOR-- coreInitWikiSimpleComment --
-        # --BEHAVIOR-- coreWikiPostInit -- WikiToHtml
-        $this->callBehavior('coreInitWikiSimpleComment', $this->wiki);
+        $this->wiki->initWikiSimpleComment();
     }
 
     /**
      * Inits <var>wiki</var> property for blog comment.
+     *
+     * @deprecated since 2.27, use dcCore::app()->wiki->initWikiComment() instead
      */
     public function initWikiComment(): void
     {
-        $this->initWiki();
-
-        $this->wiki->setOpts([
-            'active_title'        => 0,
-            'active_setext_title' => 0,
-            'active_hr'           => 0,
-            'active_lists'        => 1,
-            'active_defl'         => 0,
-            'active_quote'        => 1,
-            'active_pre'          => 1,
-            'active_empty'        => 0,
-            'active_auto_br'      => 1,
-            'active_auto_urls'    => 1,
-            'active_urls'         => 1,
-            'active_auto_img'     => 0,
-            'active_img'          => 0,
-            'active_anchor'       => 0,
-            'active_em'           => 1,
-            'active_strong'       => 1,
-            'active_br'           => 1,
-            'active_q'            => 1,
-            'active_code'         => 1,
-            'active_acronym'      => 1,
-            'active_ins'          => 1,
-            'active_del'          => 1,
-            'active_footnotes'    => 0,
-            'active_inline_html'  => 0,
-            'active_wikiwords'    => 0,
-            'active_macros'       => 0,
-            'active_mark'         => 1,
-            'active_aside'        => 0,
-            'active_sup'          => 1,
-            'active_sub'          => 1,
-            'active_i'            => 1,
-            'active_span'         => 0,
-            'parse_pre'           => 0,
-            'active_fr_syntax'    => 0,
-        ]);
-
-        # --BEHAVIOR-- coreInitWikiComment --
-        # --BEHAVIOR-- coreWikiPostInit -- WikiToHtml
-        $this->callBehavior('coreInitWikiComment', $this->wiki);
+        $this->wiki->initWikiComment();
     }
 
     /**
-     * Get info about a post:id wiki macro
+     * Get info about a post:id wiki macro.
      *
-     * @param      string  $url      The post url
-     * @param      string  $content  The content
+     * @deprecated since 2.27, use dcCore::app()->wiki->wikiPostLink() instead
      *
-     * @return     array
+     * @return     array<string,string>
      */
     public function wikiPostLink(string $url, string $content): array
     {
-        if (!($this->blog instanceof dcBlog)) {
-            return [];
-        }
-
-        $post_id = abs((int) substr($url, 5));
-        if (!$post_id) {
-            return [];
-        }
-
-        $post = $this->blog->getPosts(['post_id' => $post_id]);
-        if ($post->isEmpty()) {
-            return [];
-        }
-
-        $res = ['url' => $post->getURL()];
-
-        if ($content != $url) {
-            $res['title'] = Html::escapeHTML($post->post_title);
-        }
-
-        if ($content == '' || $content == $url) {
-            $res['content'] = Html::escapeHTML($post->post_title);
-        }
-
-        if ($post->post_lang) {
-            $res['lang'] = $post->post_lang;
-        }
-
-        return $res;
+        return $this->wiki->wikiPostLink($url, $content);
     }
     //@}
 
