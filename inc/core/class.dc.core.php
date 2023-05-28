@@ -11,6 +11,8 @@
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
+declare(strict_types=1);
+
 
 use Dotclear\App;
 use Dotclear\Core\Behavior;
@@ -28,12 +30,9 @@ use Dotclear\Database\Driver\Mysqlimb4\Handler as Mysqlimb4Handler;
 use Dotclear\Database\Driver\Pgsql\Handler as PgsqlHandler;
 use Dotclear\Database\MetaRecord;
 use Dotclear\Database\Session;
-use Dotclear\Database\Statement\DeleteStatement;
-use Dotclear\Database\Statement\JoinStatement;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Helper\File\Files;
-use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\HtmlFilter;
 use Dotclear\Helper\Html\Template\Template;
 use Dotclear\Helper\Html\WikiToHtml;
@@ -1182,7 +1181,7 @@ final class dcCore
      */
     public function HTMLfilter(string $str): string
     {
-        if ($this->blog instanceof dcBlog && !$this->blog->settings->system->enable_html_filter) {
+        if ($this->blog instanceof dcBlog && !$this->blog->settings->get('system')->get('enable_html_filter')) {
             return $str;
         }
 
@@ -1194,7 +1193,7 @@ final class dcCore
         # --BEHAVIOR-- HTMLfilter -- ArrayObject
         $this->callBehavior('HTMLfilter', $options);
 
-        $filter = new HtmlFilter($options['keep_aria'], $options['keep_data'], $options['keep_js']);
+        $filter = new HtmlFilter((bool) $options['keep_aria'], (bool) $options['keep_data'], (bool) $options['keep_js']);
         $str    = trim($filter->apply($str));
 
         return $str;
@@ -1398,9 +1397,9 @@ final class dcCore
     /**
      * Serve or not the REST requests (using a file as token)
      *
-     * @param      bool  $serve  The flag
+     * @param   bool    $serve  The flag
      */
-    public function enableRestServer(bool $serve = true)
+    public function enableRestServer(bool $serve = true): void
     {
         try {
             if ($serve && file_exists(DC_UPGRADE)) {
@@ -1417,7 +1416,7 @@ final class dcCore
     /**
      * Check if we need to serve REST requests
      *
-     * @return     bool
+     * @return  bool
      */
     public function serveRestRequests(): bool
     {
@@ -1427,9 +1426,9 @@ final class dcCore
     /**
      * Return elapsed time since script has been started
      *
-     * @param      float   $mtime  timestamp (microtime format) to evaluate delta from current time is taken if null
+     * @param   float   $mtime  timestamp (microtime format) to evaluate delta from current time is taken if null
      *
-     * @return     float   The elapsed time.
+     * @return  float   The elapsed time.
      */
     public function getElapsedTime(?float $mtime = null): float
     {
