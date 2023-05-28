@@ -1354,6 +1354,9 @@ class dcUpgrade
                 // Files
                 [
                     // Core
+                    'inc/core/class.dc.error.php',
+                    'inc/core/class.dc.log.php',
+                    'inc/core/class.dc.rest.php',
                     'inc/core/class.dc.module.define.php',
                     'inc/core/class.dc.modules.php',
                     'inc/core/class.dc.plugins.php',
