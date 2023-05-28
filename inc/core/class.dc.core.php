@@ -21,6 +21,7 @@ use Dotclear\Core\Formater;
 use Dotclear\Core\Log;
 use Dotclear\Core\Nonce;
 use Dotclear\Core\PostType;
+use Dotclear\Core\Rest;
 use Dotclear\Core\Users;
 use Dotclear\Core\Version;
 use Dotclear\Core\Wiki;
@@ -167,11 +168,11 @@ final class dcCore
     public readonly dcUrlHandlers $url;
 
     /**
-     * dcRestServer instance
+     *Rest instance
      *
-     * @var dcRestServer
+     * @var Rest
      */
-    public readonly dcRestServer $rest;
+    public readonly Rest $rest;
 
     /**
      * WikiToHtml instance
@@ -435,12 +436,12 @@ final class dcCore
         $this->nonce      = new Nonce();
         $this->formater   = new Formater();
         $this->post_type  = new PostType();
+        $this->rest       = new Rest();
+        $this->log        = new Log();
         $this->url        = new dcUrlHandlers();
         $this->plugins    = new Plugins();
         $this->themes     = new Themes();
-        $this->rest       = new dcRestServer();
         $this->meta       = new dcMeta();
-        $this->log        = new Log();
 
         if (defined('DC_CONTEXT_ADMIN')) {
             /*

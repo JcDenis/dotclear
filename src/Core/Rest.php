@@ -11,21 +11,25 @@
  * @copyright Olivier Meunier & Association Dotclear
  * @copyright GPL-2.0-only
  */
+declare(strict_types=1);
 
+namespace Dotclear\Core;
+
+use dcCore;
 use Dotclear\Helper\RestServer;
 
-class dcRestServer extends RestServer
+class Rest extends RestServer
 {
     /**
-     * Main server
+     * Main server.
      *
      * This method creates the main server.
      *
-     * @param      string  $encoding  The encoding
-     * @param      int     $format    The format
-     * @param      mixed   $param     The parameter
+     * @param   string  $encoding   The encoding
+     * @param   int     $format     The format
+     * @param   mixed   $param      The parameter
      *
-     * @return     bool
+     * @return  bool
      */
     public function serve(string $encoding = 'UTF-8', int $format = parent::XML_RESPONSE, $param = null): bool
     {
