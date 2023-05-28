@@ -431,27 +431,27 @@ class adminUser
                 '</p>' .
                 '</form>';
 
-                $permissions = dcCore::app()->users->getUserPermissions(dcCore::app()->admin->user_id);
-                $perm_types  = dcCore::app()->auth->getPermissionsTypes();
+                $user_perms = dcCore::app()->users->getUserPermissions(dcCore::app()->admin->user_id);
+                $perm_types = dcCore::app()->auth->getPermissionsTypes();
 
-                if ((is_countable($permissions) ? count($permissions) : 0) == 0) {  // @phpstan-ignore-line
+                if ($user_perms->count() == 0) {
                     echo
                     '<p>' . __('No permissions so far.') . '</p>';
                 } else {
-                    foreach ($permissions as $k => $v) {
-                        if ((is_countable($v['p']) ? count($v['p']) : 0) > 0) {
+                    foreach ($user_perms->dump() as $b) {
+                        if ($b->count() > 0) {
                             echo
                             '<form action="' . dcCore::app()->adminurl->get('admin.user.actions') . '" method="post" class="perm-block">' .
                             '<p class="blog-perm">' . __('Blog:') . ' <a href="' .
-                            dcCore::app()->adminurl->get('admin.blog', ['id' => Html::escapeHTML($k)]) . '">' .
-                            Html::escapeHTML($v['name']) . '</a> (' . Html::escapeHTML($k) . ')</p>';
+                            dcCore::app()->adminurl->get('admin.blog', ['id' => Html::escapeHTML($b->id)]) . '">' .
+                            Html::escapeHTML($b->name) . '</a> (' . Html::escapeHTML($b->id) . ')</p>';
 
                             echo
                             '<ul class="ul-perm">';
-                            foreach ($v['p'] as $p => $V) {
-                                if (isset($perm_types[$p])) {
+                            foreach ($b->permissions as $permission) {
+                                if (isset($perm_types[$permission])) {
                                     echo
-                                    '<li>' . __($perm_types[$p]) . '</li>';
+                                    '<li>' . __($perm_types[$permission]) . '</li>';
                                 }
                             }
                             echo
@@ -460,7 +460,7 @@ class adminUser
                             form::hidden(['redir'], dcCore::app()->adminurl->get('admin.user', ['id' => dcCore::app()->admin->user_id])) .
                             form::hidden(['action'], 'perms') .
                             form::hidden(['users[]'], dcCore::app()->admin->user_id) .
-                            form::hidden(['blogs[]'], $k) .
+                            form::hidden(['blogs[]'], $b->id) .
                             dcCore::app()->nonce->form()->render() .
                             '</p>' .
                             '</form>';

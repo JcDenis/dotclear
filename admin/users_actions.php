@@ -258,11 +258,8 @@ class adminUsersActions
             }
         } elseif (!empty(dcCore::app()->admin->blogs) && !empty(dcCore::app()->admin->users) && dcCore::app()->admin->action == 'perms') {
             // Permissions list for each selected blogs
-
-            $user_perm = [];
-            if ((is_countable(dcCore::app()->admin->users) ? count(dcCore::app()->admin->users) : 0) == 1) {
-                $user_perm = dcCore::app()->users->getUserPermissions(dcCore::app()->admin->users[0]);
-            }
+            $has_user = (is_countable(dcCore::app()->admin->users) ? count(dcCore::app()->admin->users) : 0) == 1;
+            $perms_types = dcCore::app()->auth->getPermissionsTypes();
 
             $user_list = [];
             foreach (dcCore::app()->admin->users as $u) {
@@ -277,19 +274,14 @@ class adminUsersActions
             '<form id="permissions-form" action="' . dcCore::app()->adminurl->get('admin.user.actions') . '" method="post">';
 
             foreach (dcCore::app()->admin->blogs as $b) {
+                $user_blog_perm = dcCore::app()->users->getUserPermissions(dcCore::app()->admin->users[0])->get($b);
+
                 echo
                 '<h3>' . ('Blog:') . ' <a href="' . dcCore::app()->adminurl->get('admin.blog', ['id' => Html::escapeHTML($b)]) . '">' . Html::escapeHTML($b) . '</a>' .
                 form::hidden(['blogs[]'], $b) . '</h3>';
-                $unknown_perms = $user_perm;
-                foreach (dcCore::app()->auth->getPermissionsTypes() as $perm_id => $perm) {
-                    $checked = false;
 
-                    if ((is_countable(dcCore::app()->admin->users) ? count(dcCore::app()->admin->users) : 0) == 1) {
-                        $checked = isset($user_perm[$b]['p'][$perm_id]) && $user_perm[$b]['p'][$perm_id];
-                    }
-                    if (isset($unknown_perms[$b]['p'][$perm_id])) {
-                        unset($unknown_perms[$b]['p'][$perm_id]);
-                    }
+                foreach ($perms_types as $perm_id => $perm) {
+                    $checked = $has_user ? $user_blog_perm->has($perm_id) : false;
 
                     echo
                     '<p><label for="perm' . Html::escapeHTML($b) . Html::escapeHTML($perm_id) . '" class="classic">' .
@@ -300,16 +292,19 @@ class adminUsersActions
                     ) . ' ' .
                     __($perm) . '</label></p>';
                 }
-                if (isset($unknown_perms[$b])) {
-                    foreach ($unknown_perms[$b]['p'] as $perm_id => $v) {
-                        $checked = isset($user_perm[$b]['p'][$perm_id]) && $user_perm[$b]['p'][$perm_id];
+                if ($user_blog_perm->count() > 0) {
+                    foreach ($user_blog_perm->permissions as $perm_id) {
+                        if (isset($perms_types[$perm_id])) {
+                            continue;
+                        }
+
                         echo
                         '<p><label for="perm' . Html::escapeHTML($b) . Html::escapeHTML($perm_id) . '" class="classic">' .
                         form::checkbox(
                             ['perm[' . Html::escapeHTML($b) . '][' . Html::escapeHTML($perm_id) . ']',
                                 'perm' . Html::escapeHTML($b) . Html::escapeHTML($perm_id), ],
                             1,
-                            $checked
+                            true
                         ) . ' ' .
                         sprintf(__('[%s] (unreferenced permission)'), $perm_id) . '</label></p>';
                     }

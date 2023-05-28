@@ -12,12 +12,10 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
-use dcCore;
-
 class PostTypeDescriptor
 {
     /**
-     * Contructor sets properties.
+     * Constructor sets properties.
      *
      * @param   string  $type       The post type
      * @param   string  $backend    The backend URL representation

@@ -1,6 +1,6 @@
 <?php
 /**
- * @brief User core class
+ * @brief Users core class
  *
  * @package Dotclear
  * @subpackage Core
@@ -323,20 +323,13 @@ class Users
     }
 
     /**
-     * Returns all user permissions as an array which looks like:
-     *
-     * - [blog_id]
-     * - [name] => Blog name
-     * - [url] => Blog URL
-     * - [p]
-     * - [permission] => true
-     * - ...
+     * Returns all user permissions.
      *
      * @param   string  $id     The user identifier
      *
-     * @return  array<string,array<string,string|array<string,bool>>>    The user permissions.
+     * @return  UserBlogsPermissions    The user permissions.
      */
-    public function getUserPermissions(string $id): array
+    public function getUserPermissions(string $id): UserBlogsPermissions
     {
         $sql = new SelectStatement();
         $sql
@@ -358,7 +351,7 @@ class Users
 
         $rs = $sql->select();
 
-        $res = [];
+        $res = new UserBlogsPermissions();
 
         if (!is_null($rs)) {
             while ($rs->fetch()) {
@@ -367,11 +360,12 @@ class Users
                     && is_string($rs->f('blog_url'))
                     && is_string($rs->f('permissions'))
                 ) {
-                    $res[$rs->f('blog_id')] = [
-                        'name' => $rs->f('blog_name'),
-                        'url'  => $rs->f('blog_url'),
-                        'p'    => dcCore::app()->auth->parsePermissions($rs->f('permissions')),
-                    ];
+                    $res->add(new UserBlogPermissions(
+                        id:   $rs->f('blog_id'),
+                        name: $rs->f('blog_name'),
+                        url:  $rs->f('blog_url'),
+                        p:    dcCore::app()->auth->parsePermissions($rs->f('permissions')),
+                    ));
                 }
             }
         }

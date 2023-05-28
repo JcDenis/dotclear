@@ -980,11 +980,16 @@ final class dcCore
      *
      * @deprecated since 2.27, use dcCore::app()->users->getUserPermissions() instead
      *
-     * @return  array<string,array<string,string|array<string,bool>>>    The user permissions.
+     * @return  array<string,mixed>    The user permissions.
      */
     public function getUserPermissions(string $id): array
     {
-        return $this->users->getUserPermissions($id);
+        $res = [];
+        foreach($this->users->getUserPermissions($id)->dump() as $p) {
+            $res[$p->id] = $p->dump();
+        }
+
+        return $res;
     }
 
     /**
@@ -1030,7 +1035,7 @@ final class dcCore
      */
     public function removeUsersDefaultBlogs(array $ids): void
     {
-        $this->usre->removeUsersDefaultBlogs($ids);;
+        $this->users->removeUsersDefaultBlogs($ids);;
     }
 
     /**
@@ -1042,7 +1047,7 @@ final class dcCore
      */
     public function userDefaults(): array
     {
-        return User::USER_DEFAULT_OPTIONS;
+        return $this->users::USER_DEFAULT_OPTIONS;
     }
     //@}
 

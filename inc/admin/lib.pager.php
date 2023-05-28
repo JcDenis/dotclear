@@ -1050,9 +1050,7 @@ class adminUserList extends adminGenericListV2
         $img        = '<img alt="%1$s" title="%1$s" src="images/%2$s" />';
         $img_status = '';
 
-        $p = dcCore::app()->users->getUserPermissions($this->rs->user_id);
-
-        if (isset($p[dcCore::app()->blog->id]['p']['admin'])) {
+        if (dcCore::app()->users->getUserPermissions($this->rs->user_id)->get(dcCore::app()->blog->id)->has('admin')) {
             $img_status = sprintf($img, __('admin'), 'admin.png');
         }
         if ($this->rs->user_super) {
