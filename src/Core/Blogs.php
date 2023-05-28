@@ -340,7 +340,7 @@ class Blogs
     public function countPosts(string $id, string $type = null): int
     {
         $sql = new SelectStatement();
-        $rs = $sql
+        $sql
             ->from(dcCore::app()->prefix . dcBlog::BLOG_TABLE_NAME)
             ->column($sql->count('post_id'))
             ->where('blog_id = ' . $sql->quote($id));
