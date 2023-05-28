@@ -510,7 +510,7 @@ final class dcCore
         $this->blog = null;
 
         // reset themes instance
-        $this->themes->reset();
+        $this->themes->resetModulesList();
     }
     //@}
 

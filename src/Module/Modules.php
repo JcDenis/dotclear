@@ -156,19 +156,6 @@ class Modules
     protected $type = null;
 
     /**
-     * Reset instance.
-     * 
-     * All modules are "unloaded".
-     */
-    public function reset(): void
-    {
-        $this->path        = [];
-        $this->defines     = [];
-        $this->errors      = [];
-        $this->modules_ids = [];
-    }
-
-    /**
      * Get first ocurrence of a module's defined properties.
      *
      * This method always returns a Define class,
@@ -703,6 +690,7 @@ class Modules
      */
     public function resetModulesList(): void
     {
+        $this->path        = [];
         $this->defines     = [];
         $this->modules_ids = [];
         $this->errors      = [];
