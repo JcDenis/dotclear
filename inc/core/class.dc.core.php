@@ -14,6 +14,7 @@
 
 use Dotclear\App;
 use Dotclear\Core\Behavior;
+use Dotclear\Core\Blogs;
 use Dotclear\Core\Formater;
 use Dotclear\Core\Nonce;
 use Dotclear\Core\PostType;
@@ -97,6 +98,13 @@ final class dcCore
      * @var Users
      */
     public readonly Users $users;
+
+    /**
+     * Blogs instance
+     *
+     * @var Blogs
+     */
+    public readonly Blogs $blogs;
 
     /**
      * dcAuth instance
@@ -412,6 +420,7 @@ final class dcCore
         $this->behavior  = new Behavior();
         $this->error     = new dcError();
         $this->users     = new Users();
+        $this->blogs     = new Blogs();
         $this->auth      = $this->authInstance();
         $this->session   = new Session($this->con, $this->prefix . self::SESSION_TABLE_NAME, DC_SESSION_NAME, '', null, DC_ADMIN_SSL, $ttl);
         $this->version   = new Version();
@@ -980,7 +989,7 @@ final class dcCore
      *
      * @deprecated since 2.27, use dcCore::app()->users->getUserPermissions() instead
      *
-     * @return  array<string,mixed>    The user permissions.
+     * @return  array<string,mixed>
      */
     public function getUserPermissions(string $id): array
     {
@@ -1054,73 +1063,17 @@ final class dcCore
     /// @name Blog management methods
     //@{
     /**
-     * Returns all blog permissions (users) as an array which looks like:
+     * Returns all blog permissions (users) as an array.
      *
-     * - [user_id]
-     * - [name] => User name
-     * - [firstname] => User firstname
-     * - [displayname] => User displayname
-     * - [super] => (true|false) super admin
-     * - [p]
-     * - [permission] => true
-     * - ...
+     * @deprecated since 2.27, use dcCore::app()->blogs->getBlogPermissions() instead
      *
-     * @param      string  $id          The blog identifier
-     * @param      bool    $with_super  Includes super admins in result
-     *
-     * @return     array   The blog permissions.
+     * @return  array<string,mixed>
      */
     public function getBlogPermissions(string $id, bool $with_super = true): array
     {
-        $sql = new SelectStatement();
-        $sql
-            ->columns([
-                'U.user_id as user_id',
-                'user_super',
-                'user_name',
-                'user_firstname',
-                'user_displayname',
-                'user_email',
-                'permissions',
-            ])
-            ->from($sql->as($this->prefix . dcAuth::USER_TABLE_NAME, 'U'))
-            ->join((new JoinStatement())
-                ->from($sql->as($this->prefix . dcAuth::PERMISSIONS_TABLE_NAME, 'P'))
-                ->on('U.user_id = P.user_id')
-                ->statement())
-            ->where('blog_id = ' . $sql->quote($id));
-
-        if ($with_super) {
-            $sql->union(
-                (new SelectStatement())
-                ->columns([
-                    'U.user_id as user_id',
-                    'user_super',
-                    'user_name',
-                    'user_firstname',
-                    'user_displayname',
-                    'user_email',
-                    'NULL AS permissions',
-                ])
-                ->from($sql->as($this->prefix . dcAuth::USER_TABLE_NAME, 'U'))
-                ->where('user_super = 1')
-                ->statement()
-            );
-        }
-
-        $rs = $sql->select();
-
         $res = [];
-
-        while ($rs->fetch()) {
-            $res[$rs->user_id] = [
-                'name'        => $rs->user_name,
-                'firstname'   => $rs->user_firstname,
-                'displayname' => $rs->user_displayname,
-                'email'       => $rs->user_email,
-                'super'       => (bool) $rs->user_super,
-                'p'           => $this->auth->parsePermissions($rs->permissions),
-            ];
+        foreach($this->blogs->getBlogPermissions($id, $with_super)->dump() as $p) {
+            $res[$p->id] = $p->dump();
         }
 
         return $res;
@@ -1129,225 +1082,73 @@ final class dcCore
     /**
      * Gets the blog.
      *
-     * @param      string  $id     The blog identifier
-     *
-     * @return     MetaRecord|false    The blog.
+     * @deprecated since 2.27, use dcCore::app()->blogs->get() instead
      */
-    public function getBlog(string $id)
+    public function getBlog(string $id): MetaRecord
     {
-        $blog = $this->getBlogs(['blog_id' => $id]);
-
-        if ($blog->isEmpty()) {
-            return false;
-        }
-
-        return $blog;
+        return $this->blogs->get($id);
     }
 
     /**
-     * Returns a MetaRecord of blogs. <b>$params</b> is an array with the following
-     * optionnal parameters:
+     * Returns a MetaRecord of blogs.
      *
-     * - <var>blog_id</var>: Blog ID
-     * - <var>q</var>: Search string on blog_id, blog_name and blog_url
-     * - <var>limit</var>: limit results
+     * @deprecated since 2.27, use dcCore::app()->blogs->search() instead
      *
-     * @param      array|ArrayObject    $params      The parameters
-     * @param      bool                 $count_only  Count only results
-     *
-     * @return     MetaRecord  The blogs.
+     * @param   array<string,mixed>|ArrayObject     $params     The parameters
      */
     public function getBlogs($params = [], bool $count_only = false): MetaRecord
     {
-        $join  = ''; // %1$s
-        $where = ''; // %2$s
-
-        if ($count_only) {
-            $strReq = 'SELECT count(B.blog_id) ' .
-            'FROM ' . $this->prefix . dcBlog::BLOG_TABLE_NAME . ' B ' .
-                '%1$s ' .
-                'WHERE NULL IS NULL ' .
-                '%2$s ';
-        } else {
-            $strReq = 'SELECT B.blog_id, blog_uid, blog_url, blog_name, blog_desc, blog_creadt, ' .
-                'blog_upddt, blog_status ';
-            if (!empty($params['columns'])) {
-                $strReq .= ',';
-                if (is_array($params['columns'])) {
-                    $strReq .= implode(',', $params['columns']);
-                } else {
-                    $strReq .= $params['columns'];
-                }
-                $strReq .= ' ';
-            }
-            $strReq .= 'FROM ' . $this->prefix . dcBlog::BLOG_TABLE_NAME . ' B ' .
-                '%1$s ' .
-                'WHERE NULL IS NULL ' .
-                '%2$s ';
-
-            if (!empty($params['order'])) {
-                $strReq .= 'ORDER BY ' . $this->con->escape($params['order']) . ' ';
-            } else {
-                $strReq .= 'ORDER BY B.blog_id ASC ';
-            }
-
-            if (!empty($params['limit'])) {
-                $strReq .= $this->con->limit($params['limit']);
-            }
-        }
-
-        if ($this->auth->userID() && !$this->auth->isSuperAdmin()) {
-            $join  = 'INNER JOIN ' . $this->prefix . dcAuth::PERMISSIONS_TABLE_NAME . ' PE ON B.blog_id = PE.blog_id ';
-            $where = "AND PE.user_id = '" . $this->con->escape($this->auth->userID()) . "' " .
-                "AND (permissions LIKE '%|usage|%' OR permissions LIKE '%|admin|%' OR permissions LIKE '%|contentadmin|%') " .
-                'AND blog_status IN (' . (string) dcBlog::BLOG_ONLINE . ',' . (string) dcBlog::BLOG_OFFLINE . ') ';
-        } elseif (!$this->auth->userID()) {
-            $where = 'AND blog_status IN (' . (string) dcBlog::BLOG_ONLINE . ',' . (string) dcBlog::BLOG_OFFLINE . ') ';
-        }
-
-        if (isset($params['blog_status']) && $params['blog_status'] !== '' && $this->auth->isSuperAdmin()) {
-            $where .= 'AND blog_status = ' . (int) $params['blog_status'] . ' ';
-        }
-
-        if (isset($params['blog_id']) && $params['blog_id'] !== '') {
-            if (!is_array($params['blog_id'])) {
-                $params['blog_id'] = [$params['blog_id']];
-            }
-            $where .= 'AND B.blog_id ' . $this->con->in($params['blog_id']);
-        }
-
-        if (!empty($params['q'])) {
-            $params['q'] = strtolower(str_replace('*', '%', $params['q']));
-            $where .= 'AND (' .
-            "LOWER(B.blog_id) LIKE '" . $this->con->escape($params['q']) . "' " .
-            "OR LOWER(B.blog_name) LIKE '" . $this->con->escape($params['q']) . "' " .
-            "OR LOWER(B.blog_url) LIKE '" . $this->con->escape($params['q']) . "' " .
-                ') ';
-        }
-
-        $strReq = sprintf($strReq, $join, $where);
-
-        return new MetaRecord($this->con->select($strReq));
+        return $this->blogs->search($params, $count_only);
     }
 
     /**
      * Adds a new blog.
      *
-     * @param      Cursor     $cur    The blog Cursor
-     *
-     * @throws     Exception
+     * @deprecated since 2.27, use dcCore::app()->blogs->add() instead
      */
     public function addBlog(Cursor $cur): void
     {
-        if (!$this->auth->isSuperAdmin()) {
-            throw new Exception(__('You are not an administrator'));
-        }
-
-        $this->fillBlogCursor($cur);
-
-        $cur->blog_creadt = date('Y-m-d H:i:s');
-        $cur->blog_upddt  = date('Y-m-d H:i:s');
-        $cur->blog_uid    = md5(uniqid());
-
-        $cur->insert();
+        $this->blogs->add($cur);
     }
 
     /**
      * Updates a given blog.
      *
-     * @param      string  $id     The blog identifier
-     * @param      Cursor  $cur    The Cursor
+     * @deprecated since 2.27, use dcCore::app()->blogs->update() instead
      */
     public function updBlog(string $id, Cursor $cur): void
     {
-        $this->fillBlogCursor($cur);
-
-        $cur->blog_upddt = date('Y-m-d H:i:s');
-
-        $cur->update("WHERE blog_id = '" . $this->con->escape($id) . "'");
-    }
-
-    /**
-     * Fills the blog Cursor.
-     *
-     * @param      Cursor  $cur    The Cursor
-     *
-     * @throws     Exception
-     */
-    private function fillBlogCursor(Cursor $cur): void
-    {
-        if (($cur->blog_id !== null
-            && !preg_match('/^[A-Za-z0-9._-]{2,}$/', (string) $cur->blog_id)) || (!$cur->blog_id)) {
-            throw new Exception(__('Blog ID must contain at least 2 characters using letters, numbers or symbols.'));
-        }
-
-        if (($cur->blog_name !== null && $cur->blog_name == '') || (!$cur->blog_name)) {
-            throw new Exception(__('No blog name'));
-        }
-
-        if (($cur->blog_url !== null && $cur->blog_url == '') || (!$cur->blog_url)) {
-            throw new Exception(__('No blog URL'));
-        }
+        $this->blogs->update($id, $cur);
     }
 
     /**
      * Removes a given blog.
-     * @warning This will remove everything related to the blog (posts,
-     * categories, comments, links...)
      *
-     * @param      string     $id     The blog identifier
-     *
-     * @throws     Exception
+     * @deprecated since 2.27, use dcCore::app()->blogs->delete() instead
      */
     public function delBlog(string $id): void
     {
-        if (!$this->auth->isSuperAdmin()) {
-            throw new Exception(__('You are not an administrator'));
-        }
-
-        $strReq = 'DELETE FROM ' . $this->prefix . dcBlog::BLOG_TABLE_NAME . ' ' .
-        "WHERE blog_id = '" . $this->con->escape($id) . "' ";
-
-        $this->con->execute($strReq);
+        $this->blogs->delete($id);
     }
 
     /**
      * Determines if blog exists.
      *
-     * @param      string  $id     The blog identifier
-     *
-     * @return     bool  True if blog exists, False otherwise.
+     * @deprecated since 2.27, use dcCore::app()->blogs->has() instead
      */
     public function blogExists(string $id): bool
     {
-        $strReq = 'SELECT blog_id ' .
-        'FROM ' . $this->prefix . dcBlog::BLOG_TABLE_NAME . ' ' .
-        "WHERE blog_id = '" . $this->con->escape($id) . "' ";
-
-        $rs = new MetaRecord($this->con->select($strReq));
-
-        return !$rs->isEmpty();
+        return $this->blogs->has($id);
     }
 
     /**
      * Counts the number of blog posts.
      *
-     * @param      string  $id     The blog identifier
-     * @param      mixed   $type   The post type
-     *
-     * @return     int  Number of blog posts.
+     * @deprecated since 2.27, use dcCore::app()->blogs->countPosts() instead
      */
-    public function countBlogPosts(string $id, $type = null): int
+    public function countBlogPosts(string $id, string $type = null): int
     {
-        $strReq = 'SELECT COUNT(post_id) ' .
-        'FROM ' . $this->prefix . dcBlog::POST_TABLE_NAME . ' ' .
-        "WHERE blog_id = '" . $this->con->escape($id) . "' ";
-
-        if ($type) {
-            $strReq .= "AND post_type = '" . $this->con->escape($type) . "' ";
-        }
-
-        return (new MetaRecord($this->con->select($strReq)))->f(0);
+        return $this->blogs->countPosts($id, $type);
     }
     //@}
 

@@ -140,7 +140,7 @@ class dcBlogsActions extends dcActions
             $params['blog_id'] = $from['blogs'];
         }
 
-        $rs = dcCore::app()->getBlogs($params);
+        $rs = dcCore::app()->blogs->search($params);
         while ($rs->fetch()) {
             $this->entries[$rs->blog_id] = [
                 'blog' => $rs->blog_id,
@@ -265,7 +265,7 @@ class dcDefaultBlogActions
             dcCore::app()->behavior->call('adminBeforeBlogsDelete', $checked_ids);
 
             foreach ($checked_ids as $id) {
-                dcCore::app()->delBlog($id);
+                dcCore::app()->blogs->delete($id);
             }
 
             dcPage::addSuccessNotice(

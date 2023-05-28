@@ -53,7 +53,7 @@ class adminBlog
                 # --BEHAVIOR-- adminBeforeBlogCreate -- Cursor, string
                 dcCore::app()->behavior->call('adminBeforeBlogCreate', $cur, dcCore::app()->admin->blog_id);
 
-                dcCore::app()->addBlog($cur);
+                dcCore::app()->blogs->add($cur);
 
                 # Default settings and override some
                 $blog_settings = new dcSettings($cur->blog_id);

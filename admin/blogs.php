@@ -60,8 +60,8 @@ class adminBlogs
             # --BEHAVIOR-- adminGetBlogs -- ArrayObject
             dcCore::app()->behavior->call('adminGetBlogs', $params);
 
-            $counter  = dcCore::app()->getBlogs($params, true);
-            $rs       = dcCore::app()->getBlogs($params);
+            $counter  = dcCore::app()->blogs->search($params, true);
+            $rs       = dcCore::app()->blogs->search($params);
             $rsStatic = $rs->toStatic();
             if ((dcCore::app()->admin->blog_filter->sortby != 'blog_upddt') && (dcCore::app()->admin->blog_filter->sortby != 'blog_status')) {
                 // Sort blog list using lexical order if necessary

@@ -939,7 +939,7 @@ class adminBlogList extends adminGenericListV2
             Html::escapeHTML($this->rs->blog_url) . '">' . Html::escapeHTML($this->rs->blog_url) .
             ' <img src="images/outgoing-link.svg" alt="" /></a></td>',
             'posts' => '<td class="nowrap count">' .
-            dcCore::app()->countBlogPosts($this->rs->blog_id) .
+            dcCore::app()->blogs->countPosts($this->rs->blog_id) .
             '</td>',
             'upddt' => '<td class="nowrap count">' .
             '<time datetime="' . Date::iso8601(strtotime($this->rs->blog_upddt), dcCore::app()->auth->getInfo('user_tz')) . '">' .

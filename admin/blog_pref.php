@@ -65,7 +65,7 @@ class adminBlogPref
                 if (empty($_REQUEST['id'])) {
                     throw new Exception(__('No given blog id.'));
                 }
-                $rs = dcCore::app()->getBlog($_REQUEST['id']);
+                $rs = dcCore::app()->blogs->get($_REQUEST['id']);
 
                 if (!$rs) {
                     throw new Exception(__('No such blog.'));
@@ -282,7 +282,7 @@ class adminBlogPref
 
             try {
                 if ($cur->blog_id != null && $cur->blog_id != $da->blog_id) {
-                    $rs = dcCore::app()->getBlog($cur->blog_id);
+                    $rs = dcCore::app()->blogs->get($cur->blog_id);
 
                     if ($rs) {
                         throw new Exception(__('This blog ID is already used.'));
@@ -296,7 +296,7 @@ class adminBlogPref
                     throw new Exception(__('Invalid language code'));
                 }
 
-                dcCore::app()->updBlog($da->blog_id, $cur);
+                dcCore::app()->blogs->update($da->blog_id, $cur);
 
                 if (dcCore::app()->auth->isSuperAdmin() && $cur->blog_status === dcBlog::BLOG_REMOVED) {
                     // Remove this blog from user default blog
@@ -912,7 +912,7 @@ class adminBlogPref
             #
             # Users on the blog (with permissions)
 
-            $da->blog_users = dcCore::app()->getBlogPermissions($da->blog_id, dcCore::app()->auth->isSuperAdmin());
+            $da->blog_users = dcCore::app()->blogs->getBlogPermissions($da->blog_id, dcCore::app()->auth->isSuperAdmin());
             $perm_types     = dcCore::app()->auth->getPermissionsTypes();
 
             echo

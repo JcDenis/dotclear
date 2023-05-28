@@ -142,7 +142,7 @@ if ($can_install && !empty($_POST)) {
         $cur->blog_id   = 'default';
         $cur->blog_url  = Http::getHost() . $root_url . '/index.php?';
         $cur->blog_name = __('My first blog');
-        dcCore::app()->addBlog($cur);
+        dcCore::app()->blogs->add($cur);
 
         # Create global blog settings
         dcCore::app()->blogDefaults();

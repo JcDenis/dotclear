@@ -35,7 +35,7 @@ class adminBlogDel
             $rs = null;
 
             try {
-                $rs = dcCore::app()->getBlog($_POST['blog_id']);
+                $rs = dcCore::app()->blogs->get($_POST['blog_id']);
             } catch (Exception $e) {
                 dcCore::app()->error->add($e->getMessage());
             }
@@ -62,7 +62,7 @@ class adminBlogDel
                 dcCore::app()->error->add(__('Password verification failed'));
             } else {
                 try {
-                    dcCore::app()->delBlog(dcCore::app()->admin->blog_id);
+                    dcCore::app()->blogs->delete(dcCore::app()->admin->blog_id);
                     dcPage::addSuccessNotice(sprintf(__('Blog "%s" successfully deleted'), Html::escapeHTML(dcCore::app()->admin->blog_name)));
 
                     dcCore::app()->adminurl->redirect('admin.blogs');

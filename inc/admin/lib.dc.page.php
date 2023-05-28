@@ -109,7 +109,7 @@ class dcPage
             }
             $blog_box .= '</p>';
         } else {
-            $rs_blogs = dcCore::app()->getBlogs(['order' => 'LOWER(blog_name)', 'limit' => 20]);
+            $rs_blogs = dcCore::app()->blogs->search(['order' => 'LOWER(blog_name)', 'limit' => 20]);
             $blogs    = [];
             while ($rs_blogs->fetch()) {
                 $blogs[Html::escapeHTML($rs_blogs->blog_name . ' - ' . $rs_blogs->blog_url)] = $rs_blogs->blog_id;
