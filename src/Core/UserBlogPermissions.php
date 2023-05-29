@@ -29,8 +29,8 @@ class UserBlogPermissions
         public readonly string $id,
         public readonly string $name,
         public readonly string $url,
-        public readonly array $p)
-    {
+        public readonly array $p
+    ) {
         $this->permissions = array_keys($this->p);
     }
 

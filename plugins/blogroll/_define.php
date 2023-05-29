@@ -17,6 +17,6 @@ $this->registerModule(
         'permissions' => dcCore::app()->auth->makePermissions([
             initBlogroll::PERMISSION_BLOGROLL,
         ]),
-        'type'        => 'plugin',
+        'type' => 'plugin',
     ]
 );

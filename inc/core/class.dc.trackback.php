@@ -585,9 +585,9 @@ class dcTrackback
         }
 
         # Does the targeted URL look like a registered post type?
-        $url_part   = $m[1];
-        $p_type     = '';
-        $post_url   = '';
+        $url_part = $m[1];
+        $p_type   = '';
+        $post_url = '';
         foreach (dcCore::app()->post_type->dump() as $v) {
             $reg = '!^' . preg_quote(str_replace('%s', '', $v->frontend)) . '(.*)!';
             if (preg_match($reg, $url_part, $n)) {

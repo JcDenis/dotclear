@@ -69,7 +69,7 @@ class BackendActions extends dcPostsActions
             dcPage::jsLoad('js/_posts_actions.js') .
             $head
         );
-        echo 
+        echo
         $breadcrumb .
         '<p><a class="back" href="' . $this->getRedirection(true) . '">' . __('Back to pages list') . '</a></p>';
     }

@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\userPref;
 
 use dcAdmin;
-use dcCore;
 use dcNsProcess;
 
 class Backend extends dcNsProcess

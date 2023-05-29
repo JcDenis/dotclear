@@ -57,7 +57,7 @@ class BackendBehaviors
         '<p><label for="antispam_moderation_ttl" class="classic">' . __('Delete junk comments older than') . ' ' .
         form::number('antispam_moderation_ttl', [
             'min'     => -1,
-            'max'     => 999, 
+            'max'     => 999,
             'default' => $settings->antispam->antispam_moderation_ttl,
         ]) .
         ' ' . __('days') .

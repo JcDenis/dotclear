@@ -25,10 +25,10 @@ class Frontend extends dcNsProcess
     {
         if (static::$init) {
             dcCore::app()->behavior->add('publicHeadContent', function () {
-                echo 
-                '<link rel="stylesheet" type="text/css" href="' . 
-                dcCore::app()->blog->settings->system->public_url . 
-                '/custom_style.css" media="screen">' . 
+                echo
+                '<link rel="stylesheet" type="text/css" href="' .
+                dcCore::app()->blog->settings->system->public_url .
+                '/custom_style.css" media="screen">' .
                 "\n";
             });
         }

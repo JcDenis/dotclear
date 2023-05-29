@@ -35,8 +35,8 @@ class BlogUserPermissions
         public readonly string $displayname,
         public readonly string $email,
         public readonly bool $super,
-        public readonly array $p)
-    {
+        public readonly array $p
+    ) {
         $this->permissions = array_keys($this->p);
     }
 

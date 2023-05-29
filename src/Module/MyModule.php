@@ -1,11 +1,11 @@
 <?php
 /**
  * @brief Generic My module class.
- * 
+ *
  * This class is an helper to have short access to
  * module properties and common requiremets.
- * 
- * A module My class must not extend this class 
+ *
+ * A module My class must not extend this class
  * but must extend MyPlugin or MyTheme class.
  *
  * @package Dotclear
@@ -64,7 +64,7 @@ abstract class MyModule
 
     /**
      * Load (once) the module define.
-     * 
+     *
      * This method is defined in MyPlugin or MyTheme.
      *
      * @return  Define  The module define
@@ -73,9 +73,9 @@ abstract class MyModule
 
     /**
      * Check context permission.
-     * 
-     * Module My class could implement this method 
-     * to check specific context permissions, 
+     *
+     * Module My class could implement this method
+     * to check specific context permissions,
      * and else return null for classic context permissions.
      *
      * @param   int     $context     context
@@ -103,20 +103,20 @@ abstract class MyModule
         }
 
         // else default permissions
-        return match($context) {
-            self::INSTALL =>    // Installation of module
+        return match ($context) {
+            self::INSTALL => // Installation of module
                 defined('DC_CONTEXT_ADMIN')
                     && dcCore::app()->auth->isSuperAdmin()   // Manageable only by super-admin
                     && dcCore::app()->version->newer(self::id(), dcCore::app()->plugins->getDefine(self::id())->version),
 
-            self::UNINSTALL =>  // Uninstallation of module
+            self::UNINSTALL => // Uninstallation of module
                 defined('DC_RC_PATH')
                     && dcCore::app()->auth->isSuperAdmin(),   // Manageable only by super-admin
 
-            self::PREPEND, self::FRONTEND =>    // Prpend and Frontend context
+            self::PREPEND, self::FRONTEND => // Prpend and Frontend context
                 defined('DC_RC_PATH'),
 
-            self::BACKEND =>     // Backend context
+            self::BACKEND => // Backend context
                 defined('DC_CONTEXT_ADMIN')
                     // Check specific permission
                     && !is_null(dcCore::app()->blog)
@@ -125,7 +125,7 @@ abstract class MyModule
                         dcCore::app()->auth::PERMISSION_CONTENT_ADMIN,
                     ]), dcCore::app()->blog->id),
 
-            self::MANAGE, self::MENU, self::WIDGETS =>  // Main page of module, Admin menu, Blog widgets
+            self::MANAGE, self::MENU, self::WIDGETS => // Main page of module, Admin menu, Blog widgets
                 defined('DC_CONTEXT_ADMIN')
                     // Check specific permission
                     && !is_null(dcCore::app()->blog)
@@ -133,7 +133,7 @@ abstract class MyModule
                         dcCore::app()->auth::PERMISSION_ADMIN,  // Admin+
                     ]), dcCore::app()->blog->id),
 
-            self::CONFIG =>      // Config page of module
+            self::CONFIG => // Config page of module
                 defined('DC_CONTEXT_ADMIN')
                     && dcCore::app()->auth->isSuperAdmin(),   // Manageable only by super-admin
 
@@ -186,7 +186,7 @@ abstract class MyModule
      *
      * This method is used to load module define.
      * see MyPlugin::define() and MyTheme::define()
-     * 
+     *
      * @param   Modules     $modules    The modules instance (Themes or Plugins)
      *
      * @return  Define  The module define
@@ -197,7 +197,7 @@ abstract class MyModule
         if (!isset(static::$defines[static::class])) {
             // note: namespace from Modules start with a backslash
             $find = $modules->searchDefines([
-                'namespace' => '\\' . (new \ReflectionClass(static::class))->getNamespaceName()
+                'namespace' => '\\' . (new \ReflectionClass(static::class))->getNamespaceName(),
             ]);
             if (count($find) != 1) {
                 static::exception('Failed to find namespace from ' . static::class);
@@ -212,7 +212,7 @@ abstract class MyModule
     /**
      * Throw exception on breaking script error.
      */
-    final static protected function exception(string $msg = ''): void
+    final protected static function exception(string $msg = ''): void
     {
         $msg = defined('DC_DEV') && DC_DEV && !empty($msg) ? ': ' . $msg : '';
 

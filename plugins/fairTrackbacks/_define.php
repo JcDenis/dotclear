@@ -18,7 +18,7 @@ $this->registerModule(
             dcAuth::PERMISSION_USAGE,
             dcAuth::PERMISSION_CONTENT_ADMIN,
         ]),
-        'priority'    => 200,
-        'type'        => 'plugin',
+        'priority' => 200,
+        'type'     => 'plugin',
     ]
 );

@@ -21,7 +21,7 @@ use Dotclear\Helper\Text;
 class Define
 {
     /** @var    int     Enabled state. */
-    public const STATE_ENABLED       = 0;
+    public const STATE_ENABLED = 0;
 
     /** @var    int     Default init disabled state. */
     public const STATE_INIT_DISABLED = 1;
@@ -285,7 +285,7 @@ class Define
 
     /**
      * Sanitize module properties.
-     * 
+     *
      * This cleans, transforms, fills some properties.
      */
     public function sanitizeProperties(): void
@@ -346,7 +346,7 @@ class Define
      *
      * @param   string  $property   The property
      * @param   mixed   $value      The value
-     * 
+     *
      * @return  Define  Self instance
      */
     public function set(string $property, $value = null): Define

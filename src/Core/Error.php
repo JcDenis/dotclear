@@ -33,12 +33,12 @@ class Error
      */
     public function add(string $msg): void
     {
-        $this->flag     = true;
+        $this->flag    = true;
         $this->stack[] = $msg;
     }
 
     /**
-     * Returns the value of <var>flag</var> property. 
+     * Returns the value of <var>flag</var> property.
      *
      * True if errors stack is not empty
      *
@@ -54,7 +54,7 @@ class Error
      */
     private function reset(): void
     {
-        $this->flag   = false;
+        $this->flag  = false;
         $this->stack = [];
     }
 

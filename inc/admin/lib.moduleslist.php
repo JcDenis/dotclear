@@ -1796,6 +1796,7 @@ class adminModulesList
                 return false;
             }
         }
+
         return true;
     }
 
@@ -2315,8 +2316,9 @@ class adminThemesList extends adminModulesList
                 $failed = false;
                 $count  = 0;
                 foreach ($modules as $id) {
-                $disabled = !empty($_POST['disabled'][$id]);;
-                $define   = $this->modules->getDefine($id, ['state' => ($disabled ? '!' : '') . Define::STATE_ENABLED]);
+                    $disabled = !empty($_POST['disabled'][$id]);
+                    ;
+                    $define = $this->modules->getDefine($id, ['state' => ($disabled ? '!' : '') . Define::STATE_ENABLED]);
                     if (!$define->isDefined()) {
                         continue;
                     }

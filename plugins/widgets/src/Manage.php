@@ -265,7 +265,7 @@ class Manage extends dcNsProcess
         dcPage::breadcrumb(
             [
                 Html::escapeHTML(dcCore::app()->blog->name) => '',
-                My::name()                               => '',
+                My::name()                                  => '',
             ]
         ) .
         dcPage::notices() .

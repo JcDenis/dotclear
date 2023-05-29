@@ -1,7 +1,7 @@
 <?php
 /**
  * @brief Plugin My module class.
- * 
+ *
  * A plugin My class must extend this class.
  *
  * @package Dotclear

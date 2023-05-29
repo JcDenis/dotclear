@@ -1,7 +1,7 @@
 <?php
 /**
  * @brief Plugin tags My module class.
- * 
+ *
  * A theme My class must extend this class.
  *
  * @package Dotclear
@@ -23,9 +23,8 @@ class My extends MyPlugin
 {
     public static function checkCustomContext(int $context): ?bool
     {
-        return match($context) {
-            self::MANAGE, self::MENU =>
-                defined('DC_CONTEXT_ADMIN')
+        return match ($context) {
+            self::MANAGE, self::MENU => defined('DC_CONTEXT_ADMIN')
                     && !is_null(dcCore::app()->blog)
                     && dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([
                         dcCore::app()->auth::PERMISSION_USAGE,

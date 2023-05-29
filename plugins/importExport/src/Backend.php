@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\importExport;
 
-use dcAdmin;
 use dcCore;
 use dcFavorites;
 use dcNsProcess;

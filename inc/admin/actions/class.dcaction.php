@@ -421,7 +421,7 @@ abstract class dcActions
 
     /**
      * Manage error.
-     * 
+     *
      * This method is called on Exception from self::process();
      * Default method does not stop script execution.
      *

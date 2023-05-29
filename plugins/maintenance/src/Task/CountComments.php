@@ -16,7 +16,6 @@ use dcBlog;
 use dcCore;
 use Dotclear\Database\Statement\SelectStatement;
 use Dotclear\Database\Statement\UpdateStatement;
-use Dotclear\Helper\Text;
 use Dotclear\Plugin\maintenance\MaintenanceTask;
 
 class CountComments extends MaintenanceTask

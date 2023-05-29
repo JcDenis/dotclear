@@ -23,8 +23,8 @@ class My extends MyPlugin
 
     protected static function checkCustomContext(int $context): ?bool
     {
-        return match($context) {
-            self::BACKEND, self::MANAGE, self::MENU =>     // allow pages permissions
+        return match ($context) {
+            self::BACKEND, self::MANAGE, self::MENU => // allow pages permissions
                 defined('DC_CONTEXT_ADMIN')
                     && !is_null(dcCore::app()->blog)
                     && dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([

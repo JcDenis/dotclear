@@ -32,8 +32,6 @@ use Dotclear\Database\Driver\Mysqlimb4\Handler as Mysqlimb4Handler;
 use Dotclear\Database\Driver\Pgsql\Handler as PgsqlHandler;
 use Dotclear\Database\MetaRecord;
 use Dotclear\Database\Session;
-use Dotclear\Database\Statement\SelectStatement;
-use Dotclear\Database\Statement\UpdateStatement;
 use Dotclear\Helper\File\Files;
 use Dotclear\Helper\Html\HtmlFilter;
 use Dotclear\Helper\Html\Template\Template;
@@ -842,13 +840,14 @@ final class dcCore
     public function getPostTypes(): array
     {
         $res = [];
-        foreach($this->post_type->dump() as $pt) {
+        foreach ($this->post_type->dump() as $pt) {
             $res[$pt->type] = [
                 'admin_url'  => $pt->backend,
                 'public_url' => $pt->frontend,
                 'label'      => $pt->label,
             ];
         }
+
         return $res;
     }
     //@}
@@ -992,7 +991,7 @@ final class dcCore
     public function getUserPermissions(string $id): array
     {
         $res = [];
-        foreach($this->users->getUserPermissions($id)->dump() as $p) {
+        foreach ($this->users->getUserPermissions($id)->dump() as $p) {
             $res[$p->id] = $p->dump();
         }
 
@@ -1003,7 +1002,7 @@ final class dcCore
      * Sets user permissions.
      *
      * @deprecated since 2.27, use dcCore::app()->users->setUserPermissions() instead
-     * 
+     *
      * @param   array<string,array<string,bool>>    $perms  The permissions
      */
     public function setUserPermissions(string $id, array $perms): void
@@ -1042,7 +1041,8 @@ final class dcCore
      */
     public function removeUsersDefaultBlogs(array $ids): void
     {
-        $this->users->removeUsersDefaultBlogs($ids);;
+        $this->users->removeUsersDefaultBlogs($ids);
+        ;
     }
 
     /**
@@ -1070,7 +1070,7 @@ final class dcCore
     public function getBlogPermissions(string $id, bool $with_super = true): array
     {
         $res = [];
-        foreach($this->blogs->getBlogPermissions($id, $with_super)->dump() as $p) {
+        foreach ($this->blogs->getBlogPermissions($id, $with_super)->dump() as $p) {
             $res[$p->id] = $p->dump();
         }
 

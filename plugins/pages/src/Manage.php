@@ -19,7 +19,6 @@ use dcPage;
 use Dotclear\Helper\Html\Html;
 use Exception;
 use form;
-use initPages;
 
 class Manage extends dcNsProcess
 {

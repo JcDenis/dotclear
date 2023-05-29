@@ -13,9 +13,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\themeEditor;
 
 use Exception;
-use adminThemesList;
 use dcCore;
-use dcNsProcess;
 use dcPage;
 use form;
 
@@ -32,7 +30,7 @@ class BackendBehaviors
     {
         if (dcCore::app()->auth->isSuperAdmin()) {
             // Check if it's not an officially distributed theme
-            if (dcCore::app()->blog->settings->system->themes_path !== dcCore::app()->blog->settings->system->getGlobal('themes_path') 
+            if (dcCore::app()->blog->settings->system->themes_path !== dcCore::app()->blog->settings->system->getGlobal('themes_path')
                 || !dcCore::app()->themes->getDefine($id)->distributed
             ) {
                 return '<p><a href="' . dcCore::app()->adminurl->get('admin.plugin.' . My::id()) . '" class="button">' . __('Edit theme files') . '</a></p>';

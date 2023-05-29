@@ -36,7 +36,7 @@ class Plugins extends Modules
      * @param   string  $author         The module author
      * @param   string  $version        The module version
      * @param   mixed   $properties     The properties
-     * 
+     *
      * @return  void
      */
     public function registerModule(string $name, string $desc, string $author, string $version, $properties = [])

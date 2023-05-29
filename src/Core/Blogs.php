@@ -22,7 +22,6 @@ use Dotclear\Database\MetaRecord;
 use Dotclear\Database\Statement\DeleteStatement;
 use Dotclear\Database\Statement\JoinStatement;
 use Dotclear\Database\Statement\SelectStatement;
-use Dotclear\Database\Statement\UpdateStatement;
 use Exception;
 
 class Blogs
@@ -146,7 +145,7 @@ class Blogs
      * - <var>blog_id</var>: Blog ID
      * - <var>q</var>: Search string on blog_id, blog_name and blog_url
      * - <var>limit</var>: limit results
-     * 
+     *
      * @todo    Use sqlStatement
      *
      * @param   array<string,mixed>|ArrayObject     $params         The parameters
@@ -321,7 +320,7 @@ class Blogs
     public function has(string $id): bool
     {
         $sql = new SelectStatement();
-        $rs = $sql
+        $rs  = $sql
             ->from(dcCore::app()->prefix . dcBlog::BLOG_TABLE_NAME)
             ->where('blog_id = ' . $sql->quote($id))
             ->select();

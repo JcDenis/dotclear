@@ -129,7 +129,7 @@ class IndexComments extends MaintenanceTask
     public static function indexAllComments(?int $start = null, ?int $limit = null): ?int
     {
         $sql = new SelectStatement();
-        $rs = $sql
+        $rs  = $sql
             ->from(dcCore::app()->prefix . dcBlog::COMMENT_TABLE_NAME)
             ->column($sql->count('comment_id'))
             ->select();

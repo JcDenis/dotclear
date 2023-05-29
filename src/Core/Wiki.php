@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
-use dcBlog;
 use dcCore;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Html\WikiToHtml;

@@ -15,7 +15,6 @@ use Dotclear\Helper\Network\Feed\Reader;
 use Dotclear\Helper\Text;
 use Dotclear\Module\Define;
 use Dotclear\Module\Store;
-use Dotclear\Module\Themes;
 
 require __DIR__ . '/../inc/admin/prepend.php';
 
@@ -431,7 +430,7 @@ class dcRestMethods
 
         try {
             //dcCore::app()->media = new dcMedia();
-            $file                = dcCore::app()->blog->media->getFile((int) $id);
+            $file = dcCore::app()->blog->media->getFile((int) $id);
         } catch (Exception $e) {
             // Ignore exceptions
         }
@@ -734,7 +733,7 @@ class dcRestMethods
         foreach ($define->dump() as $k => $v) {
             if (is_array($v)) {
                 $res = '';
-                foreach($v as $vk => $vv) {
+                foreach ($v as $vk => $vv) {
                     $res .= $vk . ':' . (string) $vv;
                 }
                 $v = $res;

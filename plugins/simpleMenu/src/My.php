@@ -1,7 +1,7 @@
 <?php
 /**
  * @brief Plugin simpleMenu My module class.
- * 
+ *
  * A theme My class must extend this class.
  *
  * @package Dotclear
@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\simpleMenu;
 
-use dcCore;
 use Dotclear\Module\MyPlugin;
 
 class My extends MyPlugin

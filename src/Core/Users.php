@@ -492,7 +492,7 @@ class Users
     private function fillUserCursor(Cursor $cur): void
     {
         if ($cur->isField('user_id') && is_string($cur->getField('user_id'))
-            && !preg_match('/^[A-Za-z0-9@._-]{2,}$/', (string) $cur->getField('user_id'))) {
+                                     && !preg_match('/^[A-Za-z0-9@._-]{2,}$/', (string) $cur->getField('user_id'))) {
             throw new Exception(__('User ID must contain at least 2 characters using letters, numbers or symbols.'));
         }
 

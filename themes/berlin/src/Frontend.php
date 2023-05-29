@@ -15,7 +15,6 @@ namespace Dotclear\Theme\berlin;
 use dcCore;
 use dcNsProcess;
 use dcUtils;
-use Dotclear\Helper\L10n;
 
 class Frontend extends dcNsProcess
 {

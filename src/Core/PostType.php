@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Core;
 
-use dcCore;
 use Dotclear\Helper\Html\Html;
 
 class PostType

@@ -258,7 +258,7 @@ class adminUsersActions
             }
         } elseif (!empty(dcCore::app()->admin->blogs) && !empty(dcCore::app()->admin->users) && dcCore::app()->admin->action == 'perms') {
             // Permissions list for each selected blogs
-            $has_user = (is_countable(dcCore::app()->admin->users) ? count(dcCore::app()->admin->users) : 0) == 1;
+            $has_user    = (is_countable(dcCore::app()->admin->users) ? count(dcCore::app()->admin->users) : 0) == 1;
             $perms_types = dcCore::app()->auth->getPermissionsTypes();
 
             $user_list = [];

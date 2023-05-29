@@ -150,7 +150,7 @@ class Manage extends dcNsProcess
         dcPage::notices() .
         '<p><strong>' . sprintf(__('Your current theme on this blog is "%s".'), Html::escapeHTML(dcCore::app()->admin->theme->get('name'))) . '</strong></p>';
 
-        if (dcCore::app()->blog->settings->system->themes_path !== dcCore::app()->blog->settings->system->getGlobal('themes_path') 
+        if (dcCore::app()->blog->settings->system->themes_path !== dcCore::app()->blog->settings->system->getGlobal('themes_path')
             || !dcCore::app()->themes->getDefine(dcCore::app()->blog->settings->system->theme)->distributed
         ) {
             echo

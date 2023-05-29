@@ -59,8 +59,8 @@ class BackendBehaviors
      */
     public static function doPings()
     {
-        if (!defined('DC_CONTEXT_ADMIN') 
-            || empty($_POST['pings_do']) 
+        if (!defined('DC_CONTEXT_ADMIN')
+            || empty($_POST['pings_do'])
             || !is_array($_POST['pings_do'])
             || !dcCore::app()->blog->settings->pings->pings_active
         ) {

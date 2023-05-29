@@ -17,7 +17,7 @@ $this->registerModule(
         'permissions' => dcCore::app()->auth->makePermissions([
             dcAuth::PERMISSION_ADMIN,
         ]),
-        'priority'    => 1_000_000_000,
-        'type'        => 'plugin',
+        'priority' => 1_000_000_000,
+        'type'     => 'plugin',
     ]
 );

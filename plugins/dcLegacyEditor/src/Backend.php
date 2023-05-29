@@ -12,11 +12,8 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\dcLegacyEditor;
 
-use dcAdmin;
 use dcCore;
 use dcNsProcess;
-use dcPage;
-use Dotclear\Helper\Html\WikiToHtml;
 
 class Backend extends dcNsProcess
 {

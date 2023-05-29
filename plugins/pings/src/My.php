@@ -21,7 +21,7 @@ class My extends MyPlugin
 {
     protected static function checkCustomContext(int $context): ?bool
     {
-        return match($context) {
+        return match ($context) {
             self::MANAGE, self::MENU => // only super admin can manage pings
                 defined('DC_CONTEXT_ADMIN')
                     && dcCore::app()->auth->isSuperAdmin(),

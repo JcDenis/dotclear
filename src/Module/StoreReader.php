@@ -200,6 +200,7 @@ class StoreReader extends HttpClient
             if ($ts > strtotime($this->cache_ttl)) {
                 # Direct cache
                 $res = unserialize((string) file_get_contents($cached_file));
+
                 return ($res instanceof StoreParser) ? $res : false;
             }
             $this->setValidator('IfModifiedSince', $ts);
@@ -214,6 +215,7 @@ class StoreReader extends HttpClient
                 }
                 # Connection failed - fetched from cache
                 $res = unserialize((string) file_get_contents($cached_file));
+
                 return ($res instanceof StoreParser) ? $res : false;
             }
 
@@ -227,6 +229,7 @@ class StoreReader extends HttpClient
                 @Files::touch($cached_file);
 
                 $res = unserialize((string) file_get_contents($cached_file));
+
                 return ($res instanceof StoreParser) ? $res : false;
                 # Ok, parse feed
             case '200':

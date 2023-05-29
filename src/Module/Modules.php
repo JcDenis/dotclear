@@ -36,40 +36,40 @@ class Modules
     public const PACKAGE_INSTALLED = 1;
 
     /** @var    int     Return code for package update */
-    public const PACKAGE_UPDATED   = 2;
+    public const PACKAGE_UPDATED = 2;
 
     /** @var    string  Name of module old style installation file */
-    public const MODULE_FILE_INSTALL  = '_install.php';
+    public const MODULE_FILE_INSTALL = '_install.php';
 
     /** @var    string  Name of module old style initialization file */
-    public const MODULE_FILE_INIT     = '_init.php';
+    public const MODULE_FILE_INIT = '_init.php';
 
     /** @var    string  Name of module define file */
-    public const MODULE_FILE_DEFINE   = '_define.php';
+    public const MODULE_FILE_DEFINE = '_define.php';
 
     /** @var    string  Name of module old style prepend file */
-    public const MODULE_FILE_PREPEND  = '_prepend.php';
+    public const MODULE_FILE_PREPEND = '_prepend.php';
 
     /** @var    string  Name of module old style backend file */
-    public const MODULE_FILE_ADMIN    = '_admin.php';
+    public const MODULE_FILE_ADMIN = '_admin.php';
 
     /** @var    string  Name of module old style configuration file */
-    public const MODULE_FILE_CONFIG   = '_config.php';
+    public const MODULE_FILE_CONFIG = '_config.php';
 
     /** @var    string  Name of module old style manage file */
-    public const MODULE_FILE_MANAGE   = 'index.php';
+    public const MODULE_FILE_MANAGE = 'index.php';
 
     /** @var    string  Name of module old style frontend file */
-    public const MODULE_FILE_PUBLIC   = '_public.php';
+    public const MODULE_FILE_PUBLIC = '_public.php';
 
     /** @var    string  Name of module old style xmlrpc file */
-    public const MODULE_FILE_XMLRPC   = '_xmlrpc.php';
+    public const MODULE_FILE_XMLRPC = '_xmlrpc.php';
 
     /** @var    string  Name of module hard deactivation file */
     public const MODULE_FILE_DISABLED = '_disabled';
 
     /** @var    string  Directory for module namespace */
-    public const MODULE_CLASS_DIR     = 'src';
+    public const MODULE_CLASS_DIR = 'src';
 
     /** @var    string  Name of module prepend class (ex _prepend.php) */
     public const MODULE_CLASS_PREPEND = 'Prepend';
@@ -78,19 +78,19 @@ class Modules
     public const MODULE_CLASS_INSTALL = 'Install';
 
     /** @var    string  Name of module backend class (ex _admin.php) */
-    public const MODULE_CLASS_ADMIN   = 'Backend';
+    public const MODULE_CLASS_ADMIN = 'Backend';
 
     /** @var    string  Name of module configuration class (ex _config.php) */
-    public const MODULE_CLASS_CONFIG  = 'Config';
+    public const MODULE_CLASS_CONFIG = 'Config';
 
     /** @var    string  Name of module manage class (ex index.php) */
-    public const MODULE_CLASS_MANAGE  = 'Manage';
+    public const MODULE_CLASS_MANAGE = 'Manage';
 
     /** @var    string  Name of module frontend class (ex _public.php) */
-    public const MODULE_CLASS_PUPLIC  = 'Frontend';
+    public const MODULE_CLASS_PUPLIC = 'Frontend';
 
     /** @var    string  Name of module XMLRPC serevices class (ex _xmlrpc.php) - obsolete since 2.24 */
-    public const MODULE_CLASS_XMLRPC  = 'Xmlrpc';
+    public const MODULE_CLASS_XMLRPC = 'Xmlrpc';
 
     // Properties
 
@@ -191,7 +191,7 @@ class Modules
             foreach ($search as $key => $value) {
                 // check types
                 if (!is_string($key) || !$module->has($key)
-                    || !is_int($value) && !is_string($value) && !is_bool($value)
+                                     || !is_int($value) && !is_string($value) && !is_bool($value)
                 ) {
                     continue;
                 }
@@ -226,7 +226,7 @@ class Modules
      * Get modules defined properties.
      *
      * More than one module can have same id in this stack.
-     * 
+     *
      * @deprecated  since 2.27 Use searchDefines() and its Define properties
      *
      * @param   array<string,bool|int|string>   $search     The search parameters
@@ -242,8 +242,8 @@ class Modules
             return $defines;
         }
 
-        $list    = [];
-        foreach($defines as $define) {
+        $list = [];
+        foreach ($defines as $define) {
             $list[$define->id] = $define->dump();
         }
 
@@ -340,7 +340,7 @@ class Modules
     }
 
     /**
-     * Loads modules. 
+     * Loads modules.
      *
      * <var>$path</var> could be a separated list of paths
      * (path separator depends on your OS).
@@ -439,7 +439,7 @@ class Modules
      */
     protected function loopModulesDependencies(): void
     {
-        $special  = [
+        $special = [
             'core' => preg_replace('/\-dev.*$/', '', DC_VERSION),
             'php'  => phpversion(),
         ];
@@ -451,22 +451,22 @@ class Modules
                 $optionnal = false;
                 if (substr($dep[0], -1) == '?') {
                     $optionnal = true;
-                    $dep[0] = substr($dep[0], 0, -1);
+                    $dep[0]    = substr($dep[0], 0, -1);
                 }
-                // search required module 
+                // search required module
                 $found = $this->getDefine($dep[0]);
                 // grab missing dependencies
                 if (!$found->isDefined() && !isset($special[$dep[0]]) && !$optionnal) {
                     // module not present, nor php or dotclear, nor optionnal
                     $module->addMissing($dep[0], sprintf(__('Requires %s module which is not installed'), $dep[0]));
-                } elseif ((count($dep) > 1) && version_compare((isset($special[$dep[0]]) ? $special[$dep[0]] : $found->version), $dep[1]) == -1) {
+                } elseif ((count($dep) > 1) && version_compare(($special[$dep[0]] ?? $found->version), $dep[1]) == -1) {
                     // module present, but version missing
                     if ($dep[0] == 'php') {
                         $dep[0] = 'PHP';
-                        $dep_v = $special['php'];
+                        $dep_v  = $special['php'];
                     } elseif ($dep[0] == 'core') {
                         $dep[0] = 'Dotclear';
-                        $dep_v = $special['core'];
+                        $dep_v  = $special['core'];
                     } else {
                         $dep_v = $found->version;
                     }
@@ -809,8 +809,7 @@ class Modules
                 $module_disabled = file_exists($destination . DIRECTORY_SEPARATOR . self::MODULE_FILE_DISABLED);
 
                 $cur_define = $modules->getDefine($new_defines[0]->id);
-                if ($cur_define->isDefined() && 
-                    (defined('DC_DEV') && DC_DEV === true || dcUtils::versionsCompare($new_defines[0]->version, $cur_define->version, '>', true))
+                if ($cur_define->isDefined() && (defined('DC_DEV') && DC_DEV === true || dcUtils::versionsCompare($new_defines[0]->version, $cur_define->version, '>', true))
                 ) {
                     // delete old module
                     if (!Files::deltree($destination)) {
@@ -873,7 +872,7 @@ class Modules
 
     /**
      * This method installs a module.
-     * 
+     *
      * This method installs a module with ID <var>$id</var> and having a _install
      * file. This file should throw exception on failure or true if it installs
      * successfully.
@@ -945,7 +944,7 @@ class Modules
 
     /**
      * Deactivate a module.
-     * 
+     *
      * The module goes to Define::STATE_HARD_DISABLED state.
      *
      * @param   string  $id     The identifier
@@ -1149,7 +1148,7 @@ class Modules
 
     /**
      * Returns a module information.
-     * 
+     *
      * Information could be:
      * - root
      * - name
@@ -1159,7 +1158,7 @@ class Modules
      * - permissions
      * - priority
      * - …
-     * 
+     *
      * @deprecated  since 2.27 Use self::getDefine($id)->{$info}
      *
      * @param   string  $id     The module identifier

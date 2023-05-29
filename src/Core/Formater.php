@@ -140,12 +140,14 @@ class Formater
 
         if (isset($this->stack[$id]) && isset($this->stack[$id][$name])) {
             $str = call_user_func($this->stack[$id][$name], $str);
+
             return is_string($str) ? $str : $backup_str;
         }
         // Fallback with another editor if possible
         foreach ($this->stack as $editor => $formaters) {
             if (array_key_exists($name, $formaters)) {
                 $str = call_user_func($this->stack[$editor][$name], $str);
+
                 return is_string($str) ? $str : $backup_str;
             }
         }

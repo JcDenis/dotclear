@@ -18,8 +18,8 @@ $this->registerModule(
             dcAuth::PERMISSION_USAGE,
             dcAuth::PERMISSION_CONTENT_ADMIN,
         ]),
-        'type'        => 'plugin',             // Type
-        'settings'    => [
+        'type'     => 'plugin',             // Type
+        'settings' => [
             'blog' => '#params.breadcrumb_params',
         ],
     ]

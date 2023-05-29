@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\dcLegacyEditor;
 
 use dcCore;
-use Dotclear\Helper\Html\WikiToHtml;
 use Dotclear\Helper\Html\XmlTag;
 
 if (!defined('DC_CONTEXT_ADMIN')) {

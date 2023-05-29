@@ -18,5 +18,4 @@ use Dotclear\Module\MyTheme;
 
 class My extends MyTheme
 {
-
 }

@@ -22,7 +22,7 @@ class Behavior
 
     /**
      * Add behavior(s).
-     * 
+     *
      * For one, arguments are the behavior name et its callback.
      * For multiple, the first argument if an array on which
      * each row must contains the behavior and a valid callable callback.
@@ -74,12 +74,12 @@ class Behavior
      */
     public function get(string $behavior): array
     {
-        return isset($this->stack[$behavior]) ? $this->stack[$behavior] : [];
+        return $this->stack[$behavior] ?? [];
     }
 
     /**
      * Calls every function in behaviors stack for a given behavior.
-     * 
+     *
      * This returns concatened result of each function.
      * Every parameters added after <var>$behavior</var> will be pass to
      * behavior calls.

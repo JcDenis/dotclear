@@ -129,7 +129,7 @@ class IndexPosts extends MaintenanceTask
     public static function indexAllPosts($start = null, $limit = null): ?int
     {
         $sql = new SelectStatement();
-        $rs = $sql
+        $rs  = $sql
             ->from(dcCore::app()->prefix . dcBlog::POST_TABLE_NAME)
             ->column($sql->count('post_id'))
             ->select();

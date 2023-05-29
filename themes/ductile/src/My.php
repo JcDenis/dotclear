@@ -1,7 +1,7 @@
 <?php
 /**
  * @brief Theme ductile My module class.
- * 
+ *
  * A theme My class must extend this class.
  *
  * @package Dotclear
@@ -20,5 +20,4 @@ use Dotclear\Module\MyTheme;
 
 class My extends MyTheme
 {
-
 }

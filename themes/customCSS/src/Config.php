@@ -17,7 +17,6 @@ use dcNsProcess;
 use dcPage;
 use Dotclear\Helper\File\Path;
 use Dotclear\Helper\Html\Html;
-use Dotclear\Helper\L10n;
 use form;
 
 class Config extends dcNsProcess

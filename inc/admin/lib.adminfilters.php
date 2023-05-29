@@ -1310,7 +1310,7 @@ class dcAdminFilters
 
     /**
      * Current blog filter (no field).
-     * 
+     *
      * This forces sql request to have where clause with current blog id.
      * Use your_filters->remove('current_blog')  to remove limitation.
      */

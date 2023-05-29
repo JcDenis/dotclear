@@ -26,8 +26,8 @@ class PostTypeDescriptor
         public readonly string $type,
         public readonly string $backend,
         public readonly string $frontend,
-        public readonly string $label)
-    {
+        public readonly string $label
+    ) {
     }
 
     /**

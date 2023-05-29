@@ -165,7 +165,7 @@ class Store
         foreach ($this->defines['update'] as $define) {
             // keep only higher vesion
             if (!isset($this->data['update'][$define->id]) || !is_array($this->data['update'][$define->id]) || !is_string($this->data['update'][$define->id]['version'])
-                || dcUtils::versionsCompare($define->version, $this->data['update'][$define->id]['version'], '>')
+                                                           || dcUtils::versionsCompare($define->version, $this->data['update'][$define->id]['version'], '>')
             ) {
                 $this->data['update'][$define->id] = $define->dump();
             }
@@ -328,7 +328,7 @@ class Store
 
     /**
      * Install a previously downloaded module.
-     * 
+     *
      * @see     Constants Modules::PACKAGE_XXX for returned code
      *
      * @param   string  $path   Path to module package

@@ -14,7 +14,6 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\themeEditor;
 
-use dcCore;
 use Dotclear\Module\MyPlugin;
 
 class My extends MyPlugin

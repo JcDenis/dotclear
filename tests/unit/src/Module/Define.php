@@ -168,7 +168,7 @@ class Define extends atoum
             ->variable($define->get('name'))
             ->isEqualTo('myname')
 
-            ->and($define->name  = 'myothername')
+            ->and($define->name = 'myothername')
             ->variable($define->name)
             ->isEqualTo('myothername')
         ;
