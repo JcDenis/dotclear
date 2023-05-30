@@ -2619,7 +2619,7 @@ class dcBlog
                 }
 
                 foreach ($words as $i => $w) {
-                    $words[$i] = $sql->like('comment_words', $w);
+                    $words[$i] = $sql->like('comment_words', '%' . $sql->escape($w) . '%');
                 }
                 $sql->and($words);
             }
