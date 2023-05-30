@@ -18,14 +18,6 @@ use Dotclear\Helper\L10n;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Helper\Text;
 
-if (isset($_SERVER['DC_RC_PATH'])) {
-    define('DC_RC_PATH', $_SERVER['DC_RC_PATH']);
-} elseif (isset($_SERVER['REDIRECT_DC_RC_PATH'])) {
-    define('DC_RC_PATH', $_SERVER['REDIRECT_DC_RC_PATH']);
-} else {
-    define('DC_RC_PATH', __DIR__ . '/../../inc/config.php');
-}
-
 // Prepare namespaced src
 // ----------------------
 

@@ -43,7 +43,44 @@ final class App
         // We may need l10n __() function
         L10n::bootstrap();
 
-        // We set default timezone to avoid warning
+        mb_internal_encoding('UTF-8');
+
+        # Setting timezone
         Date::setTZ('UTC');
+
+        # CLI_MODE, boolean constant that tell if we are in CLI mode
+        define('CLI_MODE', PHP_SAPI == 'cli');
+
+        # Disallow every special wrapper
+        (function () {
+            if (function_exists('stream_wrapper_unregister')) {
+                $special_wrappers = array_intersect([
+                    'http',
+                    'https',
+                    'ftp',
+                    'ftps',
+                    'ssh2.shell',
+                    'ssh2.exec',
+                    'ssh2.tunnel',
+                    'ssh2.sftp',
+                    'ssh2.scp',
+                    'ogg',
+                    'expect',
+                    // 'phar',   // Used by PharData to manage Zip/Tar archive
+                ], stream_get_wrappers());
+                foreach ($special_wrappers as $p) {
+                    @stream_wrapper_unregister($p);
+                }
+                unset($special_wrappers, $p);
+            }
+        })();
+
+        if (isset($_SERVER['DC_RC_PATH'])) {
+            define('DC_RC_PATH', $_SERVER['DC_RC_PATH']);
+        } elseif (isset($_SERVER['REDIRECT_DC_RC_PATH'])) {
+            define('DC_RC_PATH', $_SERVER['REDIRECT_DC_RC_PATH']);
+        } else {
+            define('DC_RC_PATH', implode(DIRECTORY_SEPARATOR, [__DIR__, '..', 'inc', 'config.php']));
+        }
     }
 }

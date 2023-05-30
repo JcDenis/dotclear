@@ -29,14 +29,6 @@ App::init();
 // 4. Force CB bootstrap
 new Clearbricks();
 
-if (isset($_SERVER['DC_RC_PATH'])) {
-    define('DC_RC_PATH', $_SERVER['DC_RC_PATH']);
-} elseif (isset($_SERVER['REDIRECT_DC_RC_PATH'])) {
-    define('DC_RC_PATH', $_SERVER['REDIRECT_DC_RC_PATH']);
-} else {
-    define('DC_RC_PATH', __DIR__ . '/config.php');
-}
-
 if (!is_file(DC_RC_PATH)) {
     trigger_error('Unable to open config file', E_USER_ERROR);
 }
