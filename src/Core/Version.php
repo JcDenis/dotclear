@@ -30,16 +30,16 @@ class Version
     /**
      * Gets the version of a module.
      *
-     * @param   string  $module     The module
+     * @param   null|string     $module     The module
      *
      * @return  null|string     The version.
      */
-    public function get(string $module = 'core'): ?string
+    public function get(?string $module = 'core'): ?string
     {
         # Fetch versions if needed
         $this->dump();
 
-        return $this->stack[$module] ?? null;
+        return is_null($module) || !isset($this->stack[$module]) ? null : $this->stack[$module];
     }
 
     /**

@@ -239,7 +239,7 @@ class Blogs
             throw new Exception(__('You are not an administrator'));
         }
 
-        dcCore::app()->fillBlogCursor($cur);
+        $this->fillBlogCursor($cur);
 
         $cur->setField('blog_creadt', date('Y-m-d H:i:s'));
         $cur->setField('blog_upddt', date('Y-m-d H:i:s'));

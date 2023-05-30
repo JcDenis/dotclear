@@ -902,8 +902,7 @@ class Modules
 
             if ($install === true || $install === null) {
                 // Register new version if necessary
-                $old_version = dcCore::app()->version->get($id);
-                if (is_string($old_version) && version_compare($old_version, $module->version, '<')) {
+                if (dcCore::app()->version->newer($id, $module->version)) {
                     // Register new version
                     dcCore::app()->version->set($id, $module->version);
                 }
