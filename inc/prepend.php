@@ -16,9 +16,6 @@ use Dotclear\Helper\File\Path;
 use Dotclear\Helper\L10n;
 use Dotclear\Helper\Network\Http;
 
-/* Start tick  */
-define('DC_START_TIME', microtime(true));
-
 // Prepare namespaced src
 // ----------------------
 

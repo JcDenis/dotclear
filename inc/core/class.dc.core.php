@@ -1321,19 +1321,13 @@ final class dcCore
     }
 
     /**
-     * Return elapsed time since script has been started
+     * Return elapsed time since script has been started.
      *
-     * @param   float   $mtime  timestamp (microtime format) to evaluate delta from current time is taken if null
-     *
-     * @return  float   The elapsed time.
+     * @deprecated since 2.27, xdebug_time_index is used
      */
     public function getElapsedTime(?float $mtime = null): float
     {
-        if ($mtime !== null) {
-            return $mtime - $this->stime;
-        }
-
-        return microtime(true) - $this->stime;
+        return 0;
     }
     //@}
 }
