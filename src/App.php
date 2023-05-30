@@ -40,10 +40,13 @@ final class App
      */
     public static function init(): void
     {
-        // We may need l10n __() function
+        # Load l10n __() function
         L10n::bootstrap();
 
-        mb_internal_encoding('UTF-8');
+        # Set multibyte string encoding
+        if (function_exists('mb_internal_encoding')) {
+            mb_internal_encoding('UTF-8');
+        }
 
         # Setting timezone
         Date::setTZ('UTC');
@@ -75,6 +78,7 @@ final class App
             }
         })();
 
+        # Define config file path
         if (isset($_SERVER['DC_RC_PATH'])) {
             define('DC_RC_PATH', $_SERVER['DC_RC_PATH']);
         } elseif (isset($_SERVER['REDIRECT_DC_RC_PATH'])) {
