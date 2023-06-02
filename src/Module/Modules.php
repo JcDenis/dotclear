@@ -391,9 +391,7 @@ class Modules
                 $full_entry = $root . $entry;
                 if (!in_array($entry, self::$modules_init) && file_exists($full_entry . DIRECTORY_SEPARATOR . self::MODULE_FILE_INIT)) {
                     self::$modules_init[] = $entry;
-                    ob_start();
-                    require $full_entry . DIRECTORY_SEPARATOR . self::MODULE_FILE_INIT;
-                    ob_end_clean();
+                    $this->requireSilently($full_entry . DIRECTORY_SEPARATOR . self::MODULE_FILE_INIT);
                 }
             }
         }
@@ -424,9 +422,7 @@ class Modules
                     $this->disabled_mode = true;
                 }
 
-                ob_start();
-                require $full_entry . DIRECTORY_SEPARATOR . self::MODULE_FILE_DEFINE;
-                ob_end_clean();
+                $this->requireSilently($full_entry . DIRECTORY_SEPARATOR . self::MODULE_FILE_DEFINE);
 
                 if (!$module_enabled) {
                     $this->disabled_mode = false;
@@ -562,13 +558,11 @@ class Modules
     {
         $this->id = $id;
         if (file_exists($dir . DIRECTORY_SEPARATOR . self::MODULE_FILE_DEFINE)) {
-            ob_start();
             if (!in_array($id, self::$modules_init) && file_exists($dir . DIRECTORY_SEPARATOR . self::MODULE_FILE_INIT)) {
                 self::$modules_init[] = $id;
-                require $dir . DIRECTORY_SEPARATOR . self::MODULE_FILE_INIT;
+                $this->requireSilently($dir . DIRECTORY_SEPARATOR . self::MODULE_FILE_INIT);
             }
-            require $dir . DIRECTORY_SEPARATOR . self::MODULE_FILE_DEFINE;
-            ob_end_clean();
+            $this->requireSilently($dir . DIRECTORY_SEPARATOR . self::MODULE_FILE_DEFINE);
         }
         $this->id = null;
     }
@@ -1303,15 +1297,22 @@ class Modules
             }
         }
 
-        if ($catch) {
-            // Catch ouput to prevents hacked or corrupted modules
-            ob_start();
-            $ret = require $________;
-            ob_end_clean();
+        return $catch ? $this->requireSilently($________) : require $________;
+    }
 
-            return $ret;
-        }
+    /**
+     * Require a php file without output.
+     *
+     * @param   string  $php_file   The file to require
+     *
+     * @return  mixed   The file return.
+     */
+    protected function requireSilently(string $php_file): mixed
+    {
+        ob_start();
+        $ret = require $php_file;
+        ob_end_clean();
 
-        return require $________;
+        return $ret;
     }
 }
