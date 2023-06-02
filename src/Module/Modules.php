@@ -1199,30 +1199,29 @@ class Modules
             return;
         }
 
-        switch ($ns) {
-            case 'admin':
-                $class = self::MODULE_CLASS_ADMIN;
-                $file  = self::MODULE_FILE_ADMIN;
-
-                break;
-            case 'public':
-                $class = self::MODULE_CLASS_PUPLIC;
-                $file  = self::MODULE_FILE_PUBLIC;
-
-                break;
-            case 'xmlrpc':
-                $class = self::MODULE_CLASS_XMLRPC;
-                $file  = self::MODULE_FILE_XMLRPC;
-
-                break;
-            default:
-                return;
-        }
+        $names = match ($ns) {
+            'admin' => [
+                self::MODULE_CLASS_ADMIN,
+                self::MODULE_FILE_ADMIN,
+            ],
+            'public' => [
+                self::MODULE_CLASS_PUPLIC,
+                self::MODULE_FILE_PUBLIC,
+            ],
+            'xmlrpc' => [
+                self::MODULE_CLASS_XMLRPC,
+                self::MODULE_FILE_XMLRPC,
+            ],
+            default => [
+                '',
+                '',
+            ],
+        };
 
         // by class name
-        if ($this->loadNsClass($id, $class) === '') {
+        if ($this->loadNsClass($id, $names[0]) === '') {
             // by file name
-            $this->loadModuleFile($module->root . DIRECTORY_SEPARATOR . $file);
+            $this->loadModuleFile($module->root . DIRECTORY_SEPARATOR . $names[1]);
         }
     }
 
