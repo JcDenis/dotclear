@@ -448,8 +448,9 @@ class Modules
             'core' => preg_replace('/\-dev.*$/', '', DC_VERSION),
             'php'  => phpversion(),
         ];
+        $modules = $this->searchDefines();
 
-        foreach ($this->searchDefines() as $module) {
+        foreach ($modules as $module) {
             // module has required modules
             foreach ($module->requires as $dep) {
                 // optionnal minimum dependancy
@@ -489,7 +490,7 @@ class Modules
             }
         }
         // Check modules that cannot be disabled
-        foreach ($this->searchDefines() as $module) {
+        foreach ($modules as $module) {
             if ($module->isEnabled()) {
                 foreach ($module->getImplies() as $im) {
                     foreach ($this->searchDefines(['id' => $im]) as $found) {
@@ -508,8 +509,9 @@ class Modules
     protected function loopModulesContext(): void
     {
         $ignored = [];
+        $modules = $this->searchDefines(['state' => Define::STATE_ENABLED]);
 
-        foreach ($this->searchDefines(['state' => Define::STATE_ENABLED]) as $module) {
+        foreach ($modules as $module) {
             # Load translation and _prepend
             $ret = '';
 
@@ -542,7 +544,7 @@ class Modules
         dcCore::app()->behavior->call('coreBeforeLoadingNsFilesV2', $this, $this->lang);
 
         // Load module context
-        foreach ($this->searchDefines(['state' => Define::STATE_ENABLED]) as $module) {
+        foreach ($modules as $module) {
             if (!in_array($module->id, $ignored)) {
                 // Load ns_file
                 $this->loadNsFile($module->id, $this->ns);
