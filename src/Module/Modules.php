@@ -109,6 +109,9 @@ class Modules
     /** @var    array<string,string>   Stack of modules id|version pairs */
     protected $modules_ids = [];
 
+    /** @var    array<string,array<int,string> Stack of modules paths (used as internal cache) */
+    protected $modules_paths = [];
+
     /** @var    array<int,string>   Stack of modules _init */
     protected static $modules_init = [];
 
@@ -315,6 +318,10 @@ class Modules
      */
     protected function parsePathModules(string $root): array
     {
+        if (isset($this->modules_paths[$root])) {
+            return $this->modules_paths[$root];
+        }
+
         if (!is_dir($root) || !is_readable($root)) {
             return [];
         }
@@ -325,16 +332,16 @@ class Modules
         }
 
         // Dir cache
-        $stack = [];
+        $this->modules_paths[$root] = [];
         while (($entry = $d->read()) !== false) {
             $full_entry = $root . $entry;
             if ($entry !== '.' && $entry !== '..' && is_dir($full_entry) && file_exists($full_entry . DIRECTORY_SEPARATOR . self::MODULE_FILE_DEFINE)) {
-                $stack[] = $entry;
+                $this->modules_paths[$root][] = $entry;
             }
         }
         $d->close();
 
-        return $stack;
+        return $this->modules_paths[$root];
     }
 
     /**
