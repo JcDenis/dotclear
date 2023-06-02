@@ -109,7 +109,7 @@ class Modules
     /** @var    array<string,string>   Stack of modules id|version pairs */
     protected $modules_ids = [];
 
-    /** @var    array<string,array<int,string> Stack of modules paths (used as internal cache) */
+    /** @var    array<string,array<int,string>> Stack of modules paths (used as internal cache) */
     protected $modules_paths = [];
 
     /** @var    array<int,string>   Stack of modules _init */
@@ -1176,10 +1176,14 @@ class Modules
     /**
      * Loads dc namespace <var>$ns</var> specific files for all modules.
      *
+     * @deprecated  since 2.27 Use nothing instead
+     *
      * @param   string  $ns
      */
     public function loadNsFiles(?string $ns = null): void
     {
+        dcDeprecated::set('nothing', '2.27');
+
         foreach ($this->searchDefines(['state' => Define::STATE_ENABLED]) as $module) {
             $this->loadNsFile($module->id, $ns);
         }
