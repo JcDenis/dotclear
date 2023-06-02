@@ -185,23 +185,21 @@ class Modules
      */
     public function searchDefines(array $search = []): array
     {
-        $list = [];
+        $to_string = function (mixed $value): ?string { return is_bool($value) || is_int($value) || is_string($value) ? (string) $value : null; };
+        $list      = [];
         foreach ($this->defines as $module) {
             $add_it = true;
             foreach ($search as $key => $value) {
                 // check types
-                if (!is_string($key) || !$module->has($key)
-                                     || !is_int($value) && !is_string($value) && !is_bool($value)
-                ) {
-                    continue;
-                }
-                $source = $module->get($key);
-                if (!is_int($source) && !is_string($source) && !is_bool($source)) {
+                if (!is_string($key) || !$module->has($key)) {
                     continue;
                 }
                 // compare string format
-                $value  = (string) $value;
-                $source = (string) $source;
+                $value  = $to_string($value);
+                $source = $to_string($module->get($key));
+                if (is_null($source) || is_null($value)) {
+                    continue;
+                }
                 if (substr($value, 0, 1) === '!') {
                     if ($source === substr($value, 1)) {
                         $add_it = false;
