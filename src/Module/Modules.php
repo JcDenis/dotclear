@@ -388,11 +388,7 @@ class Modules
             // Init loop
             $root = rtrim($root, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
             foreach ($stack as $entry) {
-                $full_entry = $root . $entry;
-                if (!in_array($entry, self::$modules_init) && file_exists($full_entry . DIRECTORY_SEPARATOR . self::MODULE_FILE_INIT)) {
-                    self::$modules_init[] = $entry;
-                    $this->requireSilently($full_entry . DIRECTORY_SEPARATOR . self::MODULE_FILE_INIT);
-                }
+                $this->loadModuleInit($entry, $root . $entry);
             }
         }
     }
@@ -558,10 +554,7 @@ class Modules
     {
         $this->id = $id;
         if (file_exists($dir . DIRECTORY_SEPARATOR . self::MODULE_FILE_DEFINE)) {
-            if (!in_array($id, self::$modules_init) && file_exists($dir . DIRECTORY_SEPARATOR . self::MODULE_FILE_INIT)) {
-                self::$modules_init[] = $id;
-                $this->requireSilently($dir . DIRECTORY_SEPARATOR . self::MODULE_FILE_INIT);
-            }
+            $this->loadModuleInit($id, $dir);
             $this->requireSilently($dir . DIRECTORY_SEPARATOR . self::MODULE_FILE_DEFINE);
         }
         $this->id = null;
@@ -1276,6 +1269,20 @@ class Modules
     public function getErrors(): array
     {
         return $this->errors;
+    }
+
+    /**
+     * Require once module init file.
+     *
+     * @param   string  $id     The moduile id
+     * @param   string  $dir    The module path
+     */
+    protected function loadModuleInit(string $id, string $dir): void
+    {
+        if (!in_array($id, self::$modules_init) && file_exists($dir . DIRECTORY_SEPARATOR . self::MODULE_FILE_INIT)) {
+            self::$modules_init[] = $id;
+            $this->requireSilently($dir . DIRECTORY_SEPARATOR . self::MODULE_FILE_INIT);
+        }
     }
 
     /**
