@@ -237,6 +237,12 @@ class Config implements ConfigInterface
     ) {
         // From php
         $this->cli_mode = PHP_SAPI === 'cli';
+        
+        // Command line: first argument is the configuration file path, if it is not an option (ex: -n or --dbdriver=xxx).
+        // It must be set before application configuration is loaded.
+        if ($this->cli_mode && isset($_SERVER['argv']) && is_array($_SERVER['argv']) && isset($_SERVER['argv'][1]) && is_string($_SERVER['argv'][1]) && !str_starts_with($_SERVER['argv'][1], '-')) {
+            $_SERVER['DC_RC_PATH'] = $_SERVER['argv'][1];
+        }
 
         // From index file
         if (!defined('DC_BLOG_ID')) {
