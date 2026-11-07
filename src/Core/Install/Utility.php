@@ -95,7 +95,7 @@ class Utility extends AbstractUtility
 
     public static function init(): bool
     {
-        // Command line configuration file path is set in endpoint, before application configuration is loaded
+        // Command line configuration file path is set in Config, before application configuration is parsed
 
         return true;
     }
