@@ -2107,7 +2107,7 @@ class Blog implements BlogInterface
         }
 
         # Words list
-        if ($cur->strField('post_excerpt_xhtml') !== '') {
+        if ($cur->strField('post_excerpt_xhtml', true) !== null) {
             $post_title   = $cur->strField('post_title');
             $post_excerpt = $cur->strField('post_excerpt_xhtml');
             $post_content = $cur->strField('post_content_xhtml');
