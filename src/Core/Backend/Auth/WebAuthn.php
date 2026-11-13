@@ -33,6 +33,11 @@ use stdClass;
 class WebAuthn extends Wan
 {
     /**
+     * Credentials request timeout in seconds.
+     */
+    public const TIMEOUT = 180;
+
+    /**
      * Create backend WebAuthn instance.
      */
     public function __construct()
@@ -69,6 +74,11 @@ class WebAuthn extends Wan
             'attestation' => AttestationEnum::INDIRECT,
         ]);
 
+        // Let enough time to user to enter its PIN or to use another device (QR code)
+        $this->timeoutOption()->configure([
+            'timeout' => self::TIMEOUT,
+        ]);
+
         return $this->prepareCredentialsOptions(CredentialMethodEnum::CREATE);
     }
 
@@ -97,6 +107,11 @@ class WebAuthn extends Wan
         $this->authenticatorSelectionOption()->configure([
             'resident_key'      => ResidentKeyEnum::REQUIRED, // required resident key as it is used to auth user
             'user_verification' => UserVerificationEnum::PREFERRED,
+        ]);
+
+        // Let enough time to user to enter its PIN or to use another device (QR code)
+        $this->timeoutOption()->configure([
+            'timeout' => self::TIMEOUT,
         ]);
 
         return parent::prepareCredentialsOptions(CredentialMethodEnum::GET);
