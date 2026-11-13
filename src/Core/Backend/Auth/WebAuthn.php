@@ -18,6 +18,7 @@ use Dotclear\Helper\WebAuthn\Type\ResidentKeyEnum;
 use Dotclear\Helper\WebAuthn\Type\UserVerificationEnum;
 use Dotclear\Helper\WebAuthn\Type\AuthenticatorAttachmentEnum;
 use Dotclear\Helper\WebAuthn\Type\CredentialMethodEnum;
+use Dotclear\Interface\Helper\WebAuthn\Data\CredentialInterface;
 use Dotclear\Interface\Helper\WebAuthn\Data\StoreInterface;
 use stdClass;
 
@@ -112,6 +113,14 @@ class WebAuthn extends Wan
             'user_verification' => UserVerificationEnum::PREFERRED,
         ]);
 
-        return parent::processGet($id, $client, $authenticator, $signature, $user);
+        $user_id = parent::processGet($id, $client, $authenticator, $signature, $user);
+
+        // Store new signature counter of the authenticated credential
+        $credential = $this->getAuthenticatedCredential();
+        if ($user_id !== '' && $credential instanceof CredentialInterface && $this->store() instanceof WebAuthnStore) {
+            $this->store()->updateCredential($user_id, $credential);
+        }
+
+        return $user_id;
     }
 }
