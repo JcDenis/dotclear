@@ -66,7 +66,7 @@ class WebAuthn extends Wan
         $this->authenticatorSelectionOption()->configure([
             'resident_key'             => ResidentKeyEnum::REQUIRED, // required resident key as it is used to auth user
             'user_verification'        => UserVerificationEnum::PREFERRED, // preferred user verification
-            'authenticator_attachment' => AuthenticatorAttachmentEnum::CROSSPLATFORM, // allow usb key
+            'authenticator_attachment' => AuthenticatorAttachmentEnum::ANY, // allow usb key and platform passkeys (Windows Hello, Touch ID, Android, password managers)
         ]);
 
         // For now we don't use certificats
